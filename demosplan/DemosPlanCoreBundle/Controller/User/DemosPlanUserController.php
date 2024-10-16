@@ -36,7 +36,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -49,6 +48,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
@@ -78,7 +78,7 @@ class DemosPlanUserController extends BaseController
         OrgaService $orgaService,
         Request $request,
         SessionHandler $sessionHandler,
-        UserHandler $userHandler
+        UserHandler $userHandler,
     ) {
         $orga = $orgaService->getOrga($this->currentUser->getUser()->getOrganisationId());
         $subdomain = $this->getGlobalConfig()->getSubdomain();
@@ -339,7 +339,7 @@ class DemosPlanUserController extends BaseController
         ContentService $contentService,
         Request $request,
         UserHandler $userHandler,
-        string $title = 'user.profile'
+        string $title = 'user.profile',
     ) {
         $templateVars = [];
         $userId = $currentUser->getUser()->getId();
@@ -412,9 +412,10 @@ class DemosPlanUserController extends BaseController
     public function registerCitizenAction(
         CsrfTokenManagerInterface $csrfTokenManager,
         EventDispatcherPostInterface $eventDispatcherPost,
+        RateLimiterFactory $userRegisterLimiter,
         Request $request,
         TranslatorInterface $translator,
-        UserHandler $userHandler
+        UserHandler $userHandler,
     ) {
         try {
             // check Honeypotfields
@@ -427,6 +428,14 @@ class DemosPlanUserController extends BaseController
                 $this->getMessageBag()->add('error', 'user.registration.fail');
 
                 return $this->redirectToRoute('DemosPlan_citizen_register');
+            }
+
+            // avoid brute force attacks
+            $limiter = $userRegisterLimiter->create($request->getClientIp());
+            if (false === $limiter->consume()->isAccepted()) {
+                $this->messageBag->add('warning', 'warning.user.register.throttle');
+
+                return $this->redirectToRoute('core_home');
             }
 
             $submittedToken = $request->request->get('_csrf_token');
@@ -492,13 +501,13 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_citizen_registration_form', path: '/user/register', methods: ['GET'], options: ['expose' => true])]
-    public function showRegisterCitizenFormAction(CustomerService $customerService, ParameterBagInterface $parameterBag, Request $request)
+    public function showRegisterCitizenFormAction()
     {
         $title = 'user.register';
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/citizen_register_form.html.twig',
-            ['title' => $title, 'useSaml' => false]
+            ['title' => $title, 'useIdp' => false]
         );
     }
 
@@ -706,7 +715,7 @@ class DemosPlanUserController extends BaseController
         StatementAnonymizeService $statementAnonymizeService,
         StatementService $statementService,
         Request $request,
-        string $statementId
+        string $statementId,
     ) {
         $statement = null;
         try {

@@ -25,6 +25,10 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
+    DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateFactory'
+
+    DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateCategoryFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateCategoryFactory'
+
     DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
 
@@ -84,6 +88,9 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Handler\SingleDocumentHandlerInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler
+
+    DemosEurope\DemosplanAddon\Contracts\Handler\ParagraphHandlerInterface:
+        class: demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphHandler
 
     DemosEurope\DemosplanAddon\Contracts\Services\ElementsServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService
@@ -230,10 +237,11 @@ services:
         arguments:
             - !tagged dplan.data.generator
 
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator:
+        parent: lexik_jwt_authentication.security.jwt_authenticator
+
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AiApiAuthenticator:
-        autowire: true
-        public: false
-        parent: lexik_jwt_authentication.security.guard.jwt_token_authenticator
+        parent: lexik_jwt_authentication.security.jwt_authenticator
 
     demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher: ~
 
@@ -254,7 +262,7 @@ services:
     # which needs the permission-settings to execute its logic.
     demosplan\DemosPlanCoreBundle\EventListener\CheckPermissionListener:
         tags:
-            - { name: kernel.event_listener, event: kernel.controller, method: onControllerRequest, priority: 5 }
+            - { name: kernel.event_listener, event: kernel.controller, method: onControllerRequest, priority: 4 }
 
     demosplan\DemosPlanCoreBundle\EventListener\DemosPlanRequestListener:
         tags:
@@ -301,10 +309,7 @@ services:
         arguments: ['%kernel.default_locale%']
         tags: [kernel.event_subscriber]
 
-    demosplan\DemosPlanCoreBundle\EventSubscriber\ProcedureCoupleTokenSubscriber:
-        arguments:
-            $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
-            $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
+    demosplan\DemosPlanCoreBundle\EventSubscriber\ProcedureCoupleTokenSubscriber: ~
 
     demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType: ~
 
@@ -479,6 +484,7 @@ services:
     # when $jwtRouter is injected via DI JwtRouter is used
     Symfony\Component\Routing\RouterInterface $jwtRouter: '@demosplan\DemosPlanCoreBundle\Logic\JwtRouter'
     Symfony\Component\Routing\RouterInterface: '@demosplan\DemosPlanCoreBundle\Logic\Router'
+    Symfony\Component\HttpFoundation\Request: ~
 
     demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection:
         arguments:
@@ -871,6 +877,10 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
+    demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchResultCreator:
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+        lazy: true
+
     demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticSearchService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
@@ -1257,6 +1267,8 @@ services:
 
     EDT\Wrapping\Contracts\Types\TypeInterface: ~
 
+    EDT\JsonApi\Manager: ~
+
     EDT\DqlQuerying\ConditionFactories\DqlConditionFactory: ~
 
     EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor:
@@ -1269,14 +1281,9 @@ services:
 
     EDT\Wrapping\Utilities\AttributeTypeResolverInterface: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
 
-    EDT\JsonApi\ApiDocumentation\OpenAPISchemaGenerator:
-        arguments:
-            # FIXME: limit provided resource types to those that are exposed as primary
-            $primaryExposedResourceTypes: !tagged dplan.resourceType
-            $schemaStore: '@EDT\JsonApi\ApiDocumentation\SchemaStore'
-            $defaultPageSize: !php/const 'demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser::DEFAULT_PAGE_SIZE'
-
     EDT\JsonApi\ApiDocumentation\SchemaStore: ~
+
+    EDT\JsonApi\ApiDocumentation\TagStore: ~
 
     EDT\JsonApi\RequestHandling\JsonApiSortingParser:
         arguments:
@@ -1331,6 +1338,11 @@ services:
         arguments:
             $propertyAccessor: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
             $typeResolver: '@EDT\JsonApi\ApiDocumentation\AttributeTypeResolver'
+            $identifierByDefaultSortable: true
+            $attributesByDefaultSortable: true
+            $toOneRelationshipsByDefaultSortable: true
+            # logically problematic, understand the implications before setting this to true (https://github.com/demos-europe/edt/issues/45)
+            $toManyRelationshipsByDefaultSortable: false
 
     EDT\PathBuilding\DocblockPropertyByTraitEvaluator:
         arguments:
@@ -1344,8 +1356,12 @@ services:
     EDT\DqlQuerying\ClassGeneration\TypeHolderGenerator: ~
 
     EDT\JsonApi\Requests\GetRequest: ~
-    EDT\JsonApi\Requests\CreationRequest: ~
-    EDT\JsonApi\Requests\UpdateRequest: ~
+    EDT\JsonApi\Requests\CreationRequest:
+        arguments:
+            $maxBodyNestingDepth: 512
+    EDT\JsonApi\Requests\UpdateRequest:
+        arguments:
+            $maxBodyNestingDepth: 512
     EDT\JsonApi\Requests\DeletionRequest: ~
     EDT\JsonApi\Validation\SortValidator: ~
 

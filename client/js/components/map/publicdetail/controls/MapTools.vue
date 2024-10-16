@@ -13,20 +13,14 @@
       <div :class="prefixClass('relative')">
         <button
           :class="[unfolded ? prefixClass('is-active') : '', prefixClass('c-map__group-header c-map__group-item btn--blank o-link--default u-pv-0_25')]"
+          data-cy="mapTools:mapToolsTap"
           @click="toggle">
           {{ Translator.trans('maptools') }}
         </button>
-        <i
-          :class="prefixClass('fa fa-question-circle c-map__layerhelp c-map__layerhelp--position-absolute')"
-          :aria-label="Translator.trans('contextual.help')"
+        <dp-contextual-help
           v-if="unfolded"
-          tabindex="0"
-          v-tooltip="{
-            content: Translator.trans('maptools.explanation'),
-            classes: 'w-12',
-            boundariesElement: 'body',
-            container: '#procedureDetailsMap'
-          }" />
+          class="c-map__layerhelp"
+          :text="Translator.trans('maptools.explanation')" />
       </div>
     </div>
 
@@ -42,7 +36,8 @@
         :title="tool.title">
         <button
           :class="prefixClass('btn--blank o-link--default')"
-          :aria-label="tool.title + ' ' + Translator.trans('map.interactive.pointer.needed')">
+          :aria-label="tool.title + ' ' + Translator.trans('map.interactive.pointer.needed')"
+          :data-cy="`mapTools:${tool.id}`">
           <!-- Active and inactive tool icons -->
           <svg
             v-if="tool.isActive"
@@ -90,7 +85,9 @@
         :class="prefixClass('c-map__group-item u-ph-0_5 u-pv-0_25 js__mapcontrol')"
         title="Messungen entfernen"
         :aria-label="Translator.trans('map.measure.remove') + ' ' + Translator.trans('map.interactive.pointer.needed')">
-        <button :class="prefixClass('btn--blank o-link--default')">
+        <button
+          :class="prefixClass('btn--blank o-link--default')"
+          data-cy="mapTools:mapMeasureRemove">
           <i
             :class="prefixClass('fa fa-times')"
             aria-hidden="true" />
@@ -104,7 +101,8 @@
         title="Zoom der Karte zurücksetzen">
         <button
           :class="prefixClass('btn--blank o-link--default')"
-          :aria-label="Translator.trans('map.zoom.reset') + ' ' + Translator.trans('map.interactive.pointer.needed')">
+          :aria-label="Translator.trans('map.zoom.reset') + ' ' + Translator.trans('map.interactive.pointer.needed')"
+          data-cy="mapTools:mapZoomReset">
           {{ Translator.trans('map.zoom.reset') }}
         </button>
       </li>
@@ -113,11 +111,12 @@
 </template>
 
 <script>
+import { DpContextualHelp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import isMobile from 'ismobilejs'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpMapTools',
+  components: {DpContextualHelp},
 
   mixins: [prefixClassMixin],
 

@@ -124,6 +124,7 @@
                     {% apply spaceless %}
                         <fieldset id="statementVoterDiv">
                             <dp-accordion
+                                data-cy="assessmentStatement:statementVoters"
                                 ref="statementVoters"
                                 title="{{ "statement.voter"|trans }} ({{ statement.votes|length|default(0) + statement.numberOfAnonymVotes|default(0) }})">
                                 <div class="o-box--dark u-mt-0_25 u-ph u-pv-0_5">
@@ -152,6 +153,7 @@
                     {% apply spaceless %}
                         <fieldset id="statementPublishDiv">
                             <dp-accordion
+                                data-cy="assessmentStatement:statementPublish"
                                 title="{{ "publish.on.platform"|trans }}"
                                 ref="statementPublish">
                                 <div class="o-box--dark u-mt-0_25 u-ph u-pv-0_5">
@@ -218,14 +220,15 @@
                 {% if hasPermission('field_statement_memo') %}
                     <fieldset>
                         <dp-accordion
-                            title="{{ "create.note"|trans }}"
-                            data-cy="statementMemo">
+                            data-cy="assessmentStatement:statementMemo"
+                            title="{{ "create.note"|trans }}">
                             <div class="o-box--dark u-mt-0_25 u-ph u-pv-0_5">
                                 {{ uiComponent('form.textarea', {
                                     name: 'r_memo',
                                     value: statement.memo|default,
                                     id: 'r_memo',
-                                    disabled: readonly
+                                    disabled: readonly,
+                                    attributes: ['data-cy=statementDetail:memo']
                                 }) }}
                             </div>
                         </dp-accordion>
@@ -254,6 +257,7 @@
                                 value="{{ 'save.and.return.to.list'|trans }}">
                             <a
                                 class="btn btn--secondary u-pr-0_5-desk-down u-pl-0_5-desk-down"
+                                data-cy="abort"
                                 href="{{ path('dplan_assessmenttable_view_table', {'procedureId': procedure, 'filterHash': assessmentFilterHash, '_fragment': "itemdisplay_" ~ statement.ident }) }}"
                                 role="button">
                                 {{ 'abort'|trans }}

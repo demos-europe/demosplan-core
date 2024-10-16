@@ -68,9 +68,6 @@
     "composer/xdebug-handler": {
         "version": "1.4.6"
     },
-    "demos-europe/demosplan-addon": {
-        "version": "dev-main"
-    },
     "dnoegel/php-xdg-base-dir": {
         "version": "v0.1.1"
     },
@@ -181,6 +178,9 @@
     },
     "elasticsearch/elasticsearch": {
         "version": "v6.8.2"
+    },
+    "endroid/qr-code-bundle": {
+        "version": "5.0.1"
     },
     "enqueue/dsn": {
         "version": "0.10.8"
@@ -324,12 +324,6 @@
     "guzzlehttp/psr7": {
         "version": "2.0.0"
     },
-    "hslavich/oneloginsaml-bundle": {
-        "version": "v1.6.4"
-    },
-    "http-interop/http-factory-guzzle": {
-        "version": "1.2.0"
-    },
     "intervention/image": {
         "version": "2.6.1"
     },
@@ -468,17 +462,8 @@
     "netresearch/jsonmapper": {
         "version": "v3.1.1"
     },
-    "nette/php-generator": {
-        "version": "v3.5.4"
-    },
-    "nette/utils": {
-        "version": "v3.2.3"
-    },
     "nikic/php-parser": {
         "version": "v4.12.0"
-    },
-    "onelogin/php-saml": {
-        "version": "3.6.1"
     },
     "openlss/lib-array2xml": {
         "version": "1.0.0"
@@ -520,9 +505,6 @@
             "demosplan/Consumer/.gitignore"
         ]
     },
-    "php-http/client-common": {
-        "version": "2.4.0"
-    },
     "php-http/discovery": {
         "version": "1.14.0"
     },
@@ -531,9 +513,6 @@
     },
     "php-http/message": {
         "version": "1.11.2"
-    },
-    "php-http/message-factory": {
-        "version": "v1.0.2"
     },
     "php-http/promise": {
         "version": "1.1.0"
@@ -651,9 +630,6 @@
     "react/promise": {
         "version": "v2.8.0"
     },
-    "robrichards/xmlseclibs": {
-        "version": "3.1.1"
-    },
     "rollerworks/password-strength-bundle": {
         "version": "v2.2.3"
     },
@@ -665,6 +641,19 @@
     },
     "sabberworm/php-css-parser": {
         "version": "8.3.1"
+    },
+    "scheb/2fa-bundle": {
+        "version": "5.13",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.0",
+            "ref": "0a83961ef50ff91812b229a6f0caf28431d94aec"
+        },
+        "files": [
+            "config/packages/scheb_2fa.yaml",
+            "config/routes/scheb_2fa.yaml"
+        ]
     },
     "sebastian/cli-parser": {
         "version": "1.0.1"
@@ -719,21 +708,6 @@
     },
     "seld/phar-utils": {
         "version": "1.1.1"
-    },
-    "sensio/framework-extra-bundle": {
-        "version": "5.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "5.2",
-            "ref": "fb7e19da7f013d0d422fa9bce16f5c510e27609b"
-        },
-        "files": [
-            "demosplan/DemosPlanCoreBundle/Resources/config/packages/sensio_framework_extra.yaml"
-        ]
-    },
-    "sentry/sdk": {
-        "version": "3.1.0"
     },
     "sentry/sentry": {
         "version": "3.3.2"
@@ -900,6 +874,18 @@
     },
     "symfony/intl": {
         "version": "v5.3.4"
+    },
+    "symfony/lock": {
+        "version": "5.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.2",
+            "ref": "8e937ff2b4735d110af1770f242c1107fdab4c8e"
+        },
+        "files": [
+            "config/packages/lock.yaml"
+        ]
     },
     "symfony/mailer": {
         "version": "5.4",
@@ -1136,9 +1122,6 @@
     "theseer/tokenizer": {
         "version": "1.2.1"
     },
-    "tightenco/collect": {
-        "version": "v8.34.0"
-    },
     "twig/twig": {
         "version": "v2.14.6"
     },
@@ -1150,9 +1133,6 @@
     },
     "webmozart/assert": {
         "version": "1.9.1"
-    },
-    "webmozart/path-util": {
-        "version": "2.3.0"
     },
     "weirdan/doctrine-psalm-plugin": {
         "version": "0.11.3"

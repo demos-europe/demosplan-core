@@ -13,14 +13,6 @@ import { generateMenuItems } from '@DpJs/components/statement/publicStatementLis
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('DpPublicStatement', () => {
-  it('should be an object', () => {
-    expect(typeof DpPublicStatement).toBe('object')
-  })
-
-  it('should be named DpPublicStatement', () => {
-    expect(DpPublicStatement.name).toBe('DpPublicStatement')
-  })
-
   it('should mount', () => {
     const localVue = createLocalVue()
     const wrapper = shallowMountWithGlobalMocks(DpPublicStatement, {

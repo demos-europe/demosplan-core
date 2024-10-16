@@ -24,7 +24,7 @@
                     {{ statement_macros.statement_content_anonymous(
                         "statement"|trans|latex|raw,
                         "considerationadvice"|trans|latex|raw,
-                        statement.text|default("notspecified"|trans)|dpObscure|latex|raw,
+                        statement.text|default("notspecified"|trans)|dpObscure|latex(listwidth=templateVars.listwidth)|raw,
                         statement.recommendation|default("notspecified"|trans)|dpObscure|latex|raw,
                         statement,
                         procedure) }}
@@ -67,7 +67,7 @@
                                 {{ statement_macros.statement_content_anonymous(
                                     "statement"|trans|latex|raw,
                                     "considerationadvice"|trans|latex|raw,
-                                    statement.text|default("notspecified"|trans)|dpObscure|latex|raw,
+                                    statement.text|default("notspecified"|trans)|dpObscure|latex(listwidth=templateVars.listwidth)|raw,
                                     statement.recommendation|default("notspecified"|trans)|dpObscure|latex|raw,
                                     statement,
                                     procedure) }}

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Transformers\Segment;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -27,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
@@ -41,8 +43,19 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
 {
-    public function __construct(private readonly DraftsInfoHandler $draftsInfoHandler, private readonly StatementHandler $statementHandler, private readonly DraftsInfoValidator $draftsInfoValidator, private readonly TagService $tagService, private readonly TranslatorInterface $translator, private readonly LoggerInterface $logger, private readonly PlaceService $placeService, private readonly SegmentHandler $segmentHandler, private readonly StatementService $statementService, private readonly UserService $userService)
-    {
+    public function __construct(
+        private readonly DraftsInfoHandler $draftsInfoHandler,
+        private readonly DraftsInfoValidator $draftsInfoValidator,
+        private readonly LoggerInterface $logger,
+        private readonly MessageBagInterface $messageBag,
+        private readonly PlaceService $placeService,
+        private readonly SegmentHandler $segmentHandler,
+        private readonly StatementHandler $statementHandler,
+        private readonly StatementService $statementService,
+        private readonly TagService $tagService,
+        private readonly TranslatorInterface $translator,
+        private readonly UserService $userService,
+    ) {
     }
 
     /**
@@ -167,7 +180,21 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
 
         $tags = [];
         foreach ($draftInfoTags as $tag) {
-            $tagEntity = $this->tagService->findUniqueByTitle($tag['tagName'], $procedureId);
+            $tagEntity = $this->tagService->getTag($tag['id']);
+            if (!$tagEntity instanceof Tag) {
+                try {
+                    $tagEntity = $this->tagService->findUniqueByTitle($tag['tagName'], $procedureId);
+                } catch (NonUniqueResultException) {
+                    $this->logger->warning(
+                        "Found multiple tags with title '{$tag['tagName']}' in procedure {$procedureId}. Using the first one."
+                    );
+                    $this->messageBag->add(
+                        'warning',
+                        $this->translator->trans('warning.tag.multiple.tags.found', ['tagname' => $tag['tagName']]));
+
+                    $tagEntity = $this->tagService->findOneTopicByTitle($tag['tagName'], $procedureId);
+                }
+            }
             if (null === $tagEntity) {
                 if (null === $defaultTagTopic) {
                     $defaultTagTopic = $this->tagService->createTagTopic($defaultTagTopicTitle, $procedure);

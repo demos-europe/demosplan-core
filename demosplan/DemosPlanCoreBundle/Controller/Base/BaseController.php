@@ -31,6 +31,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -213,6 +214,10 @@ abstract class BaseController extends AbstractController
             case $e instanceof EntityIdNotFoundException:
                 $code = 400;
                 $message = 'Invalid request';
+                break;
+            case $e instanceof TooManyRequestsHttpException:
+                $code = $e->getStatusCode();
+                $message = $e->getMessage();
                 break;
         }
 

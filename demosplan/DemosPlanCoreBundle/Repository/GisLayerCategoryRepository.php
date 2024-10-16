@@ -179,8 +179,6 @@ class GisLayerCategoryRepository extends FluentRepository implements ArrayInterf
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

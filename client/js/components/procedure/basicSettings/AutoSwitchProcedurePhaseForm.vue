@@ -64,10 +64,7 @@
             enforce-plausible-dates
             :min-date="startDate"
             required
-            :data-cy="{
-                endDate: dataCyEndDate,
-                startDate: dataCyStartDate
-            }"
+            :data-cy="dataCyPhasePeriod"
             start-disabled
             :start-id="startDateId"
             :start-name="startDateId"
@@ -127,16 +124,10 @@ export default {
       default: () => ({})
     },
 
-    dataCyEndDate: {
+    dataCyPhasePeriod: {
       type: String,
       required: false,
-      default: 'endDate'
-    },
-
-    dataCyStartDate: {
-      type: String,
-      required: false,
-      default: 'startDate'
+      default: ''
     },
 
     /**
@@ -219,7 +210,9 @@ export default {
     },
 
     showAutoSwitchToAnalysisHint () {
-      return hasPermission('feature_auto_switch_to_procedure_end_phase') && this.autoSwitchPhase && ['participation', 'earlyparticipation', 'anotherparticipation'].includes(this.selectedPhase)
+      const isInParticipation = this.phaseOptions.find(option => option.value === this.selectedPhase)?.permission === 'write'
+
+      return hasPermission('feature_auto_switch_to_procedure_end_phase') && this.autoSwitchPhase && isInParticipation
     },
 
     startDateId () {

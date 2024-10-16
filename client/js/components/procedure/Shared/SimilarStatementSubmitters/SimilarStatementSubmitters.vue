@@ -19,8 +19,10 @@
       :entries="listEntries"
       :has-permission-to-edit="editable"
       :translation-keys="translationKeys"
+      @delete="deleteEntry"
       @reset="resetFormFields"
       @saveEntry="index => dpValidateAction('similarStatementSubmitterForm', () => handleSaveEntry(index), false)"
+      @show-update-form="setFormFields"
       ref="listComponent">
       <template v-slot:list="{ entry, index }">
         <ul class="o-list o-list--csv inline">
@@ -93,7 +95,7 @@
               class="space-stack-s">
               <dp-input
                 id="statementSubmitterName"
-                data-cy="similarStatementSubmitters:name"
+                data-cy="voterUsername"
                 v-model="formFields.submitterName"
                 :label="{
                   text: Translator.trans('name')
@@ -101,7 +103,7 @@
                 required />
               <dp-input
                 id="statementSubmitterEmail"
-                data-cy="similarStatementSubmitters:email"
+                data-cy="voterEmail"
                 v-model="formFields.submitterEmailAddress"
                 :label="{
                   text: Translator.trans('email')
@@ -115,7 +117,7 @@
               <div class="o-form__group">
                 <dp-input
                   id="statementSubmitterAddress"
-                  data-cy="similarStatementSubmitters:street"
+                  data-cy="voterStreet"
                   v-model="formFields.submitterAddress"
                   class="o-form__group-item"
                   :label="{
@@ -123,7 +125,7 @@
                   }" />
                 <dp-input
                   id="statementSubmitterHouseNumber"
-                  data-cy="similarStatementSubmitters:streetNumberShort"
+                  data-cy="voterHousenumber"
                   v-model="formFields.submitterHouseNumber"
                   class="o-form__group-item shrink"
                   :label="{
@@ -135,7 +137,7 @@
               <div class="o-form__group">
                 <dp-input
                   id="statementSubmitterPostalCode"
-                  data-cy="similarStatementSubmitters:postalCode"
+                  data-cy="voterPostalCode"
                   v-model="formFields.submitterPostalCode"
                   class="o-form__group-item shrink"
                   :label="{
@@ -145,7 +147,7 @@
                   :size="5" />
                 <dp-input
                   id="statementSubmitterCity"
-                  data-cy="similarStatementSubmitters:city"
+                  data-cy="voterCity"
                   v-model="formFields.submitterCity"
                   class="o-form__group-item"
                   :label="{
@@ -254,11 +256,11 @@ export default {
   },
 
   methods: {
-    ...mapMutations('statement', {
+    ...mapMutations('Statement', {
       updateStatement: 'update'
     }),
 
-    ...mapMutations('similarStatementSubmitter', {
+    ...mapMutations('SimilarStatementSubmitter', {
       setSimilarStatementSubmitter: 'setItem'
     }),
 
@@ -309,18 +311,35 @@ export default {
         })
     },
 
+    deleteEntry (index) {
+      this.updateStatement({
+        id: this.statementId,
+        relationship: 'similarStatementSubmitters',
+        action: 'remove',
+        value: {
+          id: this.listEntries[index].id,
+          type: 'SimilarStatementSubmitter'
+        }
+      })
+
+      this.listEntries.splice(index, 1)
+
+      if (this.isRequestFormPost === false) {
+        this.deleteSimilarStatementSubmitter()
+      }
+
+      if (this.isRequestFormPost) {
+        this.resetFormFields()
+      }
+    },
+
     deleteSimilarStatementSubmitter () {
       const payload = {
         type: 'Statement',
         id: this.statementId,
         relationships: {
           similarStatementSubmitters: {
-            data: this.listEntries.map((entry) => {
-              return {
-                type: 'SimilarStatementSubmitter',
-                id: entry.id
-              }
-            })
+            data: this.listEntries.map(entry => ({ type: 'SimilarStatementSubmitter', id: entry.id }))
           }
         }
       }
@@ -383,6 +402,7 @@ export default {
       if (this.similarStatementSubmitters) {
         this.listEntries = this.similarStatementSubmitters.map(el => {
           const { city, emailAddress, fullName, postalCode, streetName, streetNumber } = el.attributes
+
           return {
             id: el.id,
             submitterAddress: streetName,
@@ -400,6 +420,10 @@ export default {
       for (const [key] of Object.entries(this.formFields)) {
         this.formFields[key] = null
       }
+    },
+
+    setFormFields (index) {
+      this.formFields = this.listEntries[index]
     },
 
     toggleFormVisibility (visibility) {
@@ -428,36 +452,6 @@ export default {
 
   mounted () {
     this.loadInitialListEntries()
-
-    this.$on('delete', (index) => {
-      this.updateStatement({
-        id: this.statementId,
-        relationship: 'similarStatementSubmitters',
-        action: 'remove',
-        value: {
-          id: this.listEntries[index].id,
-          type: 'SimilarStatementSubmitter'
-        }
-      })
-
-      this.listEntries.splice(index, 1)
-
-      if (this.isRequestFormPost === false) {
-        this.deleteSimilarStatementSubmitter()
-      }
-      if (this.isRequestFormPost) {
-        this.resetFormFields()
-      }
-    })
-
-    this.$on('showUpdateForm', (index) => {
-      this.formFields.submitterCity = this.listEntries[index].submitterCity
-      this.formFields.submitterName = this.listEntries[index].submitterName
-      this.formFields.submitterAddress = this.listEntries[index].submitterAddress
-      this.formFields.submitterHouseNumber = this.listEntries[index].submitterHouseNumber
-      this.formFields.submitterPostalCode = this.listEntries[index].submitterPostalCode
-      this.formFields.submitterEmailAddress = this.listEntries[index].submitterEmailAddress
-    })
   }
 }
 </script>

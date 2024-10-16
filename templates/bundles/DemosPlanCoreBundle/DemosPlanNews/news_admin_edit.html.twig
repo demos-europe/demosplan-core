@@ -326,7 +326,7 @@
                     class="o-hellip break-words u-mb-0_25"
                     target="_blank"
                     rel="noopener"
-                    href="{{ path("core_file", { 'hash': news.pdf|getFile('hash') }) }}">
+                    href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': news.pdf|getFile('hash') }) }}">
                     <i class="fa fa-file-o"></i>
                     {{ news.pdftitle|default(news.pdf|getFile('name')) }}
                     {% if ( news.pdf|getFile('size')|length > 0 or news.pdf|getFile('mimeType')|length > 0 ) %}
@@ -367,7 +367,7 @@
         {% endif %}
 
         {{ uiComponent('button-row', {
-            primary: uiComponent('button', {type: 'submit'}),
+            primary: uiComponent('button', {type: 'submit', attributes: ['data-cy=saveNews']}),
             secondary: uiComponent('button', {color: 'secondary', href: cancelPath, attributes: ['data-cy=saveChangesMessage']})
         }) }}
     </form>

@@ -17,9 +17,9 @@
         {{ surveyStatusHint }}
       </p>
     </label>
-    <i
-      class="fa fa-question-circle u-pt-0_25 inline-block float-right"
-      v-tooltip="Translator.trans('survey.status.explanation')" />
+    <dp-contextual-help
+      class="float-right"
+      :text="Translator.trans('survey.status.explanation')" />
     <select
       id="status"
       name="status"
@@ -41,9 +41,9 @@
           {{ Translator.trans('survey.date.hint') }}
         </p>
       </label>
-      <i
-        class="fa fa-question-circle u-pt-0_25 inline-block float-right"
-        v-tooltip="Translator.trans('survey.date.explanation')" />
+      <dp-contextual-help
+        class="u-pt-0_25 inline-block float-right"
+        :text="Translator.trans('survey.date.explanation')" />
       <div class="block u-mb-2">
         <datepicker
           id="startDate"
@@ -75,15 +75,16 @@
 </template>
 
 <script>
+import { DpContextualHelp, toDate } from '@demos-europe/demosplan-ui'
 // @improve use DpDatepicker
 import Datepicker from 'vuejs-datepicker'
 import { de } from 'vuejs-datepicker/dist/locale'
-import { toDate } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpSurveyStatus',
 
   components: {
+    DpContextualHelp,
     Datepicker
   },
 

@@ -196,6 +196,7 @@ const createCreatorMenu = (view, anchor, head) => {
 
   const addBtn = document.createElement('button')
   addBtn.setAttribute('class', 'editor-menububble__button')
+  addBtn.setAttribute('data-cy', 'menuBubbleButton')
   const icon = document.createElement('i')
   icon.setAttribute('class', 'fa fa-plus')
   addBtn.appendChild(icon)

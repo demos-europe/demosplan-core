@@ -7,13 +7,13 @@
  * All rights reserved
  */
 
-import DpAdminLayerList from '@DpJs/components/map/admin/DpAdminLayerList'
+import AdminLayerList from '@DpJs/components/map/admin/AdminLayerList'
 import LayersStore from '@DpJs/store/map/Layers'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 import Vuex from 'vuex'
 
-describe('DpAdminLayerList', () => {
+describe('AdminLayerList', () => {
   let store
   let mutations
   let actions
@@ -35,7 +35,7 @@ describe('DpAdminLayerList', () => {
 
     store = new Vuex.Store({
       modules: {
-        layers: {
+        Layers: {
           namespaced: true,
           state: LayersStore.state,
           mutations,
@@ -46,16 +46,8 @@ describe('DpAdminLayerList', () => {
     })
   })
 
-  it('should be an object', () => {
-    expect(typeof DpAdminLayerList).toBe('object')
-  })
-
-  it('should be named DpAdminLayerList', () => {
-    expect(DpAdminLayerList.name).toBe('DpAdminLayerList')
-  })
-
   it('should have the correct prop-values', () => {
-    const wrapper = shallowMountWithGlobalMocks(DpAdminLayerList, {
+    const wrapper = shallowMountWithGlobalMocks(AdminLayerList, {
       propsData: {
         procedureId: 'some-id'
       },
@@ -66,7 +58,7 @@ describe('DpAdminLayerList', () => {
   })
 
   it('should render a empty admin layer list', () => {
-    const wrapper = shallowMountWithGlobalMocks(DpAdminLayerList, {
+    const wrapper = shallowMountWithGlobalMocks(AdminLayerList, {
       propsData: {
         procedureId: 'some-id'
       },

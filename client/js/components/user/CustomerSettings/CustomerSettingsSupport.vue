@@ -4,8 +4,10 @@
       ref="editableList"
       :entries="contacts"
       :translation-keys="translationKeys"
+      @delete="deleteEntry"
       @reset="resetForm"
-      @saveEntry="id => dpValidateAction('contactData', () => createOrUpdateContact(id), false)">
+      @saveEntry="id => dpValidateAction('contactData', () => createOrUpdateContact(id), false)"
+      @show-update-form="showUpdateForm">
       <template v-slot:list="contact">
         <h3 class="break-words" v-text="contact.attributes.title" />
         <p class="break-words" v-text="contact.attributes.phoneNumber" />
@@ -30,7 +32,7 @@
             class="u-mb-0_75"
             data-cy="contactTitle"
             :pattern="titlesInUsePattern"
-            :data-dp-validate-error="customerContact.title === '' ? 'error.name.required' : 'error.name.unique'"
+            :data-dp-validate-error="Translator.trans(customerContact.title === '' ? 'error.name.required' : 'error.name.unique')"
             :label="{
               text: Translator.trans('contact.name')
             }"
@@ -42,7 +44,7 @@
             autocomplete="tel"
             class="u-mb-0_75"
             data-cy="phoneNumber"
-            :data-dp-validate-error="!customerContact.phoneNumber ? 'error.phone.required' : 'error.phone.pattern'"
+            :data-dp-validate-error="Translator.trans(!customerContact.phoneNumber ? 'error.phone.required' : 'error.phone.pattern')"
             :label="{
               text: Translator.trans('contact.phone_number')
             }"
@@ -123,7 +125,7 @@ export default {
   },
 
   computed: {
-    ...mapState('customerContact', {
+    ...mapState('CustomerContact', {
       contacts: 'items'
     }),
 
@@ -137,14 +139,14 @@ export default {
   },
 
   methods: {
-    ...mapActions('customerContact', {
+    ...mapActions('CustomerContact', {
       createContact: 'create',
       fetchContacts: 'list',
       deleteContact: 'delete',
       saveContact: 'save'
     }),
 
-    ...mapMutations('customerContact', {
+    ...mapMutations('CustomerContact', {
       updateContact: 'setItem'
     }),
 
@@ -182,6 +184,12 @@ export default {
       this.resetForm()
     },
 
+    deleteEntry (id) {
+      this.deleteContact(id).then(() => {
+        dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
+      })
+    },
+
     getContacts () {
       this.fetchContacts({
         fields: {
@@ -201,6 +209,14 @@ export default {
       this.updating = false
     },
 
+    showUpdateForm (index) {
+      this.updateForm(index)
+
+      this.$nextTick(() => {
+        document.getElementById('contactForm').scrollIntoView()
+      })
+    },
+
     updateForm (id) {
       const currentData = this.contacts[id].attributes
 
@@ -217,19 +233,6 @@ export default {
   },
 
   mounted () {
-    this.$on('showUpdateForm', (index) => {
-      this.updateForm(index)
-      this.$nextTick(() => {
-        document.getElementById('contactForm').scrollIntoView()
-      })
-    })
-
-    this.$on('delete', (id) => {
-      this.deleteContact(id).then(() => {
-        dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
-      })
-    })
-
     this.getContacts()
   }
 }

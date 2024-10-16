@@ -311,7 +311,7 @@ class Setting extends CoreEntity implements UuidEntityInterface, SettingInterfac
     /**
      * Set Content.
      *
-     * @param string $content
+     * @param string|bool $content
      *
      * @return Setting
      */

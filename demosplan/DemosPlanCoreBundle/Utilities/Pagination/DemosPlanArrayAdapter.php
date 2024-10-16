@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Utilities\Pagination;
 
 use Pagerfanta\Adapter\ArrayAdapter;
-use Traversable;
 
 class DemosPlanArrayAdapter extends ArrayAdapter
 {
@@ -23,21 +22,12 @@ class DemosPlanArrayAdapter extends ArrayAdapter
         $this->nbResults = $resultCount;
     }
 
-    /**
-     * @return int
-     */
-    public function getNbResults()
+    public function getNbResults(): int
     {
         return $this->nbResults;
     }
 
-    /**
-     * @param int $offset
-     * @param int $length
-     *
-     * @return array|Traversable
-     */
-    public function getSlice($offset, $length)
+    public function getSlice(int $offset, int $length): iterable
     {
         return $this->getArray();
     }

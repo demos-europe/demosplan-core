@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Db;
 
+use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
@@ -68,9 +69,11 @@ class MigrateCommand extends CoreCommand
 
         \collect($commands)->map(
             function (string $commandString) {
+                /** @var DemosPlanKernel $kernel */
+                $kernel = $this->getApplication()->getKernel();
                 $command = collect(sprintf(
                     'bin/%s',
-                    $this->getApplication()->getKernel()->getActiveProject(),
+                    $kernel->getActiveProject(),
                 ));
 
                 return $command

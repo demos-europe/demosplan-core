@@ -28,7 +28,7 @@
 <template>
   <li
     :id="'itemdisplay_' + statement.id"
-    data-cy="statementCard"
+    :data-cy="dataCy"
     class="c-at-item"
     v-cloak>
     <!--  item header  -->
@@ -302,8 +302,8 @@
 
         <!--  statement tab  -->
         <div
-          class="bg-color-light flow-root"
-          v-show="tab === 'statement'">
+          v-show="tab === 'statement'"
+          class="bg-color-light">
           <!--  status / priorities  -->
           <dp-item-row
             v-if="hasPermission('field_statement_status') || hasPermission('field_statement_priority')"
@@ -500,11 +500,11 @@
                 --><dd class="layout__item u-5-of-6">
                   <ul class="u-mb-0">
                     <li
-                      v-for="FragmentElement in statement.fragmentsElements"
-                      :key="FragmentElement.id">
-                      {{ FragmentElement.elementTitle }}
-                      <template v-if="hasOwnProp(FragmentElement,'paragraphTitle') && FragmentElement.paragraphTitle !== null">
-                        - {{ FragmentElement.paragraphTitle }}
+                      v-for="fragmentElement in statement.fragmentsElements"
+                      :key="fragmentElement.id">
+                      {{ fragmentElement.elementTitle }}
+                      <template v-if="hasOwnProp(fragmentElement,'paragraphTitle') && fragmentElement.paragraphTitle !== null">
+                        - {{ fragmentElement.paragraphTitle }}
                       </template>
                     </li>
                   </ul>
@@ -600,18 +600,16 @@
                     v-slot:hint
                     v-if="recommendationPubliclyVisible">
                     {{ Translator.trans('recommendation.publicly.visible.short') }}
-                    <i
-                      v-tooltip="Translator.trans('recommendation.publicly.visible')"
-                      tabindex="0"
-                      class="fa fa-question-circle float-right u-pt-0_125"
-                      aria-hidden="true" />
+                    <dp-contextual-help
+                      class="float-right u-mt-0_125"
+                      :text="Translator.trans('recommendation.publicly.visible')" />
                   </template>
                 </editable-text>
               </dl>
             </template>
           </dp-item-row><!--
          --><div
-              v-if="statement.files.length > 0 || statement.sourceAttachment !== '' && hasOwnProp(statement.sourceAttachment, 'filename')"
+              v-if="statement.files.length > 0 || statement.sourceAttachment !== '' && statement.sourceAttachment?.filename"
               class="layout--flush u-pv-0_25 u-ph-0_5">
               <div
                 class="layout__item c-at-item__row-icon color--grey"
@@ -623,7 +621,7 @@
 
            --><div class="layout--flush layout__item c-at-item__row break-words">
                 <a
-                  v-if="hasOwnProp(statement.sourceAttachment, 'filename') && hasPermission('feature_read_source_statement_via_api')"
+                  v-if="statement.sourceAttachment?.filename && hasPermission('feature_read_source_statement_via_api')"
                   class="u-pr-0_5 o-hellip border--right u-mr-0_5"
                   :href="Routing.generate('core_file_procedure', { hash: statement.sourceAttachment.hash, procedureId: procedureId })"
                   rel="noopener"
@@ -649,7 +647,7 @@
         <!-- Fragments Tab -->
         <div
           v-if="hasPermission('area_statements_fragment')"
-          class="bg-color-light flow-root"
+          class="bg-color-light"
           v-show="tab==='fragments'">
           <div class="layout--flush u-p-0_5 u-pt-0_25 border--top u-nojs-show--block">
             <div class="layout__item c-at-item__row-icon color--grey" /><!--
@@ -748,7 +746,7 @@
 </template>
 
 <script>
-import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
+import { dpApi, DpContextualHelp, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
@@ -762,6 +760,7 @@ export default {
   name: 'DpAssessmentTableCard',
 
   components: {
+    DpContextualHelp,
     DpClaim,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
@@ -777,6 +776,12 @@ export default {
     csrfToken: {
       type: String,
       required: true
+    },
+
+    dataCy: {
+      type: String,
+      required: false,
+      default: 'statementCard'
     },
 
     isSelected: {
@@ -802,8 +807,8 @@ export default {
   data () {
     return {
       // We have to use $store.state... notation because at that moment the maps for state/getters are not yet initialized
-      expanded: this.$store.state.assessmentTable.currentTableView === 'statement' || this.$store.state.assessmentTable.currentTableView === 'fragments',
-      tab: this.$store.state.assessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
+      expanded: this.$store.state.AssessmentTable.currentTableView === 'statement' || this.$store.state.AssessmentTable.currentTableView === 'fragments',
+      tab: this.$store.state.AssessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
       updatingClaimState: false,
       fragmentsLoading: false,
       placeholderStatementId: null
@@ -812,8 +817,8 @@ export default {
 
   computed: {
     // Get the Statement from the Store (if not Present there use initial data)
-    ...mapState('statement', { statement (state) { return state.statements[this.statementId] } }),
-    ...mapGetters('assessmentTable', [
+    ...mapState('Statement', { statement (state) { return state.statements[this.statementId] } }),
+    ...mapGetters('AssessmentTable', [
       'adviceValues',
       'assessmentBase',
       'assessmentBaseLoaded',
@@ -828,10 +833,10 @@ export default {
       'status',
       'tags'
     ]),
-    ...mapGetters('fragment', ['selectedFragments', 'fragmentsByStatement']),
-    ...mapState('statement', ['selectedElements', 'statements', 'isFiltered']),
+    ...mapGetters('Fragment', ['selectedFragments', 'fragmentsByStatement']),
+    ...mapState('Statement', ['selectedElements', 'statements', 'isFiltered']),
 
-    ...mapState('assessmentTable',
+    ...mapState('AssessmentTable',
       [
         'accessibleProcedureIds',
         'currentUserId',
@@ -928,26 +933,26 @@ export default {
   },
 
   methods: {
-    ...mapActions('fragment', [
+    ...mapActions('Fragment', [
       'removeFragmentFromSelectionAction',
       'loadFragments',
       'setSelectedFragmentsAction',
       'resetSelection'
     ]),
 
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'updateStatementAction',
       'addToSelectionAction',
       'removeFromSelectionAction',
       'setAssigneeAction'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setModalProperty',
       'setProperty'
     ]),
 
-    ...mapMutations('statement', [
+    ...mapMutations('Statement', [
       'addStatement',
       'updateStatement',
       'replaceStatement'
@@ -1288,7 +1293,7 @@ export default {
 
     // Update card view if table view has been change (per Ansicht Button)
     this.$store.subscribe(mutation => {
-      if (mutation.type === 'assessmentTable/setProperty' && mutation.payload.prop === 'currentTableView') {
+      if (mutation.type === 'AssessmentTable/setProperty' && mutation.payload.prop === 'currentTableView') {
         this.toggleView(mutation.payload.val)
       }
     })

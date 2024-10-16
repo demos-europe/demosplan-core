@@ -95,16 +95,28 @@
 
         <!-- Default layer -->
         <dp-ol-map-layer
+          v-if="!options.hideDefaultLayer"
           :attributions="options?.defaultAttribution"
-          :url="baselayer"
           :layers="baselayerLayers"
           :projection="baseLayerProjection"
-          v-if="!options.hideDefaultLayer" />
+          :url="baselayer" />
+
+        <!-- Layer from outside -->
+        <dp-ol-map-layer
+          v-for="layer in layers"
+          :key="layer.name"
+          :attributions="layer.attribution || ''"
+          :order="layer.mapOrder + 1"
+          :opacity="layer.opacity"
+          :url="layer.url"
+          :layers="layer.layers"
+          :projection="layer.projectionValue" />
       </div>
 
       <!-- Map container -->
       <div
         ref="mapContainer"
+        data-cy="map:mapContainer"
         :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]"
         id="map">
         <dp-loading
@@ -141,7 +153,7 @@ import DpOlMapScaleSelect from './DpOlMapScaleSelect'
 import { easeOut } from 'ol/easing'
 import { getResolutionsFromScales } from './utils/utils'
 import { Map } from 'ol'
-// import MasterportalApi from '@masterportal/masterportalapi/src/maps/map'
+import MasterportalApi from '@masterportal/masterportalapi/src/maps/map'
 import proj4 from 'proj4'
 import Projection from 'ol/proj/Projection'
 import { register } from 'ol/proj/proj4'
@@ -165,16 +177,16 @@ export default {
   },
 
   props: {
-    procedureId: {
+    isValid: {
       required: false,
-      type: String,
-      default: ''
+      type: Boolean,
+      default: true
     },
 
-    options: {
+    layers: {
       required: false,
-      type: Object,
-      default: () => ({})
+      type: Array,
+      default: () => ([])
     },
 
     /*
@@ -193,16 +205,22 @@ export default {
       default: 'dplan_api_map_options_admin'
     },
 
+    options: {
+      required: false,
+      type: Object,
+      default: () => ({})
+    },
+
+    procedureId: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
     small: {
       required: false,
       type: Boolean,
       default: false
-    },
-
-    isValid: {
-      required: false,
-      type: Boolean,
-      default: true
     }
   },
 
@@ -220,7 +238,8 @@ export default {
       baselayer: '',
       baselayerLayers: '',
       baseLayerProjection: '',
-      maxExtent: []
+      maxExtent: [],
+      scales: []
     }
   },
 
@@ -385,7 +404,7 @@ export default {
     },
 
     updateMapInstance () {
-      if (this.map === 'undefined') {
+      if (this.map === 'undefined' || this.map === null) {
         return
       }
 
@@ -427,9 +446,13 @@ export default {
     this.baselayer = mapOptions.baseLayer
     this.baseLayerProjection = mapOptions.baseLayerProjection
 
-    //  ProcedureScales = 'procedure.settings.scales', scales = 'map_global_available_scales'
-    this.scales = mapOptions.procedureScales.length > 0 ? mapOptions.procedureScales : mapOptions.globalAvailableScales
-
+    if (this.mapOptions.scales) {
+      this.scales = this.mapOptions.scales
+    } else if (mapOptions.procedureScales.length > 0) {
+      this.scales = mapOptions.procedureScales
+    } else {
+      this.scales = mapOptions.globalAvailableScales
+    }
     //  Calculate resolutions from given scales
     this.resolutions = getResolutionsFromScales(this.scales, this._options.projection.units)
 
@@ -473,7 +496,7 @@ export default {
       this.updateMapInstance()
 
       // If startkartenausschnitt is defined by user, show it on mounted
-      if (this._options.initialExtent && JSON.stringify(this.maxExtent) !== JSON.stringify(this.initialExtent)) {
+      if (this._options.initialExtent.length > 0 && JSON.stringify(this.maxExtent) !== JSON.stringify(this.initialExtent)) {
         this.map.getView().fit(this.initialExtent, { size: this.map.getSize() })
         // If it is not defined, but procedure has coordinates, zoom the map to the coordinates
       } else if (this.initCenter) {

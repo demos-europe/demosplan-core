@@ -29,48 +29,48 @@
 <template>
   <div class="layout--flush border--bottom u-pb">
     <div class="layout__item u-1-of-2">
-<!--      <dp-ol-map-->
-<!--        ref="map"-->
-<!--        :options="{-->
-<!--          scaleSelect: false,-->
-<!--          autoSuggest: false,-->
-<!--          controls: [attributionControl],-->
-<!--          initView: false,-->
-<!--          initCenter: false,-->
-<!--          procedureExtent: true-->
-<!--        }"-->
-<!--        :procedure-id="procedureId"-->
-<!--        small>-->
-<!--        <dp-ol-map-layer-vector-->
-<!--          v-if="hasPermission('area_procedure_adjustments_general_location') && procedureCoordinate"-->
-<!--          class="u-mb-0_5"-->
-<!--          :features="features.procedureCoordinate"-->
-<!--          name="mapSettingsPreviewCoordinate" />-->
-<!--        <dp-ol-map-layer-vector-->
-<!--          v-if="initExtent"-->
-<!--          class="u-mb-0_5"-->
-<!--          :features="features.initExtent"-->
-<!--          name="mapSettingsPreviewInitExtent"-->
-<!--          zoom-to-drawing />-->
-<!--        <dp-ol-map-layer-vector-->
-<!--          v-if="territory"-->
-<!--          class="u-mb-0_5"-->
-<!--          :draw-style="drawingStyles.territory"-->
-<!--          :features="features.territory"-->
-<!--          name="mapSettingsPreviewTerritory" />-->
-<!--      </dp-ol-map>-->
+      <dp-ol-map
+        ref="map"
+        :options="{
+          scaleSelect: false,
+          autoSuggest: false,
+          controls: [attributionControl],
+          initView: false,
+          initCenter: false,
+          procedureExtent: true
+        }"
+        :procedure-id="procedureId"
+        small>
+        <dp-ol-map-layer-vector
+          v-if="hasPermission('area_procedure_adjustments_general_location') && procedureCoordinate"
+          class="u-mb-0_5"
+          :features="features.procedureCoordinate"
+          name="mapSettingsPreviewCoordinate" />
+        <dp-ol-map-layer-vector
+          v-if="initExtent"
+          class="u-mb-0_5"
+          :features="features.initExtent"
+          name="mapSettingsPreviewInitExtent"
+          zoom-to-drawing />
+        <dp-ol-map-layer-vector
+          v-if="territory"
+          class="u-mb-0_5"
+          :draw-style="drawingStyles.territory"
+          :features="features.territory"
+          name="mapSettingsPreviewTerritory" />
+      </dp-ol-map>
     </div><!--
  --><div class="layout__item u-1-of-2">
       <ul>
         <li
-          v-for="link in permittedLinks"
+          v-for="(link, index) in permittedLinks"
           class="layout__item"
           :key="link.tooltipContent">
           <a
             v-tooltip="Translator.trans(link.tooltipContent)"
             class="o-link"
             :class="{'color-status-complete-text': link.done()}"
-            :data-cy="Translator.trans(link.label)"
+            :data-cy="`gisLayerLink:${index}`"
             :href="href(link)">
             <i
               aria-hidden="true"
@@ -83,7 +83,9 @@
           </a>
         </li>
       </ul>
-      <div class="layout__item u-mb-0_25 u-mt-0_25">
+      <div
+        v-if="hasPermission('feature_map_planstate')"
+        class="layout__item u-mb-0_25 u-mt-0_25">
         <label
           class="inline-block u-1-of-3 u-mb-0"
           for="planstatus">{{ Translator.trans('planstatus') }}
@@ -94,11 +96,13 @@
           class="inline-block u-3-of-4"
           v-model="planstatus"
           :calendars-before="2"
-          :disabled="!isPlanStatusEditing" /><!--
+          :disabled="!isPlanStatusEditing"
+          name="planstatus" /><!--
        --><div class="inline-block u-1-of-4 text-right">
             <button
               v-if="false === isPlanStatusEditing"
               class="btn--blank o-link--default"
+              data-cy="planStatusEditing"
               :title="Translator.trans('edit')"
               type="button"
               @click="setEditingStatus('isPlanStatusEditing', true)">
@@ -148,6 +152,7 @@
             <button
               v-if="false === isMapStatusEditing"
               class="btn--blank o-link--default"
+              data-cy="mapStatusEditing"
               :title="Translator.trans('edit')"
               type="button"
               @click="setEditingStatus('isMapStatusEditing', true)">
@@ -158,6 +163,7 @@
             <button
               v-if="isMapStatusEditing"
               class="btn--blank o-link--default"
+              data-cy="mapStatusEditingSave"
               :title="Translator.trans('save')"
               type="button"
               @click="updateIsMapEnabled">
@@ -168,6 +174,7 @@
             <button
               v-if="isMapStatusEditing"
               class="btn--blank o-link--default"
+              data-cy="mapStatusEditingReset"
               :title="Translator.trans('reset')"
               type="button"
               @click="reset('isMapEnabled', 'isMapStatusEditing')">
@@ -240,8 +247,8 @@
 <script>
 import { checkResponse, dpApi, DpDatepicker, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { Attribution } from 'ol/control'
-// import DpOlMap from '@DpJs/components/map/map/DpOlMap'
-// import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
+import DpOlMap from '@DpJs/components/map/map/DpOlMap'
+import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
 import { fromExtent } from 'ol/geom/Polygon'
 
 export default {
@@ -249,8 +256,8 @@ export default {
 
   components: {
     DpDatepicker,
-    // DpOlMap,
-    // DpOlMapLayerVector,
+    DpOlMap,
+    DpOlMapLayerVector,
     DpToggle
   },
 

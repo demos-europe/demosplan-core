@@ -32,6 +32,7 @@ class SegmentRpcController extends APIController
         $filterArray = $this->getRequestJson('filter');
         $searchPhrase = $this->getRequestJson('searchPhrase');
         // Used to validate only, no need for the returned object
+        $filterArray = $filterParser->validateFilter($filterArray);
         $filterParser->parseFilter($filterArray);
         $filterSet = $filterSetService->findHashedQueryWithHash($queryHash);
         $segmentListQuery = null === $filterSet ? null : $filterSet->getStoredQuery();

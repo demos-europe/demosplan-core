@@ -10,48 +10,47 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions as AnnotationDplanPermissions;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Logic\InitializeService;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use Doctrine\Common\Annotations\Reader;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 
 /**
- * Perform initial Permissionchecks (former initialize()).
+ * Perform initial Permission checks (former initialize()).
+ * Permissions are initially set in {@link ConfigurePermissionsListener},
+ * Procedure permissions are enhanced in {@link AccessProcedureListener}, general
+ * procedure access check is also done in {@link AccessProcedureListener}.
  */
 class CheckPermissionListener
 {
-    /** @var Reader */
-    protected $reader;
-    /**
-     * @var InitializeService
-     */
-    protected $initializeService;
-    /**
-     * @var RouterInterface
-     */
-    protected $router;
-
-    public function __construct(Reader $reader, InitializeService $initializeService, RouterInterface $router)
-    {
-        $this->initializeService = $initializeService;
-        $this->reader = $reader;
-        $this->router = $router;
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        private readonly PermissionsInterface $permissions,
+        private readonly Reader $reader,
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router
+    ) {
     }
 
     /**
      * @throws ReflectionException
      */
-    public function onControllerRequest(ControllerEvent $event)
+    public function onControllerRequest(ControllerEvent $event): void
     {
         /*
          * $controller passed can be either a class or a Closure.
@@ -76,8 +75,8 @@ class CheckPermissionListener
         try {
             $dplanPermissions = $this->getDplanPermissions($reflectionMethod);
 
-            // perform initialize with permissions from attribute or annotation
-            $this->initializeService->initialize($dplanPermissions);
+            // check permission with permissions from attribute or annotation
+            $this->checkPermission($dplanPermissions);
         } catch (Exception $e) {
             // fallback if everything fails
             $redirectResponse = new RedirectResponse($this->router->generate('core_home'));
@@ -117,5 +116,23 @@ class CheckPermissionListener
         }
 
         return $dplanPermissions;
+    }
+
+    private function checkPermission($dplanPermissions): void
+    {
+        try {
+            $this->permissions->checkPermissions($dplanPermissions);
+        } catch (AccessDeniedException $e) {
+            // Wenn der User vorher keine Session hatte, ist eher die Session abgelaufen,
+            // als dass es ein echtes AccessDenied ist
+            if (null === $this->requestStack->getCurrentRequest()?->getSession()->getId()) {
+                $this->logger->info('Access Denied nach nicht vorhandener Session: ', [$e]);
+                throw new AccessDeniedGuestException();
+            }
+            throw $e;
+        } catch (Exception $e) {
+            $this->logger->error('Session Initialization not successful', [$e]);
+            throw new SessionUnavailableException('Session Initialization not successful: '.$e);
+        }
     }
 }

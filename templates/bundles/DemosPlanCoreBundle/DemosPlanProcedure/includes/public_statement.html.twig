@@ -64,12 +64,12 @@
             {% set department = (statement.meta.orgaDepartmentName|default == '') ? '' : '(' ~ statement.meta.orgaDepartmentName|default ~ ')' %}
             <div class="{{ 'o-badge o-badge--dark u-mr-0_5'|prefixClass }}" title="{{ "author"|trans }}: {{ statement.meta.orgaName|default('anonymous'|trans) }} {{ department }}">
                 <i class="{{ 'fa fa-user u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
-                <span class="{{ 'hide-visually'|prefixClass }}">{{ "author"|trans }}:</span> {{ statement.meta.orgaName|default('anonymous'|trans) }} {{ department }}
+                <span class="{{ 'sr-only'|prefixClass }}">{{ "author"|trans }}:</span> {{ statement.meta.orgaName|default('anonymous'|trans) }} {{ department }}
             </div>
         {% elseif statement.publicStatement == 'external' %}
             <div class="{{ 'o-badge o-badge--dark u-mr-0_5'|prefixClass }}" title="{{ "author"|trans }}: {{ "role.citizen"|trans }}">
                 <i class="{{ 'fa fa-user u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
-                <span class="{{ 'hide-visually'|prefixClass }}">{{ "author"|trans }}:</span> {{ "role.citizen"|trans }}
+                <span class="{{ 'sr-only'|prefixClass }}">{{ "author"|trans }}:</span> {{ "role.citizen"|trans }}
             </div>
         {% endif %}
 
@@ -77,7 +77,7 @@
         {% if statement.submit is defined %}
             <div class="{{ 'o-badge o-badge--dark u-mr-0_5'|prefixClass }}" title="{{ "submitted.date"|trans }}: {{ statement.submit|dplanDate }}">
                 <i class="{{ 'fa fa-calendar-check-o u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
-                <span class="{{ 'hide-visually'|prefixClass }}">{{ "submitted.date"|trans }}:</span> {{ statement.submit|dplanDateAnnotated }}
+                <span class="{{ 'sr-only'|prefixClass }}">{{ "submitted.date"|trans }}:</span> {{ statement.submit|dplanDateAnnotated }}
             </div>
         {% endif %}
 
@@ -85,7 +85,7 @@
         {% if statement.votesNum|default(0) > 0  %}
             <div class="{{ 'o-badge o-badge--dark u-mr-0_5'|prefixClass }}" title="{{ "voted.by.persons"|trans({ count: statement.votesNum }) }}">
                 <i class="{{ 'fa fa-comment-o u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
-                <span class="{{ 'hide-visually'|prefixClass }}">{{ "voted.by"|trans }}:</span> {{ statement.votesNum }}
+                <span class="{{ 'sr-only'|prefixClass }}">{{ "voted.by"|trans }}:</span> {{ statement.votesNum }}
             </div>
         {% endif %}
 
@@ -93,7 +93,7 @@
         {% if hasPermission('feature_statements_like') and statement.likesNum|default(0) > 0  %}
             <div class="{{ 'o-badge o-badge--dark u-mr-0_5'|prefixClass }}" title="{{ "liked.by.persons"|trans({ count: statement.likesNum }) }}">
                 <i class="{{ 'fa fa-chevron-circle-up u-mr-0_125'|prefixClass }}" aria-hidden="true"></i>
-                <span class="{{ 'hide-visually'|prefixClass }}">{{ "liked.by"|trans }}:</span> {{ statement.likesNum }}
+                <span class="{{ 'sr-only'|prefixClass }}">{{ "liked.by"|trans }}:</span> {{ statement.likesNum }}
             </div>
         {% endif %}
 

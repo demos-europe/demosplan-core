@@ -7,13 +7,13 @@
         content_heading: 'login'|trans
     }%}
         {% block content %}
-            <saml-login-form
-                :is-saml="{{ useSaml|json_encode }}"
-                :saml-login-path="{{ path('saml_login')|json_encode }}"
+            <idp-login-form
+                :is-idp="{{ useIdp|json_encode }}"
+                idp-login-path="{{ gatewayURL }}"
                 :csrf-token="{{ csrf_token('authenticate')|json_encode }}">
                 {# Using the |raw filter in this special case is needed, as html tags are returned. #}
                 {{ extensionPointMarkup('formExtraFields')|raw }}
-            </saml-login-form>
+            </idp-login-form>
         {% endblock content %}
     {% endembed %}
 

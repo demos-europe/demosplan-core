@@ -48,10 +48,10 @@
                                 > {{ 'indicationerror'|trans }}
                             </label>
 
-                            <span
-                                class="{{ 'o-tooltip o-tooltip--question-circle u-ml-0_5'|prefixClass }}"
-                                v-tooltip="'{{ 'link.title.indicationerror'|trans }}'">
-                            </span>
+                            {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                helpText: 'link.title.indicationerror'|trans,
+                                cssClasses:'u-ml-0_5'
+                            } %}
 
                         </div>
                     {% else %}

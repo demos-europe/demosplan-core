@@ -163,7 +163,7 @@ class EntityContentChangeService extends CoreService
     /**
      * @param CoreEntity[]|Collection $coreEntities
      */
-    protected function mapToIds($coreEntities): \Tightenco\Collect\Support\Collection
+    protected function mapToIds($coreEntities): \Illuminate\Support\Collection
     {
         return collect($coreEntities)->map(fn (CoreEntity $item) => $item->getId());
     }
@@ -171,7 +171,7 @@ class EntityContentChangeService extends CoreService
     /**
      * @param CoreEntity[]|Collection $coreEntities
      */
-    protected function mapToContentChangeIdentifiers($coreEntities): \Tightenco\Collect\Support\Collection
+    protected function mapToContentChangeIdentifiers($coreEntities): \Illuminate\Support\Collection
     {
         return collect($coreEntities)->map(fn (CoreEntity $item) => $item->getEntityContentChangeIdentifier())->sort();
     }

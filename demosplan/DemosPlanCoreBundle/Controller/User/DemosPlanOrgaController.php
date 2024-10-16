@@ -37,6 +37,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -424,6 +425,7 @@ class DemosPlanOrgaController extends BaseController
     public function createOrgaRegisterAction(
         CsrfTokenManagerInterface $csrfTokenManager,
         EventDispatcherPostInterface $eventDispatcherPost,
+        RateLimiterFactory $userRegisterLimiter,
         Request $request,
         OrgaService $orgaService,
         CustomerHandler $customerHandler
@@ -454,6 +456,14 @@ class DemosPlanOrgaController extends BaseController
             // in xhr requests. We do not need this here, instead, we need to
             // make sure that the token is only valid once.
             $csrfTokenManager->refreshToken($tokenId);
+
+            // avoid brute force attacks
+            $limiter = $userRegisterLimiter->create($request->getClientIp());
+            if (false === $limiter->consume()->isAccepted()) {
+                $this->messageBag->add('warning', 'warning.user.register.throttle');
+
+                return $this->redirectToRoute('core_home');
+            }
 
             $customer = $customerHandler->getCurrentCustomer();
             $customerName = $customer->getName();

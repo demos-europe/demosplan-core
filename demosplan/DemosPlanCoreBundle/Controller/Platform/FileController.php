@@ -60,13 +60,29 @@ class FileController extends BaseController
     }
 
     /**
+     * Distinct route for ai api file access to allow for jwt authentication via query parameter.
+     * Check Procedure permissions when procedureId is given in route and serve file if allowed.
+     */
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions(permissions: ['area_main_file'])]
+    #[Route(path: '/api/ai/file/{procedureId}/{hash}', name: 'core_file_procedure_api_ai', options: ['expose' => true])]
+    public function fileProcedureApiAction(FileService $fileService, string $procedureId, string $hash): Response
+    {
+        try {
+            return $this->prepareResponseWithHash($fileService, $hash, true, $procedureId);
+        } catch (Exception $e) {
+            $this->getLogger()->info('Could not serve Procedure Api ai file: ', [$e]);
+            throw new NotFoundHttpException();
+        }
+    }
+
+    /**
      * @throws Exception
      */
     protected function prepareResponseWithHash(FileService $fileService, string $hash, bool $strictCheck = false, string $procedureId = null): Response
     {
         $fs = new Filesystem();
         // @improve T14122
-        $file = $fileService->getFileInfo($hash);
+        $file = $fileService->getFileInfo($hash, $procedureId);
 
         // ensure that procedure access check matches file procedure
         if (!$this->isValidProcedure($procedureId, $file, $strictCheck)) {

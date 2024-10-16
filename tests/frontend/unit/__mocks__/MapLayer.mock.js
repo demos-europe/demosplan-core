@@ -17,7 +17,7 @@ export default function () {
     },
     store: new Vuex.Store({
       modules: {
-        statement: {
+        Statement: {
           namespaced: true,
           state: {
             procedureId: '',

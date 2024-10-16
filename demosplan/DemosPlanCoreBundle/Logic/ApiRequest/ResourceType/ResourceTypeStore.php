@@ -41,6 +41,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\GlobalNewsCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GlobalNewsResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HashedQueryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HeadStatementResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionLocationContactResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitableInstitutionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
@@ -57,9 +58,10 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\PlaceResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PriorityAreaResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureBehaviorDefinitionResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureMapSettingResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureNewsResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedurePhaseResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureSettingsResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTemplateResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureUiDefinitionResourceType;
@@ -95,8 +97,320 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\UserRoleInCustomerResourceType;
  */
 class ResourceTypeStore
 {
-    public function __construct(protected AdminProcedureResourceType $adminProcedureResourceType, protected AdministratableUserResourceType $administratableUserResourceType, protected AgencyEmailAddressResourceType $agencyEmailAddressResourceType, protected AssignableUserResourceType $assignableUserResourceType, protected BoilerplateGroupResourceType $boilerplateGroupResourceType, protected BoilerplateResourceType $boilerplateResourceType, protected BrandingResourceType $brandingResourceType, protected ClaimResourceType $claimResourceType, protected ClusterStatementResourceType $clusterStatementResourceType, protected ConsultationTokenResourceType $consultationTokenResourceType, protected ContextualHelpResourceType $contextualHelpResourceType, protected CountyResourceType $countyResourceType, protected CustomerContactResourceType $customerContactResourceType, protected CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType, protected CustomerResourceType $customerResourceType, protected DepartmentResourceType $departmentResourceType, protected EmailAddressResourceType $emailAddressResourceType, protected EmailResourceType $emailResourceType, protected FaqCategoryResourceType $faqCategoryResourceType, protected FaqResourceType $faqResourceType, protected FileResourceType $fileResourceType, protected FinalMailReportEntryResourceType $finalMailReportEntryResourceType, protected GeneralReportEntryResourceType $generalReportEntryResourceType, protected GisLayerCategoryResourceType $gisLayerCategoryResourceType, protected GisLayerResourceType $gisLayerResourceType, protected GlobalNewsCategoryResourceType $globalNewsCategoryResourceType, protected GlobalNewsResourceType $globalNewsResourceType, protected HashedQueryResourceType $hashedQueryResourceType, protected HeadStatementResourceType $headStatementResourceType, protected InstitutionTagResourceType $institutionTagResourceType, protected InvitableInstitutionResourceType $invitableInstitutionResourceType, protected InvitablePublicAgencyResourceType $invitablePublicAgencyResourceType, protected InvitationReportEntryResourceType $invitationReportEntryResourceType, protected MasterToebResourceType $masterToebResourceType, protected MunicipalityResourceType $municipalityResourceType, protected OrgaResourceType $orgaResourceType, protected OrgaStatusInCustomerResourceType $orgaStatusInCustomerResourceType, protected OrgaTypeResourceType $orgaTypeResourceType, protected OriginalStatementResourceType $originalStatementResourceType, protected ParagraphResourceType $paragraphResourceType, protected ParagraphVersionResourceType $paragraphVersionResourceType, protected PlaceResourceType $placeResourceType, protected PlanningDocumentCategoryResourceType $planningDocumentCategoryResourceType, protected PriorityAreaResourceType $priorityAreaResourceType, protected ProcedureBehaviorDefinitionResourceType $procedureBehaviorDefinitionResourceType, protected ProcedureNewsResourceType $procedureNewsResourceType, protected ProcedureResourceType $procedureResourceType, protected ProcedureSettingsResourceType $procedureSettingsResourceType, protected ProcedureTemplateResourceType $procedureTemplateResourceType, protected ProcedureTypeResourceType $procedureTypeResourceType, protected ProcedureUiDefinitionResourceType $procedureUiDefinitionResourceType, protected PublicPhaseReportEntryResourceType $publicPhaseReportEntryResourceType, protected RegisterInvitationReportEntryResourceType $registerInvitationReportEntryResourceType, protected ReportEntryResourceType $reportEntryResourceType, protected RoleResourceType $roleResourceType, protected SegmentCommentResourceType $segmentCommentResourceType, protected SignLanguageOverviewVideoResourceType $signLanguageOverviewVideoResourceType, protected SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType, protected SingleDocumentResourceType $singleDocumentResourceType, protected SlugResourceType $slugResourceType, protected StatementAttachmentResourceType $statementAttachmentResourceType, protected StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType, protected StatementFormDefinitionResourceType $statementFormDefinitionResourceType, protected StatementFragmentResourceType $statementFragmentResourceType, protected StatementFragmentsElementsResourceType $statementFragmentsElementsResourceType, protected StatementMetaResourceType $statementMetaResourceType, protected StatementReportEntryResourceType $statementReportEntryResourceType, protected StatementResourceType $statementResourceType, protected StatementSegmentResourceType $statementSegmentResourceType, protected SurveyResourceType $surveyResourceType, protected SurveyVoteResourceType $surveyVoteResourceType, protected TagResourceType $tagResourceType, protected TagTopicResourceType $tagTopicResourceType, protected UserFilterSetResourceType $userFilterSetResourceType, protected UserResourceType $userResourceType, protected UserRoleInCustomerResourceType $userRoleInCustomerResourceType)
-    {
+    protected AdminProcedureResourceType $adminProcedureResourceType;
+
+    protected AdministratableUserResourceType $administratableUserResourceType;
+
+    protected AgencyEmailAddressResourceType $agencyEmailAddressResourceType;
+
+    protected AssignableUserResourceType $assignableUserResourceType;
+
+    protected BoilerplateGroupResourceType $boilerplateGroupResourceType;
+
+    protected BoilerplateResourceType $boilerplateResourceType;
+
+    protected BrandingResourceType $brandingResourceType;
+
+    protected ClaimResourceType $claimResourceType;
+
+    protected ClusterStatementResourceType $clusterStatementResourceType;
+
+    protected ConsultationTokenResourceType $consultationTokenResourceType;
+
+    protected ContextualHelpResourceType $contextualHelpResourceType;
+
+    protected CountyResourceType $countyResourceType;
+
+    protected CustomerContactResourceType $customerContactResourceType;
+
+    protected CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType;
+
+    protected CustomerResourceType $customerResourceType;
+
+    protected DepartmentResourceType $departmentResourceType;
+
+    protected EmailAddressResourceType $emailAddressResourceType;
+
+    protected EmailResourceType $emailResourceType;
+
+    protected FaqCategoryResourceType $faqCategoryResourceType;
+
+    protected FaqResourceType $faqResourceType;
+
+    protected FileResourceType $fileResourceType;
+
+    protected FinalMailReportEntryResourceType $finalMailReportEntryResourceType;
+
+    protected GeneralReportEntryResourceType $generalReportEntryResourceType;
+
+    protected GisLayerCategoryResourceType $gisLayerCategoryResourceType;
+
+    protected GisLayerResourceType $gisLayerResourceType;
+
+    protected GlobalNewsCategoryResourceType $globalNewsCategoryResourceType;
+
+    protected GlobalNewsResourceType $globalNewsResourceType;
+
+    protected HashedQueryResourceType $hashedQueryResourceType;
+
+    protected HeadStatementResourceType $headStatementResourceType;
+
+    protected InstitutionLocationContactResourceType $institutionLocationContactResourceType;
+
+    protected InstitutionTagResourceType $institutionTagResourceType;
+
+    protected InvitableInstitutionResourceType $invitableInstitutionResourceType;
+
+    protected InvitablePublicAgencyResourceType $invitablePublicAgencyResourceType;
+
+    protected InvitationReportEntryResourceType $invitationReportEntryResourceType;
+
+    protected MasterToebResourceType $masterToebResourceType;
+
+    protected MunicipalityResourceType $municipalityResourceType;
+
+    protected OrgaResourceType $orgaResourceType;
+
+    protected OrgaStatusInCustomerResourceType $orgaStatusInCustomerResourceType;
+
+    protected OrgaTypeResourceType $orgaTypeResourceType;
+
+    protected OriginalStatementResourceType $originalStatementResourceType;
+
+    protected ParagraphResourceType $paragraphResourceType;
+
+    protected ParagraphVersionResourceType $paragraphVersionResourceType;
+
+    protected PlaceResourceType $placeResourceType;
+
+    protected PlanningDocumentCategoryResourceType $planningDocumentCategoryResourceType;
+
+    protected PriorityAreaResourceType $priorityAreaResourceType;
+
+    protected ProcedureBehaviorDefinitionResourceType $procedureBehaviorDefinitionResourceType;
+
+    protected ProcedureMapSettingResourceType $procedureMapSettingResourceType;
+
+    protected ProcedureNewsResourceType $procedureNewsResourceType;
+
+    protected ProcedurePhaseResourceType $procedurePhaseResourceType;
+
+    protected ProcedureResourceType $procedureResourceType;
+
+    protected ProcedureTemplateResourceType $procedureTemplateResourceType;
+
+    protected ProcedureTypeResourceType $procedureTypeResourceType;
+
+    protected ProcedureUiDefinitionResourceType $procedureUiDefinitionResourceType;
+
+    protected PublicPhaseReportEntryResourceType $publicPhaseReportEntryResourceType;
+
+    protected RegisterInvitationReportEntryResourceType $registerInvitationReportEntryResourceType;
+
+    protected ReportEntryResourceType $reportEntryResourceType;
+
+    protected RoleResourceType $roleResourceType;
+
+    protected SegmentCommentResourceType $segmentCommentResourceType;
+
+    protected SignLanguageOverviewVideoResourceType $signLanguageOverviewVideoResourceType;
+
+    protected SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType;
+
+    protected SingleDocumentResourceType $singleDocumentResourceType;
+
+    protected SlugResourceType $slugResourceType;
+
+    protected StatementAttachmentResourceType $statementAttachmentResourceType;
+
+    protected StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType;
+
+    protected StatementFormDefinitionResourceType $statementFormDefinitionResourceType;
+
+    protected StatementFragmentResourceType $statementFragmentResourceType;
+
+    protected StatementFragmentsElementsResourceType $statementFragmentsElementsResourceType;
+
+    protected StatementMetaResourceType $statementMetaResourceType;
+
+    protected StatementReportEntryResourceType $statementReportEntryResourceType;
+
+    protected StatementResourceType $statementResourceType;
+
+    protected StatementSegmentResourceType $statementSegmentResourceType;
+
+    protected SurveyResourceType $surveyResourceType;
+
+    protected SurveyVoteResourceType $surveyVoteResourceType;
+
+    protected TagResourceType $tagResourceType;
+
+    protected TagTopicResourceType $tagTopicResourceType;
+
+    protected UserFilterSetResourceType $userFilterSetResourceType;
+
+    protected UserResourceType $userResourceType;
+
+    protected UserRoleInCustomerResourceType $userRoleInCustomerResourceType;
+
+    public function __construct(
+        AdminProcedureResourceType $adminProcedureResourceType,
+        AdministratableUserResourceType $administratableUserResourceType,
+        AgencyEmailAddressResourceType $agencyEmailAddressResourceType,
+        AssignableUserResourceType $assignableUserResourceType,
+        BoilerplateGroupResourceType $boilerplateGroupResourceType,
+        BoilerplateResourceType $boilerplateResourceType,
+        BrandingResourceType $brandingResourceType,
+        ClaimResourceType $claimResourceType,
+        ClusterStatementResourceType $clusterStatementResourceType,
+        ConsultationTokenResourceType $consultationTokenResourceType,
+        ContextualHelpResourceType $contextualHelpResourceType,
+        CountyResourceType $countyResourceType,
+        CustomerContactResourceType $customerContactResourceType,
+        CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType,
+        CustomerResourceType $customerResourceType,
+        DepartmentResourceType $departmentResourceType,
+        EmailAddressResourceType $emailAddressResourceType,
+        EmailResourceType $emailResourceType,
+        FaqCategoryResourceType $faqCategoryResourceType,
+        FaqResourceType $faqResourceType,
+        FileResourceType $fileResourceType,
+        FinalMailReportEntryResourceType $finalMailReportEntryResourceType,
+        GeneralReportEntryResourceType $generalReportEntryResourceType,
+        GisLayerCategoryResourceType $gisLayerCategoryResourceType,
+        GisLayerResourceType $gisLayerResourceType,
+        GlobalNewsCategoryResourceType $globalNewsCategoryResourceType,
+        GlobalNewsResourceType $globalNewsResourceType,
+        HashedQueryResourceType $hashedQueryResourceType,
+        HeadStatementResourceType $headStatementResourceType,
+        InstitutionLocationContactResourceType $institutionLocationContactResourceType,
+        InstitutionTagResourceType $institutionTagResourceType,
+        InvitableInstitutionResourceType $invitableInstitutionResourceType,
+        InvitablePublicAgencyResourceType $invitablePublicAgencyResourceType,
+        InvitationReportEntryResourceType $invitationReportEntryResourceType,
+        MasterToebResourceType $masterToebResourceType,
+        MunicipalityResourceType $municipalityResourceType,
+        OrgaResourceType $orgaResourceType,
+        OrgaStatusInCustomerResourceType $orgaStatusInCustomerResourceType,
+        OrgaTypeResourceType $orgaTypeResourceType,
+        OriginalStatementResourceType $originalStatementResourceType,
+        ParagraphResourceType $paragraphResourceType,
+        ParagraphVersionResourceType $paragraphVersionResourceType,
+        PlaceResourceType $placeResourceType,
+        PlanningDocumentCategoryResourceType $planningDocumentCategoryResourceType,
+        PriorityAreaResourceType $priorityAreaResourceType,
+        ProcedureBehaviorDefinitionResourceType $procedureBehaviorDefinitionResourceType,
+        ProcedureMapSettingResourceType $procedureMapSettingResourceType,
+        ProcedureNewsResourceType $procedureNewsResourceType,
+        ProcedurePhaseResourceType $procedurePhaseResourceType,
+        ProcedureResourceType $procedureResourceType,
+        ProcedureTemplateResourceType $procedureTemplateResourceType,
+        ProcedureTypeResourceType $procedureTypeResourceType,
+        ProcedureUiDefinitionResourceType $procedureUiDefinitionResourceType,
+        PublicPhaseReportEntryResourceType $publicPhaseReportEntryResourceType,
+        RegisterInvitationReportEntryResourceType $registerInvitationReportEntryResourceType,
+        ReportEntryResourceType $reportEntryResourceType,
+        RoleResourceType $roleResourceType,
+        SegmentCommentResourceType $segmentCommentResourceType,
+        SignLanguageOverviewVideoResourceType $signLanguageOverviewVideoResourceType,
+        SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
+        SingleDocumentResourceType $singleDocumentResourceType,
+        SlugResourceType $slugResourceType,
+        StatementAttachmentResourceType $statementAttachmentResourceType,
+        StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType,
+        StatementFormDefinitionResourceType $statementFormDefinitionResourceType,
+        StatementFragmentResourceType $statementFragmentResourceType,
+        StatementFragmentsElementsResourceType $statementFragmentsElementsResourceType,
+        StatementMetaResourceType $statementMetaResourceType,
+        StatementReportEntryResourceType $statementReportEntryResourceType,
+        StatementResourceType $statementResourceType,
+        StatementSegmentResourceType $statementSegmentResourceType,
+        SurveyResourceType $surveyResourceType,
+        SurveyVoteResourceType $surveyVoteResourceType,
+        TagResourceType $tagResourceType,
+        TagTopicResourceType $tagTopicResourceType,
+        UserFilterSetResourceType $userFilterSetResourceType,
+        UserResourceType $userResourceType,
+        UserRoleInCustomerResourceType $userRoleInCustomerResourceType,
+    ) {
+        $this->adminProcedureResourceType = $adminProcedureResourceType;
+        $this->administratableUserResourceType = $administratableUserResourceType;
+        $this->agencyEmailAddressResourceType = $agencyEmailAddressResourceType;
+        $this->assignableUserResourceType = $assignableUserResourceType;
+        $this->boilerplateGroupResourceType = $boilerplateGroupResourceType;
+        $this->boilerplateResourceType = $boilerplateResourceType;
+        $this->brandingResourceType = $brandingResourceType;
+        $this->claimResourceType = $claimResourceType;
+        $this->clusterStatementResourceType = $clusterStatementResourceType;
+        $this->consultationTokenResourceType = $consultationTokenResourceType;
+        $this->contextualHelpResourceType = $contextualHelpResourceType;
+        $this->countyResourceType = $countyResourceType;
+        $this->customerContactResourceType = $customerContactResourceType;
+        $this->customerLoginSupportContactResourceType = $customerLoginSupportContactResourceType;
+        $this->customerResourceType = $customerResourceType;
+        $this->departmentResourceType = $departmentResourceType;
+        $this->emailAddressResourceType = $emailAddressResourceType;
+        $this->emailResourceType = $emailResourceType;
+        $this->faqCategoryResourceType = $faqCategoryResourceType;
+        $this->faqResourceType = $faqResourceType;
+        $this->fileResourceType = $fileResourceType;
+        $this->finalMailReportEntryResourceType = $finalMailReportEntryResourceType;
+        $this->generalReportEntryResourceType = $generalReportEntryResourceType;
+        $this->gisLayerCategoryResourceType = $gisLayerCategoryResourceType;
+        $this->gisLayerResourceType = $gisLayerResourceType;
+        $this->globalNewsCategoryResourceType = $globalNewsCategoryResourceType;
+        $this->globalNewsResourceType = $globalNewsResourceType;
+        $this->hashedQueryResourceType = $hashedQueryResourceType;
+        $this->headStatementResourceType = $headStatementResourceType;
+        $this->institutionLocationContactResourceType = $institutionLocationContactResourceType;
+        $this->institutionTagResourceType = $institutionTagResourceType;
+        $this->invitableInstitutionResourceType = $invitableInstitutionResourceType;
+        $this->invitablePublicAgencyResourceType = $invitablePublicAgencyResourceType;
+        $this->invitationReportEntryResourceType = $invitationReportEntryResourceType;
+        $this->masterToebResourceType = $masterToebResourceType;
+        $this->municipalityResourceType = $municipalityResourceType;
+        $this->orgaResourceType = $orgaResourceType;
+        $this->orgaStatusInCustomerResourceType = $orgaStatusInCustomerResourceType;
+        $this->orgaTypeResourceType = $orgaTypeResourceType;
+        $this->originalStatementResourceType = $originalStatementResourceType;
+        $this->paragraphResourceType = $paragraphResourceType;
+        $this->paragraphVersionResourceType = $paragraphVersionResourceType;
+        $this->placeResourceType = $placeResourceType;
+        $this->planningDocumentCategoryResourceType = $planningDocumentCategoryResourceType;
+        $this->priorityAreaResourceType = $priorityAreaResourceType;
+        $this->procedureBehaviorDefinitionResourceType = $procedureBehaviorDefinitionResourceType;
+        $this->procedureMapSettingResourceType = $procedureMapSettingResourceType;
+        $this->procedureNewsResourceType = $procedureNewsResourceType;
+        $this->procedurePhaseResourceType = $procedurePhaseResourceType;
+        $this->procedureResourceType = $procedureResourceType;
+        $this->procedureTemplateResourceType = $procedureTemplateResourceType;
+        $this->procedureTypeResourceType = $procedureTypeResourceType;
+        $this->procedureUiDefinitionResourceType = $procedureUiDefinitionResourceType;
+        $this->publicPhaseReportEntryResourceType = $publicPhaseReportEntryResourceType;
+        $this->registerInvitationReportEntryResourceType = $registerInvitationReportEntryResourceType;
+        $this->reportEntryResourceType = $reportEntryResourceType;
+        $this->roleResourceType = $roleResourceType;
+        $this->segmentCommentResourceType = $segmentCommentResourceType;
+        $this->signLanguageOverviewVideoResourceType = $signLanguageOverviewVideoResourceType;
+        $this->similarStatementSubmitterResourceType = $similarStatementSubmitterResourceType;
+        $this->singleDocumentResourceType = $singleDocumentResourceType;
+        $this->slugResourceType = $slugResourceType;
+        $this->statementAttachmentResourceType = $statementAttachmentResourceType;
+        $this->statementFieldDefinitionResourceType = $statementFieldDefinitionResourceType;
+        $this->statementFormDefinitionResourceType = $statementFormDefinitionResourceType;
+        $this->statementFragmentResourceType = $statementFragmentResourceType;
+        $this->statementFragmentsElementsResourceType = $statementFragmentsElementsResourceType;
+        $this->statementMetaResourceType = $statementMetaResourceType;
+        $this->statementReportEntryResourceType = $statementReportEntryResourceType;
+        $this->statementResourceType = $statementResourceType;
+        $this->statementSegmentResourceType = $statementSegmentResourceType;
+        $this->surveyResourceType = $surveyResourceType;
+        $this->surveyVoteResourceType = $surveyVoteResourceType;
+        $this->tagResourceType = $tagResourceType;
+        $this->tagTopicResourceType = $tagTopicResourceType;
+        $this->userFilterSetResourceType = $userFilterSetResourceType;
+        $this->userResourceType = $userResourceType;
+        $this->userRoleInCustomerResourceType = $userRoleInCustomerResourceType;
     }
 
     public function getAdminProcedureResourceType(): AdminProcedureResourceType
@@ -244,6 +558,11 @@ class ResourceTypeStore
         return $this->headStatementResourceType;
     }
 
+    public function getInstitutionLocationContactResourceType(): InstitutionLocationContactResourceType
+    {
+        return $this->institutionLocationContactResourceType;
+    }
+
     public function getInstitutionTagResourceType(): InstitutionTagResourceType
     {
         return $this->institutionTagResourceType;
@@ -324,19 +643,24 @@ class ResourceTypeStore
         return $this->procedureBehaviorDefinitionResourceType;
     }
 
+    public function getProcedureMapSettingResourceType(): ProcedureMapSettingResourceType
+    {
+        return $this->procedureMapSettingResourceType;
+    }
+
     public function getProcedureNewsResourceType(): ProcedureNewsResourceType
     {
         return $this->procedureNewsResourceType;
     }
 
+    public function getProcedurePhaseResourceType(): ProcedurePhaseResourceType
+    {
+        return $this->procedurePhaseResourceType;
+    }
+
     public function getProcedureResourceType(): ProcedureResourceType
     {
         return $this->procedureResourceType;
-    }
-
-    public function getProcedureSettingsResourceType(): ProcedureSettingsResourceType
-    {
-        return $this->procedureSettingsResourceType;
     }
 
     public function getProcedureTemplateResourceType(): ProcedureTemplateResourceType

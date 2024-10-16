@@ -5,9 +5,6 @@ cebe/php-openapi: MIT
 cocur/slugify: MIT
 composer/package-versions-deprecated: MIT
 demos-europe/demosplan-addon: MIT
-demos-europe/edt-dql: MIT
-demos-europe/edt-extra: MIT
-demos-europe/edt-paths: MIT
 doctrine/annotations: MIT
 doctrine/common: MIT
 doctrine/doctrine-bundle: MIT
@@ -19,6 +16,7 @@ dompdf/dompdf: LGPL-2.1
 efrane/console-additions: MIT
 efrane/tus-bundle: MIT
 egulias/email-validator: MIT
+endroid/qr-code-bundle: MIT
 enqueue/elastica-bundle: MIT
 enqueue/enqueue-bundle: MIT
 enqueue/fs: MIT
@@ -33,12 +31,13 @@ geocoder-php/nominatim-provider: MIT
 goetas-webservices/xsd2php: MIT
 goetas-webservices/xsd2php-runtime: MIT
 guzzlehttp/guzzle: MIT
-hslavich/oneloginsaml-bundle: MIT
+illuminate/collections: MIT
 intervention/image: MIT
 intriro/csv-bundle: MIT
 jfcherng/php-diff: BSD-3-Clause
 jmikola/geojson: MIT
 jms/serializer-bundle: MIT
+khanamiryan/qrcode-detector-decoder: MIT
 knplabs/knp-menu-bundle: MIT
 knpuniversity/oauth2-client-bundle: MIT
 league/fractal: MIT
@@ -67,7 +66,9 @@ psalm/plugin-symfony: MIT
 ramsey/uuid: MIT
 rector/rector: MIT
 rollerworks/password-strength-bundle: MIT
-sensio/framework-extra-bundle: MIT
+scheb/2fa-bundle: MIT
+scheb/2fa-email: MIT
+scheb/2fa-totp: MIT
 sentry/sentry-symfony: MIT
 squizlabs/php_codesniffer: BSD-3-Clause
 stevenmaguire/oauth2-keycloak: MIT
@@ -104,6 +105,7 @@ symfony/process: MIT
 symfony/property-access: MIT
 symfony/property-info: MIT
 symfony/proxy-manager-bridge: MIT
+symfony/rate-limiter: MIT
 symfony/security-bundle: MIT
 symfony/security-csrf: MIT
 symfony/serializer: MIT
@@ -118,9 +120,7 @@ symfony/var-dumper: MIT
 symfony/var-exporter: MIT
 symfony/web-profiler-bundle: MIT
 symfony/yaml: MIT
-tightenco/collect: MIT
 timeweb/phpstan-enum: MIT
-twig/twig: BSD-3-Clause
 vimeo/psalm: MIT
 weirdan/doctrine-psalm-plugin: MIT
 wgirhad/geophp: GPL-2.0-or-later
@@ -131,4 +131,4 @@ wsdltophp/packagegenerator: MIT
 yectep/phpspreadsheet-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 10.01.2024 07:03
+As of 10.10.2024 07:02

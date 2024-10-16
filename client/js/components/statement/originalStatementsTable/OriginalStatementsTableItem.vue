@@ -24,7 +24,7 @@
           <col class="w-[5%] text-right">
         </colgroup>
         <thead>
-          <tr class="hide-visually">
+          <tr class="sr-only">
             <th scope="col">
               {{ Translator.trans('statement.id') }}
             </th>
@@ -241,8 +241,8 @@ export default {
   },
 
   computed: {
-    ...mapGetters('assessmentTable', ['elements', 'paragraph']),
-    ...mapState('statement', ['statements', 'selectedElements']),
+    ...mapGetters('AssessmentTable', ['elements', 'paragraph']),
+    ...mapState('Statement', ['statements', 'selectedElements']),
 
     element () {
       let elementTitle = ''
@@ -310,7 +310,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('statement', [
+    ...mapMutations('Statement', [
       'updateStatement'
     ]),
 

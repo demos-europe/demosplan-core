@@ -321,6 +321,11 @@ export default {
             originalStatementsCount: el.attributes.originalStatementsCount,
             statementsCount: el.attributes.statementsCount
           }))
+        })
+        .catch(e => {
+          console.error(e)
+        })
+        .finally(() => {
           this.isLoading = false
         })
     },

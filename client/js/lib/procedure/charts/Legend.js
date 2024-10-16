@@ -51,7 +51,7 @@ export default class Legend {
       this.updateElementColor(this.getLegendElement(i), this.activeColor)
 
       const dataPoints = this.getDataPointElements()
-      if (dataPoints) {
+      if (dataPoints.size() > 0) {
         this.updateElementColor(dataPoints, this.activeColor, true)
       }
     }
@@ -62,7 +62,7 @@ export default class Legend {
       this.updateElementColor(this.getChartElement(i), this.colors[i])
       this.updateElementColor(this.getLegendElement(i), this.colors[i])
       const dataPoints = this.getDataPointElements()
-      if (dataPoints) {
+      if (dataPoints.size() > 0) {
         this.updateElementColor(dataPoints, this.colors[i])
       }
     }

@@ -209,11 +209,12 @@ function setStatementAssignee (statement) {
   return statement
 }
 export default {
-
   namespaced: true,
-  name: 'statement',
+
+  name: 'Statement',
 
   state: {
+    filterHash: '',
     statements: {},
     procedureId: '',
     selectedElements: {},
@@ -339,6 +340,11 @@ export default {
     /**
      * @param value
      */
+
+    updateFilterHash (state, value) {
+      set(state, 'filterHash', value)
+    },
+
     updatePagination (state, value) {
       state.pagination = Object.assign(state.pagination, value)
     },
@@ -524,7 +530,7 @@ export default {
             number: data.pagination.current_page,
             size: data.pagination.count
           },
-          view_mode: rootState.assessmentTable.viewMode,
+          view_mode: rootState.AssessmentTable.viewMode,
           sort: data.sort,
           // Size: data.pagination.size,
           fields: {
@@ -614,6 +620,7 @@ export default {
           commit('setFilteredState', response.meta.isFiltered)
           commit('setInitStatements', response.meta.statementAssignments)
           commit('setStatementGrouping', response.meta.grouping)
+          commit('updateFilterHash', response.meta.filterHash)
           const refinedStatements = {}
           const sessionStorageUpdates = {}
 

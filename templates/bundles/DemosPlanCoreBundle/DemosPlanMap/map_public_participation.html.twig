@@ -146,10 +146,10 @@
                             let id = procedure.getAttribute('data-procedure-id')
                             // only hide localized procedures if they are not visible in the map. Non-localized procedures will always be displayed
                             if (visibleMarkers.indexOf(id) < 0 && nonLocalizedProcedures.indexOf(id) < 0) {
-                                procedure.classList.add(prefixClass('hide-visually'))
+                                procedure.classList.add(prefixClass('sr-only'))
                             } else {
-                                if (procedure.classList.contains(prefixClass('hide-visually'))) {
-                                    procedure.classList.remove(prefixClass('hide-visually'))
+                                if (procedure.classList.contains(prefixClass('sr-only'))) {
+                                    procedure.classList.remove(prefixClass('sr-only'))
                                 }
                             }
                         })

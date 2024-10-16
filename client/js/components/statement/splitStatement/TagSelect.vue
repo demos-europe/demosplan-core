@@ -9,7 +9,7 @@ All rights reserved
 
 <template>
   <dp-multiselect
-    class="multiselect--dark inline-block align-bottom cursor-pointer"
+    class="multiselect--dark inline-block align-bottom cursor-pointer w-full"
     :class="{'has-selection': selected.length}"
     :placeholder="placeHolder"
     :options="tagsByTopic"
@@ -52,7 +52,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('splitstatement', {
+    ...mapGetters('SplitStatement', {
       tags: 'categorizedTags',
       editingSegment: 'editingSegment',
       uncategorizedTags: 'uncategorizedTags'
@@ -80,7 +80,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('splitstatement', [
+    ...mapActions('SplitStatement', [
       'updateCurrentTags'
     ]),
 

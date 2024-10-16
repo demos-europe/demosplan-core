@@ -18,7 +18,6 @@ return [
     Exercise\HTMLPurifierBundle\ExerciseHTMLPurifierBundle::class                      => ['all' => true],
     FOS\ElasticaBundle\FOSElasticaBundle::class                                        => ['all' => true],
     FOS\JsRoutingBundle\FOSJsRoutingBundle::class                                      => ['all' => true],
-    Hslavich\OneloginSamlBundle\HslavichOneloginSamlBundle::class                      => ['all' => true],
     Intriro\Bundle\CsvBundle\IntriroCsvBundle::class                                   => ['all' => true],
     JMS\SerializerBundle\JMSSerializerBundle::class                                    => ['all' => true],
     Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle::class           => ['all' => true],
@@ -37,7 +36,6 @@ return [
     Liip\TestFixturesBundle\LiipTestFixturesBundle::class                              => ['test' => true],
     Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class                          => ['test' => true, 'dev' => true],
     Symfony\Bundle\DebugBundle\DebugBundle::class                                      => ['dev' => true],
-    Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle::class               => ['all' => true],
     Bazinga\GeocoderBundle\BazingaGeocoderBundle::class                                => ['all' => true],
     Rollerworks\Bundle\PasswordStrengthBundle\RollerworksPasswordStrengthBundle::class => ['all' => true],
     EFrane\TusBundle\Bundle\TusBundle::class                                           => ['all' => true],
@@ -46,4 +44,6 @@ return [
     Enqueue\ElasticaBundle\EnqueueElasticaBundle::class                                => ['all' => true],
     DemosEurope\DemosplanAddon\DemosPlanAddonBundle::class                             => ['all' => true],
     Zenstruck\Foundry\ZenstruckFoundryBundle::class                                    => ['dev' => true, 'test' => true],
+    Scheb\TwoFactorBundle\SchebTwoFactorBundle::class                                  => ['all' => true],
+    Endroid\QrCodeBundle\EndroidQrCodeBundle::class                                    => ['all' => true],
 ];

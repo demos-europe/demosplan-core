@@ -237,7 +237,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
     @extend %btn-base;
     @include keyboard-focus($outline: false) {
         background-color: $dp-color-white;
-        box-shadow: 0 0 0 2px $dp-color-interactive-default;
+        box-shadow: 0 0 0 2px rgba($dp-color-interactive-default, 0.5);
         border-color: transparent !important;
     }
 
@@ -265,7 +265,15 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
 
     &.icon-only {
         // Assume that half leading is distributed well on non-system fonts...
-        padding: $dp-form-element-spacing-vertical $inuit-base-spacing-unit--tiny;
+        &.small {
+            padding: $dp-form-element-spacing-vertical $inuit-base-spacing-unit--tiny;
+        }
+        &.medium {
+            padding: $inuit-base-spacing-unit--tiny - 1px $inuit-base-spacing-unit--tiny;
+        }
+        &.large {
+            padding: 1px 2px;
+        }
     }
 
     border: 1px solid transparent;
@@ -363,7 +371,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
     @extend %btn-base;
     @include keyboard-focus($outline: false) {
         background-color: $dp-color-white;
-        box-shadow: 0 0 0 2px $dp-color-interactive-default;
+        box-shadow: 0 0 0 2px rgba($dp-color-interactive-default, 0.5);
         border-color: transparent !important;
     }
 

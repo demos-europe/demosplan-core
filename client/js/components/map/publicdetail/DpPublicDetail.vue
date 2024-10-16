@@ -17,13 +17,14 @@ import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/DpUnfoldToolbarControl'
 import Map from '@DpJs/components/map/publicdetail/Map'
 import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
-import { prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
 
 export default {
   name: 'DpPublicDetail',
 
   components: {
+    DpContextualHelp,
     'dp-custom-layer': CustomLayer,
     DpLayerLegend,
     'dp-map': Map,
@@ -68,7 +69,7 @@ export default {
   },
 
   computed: {
-    ...mapState('publicStatement', [
+    ...mapState('PublicStatement', [
       'activeActionBoxTab',
       'showMapHint',
       'initForm',
@@ -82,7 +83,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('publicStatement', ['initialiseStore', 'update', 'updateHighlighted', 'updateStatement']),
+    ...mapMutations('PublicStatement', ['initialiseStore', 'update', 'updateHighlighted', 'updateStatement']),
 
     checkKeyEvent (event) {
       if (this.isFullscreen) {

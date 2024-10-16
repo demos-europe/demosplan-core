@@ -52,6 +52,11 @@ class ProcedureAccessEvaluator
      */
     public function isOwningProcedure(User $user, Procedure $procedure): bool
     {
+        // guests can not own procedures
+        if ($user->isGuestOnly()) {
+            return false;
+        }
+
         $ownsProcedureConditionFactory = new OwnsProcedureConditionFactory(
             $this->conditionFactory,
             $this->globalConfig,

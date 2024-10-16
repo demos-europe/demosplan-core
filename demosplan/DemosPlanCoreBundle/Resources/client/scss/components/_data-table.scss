@@ -70,6 +70,7 @@
 
         .c-data-table__resizable {
             position: relative;
+            overflow: hidden;
 
             &--truncated {
                 @extend %break-words-with-hyphens;

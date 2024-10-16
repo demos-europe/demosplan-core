@@ -21,8 +21,8 @@ use Symfony\Component\Yaml\Yaml;
 
 final class Registrator
 {
-    public const ADDON_DIRECTORY = '/addons/';
-    public const ADDON_CACHE_DIRECTORY = '/addons/cache/';
+    public const ADDON_DIRECTORY = 'addons/';
+    public const ADDON_CACHE_DIRECTORY = 'addons/cache/';
 
     private const ADDON_YAML_INLINE_DEPTH = 100;
 

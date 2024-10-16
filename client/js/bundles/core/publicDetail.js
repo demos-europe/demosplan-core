@@ -30,7 +30,7 @@ const stores = {
   publicStatement
 }
 
-const apiStores = ['elements']
+const apiStores = ['Elements']
 
 //  Code to be run after mount of vue instance
 initialize(components, stores, apiStores).then(() => {

@@ -270,14 +270,14 @@ class PrepareReportFromProcedureService extends CoreService
         bool $createdBySystem
     ): ?ReportEntry {
         if ($this->hasPhaseChanged($sourceProcedure, $destinationProcedure)) {
-            $phase = $this->createPhaseChangeMessageData($sourceProcedure, $destinationProcedure);
+            $phaseChangeMessage = $this->createPhaseChangeMessageData($sourceProcedure, $destinationProcedure);
 
-            if (0 !== count($phase)) {
-                $phase['createdBySystem'] = $createdBySystem;
+            if (0 !== count($phaseChangeMessage)) {
+                $phaseChangeMessage['createdBySystem'] = $createdBySystem;
 
                 return $this->procedureReportEntryFactory->createPhaseChangeEntry(
                     $sourceProcedure,
-                    $phase,
+                    $phaseChangeMessage,
                     $user
                 );
             }
@@ -318,60 +318,73 @@ class PrepareReportFromProcedureService extends CoreService
         $this->reportService->persistAndFlushReportEntry($entry);
     }
 
-    private function createPhaseChangeMessageData(Procedure $sourceProcedure, Procedure $destinationProcedure): array
-    {
+    /**
+     * @return array<string, string|int>
+     *
+     * @throws ReflectionException
+     */
+    private function createPhaseChangeMessageData(
+        Procedure $sourceProcedure,
+        Procedure $destinationProcedure
+    ): array {
         $procedureId = $sourceProcedure->getId();
+        $changes = [];
 
-        $phase = [];
-
-        $phaseBefore = $sourceProcedure->getPhase();
-        $phaseAfter = $destinationProcedure->getPhase();
-        if ($phaseBefore !== $phaseAfter) {
-            $phase['oldPhase'] = $phaseBefore;
-            $phase['newPhase'] = $phaseAfter;
-            $phase['oldPhaseStart'] = $sourceProcedure->getStartDate()->getTimestamp();
-            $phase['newPhaseStart'] = $destinationProcedure->getStartDate()->getTimestamp();
-            $phase['oldPhaseEnd'] = $sourceProcedure->getEndDate()->getTimestamp();
-            $phase['newPhaseEnd'] = $destinationProcedure->getEndDate()->getTimestamp();
+        $oldInternPhase = $sourceProcedure->getPhaseObject();
+        $newInternPhase = $destinationProcedure->getPhaseObject();
+        if ($oldInternPhase->getKey() !== $newInternPhase->getKey()
+            || $oldInternPhase->getIteration() !== $newInternPhase->getIteration()
+        ) {
+            $changes['oldPhase'] = $oldInternPhase->getKey();
+            $changes['newPhase'] = $newInternPhase->getKey();
+            $changes['oldPhaseStart'] = $oldInternPhase->getStartDate()->getTimestamp();
+            $changes['newPhaseStart'] = $newInternPhase->getStartDate()->getTimestamp();
+            $changes['oldPhaseEnd'] = $oldInternPhase->getEndDate()->getTimestamp();
+            $changes['newPhaseEnd'] = $newInternPhase->getEndDate()->getTimestamp();
+            $changes['oldPhaseIteration'] = $oldInternPhase->getIteration();
+            $changes['newPhaseIteration'] = $newInternPhase->getIteration();
         }
 
-        $publicParticipationPhaseBefore = $sourceProcedure->getPublicParticipationPhase();
-        $publicParticipationPhaseAfter = $destinationProcedure->getPublicParticipationPhase();
-        if ($publicParticipationPhaseBefore !== $publicParticipationPhaseAfter) {
-            $phase['oldPublicPhase'] = $publicParticipationPhaseBefore;
-            $phase['newPublicPhase'] = $publicParticipationPhaseAfter;
-            $phase['oldPublicPhaseStart'] = $sourceProcedure->getPublicParticipationStartDate()->getTimestamp();
-            $phase['newPublicPhaseStart'] = $destinationProcedure->getPublicParticipationStartDate()->getTimestamp();
-            $phase['oldPublicPhaseEnd'] = $sourceProcedure->getPublicParticipationEndDate()->getTimestamp();
-            $phase['newPublicPhaseEnd'] = $destinationProcedure->getPublicParticipationEndDate()->getTimestamp();
+        $oldExternPhase = $sourceProcedure->getPublicParticipationPhaseObject();
+        $newExternPhase = $destinationProcedure->getPublicParticipationPhaseObject();
+        if ($oldExternPhase->getKey() !== $newExternPhase->getKey()
+            || $oldExternPhase->getIteration() !== $newExternPhase->getIteration()) {
+            $changes['oldPublicPhase'] = $oldExternPhase->getKey();
+            $changes['newPublicPhase'] = $newExternPhase->getKey();
+            $changes['oldPublicPhaseStart'] = $oldExternPhase->getStartDate()->getTimestamp();
+            $changes['newPublicPhaseStart'] = $newExternPhase->getStartDate()->getTimestamp();
+            $changes['oldPublicPhaseEnd'] = $oldExternPhase->getEndDate()->getTimestamp();
+            $changes['newPublicPhaseEnd'] = $newExternPhase->getEndDate()->getTimestamp();
+            $changes['oldPublicPhaseIteration'] = $oldExternPhase->getIteration();
+            $changes['newPublicPhaseIteration'] = $newExternPhase->getIteration();
         }
 
         $planText = $destinationProcedure->getSettings()->getPlanText();
         if ('' !== $planText) {
-            $phase['planText'] = $planText;
+            $changes['planText'] = $planText;
         }
         $planPdf = $destinationProcedure->getSettings()->getPlanPDF();
         if ('' !== $planPdf) {
-            $phase['planPDF'] = $planPdf;
+            $changes['planPDF'] = $planPdf;
         }
         $planDrawPdf = $destinationProcedure->getSettings()->getPlanDrawPDF();
         if ('' !== $planDrawPdf) {
-            $phase['planDrawPDF'] = $planDrawPdf;
+            $changes['planDrawPDF'] = $planDrawPdf;
         }
         $planPara1Pdf = $destinationProcedure->getSettings()->getPlanPara1PDF();
         if ('' !== $planPara1Pdf) {
-            $phase['begruendungPDF'] = $planPara1Pdf;
+            $changes['begruendungPDF'] = $planPara1Pdf;
         }
         $planPara2Pdf = $destinationProcedure->getSettings()->getPlanPara2PDF();
         if ('' !== $planPara2Pdf) {
-            $phase['verordnungPDF'] = $planPara2Pdf;
+            $changes['verordnungPDF'] = $planPara2Pdf;
         }
 
         $gisList = $this->mapService->getGisList($procedureId, null);
         foreach ($gisList as $gis) {
             if ($gis['bplan'] && !$gis['deleted']) {
-                $phase['planGisName'] = $gis['name'];
-                $phase['planGisVisible'] = $gis['visible'];
+                $changes['planGisName'] = $gis['name'];
+                $changes['planGisVisible'] = $gis['visible'];
             }
         }
 
@@ -393,20 +406,29 @@ class PrepareReportFromProcedureService extends CoreService
         }
 
         if (0 !== count($elements)) {
-            $phase['elements'] = $elements;
+            $changes['elements'] = $elements;
         }
 
         if (0 !== count($paragraphs)) {
-            $phase['paragraphs'] = $paragraphs;
+            $changes['paragraphs'] = $paragraphs;
         }
 
-        return $phase;
+        return $changes;
     }
 
     private function hasPhaseChanged(Procedure $sourceProcedure, Procedure $destinationProcedure): bool
     {
-        return 0 !== strcmp((string) $sourceProcedure->getPhase(), (string) $destinationProcedure->getPhase())
-            || 0 !== strcmp((string) $sourceProcedure->getPublicParticipationPhase(), (string) $destinationProcedure->getPublicParticipationPhase());
+        $oldPhase = $sourceProcedure->getPhaseObject();
+        $newPhase = $destinationProcedure->getPhaseObject();
+        $oldPublicPhase = $sourceProcedure->getPublicParticipationPhaseObject();
+        $newPublicPhase = $destinationProcedure->getPublicParticipationPhaseObject();
+
+        $internKeyHasChanged = 0 !== strcmp($oldPhase->getKey(), $newPhase->getKey());
+        $externKeyHasChanged = 0 !== strcmp($oldPublicPhase->getKey(), $newPublicPhase->getKey());
+        $internIterationHasChanged = $oldPhase->getIteration() !== $newPhase->getIteration();
+        $externIterationHasChanged = $oldPublicPhase->getIteration() !== $newPublicPhase->getIteration();
+
+        return $internKeyHasChanged || $externKeyHasChanged || $internIterationHasChanged || $externIterationHasChanged;
     }
 
     /**

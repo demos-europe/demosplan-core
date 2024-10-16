@@ -32,11 +32,10 @@ use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\JsonApi\ApiDocumentation\AttributeTypeResolver;
 use EDT\JsonApi\Event\BeforeDeletionEvent;
 use EDT\JsonApi\Event\BeforeUpdateEvent;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilder;
-use EDT\Querying\Contracts\PropertyAccessorInterface;
+use EDT\JsonApi\Utilities\PropertyBuilderFactory;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -49,25 +48,18 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
      */
     final public const IDENTIFIER = 'ProcedureCoupleTokenSubscriber';
 
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
     public function __construct(
-        private readonly AttributeTypeResolver $typeResolver,
         private readonly CurrentProcedureService $currentProcedureProvider,
         private readonly CurrentUserInterface $currentUserProvider,
         private readonly EntitySyncLinkRepository $entitySyncLinkRepository,
         private readonly MessageBagInterface $messageBag,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
         private readonly ProcedureCoupleTokenRepository $tokenRepository,
-        private readonly PropertyAccessorInterface $propertyAccessor,
+        private readonly PropertyBuilderFactory $propertyBuilderFactory,
         private readonly StatementResourceType $statementResourceType,
         private readonly TokenFactory $tokenFactory,
-        TranslatorInterface $translator
+        protected TranslatorInterface $translator
     ) {
-        $this->translator = $translator;
     }
 
     public static function getSubscribedEvents(): array
@@ -213,11 +205,9 @@ class ProcedureCoupleTokenSubscriber extends BaseEventSubscriber
      */
     protected function createSynchronizedAttribute(): AttributeConfigBuilder
     {
-        $attributeConfigBuilder = new AttributeConfigBuilder(
-            self::SYNCHRONIZED_PROPERTY,
+        $attributeConfigBuilder = $this->propertyBuilderFactory->createAttribute(
             $this->statementResourceType->getEntityClass(),
-            $this->propertyAccessor,
-            $this->typeResolver
+            self::SYNCHRONIZED_PROPERTY
         );
         $attributeConfigBuilder->readable(
             false,

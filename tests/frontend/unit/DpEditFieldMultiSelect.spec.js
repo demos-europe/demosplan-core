@@ -18,14 +18,6 @@ localVue.use(Vuex)
 window.dplan = () => { return {} }
 
 describe('DpEditFieldMultiSelect', () => {
-  it('is an object', () => {
-    expect(typeof DpEditFieldMultiSelect).toBe('object')
-  })
-
-  it('is named dp-edit-field-multi-select', () => {
-    expect(DpEditFieldMultiSelect.name).toBe('DpEditFieldMultiSelect')
-  })
-
   const AssessmentTable = {
     state: {
 

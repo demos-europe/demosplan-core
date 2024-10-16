@@ -28,7 +28,7 @@ use geoPHP\geoPHP;
 use Intervention\Image\ImageManager;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class GeoJsonToFeaturesConverter
 {

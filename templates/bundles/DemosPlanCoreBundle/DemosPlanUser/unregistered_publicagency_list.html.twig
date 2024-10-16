@@ -29,7 +29,11 @@
                     elements: [
                         {
                             label: { text: 'name'|trans },
-                            control: { name: 'r_name', value: '' },
+                            control: {
+                                name: 'r_name',
+                                value: '',
+                                attributes: ['data-cy=unregisteredPublicagencyListForm:name']
+                            },
                             type: 'text',
                             required: true,
                             size: 'large'
@@ -41,7 +45,11 @@
                     elements: [
                         {
                             label: { text: 'email.address'|trans },
-                            control: { name: 'r_emailAddress', value: '' },
+                            control: {
+                                name: 'r_emailAddress',
+                                value: '',
+                                attributes: ['data-cy=unregisteredPublicagencyListForm:emailAddress']
+                            },
                             type: 'text',
                             required: true,
                             size: 'large'
@@ -67,6 +75,7 @@
                     id="select_all"
                     type="checkbox"
                     class="u-mr-0"
+                    data-cy="unregisteredPublicagencyListForm:selectAll"
                     data-form-actions-check-all>
                 {{ "markall"|trans }}
             </label>
@@ -74,6 +83,7 @@
             <i class="fa fa-times-circle btn-icns-icon btn-icns-icon--thin u-pb-0_25"></i>
             <input
                 class="btn-icns btn-icns--thin u-pl-0"
+                data-cy="unregisteredPublicagencyListForm:deleteEntry"
                 name="r_delete_entry"
                 data-form-actions-confirm="{{ "check.entries.marked.delete"|trans }}"
                 type="submit"
@@ -96,7 +106,12 @@
                 {% for entry in entries  %}
                     <tr class="border--top o-sortablelist__item">
                         <td class="u-pl-0_5">
-                            <input name="entry_selected[]" type="checkbox" value="{{ entry.id }}" data-checkable-item>
+                            <input
+                                name="entry_selected[]"
+                                type="checkbox"
+                                data-cy="unregisteredPublicagencyListForm:entrySelected"
+                                value="{{ entry.id }}"
+                                data-checkable-item>
                         </td>
                         <td class="u-pl-0_5 u-pt-0_5">
                             <p>{{ entry.name }}</p>

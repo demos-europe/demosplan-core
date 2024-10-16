@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment;
 use EDT\JsonApi\PropertyConfig\Builder\PropertyConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathException;
 use Elastica\Index;
 
 /**
@@ -57,7 +58,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         private readonly QuerySegment $esQuery,
         JsonApiEsService $jsonApiEsService,
         private readonly PlaceResourceType $placeResourceType,
-        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
     ) {
         $this->esType = $jsonApiEsService->getElasticaTypeForTypeName(self::getName());
     }
@@ -86,6 +87,9 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         return $this->currentUser->hasPermission('feature_json_api_statement_segment');
     }
 
+    /**
+     * @throws PathException
+     */
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
@@ -103,10 +107,9 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
             ->filterNonOwnedProcedureIds($currentUser, ...$allowedProcedures);
         $procedureIds[] = $procedureId;
 
-        return [$this->conditionFactory->propertyHasAnyOfValues(
-            $procedureIds,
-            $this->parentStatementOfSegment->procedure->id
-        )];
+        return [] === $procedureIds
+            ? [$this->conditionFactory->false()]
+            : [$this->conditionFactory->propertyHasAnyOfValues($procedureIds, $this->parentStatementOfSegment->procedure->id)];
     }
 
     public function getFacetDefinitions(): array

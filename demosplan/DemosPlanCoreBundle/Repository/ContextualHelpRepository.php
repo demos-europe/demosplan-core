@@ -133,7 +133,7 @@ class ContextualHelpRepository extends FluentRepository implements ArrayInterfac
      *
      * @throws Exception
      */
-    public function copy(Gislayer $sourceGisLayer, GisLayer $newGisLayer)
+    public function copy(GisLayer $sourceGisLayer, GisLayer $newGisLayer)
     {
         try {
             /** @var ContextualHelp|null $contextualHelp */
@@ -146,7 +146,7 @@ class ContextualHelpRepository extends FluentRepository implements ArrayInterfac
             $newContextualHelp->setKey('gislayer.'.$newGisLayer->getId());
 
             $this->getEntityManager()->persist($newContextualHelp);
-            $this->getEntityManager()->flush($newContextualHelp);
+            $this->getEntityManager()->flush();
 
             return $newContextualHelp;
         } catch (Exception $e) {
@@ -281,8 +281,6 @@ class ContextualHelpRepository extends FluentRepository implements ArrayInterfac
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

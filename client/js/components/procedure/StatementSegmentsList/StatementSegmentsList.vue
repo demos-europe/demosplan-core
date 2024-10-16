@@ -23,6 +23,7 @@
       <segment-location-map
         v-show="slidebar.showTab === 'map'"
         ref="locationMap"
+        :map-data="procedureMapSettings"
         :procedure-id="procedureId"
         :segment-id="slidebar.segmentId"
         :statement-id="statementId" />
@@ -31,8 +32,11 @@
     <dp-sticky-element>
       <header class="border--bottom u-pv-0_5 flow-root">
         <div class="inline-flex space-inline-m">
-          <h1 :class="['font-size-larger align-middle inline-block u-m-0']">
-            {{ Translator.trans('statement') }} #{{ statementExternId }}
+          <status-badge
+            class="mr-2"
+            :status="statement.attributes.status || 'new'" />
+          <h1 class="font-size-larger align-middle inline-block u-m-0">
+            #{{ statementExternId }}
           </h1>
           <div
             v-if="hasPermission('feature_segment_recommendation_edit')"
@@ -53,7 +57,7 @@
             </button>
           </div>
         </div>
-        <ul class="float-right space-inline-s flex">
+        <ul class="float-right space-inline-s flex items-center">
           <li v-if="!statement.attributes.synchronized">
             <dp-claim
               class="o-flyout__trigger u-ph-0_25 line-height--2"
@@ -67,11 +71,10 @@
               @click="toggleClaimStatement" />
           </li>
           <li>
-            <dp-button
-              class="u-ph-0_25"
-              @click="showHintAndDoExport()"
-              :text="Translator.trans('export.verb')"
-              variant="subtle" />
+            <statement-export-modal
+              data-cy="statementSegmentsList:export"
+              @export="showHintAndDoExport"
+              is-single-statement-export />
           </li>
           <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
@@ -173,10 +176,12 @@ import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHist
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
 import SegmentsRecommendations from './SegmentsRecommendations'
+import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatementSegmentsEdit from './StatementSegmentsEdit'
+import StatusBadge from '../Shared/StatusBadge.vue'
 
 export default {
   name: 'StatementSegmentsList',
@@ -191,10 +196,12 @@ export default {
     SegmentCommentsList,
     SegmentLocationMap,
     SegmentsRecommendations,
+    StatementExportModal,
     StatementMeta,
     StatementMetaAttachmentsLink,
     StatementMetaTooltip,
-    StatementSegmentsEdit
+    StatementSegmentsEdit,
+    StatusBadge
   },
 
   provide () {
@@ -252,6 +259,7 @@ export default {
     return {
       currentAction: 'addRecommendation',
       isLoading: false,
+      procedureMapSettings: {},
       segmentDraftList: '',
       // Add key to meta box to rerender the component in case the save request fails and the data is store in set back to initial values
       showInfobox: false,
@@ -261,21 +269,21 @@ export default {
   },
 
   computed: {
-    ...mapState('assignableUser', {
+    ...mapState('AssignableUser', {
       assignableUsersObject: 'items'
     }),
 
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
-    ...mapState('statement', {
+    ...mapState('Statement', {
       statements: 'items'
     }),
 
-    ...mapState('segmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', ['slidebar']),
 
-    ...mapGetters('segmentSlidebar', ['commentsList']),
+    ...mapGetters('SegmentSlidebar', ['commentsList']),
 
     additionalAttachments () {
       /**
@@ -408,27 +416,32 @@ export default {
   },
 
   methods: {
-    ...mapMutations('segmentSlidebar', [
+    ...mapMutations('SegmentSlidebar', [
       'setContent',
       'setProperty'
     ]),
 
-    ...mapMutations('statement', {
+    ...mapMutations('Statement', {
       setStatement: 'setItem'
     }),
 
-    ...mapActions('statement', {
+    ...mapActions('AssignableUser', {
+      listAssignableUser: 'list'
+    }),
+
+    ...mapActions('ProcedureMapSettings', {
+      fetchLayers: 'fetchLayers',
+      fetchProcedureMapSettings: 'fetchProcedureMapSettings'
+    }),
+
+    ...mapActions('Statement', {
       getStatementAction: 'get',
       saveStatementAction: 'save',
       updateStatementAction: 'update',
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapActions('assignableUser', {
-      listAssignableUser: 'list'
-    }),
-
-    ...mapActions('segmentSlidebar', [
+    ...mapActions('SegmentSlidebar', [
       'toggleSlidebarContent'
     ]),
 
@@ -506,6 +519,7 @@ export default {
         'memo',
         'recommendation',
         'segmentDraftList',
+        'status',
         'submitDate',
         'submitName',
         'submitType',
@@ -605,12 +619,26 @@ export default {
       this.currentAction = action || defaultAction
     },
 
-    showHintAndDoExport () {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
+      const parameters = {
+        procedureId: this.procedureId,
+        statementId: this.statementId
+      }
+
+      if (docxHeaders) {
+        parameters.tableHeaders = {
+          col1: docxHeaders.col1,
+          col2: docxHeaders.col2,
+          col3: docxHeaders.col3
+        }
+      }
+
+      if (fileNameTemplate) {
+        parameters.fileNameTemplate = fileNameTemplate
+      }
+
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = Routing.generate('dplan_segments_export', {
-          procedureId: this.procedureId,
-          statementId: this.statementId
-        })
+        window.location.href = Routing.generate(route, parameters)
       }
     },
 
@@ -701,6 +729,17 @@ export default {
       }
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedureId, statementId: this.statementId } })
+    this.fetchProcedureMapSettings({ procedureId: this.procedureId })
+      .then(response => {
+        this.procedureMapSettings = { ...this.procedureMapSettings, ...response.attributes }
+      })
+
+    this.fetchLayers(this.procedureId)
+      .then(response => {
+        this.procedureMapSettings.layers = response.data
+          .filter(layer => layer.attributes.isEnabled && layer.attributes.hasDefaultVisibility)
+          .map(layer => layer.attributes)
+      })
   }
 }
 </script>

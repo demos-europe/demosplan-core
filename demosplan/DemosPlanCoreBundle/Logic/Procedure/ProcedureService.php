@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureDeletedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
@@ -61,6 +62,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\EntityPreparator;
 use demosplan\DemosPlanCoreBundle\Logic\Export\FieldConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
@@ -71,6 +73,7 @@ use demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
+use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
 use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionMailRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
@@ -105,6 +108,7 @@ use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\SortMethodInterface;
 use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
+use Illuminate\Support\Collection;
 use ReflectionException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormInterface;
@@ -113,7 +117,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use Tightenco\Collect\Support\Collection;
 use TypeError;
 
 class ProcedureService extends CoreService implements ProcedureServiceInterface
@@ -163,6 +166,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     protected $fieldConfigurator;
 
     public function __construct(
+        private readonly FileRepository $fileRepository,
         private readonly BoilerplateCategoryRepository $boilerplateCategoryRepository,
         private readonly BoilerplateGroupRepository $boilerplateGroupRepository,
         private readonly BoilerplateRepository $boilerplateRepository,
@@ -211,7 +215,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         private readonly TranslatorInterface $translator,
         UserService $userService,
         private readonly ValidatorInterface $validator,
-        private readonly string $environment
+        private readonly AccessControlService $accessControlPermissionService,
+        private readonly string $environment,
     ) {
         $this->contentService = $contentService;
         $this->elementsService = $elementsService;
@@ -592,7 +597,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $sort = null,
         bool $template = false,
         $toLegacy = true,
-        $excludeArchived = true
+        $excludeArchived = true,
     ) {
         try {
             $adminConditions = $this->getAdminProcedureConditions($template, $user);
@@ -731,7 +736,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $procedureId,
         ?User $user = null,
         $excludeUser = false,
-        $excludeProcedureAuthorizedUsers = true
+        $excludeProcedureAuthorizedUsers = true,
     ): Collection {
         if (null === $user) {
             $user = $this->currentUser->getUser();
@@ -834,6 +839,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $blueprintId = $data['copymaster'] ?? null;
             $blueprintId = $blueprintId instanceof Procedure ? $blueprintId->getId() : $blueprintId;
             $newProcedure = $this->setAuthorizedUsersToProcedure($newProcedure, $blueprintId, $currentUserId);
+            $newProcedure = $this->addCurrentOrgaToPlanningOffices($newProcedure, $currentUserId);
+
             if (\array_key_exists('explanation', $data)) {
                 // Create a Paragraph Element from the explanation and add it to the procedure
                 $explanation = $data['explanation'];
@@ -1505,7 +1512,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         string $procedureId,
         bool $includeNewsCategory = true,
         bool $includeEmailCategory = true,
-        bool $includeConsiderationCategory = true
+        bool $includeConsiderationCategory = true,
     ): array {
         return $this->boilerplateCategoryRepository->getBoilerplateCategoryList(
             $procedureId,
@@ -1542,7 +1549,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         try {
             $data['procedure'] = $this->getProcedure($procedureId);
 
-            return $this->boilerplateRepository->add($data);
+            $addToCategories = [];
+            if ($this->currentUser->hasPermission('feature_enable_default_consideration_BoilerplateCategory')) {
+                // add consideration as BoilerplateCategory by default
+                $addToCategories[] = 'consideration';
+            }
+
+            return $this->boilerplateRepository->add($data, $addToCategories);
         } catch (Exception) {
             $this->logger->warning('Post boilerplate failed');
         }
@@ -2079,8 +2092,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Set authorized users to given procedure.
      * Will set at least the current user as authorized user to ensure one user will be authorized.
-     * Will set all users of organisation of the current user in case of given blueprint is the master blueprint.
      * Will set all authorized users of given blueprint.
+     * Will set only the current user in case of given blueprint is the master blueprint.
      *
      * @param string|Procedure $blueprint
      * @param string           $currentUserId
@@ -2109,6 +2122,23 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             if ($blueprint->isMasterTemplate() || $blueprint->isCustomerMasterBlueprint()) {
                 $newProcedure->setAuthorizedUsers([$currentUser]);
             }
+        }
+
+        return $newProcedure;
+    }
+
+    /**
+     * If orga has the permission, add current orga to authorized planning offices to given procedure.
+     *
+     * @throws Exception
+     */
+    protected function addCurrentOrgaToPlanningOffices(Procedure $newProcedure, string $currentUserId): Procedure
+    {
+        $currentUser = $this->userService->getSingleUser($currentUserId);
+
+        if ($this->accessControlPermissionService->checkPermissionForOrgaType(AccessControlService::CREATE_PROCEDURES_PERMISSION, $currentUser->getOrga(), $this->customerService->getCurrentCustomer())
+            && $this->accessControlPermissionService->permissionExist(AccessControlService::CREATE_PROCEDURES_PERMISSION, $currentUser->getOrga(), $this->customerService->getCurrentCustomer(), $currentUser->getRoles())) {
+            $newProcedure->addPlanningOffice($currentUser->getOrga());
         }
 
         return $newProcedure;
@@ -2532,7 +2562,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         array $filters,
         $search,
         $excludeArchived,
-        bool $limitProcedureTemplatesToCustomer
+        bool $limitProcedureTemplatesToCustomer,
     ): array {
         $conditions = [];
         if (\is_string($search) && 0 < \strlen($search)) {
@@ -2543,7 +2573,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }
 
         if (isset($filters['municipalCode']) && \is_array($filters['municipalCode'])) {
-            $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], ['municipalCode']);
+            $conditions[] = [] === $filters['municipalCode']
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], ['municipalCode']);
         }
 
         if ($limitProcedureTemplatesToCustomer) {
@@ -2593,8 +2625,12 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         if (isset($filters['excludeHiddenPhases'])) {
             // Include only procedures where at least one phase is not hidden
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase', 'key']),
-                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase', 'key']),
+                [] === $hiddenPhases
+                    ? $this->conditionFactory->false()
+                    : $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase', 'key']),
+                [] === $hiddenPhases
+                    ? $this->conditionFactory->false()
+                    : $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase', 'key']),
             );
         }
 
@@ -2702,20 +2738,47 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         // copy NotificationReceiver (Email to counties T433)
         $this->notificationReceiverRepository->copy($blueprintId, $newProcedure->getId());
 
+        // copy procedure legend file.
+        $this->copyLegend($blueprintId, $newProcedure);
+
         // copy demosplan\DemosPlanCoreBundle\Entity\Setting.php: (not procedure.settings)
         $this->settingRepository->copy($blueprintId, $newProcedure);
 
         $this->copyPlaces($blueprintId, $newProcedure);
 
-        /** @var Procedure $blueprint */
-        $blueprint = $this->procedureRepository->get($blueprintId);
-        $newProcedure->getPhaseObject()->copyValuesFromPhase($blueprint->getPhaseObject());
-        $newProcedure->getPublicParticipationPhaseObject()->copyValuesFromPhase($blueprint->getPublicParticipationPhaseObject());
-
         /** @var NewProcedureAdditionalDataEvent $additionalDataEvent */
         $additionalDataEvent = $this->eventDispatcher->dispatch(new NewProcedureAdditionalDataEvent($newProcedure));
 
         return $additionalDataEvent->getProcedure();
+    }
+
+    /**
+     * Will copy legend file and reference it to the created procedure.
+     *
+     * @throws Exception
+     */
+    private function copyLegend($blueprintId, ProcedureInterface $newProcedure): void
+    {
+        try {
+            $blueprint = $this->getProcedureWithCertainty($blueprintId);
+            $legendStringFromBlueprint = $blueprint->getSettings()->getPlanPDF();
+
+            if ('' === $legendStringFromBlueprint) {
+                return;
+            }
+
+            // copy legend
+            $copiedFile = $this->fileService->copyByFileString($legendStringFromBlueprint, $newProcedure->getId());
+
+            // set planPDF with the referenced legends file and update procedure setting
+            $newProcedurePlanPdf = $copiedFile->getFileString();
+            $newProcedureSettings = $newProcedure->getSettings();
+
+            $newProcedureSettings->setPlanPDF($newProcedurePlanPdf);
+        } catch (Exception $e) {
+            $this->logger->warning('Copy legends file failed. Message: ', [$e]);
+            throw $e;
+        }
     }
 
     private function copyPlaces(string $sourceProcedureTemplateId, Procedure $targetProcedure): void

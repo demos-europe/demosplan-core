@@ -54,7 +54,7 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
         try {
             $em = $this->getEntityManager();
             $em->persist($tagTopic);
-            $em->flush($tagTopic);
+            $em->flush();
         } catch (Exception $e) {
             $this->logger->error('Add TagTopic failed: ', [$e]);
 

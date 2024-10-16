@@ -11,7 +11,8 @@ import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 export default {
   namespaced: true,
-  name: 'fragment',
+
+  name: 'Fragment',
 
   state: {
     /**
@@ -480,11 +481,11 @@ export default {
 
           // If the reviewer has been set, update fragment assignment
           if (hasOwnProp(data, 'departmentId')) {
-            if (hasOwnProp(data, 'lastClaimed') && hasOwnProp(responseRelationships, 'lastClaimedUser')) {
+            if (hasOwnProp(data, 'lastClaimed') && responseRelationships.lastClaimedUser?.data) {
               dataToUpdate.lastClaimedUserId = responseRelationships.lastClaimedUser.data.id
             }
 
-            dataToUpdate.departmentId = hasOwnProp(responseRelationships, 'department') ? responseRelationships.department.data.id : ''
+            dataToUpdate.departmentId = responseRelationships.department?.data ? responseRelationships.department.data.id : ''
 
             if (dataToUpdate.departmentId) { // If departmentId is in response and is not null
               // we reset the assignee with the values from BE

@@ -450,8 +450,8 @@ export default {
   },
 
   computed: {
-    ...mapState('assessmentTable', ['statementFormDefinitions']),
-    ...mapState('fragment', ['sideBarInitialized']),
+    ...mapState('AssessmentTable', ['statementFormDefinitions']),
+    ...mapState('Fragment', ['sideBarInitialized']),
 
     fragmentCreatedDate () {
       return formatDate(this.fragment.created)
@@ -585,7 +585,7 @@ export default {
 
     //  Map store getters to local computed properties with object spread operator
     ...mapGetters(
-      'assessmentTable',
+      'AssessmentTable',
       [
         'adviceValues',
         'agencies',
@@ -600,12 +600,12 @@ export default {
         'tags'
       ]
     ),
-    ...mapGetters('fragment', ['fragmentById', 'selectedFragments']),
-    ...mapGetters('statement', ['selectedElements'])
+    ...mapGetters('Fragment', ['fragmentById', 'selectedFragments']),
+    ...mapGetters('Statement', ['selectedElements'])
   },
 
   methods: {
-    ...mapActions('fragment', ['updateFragmentAction', 'addFragmentToSelectionAction', 'deleteFragmentAction', 'removeFragmentFromSelectionAction', 'setAssigneeAction']),
+    ...mapActions('Fragment', ['updateFragmentAction', 'addFragmentToSelectionAction', 'deleteFragmentAction', 'removeFragmentFromSelectionAction', 'setAssigneeAction']),
 
     deleteFragment (fragmentId) {
       if (dpconfirm(Translator.trans('check.fragment.delete'))) {

@@ -9,6 +9,7 @@
 
 import {
   DpAccordion,
+  DpContextualHelp,
   DpFlyout,
   DpObscure,
   dpValidateMultiselectDirective,
@@ -89,6 +90,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.component('DpFlyout', DpFlyout)
     app.component('HamburgerMenuButton', HamburgerMenuButton)
     app.component('RegisterFlyout', RegisterFlyout)
+    app.component('DpContextualHelp', DpContextualHelp)
 
     Object.keys(components).forEach(comp => {
       if (components[comp]) {

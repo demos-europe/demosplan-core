@@ -36,21 +36,6 @@
     },
     {
         "license": "MIT",
-        "package": "demos-europe/edt-dql",
-        "website": "https://github.com/demos-europe/edt-dql"
-    },
-    {
-        "license": "MIT",
-        "package": "demos-europe/edt-extra",
-        "website": "https://github.com/demos-europe/edt-extra"
-    },
-    {
-        "license": "MIT",
-        "package": "demos-europe/edt-paths",
-        "website": "https://github.com/demos-europe/edt-paths"
-    },
-    {
-        "license": "MIT",
         "package": "doctrine/annotations",
         "website": "https://github.com/doctrine/annotations"
     },
@@ -103,6 +88,11 @@
         "license": "MIT",
         "package": "egulias/email-validator",
         "website": "https://github.com/egulias/EmailValidator"
+    },
+    {
+        "license": "MIT",
+        "package": "endroid/qr-code-bundle",
+        "website": "https://github.com/endroid/qr-code-bundle"
     },
     {
         "license": "MIT",
@@ -176,8 +166,8 @@
     },
     {
         "license": "MIT",
-        "package": "hslavich/oneloginsaml-bundle",
-        "website": "https://github.com/hslavich/OneloginSamlBundle"
+        "package": "illuminate/collections",
+        "website": "https://github.com/illuminate/collections"
     },
     {
         "license": "MIT",
@@ -203,6 +193,11 @@
         "license": "MIT",
         "package": "jms/serializer-bundle",
         "website": "https://github.com/schmittjoh/JMSSerializerBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "khanamiryan/qrcode-detector-decoder",
+        "website": "https://github.com/khanamiryan/php-qrcode-detector-decoder"
     },
     {
         "license": "MIT",
@@ -346,8 +341,18 @@
     },
     {
         "license": "MIT",
-        "package": "sensio/framework-extra-bundle",
-        "website": "https://github.com/sensiolabs/SensioFrameworkExtraBundle"
+        "package": "scheb/2fa-bundle",
+        "website": "https://github.com/scheb/2fa-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "scheb/2fa-email",
+        "website": "https://github.com/scheb/2fa-email"
+    },
+    {
+        "license": "MIT",
+        "package": "scheb/2fa-totp",
+        "website": "https://github.com/scheb/2fa-totp"
     },
     {
         "license": "MIT",
@@ -531,6 +536,11 @@
     },
     {
         "license": "MIT",
+        "package": "symfony/rate-limiter",
+        "website": "https://github.com/symfony/rate-limiter"
+    },
+    {
+        "license": "MIT",
         "package": "symfony/security-bundle",
         "website": "https://github.com/symfony/security-bundle"
     },
@@ -601,18 +611,8 @@
     },
     {
         "license": "MIT",
-        "package": "tightenco/collect",
-        "website": "https://github.com/tighten/collect"
-    },
-    {
-        "license": "MIT",
         "package": "timeweb/phpstan-enum",
         "website": "https://github.com/timeweb/phpstan-enum"
-    },
-    {
-        "license": "BSD-3-Clause",
-        "package": "twig/twig",
-        "website": "https://github.com/twigphp/Twig"
     },
     {
         "license": "MIT",

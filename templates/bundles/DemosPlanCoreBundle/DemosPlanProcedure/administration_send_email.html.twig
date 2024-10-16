@@ -28,7 +28,13 @@
             elements: [
                 {
                     label: { text: 'subject'|trans },
-                    control: { name: 'r_email_subject', attributes: ['maxlength=78'] },
+                    control: {
+                        name: 'r_email_subject',
+                        attributes: [
+                            'data-cy=sendEmail:emailSubject',
+                            'maxlength=78'
+                        ]
+                    },
                     id: 'r_email_subject',
                     type: 'text',
                     required: true,

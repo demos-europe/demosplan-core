@@ -73,9 +73,23 @@ area_admin_import:
     loginRequired: true
     parent: area_admin
 area_admin_map:
+    description: |-
+        Controls ResourceType and Access to Map Settings.
     label: 'Verwalten Planzeichnung'
     loginRequired: true
     parent: area_admin
+area_admin_elements:
+    description: |-
+        Display the admin list of elements (documents) of the procedure
+    label: 'Dokumente des Verfahrens'
+    loginRequired: true
+    parent: area_admin
+area_admin_initial_map_view:
+    description: |-
+        Enable only menu item to show the initial map section in the procedure.
+    label: 'Karteneinstellungen'
+    loginRequired: true
+    parent: area_admin_map
 area_admin_map_description:
     label: 'Verwalten Planzeichenerkl.'
     loginRequired: true
@@ -125,6 +139,7 @@ area_admin_protocol:
 area_admin_single_document:
     label: 'Verwalten Planungsdokumente'
     loginRequired: true
+    expose: true
     parent: area_admin
 area_admin_statement_list:
     description: 'New list with Statements belonging to a Procedure showing basic info for each Statement so the planner can have a quick overview of the status of the Procedure.'
@@ -537,6 +552,9 @@ area_use_mastertoeblist:
     expose: true
     label: 'use Mastertöbliste'
     loginRequired: true
+feature_2fa:
+    label: 'Allow two-factor authentication'
+    loginRequired: true
 feature_admin_assessmenttable_export_docx:
     label: 'Abwägungstabelle in Docx-Format exportieren'
     loginRequired: true
@@ -735,6 +753,12 @@ feature_customer_support_contact_administration:
     label: 'Enables the option to create/edit/delete supportContact entities.'
     expose: true
     loginRequired: true
+feature_customer_support_technical_read:
+    description: |-
+        Enables the technical support tab under /informationen
+    label: 'Enables the technical support tab under /informationen.'
+    expose: true
+    loginRequired: true
 feature_customer_login_support_contact_administration:
     description: |-
         Enables the option to create/edit/delete the customer supportLoginContact entity.
@@ -775,6 +799,12 @@ feature_data_protection_text_customized_view:
     label: 'View customized data protection text'
     parent: area_data_protection_text
     loginRequired: false
+feature_enable_default_consideration_BoilerplateCategory:
+    description: |-
+        Adds new Boilerplate(s) to the category consideration by default.
+        The checkbox - show within consideration - is checked by default.
+    label: show Boilerplate within considerations
+    loginRequired: true
 feature_department_add:
     description: 'allows the user to create a new department'
     label: 'create department'
@@ -1087,7 +1117,29 @@ feature_layer_groups_alternate_visibility:
         Activate feature to show only layers from one category simultaneously.
         Disable showing layers from different categories at once.
     label: 'Hide other layer categories if overlay from another category is visible'
+    expose: true
     loginRequired: true
+feature_manage_procedure_creation_permission:
+    description: |-
+        Allows the user to update if an orga is allowed to create new procedures.
+    expose: true
+    label: 'Permission to enable orga to create procedures.'
+    loginRequired: true
+    parent: [area_manage_orgas, area_manage_orgas_all]
+feature_map_attribution:
+    description: |-
+        Restrict the access to edit the public map copyright/attribution (in the admin area)
+    label: 'Restrict the access to edit the public map copyright/attribution (in the admin area)'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
+feature_map_baselayer:
+    description: |-
+        Enables the usage of custom baselayers (next to the overlays) in the map
+    label: 'Allow configuring baselayers'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_category:
     expose: true
     label: 'Kategorien in Kartenlayer'
@@ -1097,6 +1149,20 @@ feature_map_deactivate:
     expose: true
     label: 'Planungsdokumentenkategorie Map deaktivieren'
     loginRequired: false
+    parent: area_admin_map
+feature_map_feature_info:
+    description: |-
+        Restrict the access to edit the public map information url (in the admin area)
+    label: 'Restrict the access to edit the public map information url (in the admin area)'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
+feature_map_layer_visibility:
+    description: |-
+        Manage visibility settings related to the map layer (in the admin area)
+    label: 'Manage visibility settings related to the map layer (in the admin area)'
+    expose: true
+    loginRequired: true
     parent: area_admin_map
 feature_map_hint:
     expose: true
@@ -1117,11 +1183,25 @@ feature_map_layer_legend_file:
     label: 'Enables uploading/displaying of legend files for specific layers.'
     loginRequired: false
     parent: area_map_participation_area
+feature_map_max_extent:
+    description: |-
+        Restrict the access to get the max extension of the public map (in the admin area)
+    label: 'Restrict the access to get the max extension of the public map (in the admin area)'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_new_statement:
     expose: true
     label: 'Planzeichnung Neue Stellungnahme'
     loginRequired: false
     parent: area_map_participation_area
+feature_map_print_layer:
+    description: |-
+        Allow configuring (in the map admin area) if a layer is displayed in the map screenshot (in the exports)
+    label: 'Toggle layer visibility in exports'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_search_location:
     expose: true
     label: 'Darf ein User nach ORT/PLZ suchen können?'
@@ -1269,6 +1349,11 @@ feature_organisation_set_showlist:
     label: 'Anzeigen der Organisation in der Institutionen-Liste'
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
+feature_organisation_user_list:
+    description: 'allows to show Organisations list but does not allow access to the Organisation area in the menu'
+    expose: true
+    label: 'Allow User to see Organisations fields'
+    loginRequired: true
 feature_original_newsletter:
     description: |-
         enables the internal newsletter - gets overruled by feature_alternative_newsletter in case both permissions
@@ -1427,6 +1512,21 @@ feature_procedure_export_include_assessment_table_original:
         "Originalstellungnahmen" directory in each procedure directory in the export.
     expose: false
     label: 'Procedure export with original statements'
+    loginRequired: true
+feature_procedure_export_include_cover_page:
+    description: |-
+        The procedure export generates a ZIP archive. If this permission is enabled
+        a document ("Deckblatt.pdf") will be included in each procedure directory in the export.
+    expose: false
+    label: 'Procedure export with cover page'
+    loginRequired: true
+feature_procedure_export_include_current_news:
+    description: |-
+        The procedure export generates a ZIP archive. If this permission is enabled
+        a document ("Aktuelles.pdf") containing a list of news will be included in
+        each procedure directory in the export.
+    expose: false
+    label: 'Procedure export with news'
     loginRequired: true
 feature_procedure_export_include_public_interest_bodies_member_list:
     description: |-
@@ -1920,6 +2020,11 @@ feature_statement_delete:
     expose: true
     label: 'Delete (non-draft, non-original) statements.'
     loginRequired: true
+feature_statement_file_filter_set:
+    description: 'Set file to filter in statement list.'
+    expose: true
+    label: 'Allow the user to set file as a filter'
+    loginRequired: true
 feature_statement_fragment_bulk_edit:
     description: 'In assessment table, if this feature is active, after selecting multiple fragments, appears menu with options to edit them in batch.'
     label: 'Allows changes of multiple statement fragments at once'
@@ -2346,6 +2451,7 @@ feature_user_list_extended:
     loginRequired: true
 feature_xplan_defaultlayers:
     label: 'Benutze vordefinierte XPlanLayer'
+    expose: true
     loginRequired: true
 field_county_list:
     label: 'betroffene Kreise'
@@ -2445,9 +2551,10 @@ field_paragraph_lock_statement:
     label: 'Statements can be locked for some paragraphs'
     loginRequired: false
 field_phase_iterator:
-      description: 'Additional counter for procedurephases to identify and count the number of itertions a specific phase is in because it is kind of usual that a phase is used and iteratet through more than once.'
-      label: 'Procedrephases extended/enhanced by a counter to identify the iteration the phase is currently in.'
-      loginRequired: false
+    description: 'Additional counter for procedurephases to identify and count the number of itertions a specific phase is in because it is kind of usual that a phase is used and iteratet through more than once.'
+    label: 'Procedrephases extended/enhanced by a counter to identify the iteration the phase is currently in.'
+    loginRequired: false
+    expose: true
 field_priority_area_list:
     label: 'betroffene Gemeinden'
     loginRequired: true

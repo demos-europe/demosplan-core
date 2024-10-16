@@ -6,7 +6,7 @@
         subnav: [ {
             href: path('DemosPlan_procedure_import', { procedureId: procedure }),
             label:  'statement.new'|trans,
-            datacy: 'listStatements:statementNew',
+            datacy: 'createStatement',
             icon: 'fa-plus'
         }],
         flush: true
@@ -18,7 +18,6 @@
     {% endfor %}
 
     <list-statements
-        class="u-mv-0_5"
         current-user-id="{{ currentUser.ident }}"
         :is-source-and-coupled-procedure="{{ templateVars.isSourceAndCoupledProcedure == 1 ? 'true' : 'false' }}"
         procedure-id="{{ procedure }}"

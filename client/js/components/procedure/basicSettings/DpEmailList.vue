@@ -11,8 +11,11 @@
   <div>
     <dp-editable-list
       :entries="emails"
+      :data-cy="dataCy !== '' ? `${dataCy}:emailList` : `emailList`"
+      @delete="handleDelete"
       @reset="resetForm"
       @saveEntry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
+      @show-update-form="showUpdateForm"
       :translation-keys="translationKeys"
       ref="listComponent">
       <template v-slot:list="entry">
@@ -21,14 +24,14 @@
             type="email"
             :value="entry.mail"
             :name="formFieldName"
-            class="hide-visually">
+            class="sr-only">
         </span>
       </template>
 
       <template v-slot:form>
         <dp-input
           id="emailAddress"
-          data-cy="emailAddressList"
+          :data-cy="dataCy !== '' ? `${dataCy}:emailAddressInput` : `emailAddressInput`"
           :placeholder="Translator.trans('email.address')"
           type="email"
           v-model="formFields.mail"
@@ -55,6 +58,12 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+
+    dataCy: {
+      type: String,
+      required: false,
+      default: ''
     },
 
     initEmails: {
@@ -99,15 +108,19 @@ export default {
   },
 
   methods: {
-    delete (index) {
-      this.emails.splice(index, 1)
-      this.updateExtraEmailAddress(index)
-    },
-
     addElement () {
       this.emails.push({
         mail: this.formFields.mail
       })
+    },
+
+    deleteEntry (index) {
+      this.emails.splice(index, 1)
+    },
+
+    handleDelete (index) {
+      this.deleteEntry(index)
+      this.resetForm()
     },
 
     handleSubmit (index) {
@@ -117,7 +130,6 @@ export default {
           this.saveExtraEmailAddress(this.formFields.mail)
         } else {
           this.updateEmailAddress(index)
-          this.updateExtraEmailAddress(index, this.formFields.mail[index])
         }
 
         this.resetForm()
@@ -135,25 +147,14 @@ export default {
       this.$emit('saved', extraEmailAddress)
     },
 
-    updateExtraEmailAddress (index, extraEmailAddress) {
-      this.$emit('updated', (index, extraEmailAddress))
+    showUpdateForm (index) {
+      this.formFields.mail = this.emails[index].mail
+      this.itemIndex = index
     },
 
     updateEmailAddress (index) {
       this.emails[index].mail = this.formFields.mail
     }
-  },
-
-  mounted () {
-    this.$on('delete', (index) => {
-      this.delete(index)
-      this.resetForm()
-    })
-
-    this.$on('showUpdateForm', (index) => {
-      this.formFields.mail = this.emails[index].mail
-      this.itemIndex = index
-    })
   }
 }
 </script>

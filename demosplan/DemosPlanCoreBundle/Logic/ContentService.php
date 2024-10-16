@@ -14,9 +14,12 @@ use Closure;
 use demosplan\DemosPlanCoreBundle\Entity;
 use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
@@ -30,13 +33,19 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ContentService extends CoreService
 {
+    /**
+     * Used as one of the keys in {@link Setting}.
+     */
+    public const LAYER_GROUPS_ALTERNATE_VISIBILITY = 'layerGroupsAlternateVisibility';
+
     public function __construct(
         private readonly ContentRepository $contentRepository,
         private readonly DateHelper $dateHelper,
         // @improve T13447
         private readonly EntityHelper $entityHelper,
         private readonly ManualListSorter $manualListSorter,
-        private readonly SettingRepository $settingRepository
+        private readonly SettingRepository $settingRepository,
+        private readonly CustomerService $customerService,
     ) {
     }
 
@@ -54,12 +63,12 @@ class ContentService extends CoreService
             ? [Role::GUEST]
             : $user->getRoles();
 
-        $globalContentEntries = $this->contentRepository->getNewsListByRoles($roles);
+        $globalContentEntries = $this->contentRepository->getNewsListByRoles($roles, $this->customerService->getCurrentCustomer());
 
         // Legacy Arrays
         // @improve T13447
         $result = array_map($this->convertToLegacy(...), $globalContentEntries);
-        $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result);
+        $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result, customer: $this->customerService->getCurrentCustomer());
         $result = $sorted['list'];
         // Is a limit given?
         if (isset($limit) && 0 < $limit) {
@@ -84,11 +93,11 @@ class ContentService extends CoreService
     {
         // @improve T12886
         $category = $this->getCategoryByName($categoryName ?? 'news');
-        $globalContentEntries = $category->getGlobalContents()->toArray();
+        $globalContentEntries = $category->getGlobalContentsByCustomer($this->customerService->getCurrentCustomer());
 
         // Legacy Arrays
         $result = array_map($this->convertToLegacy(...), $globalContentEntries);
-        $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result);
+        $sorted = $this->manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $result, customer: $this->customerService->getCurrentCustomer());
 
         return $sorted['list'];
     }
@@ -119,6 +128,15 @@ class ContentService extends CoreService
         try {
             $singleGlobalContent = $this->contentRepository->get($ident);
 
+            if (!$singleGlobalContent instanceof GlobalContent) {
+                $message = 'No Content could be fetched for id: '.$ident;
+                throw new InvalidArgumentException($message);
+            }
+
+            if ($this->customerService->getCurrentCustomer()->getId() !== $singleGlobalContent->getCustomer()->getId()) {
+                throw new CustomerNotFoundException('Content does not belong to current customer');
+            }
+
             return $this->convertToLegacy($singleGlobalContent);
         } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf eines GlobalContentEntry: ', [$e]);
@@ -138,7 +156,10 @@ class ContentService extends CoreService
     public function addContent($data)
     {
         try {
+            // add current customer to $data
+            $data['customer'] = $this->customerService->getCurrentCustomer();
             $singleGlobalContent = $this->contentRepository->add($data);
+
             // convert to Legacy Array
             return $this->convertToLegacy($singleGlobalContent);
         } catch (Exception $e) {
@@ -159,12 +180,14 @@ class ContentService extends CoreService
      */
     public function setManualSortForGlobalContent($context, $sortIds, $type): bool
     {
+        $currentCustomer = $this->customerService->getCurrentCustomer();
         $sortIds = str_replace(' ', '', $sortIds);
         $data = [
             'ident'     => 'global',
             'context'   => $context,
             'namespace' => 'content:'.$type,
             'sortIdent' => $sortIds,
+            'customer'  => $currentCustomer,
         ];
 
         return $this->manualListSorter->setManualSort($data['context'], $data);
@@ -194,8 +217,6 @@ class ContentService extends CoreService
 
     /**
      * Get all global Settings.
-     *
-     * @return mixed
      *
      * @throws Exception
      */
@@ -260,7 +281,7 @@ class ContentService extends CoreService
      *
      * @throws Exception
      */
-    public function getSettings($key, SettingsFilter $filter = null, $legacy = true)
+    public function getSettings($key, ?SettingsFilter $filter = null, $legacy = true)
     {
         try {
             // Wurde ein Filter übergeben
@@ -684,6 +705,16 @@ class ContentService extends CoreService
         }
 
         return true;
+    }
+
+    public function createEmptySetting(Procedure $procedure, string $key): Setting
+    {
+        $setting = new Setting();
+        $setting->setProcedure($procedure);
+        $setting->setKey($key);
+        $this->settingRepository->persistEntities([$setting]);
+
+        return $setting;
     }
 
     /**

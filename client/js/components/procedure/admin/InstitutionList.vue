@@ -134,11 +134,11 @@ export default {
   },
 
   computed: {
-    ...mapState('institutionTag', {
+    ...mapState('InstitutionTag', {
       institutionTagList: 'items'
     }),
 
-    ...mapState('invitableInstitution', {
+    ...mapState('InvitableInstitution', {
       invitableInstitutionList: 'items',
       currentPage: 'currentPage',
       totalPages: 'totalPages'
@@ -169,13 +169,13 @@ export default {
   },
 
   methods: {
-    ...mapActions('invitableInstitution', {
+    ...mapActions('InvitableInstitution', {
       listInvitableInstitution: 'list',
       saveInvitableInstitution: 'save',
       restoreInstitutionFromInitial: 'restoreFromInitial'
     }),
 
-    ...mapMutations('invitableInstitution', {
+    ...mapMutations('InvitableInstitution', {
       updateInvitableInstitution: 'setItem'
     }),
 

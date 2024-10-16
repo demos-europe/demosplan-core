@@ -36,6 +36,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathException;
 use Elastica\Index;
 use Webmozart\Assert\Assert;
 
@@ -53,6 +54,7 @@ use Webmozart\Assert\Assert;
  * @property-read End $paragraphParentId @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read End $paragraphTitle @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read End $segmentDraftList
+ * @property-read End $status
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
@@ -64,7 +66,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly QueryStatement $esQuery,
         private readonly StatementService $statementService,
-        private readonly StatementDeleter $statementDeleter
+        private readonly StatementDeleter $statementDeleter,
     ) {
         parent::__construct($fileService, $htmlSanitizer);
     }
@@ -100,6 +102,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
      * {@link StatementAttachmentResourceType} to the {@link StatementResourceType}.
      *
      * @return list<ClauseFunctionInterface<bool>>
+     *
+     * @throws PathException
      */
     public function buildAccessConditions(StatementResourceType $pathStartResourceType, bool $allowOriginals = false): array
     {
@@ -126,10 +130,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement),
-            $this->conditionFactory->propertyHasAnyOfValues(
-                $allowedProcedureIds,
-                $pathStartResourceType->procedure->id
-            ),
+            [] === $allowedProcedureIds
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($allowedProcedureIds, $pathStartResourceType->procedure->id),
         ];
         if (!$allowOriginals) {
             // Normally the path to the relationship would suffice for a NULL check, but the ES
@@ -276,6 +279,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
                     return '' === $draftsListJson ? null : Json::decodeToArray($draftsListJson);
                 });
+            $configBuilder->status->readable(true, function (Statement $statement) {
+                return $this->statementService->getProcessingStatus($statement);
+            })->filterable();
         }
 
         if ($this->currentUser->hasPermission('feature_similar_statement_submitter')) {

@@ -17,6 +17,7 @@
     <select
       name="customScaleControl"
       id="customScaleControl"
+      data-cy="map:customScaleControl"
       @change="setScale"
       class="c-ol-map__select">
       <option

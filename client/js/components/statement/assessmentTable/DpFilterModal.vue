@@ -83,29 +83,26 @@
           </div>
         </div>
 
-        <!-- Tabs with filters -->
-        <dp-tabs
-          tab-size="medium"
-          @change="id => setActiveTabId(id)">
-          <dp-tab
-            v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
-            class="u-pt-0_5"
-            :key="index"
-            :id="filterGroup.label"
-            :is-active="activeTabId === filterGroup.label"
-            :label="Translator.trans(filterGroup.label)"
-            :suffix="createSelectedFiltersBadge(filterGroup)">
-            <dp-filter-modal-select-item
-              v-for="filterItem in filterByType(filterGroup.type)"
-              :key="filterItem.id"
-              :filter-item="filterItem"
-              :filter-group="filterGroup"
-              :applied-filter-options="appliedFilterOptions.filter(option => option.filterId === filterItem.id)"
-              @update-selected="updateSelectedOptions"
-              @updating-filters="disabledInteractions = true"
-              @updated-filters="disabledInteractions = false" />
-          </dp-tab>
-        </dp-tabs>
+          <!-- Tabs with filters -->
+          <dp-tabs tab-size="medium">
+            <dp-tab
+              v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
+              class="u-pt-0_5"
+              :key="index"
+              :id="filterGroup.label"
+              :label="Translator.trans(filterGroup.label)"
+              :suffix="createSelectedFiltersBadge(filterGroup)">
+              <dp-filter-modal-select-item
+                v-for="filterItem in filterByType(filterGroup.type)"
+                :key="filterItem.id"
+                :filter-item="filterItem"
+                :filter-group="filterGroup"
+                :applied-filter-options="appliedFilterOptions.filter(option => option.filterId === filterItem.id)"
+                @update-selected="updateSelectedOptions"
+                @updating-filters="disabledInteractions = true"
+                @updated-filters="disabledInteractions = false" />
+            </dp-tab>
+          </dp-tabs>
 
         <!-- hidden selects so selected fields can be saved via form submit -->
         <select
@@ -153,6 +150,7 @@
           <button
             type="button"
             class="btn btn--secondary"
+            data-cy="filterReset"
             @click="reset"
             v-text="Translator.trans('filter.reset')" />
         </div>
@@ -265,13 +263,13 @@ export default {
   },
 
   computed: {
-    ...mapState('filter', {
+    ...mapState('Filter', {
       filterGroups: 'filterGroups',
       filterList: 'filterList',
       filterOptionsSelected: 'selectedOptions'
     }),
 
-    ...mapGetters('filter', {
+    ...mapGetters('Filter', {
       filterByType: 'filterByType',
       getFilterHash: 'userFilterSetFilterHash',
       userFilterSets: 'userFilterSets',
@@ -344,7 +342,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('filter', [
+    ...mapActions('Filter', [
       'getFilterListAction',
       'getFilterOptionsAction',
       'getUserFilterSetsAction',
@@ -352,11 +350,11 @@ export default {
       'updateBaseState'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setProperty'
     ]),
 
-    ...mapMutations('filter', [
+    ...mapMutations('Filter', [
       'loadAppliedFilterOptions',
       'loadSelectedFilterOptions',
       'resetSelectedOptions'

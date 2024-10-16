@@ -313,7 +313,7 @@ submenu_procedures:
             'DemosPlan_singledocument_administration_new',
         ]
         path_params: ['procedure']
-        permission: ['area_admin_single_document', 'area_admin_paragraphed_document', 'area_admin_map']
+        permission: ['area_admin_single_document'] # Necessary if Project has Documents and Map Features
         link_attributes:
             data-cy: 'documentsAndMapSettings'
             data-extern-dataport: 'documentsAndMapSettings'
@@ -361,7 +361,7 @@ submenu_procedures:
         path_params: ['procedureId']
         permission: 'area_admin_statement_list'
         link_attributes:
-            data-cy: 'statementslist'
+            data-cy: 'assessmenttable'
             data-extern-dataport: 'statementslist'
     segments:
         label: 'segments'

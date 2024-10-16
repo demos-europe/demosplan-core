@@ -15,28 +15,48 @@
     aria-labelledby="statementMapReference"
     aria-required="true"
     id="locationFieldset">
-    <p
-      :class="prefixClass('c-statement__formblock-title weight--bold u-mt u-mb-0')"
+    <legend
+      :class="prefixClass('c-statement__formblock-title mt-0 mb-0')"
       id="statementMapReference">
       {{ Translator.trans('statement.map.reference') }}
       <span
         v-if="required"
         aria-hidden="true">*</span>
-    </p>
+    </legend>
+
+    <div
+      :class="[
+        statement.r_location === 'notLocated' ? prefixClass('bg-color--grey-light-2') : '',
+        prefixClass('block m-0 py-1 px-2 h-[36px] u-1-of-1-palm')
+      ]">
+      <dp-radio
+        id="locationNone"
+        :label="{
+          text: Translator.trans('statement.map.no_reference')
+        }"
+        name="r_location"
+        :class="prefixClass('u-mb-0_25')"
+        data-cy="formGroupMap:notLocated"
+        :checked="statement.r_location === 'notLocated'"
+        @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"
+        value="notLocated" />
+    </div>
+
     <div
       v-if="isMapEnabled && hasPermission('area_map_participation_area')"
       :class="[
         isLocationSelected ? prefixClass('bg-color--grey-light-2') : '',
-        prefixClass('c-statement__formblock layout__item sm:h-8 u-3-of-10 u-1-of-1-palm'),
+        prefixClass('m-0 pt-1 px-2 h-[66px]'),
         highlighted.location ? prefixClass('animation--bg-highlight-grey--light-2') : ''
       ]"
       ref="mapStatementRadio">
       <dp-radio
         id="locationPoint"
         name="r_location"
-        class="u-mb-0_25"
+        :class="prefixClass('pb-1')"
         data-cy="formGroupMap:statementMapReference"
         :checked="isLocationSelected"
+        :disabled="disabled"
         @change="() => { const location = (statement.r_location_priority_area_key !== '' ? 'priority_area' :'point'); setStatementData({r_location: 'point', location_is_set: location})}"
         :label="{
           text: Translator.trans('statement.map.reference.add_on_map')
@@ -45,7 +65,12 @@
 
       <a
         href="#"
-        class="o-link--default"
+        :class="[
+          isLocationSelected ? prefixClass('bg-color--grey-light-2') : '',
+          prefixClass('o-link--default block u-pl-1_5 pb-1 px-2'),
+          highlighted.location ? prefixClass('animation--bg-highlight-grey--light-2') : ''
+        ]"
+        data-cy="formGroupMap:procedureDetailsMap"
         v-show="isLocationSelected"
         @click.prevent="gotoTab('procedureDetailsMap')">
         <template v-if="statement.r_location_point !== ''">
@@ -77,6 +102,7 @@
         name="r_location"
         class="u-mb-0_25"
         :checked="statement.r_location === 'county'"
+        :disabled="disabled"
         @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county'}) }"
         value="county" />
       <select
@@ -96,25 +122,6 @@
           {{ county.label }}
         </option>
       </select>
-    </div>
-
-    <div
-      :class="[
-        statement.r_location === 'notLocated' ? prefixClass('bg-color--grey-light-2') : '',
-        loggedIn ? prefixClass('u-1-of-3') : prefixClass('u-2-of-10'),
-        prefixClass('c-statement__formblock layout__item sm:h-8 u-1-of-1-palm')
-      ]">
-      <dp-radio
-        id="locationNone"
-        :label="{
-          text: Translator.trans('statement.map.no_reference')
-        }"
-        name="r_location"
-        class="u-mb-0_25"
-        data-cy="formGroupMap:notLocated"
-        :checked="statement.r_location === 'notLocated'"
-        @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"
-        value="notLocated" />
     </div>
   </fieldset>
 </template>
@@ -140,6 +147,12 @@ export default {
       default: () => []
     },
 
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     loggedIn: {
       type: Boolean,
       required: false,
@@ -158,7 +171,7 @@ export default {
   ],
 
   computed: {
-    ...mapState('publicStatement', ['activeActionBoxTab', 'highlighted']),
+    ...mapState('PublicStatement', ['activeActionBoxTab', 'highlighted']),
 
     isLocationSelected () {
       return this.statement.r_location === 'point' || this.statement.r_location === 'priorityAreaType'
@@ -166,7 +179,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('publicStatement', ['update']),
+    ...mapMutations('PublicStatement', ['update']),
 
     gotoTab (tabName) {
       this.update({ key: 'activeActionBoxTab', val: 'draw' })

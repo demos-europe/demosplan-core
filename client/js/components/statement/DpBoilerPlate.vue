@@ -12,10 +12,9 @@
     <!-- Select boilerplate -->
     <div class="u-pb-0_25">
       <label class="u-mb-0_5">
-        <i
-          class="fa fa-question-circle float-right u-mt-0_125"
-          :aria-label="Translator.trans('contextual.help')"
-          v-tooltip="tooltipContent" />
+        <dp-contextual-help
+          class="float-right u-mt-0_125"
+          :text="Translator.trans(tooltipContent)" />
         {{ title }}
       </label>
       <dp-multiselect
@@ -52,11 +51,12 @@
 </template>
 
 <script>
-import { CleanHtml, DpMultiselect, Tooltip } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpContextualHelp, DpMultiselect, Tooltip } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpBoilerPlate',
   components: {
+    DpContextualHelp,
     DpMultiselect
   },
 

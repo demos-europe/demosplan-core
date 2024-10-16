@@ -27,8 +27,8 @@
         }) }}
 
         {{ uiComponent('button-row', {
-            primary: uiComponent('button', { type: 'submit', attributes: ['data-cy=saveNewFAQ'] }),
-            secondary: uiComponent('button', { color: 'secondary', href: cancelPath }),
+            primary: uiComponent('button', { type: 'submit', attributes: ['data-cy=saveFAQ'] }),
+            secondary: uiComponent('button', { color: 'secondary', href: cancelPath, attributes: ['data-cy=abortFAQ'] }),
             class: 'u-mb'
         }) }}
     </form>

@@ -7,7 +7,7 @@ parameters:
     database_user: "root"
     database_password: ""
 
-    elasticsearch_populate_workers: 4
+    elasticsearch_populate_workers: 3
     elasticsearch_urls:
         -   url: "http://search7:9200"
 
@@ -19,6 +19,8 @@ parameters:
 
     https_only: false
 
+    demosplan_csp_frame_src:
+        - '*.youtube.com'
     demosplan_csp_script_src:
         - 'self'
         - 'unsafe-eval' # vue.js needs it if templates are not precompiled
@@ -26,6 +28,7 @@ parameters:
         - '*.demos-europe.eu'
         - 'matomo' # local matomo
         - '172.22.255.8' # local matomo
+        - '*.youtube.com'
     demosplan_csp_font_src:
         - 'self'
         - 'fonts.google.com'

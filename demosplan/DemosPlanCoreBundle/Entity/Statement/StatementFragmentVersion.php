@@ -678,7 +678,7 @@ class StatementFragmentVersion extends CoreEntity implements UuidEntityInterface
     public function getParagraphTitle()
     {
         if ($this->paragraph instanceof ParagraphVersionInterface) {
-            return trim($this->paragraph->getTitle());
+            return trim($this->paragraph->getTitle() ?? '');
         }
 
         return '';

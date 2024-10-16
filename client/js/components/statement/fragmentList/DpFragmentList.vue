@@ -78,7 +78,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('assessmentTable', ['setAssessmentBaseProperty']),
+    ...mapMutations('AssessmentTable', ['setAssessmentBaseProperty']),
 
     missKeyValue (value, defaultValue) {
       if (typeof value === 'undefined' || value === null) {

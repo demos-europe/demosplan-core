@@ -101,7 +101,7 @@ export default {
   },
 
   computed: {
-    ...mapState('elements', {
+    ...mapState('Elements', {
       elements: 'items'
     }),
 
@@ -142,7 +142,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('elements', {
+    ...mapActions('Elements', {
       elementList: 'list'
     }),
 
@@ -166,7 +166,7 @@ export default {
      */
     isBranch () {
       return function ({ node }) {
-        return node.type === 'elements'
+        return node.type !== 'SingleDocument' && node.type === 'Elements'
       }
     },
 
