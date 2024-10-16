@@ -1,0 +1,18 @@
+FROM demosdeutschland/demosplan-ci:latest
+
+WORKDIR /srv/www
+
+COPY composer.lock /srv/www/composer.lock
+COPY phpunit.xml /srv/www/phpunit.xml
+COPY config /srv/www/config
+COPY demosplan /srv/www/demosplan
+COPY tests /srv/www/tests
+COPY .phpunit.result.cache /srv/www/.phpunit.result.cache
+COPY composer.json /srv/www/composer.json
+COPY .env /srv/www/.env
+COPY translations /srv/www/translations
+
+RUN composer install -o --prefer-dist --no-scripts --no-progress
+
+ENV SYMFONY_DEPRECATIONS_HELPER=disabled
+ENTRYPOINT ["vendor/bin/phpunit"]
