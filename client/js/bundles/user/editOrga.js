@@ -13,20 +13,14 @@
 
 import { DpAccordion, DpEditor, dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
-import EmailNotificationSettings from '@DpJs/components/user/orgaDataEntry/EmailNotificationSettings'
-import OrganisationBrandingSettings from '@DpJs/components/user/orgaDataEntry/OrganisationBrandingSettings'
 import OrganisationDataForm from '@DpJs/components/user/orgaDataEntry/OrganisationDataForm'
-import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyPreferences'
 
 import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 
 const components = {
   DpAccordion,
   DpEditor,
-  EmailNotificationSettings,
-  OrganisationBrandingSettings,
-  OrganisationDataForm,
-  PaperCopyPreferences
+  OrganisationDataForm
 }
 
 initialize(components).then(() => {

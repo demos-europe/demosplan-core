@@ -207,7 +207,6 @@
           }"
           :disabled="!isOrgaDataEditable" />
 
-        <!-- TODO: show all types instead of disabled select-->
         <dp-select
           v-if="hasTypes"
           id="orga_type"
@@ -259,19 +258,41 @@
         }"
         :checked="organisation.submissionType === submissionTypeDefault" />
     </fieldset>
+
+    <email-notification-settings
+      :organisation="organisation"
+      :user="user"
+      :will-receive-new-statement-notification="willReceiveNewStatementNotification"
+      :has-notification-section="hasNotificationSection">
+    </email-notification-settings>
+
+    <paper-copy-preferences
+      v-if="hasPaperCopySection"
+      :organisation="organisation">
+    </paper-copy-preferences>
+
+    <organisation-branding-settings
+      :organisation="organisation"
+      :project-name="projectName">
+    </organisation-branding-settings>
   </div>
 </template>
 
 <script>
 import { DpInput, DpRadio, DpSelect } from '@demos-europe/demosplan-ui'
-
+import EmailNotificationSettings from '@DpJs/components/user/orgaDataEntry/EmailNotificationSettings'
+import OrganisationBrandingSettings from '@DpJs/components/user/orgaDataEntry/OrganisationBrandingSettings'
+import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyPreferences'
 export default {
   name: 'OrganisationDataForm',
 
   components: {
     DpInput,
     DpRadio,
-    DpSelect
+    DpSelect,
+    EmailNotificationSettings,
+    OrganisationBrandingSettings,
+    PaperCopyPreferences
   },
 
   props: {
@@ -289,6 +310,23 @@ export default {
 
     isOrgaDataEditable: {
       type: Boolean,
+      required: true
+    },
+
+    hasNotificationSection: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
+    hasPaperCopySection: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
+    projectName: {
+      type: String,
       required: true
     },
 
@@ -325,6 +363,17 @@ export default {
       type: String,
       required: false,
       default: ''
+    },
+
+    user: {
+      type: Object,
+      required: true
+    },
+
+    willReceiveNewStatementNotification: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
 

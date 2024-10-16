@@ -1,12 +1,12 @@
 <template>
   <fieldset
-    v-if="showOrganisationBrandingSection"
+    v-if="hasOrganisationBrandingPermission"
     class="w-3/4">
     <template v-if="hasPermission('feature_orga_logo_edit')">
       <legend class="font-size-large weight--normal u-mb-0_25">
         {{ Translator.trans('organisation.procedures.branding') }}
       </legend>
-      <p v-cleanhtml="brandingExplanation"></p>
+      <p v-cleanhtml="brandingExplanation()"></p>
     </template>
     <template v-else>
       <legend class="font-size-large weight--normal u-mb-0_75">
@@ -28,7 +28,7 @@
       </label>
       <dp-editor
         :id="`${organisation.id}:data_protection`"
-        class="o-form__control-tiptap u-mb-0_75"
+        class="o-form__control-tiptap mb-2"
         data-cy="organisationData:branding:dataProtection"
         :hidden-input="organisation.dataProtection || ''"
         :toolbar-items="{
@@ -52,7 +52,7 @@
       </label>
       <dp-editor
         :id="`${organisation.id}:imprint`"
-        class="o-form__control-tiptap u-mb-0_75"
+        class="o-form__control-tiptap mb-2"
         data-cy="organisationData:branding:imprint"
         :hidden-input="`${organisation.id}:imprint`"
         :toolbar-items="{
@@ -107,12 +107,6 @@ export default {
   },
 
   props: {
-    hasOrganisationBrandingSection: {
-      type: Boolean,
-      required: false,
-      default: true
-    },
-
     organisation: {
       type: Object,
       required: true
@@ -125,14 +119,16 @@ export default {
   },
 
   computed: {
-    showOrganisationBrandingSection () {
+    hasOrganisationBrandingPermission () {
       return hasPermission('feature_orga_logo_edit') ||
         hasPermission('field_data_protection_text_customized_edit_orga') ||
         hasPermission('field_imprint_text_customized_edit_orga') ||
         hasPermission('field_organisation_agreement_showname')
-    },
+    }
+  },
 
-    brandingExplanation() {
+  methods: {
+    brandingExplanation () {
       if (hasPermission('feature_orga_logo_edit')) {
         return Translator.trans('organisation.procedures.branding.link', {
           href: Routing.generate('DemosPlan_orga_branding_edit', {

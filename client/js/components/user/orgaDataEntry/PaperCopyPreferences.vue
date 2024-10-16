@@ -1,6 +1,6 @@
 <template>
   <fieldset
-    v-if="hasPaperCopySection && hasPaperCopyPermission"
+    v-if="hasPaperCopyPermission"
     id="paperCopy"
     class="w-3/4">
     <legend class="font-size-large weight--normal u-mb-0_75">
@@ -62,12 +62,6 @@ export default {
   },
 
   props: {
-    hasPaperCopySection: {
-      type: Boolean,
-      required: false,
-      default: true
-    },
-
     organisation: {
       type: Object,
       required: true

@@ -3,7 +3,7 @@
     {% set customers = customers|merge([{id: customer.id, name: customer.name}]) %}
 {% endfor %}
 
-{% set may_edit_orga_data = true %}
+{% set mayEditOrgaData = true %}
 
 {% set organisationData = {
     id: organisation.ident|default,
@@ -36,45 +36,30 @@
     isPublicAgency: currentUser.isPublicAgency
 } %}
 
-{% set will_receive_new_statement_notification = ("RMOPSM" in user.roles or "RMOPSA" in user.roles or "RMOPPO" in user.roles )? true : false %}
+{% set orgaTypes = templateVars.orgaTypes %}
+{% set willReceiveNewStatementNotification = ("RMOPSM" in user.roles or "RMOPSA" in user.roles or "RMOPPO" in user.roles )? true : false %}
 {% set showDetailedInfo = true %}
 {% set hasNotificationSection =  true %}
 {% set hasTypes = false %}
-{% set orgaTypes = templateVars.orgaTypes %}
 {% set hasPaperCopySection = true %}
-{% set hasOrganisationBrandingSection = true %}
 
 {% block content %}
     <organisation-data-form
         :customers="JSON.parse('{{ customers|default([])|json_encode|e('js', 'utf-8') }}')"
-        :is-orga-data-editable="Boolean({{ may_edit_orga_data }})"
+        :is-orga-data-editable="Boolean({{ mayEditOrgaData }})"
         :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
         :orga-types="JSON.parse('{{ orgaTypes|json_encode|e('js', 'utf-8') }}')"
         :procedures-directlink-prefix="JSON.parse('{{ templateVars.proceduresDirectlinkPrefix|json_encode|e('js', 'utf-8') }}')"
+        project-name="{{ projectName }}"
         submission-type-default="{{ submissionTypeDefault }}"
         submission-type-short="{{ submissionTypeShort }}"
         :show-detailed-info="Boolean({{ showDetailedInfo }})"
-        :has-types="Boolean({{ hasTypes }})">
-    </organisation-data-form>
-
-    <email-notification-settings
-        :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
+        :has-types="Boolean({{ hasTypes }})"
         :user="JSON.parse('{{ userData|json_encode|e('js', 'utf-8') }}')"
-        :will-receive-new-statement-notification="Boolean({{ will_receive_new_statement_notification }})"
-        :has-notification-section="Boolean({{ hasNotificationSection }})">
-    </email-notification-settings>
-
-    <paper-copy-preferences
-        :has-paper-copy-section="Boolean({{ hasPaperCopySection }})"
-        :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')">
-    </paper-copy-preferences>
-
-    <organisation-branding-settings
-        :has-organisation-branding-section="Boolean({{ hasOrganisationBrandingSection }})"
-        :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
-        project-name="{{ projectName }}">
-    </organisation-branding-settings>
-
+        :will-receive-new-statement-notification="Boolean({{ willReceiveNewStatementNotification }})"
+        :has-notification-section="Boolean({{ hasNotificationSection }})"
+        :has-paper-copy-section="Boolean({{ hasPaperCopySection }})">
+    </organisation-data-form>
 {% endblock content %}
 
 {% block buttonRow %}
