@@ -102,6 +102,8 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         $originalStatementConfig->shortText->setReadableByCallable(
             static fn (Statement $statement): string => $statement->getTextShort()
         )->setAliasedPath(Paths::statement()->text);
+        $originalStatementConfig->textIsTruncated
+            ->setReadableByCallable(static fn (Statement $statement): bool => $statement->getText() !== $statement->getTextShort());
         $originalStatementConfig->phase
         ->setReadableByCallable(
             fn (Statement $statement): string => $this->statementService->getInternalOrExternalPhaseNameFromObject($statement)
@@ -117,6 +119,18 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         $originalStatementConfig->paragraph
         ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
         ->setReadableByPath();
+        $originalStatementConfig->polygon->setReadableByPath();
+        $originalStatementConfig->numberOfAnonymVotes
+            ->setReadableByCallable(static fn (Statement $statement): int => $statement->getVotesNum());
+        $originalStatementConfig->attachmentsDeleted->setReadableByCallable(
+            static fn (Statement $statement): bool => $statement->isAttachmentsDeleted()
+        );
+        $originalStatementConfig->submitterAndAuthorMetaDataAnonymized->setReadableByCallable(
+            static fn (Statement $statement): bool => $statement->isSubmitterAndAuthorMetaDataAnonymized()
+        );
+        $originalStatementConfig->textPassagesAnonymized->setReadableByCallable(
+            static fn (Statement $statement): bool => $statement->isTextPassagesAnonymized()
+        );
 
         return $originalStatementConfig;
     }
