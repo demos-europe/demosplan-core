@@ -10,12 +10,12 @@
             heading: 'statements'|trans,
             subnav: [
                 {
-                    href: path('dplan_procedure_statement_list', { procedureId: procedure }),
+                    href: path('dplan_procedure_original_statement_list', { procedureId: procedureId }),
                     label: 'statements.original'|trans,
                     datacy: 'listStatements:originalStatementList'
                 },
                 {
-                    href: path(path, { procedureId: procedure }),
+                    href: path(path, { procedureId: procedureId }),
                     label:  'statement.new'|trans,
                     datacy: 'listStatements:statementNew',
                     icon: 'fa-plus'
@@ -32,12 +32,9 @@
     <list-statements
         current-user-id="{{ currentUser.ident }}"
         :is-source-and-coupled-procedure="{{ templateVars.isSourceAndCoupledProcedure == 1 ? 'true' : 'false' }}"
-        procedure-id="{{ procedure }}"
+        procedure-id="{{ procedureId }}"
         :submit-type-options="JSON.parse('{{ submitTypesOptions|json_encode|e('js', 'utf-8') }}')">
     </list-statements>
-
-    <list-original-statements procedure-id="{{ procedure }}">
-    </list-original-statements>
 {% endblock %}
 
 {% block javascripts %}

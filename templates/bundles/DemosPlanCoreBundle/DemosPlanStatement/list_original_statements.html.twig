@@ -10,12 +10,12 @@
         heading: 'statements.original'|trans,
         subnav: [
             {
-                href: path('dplan_procedure_statement_list', { procedureId: procedure }),
-                label: 'statements'|trans
+                href: path('dplan_procedure_statement_list', { procedureId: procedureId }),
+                label: 'statements'|trans,
                 datacy: 'listStatements:statementList'
-            }
+            },
             {
-            href: path(path, { procedureId: procedure }),
+            href: path(path, { procedureId: procedureId }),
             label:  'statement.new'|trans,
             datacy: 'listStatements:statementNew',
             icon: 'fa-plus'
@@ -24,7 +24,7 @@
         flush: true
     } %}
 
-    <list-original-statements procedure-id="{{ procedure }}">
+    <list-original-statements procedure-id="{{ procedureId }}">
     </list-original-statements>
 
 {% endblock %}
