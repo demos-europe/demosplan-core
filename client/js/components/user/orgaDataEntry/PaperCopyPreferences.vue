@@ -1,7 +1,6 @@
 <template>
-  <!-- Paper copy Section -->
   <fieldset
-    v-if="showPaperCopySection"
+    v-if="hasPaperCopySection && hasPaperCopyPermission"
     id="paperCopy"
     class="w-3/4">
     <legend class="font-size-large weight--normal u-mb-0_75">
@@ -11,7 +10,6 @@
     <div
       v-if="hasPermission('field_organisation_paper_copy')"
       class="w-full mb-3">
-      <!-- TODO: create PR in demosplan-ui -->
       <dp-select
         id="orga_paperCopy"
         :name="`${organisation.id}:paperCopy`"
@@ -64,6 +62,12 @@ export default {
   },
 
   props: {
+    hasPaperCopySection: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+
     organisation: {
       type: Object,
       required: true
@@ -71,7 +75,7 @@ export default {
   },
 
   computed: {
-    showPaperCopySection () {
+    hasPaperCopyPermission () {
       return hasPermission('field_organisation_paper_copy') ||
         hasPermission('field_organisation_paper_copy_spec') ||
         hasPermission('field_organisation_competence')

@@ -1,6 +1,10 @@
-{% set user = currentUser %}
-{% set will_receive_new_statement_notification = ("RMOPSM" in user.roles or "RMOPSA" in user.roles or "RMOPPO" in user.roles )? true : false %}
+{% set customers = [] %}
+{% for customer in organisation.customers|default([]) %}
+    {% set customers = customers|merge([{id: customer.id, name: customer.name}]) %}
+{% endfor %}
+
 {% set may_edit_orga_data = true %}
+
 {% set organisationData = {
     id: organisation.ident|default,
     name: organisation.nameLegal|default,
@@ -18,59 +22,42 @@
     paperCopy: organisation.paperCopy|default,
     paperCopySpec: organisation.paperCopySpec|default,
     competence: organisation.competence|default,
+    showlist: organisation.showlist|default,
     showname: organisation.showname|default,
     dataProtection: organisation.dataProtection|default,
     imprint: organisation.imprint|default,
-    submissionType: organisation.submissionType|default,
-    showlist: organisation.showlist|default
+    submissionType: organisation.submissionType|default
 } %}
-
-{% set userData = {
-    isPublicAgency: user.isPublicAgency
-} %}
-
-{% set customers = [] %}
-{% for customer in organisation.customers|default([]) %}
-    {% set customers = customers|merge([{id: customer.id, name: customer.name}]) %}
-{% endfor %}
 
 {% set submissionTypeDefault = templateVars.submissionTypeDefault %}
 {% set submissionTypeShort = templateVars.submissionTypeShort %}
 
-{% block organisationData %}
+{% set userData = {
+    isPublicAgency: currentUser.isPublicAgency
+} %}
+
+{% set will_receive_new_statement_notification = ("RMOPSM" in user.roles or "RMOPSA" in user.roles or "RMOPPO" in user.roles )? true : false %}
+{% set showDetailedInfo = true %}
+{% set hasNotificationSection =  true %}
+{% set hasTypes = false %}
+{% set orgaTypes = templateVars.orgaTypes %}
+{% set hasPaperCopySection = true %}
+{% set hasOrganisationBrandingSection = true %}
+
+{% block content %}
     <organisation-data-form
         :customers="JSON.parse('{{ customers|default([])|json_encode|e('js', 'utf-8') }}')"
         :is-orga-data-editable="Boolean({{ may_edit_orga_data }})"
         :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
+        :orga-types="JSON.parse('{{ orgaTypes|json_encode|e('js', 'utf-8') }}')"
         :procedures-directlink-prefix="JSON.parse('{{ templateVars.proceduresDirectlinkPrefix|json_encode|e('js', 'utf-8') }}')"
         submission-type-default="{{ submissionTypeDefault }}"
         submission-type-short="{{ submissionTypeShort }}"
-        has-title
-        show-detailed-info>
+        :show-detailed-info="Boolean({{ showDetailedInfo }})"
+        :has-types="Boolean({{ hasTypes }})">
     </organisation-data-form>
-{% endblock organisationData %}
 
-{% block emailNotifications %}
-    <email-notification-settings
-        :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
-        :user="JSON.parse('{{ userData|json_encode|e('js', 'utf-8') }}')"
-        :will-receive-new-statement-notification="Boolean({{ will_receive_new_statement_notification }})"
-        has-notification-section>
-    </email-notification-settings>
-{% endblock emailNotifications %}
-
-{% block paperCopy %}
-    <paper-copy-preferences
-        :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')">
-    </paper-copy-preferences>
-{% endblock paperCopy %}
-
-{% block orgaBranding %}
-    <organisation-branding-settings
-        :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
-        project-name="{{ projectName }}">
-    </organisation-branding-settings>
-{% endblock orgaBranding %}
+{% endblock content %}
 
 {% block buttonRow %}
     {{ uiComponent('button-row', {

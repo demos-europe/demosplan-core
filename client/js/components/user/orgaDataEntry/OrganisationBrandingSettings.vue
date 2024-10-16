@@ -107,13 +107,19 @@ export default {
   },
 
   props: {
-    projectName: {
-      type: String,
-      required: true
+    hasOrganisationBrandingSection: {
+      type: Boolean,
+      required: false,
+      default: true
     },
 
     organisation: {
       type: Object,
+      required: true
+    },
+
+    projectName: {
+      type: String,
       required: true
     }
   },

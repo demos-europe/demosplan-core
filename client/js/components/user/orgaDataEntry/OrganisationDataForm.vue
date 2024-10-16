@@ -1,9 +1,7 @@
 <template>
   <div>
     <fieldset class="w-3/4">
-      <legend
-        v-if="hasTitle"
-        class="font-size-large weight--normal mb-3">
+      <legend class="font-size-large weight--normal mb-3">
         {{ Translator.trans('organisation.data') }}
       </legend>
 
@@ -281,12 +279,6 @@ export default {
       type: Array,
       required: false,
       default: () => ([])
-    },
-
-    hasTitle: {
-      type: Boolean,
-      required: false,
-      default: false
     },
 
     hasTypes: {
