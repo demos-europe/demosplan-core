@@ -38,5 +38,8 @@
             <directory>tests/backend/core</directory>
         </testsuite>
     </testsuites>
+    <logging>
+        <junit outputFile="tests/logs/phpunit-junit.xml" />
+    </logging>
 
 </phpunit>
