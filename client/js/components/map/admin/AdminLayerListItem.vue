@@ -1,160 +1,155 @@
 <license>
-  (c) 2010-present DEMOS plan GmbH.
+(c) 2010-present DEMOS plan GmbH.
 
-  This file is part of the package demosplan,
-  for more information see the license file.
+This file is part of the package demosplan,
+for more information see the license file.
 
-  All rights reserved
+All rights reserved
 </license>
 
 <documentation>
 <!--
 
-  This Component is the Child of "AdminLayerList"
+  This Component is the Child of "DpAdminLayerList"
   go there for Details
 
 -->
 </documentation>
 <template>
   <div
-    :id="layer.id"
-    class="o-sortablelist__item py-2 pl-2 border--top"
+    class="o-sortablelist__item u-pv-0_5 u-pl-0_5 border--top"
     :class="{
       'is-active' : isActive,
       'cursor-pointer' : (false === layer.attributes.isBaseLayer && 'GisLayerCategory' !== layer.type && false === isChildOfCategoryThatAppearsAsLayer),
     }"
-    data-cy="adminLayerListItem:setLayerActive"
     @click="setActiveState"
     @mouseover="mouseOverElement"
-    @mouseout="mouseOutElement">
-    <div class="c-at-item__row-icon inline-block">
+    @mouseout="mouseOutElement"
+    :id="layer.id">
+    <div class="c-at-item__row-icon layout__item u-pl-0">
       <i
         class="fa fa-bars handle w-[20px] cursor-grab"
-        aria-hidden="true"
         :title="Translator.trans('move')" />
     </div><!--
  --><div
-    class="inline-block layout--flush c-at-item__row"
+    class="layout--flush layout__item c-at-item__row"
     data-cy="mapLayerListItem">
-    <div
-      class="inline-block"
-      :class="hasPermission('feature_map_layer_visibility') ? 'w-9/12 ' : 'w-11/12'">
+    <div class="layout__item u-9-of-12">
       <!-- regular categories -->
       <i
         v-if="layer.type === 'GisLayerCategory' && !layer.attributes.layerWithChildrenHidden"
         aria-hidden="true"
         class="fa u-mr-0_125"
-        :class="[childElements.length > 0 ? (showChildren ? 'fa-folder-open' : 'fa-folder') :'fa-folder-o']"
-        @click="toggleChildren" />
+        @click="toggleChildren"
+        :class="[childElements.length > 0 ? (showChildren ? 'fa-folder-open' : 'fa-folder') :'fa-folder-o']" />
       {{ layer.attributes.name }}
       <span
-        v-if="isChildOfCategoryThatAppearsAsLayer && 'mapOrder' === sortingType"
-        class="font-size-smaller mr-2">
+        class="font-size-smaller u-mr-0_5"
+        v-if="isChildOfCategoryThatAppearsAsLayer && 'mapOrder' === sortingType">
           <!-- children of categories that should appear as Layer
                     only in map-list (where no categories are shown)
                     -->
-        <br>{{ Translator.trans('maplayer.hidden.child.of.category') }}
-      </span>
+          <br>{{ Translator.trans('maplayer.hidden.child.of.category') }}
+        </span>
       <span
-        v-if="layer.attributes.layerWithChildrenHidden"
-        class="font-size-smaller mr-2">
+        class="font-size-smaller u-mr-0_5"
+        v-if="layer.attributes.layerWithChildrenHidden">
           <!-- categories that should appear as Layer -->
-        <br>{{ Translator.trans('maplayer.category.with.hidden.children') }}
-      </span>
+          <br>{{ Translator.trans('maplayer.category.with.hidden.children') }}
+        </span>
       <span
-        v-if="layer.attributes.description"
-        class="font-size-smaller mr-2">
-        <br>{{ layer.attributes.description }}
-      </span>
+        class="font-size-smaller u-mr-0_5"
+        v-if="layer.attributes.description">
+          <br>{{ layer.attributes.description }}
+        </span>
       <span
-        v-if="layer.attributes.isBplan"
-        class="font-size-smaller mr-2">
-        <br>{{ Translator.trans('explanation.gislayer.useas.bplan') }}
-      </span>
+        class="font-size-smaller u-mr-0_5"
+        v-if="layer.attributes.isBplan">
+          <br>{{ Translator.trans('explanation.gislayer.useas.bplan') }}
+        </span>
       <span
-        v-if="layer.attributes.isScope"
-        class="font-size-smaller mr-2">
-        <br>{{ Translator.trans('explanation.gislayer.useas.scope') }}
-      </span>
+        class="font-size-smaller u-mr-0_5"
+        v-if="layer.attributes.isScope">
+          <br>{{ Translator.trans('explanation.gislayer.useas.scope') }}
+        </span>
       <span
-        v-if="false === layer.attributes.isEnabled"
-        class="font-size-smaller">
-        <br>{{ Translator.trans('explanation.gislayer.useas.invisible') }}
-      </span>
+        class="font-size-smaller"
+        v-if="false === layer.attributes.isEnabled">
+          <br>{{ Translator.trans('explanation.gislayer.useas.invisible') }}
+        </span>
       <span
-        v-if="layer.attributes.isPrint"
-        class="font-size-smaller">
-        <br>{{ Translator.trans('explanation.gislayer.useas.print') }}
-      </span>
+        class="font-size-smaller"
+        v-if="layer.attributes.isPrint">
+          <br>{{ Translator.trans('explanation.gislayer.useas.print') }}
+        </span>
     </div><!--
+
             Show this Stuff (Visibility-group / show initially on load) only for layer, not for Categories
- --><template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')"><!--
-    --><div class="inline-block w-1/12 text-right">
-        <a
-          v-if="layer.attributes.isBaseLayer === false && isChildOfCategoryThatAppearsAsLayer === false"
-          data-cy="adminLayerListItem:toggleVisibilityGroup"
-          :title="hintTextForLockedLayer"
-          @click.stop.prevent="toggleVisibilityGroup"
-          @mouseover="setIconHoverState"
-          @mouseout="unsetIconHoverState">
-          <i
-            :aria-label="Translator.trans('gislayer.visibilitygroup.toggle')"
-            :class="[iconClass,showGroupableIcon]"/>
-        </a>
-      </div><!--
-   --><div class="inline-block w-1/12 text-right">
-        <input
-          type="checkbox"
-          data-cy="adminLayerListItem:toggleDefaultVisibility"
-          :disabled="'' !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
-          @change.prevent="toggleHasDefaultVisibility"
-          :checked="hasDefaultVisibility"
-          :class="[iconClass, 'o-sortablelist__checkbox']">
-      </div><!--
-  --></template><!--
-          Show this stuff for 'special category that looks like a layer and hides all its children'
- --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)"><!--
-   --><div class="inline-block w-2/12 text-right">
-        <input
-          type="checkbox"
-          data-cy="adminLayerListItem:toggleDefaultVisibility"
-          :checked="hasDefaultVisibility"
-          :class="[iconClass, 'o-sortablelist__checkbox']"
-          @change.prevent="toggleHasDefaultVisibility">
-      </div><!--
-     -->
-    </template><!--
-  --><div
-      v-if="(layer.type !== 'GisLayer' && (!layer.attributes.layerWithChildrenHidden))"
-      class="inline-block w-2/12 text-right">
-      <!-- spacer for groups -->
-    </div><!--
-  --><div class="inline-block w-1/12 text-right">
-      <a
-        :href="editLink"
-        data-cy="editLink">
-        <i
-          class="fa fa-pencil mr-2"
-          aria-hidden="true"
-          :title="Translator.trans('edit')" /><span class="sr-only">{{ Translator.trans('edit') }}</span>
-      </a>
-      <button
-        v-if="childElements.length <= 0"
-        class="btn--blank o-link--default mr-2 align-bottom"
-        data-cy="adminLayerListItem:deleteElement"
-        :title="Translator.trans('delete')"
-        @click.prevent="deleteElement">
-        <i
-          class="fa fa-trash"
-          aria-hidden="true" /><span class="sr-only">{{ Translator.trans('delete') }}</span>
-        </button>
-      </div>
-    </div>
+   --><template
+    v-if="(layer.type === 'GisLayer')">
+    <!--
+         --><div class="layout__item u-1-of-12 text-right">
+    <a
+      v-if="('undefined' !== typeof activeLayer.id || '' !== hoverLayerId) && false === layer.attributes.isBaseLayer && (false === isChildOfCategoryThatAppearsAsLayer)"
+      @click.stop.prevent="toggleVisibilityGroup"
+      @mouseover="setIconHoverState"
+      @mouseout="unsetIconHoverState"
+      :title="hintTextForLockedLayer">
+      <i :class="[iconClass,showGroupableIcon]" />
+    </a>
+  </div><!--
+     --><div class="layout__item u-1-of-12 text-right">
+    <input
+      type="checkbox"
+      :disabled="'' !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
+      @change.prevent="toggleHasDefaultVisibility"
+      :checked="hasDefaultVisibility"
+      :class="iconClass">
+  </div><!--
+   -->
+  </template><!--
+            Show this stuff for 'special category that looks like a layer and hides all its children'
+   --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)">
+    <!--
+         --><div class="layout__item u-2-of-12 text-right">
+    <input
+      type="checkbox"
+      @change.prevent="toggleHasDefaultVisibility"
+      :checked="hasDefaultVisibility"
+      :class="iconClass">
+  </div><!--
+   -->
+  </template><!--
+   --><div
+    v-if="(layer.type !== 'GisLayer' && (!layer.attributes.layerWithChildrenHidden))"
+    class="layout__item u-2-of-12 text-right">
+    <!-- spacer for groups -->
+  </div><!--
+   --><div class="layout__item u-1-of-12 text-right">
+    <a
+      :href="editLink"
+      data-cy="editLink">
+      <i
+        class="fa fa-pencil u-mr-0_5"
+        aria-hidden="true"
+        :title="Translator.trans('edit')" /><span class="hide-visually">{{ Translator.trans('edit') }}</span>
+    </a>
+    <button
+      class="btn--blank o-link--default u-mr-0_5"
+      :title="Translator.trans('delete')"
+      @click.prevent="deleteElement"
+      v-if="childElements.length <= 0">
+      <i
+        class="fa fa-trash"
+        aria-hidden="true" /><span class="hide-visually">{{ Translator.trans('delete') }}</span>
+    </button>
+  </div>
+  </div>
 
     <!-- recursive nesting inside -->
     <dp-draggable
       v-if="(layer.type === 'GisLayerCategory' && !layer.attributes.layerWithChildrenHidden) && showChildren"
-      class="layout ml-4 mt-1"
+      class="layout u-ml u-mt-0_25"
       :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
       key="draggableLayers"
       :group-id="groupId"
@@ -162,7 +157,7 @@
       :content-data="childElements"
       :node-id="element.id"
       @end="(event, item) => changeManualSort(event, item)">
-      <admin-layer-list-item
+      <dp-admin-layer-list-item
         v-for="(item, idx) in childElements"
         :key="`layer:${item.id}`"
         :element="{ id: item.id, type: item.type }"
@@ -179,7 +174,7 @@
     <!-- if special category that looks like a layer and hides all its children -->
     <dp-draggable
       v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden) && showChildren"
-      class="layout ml-4 mt-1"
+      class="layout u-ml u-mt-0_25"
       :class="[childElements.length <= 0 ? 'o-sortablelist__empty' :'']"
       :group-id="groupId"
       key="draggableLayersWithChildrenHidden"
@@ -188,7 +183,7 @@
       :node-id="element.id"
       @add="onAddToCategoryWithChildrenHidden"
       @end="(event, item) => changeManualSort(event, item)">
-      <admin-layer-list-item
+      <dp-admin-layer-list-item
         v-for="(item, idx) in childElements"
         :key="`layerWithChildrenHidden:${item.id}`"
         :element="item"
@@ -207,11 +202,11 @@
 <script>
 import { DpDraggable, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import AdminLayerListItem from './AdminLayerListItem'
+import DpAdminLayerListItem from './DpAdminLayerListItem'
 import { v4 as uuid } from 'uuid'
 
 export default {
-  name: 'AdminLayerListItem',
+  name: 'DpAdminLayerListItem',
 
   components: {
     DpDraggable
@@ -274,17 +269,17 @@ export default {
     return {
       drag: false,
       preventActiveFromToggeling: false,
-      iconClass: 'mb-0 ml-4',
+      iconClass: 'fa with--40 u-ml u-mr',
       showChildren: true
     }
   },
 
   computed: {
-    ...mapGetters('Layers', [
+    ...mapGetters('layers', [
       'directChildren'
     ]),
 
-    ...mapState('Layers', [
+    ...mapState('layers', [
       'draggableOptions',
       'draggableOptionsForBaseLayer',
       'mapList',
@@ -295,7 +290,7 @@ export default {
 
     parentCategory () {
       // Get parentLayer and check if it hides its children
-      const parentLayer = this.$store.getters['Layers/element']({
+      const parentLayer = this.$store.getters['layers/element']({
         id: this.layer.attributes.categoryId,
         type: 'GisLayerCategory'
       })
@@ -317,7 +312,7 @@ export default {
     },
 
     layer () {
-      return this.$store.getters['Layers/element']({ id: this.element.id, type: this.element.type })
+      return this.$store.getters['layers/element']({ id: this.element.id, type: this.element.type })
     },
 
     hasDefaultVisibility () {
@@ -488,7 +483,7 @@ export default {
      * returns Boolean
      */
     showCurrentIconState () {
-      return this.$store.state.Layers.hoverLayerIconIsHovered
+      return this.$store.state.layers.hoverLayerIconIsHovered
     },
 
     /**
@@ -497,8 +492,8 @@ export default {
      * returns Object|active Layer
      */
     activeLayer () {
-      return this.$store.getters['Layers/element']({
-        id: this.$store.state.Layers.activeLayerId,
+      return this.$store.getters['layers/element']({
+        id: this.$store.state.layers.activeLayerId,
         type: 'GisLayer'
       }) || { attributes: {} }
     },
@@ -509,7 +504,7 @@ export default {
      * returns String|VisiblitygroupId
      */
     visibilityGroupIdOfHoveredLayer () {
-      return this.$store.getters['Layers/attributeForElement']({
+      return this.$store.getters['layers/attributeForElement']({
         id: this.hoverLayerId,
         attribute: 'visibilityGroupId'
       })
@@ -521,7 +516,7 @@ export default {
      * returns Integer
      */
     currentGroupSize () {
-      return this.$store.getters['Layers/visibilityGroupSize'](this.layer.attributes.visibilityGroupId)
+      return this.$store.getters['layers/visibilityGroupSize'](this.layer.attributes.visibilityGroupId)
     },
 
     /**
@@ -530,7 +525,7 @@ export default {
      * returns String | layerId
      */
     hoverLayerId () {
-      return this.$store.state.Layers.hoverLayerId
+      return this.$store.state.layers.hoverLayerId
     },
     /**
      * Checks if this layer is the active one
@@ -547,7 +542,7 @@ export default {
      * returns String|procedureId
      */
     procedureId () {
-      return this.$store.state.Layers.procedureId
+      return this.$store.state.layers.procedureId
     },
 
     /**
@@ -649,19 +644,19 @@ export default {
     hasSettingsThatPreventGrouping () {
       if (typeof this.activeLayer.id === 'undefined') {
         return this.layer.attributes.canUserToggleVisibility === false ||
-            this.layer.attributes.layerType !== 'overlay' ||
-            this.layer.attributes.isScope ||
-            this.layer.attributes.isBplan
+          this.layer.attributes.layerType !== 'overlay' ||
+          this.layer.attributes.isScope ||
+          this.layer.attributes.isBplan
       }
 
       return this.layer.attributes.canUserToggleVisibility === false ||
-          this.activeLayer.attributes.canUserToggleVisibility === false ||
-          this.layer.attributes.layerType !== 'overlay' ||
-          this.activeLayer.attributes.layerType !== 'overlay' ||
-          this.layer.attributes.isScope ||
-          this.activeLayer.attributes.isScope ||
-          this.layer.attributes.isBplan ||
-          this.activeLayer.attributes.isBplan
+        this.activeLayer.attributes.canUserToggleVisibility === false ||
+        this.layer.attributes.layerType !== 'overlay' ||
+        this.activeLayer.attributes.layerType !== 'overlay' ||
+        this.layer.attributes.isScope ||
+        this.activeLayer.attributes.isScope ||
+        this.layer.attributes.isBplan ||
+        this.activeLayer.attributes.isBplan
     },
 
     /**
@@ -779,7 +774,7 @@ export default {
           relationshipType: 'gisLayers'
         }
       }
-      this.$store.dispatch('Layers/deleteElement', deleteData)
+      this.$store.dispatch('layers/deleteElement', deleteData)
     },
 
     onAddToCategoryWithChildrenHidden () {
@@ -828,18 +823,17 @@ export default {
      * Set active state when clicking on an overlay
      */
     setActiveState () {
-      if (!hasPermission('feature_map_layer_visibility') ||
-          this.layer.type !== 'GisLayer' ||
-          this.layer.attributes.isBaseLayer ||
-          this.isLoading ||
-          this.isChildOfCategoryThatAppearsAsLayer) {
-        return
+      if (this.layer.type !== 'GisLayer' ||
+        this.layer.attributes.isBaseLayer ||
+        this.isLoading ||
+        this.isChildOfCategoryThatAppearsAsLayer) {
+        return false
       }
       if (this.preventActiveFromToggeling === false) {
         if (this.isActive) {
-          this.$store.commit('Layers/setActiveLayerId', '')
+          this.$store.commit('layers/setActiveLayerId', '')
         } else {
-          this.$store.commit('Layers/setActiveLayerId', this.layer.id)
+          this.$store.commit('layers/setActiveLayerId', this.layer.id)
         }
       } else {
         this.preventActiveFromToggeling = false
@@ -861,11 +855,11 @@ export default {
       if (this.isLoading || this.layer.attributes.layerType !== 'overlay') {
         return false
       }
-      this.$store.commit('Layers/setHoverLayerId', this.layer.id)
+      this.$store.commit('layers/setHoverLayerId', this.layer.id)
     },
 
     mouseOutElement () {
-      this.$store.commit('Layers/setHoverLayerId', '')
+      this.$store.commit('layers/setHoverLayerId', '')
     },
 
     /**
@@ -876,14 +870,14 @@ export default {
         return false
       }
       if (this.layer.attributes.layerType === 'overlay' && typeof this.activeLayer.id !== 'undefined') {
-        this.$store.commit('Layers/setHoverLayerIconIsHovered', true)
+        this.$store.commit('layers/setHoverLayerIconIsHovered', true)
       } else {
         this.unsetIconHoverState()
       }
     },
 
     unsetIconHoverState () {
-      this.$store.commit('Layers/setHoverLayerIconIsHovered', false)
+      this.$store.commit('layers/setHoverLayerIconIsHovered', false)
     },
 
     /**
@@ -921,11 +915,11 @@ export default {
       this.preventActiveFromToggeling = true
 
       if (typeof this.activeLayer.id === 'undefined' ||
-          this.layerType === 'base' ||
-          this.isActive ||
-          (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && this.layer.attributes.visibilityGroupId !== '') ||
-          this.hasSettingsThatPreventGrouping ||
-          this.isLoading) {
+        this.layerType === 'base' ||
+        this.isActive ||
+        (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && this.layer.attributes.visibilityGroupId !== '') ||
+        this.hasSettingsThatPreventGrouping ||
+        this.isLoading) {
         return false
       }
 
@@ -947,7 +941,7 @@ export default {
          * Deselect visibilitygroup
          * if this is just one Element left (next to it self), unchain it too
          */
-        const relatedLayers = this.$store.getters['Layers/elementsListByAttribute']({
+        const relatedLayers = this.$store.getters['layers/elementsListByAttribute']({
           type: 'visibilityGroupId',
           value: newVisibilityGroupId
         })
@@ -978,7 +972,7 @@ export default {
   },
 
   beforeCreate () {
-    this.$options.components.AdminLayerListItem = AdminLayerListItem
+    this.$options.components.DpAdminLayerListItem = DpAdminLayerListItem
   },
 
   mounted () {
