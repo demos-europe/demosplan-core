@@ -57,6 +57,24 @@
         :has-types="Boolean({{ hasTypes }})">
     </organisation-data-form>
 
+    <email-notification-settings
+        :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
+        :user="JSON.parse('{{ userData|json_encode|e('js', 'utf-8') }}')"
+        :will-receive-new-statement-notification="Boolean({{ will_receive_new_statement_notification }})"
+        :has-notification-section="Boolean({{ hasNotificationSection }})">
+    </email-notification-settings>
+
+    <paper-copy-preferences
+        :has-paper-copy-section="Boolean({{ hasPaperCopySection }})"
+        :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')">
+    </paper-copy-preferences>
+
+    <organisation-branding-settings
+        :has-organisation-branding-section="Boolean({{ hasOrganisationBrandingSection }})"
+        :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
+        project-name="{{ projectName }}">
+    </organisation-branding-settings>
+
 {% endblock content %}
 
 {% block buttonRow %}
