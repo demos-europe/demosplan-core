@@ -111,7 +111,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
             fn (Statement $statement): string => $this->statementService->getInternalOrExternalPhaseNameFromObject($statement)
         );
         $originalStatementConfig->elements
-        ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryResourceType())
+        ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryDetailsResourceType())
         ->setReadableByPath()->aliasedPath(Paths::statement()->element);
         $originalStatementConfig->document
         ->setRelationshipType($this->resourceTypeStore->getSingleDocumentResourceType())

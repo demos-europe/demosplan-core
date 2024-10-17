@@ -99,8 +99,6 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
      */
     protected function getAccessConditions(): array
     {
-        return [$this->conditionFactory->true()]; // todo: check which permission is missing.
-
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
             return [$this->conditionFactory->false()];
@@ -115,6 +113,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
         // These "elements" are needed for technical reasons but are no actual categories.
         // If you need to fetch them via the API use a separate resource type covering
         // their actual meaning.
+        /** @link PlanningDocumentCategoryDetailsResourceType */
         $elementsToHide = $this->globalConfig->getAdminlistElementsHiddenByTitle();
 
         if ([] !== $elementsToHide) {
