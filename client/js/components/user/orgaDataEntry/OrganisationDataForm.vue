@@ -96,9 +96,9 @@
           </small>
 
           <div class="flex flex-row items-center">
-          <span class="color--grey">
-            {{ proceduresDirectlinkPrefix }}
-          </span>
+            <span class="color--grey">
+              {{ proceduresDirectlinkPrefix }}
+            </span>
             <dp-input
               id="orga_slug"
               v-model="organisation.currentSlugName"
@@ -233,11 +233,11 @@
       </legend>
       <input
         type="hidden"
-        :name="`${organisation.id || ''}:current_submission_type`"
+        :name="`${organisation.id}:current_submission_type`"
         :value="organisation.submissionType" />
       <dp-radio
         id="submission_type_short"
-        :name="`${organisation.id || ''}:submission_type`"
+        :name="`${organisation.id}:submission_type`"
         :value="submissionTypeShort"
         data-cy="organisationData:submissionType:short"
         :label="{
@@ -248,7 +248,7 @@
         :checked="organisation.submissionType === submissionTypeShort" />
       <dp-radio
         id="submission_type_default"
-        :name="`${organisation.id || ''}:submission_type`"
+        :name="`${organisation.id}:submission_type`"
         :value="submissionTypeDefault"
         data-cy="organisationData:submissionType:default"
         :label="{
