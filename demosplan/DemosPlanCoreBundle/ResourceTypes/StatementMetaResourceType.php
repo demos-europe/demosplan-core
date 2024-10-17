@@ -46,12 +46,12 @@ final class StatementMetaResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return true; // todo: add permission?
+        return true;
     }
 
     protected function getAccessConditions(): array
     {
-        return [$this->conditionFactory->true()]; // todo: add conditions
+        return [];
     }
 
     public function isGetAllowed(): bool
