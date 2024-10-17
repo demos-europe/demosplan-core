@@ -92,7 +92,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
     protected function getProperties(): ResourceConfigBuilderInterface
     {
         $originalStatementConfig = $this->getConfig(OriginalStatementResourceConfigBuilder::class);
-        $originalStatementConfig->id->setReadableByPath();
+        $originalStatementConfig->id->setReadableByPath()->SetFilterable();
         $originalStatementConfig->externId->setReadableByPath();
         $originalStatementConfig->meta->setRelationshipType(
             $this->getTypes()->getStatementMetaResourceType()
