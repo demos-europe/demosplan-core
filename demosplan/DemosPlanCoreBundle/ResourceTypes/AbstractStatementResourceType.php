@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
@@ -121,7 +122,8 @@ abstract class AbstractStatementResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly FileService $fileService,
-        private readonly HTMLSanitizer $htmlSanitizer
+        private readonly HTMLSanitizer $htmlSanitizer,
+        private readonly StatementService $statementService,
     ) {
     }
 
@@ -185,18 +187,10 @@ abstract class AbstractStatementResourceType extends DplanResourceType
         $configBuilder->parentId
             ->readable(true)->aliasedPath(Paths::statement()->parent->id);
         $configBuilder->phase
-            ->readable(true, function (Statement $statement): string {
-                $phase = $statement->getPhase();
-                if (Statement::INTERNAL === $statement->getPublicStatement()) {
-                    $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
-                    $phase = $internalPhases[$phase]['name'] ?? '';
-                } else {
-                    $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
-                    $phase = $externalPhases[$phase]['name'] ?? '';
-                }
-
-                return $phase;
-            });
+            ->readable(true,
+                fn (Statement $statement): string
+                => $this->statementService->getInternalOrExternalPhaseNameFromObject($statement)
+            );
         $configBuilder->polygon->readable(true);
         $configBuilder->priority->readable(true);
         $configBuilder->procedureId->readable(true)->aliasedPath(Paths::statement()->procedure->id);
