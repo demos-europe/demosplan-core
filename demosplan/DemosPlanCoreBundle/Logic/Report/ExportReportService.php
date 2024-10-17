@@ -13,12 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
-use PhpOffice\PhpWord\Element\Section;
-use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
-use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -69,117 +65,33 @@ class ExportReportService extends CoreService
     }
 
     /**
-     * Generates the report with the received info in the given document format.
-     *
-     * @param string $format - 'ODText', 'RTF', 'Word2007', 'HTML', 'PDF'
+     * Generates the report with the received info in pdf format.
      *
      * @return WriterInterface
      *
      * @throws Exception
      */
-    public function generateProcedureReport(array $reportInfo, array $reportMeta, string $format = 'PDF')
+    public function generateProcedureReport(array $reportInfo): array
     {
-        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
-        $section = $phpWord->addSection();
-
-        $docTitle = $reportMeta['name'].' - '.$this->translator->trans('protocol');
-        $section->addText($docTitle, $this->styles['docTitleFont']);
-
-        $dateText = $this->translator->trans('exported.on', ['date' => $reportMeta['exportDate'], 'time' => $reportMeta['exportTime']]);
-        $section->addText($dateText, $this->styles['baseFont']);
-        $section->addTextBreak(2);
-
-        foreach ($reportInfo as $reportBlock) {
-            $this->writeReportBlockTitle($section, $reportBlock['titleMessage']);
-            if (empty($reportBlock['reportEntries'])) {
-                $noEntriesMessage = $this->translator->trans('text.protocol.no.entries');
-                $noInfoText = $section->addText($noEntriesMessage, $this->styles['noInfoMessage']);
-                $noInfoText->setParagraphStyle($this->styles['paragraph']);
-            } else {
-                $table = $section->addTable();
-                $blockTitleMsg = $reportBlock['headerMessage'] ?? $reportBlock['titleMessage'];
-                $this->writeReportBlockHeader($blockTitleMsg, $table);
-                $this->writeReportBlockBody($reportBlock['reportEntries'], $table);
+        $reportMessages = [];
+        foreach ($reportInfo as $reportCategory) {
+            $reportHeader = $reportCategory['headerMessage'] ?? $reportCategory['titleMessage'];
+            $reportCategoryTitle = $reportCategory['titleMessage'];
+            $reportMessages[$reportCategoryTitle] = [$reportHeader => []];
+            /** @var ReportEntry $reportEntry */
+            foreach ($reportCategory['reportEntries'] as $reportEntry) {
+                $reportMessages[$reportCategoryTitle][$reportHeader][] = [
+                    'creationDate' => $reportEntry->getCreated()->format('d.m.Y H:i:s'),
+                    'userName'     => u($reportEntry->getUserName()),
+                    'message'      => $this->messageConverter->convertMessage($reportEntry),
+                ];
+            }
+            if ([] === $reportMessages[$reportCategoryTitle][$reportHeader]) {
+                $reportMessages[$reportCategoryTitle][$reportHeader] = $this->translator->trans('text.protocol.no.entries');
             }
         }
 
-        $this->writeSignatureField($section, $dateText);
-
-        return IOFactory::createWriter($phpWord, $format);
-    }
-
-    /** Adds a field for signatures at the end of $section.
-     */
-    private function writeSignatureField(Section $section, string $exportedOn = '')
-    {
-        $font = $this->styles['baseFont'];
-        $section->addTextBreak(2);
-
-        $placeAndDateText = $this->translator->trans('city').', '.$this->translator->trans('date');
-        $signatureText = $this->translator->trans('signature');
-        $placeholder = '______________________________';
-
-        $section->addText($placeholder, $font);
-        $section->addText($placeAndDateText, $font);
-        $section->addTextBreak(1);
-        $section->addText($placeholder, $font);
-        $section->addText($signatureText, $font);
-        $section->addTextBreak(1);
-        $section->addText($exportedOn, $font);
-    }
-
-    private function writeReportBlockTitle(Section $section, string $blockTitleMsg)
-    {
-        $titleMessage = htmlspecialchars($this->translator->trans($blockTitleMsg));
-        $tableTitle = $section->addText($titleMessage, $this->styles['titleFont']);
-        $tableTitle->setParagraphStyle($this->styles['paragraph']);
-    }
-
-    private function writeReportBlockHeader(string $blockTitleMsg, Table $table)
-    {
-        $table->addRow($this->styles['rowHeight'], $this->styles['tableHeader']);
-
-        $dateHeaderLabel = htmlspecialchars($this->translator->trans('date'));
-        $dateHeaderCell = $table->addCell($this->styles['dateCellWidth'], $this->styles['tableHeader']);
-        $dateHeaderText = $dateHeaderCell->addText($dateHeaderLabel, $this->styles['tableHeaderFont']);
-        $dateHeaderText->setParagraphStyle($this->styles['paragraph']);
-
-        $messageHeaderLabel = htmlspecialchars($this->translator->trans($blockTitleMsg));
-        $headerCell = $table->addCell($this->styles['descriptionCellWidth'], $this->styles['tableHeader']);
-        $headerCell->addText($messageHeaderLabel, $this->styles['tableHeaderFont']);
-
-        $userHeaderLabel = htmlspecialchars($this->translator->trans('user'));
-        $userHeaderCell = $table->addCell($this->styles['userCellWidth'], $this->styles['tableHeader']);
-        $userHeaderCell->addText($userHeaderLabel, $this->styles['tableHeaderFont']);
-    }
-
-    private function writeReportBlockBody(array $reportEntries, Table $table)
-    {
-        /** @var ReportEntry $reportEntry */
-        foreach ($reportEntries as $reportEntry) {
-            $this->writeReportEntry($reportEntry, $table);
-        }
-    }
-
-    private function writeReportEntry(ReportEntry $reportEntry, Table $table)
-    {
-        $table->addRow($this->styles['rowHeight'], $this->styles['tableRow']);
-
-        $creationDate = $reportEntry->getCreated()->format('d.m.Y H:i:s');
-        $dateEntryCell = $table->addCell($this->styles['dateCellWidth']);
-        $dateEntryCell->addText($creationDate, $this->styles['baseFont']);
-
-        $messageParts = $this->getMessageParts($reportEntry);
-        $cell = $table->addCell($this->styles['descriptionCellWidth']);
-        foreach ($messageParts as $messagePart) {
-            $message = strip_tags((string) $messagePart);
-            $cellText = $cell->addText($message, $this->styles['baseFont']);
-            $cellText->setParagraphStyle($this->styles['paragraph']);
-        }
-
-        $userName = $reportEntry->getUserName();
-        $userCell = $table->addCell($this->styles['userCellWidth']);
-        $userCell->addText(u($userName)->normalize()->toString(), $this->styles['baseFont']);
+        return $reportMessages;
     }
 
     /**
