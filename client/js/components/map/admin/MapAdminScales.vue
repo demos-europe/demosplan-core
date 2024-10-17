@@ -51,6 +51,10 @@ export default {
     DpMultiselect
   },
 
+  emits: [
+    'change'
+  ],
+
   props: {
     availableScales: {
       type: Array,

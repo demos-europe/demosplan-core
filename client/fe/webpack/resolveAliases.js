@@ -14,7 +14,7 @@ const config = require('../config/config').config
 function resolveAliases () {
   const aliases = {
     '@DpJs': config.absoluteRoot + 'client/js',
-    vue: 'vue/dist/vue.esm.js',
+    vue: config.absoluteRoot + 'node_modules/@vue/compat/dist/vue.esm-bundler',
     './olcs/olcsMap.js':  config.absoluteRoot + 'node_modules/@masterportal/masterportalapi/src/maps/olcs/olcsMap.js',
     './olcs': config.absoluteRoot + 'node_modules/olcs/lib/olcs',
     'olcs/lib': config.absoluteRoot + 'node_modules/olcs/lib',
@@ -25,6 +25,7 @@ function resolveAliases () {
     './print/rawCesiumMask': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/rawCesiumMask.js',
     './print/takeCesiumScreenshot': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/takeCesiumScreenshot.js',
     './print/drawCesiumMask': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/drawCesiumMask.js',
+
   }
 
   glob.sync(config.oldBundlesPath + 'Demos*Bundle').forEach(dir => {
