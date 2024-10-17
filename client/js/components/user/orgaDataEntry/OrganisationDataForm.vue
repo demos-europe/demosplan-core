@@ -5,7 +5,6 @@
         {{ Translator.trans('organisation.data') }}
       </legend>
 
-      <template v-if="showDetailedInfo">
         <!-- Name -->
         <dp-input
           id="orga_name"
@@ -34,6 +33,7 @@
             :disabled="!isOrgaDataEditable" />
 
           <dp-input
+            v-if="showDetailedInfo"
             id="orga_addressHouseNumber"
             v-model="organisation.houseNumber"
             data-cy="organisationData:address:houseNumber"
@@ -46,7 +46,9 @@
         </div>
 
         <!-- Postal Code and City -->
-        <div class="flex items-start gap-1 mb-2">
+        <div
+          class="flex items-start gap-1 mb-2"
+          :class="showDetailedInfo ? 'flex-row' : 'flex-col'">
           <dp-input
             id="orga_address_postalcode"
             v-model="organisation.postalcode"
@@ -83,6 +85,21 @@
             text: Translator.trans('phone')
           }"
           :disabled="!isOrgaDataEditable" />
+
+        <!-- Types -->
+        <dp-select
+          v-if="hasTypes"
+          id="orga_type"
+          class="mb-2"
+          data-cy="organisationData:type"
+          :name="`${organisation.id}:type`"
+          :options="orgaTypes"
+          :selected="orgaTypes[0]"
+          :label="{
+            text: Translator.trans('type')
+          }"
+          :disabled="!isOrgaDataEditable">
+        </dp-select>
 
         <!-- Slug -->
         <div v-if="hasPermission('feature_orga_slug') && hasPermission('feature_orga_slug_edit')">
@@ -122,6 +139,7 @@
         </div>
 
         <!-- Display Slug and Customer List -->
+      <template v-if="showDetailedInfo">
         <dl
           v-if="displaySlug || displayCustomer"
           class="description-list space-stack-s">
@@ -146,80 +164,6 @@
             </dd>
           </div>
         </dl>
-      </template>
-
-      <template v-else>
-        <dp-input
-          id="orga_name"
-          v-model="organisation.name"
-          class="mb-2"
-          data-cy="organisationData:name"
-          :name="`${organisation.id}:name`"
-          :label="{
-            text: Translator.trans('name.legal')
-          }"
-          :disabled="!isOrgaDataEditable" />
-
-        <dp-input
-          id="orga_address_street"
-          v-model="organisation.street"
-          class="mb-2"
-          data-cy="organisationData:address:street"
-          :name="`${organisation.id}:address_street`"
-          :label="{
-            text: Translator.trans('street')
-          }"
-          :disabled="!isOrgaDataEditable" />
-
-        <dp-input
-          id="orga_address_postalcode"
-          v-model="organisation.postalcode"
-          data-cy="organisationData:address:postalcode"
-          class="mb-2"
-          :name="`${organisation.id}:address_postalcode`"
-          :label="{
-            text: Translator.trans('postalcode')
-          }"
-          :pattern="isOrgaDataEditable ? '^[0-9]{5}$' : ''"
-          :size="5"
-          :disabled="!isOrgaDataEditable" />
-
-        <dp-input
-          id="orga_address_city"
-          v-model="organisation.city"
-          class="mb-2"
-          data-cy="organisationData:address:city"
-          :name="`${organisation.id}:address_city`"
-          :label="{
-            text: Translator.trans('city')
-          }"
-          :disabled="!isOrgaDataEditable" />
-
-        <dp-input
-          v-if="hasPermission('field_organisation_phone')"
-          id="orga_address_phone"
-          class="mb-2"
-          v-model="organisation.phone"
-          data-cy="organisationData:phone"
-          :name="`${organisation.id}:address_phone`"
-          :label="{
-            text: Translator.trans('phone')
-          }"
-          :disabled="!isOrgaDataEditable" />
-
-        <dp-select
-          v-if="hasTypes"
-          id="orga_type"
-          class="mb-2"
-          data-cy="organisationData:type"
-          :name="`${organisation.id}:type`"
-          :options="orgaTypes"
-          :selected="orgaTypes[0]"
-          :label="{
-            text: Translator.trans('type')
-          }"
-          :disabled="!isOrgaDataEditable">
-        </dp-select>
       </template>
     </fieldset>
 
