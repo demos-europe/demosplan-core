@@ -122,7 +122,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
         ->setReadableByPath();
         $originalStatementConfig->polygon->setReadableByPath();
-        $originalStatementConfig->numberOfAnonymVotes
+        $originalStatementConfig->votesNum
             ->setReadableByCallable(static fn (Statement $statement): int => $statement->getVotesNum());
         $originalStatementConfig->attachmentsDeleted->setReadableByCallable(
             static fn (Statement $statement): bool => $statement->isAttachmentsDeleted()
