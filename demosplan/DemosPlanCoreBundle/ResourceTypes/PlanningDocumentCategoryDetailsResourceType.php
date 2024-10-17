@@ -34,6 +34,7 @@ class PlanningDocumentCategoryDetailsResourceType extends DplanResourceType
 
         return $planningDocumentCategoryTitleConfig;
     }
+
     protected function getAccessConditions(): array
     {
         return [];

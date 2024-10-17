@@ -113,7 +113,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
         // These "elements" are needed for technical reasons but are no actual categories.
         // If you need to fetch them via the API use a separate resource type covering
         // their actual meaning.
-        /** @link PlanningDocumentCategoryDetailsResourceType */
+        /** @see PlanningDocumentCategoryDetailsResourceType */
         $elementsToHide = $this->globalConfig->getAdminlistElementsHiddenByTitle();
 
         if ([] !== $elementsToHide) {
