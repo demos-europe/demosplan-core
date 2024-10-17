@@ -164,6 +164,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
         }
 
         &__toolbar-content {
+            overflow-x: hidden;
             @include media-query('lap-up') {
                 overflow-y: auto;
                 height: $map-height;
