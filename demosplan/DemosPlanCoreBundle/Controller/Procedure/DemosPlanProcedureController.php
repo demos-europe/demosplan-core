@@ -2422,7 +2422,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @DplanPermissions("area_manage_segment_places")
      */
-    #[Route(name: 'DemosPlan_procedure_places_list', path: '/verfahren/{procedureId}/schritte')]
+    #[Route(name: 'DemosPlan_procedure_places_list', path: '/verfahren/{procedureId}/schritte', options: ['expose' => true])]
     #[Route(name: 'DemosPlan_procedure_template_places_list', path: '/verfahren/blaupause/{procedureId}/schritte')]
     public function showProcedurePlacesAction(string $procedureId)
     {
