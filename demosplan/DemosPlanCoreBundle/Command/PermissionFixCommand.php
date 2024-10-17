@@ -51,6 +51,7 @@ class PermissionFixCommand extends CoreCommand
     {
         $group = $input->getOption('group');
         $force = $input->getOption('force');
+        // local file only, no need for flysystem
         $fs = new Filesystem();
 
         $output = $this->setupIo($input, $output);

@@ -30,7 +30,7 @@ class ZipImportServiceTest extends FunctionalTestCase
 
     /** @var ZipImportService */
     protected $sut;
-    private null|Procedure|Proxy $testProcedure;
+    private Procedure|Proxy|null $testProcedure;
 
     public function setUp(): void
     {
@@ -41,6 +41,7 @@ class ZipImportServiceTest extends FunctionalTestCase
 
     public function testCreateFileMapFromZip(): void
     {
+        // local file usage is ok here
         $splFileInfo = new SplFileInfo(
             $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->object())->getAbsolutePath(),
             '',

@@ -16,8 +16,8 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use GuzzleHttp\Exception\InvalidArgumentException;
-use RuntimeException;
 use Illuminate\Support\Collection;
+use RuntimeException;
 use Twig\TwigFunction;
 
 class WebpackBundleExtension extends ExtensionBase
@@ -202,8 +202,10 @@ class WebpackBundleExtension extends ExtensionBase
         $manifestFile = DemosPlanPath::getProjectPath("web/{$manifest}.manifest.json");
 
         $manifestArray = [];
+        // uses local file, no need for flysystem
         if (file_exists($manifestFile)) {
             try {
+                // uses local file, no need for flysystem
                 $manifestArray = Json::decodeToArray(file_get_contents($manifestFile));
             } catch (InvalidArgumentException) {
                 throw new RuntimeException(<<<ERR

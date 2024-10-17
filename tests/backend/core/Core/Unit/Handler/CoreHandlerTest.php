@@ -52,6 +52,7 @@ class CoreHandlerTest extends UnitTestCase
     protected function deleteTestDir()
     {
         foreach (glob($this->getUploadDir().'/coreHandlerUpload_test/*') as $file) {
+            // local file is valid, no need for flysystem
             unlink($file);
         }
 
