@@ -227,6 +227,7 @@ import { DpInput, DpRadio, DpSelect } from '@demos-europe/demosplan-ui'
 import EmailNotificationSettings from '@DpJs/components/user/orgaDataEntry/EmailNotificationSettings'
 import OrganisationBrandingSettings from '@DpJs/components/user/orgaDataEntry/OrganisationBrandingSettings'
 import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyPreferences'
+
 export default {
   name: 'OrganisationDataForm',
 
