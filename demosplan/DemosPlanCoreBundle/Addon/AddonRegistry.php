@@ -42,6 +42,7 @@ class AddonRegistry implements ArrayAccess
         }
 
         foreach ($addonInfos as $addonInfo) {
+            /* @var AddonInfo $addonInfo */
             $this->addonInfos[$addonInfo->getName()] = $addonInfo;
         }
     }
@@ -51,7 +52,7 @@ class AddonRegistry implements ArrayAccess
      */
     public function getEnabledAddons(): array
     {
-        return array_filter($this->getAddonInfos(), fn(AddonInfo $addonInfo) => $addonInfo->isEnabled());
+        return array_filter($this->getAddonInfos(), fn (AddonInfo $addonInfo) => $addonInfo->isEnabled());
     }
 
     /**
