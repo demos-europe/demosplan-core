@@ -13,11 +13,14 @@
 
 import { DpAccordion, DpEditor, dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
+import OrganisationDataForm from '@DpJs/components/user/orgaDataEntry/OrganisationDataForm'
+
 import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 
 const components = {
   DpAccordion,
-  DpEditor
+  DpEditor,
+  OrganisationDataForm
 }
 
 initialize(components).then(() => {
