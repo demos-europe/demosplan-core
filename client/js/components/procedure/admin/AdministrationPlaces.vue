@@ -150,6 +150,7 @@
 
 <script>
 import {
+  checkResponse,
   dpApi,
   DpButton,
   DpButtonRow,
@@ -302,19 +303,17 @@ export default {
     },
 
     /**
-     * When saving a new place the comparison of `foundSimilarName.length === 0` needs to be executed
-     * since it is forbidden to save an already existing place name twice.
-     * When updating a new place the comparison of `foundSimilarName.length === 1` needs to be executed instead
-     * because the current rowData name is already existent in the places object hence updating an existing place
-     * should always be possible.
+     * Checks if the given place name is unique within the list of places.
+     * To update an existing place the currentPlaceId is given and the
+     * place with this id is excluded from the check.
      *
      * @param placeName { string }
-     * @param isNewPlace { boolean }
+     * @param currentPlaceId { string }
      * @returns { boolean }
      */
-    isUniquePlaceName (placeName, isNewPlace = false) {
-      const foundSimilarName = this.places.filter(el => el.name === placeName)
-      return isNewPlace ? foundSimilarName.length === 0 : foundSimilarName.length === 1
+    isUniquePlaceName (placeName, currentPlaceId = '') {
+      const foundSimilarName = this.places.filter(el => el.name === placeName && el.id !== currentPlaceId)
+      return foundSimilarName.length === 0
     },
 
     resetNewPlaceForm () {
@@ -323,7 +322,7 @@ export default {
     },
 
     saveNewPlace () {
-      if (!this.isUniquePlaceName(this.newPlace.name, true)) {
+      if (!this.isUniquePlaceName(this.newPlace.name)) {
         return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
       }
 
@@ -340,18 +339,19 @@ export default {
         }
       }
       dpApi.post(Routing.generate('api_resource_create', { resourceType: 'Place' }), {}, { data: payload })
-        .then(() => {
+        .then((response) => {
           /**
            * Update local data so no additional api request is needed to fetch the updated data
            */
-          const localDataToUpdate = {
+          const dataToUpdate = {
             name: this.newPlace.name,
+            id: response.data.data.id,
             description: this.newPlace.description,
             edit: false,
             solved: this.newPlace.solved,
             sortIndex: this.places.length
           }
-          this.places.push(localDataToUpdate)
+          this.places.push(dataToUpdate)
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(err => console.error(err))
@@ -376,7 +376,7 @@ export default {
     },
 
     updatePlace (rowData) {
-      if (!this.isUniquePlaceName(rowData.name)) {
+      if (!this.isUniquePlaceName(this.newRowData.name, rowData.id)) {
         return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
       }
       const payload = {
@@ -392,9 +392,13 @@ export default {
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Place', resourceId: rowData.id }), {}, payload)
-        .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
+        .then(checkResponse)
         .catch((err) => console.error(err))
-        .finally(() => {
+        .finally((response) => {
+          if (response?.errors?.length > 0) {
+            return
+          }
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
           this.setEditMode(rowData.id, false)
           this.updatePlaceData(rowData.id)
         })
