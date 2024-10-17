@@ -10679,6 +10679,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"olcs@npm:2.22.0":
+  version: 2.22.0
+  resolution: "olcs@npm:2.22.0"
+  peerDependencies:
+    cesium: ">= 1.90.0"
+    ol: "*"
+  checksum: 10c0/92a7af6202706726f22ce815c2f255ba9ef1190cf915b3c597445fe620b745f5f83a808aa4ed7c5d7d8f1f302dfba1e8794f4690a7f8d87d3203c4025f1a2110
+  languageName: node
+  linkType: hard
+
 "once@npm:^1.3.0":
   version: 1.4.0
   resolution: "once@npm:1.4.0"
@@ -12806,7 +12816,7 @@ __metadata:
     mini-css-extract-plugin: "npm:^2.9.0"
     node-notifier: "npm:^10.0.1"
     ol: "npm:^9.1.0"
-    olcs: "npm:2.20.0"
+    olcs: "npm:2.22.0"
     plyr: "npm:^3.7.8"
     portal-vue: "npm:^2.1.7"
     postcss: "npm:^8.4.47"
