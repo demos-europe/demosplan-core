@@ -119,7 +119,7 @@
     "autoprefixer": "^10.4.17",
     "babel-core": "^7.0.0-bridge.0",
     "babel-helper-vue-jsx-merge-props": "^2.0.3",
-    "babel-jest": "^27.5.1",
+    "babel-jest": "^29.7.0",
     "babel-loader": "^9.1.3",
     "babel-plugin-dynamic-import-node": "^2.3.3",
     "babel-plugin-dynamic-import-webpack": "^1.1.0",
