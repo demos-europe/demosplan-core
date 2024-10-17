@@ -3615,6 +3615,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/strip-bom@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@types/strip-bom@npm:3.0.0"
+  checksum: 10c0/6638635fb52dc1f7a4aa596445170ffc731f3bea307d25d79709dcce14f80870128a6f0304032863b9d1a86b4b5f45d48bcaf96abe81f42e61f0a3eb18a1b996
+  languageName: node
+  linkType: hard
+
+"@types/strip-json-comments@npm:0.0.30":
+  version: 0.0.30
+  resolution: "@types/strip-json-comments@npm:0.0.30"
+  checksum: 10c0/90509e345ac16c79f7aa7d7ef52e388e5be923f3456cf8052d36ee0eb4abc5ec4080c5f010f78cf01f5599546577eb3724256bc698663e86f0fe08a5a3fb7f68
+  languageName: node
+  linkType: hard
+
 "@types/yargs-parser@npm:*":
   version: 21.0.3
   resolution: "@types/yargs-parser@npm:21.0.3"
@@ -3916,26 +3930,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vue/vue2-jest@npm:^27.0.0":
-  version: 27.0.0
-  resolution: "@vue/vue2-jest@npm:27.0.0"
+"@vue/vue2-jest@npm:^29.2.6":
+  version: 29.2.6
+  resolution: "@vue/vue2-jest@npm:29.2.6"
   dependencies:
     "@babel/plugin-transform-modules-commonjs": "npm:^7.2.0"
     "@vue/component-compiler-utils": "npm:^3.1.0"
     chalk: "npm:^2.1.0"
     css-tree: "npm:^2.0.1"
     source-map: "npm:0.5.6"
+    tsconfig: "npm:^7.0.0"
   peerDependencies:
     "@babel/core": 7.x
-    babel-jest: ">= 27 < 28"
-    jest: 27.x
-    ts-jest: ">= 27 < 28"
+    babel-jest: 29.x
+    jest: 29.x
+    typescript: ">= 4.3"
     vue: ^2.x
     vue-template-compiler: ^2.x
   peerDependenciesMeta:
-    ts-jest:
+    typescript:
       optional: true
-  checksum: 10c0/ab7f64278c3c2c82b0a7d542eba0f3a2ae00eaa8c271c8104d9ecb81d468f7e245d5266ec1278752c721c8a0a88ec33920f4da0319123a7862f7db4bd5d6f30d
+  checksum: 10c0/9781c3748c3d4d7aa724ecde10350ceadb8270830f063a44c5a49d70c592a99f0327e530093e32b409be9afbd46aa9b8ad1fee1798a51ed7c2286f1bb472cfe1
   languageName: node
   linkType: hard
 
@@ -12749,7 +12764,7 @@ __metadata:
     "@uppy/drag-drop": "npm:^4.0.3"
     "@uppy/progress-bar": "npm:^4.0.0"
     "@vue/test-utils": "npm:^1.3.6"
-    "@vue/vue2-jest": "npm:^27.0.0"
+    "@vue/vue2-jest": "npm:^29.2.6"
     a11y-datepicker: "npm: ^0.9.0"
     acorn: "npm:^8.12.1"
     assets-webpack-plugin: "npm:^7.1.1"
@@ -13803,6 +13818,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"strip-json-comments@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "strip-json-comments@npm:2.0.1"
+  checksum: 10c0/b509231cbdee45064ff4f9fd73609e2bcc4e84a4d508e9dd0f31f70356473fde18abfb5838c17d56fb236f5a06b102ef115438de0600b749e818a35fbbc48c43
+  languageName: node
+  linkType: hard
+
 "strip-json-comments@npm:^3.1.1":
   version: 3.1.1
   resolution: "strip-json-comments@npm:3.1.1"
@@ -14352,6 +14374,18 @@ __metadata:
     minimist: "npm:^1.2.6"
     strip-bom: "npm:^3.0.0"
   checksum: 10c0/5b4f301a2b7a3766a986baf8fc0e177eb80bdba6e396792ff92dc23b5bca8bb279fc96517dcaaef63a3b49bebc6c4c833653ec58155780bc906bdbcf7dda0ef5
+  languageName: node
+  linkType: hard
+
+"tsconfig@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "tsconfig@npm:7.0.0"
+  dependencies:
+    "@types/strip-bom": "npm:^3.0.0"
+    "@types/strip-json-comments": "npm:0.0.30"
+    strip-bom: "npm:^3.0.0"
+    strip-json-comments: "npm:^2.0.0"
+  checksum: 10c0/7a5dec94b9e42017d93041b1962c174afde00fd8f3066eea81a5e5b743065e95f3bedebff0edbe215b2517f8cdace8c9f15651a78d5eb7409cad2fc107e5eb98
   languageName: node
   linkType: hard
 
