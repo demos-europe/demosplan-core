@@ -8,12 +8,19 @@
 
         {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
             heading: 'statements'|trans,
-            subnav: [ {
-                href: path(path, { procedureId: procedure }),
-                label:  'statement.new'|trans,
-                datacy: 'listStatements:statementNew',
-                icon: 'fa-plus'
-            }],
+            subnav: [
+                {
+                    href: path('dplan_procedure_original_statement_list', { procedureId: procedureId }),
+                    label: 'statements.original'|trans,
+                    datacy: 'listStatements:originalStatementList'
+                },
+                {
+                    href: path(path, { procedureId: procedureId }),
+                    label:  'statement.new'|trans,
+                    datacy: 'listStatements:statementNew',
+                    icon: 'fa-plus'
+                }
+            ],
             flush: true
         } %}
 
@@ -25,9 +32,9 @@
     <list-statements
         current-user-id="{{ currentUser.ident }}"
         :is-source-and-coupled-procedure="{{ templateVars.isSourceAndCoupledProcedure == 1 ? 'true' : 'false' }}"
-        procedure-id="{{ procedure }}"
-        :submit-type-options="JSON.parse('{{ submitTypesOptions|json_encode|e('js', 'utf-8') }}')"
-    ></list-statements>
+        procedure-id="{{ procedureId }}"
+        :submit-type-options="JSON.parse('{{ submitTypesOptions|json_encode|e('js', 'utf-8') }}')">
+    </list-statements>
 {% endblock %}
 
 {% block javascripts %}

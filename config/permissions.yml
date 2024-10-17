@@ -146,6 +146,11 @@ area_admin_statement_list:
     label: 'Shows a list with all Statements belonging to a Procedure'
     loginRequired: true
     parent: area_admin
+area_admin_original_statement_list:
+    description: 'New list with Original Statements belonging to a Procedure showing basic info for each Statement so the planner can have a quick overview of the status of the Procedure.'
+    label: 'Shows a list with all Original Statements belonging to a Procedure'
+    loginRequired: true
+    parent: area_admin
 area_admin_statements_tag:
     label: 'Verwaltung der Schlagworte'
     loginRequired: true

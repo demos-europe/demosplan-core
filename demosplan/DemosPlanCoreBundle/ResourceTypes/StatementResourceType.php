@@ -68,7 +68,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly StatementService $statementService,
         private readonly StatementDeleter $statementDeleter,
     ) {
-        parent::__construct($fileService, $htmlSanitizer);
+        parent::__construct($fileService, $htmlSanitizer, $statementService);
     }
 
     public function getEntityClass(): string

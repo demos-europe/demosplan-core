@@ -157,7 +157,7 @@
             <span> {{ Translator.trans('personal.data.usage.allowed') }} </span>
           </div>
           <div
-            v-else-if="statement.consetRevoked"
+            v-else-if="statement.consentRevoked"
             class="border--top">
             <span> {{ Translator.trans('personal.data.usage.revoked') }} </span>
             <span> {{ Translator.trans('personal.data.usage.revoked.statement') }} </span>
