@@ -27,7 +27,10 @@
         </dp-map-settings-preview>
     {% endif %}
 
-    {% set addonProps = { 'procedureId': templateVars.procedure.id } %}
+    {% set addonProps = {
+        'procedureId': templateVars.procedure.id,
+        'csrf-token': csrf_token('csrf')|json_encode
+    } %}
     <addon-wrapper
         hook-name="procedure.adminlist.fields"
         :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">
