@@ -400,14 +400,10 @@
                                     {{ 'document'|trans }}:
                                 </span>
                                 <span>
-                                    {% if link is defined %}
-                                        <a href="{{ link }}" title="{{ statement.elementTitle|default }}">{{ statement.elementTitle|default('document.notavailable'|trans) }}</a>
-                                    {% else %}
-                                        {{ statement.elementTitle|default('document.notavailable'|trans) }}
-                                    {% endif %}
+                                    <a href="{{ link|default('#') }}" title="{{ statement.elementTitle|default }}">{{ statement.elementTitle|default('document.notavailable'|trans) }}</a>
                                 </span>
 
-                                {% if statement.paragraphTitle|default is not null and statement.paragraphTitle|default != '' %}
+                                {% if statement.paragraphTitle|default is not null %}
                                     <br>
                                     <span class="weight--bold">
                                         {{ "paragraph"|trans }}:
