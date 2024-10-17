@@ -67,7 +67,7 @@ class StatementListController extends BaseController
      * @throws ProcedureNotFoundException
      * @throws Exception
      */
-    #[DplanPermissions('area_admin_statement_list')] // todo: wrap in a new permission area_admin_original_statement_list
+    #[DplanPermissions('area_admin_original_statement_list')]
     #[Route(
         path: '/verfahren/{procedureId}/original-einwendungen',
         name: 'dplan_procedure_original_statement_list',
