@@ -289,10 +289,6 @@ export default {
           ? this.statement.authorName
           : `${Translator.trans('role.citizen')} (${Translator.trans('anonymous')})`
 
-        if (this.statement.votesNum > 0) {
-          name += `<br>${Translator.trans('voters')}: ${this.statement.votesNum}`
-        }
-
         if (hasPermission('feature_statements_like') && this.statement.publicAllowed) {
           name += `<br>${Translator.trans('liked.by')}: ${this.statement.likesNum}`
         }
