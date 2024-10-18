@@ -1665,7 +1665,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_single_document_upload_zip',
                     'feature_procedure_sort_location',
                     'feature_procedure_sort_orga_name',
-                    'feature_statements_vote_may_vote',
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [
@@ -1723,6 +1722,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_data_input_orga',
                     'feature_statement_gdpr_consent',
                     'feature_statement_gdpr_consent_submit',
+                    'feature_statements_vote_may_vote',
                     'feature_statement_to_entire_document',
                     'feature_statements_participation_area_always_citizen',
                     'feature_statements_represent_orga',
