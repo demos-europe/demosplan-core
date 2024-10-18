@@ -14,39 +14,44 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\SlugFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
-use Zenstruck\Foundry\ModelFactory;
-use Zenstruck\Foundry\Proxy;
-use Zenstruck\Foundry\RepositoryProxy;
+use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Zenstruck\Foundry\Persistence\Proxy;
+use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
- * @extends ModelFactory<Procedure>
+ * @extends PersistentProxyObjectFactory<Procedure>
  *
- * @method        Procedure|Proxy                     create(array|callable $attributes = [])
- * @method static Procedure|Proxy                     createOne(array $attributes = [])
- * @method static Procedure|Proxy                     find(object|array|mixed $criteria)
- * @method static Procedure|Proxy                     findOrCreate(array $attributes)
- * @method static Procedure|Proxy                     first(string $sortedField = 'id')
- * @method static Procedure|Proxy                     last(string $sortedField = 'id')
- * @method static Procedure|Proxy                     random(array $attributes = [])
- * @method static Procedure|Proxy                     randomOrCreate(array $attributes = [])
- * @method static ProcedureRepository|RepositoryProxy repository()
- * @method static Procedure[]|Proxy[]                 all()
- * @method static Procedure[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
- * @method static Procedure[]|Proxy[]                 createSequence(iterable|callable $sequence)
- * @method static Procedure[]|Proxy[]                 findBy(array $attributes)
- * @method static Procedure[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
- * @method static Procedure[]|Proxy[]                 randomSet(int $number, array $attributes = [])
+ * @method        Procedure|Proxy                              create(array|callable $attributes = [])
+ * @method static Procedure|Proxy                              createOne(array $attributes = [])
+ * @method static Procedure|Proxy                              find(object|array|mixed $criteria)
+ * @method static Procedure|Proxy                              findOrCreate(array $attributes)
+ * @method static Procedure|Proxy                              first(string $sortedField = 'id')
+ * @method static Procedure|Proxy                              last(string $sortedField = 'id')
+ * @method static Procedure|Proxy                              random(array $attributes = [])
+ * @method static Procedure|Proxy                              randomOrCreate(array $attributes = [])
+ * @method static ProcedureRepository|ProxyRepositoryDecorator repository()
+ * @method static Procedure[]|Proxy[]                          all()
+ * @method static Procedure[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
+ * @method static Procedure[]|Proxy[]                          createSequence(iterable|callable $sequence)
+ * @method static Procedure[]|Proxy[]                          findBy(array $attributes)
+ * @method static Procedure[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
+ * @method static Procedure[]|Proxy[]                          randomSet(int $number, array $attributes = [])
  */
-class ProcedureFactory extends ModelFactory
+class ProcedureFactory extends PersistentProxyObjectFactory
 {
     public function __construct(private readonly GlobalConfigInterface $globalConfig)
     {
         parent::__construct();
     }
 
-    protected function getDefaults(): array
+    public static function class(): string
     {
-        $slug = SlugFactory::createOne()->object();
+        return Procedure::class;
+    }
+
+    protected function defaults(): array|callable
+    {
+        $slug = SlugFactory::createOne()->_real();
 
         return [
             'ars'                                   => self::faker()->text(12),
@@ -79,27 +84,17 @@ class ProcedureFactory extends ModelFactory
         ];
     }
 
-    protected function initialize(): self
-    {
-        return $this;
-    }
-
-    protected static function getClass(): string
-    {
-        return Procedure::class;
-    }
-
     public function inHiddenPhase(): self
     {
-        return $this->addState([
+        return $this->with([
             'phase'                    => $this->globalConfig->getInternalPhaseKeys('hidden')[0],
             'publicParticipationPhase' => $this->globalConfig->getExternalPhaseKeys('hidden')[0],
-            ]);
+        ]);
     }
 
     public function inReadingPhase(): self
     {
-        return $this->addState([
+        return $this->with([
             'phase'                    => $this->globalConfig->getInternalPhaseKeys('read')[0],
             'publicParticipationPhase' => $this->globalConfig->getExternalPhaseKeys('read')[0],
         ]);
@@ -107,11 +102,11 @@ class ProcedureFactory extends ModelFactory
 
     public function asDeleted(): self
     {
-        return $this->addState(['deleted' => true]);
+        return $this->with(['deleted' => true]);
     }
 
     public function withoutPublicParticipation(): self
     {
-        return $this->addState(['publicParticipation' => false]);
+        return $this->with(['publicParticipation' => false]);
     }
 }
