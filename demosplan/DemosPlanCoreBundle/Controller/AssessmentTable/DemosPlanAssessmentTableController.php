@@ -106,7 +106,7 @@ class DemosPlanAssessmentTableController extends BaseController
         StatementService $statementService,
         string $procedureId,
         $filterHash,
-        bool $original
+        bool $original,
     ): ?Response {
         // @improve T14122
 
@@ -326,7 +326,7 @@ class DemosPlanAssessmentTableController extends BaseController
         TranslatorInterface $translator,
         string $procedureId,
         $filterHash,
-        bool $original
+        bool $original,
     ): ?Response {
         // @improve T14122
 
@@ -609,7 +609,7 @@ class DemosPlanAssessmentTableController extends BaseController
         $procedureId,
         $statement,
         $title,
-        $isCluster = false
+        $isCluster = false,
     ) {
         $fParams = [];
         $statementId = $statement;
@@ -1057,7 +1057,7 @@ class DemosPlanAssessmentTableController extends BaseController
         TranslatorInterface $translator,
         CurrentProcedureService $currentProcedureService,
         StatementService $statementService,
-        CurrentUserInterface $currentUser
+        CurrentUserInterface $currentUser,
     ): array {
         $serviceVersion = $statementService->getVersionFields($statement);
 
