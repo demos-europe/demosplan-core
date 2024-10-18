@@ -55,6 +55,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ParagraphResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ParagraphVersionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlaceResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryDetailsResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PriorityAreaResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureBehaviorDefinitionResourceType;
@@ -185,6 +186,8 @@ class ResourceTypeStore
 
     protected PlanningDocumentCategoryResourceType $planningDocumentCategoryResourceType;
 
+    protected PlanningDocumentCategoryDetailsResourceType $planningDocumentCategoryDetailsResourceType;
+
     protected PriorityAreaResourceType $priorityAreaResourceType;
 
     protected ProcedureBehaviorDefinitionResourceType $procedureBehaviorDefinitionResourceType;
@@ -298,6 +301,7 @@ class ResourceTypeStore
         ParagraphVersionResourceType $paragraphVersionResourceType,
         PlaceResourceType $placeResourceType,
         PlanningDocumentCategoryResourceType $planningDocumentCategoryResourceType,
+        PlanningDocumentCategoryDetailsResourceType $planningDocumentCategoryDetailsResourceType,
         PriorityAreaResourceType $priorityAreaResourceType,
         ProcedureBehaviorDefinitionResourceType $procedureBehaviorDefinitionResourceType,
         ProcedureMapSettingResourceType $procedureMapSettingResourceType,
@@ -377,6 +381,7 @@ class ResourceTypeStore
         $this->paragraphVersionResourceType = $paragraphVersionResourceType;
         $this->placeResourceType = $placeResourceType;
         $this->planningDocumentCategoryResourceType = $planningDocumentCategoryResourceType;
+        $this->planningDocumentCategoryDetailsResourceType = $planningDocumentCategoryDetailsResourceType;
         $this->priorityAreaResourceType = $priorityAreaResourceType;
         $this->procedureBehaviorDefinitionResourceType = $procedureBehaviorDefinitionResourceType;
         $this->procedureMapSettingResourceType = $procedureMapSettingResourceType;
@@ -631,6 +636,11 @@ class ResourceTypeStore
     public function getPlanningDocumentCategoryResourceType(): PlanningDocumentCategoryResourceType
     {
         return $this->planningDocumentCategoryResourceType;
+    }
+
+    public function getPlanningDocumentCategoryDetailsResourceType(): PlanningDocumentCategoryDetailsResourceType
+    {
+        return $this->planningDocumentCategoryDetailsResourceType;
     }
 
     public function getPriorityAreaResourceType(): PriorityAreaResourceType

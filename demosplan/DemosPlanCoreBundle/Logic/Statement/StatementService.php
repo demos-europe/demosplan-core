@@ -2871,29 +2871,27 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @return string the internal or external phase of the given statement
      *
-     * @deprecated use {@link getInternalOrExternalPhaseNameFromObject} instead
+     * @deprecated use {@link getPhaseName} instead
      */
-    public function getInternalOrExternalPhaseName(array $statement): string
+    public function getPhaseNameFromArray(array $statement): string
     {
-        return $this->getPhaseNameFromStatementsPublicState(
+        return $this->getPhaseName(
             $statement['publicStatement'],
             $statement['phase']
         );
     }
 
-    public function getInternalOrExternalPhaseNameFromObject(Statement $statement): string
+    public function getPhaseName(string $phaseKey, string $publicStatement): string
     {
-        return $this->getPhaseNameFromStatementsPublicState(
-            $statement->getPublicStatement(),
-            $statement->getPhase()
-        );
-    }
+        $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
+        $phaseName = $externalPhases[$phaseKey]['name'] ?? '';
 
-    protected function getPhaseNameFromStatementsPublicState(string $publicStatementValue, string $phase): string
-    {
-        return Statement::INTERNAL === $publicStatementValue
-            ? $this->globalConfig->getPhaseNameWithPriorityInternal($phase)
-            : $this->globalConfig->getPhaseNameWithPriorityExternal($phase);
+        if (StatementInterface::INTERNAL === $publicStatement) {
+            $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
+            $phaseName = $internalPhases[$phaseKey]['name'] ?? '';
+        }
+
+        return $phaseName;
     }
 
     /**
