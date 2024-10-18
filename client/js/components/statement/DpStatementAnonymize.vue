@@ -221,7 +221,7 @@
             {{ Translator.trans('id') }} {{ child.externId }}
           </li>
         </ul>
-        <p>
+        <p v-if="hasPermission('area_admin_assessmenttable')">
           <a :href="aTableLink">{{ Translator.trans('statement.anonymize.text.children.link.to.list') }}</a><br>
           {{ Translator.trans('statement.anonymize.text.children.version.update') }}
         </p>
