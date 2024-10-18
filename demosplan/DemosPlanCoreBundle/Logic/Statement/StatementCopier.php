@@ -521,6 +521,8 @@ class StatementCopier extends CoreService
         $this->getDoctrine()->getManager()->persist($newStatement);
         if ($statement->getFiles() !== []) {
             $this->statementService->addFilesToCopiedStatement($newStatement, $statement->getId());
+
+            return $newStatement;
         }
 
         // We do have to flush the new copied statement here if the original statement has no FileContainers otherwise
