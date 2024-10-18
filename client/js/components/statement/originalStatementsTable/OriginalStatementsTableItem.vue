@@ -66,9 +66,7 @@
             <td>
               {{ submitter }}
             </td>
-            <td v-cleanhtml="element">
-              {{ element }}
-            </td>
+            <td v-cleanhtml="element" />
             <td>
               {{ statement.phase }}
             </td>
