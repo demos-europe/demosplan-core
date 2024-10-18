@@ -42,6 +42,7 @@ final class AddonAutoloading
         }
 
         $classMapPath = DemosPlanPath::getRootPath('addons/vendor/composer/autoload_classmap.php');
+        // uses local file, no need for flysystem
         if (!file_exists($classMapPath)) {
             return;
         }

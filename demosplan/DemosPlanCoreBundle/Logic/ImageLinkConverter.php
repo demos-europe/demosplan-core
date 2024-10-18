@@ -42,7 +42,7 @@ final class ImageLinkConverter
     public function convert(
         Segment $segment,
         string $statementExternId,
-        bool $asLinkedReference = true
+        bool $asLinkedReference = true,
     ): ConvertedSegment {
         $segmentText = $segment->getText();
         $recommendationText = $segment->getRecommendation();
@@ -133,7 +133,7 @@ final class ImageLinkConverter
     private function getAbsoluteImagePath(string $hash): string
     {
         try {
-            return $this->fileService->getFileInfo($hash)->getAbsolutePath();
+            return $this->fileService->ensureLocalFileFromHash($hash);
         } catch (Exception) {
             // The src attribute probably didn't contain a hash --> assume it is a valid path instead.
             return trim($hash);
@@ -152,6 +152,7 @@ final class ImageLinkConverter
 
     public function resetImages(): void
     {
+        // temporary images are needed during export afterwards, they cannot be removed
         $this->images = [];
         $this->imageCounter = 1;
     }

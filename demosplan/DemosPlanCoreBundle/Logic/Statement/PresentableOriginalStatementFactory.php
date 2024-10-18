@@ -19,12 +19,21 @@ use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PresentableOriginalStatement;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\ValuedLabel;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PresentableOriginalStatementFactory
 {
-    public function __construct(private readonly AssessmentTableServiceOutput $assessmentTableServiceOutput, private readonly TranslatorInterface $translator, private readonly DateExtension $dateExtension, private readonly MapService $mapService, private readonly EditorService $editorService, private readonly CurrentUserInterface $currentUser, private readonly StatementService $statementService)
-    {
+    public function __construct(
+        private readonly AssessmentTableServiceOutput $assessmentTableServiceOutput,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly DateExtension $dateExtension,
+        private readonly EditorService $editorService,
+        private readonly FilesystemOperator $defaultStorage,
+        private readonly MapService $mapService,
+        private readonly StatementService $statementService,
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     /**
@@ -139,16 +148,13 @@ class PresentableOriginalStatementFactory
             $mapFile = $this->mapService->createMapScreenshot($statement->getProcedure()->getId(), $statement->getId());
         }
         $fileAbsolutePath = $this->assessmentTableServiceOutput->getScreenshot($mapFile);
-        if (file_exists($fileAbsolutePath)) {
+        if (null !== $fileAbsolutePath && $this->defaultStorage->fileExists($fileAbsolutePath)) {
             $data->setImage($fileAbsolutePath);
         }
 
         return $data->lock();
     }
 
-    /**
-     * @param mixed $value
-     */
     protected function createValuedLabel(string $labelTranslationKey, $value): ValuedLabel
     {
         return ValuedLabel::create($this->translator->trans($labelTranslationKey), $value);

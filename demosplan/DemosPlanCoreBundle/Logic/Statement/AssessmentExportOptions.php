@@ -92,6 +92,7 @@ class AssessmentExportOptions implements JsonSerializable
 
         return $this->cache->get($cacheKey, function (ItemInterface $item) {
             $optionsFiles = [];
+            // local file only, no need for flysystem
             $fs = new Filesystem();
 
             // no need to evaluate assessment_export_options.yml folders dynamically as we can define allowed folders
@@ -103,6 +104,7 @@ class AssessmentExportOptions implements JsonSerializable
 
             $optionsFiles[] = DemosPlanPath::getConfigPath('statement/assessment_export_options.yml');
 
+            // uses local file, no need for flysystem
             $optionsYaml = collect($optionsFiles)->map(static fn ($filename) => file_exists($filename) ? file_get_contents($filename) : null)->filter(static fn ($yaml) => null !== $yaml && is_string($yaml))->all();
 
             $coreOptions = [];

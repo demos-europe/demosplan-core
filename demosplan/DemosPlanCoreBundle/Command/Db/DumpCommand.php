@@ -44,6 +44,7 @@ class DumpCommand extends DatabaseManagementCommand
 
         $file = $input->getArgument('file');
 
+        // local file only, no need for flysystem
         $fs = new Filesystem();
 
         try {

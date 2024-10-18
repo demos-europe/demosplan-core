@@ -46,7 +46,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
         OrgaService $orgaService,
         private readonly UserRepository $userRepository,
         UserService $userService,
-        RequestStack $requestStack
+        RequestStack $requestStack,
     ) {
         parent::__construct(
             $addressService,
@@ -68,6 +68,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
         // Lädt das Rollenmapping
         $this->roles = collect(
             $yaml->parse(
+                // uses local file, no need for flysystem
                 file_get_contents(DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Logic/User').'/UserMapperDataportGatewayHH.yml')
             )
         );
@@ -334,7 +335,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                     if (!$publicAgencyUser instanceof User) {
                         $getUserContext = [
                             'foundUser' => $publicAgencyUser,
-                            'userData' => $this->data['user']
+                            'userData'  => $this->data['user'],
                         ];
                         $this->logger->info('Could not find user with data', $getUserContext);
                         $this->logger->info('User does not exist create with roles', ['roles' => $toebRoles]);

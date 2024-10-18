@@ -43,7 +43,7 @@ class ReplaceFilesCommand extends CoreCommand
         private readonly FakeDataGeneratorFactory $generatorFactory,
         private readonly FileRepository $fileRepository,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -103,7 +103,7 @@ class ReplaceFilesCommand extends CoreCommand
         string $slot,
         SymfonyStyle $output,
         bool $dryRun,
-        string $directory
+        string $directory,
     ): void {
         $filename = $file->getFilename();
 
@@ -130,9 +130,10 @@ class ReplaceFilesCommand extends CoreCommand
         File $file,
         string $targetFormat,
         string $targetDirectory,
-        SymfonyStyle $output
+        SymfonyStyle $output,
     ): void {
         try {
+            // local file is valid, no need for flysystem
             $uploadedFile = fopen($this->getStoragePath($file, $targetDirectory), 'wb+');
 
             /** @var DataGeneratorInterface $generator */
