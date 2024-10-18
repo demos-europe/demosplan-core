@@ -34,8 +34,6 @@ use EDT\PathBuilding\End;
  * @property-read End                   $deleted
  * @property-read StatementResourceType $headStatement
  * @property-read StatementResourceType $movedStatement
- * @property-read ProcedurePhaseResourceType $institutionPhase
- * @property-read ProcedurePhaseResourceType $publicParticipationPhase
  */
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface
 {
