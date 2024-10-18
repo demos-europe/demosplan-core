@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`DpPublicLayerListCategory should render a list if there are layers 1`] = `
-"<li class=\\"dp-c-map__group-item\\">
-  <div class=\\"dp-is-active dp-c-map__layer\\"><span class=\\"dp-c-map__group-item-controls\\"><button aria-label=\\"undefined maplayer.category.hide\\" class=\\"dp-btn--blank dp-btn--focus dp-w-3 dp-text-left\\"><i aria-hidden=\\"true\\" class=\\"dp-fa-eye dp-fa\\"></i></button> <!----></span> <span class=\\"dp-c-map__group-item-name dp-o-hellip--nowrap\\">
+"<li class="dp-c-map__group-item">
+  <div class="dp-is-active dp-c-map__layer"><span class="dp-c-map__group-item-controls"><button aria-label="undefined maplayer.category.hide" class="dp-btn--blank dp-btn--focus dp-w-3 dp-text-left"><i aria-hidden="true" class="dp-fa-eye dp-fa"></i></button> <!----></span> <span class="dp-c-map__group-item-name dp-o-hellip--nowrap">
 
     </span>
     <!---->
   </div>
-  <dp-public-layer-list-stub layer-groups-alternate-visibility=\\"true\\" layers=\\"[object Object],[object Object]\\" class=\\"dp-c-map__group-item-child dp-u-mr-0\\"></dp-public-layer-list-stub>
+  <dp-public-layer-list-stub layer-groups-alternate-visibility="true" layers="[object Object],[object Object]" class="dp-c-map__group-item-child dp-u-mr-0"></dp-public-layer-list-stub>
 </li>"
 `;
 

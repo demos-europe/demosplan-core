@@ -836,7 +836,7 @@ feature_department_edit:
     parent: feature_department
 feature_display_customer_names:
     description: 'In the orga edit details page some of the info displayed relates to the orga''s customers. With this permission we decide whether it will be shown or not.'
-    exposed: true
+    expose: true
     label: 'View Orga Customer names'
     parent: field_organisation
 feature_documents_category_use_file:
