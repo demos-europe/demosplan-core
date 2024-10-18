@@ -149,6 +149,10 @@ area_admin_statement_list:
 area_admin_statements_tag:
     label: 'Verwaltung der Schlagworte'
     loginRequired: true
+area_admin_subheading_analysis:
+    label: 'Zwischenüberschrift Auswertung'
+    loginRequired: true
+    parent: area_admin
 area_admin_submitters:
     description: 'Grants access to admin the users which have submitted Statements to a Procedure'
     label: 'Admin Statement submitters in a Procedure'
@@ -640,6 +644,11 @@ feature_admin_new_procedure:
     label: 'Neues Verfahren anlegen'
     loginRequired: true
     parent: feature_admin
+feature_allow_update_on_non_manual_statements:
+    description: 'Allow to update non-manual statements'
+    expose: false
+    label: 'Allow to update non-manual statements'
+    loginRequired: true
 feature_alternative_newsletter:
     description: 'Provides links to the service of the alternative (non-internal) newsletter and disables the internal newsletter.'
     expose: false

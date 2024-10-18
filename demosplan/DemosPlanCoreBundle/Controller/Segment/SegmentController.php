@@ -90,17 +90,23 @@ class SegmentController extends BaseController
 
         $recommendationProcedureIds = $procedureService->getRecommendationProcedureIds($currentUser->getUser(), $procedureId);
         $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
+        $statementFormDefinition = $procedure->getStatementFormDefinition();
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_statement_segments_list.html.twig',
             [
-                'procedure'                  => $procedureId,
+                'procedure'                  => [
+                    'id'       => $procedureId,
+                    'name'     => $procedure->getName(),
+                    'orgaName' => $procedure->getOrgaName(),
+                ],
                 'recommendationProcedureIds' => $recommendationProcedureIds,
                 'statementId'                => $statementId,
                 'statementExternId'          => $statement->getExternId(),
                 'title'                      => 'segments.recommendations.create',
                 'templateVars'               => [
                     'isSourceAndCoupledProcedure' => $isSourceAndCoupledProcedure,
+                    'statementFormDefinition'     => $statementFormDefinition,
                 ],
             ]
         );
@@ -119,7 +125,7 @@ class SegmentController extends BaseController
         PermissionsInterface $permissions,
         Request $request,
         XlsxSegmentImport $importer,
-        string $procedureId
+        string $procedureId,
     ): Response {
         $requestPost = $request->request->all();
         $procedure = $currentProcedureService->getProcedure();
@@ -195,7 +201,7 @@ class SegmentController extends BaseController
         string $procedureId,
         string $queryHash,
         HashedQueryService $filterSetService,
-        FilterUiDataProvider $filterUiDataProvider
+        FilterUiDataProvider $filterUiDataProvider,
     ): Response {
         $querySet = $filterSetService->findHashedQueryWithHash($queryHash);
         $segmentListQuery = null === $querySet ? null : $querySet->getStoredQuery();
