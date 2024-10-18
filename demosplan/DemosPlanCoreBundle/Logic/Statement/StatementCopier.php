@@ -519,7 +519,7 @@ class StatementCopier extends CoreService
         }
         // persist to get an ID for the FileContainer copying below
         $this->getDoctrine()->getManager()->persist($newStatement);
-        if ($statement->getFiles() !== []) {
+        if ([] !== $statement->getFiles()) {
             $this->statementService->addFilesToCopiedStatement($newStatement, $statement->getId());
 
             return $newStatement;
