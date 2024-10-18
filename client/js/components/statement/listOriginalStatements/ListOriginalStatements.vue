@@ -1,5 +1,9 @@
 <template>
   <div>
+    <dp-map-modal
+      ref="mapModal"
+      :procedure-id="procedureId" />
+
     <dp-loading
       v-if="isLoading"
       class="u-mt"/>
@@ -18,40 +22,18 @@
             v-text="externId" />
         </template>
         <template
-          v-slot:submitter="{
-            authorName,
-            isSubmittedByCitizen,
-            initialOrganisationName,
-            submitName
-          }">
-          <ul class="o-list max-w-12">
-            <li
-              v-if="authorName !== '' || submitName !== ''"
-              class="o-list__item o-hellip--nowrap">
-              {{ authorName ? authorName : (submitName ? submitName : Translator.trans('citizen')) }}
-            </li>
-            <li
-              v-if="initialOrganisationName !== '' && !isSubmittedByCitizen"
-              class="o-list__item o-hellip--nowrap">
-              {{ initialOrganisationName }}
-            </li>
-          </ul>
+          v-slot:submitter="{ id }">
+          <div v-cleanhtml="getSubmitterName(id)" />
         </template>
         <template v-slot:submitDate="{ submitDate }">
         <span>
           {{ formatDate(submitDate) }}
         </span>
         </template>
-<!--        <template v-slot:text="{ text }">-->
-<!--          <div-->
-<!--            class="line-clamp-3 c-styled-html"-->
-<!--            v-cleanhtml="text" />-->
-<!--        </template>-->
-        <template v-slot:document="{ document }">
-        <span
-          v-if="document">
-          {{ document.title}}
-        </span>
+        <template v-slot:shortText="{ shortText }">
+          <div
+            class="line-clamp-3 c-styled-html"
+            v-cleanhtml="shortText" />
         </template>
         <template v-slot:phase="{ phase }">
         <span
@@ -62,32 +44,168 @@
         <template
           v-if="hasPermission('area_statement_anonymize')"
           v-slot:flyout="{ externId, id }">
-          <a :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: id })">
-            {{ Translator.trans('statement.anonymize', { externId: externId }) }}
-          </a>
+          <dp-flyout>
+            <a
+              class="u-pt-0"
+              :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: id })">
+              {{ Translator.trans('statement.anonymize', { externId: externId }) }}
+            </a>
+          </dp-flyout>
         </template>
-        <template v-slot:expandedContent="{ text, fullText, id }">
-          <div class="u-pt-0_5 c-styled-html">
-            <strong>{{ Translator.trans('statement.text.short') }}:</strong>
-            <template v-if="typeof fullText === 'undefined'">
-              <div v-cleanhtml="text" />
-              <a
-                v-if="items[id].attributes.textIsTruncated"
-                class="show-more cursor-pointer"
-                @click.prevent.stop="() => fetchFullTextById(id)"
-                rel="noopener">
-                {{ Translator.trans('show.more') }}
-              </a>
-            </template>
-            <template v-else>
-              <div v-cleanhtml="items[id].attributes.isFulltextDisplayed ? fullText : text" />
-              <a
-                class="cursor-pointer"
-                @click="() => fetchFullTextById(id)"
-                rel="noopener">
-                {{ Translator.trans(items[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
-              </a>
-            </template>
+        <template v-slot:expandedContent="{
+          authorName,
+          fullText,
+          id,
+          isSubmittedByCitizen,
+          polygon,
+          shortText,
+          textIsTruncated
+        }">
+          <div class="u-pt-0_5">
+
+            <!-- Meta data -->
+            <div>
+              <!-- Submission meta data -->
+              <dl class="inline-grid grid-cols-[25%_75%] w-[49%]">
+                <dt class="font-semibold">
+                  {{ Translator.trans('submitter') }}:
+                </dt>
+                <dd class="ml-0">
+                  {{ getAuthorName(id) }}
+                </dd>
+                <dt class="font-semibold">
+                  {{ Translator.trans('organisation') }}:
+                </dt>
+                <dd class="ml-0">
+                  {{ getOrganisationName(id) }}
+                </dd>
+                <dt class="font-semibold">
+                  {{ Translator.trans('department') }}:
+                </dt>
+                <dd class="ml-0">
+                  {{ getDepartmentName(id) }}
+                </dd><!--
+          --></dl>
+              <!-- Document & location reference -->
+              <dl class="inline-grid grid-cols-[25%_75%] w-[49%]">
+                <dt class="font-semibold">
+                  {{ Translator.trans('document') }}:
+                </dt>
+                <dd class="ml-0">
+                  <span>
+                    {{ getElementTitle(id) }}
+                  </span>
+                  <span v-if="getElementTitle(id) !== '-' && getDocumentTitle(id)">
+                    / {{ getDocumentTitle(id) }}
+                  </span>
+                </dd>
+
+                <dt class="font-semibold">
+                  {{ Translator.trans('paragraph') }}:
+                </dt>
+                <dd class="ml-0">
+                  {{ getParagraphTitle(id) }}
+                </dd>
+
+                <dt class="font-semibold">
+                  {{ Translator.trans('public.participation.relation') }}:
+                </dt>
+                <dd class="ml-0">
+                  <button
+                    v-if="polygon !== ''"
+                    class="btn--blank o-link--default"
+                    data-cy="originalStatementList:toggleLocationModal"
+                    type="button"
+                    @click="toggleLocationModal(JSON.parse(polygon))">
+                    {{ Translator.trans('see') }}
+                  </button>
+                  <span v-else>
+                    -
+                  </span>
+                </dd>
+              </dl>
+
+              <!-- Attachments -->
+              <dl class="grid grid-cols-[25%_75%]">
+                <template v-if="hasPermission('feature_read_source_statement_via_api')">
+                  <dt class="font-semibold">
+                    {{ Translator.trans('attachment.original') }}:
+                  </dt>
+                  <dd class="ml-0">
+                    <a
+                      v-if="getOriginalStatementAsAttachment(id) !== null"
+                      :title="getOriginalStatementAsAttachment(id).attributes.filename"
+                      target="_blank"
+                      rel="noopener"
+                      :href="Routing.generate('core_file_procedure', { hash: getOriginalStatementAsAttachment(id).attributes.hash, procedureId: procedureId })">
+                      <i
+                        :title="Translator.trans('attachment.original')"
+                        aria-hidden="true"
+                        class="fa fa-paperclip color--grey" />
+                      {{ getOriginalStatementAsAttachment(id) }}
+                    </a>
+                    <span
+                      v-else
+                      class="ml-0">
+                      -
+                    </span>
+                  </dd>
+                </template>
+
+                <dt class="font-semibold">
+                  {{ Translator.trans('more.attachments') }}:
+                </dt>
+                <dd
+                  v-if="getFiles(id).length > 0"
+                  class="ml-0">
+                  <a
+                    v-for="(file, idx) in getFiles(id)"
+                    :key="idx"
+                    class="block"
+                    :href="Routing.generate('core_file_procedure', { hash: file.attributes.hash, procedureId: procedureId })"
+                    rel="noopener"
+                    :title="file.attributes.filename"
+                    target="_blank">
+                    <i
+                      :title="file.attributes.filename"
+                      aria-hidden="true"
+                      class="fa fa-paperclip color--grey" />
+                    {{ file.attributes.filename }}
+                  </a>
+                </dd>
+                <dd
+                  v-else
+                  class="ml-0">
+                  -
+                </dd>
+              </dl>
+              </div>
+
+            <div class="c-styled-html">
+              <strong>
+                {{ Translator.trans('statement.text.short') }}:
+              </strong>
+              <template v-if="typeof fullText === 'undefined'">
+                <div v-cleanhtml="shortText" />
+                <a
+                  v-if="textIsTruncated"
+                  class="show-more cursor-pointer"
+                  rel="noopener"
+                  @click.prevent.stop="() => fetchFullTextById(id)">
+                  {{ Translator.trans('show.more') }}
+                </a>
+              </template>
+              <template v-else>
+                <div v-cleanhtml="items[id].attributes.isFulltextDisplayed ? fullText : shortText" />
+                <a
+                  class="cursor-pointer"
+                  @click="() => toggleIsFullTextDisplayed(id, !items[id].attributes.isFulltextDisplayed)"
+                  rel="noopener">
+                  {{ Translator.trans(items[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
+                </a>
+              </template>
+            </div>
+
           </div>
         </template>
       </dp-data-table>
@@ -103,20 +221,30 @@
 <script>
 import {
   CleanHtml,
+  dpApi,
+  DpButton,
   DpDataTable,
+  DpFlyout,
   DpInlineNotification,
   DpLoading,
-  formatDate as _formatDate
+  DpPager,
+  formatDate as _formatDate,
+  hasAnyPermissions
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+
 export default {
   name: 'ListOriginalStatements',
 
   components: {
+    DpButton,
     DpDataTable,
+    DpFlyout,
     DpInlineNotification,
-    DpLoading
+    DpLoading,
+    DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
+    DpPager
   },
 
   directives: {
@@ -155,12 +283,8 @@ export default {
           label: Translator.trans('submitter.invitable_institution')
         },
         {
-          field: 'text',
+          field: 'shortText',
           label: Translator.trans('text')
-        },
-        {
-          field: 'document',
-          label: Translator.trans('document')
         },
         {
           field: 'phase',
@@ -189,13 +313,48 @@ export default {
 
   methods: {
     ...mapActions('OriginalStatement', {
-        fetchOriginalStatements: 'list',
-        fetchById: 'get',
+        fetchOriginalStatements: 'list'
     }),
 
     ...mapMutations('OriginalStatement', {
       setOriginalStatement: 'set'
     }),
+
+    /**
+     * Get orgaName if the statement was submitted by an institution
+     * Get authorName if the statement was submitted by a citizen
+     * @param {String} originalStatementId
+     */
+    getSubmitterName (originalStatementId) {
+      const originalStatement = this.items[originalStatementId]
+      const originalStatementMeta = originalStatement.relationships.meta.get()
+      const {
+        isSubmittedByCitizen
+      } = originalStatement.attributes
+      const {
+        authorName,
+        orgaName
+      } = originalStatementMeta.attributes
+
+      // Statement Institution
+      if (isSubmittedByCitizen === false) {
+        return orgaName
+      }
+
+      if (isSubmittedByCitizen) {
+        return authorName
+      }
+    },
+
+    fetchOriginalStatementById (originalStatementId) {
+      return dpApi.get(Routing.generate('api_resource_get', {
+        resourceType: 'OriginalStatement',
+        resourceId: originalStatementId,
+        fields: {
+          OriginalStatement: ['fullText'].join()
+        }
+      }))
+    },
 
     fetchOriginalStatementsByPage (page) {
       this.isLoading = true
@@ -206,23 +365,32 @@ export default {
         })
     },
 
-    fetchFullTextById (originalStatementId) {
-      return this.fetchById(originalStatementId, { fields: { Statement: ['fullText'].join() }})
-        .then(response => {
-          const oldStatement = Object.values(this.items).find(el => el.id === originalStatementId)
-          const  { fullText } = response.data.data.attributes
-          const updatedStatement = {
-            ...oldStatement,
-            attributes: {
-              ...oldStatement.attributes,
-              fullText,
-              isFulltextDisplayed: true
-            } }
+    toggleIsFullTextDisplayed (originalStatementId, isFullTextDisplayed, fullText = null) {
+      const originalStatement = this.items[originalStatementId]
 
-          this.setOriginalStatement({
-            ...updatedStatement,
-            id: statementId
-          })
+      this.setOriginalStatement({
+        ...originalStatement,
+        id: originalStatementId,
+        attributes: {
+          ...originalStatement.attributes,
+          ...(fullText && { fullText: fullText }),
+          isFulltextDisplayed: isFullTextDisplayed
+        }
+      })
+    },
+
+    /**
+     * If fullText is already displayed, set isFullTextDisplayed to false and display
+     * shortText instead
+     * If fullText is not displayed, fetch fullText from API, set isFullTextDisplayed
+     * to true and display fullText
+     * @param originalStatementId
+     */
+    fetchFullTextById (originalStatementId) {
+      return this.fetchOriginalStatementById(originalStatementId)
+        .then(response => {
+          const  { fullText } = response.data.data.attributes
+          this.toggleIsFullTextDisplayed(originalStatementId, true, fullText)
         })
     },
 
@@ -230,27 +398,98 @@ export default {
       return _formatDate(date)
     },
 
+    getAuthorName (originalStatementId) {
+      const originalStatement = this.items[originalStatementId]
+      const originalStatementMeta = originalStatement.relationships.meta?.data ? originalStatement.relationships.meta.get() : null
+
+      return originalStatementMeta?.attributes.authorName ?? '-'
+    },
+
+    getDepartmentName (originalStatementId) {
+      const originalStatement = this.items[originalStatementId]
+      const originalStatementMeta = originalStatement.relationships.meta?.data ? originalStatement.relationships.meta.get() : null
+
+      return originalStatementMeta?.attributes.orgaDepartmentName ?? '-'
+    },
+
+    getDocumentTitle (originalStatementId) {
+      const originalStatement = this.items[originalStatementId]
+      const document = originalStatement.relationships.document?.data
+
+      return document ? document.get().attributes.title : ''
+    },
+
+    getElementTitle (originalStatementId) {
+      const originalStatement = this.items[originalStatementId]
+      const element = originalStatement.relationships.elements?.data ? originalStatement.relationships.elements.get() : null
+
+      return element ? element.attributes.title : '-'
+    },
+
+    getFiles (originalStatementId) {
+      const originalStatement = this.items[originalStatementId]
+
+      return originalStatement.relationships?.files?.data?.length > 0 ? Object.values(originalStatement.relationships.files.list()) : []
+    },
+
+    getOrganisationName (originalStatementId) {
+      const originalStatement = this.items[originalStatementId]
+      const originalStatementMeta = originalStatement.relationships.meta?.data ? originalStatement.relationships.meta.get() : null
+
+      return originalStatementMeta?.attributes.orgaName ?? '-'
+    },
+
+    getOriginalStatementAsAttachment (originalStatementId) {
+      const originalStatement = this.items[originalStatementId]
+      const attachments = originalStatement.relationships.attachments?.data?.length > 0 ? Object.values(originalStatement.relationships.attachments.list()) : null
+      const originalStatementAsAttachment = attachments?.length > 0 ? attachments[0].relationships?.file.get() : null
+
+      return originalStatementAsAttachment?.length > 0 ? originalStatementAsAttachment[0] : null
+    },
+
+    getParagraphTitle (originalStatementId) {
+      const originalStatement = this.items[originalStatementId]
+      const paragraph = originalStatement.relationships.paragraph?.data ? originalStatement.relationships.paragraph.get() : null
+
+      return paragraph ? paragraph.attributes.title : '-'
+    },
+
+    handleSizeChange (newSize) {
+      const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+      this.pagination.perPage = newSize
+      this.fetchOriginalStatementsByPage(page)
+    },
+
     preparePayload (page) {
       const originalStatementFields = [
-        'attachmentsDeleted',
-        'authorName',
+        'attachments',
         'document',
-        'elementId',
+        'elements',
         'externId',
         'files',
-        'isSubmittedByCitizen',
-        'orgaDepartmentName',
-        'orgaName',
+        'meta',
+        'paragraph',
         'phase',
         'polygon',
         'sourceAttachment',
+        'shortText',
         'submitDate',
-        'submitName',
-        'submitterAndAuthorMetaDataAnonymized',
-        'text',
-        'textPassagesAnonymized',
-        'votesNum'
+        'textIsTruncated'
       ]
+
+      if (hasAnyPermissions([
+        'feature_segments_of_statement_list',
+        'area_statement_segmentation',
+        'area_admin_statement_list',
+        'area_admin_submitters'])) {
+        originalStatementFields.push('isSubmittedByCitizen')
+      }
+
+      const statementMetaFields = [
+        'authorName',
+        'orgaDepartmentName',
+        'orgaName'
+        ]
 
       return {
         page: {
@@ -258,15 +497,42 @@ export default {
           size: this.pagination.perPage
         },
         fields: {
-          OriginalStatement: originalStatementFields.join()
-        }
+          ElementsDetails: ['title'].join(),
+          File: [
+            'filename',
+            'hash'
+          ].join(),
+          OriginalStatement: originalStatementFields.join(),
+          ParagraphVersion: [
+            'title'
+          ].join(),
+          StatementAttachment: [
+            'file',
+            'attachmentType'
+          ].join(),
+          StatementMeta: statementMetaFields.join(),
+          SingleDocument: [
+            'title'
+          ].join()
+        },
+        include: [
+          'attachments',
+          'document',
+          'elements',
+          'files',
+          'meta',
+          'paragraph'
+        ].join()
       }
+    },
+
+    toggleLocationModal (locationReference) {
+      this.$refs.mapModal.toggleModal(locationReference)
     }
   },
 
   mounted () {
     this.initPagination()
-    // this.fetchOriginalStatements()
     this.fetchOriginalStatementsByPage(1)
   }
 }
