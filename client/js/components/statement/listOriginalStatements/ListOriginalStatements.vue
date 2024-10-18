@@ -9,6 +9,19 @@
       class="u-mt"/>
 
     <template v-else>
+      <dp-pager
+        v-if="pagination.currentPage && originalStatements.length > 0"
+        :class="{ 'invisible': isLoading }"
+        class="mt-4 mb-2"
+        :current-page="pagination.currentPage"
+        :total-pages="pagination.totalPages"
+        :total-items="pagination.total"
+        :per-page="pagination.perPage"
+        :limits="pagination.limits"
+        @page-change="fetchOriginalStatementsByPage"
+        @size-change="handleSizeChange"
+        :key="`pager1_${pagination.currentPage}_${pagination.perPage}`" />
+
       <dp-data-table
         v-if="originalStatements.length > 0"
         has-flyout
@@ -254,6 +267,11 @@ export default {
   mixins: [paginationMixin],
 
   props: {
+    currentUserId: {
+      type: String,
+      required: true
+    },
+
     procedureId: {
       type: String,
       required: true
@@ -308,6 +326,10 @@ export default {
           ...originalStatement.attributes
         }
       })
+    },
+
+    storageKeyPagination () {
+      return `${this.currentUserId}:${this.procedureId}:paginationOriginalStatementList`
     }
   },
 
@@ -359,8 +381,12 @@ export default {
     fetchOriginalStatementsByPage (page) {
       this.isLoading = true
       const payload = this.preparePayload(page)
+
       this.fetchOriginalStatements(payload)
-        .then(() => {
+        .then(response => {
+          this.setLocalStorage(response.meta.pagination)
+          this.updatePagination(response.meta.pagination)
+
           this.isLoading = false
         })
     },

@@ -24,7 +24,9 @@
         flush: true
     } %}
 
-    <list-original-statements procedure-id="{{ procedureId }}">
+    <list-original-statements
+        current-user-id="{{ currentUser.ident }}"
+        procedure-id="{{ procedureId }}">
     </list-original-statements>
 
 {% endblock %}
