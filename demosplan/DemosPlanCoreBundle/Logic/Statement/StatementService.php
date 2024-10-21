@@ -2877,8 +2877,8 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function getPhaseNameFromArray(array $statement): string
     {
         return $this->getPhaseName(
-            $statement['publicStatement'],
-            $statement['phase']
+            $statement['phase'],
+            $statement['publicStatement']
         );
     }
 
