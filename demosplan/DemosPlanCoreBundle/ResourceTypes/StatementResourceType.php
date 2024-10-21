@@ -427,7 +427,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         }
 
         $configBuilder->phase
-            ->updatable($statementConditions)
             ->updatable($statementConditions, function (Statement $statement, string $phaseKey): array {
                 //check that phaseKey exists so that it is not possible to set a phase that does not exist
                 $statement->setPhase($this->statementService->getPhaseKey(
