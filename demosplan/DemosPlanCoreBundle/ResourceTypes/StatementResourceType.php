@@ -426,11 +426,14 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             );
         }
 
-        $configBuilder->availableInternalPhases
-            ->readable(false, $this->getAvailableInternalPhases(...));
+        if ($this->currentUser->hasPermission('field_statement_phase')) {
+            $configBuilder->availableInternalPhases
+                ->readable(false, $this->getAvailableInternalPhases(...));
 
-        $configBuilder->availableExternalPhases
-            ->readable(false, $this->getAvailableExternalPhases(...));
+            $configBuilder->availableExternalPhases
+                ->readable(false, $this->getAvailableExternalPhases(...));
+        }
+
 
         return $configBuilder;
     }
