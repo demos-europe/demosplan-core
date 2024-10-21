@@ -363,18 +363,6 @@ export default {
       default: () => []
     },
 
-    availableExternalPhases: {
-      type: Array,
-      required: false,
-      default: () => []
-    },
-
-    availableInternalPhases: {
-      type: Array,
-      required: false,
-      default: () => []
-    },
-
     availableMunicipalities: {
       type: Array,
       required: false,
@@ -438,6 +426,24 @@ export default {
     ...mapState('Statement', {
       storageStatement: 'items'
     }),
+
+    availableExternalPhases () {
+      const externalPhases = this.statement.attributes.availableExternalPhases
+
+      return externalPhases.map(phase => ({
+        label: phase.name,
+        value: phase.key
+      }))
+    },
+
+    availableInternalPhases () {
+      const internalPhases = this.statement.attributes.availableInternalPhases
+
+      return internalPhases.map(phase => ({
+        label: phase.name,
+        value: phase.key
+      }))
+    },
 
     currentDate () {
       let today = new Date()

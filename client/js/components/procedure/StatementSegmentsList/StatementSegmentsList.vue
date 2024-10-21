@@ -138,8 +138,6 @@
         v-if="showInfobox && statement"
         :attachments="filteredAttachments"
         :available-counties="availableCounties"
-        :available-internal-phases="availableExternalPhases"
-        :available-external-phases="availableInternalPhases"
         :available-municipalities="availableMunicipalities"
         :available-priority-areas="availablePriorityAreas"
         :current-user-id="currentUser.id"
@@ -221,18 +219,6 @@ export default {
 
   props: {
     availableCounties: { // TODO: has to be adjusted in the BE
-      type: Array,
-      required: false,
-      default: () => []
-    },
-
-    availableExternalPhases: { // TODO: has to be adjusted in the BE
-      type: Array,
-      required: false,
-      default: () => []
-    },
-
-    availableInternalPhases: { // TODO: has to be adjusted in the BE
       type: Array,
       required: false,
       default: () => []
@@ -562,6 +548,8 @@ export default {
       const statementFields = [
         'assignee',
         'attachments',
+        'availableInternalPhases',
+        'availableExternalPhases',
         'consentRevoked',
         'similarStatementSubmitters',
         'authoredDate',
