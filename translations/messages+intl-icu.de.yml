@@ -2050,8 +2050,9 @@ layer: "Kartenebene"
 # @TODO refactor everything to use "gislayer..." when referring to "Kartenebenen"
 # and "layer..." when referring to the layer inside of a getCapabilities response
 layers: "Layer"
-legend.download: "Legende herunterladen"
 legend: "Legende"
+legend.download: "Legende herunterladen"
+legend.not_available: "Legende nicht verfügbar"
 like: "Unterstützung"
 liked.by: "Unterstützt von"
 liked.by.persons: |
