@@ -155,7 +155,7 @@
                         aria-hidden="true"
                         class="fa fa-paperclip color--grey"
                         :title="Translator.trans('attachment.original')" />
-                      {{ getOriginalStatementAsAttachment(id) }}
+                      {{ getOriginalStatementAsAttachment(id).attributes.filename }}
                     </a>
                     <span
                       v-else
@@ -467,10 +467,10 @@ export default {
 
     getOriginalStatementAsAttachment (originalStatementId) {
       const originalStatement = this.items[originalStatementId]
-      const attachments = originalStatement.relationships.attachments?.data?.length > 0 ? Object.values(originalStatement.relationships.attachments.list()) : null
+      const attachments = originalStatement.relationships.attachments?.data ? Object.values(originalStatement.relationships.attachments.list()) : []
       const originalStatementAsAttachment = attachments?.length > 0 ? attachments[0].relationships?.file.get() : null
 
-      return originalStatementAsAttachment?.length > 0 ? originalStatementAsAttachment[0] : null
+      return originalStatementAsAttachment || '-'
     },
 
     getParagraphTitle (originalStatementId) {
@@ -543,6 +543,7 @@ export default {
         },
         include: [
           'attachments',
+          'attachments.file',
           'document',
           'elements',
           'files',
