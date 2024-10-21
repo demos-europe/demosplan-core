@@ -631,8 +631,6 @@ export default {
     saveStatement (statement) {
       this.synchronizeAssignee(statement)
       this.synchronizeFullText(statement)
-      // The key isManual is readonly, so we should remove it before saving
-      delete statement.attributes.isManual
       this.setStatement({ ...statement, id: statement.id })
 
       this.saveStatementAction(statement.id)
