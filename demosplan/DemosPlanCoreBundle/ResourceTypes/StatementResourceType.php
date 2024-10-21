@@ -426,6 +426,15 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             );
         }
 
+        $configBuilder->phase
+            ->updatable($statementConditions)
+            ->readable(false, function (Statement $statement): string {
+                return $this->statementService->getPhaseName(
+                    $statement->getPhase(),
+                    $statement->getPublicStatement()
+                );
+            });
+
         if ($this->currentUser->hasPermission('field_statement_phase')) {
             $configBuilder->availableInternalPhases
                 ->readable(false, $this->getAvailableInternalPhases(...));
