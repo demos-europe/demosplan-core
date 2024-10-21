@@ -308,12 +308,12 @@ export default {
      * place with this id is excluded from the check.
      *
      * @param placeName { string }
-     * @param currentPlaceId { string }
+     * @param placeId { string }
      * @returns { boolean }
      */
-    isUniquePlaceName (placeName, currentPlaceId = '') {
-      const foundSimilarName = this.places.filter(el => el.name === placeName && el.id !== currentPlaceId)
-      return foundSimilarName.length === 0
+    isUniquePlaceName (placeName, placeId = '') {
+      const identicalNames = this.places.filter(el => el.name === placeName && el.id !== placeId)
+      return identicalNames.length === 0
     },
 
     resetNewPlaceForm () {
@@ -339,7 +339,7 @@ export default {
         }
       }
       dpApi.post(Routing.generate('api_resource_create', { resourceType: 'Place' }), {}, { data: payload })
-        .then((response) => {
+        .then(response => {
           /**
            * Update local data so no additional api request is needed to fetch the updated data
            */
@@ -394,7 +394,7 @@ export default {
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Place', resourceId: rowData.id }), {}, payload)
         .then(checkResponse)
         .catch((err) => console.error(err))
-        .finally((response) => {
+        .finally(response => {
           if (response?.errors?.length > 0) {
             return
           }
