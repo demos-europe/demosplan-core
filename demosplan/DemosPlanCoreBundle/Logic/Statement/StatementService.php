@@ -58,6 +58,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NoTargetsException;
+use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -2889,6 +2890,14 @@ class StatementService extends CoreService implements StatementServiceInterface
         if (StatementInterface::INTERNAL === $publicStatement) {
             $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
             $phaseName = $internalPhases[$phaseKey]['name'] ?? '';
+        }
+
+        try {
+            if ('' === $phaseName) {
+                throw new UndefinedPhaseException($phaseKey);
+            }
+        } catch (UndefinedPhaseException $e) {
+            $this->logger->error($e->getMessage());
         }
 
         return $phaseName;
