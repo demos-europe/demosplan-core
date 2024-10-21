@@ -440,9 +440,9 @@ export default {
 
     getDocumentTitle (originalStatementId) {
       const originalStatement = this.items[originalStatementId]
-      const document = originalStatement.relationships.document?.data
+      const document = originalStatement.relationships.document?.data ? originalStatement.relationships.document.get() : null
 
-      return document ? document.get().attributes.title : ''
+      return document ? document.attributes.title : ''
     },
 
     getElementTitle (originalStatementId) {
