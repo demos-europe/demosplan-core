@@ -429,7 +429,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         $configBuilder->phase
             ->updatable($statementConditions)
             ->readable(false, function (Statement $statement): string {
-                return $this->statementService->getPhaseName(
+                return $this->statementService->getPhaseKey(
                     $statement->getPhase(),
                     $statement->getPublicStatement()
                 );
