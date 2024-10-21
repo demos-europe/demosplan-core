@@ -14,13 +14,13 @@
         :class="{ 'invisible': isLoading }"
         class="mt-4 mb-2"
         :current-page="pagination.currentPage"
-        :total-pages="pagination.totalPages"
-        :total-items="pagination.total"
-        :per-page="pagination.perPage"
+        :key="`pager1_${pagination.currentPage}_${pagination.perPage}`"
         :limits="pagination.limits"
+        :per-page="pagination.perPage"
+        :total-items="pagination.total"
+        :total-pages="pagination.totalPages"
         @page-change="fetchOriginalStatementsByPage"
-        @size-change="handleSizeChange"
-        :key="`pager1_${pagination.currentPage}_${pagination.perPage}`" />
+        @size-change="handleSizeChange" />
 
       <dp-data-table
         v-if="originalStatements.length > 0"
@@ -49,10 +49,10 @@
             v-cleanhtml="shortText" />
         </template>
         <template v-slot:phase="{ phase }">
-        <span
-          v-if="phase">
-          {{ phase }}
-        </span>
+          <span
+            v-if="phase">
+            {{ phase }}
+          </span>
         </template>
         <template
           v-if="hasPermission('area_statement_anonymize')"
@@ -147,14 +147,14 @@
                   <dd class="ml-0">
                     <a
                       v-if="getOriginalStatementAsAttachment(id) !== null"
-                      :title="getOriginalStatementAsAttachment(id).attributes.filename"
-                      target="_blank"
+                      :href="Routing.generate('core_file_procedure', { hash: getOriginalStatementAsAttachment(id).attributes.hash, procedureId: procedureId })"
                       rel="noopener"
-                      :href="Routing.generate('core_file_procedure', { hash: getOriginalStatementAsAttachment(id).attributes.hash, procedureId: procedureId })">
+                      target="_blank"
+                      :title="getOriginalStatementAsAttachment(id).attributes.filename">
                       <i
-                        :title="Translator.trans('attachment.original')"
                         aria-hidden="true"
-                        class="fa fa-paperclip color--grey" />
+                        class="fa fa-paperclip color--grey"
+                        :title="Translator.trans('attachment.original')" />
                       {{ getOriginalStatementAsAttachment(id) }}
                     </a>
                     <span
@@ -173,16 +173,16 @@
                   class="ml-0">
                   <a
                     v-for="(file, idx) in getFiles(id)"
-                    :key="idx"
                     class="block"
                     :href="Routing.generate('core_file_procedure', { hash: file.attributes.hash, procedureId: procedureId })"
+                    :key="idx"
                     rel="noopener"
-                    :title="file.attributes.filename"
-                    target="_blank">
+                    target="_blank"
+                    :title="file.attributes.filename">
                     <i
-                      :title="file.attributes.filename"
                       aria-hidden="true"
-                      class="fa fa-paperclip color--grey" />
+                      class="fa fa-paperclip color--grey"
+                      :title="file.attributes.filename" />
                     {{ file.attributes.filename }}
                   </a>
                 </dd>
@@ -212,8 +212,8 @@
                 <div v-cleanhtml="items[id].attributes.isFulltextDisplayed ? fullText : shortText" />
                 <a
                   class="cursor-pointer"
-                  @click="() => toggleIsFullTextDisplayed(id, !items[id].attributes.isFulltextDisplayed)"
-                  rel="noopener">
+                  rel="noopener"
+                  @click="() => toggleIsFullTextDisplayed(id, !items[id].attributes.isFulltextDisplayed)">
                   {{ Translator.trans(items[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
                 </a>
               </template>
