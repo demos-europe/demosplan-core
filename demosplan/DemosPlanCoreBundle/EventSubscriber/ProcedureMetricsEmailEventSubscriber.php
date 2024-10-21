@@ -9,6 +9,7 @@ declare(strict_types=1);
  *
  * All rights reserved
  */
+
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
@@ -29,6 +30,7 @@ class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
     private const RECEIVER_MAIL_ADDRESS = 'support@demos-deutschland.de';
     private const LOKALE = 'de_DE';
     private const MAIL_SCOPE = 'extern';
+
     public function __construct(
         private readonly CustomerService $customerService,
         private readonly CurrentUserService $currentUser,
@@ -37,8 +39,8 @@ class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
         private readonly ProcedureRepository $procedureRepository,
         private array $mailVars = ['mailsubject' => '', 'mailbody' => ''],
     ) {
-
     }
+
     public static function getSubscribedEvents(): array
     {
         return [
@@ -53,7 +55,6 @@ class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
         $from = $this->globalConfig->getEmailSystem();
         $this->mailVars['mailsubject'] = $this->getSubject($procedure);
         $this->mailVars['mailbody'] = $this->getBody($procedure);
-
     }
 
     /**
