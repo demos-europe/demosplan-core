@@ -570,7 +570,6 @@ export default {
         'municipalities',
         'priorityAreas',
         'phase',
-        'publicParticipationPhase', // TODO: has to be adjusted in the BE
         'recommendation',
         'segmentDraftList',
         'submitterAndAuthorMetaDataAnonymized',

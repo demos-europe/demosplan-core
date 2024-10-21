@@ -234,14 +234,14 @@
           <dp-select
             v-else
             id="statementProcedureExternalPhase"
-            v-model="localStatement.attributes.publicParticipationPhase"
+            v-model="localStatement.attributes.phase"
             class="mb-3"
             :disabled="!editable || !isStatementManual"
             :label="{
               text: Translator.trans('procedure.public.phase')
             }"
             :options="availableExternalPhases"
-            @select="(val) => emitInput('publicParticipationPhase', val)" />
+            @select="(val) => emitInput('phase', val)" />
         </template>
 
         <dp-text-area
