@@ -25,6 +25,7 @@ area_admin_analysis:
     loginRequired: true
     parent: area_admin
 area_admin_assessmenttable:
+    expose: true
     documentation: 'https://yaits.demos-deutschland.de/w/demosplan/functions/assessment_table/'
     label: 'Generally allows the user to view access / view the assessment table.'
     loginRequired: true
