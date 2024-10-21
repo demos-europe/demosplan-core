@@ -13,6 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -1432,6 +1434,26 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             || ($data['settings']['designatedEndDate'] ?? null) !== null) {
             $procedureSettings->setDesignatedPhaseChangeUser($data['currentUser']);
         }
+    }
+
+    public function getAllProceduresOfOrgaInCustomer(OrgaInterface $orga, CustomerInterface $customer): array
+    {
+        // Angenommen du hast $entityManager als Instanz von EntityManagerInterface
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
+        $query = $queryBuilder->select('procedure')
+            ->from(Procedure::class, 'procedure')
+            ->where('procedure.customer = :customer')
+            ->andWhere(':orga MEMBER OF procedure.organisation')
+            ->setParameter('customer', $customer)
+            ->setParameter('orga', $orga)
+            ->getQuery();
+
+        $results = $query->getResult();
+        if (!is_iterable($results)) {
+            $results = [];
+        }
+
+        return $results;
     }
 
     private function getStatementRepository(): StatementRepository
