@@ -2909,7 +2909,6 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     public function getPhaseKey(string $phaseKey, string $publicStatement): string
     {
-
         if (StatementInterface::EXTERNAL === $publicStatement) {
             $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
             if (array_key_exists($phaseKey, $externalPhases)) {
