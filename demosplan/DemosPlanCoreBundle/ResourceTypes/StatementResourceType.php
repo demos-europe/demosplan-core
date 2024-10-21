@@ -434,10 +434,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->readable(false, $this->getAvailableExternalPhases(...));
         }
 
-
         return $configBuilder;
     }
-
 
     protected function getAvailableInternalPhases(): array
     {
@@ -446,7 +444,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         foreach ($this->globalConfig->getInternalPhasesAssoc() as $internalPhase) {
             $phases[] = $this->createPhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
         }
-
 
         return $phases;
     }

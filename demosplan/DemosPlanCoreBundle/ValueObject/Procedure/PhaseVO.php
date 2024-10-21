@@ -14,8 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject\Procedure;
 
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
-
-
 /**
  * @method string getKey()
  * @method void   setKey(string $key)
@@ -30,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  */
 class PhaseVO extends ValueObject
 {
-
     final public const PROCEDURE_PHASE_NAME = 'name';
     final public const PROCEDURE_PHASE_KEY = 'key';
     final public const PROCEDURE_PHASE_PERMISSIONS_SET = 'permissionset';
