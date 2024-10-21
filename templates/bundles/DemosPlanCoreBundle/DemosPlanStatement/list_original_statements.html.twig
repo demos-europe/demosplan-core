@@ -6,21 +6,25 @@
         hasPermission('feature_segments_import_excel') or
         hasPermission('feature_simplified_new_statement_create') ? 'DemosPlan_procedure_import' : 'DemosPlan_statement_new_submitted' %}
 
+    {% set permission = path == 'DemosPlan_procedure_import' ? 'area_admin_import' : 'feature_statement_data_input_orga' %}
+
     {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
         heading: 'statements.original'|trans,
         subnav: [
             {
                 href: path('dplan_procedure_statement_list', { procedureId: procedureId }),
                 label: 'statements'|trans,
-                datacy: 'listStatements:statementList'
+                datacy: 'listStatements:statementList',
+                feature: 'area_admin_original_statement_list'
             },
             {
             href: path(path, { procedureId: procedureId }),
             label:  'statement.new'|trans,
             datacy: 'listStatements:statementNew',
-            icon: 'fa-plus'
+            icon: 'fa-plus',
+            feature: permission
             }
-        ],
+        ]|filter(item => hasPermission(item.feature)),
         flush: true
     } %}
 
