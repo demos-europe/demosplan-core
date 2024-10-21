@@ -2884,8 +2884,12 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     public function getPhaseName(string $phaseKey, string $publicStatement): string
     {
-        $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
-        $phaseName = $externalPhases[$phaseKey]['name'] ?? '';
+        $phaseName = '';
+
+        if (StatementInterface::EXTERNAL === $publicStatement) {
+            $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
+            $phaseName = $externalPhases[$phaseKey]['name'] ?? '';
+        }
 
         if (StatementInterface::INTERNAL === $publicStatement) {
             $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
