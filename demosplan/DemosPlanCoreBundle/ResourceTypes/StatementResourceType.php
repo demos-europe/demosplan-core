@@ -25,9 +25,9 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementPhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
@@ -69,7 +69,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly QueryStatement $esQuery,
         private readonly StatementService $statementService,
         private readonly StatementDeleter $statementDeleter,
-        private readonly ProcedurePhaseService $procedurePhaseService,
+        private readonly StatementPhaseService $statementPhaseService,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);
     }
@@ -462,7 +462,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         $phases = [];
 
         foreach ($this->globalConfig->getInternalPhasesAssoc() as $internalPhase) {
-            $phases[] = $this->procedurePhaseService->createPhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
+            $phases[] = $this->statementPhaseService->createPhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
         }
 
         return $phases;
@@ -472,7 +472,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
     {
         $phases = [];
         foreach ($this->globalConfig->getExternalPhasesAssoc() as $externalPhase) {
-            $phases[] = $this->procedurePhaseService->createPhaseVO($externalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
+            $phases[] = $this->statementPhaseService->createPhaseVO($externalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
         }
 
         return $phases;

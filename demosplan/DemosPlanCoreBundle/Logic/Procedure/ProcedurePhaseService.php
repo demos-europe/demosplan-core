@@ -38,16 +38,4 @@ class ProcedurePhaseService
 
         return false;
     }
-
-    public function createPhaseVO(array $phase, string $type)
-    {
-        $phaseVO = new PhaseVO();
-        $phaseVO->setKey($phase[PhaseVO::PROCEDURE_PHASE_KEY]);
-        $phaseVO->setName($phase[PhaseVO::PROCEDURE_PHASE_NAME]);
-        $phaseVO->setPermissionsSet($phase[PhaseVO::PROCEDURE_PHASE_PERMISSIONS_SET]);
-        $phaseVO->setParticipationState($phase[PhaseVO::PROCEDURE_PHASE_PARTICIPATION_STATE] ?? null);
-        $phaseVO->setPhaseType($type);
-
-        return $phaseVO->lock();
-    }
 }
