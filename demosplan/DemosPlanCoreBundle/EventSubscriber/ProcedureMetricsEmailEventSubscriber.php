@@ -54,7 +54,6 @@ class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
     public function onProcedureCreatedAction(PostNewProcedureCreatedEvent $event): void
     {
         if (!$this->currentUser->hasPermission('feature_send_procedure_metrics_support_mail')) {
-
             return;
         }
         $this->getLogger()->info(
