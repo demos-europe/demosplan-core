@@ -10,14 +10,27 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
 use Exception;
 
+/**
+ * Handles the conversion of image tags in HTML content to clickable links with references.
+ *
+ * This class `ImageLinkConverter` is designed to process HTML content, specifically focusing on converting `<img>` tags
+ * into clickable references. It manages a collection of image references, ensuring each image is uniquely identified
+ * and accessible. The conversion process involves parsing the HTML, identifying image tags, and replacing them with
+ * standardized clickable links that reference the images' absolute paths or identifiers.
+ *
+ * Usage involves creating an instance with a dependency on a `HtmlHelper` for HTML processing and a `FileService` for
+ * resolving image paths. The `convert` method is called with a `Segment` object and an external identifier to process
+ * the content. The class also provides methods to reset and retrieve the image references.
+ */
 final class ImageLinkConverter
 {
     public const IMAGE_REFERENCE_RECOMMENDATION_SUFFIX = '_Darstellung_Erw_';
@@ -42,7 +55,7 @@ final class ImageLinkConverter
     public function convert(
         Segment $segment,
         string $statementExternId,
-        bool $asLinkedReference = true
+        bool $asLinkedReference = true,
     ): ConvertedSegment {
         $segmentText = $segment->getText();
         $recommendationText = $segment->getRecommendation();

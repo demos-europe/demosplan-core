@@ -20,15 +20,14 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentExporterFileNameGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\XlsxSegmentsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use Doctrine\ORM\Query\QueryException;
 use Exception;
-use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -59,9 +58,9 @@ class SegmentsExportController extends BaseController
     public function exportAction(
         SegmentsExporter $exporter,
         StatementHandler $statementHandler,
-        SegmentExporterFileNameGenerator $fileNameGenerator,
+        FileNameGenerator $fileNameGenerator,
         string $procedureId,
-        string $statementId
+        string $statementId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
@@ -70,7 +69,7 @@ class SegmentsExportController extends BaseController
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
             static function () use ($procedure, $statement, $exporter, $tableHeaders) {
-                $exportedDoc = $exporter->export($procedure, $statement, $tableHeaders);
+                $exportedDoc = $exporter->exportForOneStatement($procedure, $statement, $tableHeaders);
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
@@ -93,10 +92,11 @@ class SegmentsExportController extends BaseController
         methods: 'GET'
     )]
     public function exportByStatementsFilterAction(
-        SegmentsByStatementsExporter $exporter,
+        FileNameGenerator $fileNameGenerator,
+        SegmentsExporter $segmentsExporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
-        string $procedureId
+        string $procedureId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
@@ -107,13 +107,13 @@ class SegmentsExportController extends BaseController
         );
 
         $response = new StreamedResponse(
-            static function () use ($tableHeaders, $procedure, $statementEntities, $exporter) {
-                $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, ...$statementEntities);
+            static function () use ($tableHeaders, $procedure, $statementEntities, $segmentsExporter) {
+                $exportedDoc = $segmentsExporter->exportForMultipleStatements($tableHeaders, $procedure, ...$statementEntities);
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
 
-        $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx'));
+        $this->setResponseHeaders($response, $fileNameGenerator->getSynopseFileName($procedure, 'docx'));
 
         return $response;
     }
@@ -133,10 +133,11 @@ class SegmentsExportController extends BaseController
         methods: 'GET'
     )]
     public function exportByStatementsFilterXlsAction(
+        FileNameGenerator $fileNameGenerator,
         JsonApiActionService $jsonApiActionService,
-        SegmentsByStatementsExporter $exporter,
+        XlsxSegmentsExporter $xlsxSegmentExporter,
         StatementResourceType $statementResourceType,
-        string $procedureId
+        string $procedureId,
     ): StreamedResponse {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -147,8 +148,8 @@ class SegmentsExportController extends BaseController
         );
 
         $response = new StreamedResponse(
-            static function () use ($statementEntities, $exporter) {
-                $exportedDoc = $exporter->exportAllXlsx(...$statementEntities);
+            static function () use ($statementEntities, $xlsxSegmentExporter) {
+                $exportedDoc = $xlsxSegmentExporter->exportAllXlsx(...$statementEntities);
                 $exportedDoc->save('php://output');
             }
         );
@@ -162,7 +163,7 @@ class SegmentsExportController extends BaseController
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename(
-            $exporter->getSynopseFileName($procedure, 'xlsx'))
+            $fileNameGenerator->getSynopseFileName($procedure, 'xlsx'))
         );
 
         return $response;
@@ -180,11 +181,12 @@ class SegmentsExportController extends BaseController
         methods: 'GET'
     )]
     public function exportPackagedStatementsAction(
-        SegmentsByStatementsExporter $exporter,
+        FileNameGenerator $fileNameGenerator,
+        SegmentsExporter $segmentsExporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
         ZipExportService $zipExportService,
-        string $procedureId
+        string $procedureId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
@@ -200,18 +202,17 @@ class SegmentsExportController extends BaseController
         );
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
-        $statements = $exporter->mapStatementsToPathInZip($statements, $fileNameTemplate);
+        $statements = $fileNameGenerator->mapStatementsToPathInZip($statements, $fileNameTemplate);
 
         return $zipExportService->buildZipStreamResponse(
-            $exporter->getSynopseFileName($procedure, 'zip'),
-            static function (ZipStream $zipStream) use ($statements, $exporter, $zipExportService, $procedure, $tableHeaders): void {
+            $fileNameGenerator->getSynopseFileName($procedure, 'zip'),
+            static function (ZipStream $zipStream) use ($statements, $segmentsExporter, $zipExportService, $procedure, $tableHeaders): void {
                 array_map(
                     static function (
                         Statement $statement,
-                        string $filePathInZip
-                    ) use ($exporter, $zipExportService, $zipStream, $procedure, $tableHeaders): void {
-                        $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure, $tableHeaders);
-                        $writer = IOFactory::createWriter($docx);
+                        string $filePathInZip,
+                    ) use ($segmentsExporter, $zipExportService, $zipStream, $procedure, $tableHeaders): void {
+                        $writer = $segmentsExporter->exportForOneStatement($procedure, $statement, $tableHeaders);
                         $zipExportService->addWriterToZipStream(
                             $writer,
                             $filePathInZip,
@@ -229,7 +230,7 @@ class SegmentsExportController extends BaseController
 
     private function setResponseHeaders(
         StreamedResponse $response,
-        string $filename
+        string $filename,
     ): void {
         $response->headers->set('Pragma', 'public');
         $response->headers->set(
