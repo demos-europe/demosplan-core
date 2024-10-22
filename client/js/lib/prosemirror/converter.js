@@ -70,7 +70,7 @@ export class ProseMirrorConverter {
 
       // TODO: Return real ProseMirror data object.
       this.prosemirrorData = {}
-      console.log(type, id, draftSegments, statementId)
+      // console.log(type, id, draftSegments, statementId)
       return this
     } catch (error) {
       console.error('Error converting HTML to ProseMirror data: ', error)
