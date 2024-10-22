@@ -467,10 +467,9 @@ export default {
 
     getOriginalStatementAsAttachment (originalStatementId) {
       const originalStatement = this.items[originalStatementId]
-      const attachments = originalStatement.relationships.attachments?.data ? Object.values(originalStatement.relationships.attachments.list()) : []
-      const originalStatementAsAttachment = attachments?.length > 0 ? attachments[0].relationships?.file.get() : null
+      const attachments = originalStatement.relationships.attachments?.data.length > 0 ? Object.values(originalStatement.relationships.attachments.list()) : []
 
-      return originalStatementAsAttachment || '-'
+      return attachments?.length > 0 ? attachments[0].relationships?.file.get() : null
     },
 
     getParagraphTitle (originalStatementId) {
