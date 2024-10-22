@@ -10,7 +10,7 @@
  * @param proseMirrorData - object
  * @param htmlString - string
  */
-class ProseMirrorConverter {
+export class ProseMirrorConverter {
   constructor() {
     this.prosemirrorData = null
     this.htmlString = null
