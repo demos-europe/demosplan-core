@@ -13,8 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
