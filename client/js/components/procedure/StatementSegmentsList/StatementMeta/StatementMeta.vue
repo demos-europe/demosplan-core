@@ -428,7 +428,7 @@ export default {
     }),
 
     availableExternalPhases () {
-      const externalPhases = this.statement.attributes.availableExternalPhases
+      const externalPhases = this.statement.attributes?.availableExternalPhases || []
 
       return externalPhases.map(phase => ({
         label: phase.name,
@@ -437,7 +437,7 @@ export default {
     },
 
     availableInternalPhases () {
-      const internalPhases = this.statement.attributes.availableInternalPhases
+      const internalPhases = this.statement.attributes?.availableInternalPhases || []
 
       return internalPhases.map(phase => ({
         label: phase.name,
