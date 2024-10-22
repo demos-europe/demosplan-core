@@ -89,9 +89,10 @@
               </template>
               <template v-if="statement">
                 <div class="overflow-x-scroll break-words max-h-13 max-w-14 w-max">
-                  <span class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
+
+                  <span v-if="hasPermission('area_admin_import')" class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
                   <statement-meta-attachments-link
-                    v-if="originalAttachment.hash"
+                    v-if="originalAttachment.hash && hasPermission('area_admin_import')"
                     class="block whitespace-normal u-mr-0_75"
                     :attachment="originalAttachment"
                     :procedure-id="procedure.id" />
