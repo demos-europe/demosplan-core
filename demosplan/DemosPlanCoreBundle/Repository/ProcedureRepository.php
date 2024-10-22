@@ -1443,7 +1443,8 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         $query = $queryBuilder->select('procedure')
             ->from(Procedure::class, 'procedure')
             ->where('procedure.customer = :customer')
-            ->andWhere(':orga MEMBER OF procedure.organisation')
+            ->andWhere('procedure.orga = :orga')
+            ->andWhere('procedure.deleted = 0')
             ->setParameter('customer', $customer)
             ->setParameter('orga', $orga)
             ->getQuery();
