@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PhaseVO;
 
 class ProcedurePhaseService
 {
