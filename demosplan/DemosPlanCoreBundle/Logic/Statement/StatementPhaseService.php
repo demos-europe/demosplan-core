@@ -45,19 +45,19 @@ class StatementPhaseService
             $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
             if ($externalPhases[$phaseKey]) {
                 $foundPhase = $externalPhases[$phaseKey];
+
                 return $this->createPhaseVO($foundPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
             }
         }
-
 
         if (StatementInterface::INTERNAL === $publicStatement) {
             $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
             if ($internalPhases[$phaseKey]) {
                 $foundPhase = $internalPhases[$phaseKey];
+
                 return $this->createPhaseVO($foundPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
             }
         }
         throw new UndefinedPhaseException($phaseKey);
     }
-
 }
