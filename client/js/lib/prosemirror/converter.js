@@ -62,15 +62,32 @@ export class ProseMirrorConverter {
       const parser = new DOMParser()
       const doc = parser.parseFromString(htmlString, 'text/html')
 
-      const customContent = doc.querySelector('custom-content')
-      const type = customContent.getAttribute('type')
-      const id = customContent.getAttribute('id')
-      const draftSegments = customContent.getAttribute('draft-segments').split(', ')
-      const statementId = customContent.getAttribute('statement-id')
+      const customContents = doc.querySelectorAll('custom-content')
+      const draftSegments = [];
+      customContents.forEach(customContent => {
+        const type = customContent.getAttribute('type')
+        const id = customContent.getAttribute('id')
+        const segmentText = customContent.getAttribute('segment-text')
+        draftSegments.push({ id, type: type, segment_text: segmentText ?? 'no text' })
+      })
 
-      // TODO: Return real ProseMirror data object.
-      this.prosemirrorData = {}
-      // console.log(type, id, draftSegments, statementId)
+      const type = customContents[0].getAttribute('type');
+      const statementId = customContents[0].getAttribute('statement-id')
+
+      this.prosemirrorData = {
+        data: {
+          type,
+          id: customContents[0].getAttribute('id'),
+          relationships: {
+            draftSegments: {
+              data: draftSegments
+            },
+            statement: {
+              data: { type: 'Statement', id: statementId }
+            }
+          }
+        }
+      }
       return this
     } catch (error) {
       console.error('Error converting HTML to ProseMirror data: ', error)
