@@ -12,8 +12,9 @@
  */
 export class ProseMirrorConverter {
   constructor() {
-    this.prosemirrorData = null
     this.htmlString = null
+    this.parser = new DOMParser()
+    this.prosemirrorData = null
   }
 
   /**
@@ -59,11 +60,11 @@ export class ProseMirrorConverter {
    */
   fromHtml(htmlString) {
     try {
-      const parser = new DOMParser()
-      const doc = parser.parseFromString(htmlString, 'text/html')
+      const doc = this.parser.parseFromString(htmlString, 'text/html')
 
       const customContents = doc.querySelectorAll('custom-content')
-      const draftSegments = [];
+      const draftSegments = []
+
       customContents.forEach(customContent => {
         const type = customContent.getAttribute('type')
         const id = customContent.getAttribute('id')
