@@ -36,9 +36,16 @@ export class ProseMirrorConverter {
       const draftSegments = relationships.draftSegments.data.map(segment => segment.id).join(', ')
       const statementId = relationships.statement.data.id
 
-      this.htmlString = ''
-      console.log(type, id, draftSegments, statementId)
-      // TODO: return HTML string.
+      this.htmlString = `
+        <custom-html-tag>
+          ${relationships.draftSegments.data.map(segment => `
+          <custom-content
+            type="${type}"
+            id="${segment.id}"
+            draft-segments="[${draftSegments}]"
+            statement-id="${statementId}">
+          </custom-content>`).join('')}
+        </custom-html-tag>`
       return this
     } catch (error) {
       console.error('Error converting ProseMirror data to HTML: ', error)
@@ -85,4 +92,8 @@ export class ProseMirrorConverter {
   getHtml() {
     return this.htmlString
   }
+}
+
+export const normalizeHtmlString = (htmlString) => {
+  htmlString.replace(/\s+/g, '')
 }
