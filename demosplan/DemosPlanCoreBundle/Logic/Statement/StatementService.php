@@ -284,6 +284,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         private readonly UserRepository $userRepository,
         UserService $userService,
         private readonly StatementDeleter $statementDeleter,
+        private readonly StatementPhaseService $statementPhaseService,
     ) {
         $this->assignService = $assignService;
         $this->entityContentChangeService = $entityContentChangeService;
@@ -2884,19 +2885,13 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     public function getPhaseName(string $phaseKey, string $publicStatement): string
     {
+
         $phaseName = '';
-
-        if (StatementInterface::EXTERNAL === $publicStatement) {
-            $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
-            $phaseName = $externalPhases[$phaseKey]['name'] ?? '';
-        }
-
-        if (StatementInterface::INTERNAL === $publicStatement) {
-            $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
-            $phaseName = $internalPhases[$phaseKey]['name'] ?? '';
-        }
-
         try {
+
+            $phaseVO = $this->statementPhaseService->getPhaseVO($phaseKey, $publicStatement);
+            $phaseName = $phaseVO->getName();
+
             if ('' === $phaseName) {
                 throw new UndefinedPhaseException($phaseKey);
             }

@@ -60,4 +60,13 @@ class StatementPhaseService
         }
         throw new UndefinedPhaseException($phaseKey);
     }
+
+    public function getAvailablePhases(string $phaseKey, string $publicStatement):array {
+        //If the publicstatement is internal, then return only the internal phases
+        // if the publicstatement is external, then return only the external phases
+        return [];
+
+    }
+
+
 }
