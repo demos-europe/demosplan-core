@@ -1,7 +1,7 @@
 /**
  * This ProseMirrorConverter class is responsible for converting
- * ProseMirror data to an HTML string and to convert proseMirror data
- * to an HTML string.
+ * a data-structure in the prosemirror format to an HTML string and vice versa.
+ * For more Information about the prosemirror format, see: https://prosemirror.net/docs/
  *
  * Example usage:
  * - from ProseMirror to html: `converter.fromProseMirror(ProseMirrorData).toHtml().getHtml()`
@@ -17,7 +17,7 @@ export class ProseMirrorConverter {
   }
 
   /**
-   * Returns a ProseMirrorConverter instance filled with ProseMirror data.
+   * Returns a ProseMirrorConverter instance filled with a data-structure in the prosemirror format.
    * @param proseMirrorData - string
    * @returns { ProseMirrorConverter }
    */
@@ -72,7 +72,7 @@ export class ProseMirrorConverter {
       })
 
       const type = customContents[0].getAttribute('type');
-      const statementId = customContents[0].getAttribute('statement-id')
+      const statementId = customContents[0].getAttribute('statement-id');
 
       this.prosemirrorData = {
         data: {
@@ -95,7 +95,7 @@ export class ProseMirrorConverter {
   }
 
   /**
-   * Returns ProseMirror data.
+   * Returns a data-structure in the prosemirror format
    * @returns { object }
    */
   toProseMirror() {
