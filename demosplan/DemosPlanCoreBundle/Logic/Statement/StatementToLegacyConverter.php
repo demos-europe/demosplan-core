@@ -102,11 +102,11 @@ class StatementToLegacyConverter extends CoreService
         }
         if ($statementArray['paragraph'] instanceof ParagraphVersion) {
             try {
-                // Legacy wird der Paragraph und nicht ParagraphVersion zurückgegeben!
+                // Legacy returns the Paragraph and not ParagraphVersion!
                 $parentParagraph = $statementArray['paragraph']->getParagraph();
                 $statementArray['paragraph'] = $this->entityHelper->toArray($parentParagraph);
             } catch (Exception) {
-                // Einige alte Einträge verweisen möcglicherweise noch nicht auf eine ParagraphVersion
+                // Some old entries may not yet refer to a ParagraphVersion
                 $this->logger->error(
                     'No ParagraphVersion found for Id '
                     .DemosPlanTools::varExport($statementArray['paragraph']->getId(), true)
@@ -116,10 +116,10 @@ class StatementToLegacyConverter extends CoreService
             }
         }
 
-        // Lege ein mit der Stellungnahme verknüpftes SingleDocument auf oberster Ebene in das Array
+        // Add a SingleDocument linked with the statement at the top level in the array
         if (null !== $statementArray['documentId']) {
             $singleDocument = $this->singleDocumentVersionRepository->get($statementArray['documentId']);
-            // Angezeigt wird das parent Singledocument
+            // Displayed is the parent SingleDocument
             $statementArray['document'] = $this->entityHelper->toArray($singleDocument?->getSingleDocument());
         } else {
             unset($statementArray['documentId']);
