@@ -112,7 +112,10 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
             $mimetype,
         ];
 
-        if ($this->currentUser->hasPermission('area_admin_assessmenttable')) {
+        if ($this->currentUser->hasAnyPermissions(
+            'area_admin_assessmenttable',
+            'area_admin_original_statement_list')
+        ) {
             $id->filterable()->sortable();
             $hash->readable(true)->filterable()->sortable();
             $filename->readable(true, self::getFileName(...));

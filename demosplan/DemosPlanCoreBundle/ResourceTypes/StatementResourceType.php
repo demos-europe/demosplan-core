@@ -68,7 +68,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly StatementService $statementService,
         private readonly StatementDeleter $statementDeleter,
     ) {
-        parent::__construct($fileService, $htmlSanitizer);
+        parent::__construct($fileService, $htmlSanitizer, $statementService);
     }
 
     public function getEntityClass(): string
@@ -226,7 +226,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $this->conditionFactory->propertyIsNull(Paths::statement()->headStatement->id),
             $this->conditionFactory->propertyIsNotNull(Paths::statement()->original->id),
             // all segments must have a segment set, hence the following check is used to ensure this resource type does not return segments
-            $this->conditionFactory->isTargetEntityNotInstanceOf(Segment::class)
+            $this->conditionFactory->isTargetEntityNotInstanceOf(
+                basename(str_replace('\\', '/', Segment::class))
+            ),
         );
 
         $statementConditions = $this->currentUser
