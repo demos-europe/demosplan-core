@@ -311,10 +311,6 @@ services:
 
     demosplan\DemosPlanCoreBundle\EventSubscriber\ProcedureCoupleTokenSubscriber: ~
 
-    demosplan\DemosPlanCoreBundle\EventSubscriber\ProcedureMetricsEmailEventSubscriber:
-        tags:
-            - { name: kernel.event_subscriber }
-
     demosplan\DemosPlanCoreBundle\Form\ProcedureTypeFormType: ~
 
     demosplan\DemosPlanCoreBundle\Form\ProcedureBehaviorDefinitionFormType: ~

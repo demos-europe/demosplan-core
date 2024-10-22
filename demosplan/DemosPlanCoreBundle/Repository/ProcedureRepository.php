@@ -1436,27 +1436,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
     }
 
-    public function getAllProceduresOfOrgaInCustomer(OrgaInterface $orga, CustomerInterface $customer): array
-    {
-        // Angenommen du hast $entityManager als Instanz von EntityManagerInterface
-        $queryBuilder = $this->getEntityManager()->createQueryBuilder();
-        $query = $queryBuilder->select('procedure')
-            ->from(Procedure::class, 'procedure')
-            ->where('procedure.customer = :customer')
-            ->andWhere('procedure.orga = :orga')
-            ->andWhere('procedure.deleted = 0')
-            ->setParameter('customer', $customer)
-            ->setParameter('orga', $orga)
-            ->getQuery();
-
-        $results = $query->getResult();
-        if (!is_iterable($results)) {
-            $results = [];
-        }
-
-        return $results;
-    }
-
     private function getStatementRepository(): StatementRepository
     {
         return $this->getEntityManager()->getRepository(Statement::class);

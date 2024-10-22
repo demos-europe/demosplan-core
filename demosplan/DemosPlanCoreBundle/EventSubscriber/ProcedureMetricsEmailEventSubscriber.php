@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
+use Doctrine\Common\Collections\Criteria;
 use Exception;
 
 class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
@@ -119,7 +120,10 @@ class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
             throw new OrgaNotFoundException('No Orga found for current user');
         }
 
-        return $this->procedureRepository->getAllProceduresOfOrgaInCustomer($orga, $customer);
+        return $this->procedureRepository->findBy(
+            ['orga' => $orga->getId(), 'customer' => $customer->getId(), 'deleted' => false],
+            ['createdDate' => Criteria::DESC]
+        );
     }
 
     private function getSubject(array $allProceduresOfOrgaInCustomer): string
