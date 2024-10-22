@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
@@ -69,6 +70,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly QueryStatement $esQuery,
         private readonly StatementService $statementService,
         private readonly StatementDeleter $statementDeleter,
+        private readonly ProcedurePhaseService $procedurePhaseService,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);
     }
@@ -461,7 +463,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         $phases = [];
 
         foreach ($this->globalConfig->getInternalPhasesAssoc() as $internalPhase) {
-            $phases[] = $this->createPhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
+            $phases[] = $this->procedurePhaseService->createPhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
         }
 
         return $phases;
@@ -471,22 +473,10 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
     {
         $phases = [];
         foreach ($this->globalConfig->getExternalPhasesAssoc() as $externalPhase) {
-            $phases[] = $this->createPhaseVO($externalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
+            $phases[] = $this->procedurePhaseService->createPhaseVO($externalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
         }
 
         return $phases;
-    }
-
-    protected function createPhaseVO(array $phase, string $type)
-    {
-        $phaseVO = new PhaseVO();
-        $phaseVO->setKey($phase[PhaseVO::PROCEDURE_PHASE_KEY]);
-        $phaseVO->setName($phase[PhaseVO::PROCEDURE_PHASE_NAME]);
-        $phaseVO->setPermissionsSet($phase[PhaseVO::PROCEDURE_PHASE_PERMISSIONS_SET]);
-        $phaseVO->setParticipationState($phase[PhaseVO::PROCEDURE_PHASE_PARTICIPATION_STATE] ?? null);
-        $phaseVO->setPhaseType($type);
-
-        return $phaseVO->lock();
     }
 
     /**
