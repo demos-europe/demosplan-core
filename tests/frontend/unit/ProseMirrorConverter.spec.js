@@ -37,7 +37,9 @@ describe('ProseMirrorConverter', () => {
         <custom-content
           type="${proseMirrorData.data.type}"
           id="${segment.id}"
-          draft-segments="[${proseMirrorData.data.relationships.draftSegments.data.map(s => s.id).join(', ')}]"
+          draft-segments="[${proseMirrorData.data.relationships.draftSegments.data.map(s => {
+            s.id, s.segment_text
+          }).join(', ')}]"
           statement-id="${proseMirrorData.data.relationships.statement.data.id}">
         </custom-content>`).join('')}
       </custom-html-tag>`.trim()
@@ -53,10 +55,14 @@ describe('ProseMirrorConverter', () => {
         <custom-content
           type="${proseMirrorData.data.type}"
           id="${segment.id}"
-          draft-segments="[${proseMirrorData.data.relationships.draftSegments.data.map(s => s.id).join(', ')}]"
-          statement-id="${proseMirrorData.data.relationships.statement.data.id}">
+          draft-segments="[${proseMirrorData.data.relationships.draftSegments.data.map(draft => {
+            draft.id, draft.segment_text ?? 'no text'
+          }).join(', ')}]"
+          statement-id="${proseMirrorData.data.relationships.statement.data.id}"
         </custom-content>`).join('')}
       </custom-html-tag>`.trim()
     const convertedHTML = converter.fromHtml(htmlString).toProseMirror()
+    expect(convertedHTML).toHaveProperty('data')
+    expect(Object.keys(convertedHTML.data)).toStrictEqual(['type', 'id', 'relationships'])
   })
 })
