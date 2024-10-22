@@ -19,8 +19,6 @@
 {% block component_part %}
     <statement-segments-list
         :available-counties="JSON.parse('{{ templateVars.availableCounties|default([])|json_encode|e('js', 'utf-8') }}')"
-        :available-external-phases="JSON.parse('{{ templateVars.externalPhases|default([])|json_encode|e('js', 'utf-8') }}')"
-        :available-internal-phases="JSON.parse('{{ templateVars.internalPhases|default([])|json_encode|e('js', 'utf-8') }}')"
         :available-municipalities="JSON.parse('{{ templateVars.municipalities|default([])|json_encode|e('js', 'utf-8') }}')"
         :available-priority-areas="JSON.parse('{{ templateVars.priorityAreas|default([])|json_encode|e('js', 'utf-8') }}')"
         :current-user="JSON.parse('{{ user|json_encode|e('js', 'utf-8') }}')"

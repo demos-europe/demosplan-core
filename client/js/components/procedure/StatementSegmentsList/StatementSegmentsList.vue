@@ -139,8 +139,6 @@
         v-if="showInfobox && statement"
         :attachments="filteredAttachments"
         :available-counties="availableCounties"
-        :available-internal-phases="availableExternalPhases"
-        :available-external-phases="availableInternalPhases"
         :available-municipalities="availableMunicipalities"
         :available-priority-areas="availablePriorityAreas"
         :current-user-id="currentUser.id"
@@ -222,18 +220,6 @@ export default {
 
   props: {
     availableCounties: { // TODO: has to be adjusted in the BE
-      type: Array,
-      required: false,
-      default: () => []
-    },
-
-    availableExternalPhases: { // TODO: has to be adjusted in the BE
-      type: Array,
-      required: false,
-      default: () => []
-    },
-
-    availableInternalPhases: { // TODO: has to be adjusted in the BE
       type: Array,
       required: false,
       default: () => []
@@ -563,6 +549,8 @@ export default {
       const statementFields = [
         'assignee',
         'attachments',
+        'availableInternalPhases',
+        'availableExternalPhases',
         'consentRevoked',
         'similarStatementSubmitters',
         'authoredDate',
@@ -583,7 +571,6 @@ export default {
         'municipalities',
         'priorityAreas',
         'phase',
-        'publicParticipationPhase', // TODO: has to be adjusted in the BE
         'recommendation',
         'segmentDraftList',
         'submitterAndAuthorMetaDataAnonymized',
@@ -645,8 +632,6 @@ export default {
     saveStatement (statement) {
       this.synchronizeAssignee(statement)
       this.synchronizeFullText(statement)
-      // The key isManual is readonly, so we should remove it before saving
-      delete statement.attributes.isManual
       this.setStatement({ ...statement, id: statement.id })
 
       this.saveStatementAction(statement.id)
