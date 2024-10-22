@@ -155,7 +155,7 @@
                         aria-hidden="true"
                         class="fa fa-paperclip color--grey"
                         :title="Translator.trans('attachment.original')" />
-                      {{ getOriginalStatementAsAttachment(id) }}
+                      {{ getOriginalStatementAsAttachment(id).attributes.filename }}
                     </a>
                     <span
                       v-else
@@ -440,9 +440,9 @@ export default {
 
     getDocumentTitle (originalStatementId) {
       const originalStatement = this.items[originalStatementId]
-      const document = originalStatement.relationships.document?.data
+      const document = originalStatement.relationships.document?.data ? originalStatement.relationships.document.get() : null
 
-      return document ? document.get().attributes.title : ''
+      return document ? document.attributes.title : ''
     },
 
     getElementTitle (originalStatementId) {
@@ -467,10 +467,9 @@ export default {
 
     getOriginalStatementAsAttachment (originalStatementId) {
       const originalStatement = this.items[originalStatementId]
-      const attachments = originalStatement.relationships.attachments?.data?.length > 0 ? Object.values(originalStatement.relationships.attachments.list()) : null
-      const originalStatementAsAttachment = attachments?.length > 0 ? attachments[0].relationships?.file.get() : null
+      const attachments = originalStatement.relationships.attachments?.data.length > 0 ? Object.values(originalStatement.relationships.attachments.list()) : []
 
-      return originalStatementAsAttachment?.length > 0 ? originalStatementAsAttachment[0] : null
+      return attachments?.length > 0 ? attachments[0].relationships?.file.get() : null
     },
 
     getParagraphTitle (originalStatementId) {
@@ -543,6 +542,7 @@ export default {
         },
         include: [
           'attachments',
+          'attachments.file',
           'document',
           'elements',
           'files',

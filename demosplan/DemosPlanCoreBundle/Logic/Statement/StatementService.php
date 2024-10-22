@@ -2905,8 +2905,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         return $phaseName;
-    }
-
     public function getPhaseKey(string $phaseKey, string $publicStatement): string
     {
         if (StatementInterface::EXTERNAL === $publicStatement) {
