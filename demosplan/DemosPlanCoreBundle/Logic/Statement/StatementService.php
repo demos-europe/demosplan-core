@@ -2907,31 +2907,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         return $phaseName;
     }
 
-    public function getPhaseKey(string $phaseKey, string $publicStatement): string
-    {
-        if (StatementInterface::EXTERNAL === $publicStatement) {
-            $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
-            if (array_key_exists($phaseKey, $externalPhases)) {
-                return $phaseKey;
-            }
-        }
-
-        if (StatementInterface::INTERNAL === $publicStatement) {
-            $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
-            if (array_key_exists($phaseKey, $internalPhases)) {
-                return $phaseKey;
-            }
-        }
-
-        try {
-            throw new UndefinedPhaseException($phaseKey);
-        } catch (UndefinedPhaseException $e) {
-            $this->logger->error($e->getMessage());
-        }
-
-        return '';
-    }
-
     /**
      * @param string $elementsId
      *

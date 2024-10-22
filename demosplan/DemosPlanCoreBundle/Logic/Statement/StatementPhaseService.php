@@ -13,6 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PhaseVO;
 
 class StatementPhaseService
@@ -32,4 +35,29 @@ class StatementPhaseService
 
         return $phaseVO->lock();
     }
+
+    /**
+     * @throws UndefinedPhaseException
+     */
+    public function getPhaseVO(string $phaseKey, string $publicStatement): PhaseVO
+    {
+        if (StatementInterface::EXTERNAL === $publicStatement) {
+            $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
+            if ($externalPhases[$phaseKey]) {
+                $foundPhase = $externalPhases[$phaseKey];
+                return $this->createPhaseVO($foundPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
+            }
+        }
+
+
+        if (StatementInterface::INTERNAL === $publicStatement) {
+            $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
+            if ($internalPhases[$phaseKey]) {
+                $foundPhase = $internalPhases[$phaseKey];
+                return $this->createPhaseVO($foundPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
+            }
+        }
+        throw new UndefinedPhaseException($phaseKey);
+    }
+
 }

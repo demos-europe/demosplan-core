@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
+use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
@@ -34,6 +35,8 @@ use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigB
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PhaseVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
@@ -57,6 +60,7 @@ use Webmozart\Assert\Assert;
  * @property-read End $paragraphTitle @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read End $segmentDraftList
  * @property-read End $status
+ * @property-read ValueObject $phaseStatement
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
@@ -429,20 +433,27 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             );
         }
 
-        $configBuilder->phase
+        $configBuilder->phaseStatement
             ->updatable($statementConditions, function (Statement $statement, string $phaseKey): array {
                 // check that phaseKey exists so that it is not possible to set a phase that does not exist
-                if ('' !== $this->statementService->getPhaseName($phaseKey, $statement->getPublicStatement())) {
-                    $statement->setPhase($phaseKey);
-                }
+                try {
 
+                    $this->statementPhaseService->getPhaseVO($phaseKey, $statement->getPublicStatement());
+                    $statement->setPhase($phaseKey);
+                } catch (UndefinedPhaseException $e) {
+                    $this->logger->error($e->getMessage());
+                    return [];
+                }
                 return [];
             })
-            ->readable(false, function (Statement $statement): string {
-                return $this->statementService->getPhaseKey(
-                    $statement->getPhase(),
-                    $statement->getPublicStatement()
-                );
+            ->readable(false, function (Statement $statement): ?array {
+                try {
+                    return $this->statementPhaseService->getPhaseVO($statement->getPhase(), $statement->getPublicStatement())->jsonSerialize();
+                } catch (UndefinedPhaseException $e) {
+                    $this->logger->error($e->getMessage());
+                    return null;
+                }
+
             });
 
         if ($this->currentUser->hasPermission('field_statement_phase')) {
