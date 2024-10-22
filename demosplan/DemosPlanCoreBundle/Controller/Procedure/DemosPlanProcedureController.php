@@ -413,9 +413,11 @@ class DemosPlanProcedureController extends BaseController
 
         // collect for each status their priority aggregations
         // therefore several Elasticsearch requests needs to be fired
-        if (!$permissions->hasPermission('feature_statements_statistic_state_and_priority')) {
+        // Permission 'area_statement_segmentation' is required for the "Splitting statement box" in the dashboard.
+        if (!$permissions->hasPermissions(['feature_statements_statistic_state_and_priority', 'area_statement_segmentation'], 'OR')) {
             return null;
         }
+
 
         $statementStatusData = [];
         // generate a statementStatusData item for each statement status
