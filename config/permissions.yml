@@ -25,6 +25,7 @@ area_admin_analysis:
     loginRequired: true
     parent: area_admin
 area_admin_assessmenttable:
+    expose: true
     documentation: 'https://yaits.demos-deutschland.de/w/demosplan/functions/assessment_table/'
     label: 'Generally allows the user to view access / view the assessment table.'
     loginRequired: true
@@ -145,6 +146,12 @@ area_admin_statement_list:
     description: 'New list with Statements belonging to a Procedure showing basic info for each Statement so the planner can have a quick overview of the status of the Procedure.'
     label: 'Shows a list with all Statements belonging to a Procedure'
     loginRequired: true
+    parent: area_admin
+area_admin_original_statement_list:
+    description: 'New list with Original Statements belonging to a Procedure showing basic info for each Statement so the planner can have a quick overview of the status of the Procedure.'
+    label: 'Shows a list with all Original Statements belonging to a Procedure'
+    loginRequired: true
+    expose: true
     parent: area_admin
 area_admin_statements_tag:
     label: 'Verwaltung der Schlagworte'
@@ -831,7 +838,7 @@ feature_department_edit:
     parent: feature_department
 feature_display_customer_names:
     description: 'In the orga edit details page some of the info displayed relates to the orga''s customers. With this permission we decide whether it will be shown or not.'
-    exposed: true
+    expose: true
     label: 'View Orga Customer names'
     parent: field_organisation
 feature_documents_category_use_file:

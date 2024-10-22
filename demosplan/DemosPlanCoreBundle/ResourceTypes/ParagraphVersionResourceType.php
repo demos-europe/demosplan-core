@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseParagraphVersionResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 
 /**
@@ -54,10 +56,14 @@ final class ParagraphVersionResourceType extends DplanResourceType
         return [];
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): ResourceConfigBuilderInterface
     {
-        return [
-            $this->createIdentifier()->readable()->sortable()->filterable(),
-        ];
+        $paragraphVersionConfig = $this->getConfig(BaseParagraphVersionResourceConfigBuilder::class);
+        $paragraphVersionConfig->id->setReadableByPath()->setSortable()->setFilterable();
+        // $paragraphVersionConfig->paragraph
+        //    ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())->setReadableByPath();
+        $paragraphVersionConfig->title->setReadableByPath();
+
+        return $paragraphVersionConfig;
     }
 }
