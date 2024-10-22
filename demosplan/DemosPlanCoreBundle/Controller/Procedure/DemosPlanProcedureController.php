@@ -418,7 +418,6 @@ class DemosPlanProcedureController extends BaseController
             return null;
         }
 
-
         $statementStatusData = [];
         // generate a statementStatusData item for each statement status
         foreach ($statementStatuses as $statusKey => $statusLabel) {
