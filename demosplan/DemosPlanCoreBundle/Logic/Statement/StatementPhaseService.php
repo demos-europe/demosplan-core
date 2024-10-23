@@ -41,7 +41,6 @@ class StatementPhaseService
      */
     public function getPhaseVO(string $phaseKey, string $publicStatement): PhaseVO
     {
-
         $availablePhases = $this->getAvailablePhases($publicStatement);
 
         foreach ($availablePhases as $phase) {
@@ -53,8 +52,9 @@ class StatementPhaseService
         throw new UndefinedPhaseException($phaseKey);
     }
 
-    public function getAvailablePhases(string $publicStatement): array {
-        //If the publicstatement is internal, then return only the internal phases
+    public function getAvailablePhases(string $publicStatement): array
+    {
+        // If the publicstatement is internal, then return only the internal phases
         // if the publicstatement is external, then return only the external phases
 
         if (StatementInterface::EXTERNAL === $publicStatement) {
@@ -74,8 +74,5 @@ class StatementPhaseService
         }
 
         return [];
-
     }
-
-
 }

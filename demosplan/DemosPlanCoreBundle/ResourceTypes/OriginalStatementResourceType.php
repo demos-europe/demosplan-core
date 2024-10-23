@@ -43,7 +43,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
     public function __construct(
         private readonly FileService $fileService,
         private readonly StatementService $statementService,
-        private readonly StatementPhaseService $statementPhaseService
+        private readonly StatementPhaseService $statementPhaseService,
     ) {
     }
 

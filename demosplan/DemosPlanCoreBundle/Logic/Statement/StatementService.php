@@ -2885,10 +2885,8 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     public function getPhaseName(string $phaseKey, string $publicStatement): string
     {
-
         $phaseName = '';
         try {
-
             $phaseVO = $this->statementPhaseService->getPhaseVO($phaseKey, $publicStatement);
             $phaseName = $phaseVO->getName();
 
