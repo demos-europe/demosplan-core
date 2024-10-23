@@ -457,64 +457,16 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             });
 
         if ($this->currentUser->hasPermission('field_statement_phase')) {
-            $configBuilder->availableInternalPhases
-                ->readable(false, $this->getAvailableInternalPhases(...));
-
-            $configBuilder->availableExternalPhases
-                ->readable(false, $this->getAvailableExternalPhases(...));
-
             $configBuilder->availablePhases
-                ->readable(false, $this->statementPhaseService->getAvailablePhases(...));
+                ->readable(false, function (Statement $statement): ?array {
+                    return $this->statementPhaseService->getAvailablePhases($statement->getPublicStatement());
+                });
         }
 
-        $configBuilder->phase
-            ->updatable($statementConditions, function (Statement $statement, string $phaseKey): array {
-                // check that phaseKey exists so that it is not possible to set a phase that does not exist
-                $statement->setPhase($this->statementService->getPhaseKey(
-                    $phaseKey,
-                    $statement->getPublicStatement()
-                ));
-
-                return [];
-            })
-            ->readable(false, function (Statement $statement): string {
-                return $this->statementService->getPhaseKey(
-                    $statement->getPhase(),
-                    $statement->getPublicStatement()
-                );
-            });
-
-        if ($this->currentUser->hasPermission('field_statement_phase')) {
-            $configBuilder->availableInternalPhases
-                ->readable(false, $this->getAvailableInternalPhases(...));
-
-            $configBuilder->availableExternalPhases
-                ->readable(false, $this->getAvailableExternalPhases(...));
-        }
 
         return $configBuilder;
     }
 
-    protected function getAvailableInternalPhases(): array
-    {
-        $phases = [];
-
-        foreach ($this->globalConfig->getInternalPhasesAssoc() as $internalPhase) {
-            $phases[] = $this->statementPhaseService->createPhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
-        }
-
-        return $phases;
-    }
-
-    protected function getAvailableExternalPhases(): array
-    {
-        $phases = [];
-        foreach ($this->globalConfig->getExternalPhasesAssoc() as $externalPhase) {
-            $phases[] = $this->statementPhaseService->createPhaseVO($externalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
-        }
-
-        return $phases;
-    }
 
     /**
      * Returns `true` if the current user has the permission to use properties to assess the statement.
