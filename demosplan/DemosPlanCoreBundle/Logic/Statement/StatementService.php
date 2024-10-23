@@ -2900,7 +2900,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         return $phaseName;
     }
 
-
     /**
      * @param string $elementsId
      *
