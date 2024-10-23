@@ -100,6 +100,7 @@ export class ProseMirrorConverter {
    * @returns { object }
    */
   toProseMirror() {
+    console.log(this.prosemirrorData)
     return this.prosemirrorData
   }
 
@@ -108,6 +109,7 @@ export class ProseMirrorConverter {
    * @returns { string }
    */
   getHtml() {
+    console.log(this.htmlString)
     return this.htmlString
   }
 }
