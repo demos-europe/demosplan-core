@@ -2887,7 +2887,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         $phaseName = '';
         try {
-            $phaseVO = $this->statementPhaseService->getPhaseVO($phaseKey, $publicStatement);
+            $phaseVO = $this->statementPhaseService->getProcedurePhaseVO($phaseKey, $publicStatement);
             $phaseName = $phaseVO->getName();
 
             if ('' === $phaseName) {

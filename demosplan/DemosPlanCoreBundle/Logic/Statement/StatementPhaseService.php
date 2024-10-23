@@ -16,7 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PhaseVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedurePhaseVO;
 
 class StatementPhaseService
 {
@@ -24,13 +24,13 @@ class StatementPhaseService
     {
     }
 
-    public function createPhaseVO(array $phase, string $type)
+    public function createProcedurePhaseVO(array $phase, string $type)
     {
-        $phaseVO = new PhaseVO();
-        $phaseVO->setKey($phase[PhaseVO::PROCEDURE_PHASE_KEY]);
-        $phaseVO->setName($phase[PhaseVO::PROCEDURE_PHASE_NAME]);
-        $phaseVO->setPermissionsSet($phase[PhaseVO::PROCEDURE_PHASE_PERMISSIONS_SET]);
-        $phaseVO->setParticipationState($phase[PhaseVO::PROCEDURE_PHASE_PARTICIPATION_STATE] ?? null);
+        $phaseVO = new ProcedurePhaseVO();
+        $phaseVO->setKey($phase[ProcedurePhaseVO::PROCEDURE_PHASE_KEY]);
+        $phaseVO->setName($phase[ProcedurePhaseVO::PROCEDURE_PHASE_NAME]);
+        $phaseVO->setPermissionsSet($phase[ProcedurePhaseVO::PROCEDURE_PHASE_PERMISSIONS_SET]);
+        $phaseVO->setParticipationState($phase[ProcedurePhaseVO::PROCEDURE_PHASE_PARTICIPATION_STATE] ?? null);
         $phaseVO->setPhaseType($type);
 
         return $phaseVO->lock();
@@ -39,9 +39,9 @@ class StatementPhaseService
     /**
      * @throws UndefinedPhaseException
      */
-    public function getPhaseVO(string $phaseKey, string $publicStatement): PhaseVO
+    public function getProcedurePhaseVO(string $phaseKey, string $publicStatement): ProcedurePhaseVO
     {
-        $availablePhases = $this->getAvailablePhases($publicStatement);
+        $availablePhases = $this->getAvailableProcedurePhases($publicStatement);
 
         foreach ($availablePhases as $phase) {
             if ($phase->getKey() === $phaseKey) {
@@ -58,14 +58,14 @@ class StatementPhaseService
      * @param string $publicStatement
      * @return array
      */
-    public function getAvailablePhases(string $publicStatement): array
+    public function getAvailableProcedurePhases(string $publicStatement): array
     {
 
         $phases = [];
 
         if (StatementInterface::EXTERNAL === $publicStatement) {
             foreach ($this->globalConfig->getExternalPhasesAssoc() as $internalPhase) {
-                $phases[] = $this->createPhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
+                $phases[] = $this->createProcedurePhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
             }
 
             return $phases;
@@ -73,7 +73,7 @@ class StatementPhaseService
 
         if (StatementInterface::INTERNAL === $publicStatement) {
             foreach ($this->globalConfig->getInternalPhasesAssoc() as $internalPhase) {
-                $phases[] = $this->createPhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
+                $phases[] = $this->createProcedurePhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
             }
 
             return $phases;

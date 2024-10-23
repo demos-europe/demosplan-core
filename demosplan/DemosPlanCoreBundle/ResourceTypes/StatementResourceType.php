@@ -435,7 +435,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             ->updatable($statementConditions, function (Statement $statement, string $phaseKey): array {
                 // check that phaseKey exists so that it is not possible to set a phase that does not exist
                 try {
-                    $this->statementPhaseService->getPhaseVO($phaseKey, $statement->getPublicStatement());
+                    $this->statementPhaseService->getProcedurePhaseVO($phaseKey, $statement->getPublicStatement());
                     $statement->setPhase($phaseKey);
                 } catch (UndefinedPhaseException $e) {
                     $this->logger->error($e->getMessage());
@@ -447,7 +447,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             })
             ->readable(false, function (Statement $statement): ?array {
                 try {
-                    return $this->statementPhaseService->getPhaseVO($statement->getPhase(), $statement->getPublicStatement())->jsonSerialize();
+                    return $this->statementPhaseService->getProcedurePhaseVO($statement->getPhase(), $statement->getPublicStatement())->jsonSerialize();
                 } catch (UndefinedPhaseException $e) {
                     $this->logger->error($e->getMessage());
 
@@ -458,7 +458,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         if ($this->currentUser->hasPermission('field_statement_phase')) {
             $configBuilder->availablePhases
                 ->readable(false, function (Statement $statement): ?array {
-                    return $this->statementPhaseService->getAvailablePhases($statement->getPublicStatement());
+                    return $this->statementPhaseService->getAvailableProcedurePhases($statement->getPublicStatement());
                 });
         }
 
