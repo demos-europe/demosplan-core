@@ -54,13 +54,10 @@ class StatementPhaseService
 
     /**
      * // If the publicstatement is internal, then return only the internal phases
-     * // if the publicstatement is external, then return only the external phases
-     * @param string $publicStatement
-     * @return array
+     * // if the publicstatement is external, then return only the external phases.
      */
     public function getAvailableProcedurePhases(string $publicStatement): array
     {
-
         $phases = [];
 
         if (StatementInterface::EXTERNAL === $publicStatement) {
