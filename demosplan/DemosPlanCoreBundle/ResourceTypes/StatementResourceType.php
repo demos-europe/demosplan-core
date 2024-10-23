@@ -462,6 +462,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
             $configBuilder->availableExternalPhases
                 ->readable(false, $this->getAvailableExternalPhases(...));
+
+            $configBuilder->availablePhases
+                ->readable(false, $this->statementPhaseService->getAvailablePhases(...));
         }
 
         return $configBuilder;

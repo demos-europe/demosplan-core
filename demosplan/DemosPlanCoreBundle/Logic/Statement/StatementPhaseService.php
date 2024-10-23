@@ -41,29 +41,38 @@ class StatementPhaseService
      */
     public function getPhaseVO(string $phaseKey, string $publicStatement): PhaseVO
     {
-        if (StatementInterface::EXTERNAL === $publicStatement) {
-            $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
-            if ($externalPhases[$phaseKey]) {
-                $foundPhase = $externalPhases[$phaseKey];
 
-                return $this->createPhaseVO($foundPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
-            }
-        }
+        $availablePhases = $this->getAvailablePhases($publicStatement);
 
-        if (StatementInterface::INTERNAL === $publicStatement) {
-            $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
-            if ($internalPhases[$phaseKey]) {
-                $foundPhase = $internalPhases[$phaseKey];
-
-                return $this->createPhaseVO($foundPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
+        foreach ($availablePhases as $phase) {
+            if ($phase->getName() === $phaseKey) {
+                // Phase key matches the name of the phase
+                return $phase;
             }
         }
         throw new UndefinedPhaseException($phaseKey);
     }
 
-    public function getAvailablePhases(string $phaseKey, string $publicStatement):array {
+    public function getAvailablePhases(string $publicStatement): array {
         //If the publicstatement is internal, then return only the internal phases
         // if the publicstatement is external, then return only the external phases
+
+        if (StatementInterface::EXTERNAL === $publicStatement) {
+            foreach ($this->globalConfig->getExternalPhasesAssoc() as $internalPhase) {
+                $phases[] = $this->createPhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
+            }
+
+            return $phases;
+        }
+
+        if (StatementInterface::INTERNAL === $publicStatement) {
+            foreach ($this->globalConfig->getInternalPhasesAssoc() as $internalPhase) {
+                $phases[] = $this->createPhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
+            }
+
+            return $phases;
+        }
+
         return [];
 
     }
