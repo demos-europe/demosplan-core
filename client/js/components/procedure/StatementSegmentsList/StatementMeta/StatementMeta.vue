@@ -222,26 +222,26 @@
           <dp-select
             v-if="hasPermission('field_show_internal_procedure_phases_in_dropdown') && !localStatement.attributes.isSubmittedByCitizen"
             id="statementProcedureInternalPhase"
-            v-model="localStatement.attributes.phase"
+            v-model="localStatement.attributes.phaseStatement"
             class="mb-3"
             :disabled="!editable || !isStatementManual"
             :label="{
               text: Translator.trans('procedure.public.phase')
             }"
             :options="availableInternalPhases"
-            @select="(val) => emitInput('phase', val)" />
+            @select="(val) => emitInput('phaseStatement', val)" />
 
           <dp-select
             v-else
             id="statementProcedureExternalPhase"
-            v-model="localStatement.attributes.phase"
+            v-model="localStatement.attributes.phaseStatement"
             class="mb-3"
             :disabled="!editable || !isStatementManual"
             :label="{
               text: Translator.trans('procedure.public.phase')
             }"
             :options="availableExternalPhases"
-            @select="(val) => emitInput('phase', val)" />
+            @select="(val) => emitInput('phaseStatement', val)" />
         </template>
 
         <dp-text-area

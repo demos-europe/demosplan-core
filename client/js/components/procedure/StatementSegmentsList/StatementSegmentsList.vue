@@ -569,7 +569,7 @@ export default {
         'memo',
         'municipalities',
         'priorityAreas',
-        'phase',
+        'phaseStatement',
         'recommendation',
         'segmentDraftList',
         'submitterAndAuthorMetaDataAnonymized',
