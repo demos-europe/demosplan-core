@@ -114,7 +114,9 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
 
         if ($this->currentUser->hasAnyPermissions(
             'area_admin_assessmenttable',
-            'area_admin_original_statement_list')
+            'area_admin_original_statement_list',
+            'area_admin_statement_list',
+            'area_admin_import')
         ) {
             $id->filterable()->sortable();
             $hash->readable(true)->filterable()->sortable();
