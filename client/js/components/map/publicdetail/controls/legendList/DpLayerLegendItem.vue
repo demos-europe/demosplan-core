@@ -9,9 +9,10 @@
 
 <template>
   <li
-    :class="prefixClass('c-map__group-item c-map__layer')"
+    v-if="!isBroken"
     v-show="isVisible"
-    v-if="false === isBroken">
+    class="h-auto"
+    :class="prefixClass('c-map__group-item c-map__layer')">
     <img
       :src="legend.url"
       alt=""
