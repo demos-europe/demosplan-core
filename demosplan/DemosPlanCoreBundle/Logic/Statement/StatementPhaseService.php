@@ -44,7 +44,7 @@ class StatementPhaseService
         $availablePhases = $this->getAvailablePhases($publicStatement);
 
         foreach ($availablePhases as $phase) {
-            if ($phase->getName() === $phaseKey) {
+            if ($phase->getKey() === $phaseKey) {
                 // Phase key matches the name of the phase
                 return $phase;
             }

@@ -119,7 +119,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
             )
         );
         $originalStatementConfig->phaseStatement
-            ->readable(false, function (Statement $statement): ?array {
+            ->setReadableByCallable(function (Statement $statement): ?array {
                 try {
                     return $this->statementPhaseService->getPhaseVO($statement->getPhase(), $statement->getPublicStatement())->jsonSerialize();
                 } catch (UndefinedPhaseException $e) {
