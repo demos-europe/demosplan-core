@@ -20,8 +20,10 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
+use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementPhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\OriginalStatementResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
@@ -41,6 +43,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
     public function __construct(
         private readonly FileService $fileService,
         private readonly StatementService $statementService,
+        private readonly StatementPhaseService $statementPhaseService
     ) {
     }
 
@@ -115,6 +118,16 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
                 $statement->getPublicStatement()
             )
         );
+        $originalStatementConfig->phaseStatement
+            ->readable(false, function (Statement $statement): ?array {
+                try {
+                    return $this->statementPhaseService->getPhaseVO($statement->getPhase(), $statement->getPublicStatement())->jsonSerialize();
+                } catch (UndefinedPhaseException $e) {
+                    $this->logger->error($e->getMessage());
+
+                    return null;
+                }
+            });
         $originalStatementConfig->elements
         ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryDetailsResourceType())
         ->setReadableByPath()->aliasedPath(Paths::statement()->element);
