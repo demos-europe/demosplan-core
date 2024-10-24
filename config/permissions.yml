@@ -1900,6 +1900,13 @@ feature_send_email_on_procedure_ending_phase_send_mails:
 feature_send_final_email_cc_to_self:
     label: 'CC an den Absender bei Schlussmitteilung versenden'
     loginRequired: true
+feature_send_procedure_metrics_support_mail:
+    description: |-
+        On PostProcedureCreatedEvents this permission allows sending an email to the support
+        containing information about how many procedures an organisation has created within a specific customer
+    label: 'Sends an email containing procedure metrics to support.'
+    loginRequired: true
+    expose: false
 feature_short_url:
     expose: true
     label: 'ShortUrl nutzen'
