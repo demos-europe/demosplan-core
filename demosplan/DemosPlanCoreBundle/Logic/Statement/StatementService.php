@@ -55,6 +55,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NoTargetsException;
+use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -2740,29 +2741,64 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @return string the internal or external phase of the given statement
      *
-     * @deprecated use {@link getInternalOrExternalPhaseNameFromObject} instead
+     * @deprecated use {@link getPhaseName} instead
      */
-    public function getInternalOrExternalPhaseName(array $statement): string
+    public function getPhaseNameFromArray(array $statement): string
     {
-        return $this->getPhaseNameFromStatementsPublicState(
-            $statement['publicStatement'],
-            $statement['phase']
+        return $this->getPhaseName(
+            $statement['phase'],
+            $statement['publicStatement']
         );
     }
 
-    public function getInternalOrExternalPhaseNameFromObject(Statement $statement): string
+    public function getPhaseName(string $phaseKey, string $publicStatement): string
     {
-        return $this->getPhaseNameFromStatementsPublicState(
-            $statement->getPublicStatement(),
-            $statement->getPhase()
-        );
+        $phaseName = '';
+
+        if (StatementInterface::EXTERNAL === $publicStatement) {
+            $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
+            $phaseName = $externalPhases[$phaseKey]['name'] ?? '';
+        }
+
+        if (StatementInterface::INTERNAL === $publicStatement) {
+            $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
+            $phaseName = $internalPhases[$phaseKey]['name'] ?? '';
+        }
+
+        try {
+            if ('' === $phaseName) {
+                throw new UndefinedPhaseException($phaseKey);
+            }
+        } catch (UndefinedPhaseException $e) {
+            $this->logger->error($e->getMessage());
+        }
+
+        return $phaseName;
     }
 
-    protected function getPhaseNameFromStatementsPublicState(string $publicStatementValue, string $phase): string
+    public function getPhaseKey(string $phaseKey, string $publicStatement): string
     {
-        return Statement::INTERNAL === $publicStatementValue
-            ? $this->globalConfig->getPhaseNameWithPriorityInternal($phase)
-            : $this->globalConfig->getPhaseNameWithPriorityExternal($phase);
+        if (StatementInterface::EXTERNAL === $publicStatement) {
+            $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
+            if (array_key_exists($phaseKey, $externalPhases)) {
+                return $phaseKey;
+            }
+        }
+
+        if (StatementInterface::INTERNAL === $publicStatement) {
+            $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
+            if (array_key_exists($phaseKey, $internalPhases)) {
+                return $phaseKey;
+            }
+        }
+
+        try {
+            throw new UndefinedPhaseException($phaseKey);
+        } catch (UndefinedPhaseException $e) {
+            $this->logger->error($e->getMessage());
+        }
+
+        return '';
     }
 
     /**

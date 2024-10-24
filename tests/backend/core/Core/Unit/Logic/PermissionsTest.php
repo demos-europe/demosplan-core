@@ -2387,7 +2387,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_accessibility_explanation',
                     'area_admin',
                     'area_admin_analysis',
-                    'area_admin_assessmenttable',
                     'area_admin_consultations',
                     'area_admin_faq',
                     'area_admin_preferences',
@@ -2750,7 +2749,6 @@ class PermissionsTest extends FunctionalTestCase
                 'isMember'                          => true,
                 'featuresAllowed'                   => [
                     'area_admin',
-                    'area_admin_assessmenttable',
                     'area_admin_dashboard',
                     'area_data_protection_text',
                     'area_demosplan',
@@ -2834,7 +2832,6 @@ class PermissionsTest extends FunctionalTestCase
                 ],
                 'featuresDenied'                    => [
                     'area_admin',
-                    'area_admin_assessmenttable',
                     'area_admin_faq',
                     'area_admin_procedures',
                     'area_admin_statement_list',
@@ -2907,7 +2904,6 @@ class PermissionsTest extends FunctionalTestCase
                 ],
                 'featuresDenied'                    => [
                     'area_admin',
-                    'area_admin_assessmenttable',
                     'area_admin_faq',
                     'area_admin_procedures',
                     'area_admin_statement_list',

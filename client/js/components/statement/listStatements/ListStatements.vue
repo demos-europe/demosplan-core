@@ -176,9 +176,9 @@
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
             <a
-              v-if="hasPermission('feature_read_source_statement_via_api')"
+              v-if="hasPermission('feature_read_source_statement_via_api') && hasPermission('area_admin_import')"
               data-cy="listStatements:originalPDF"
-              :class="{'is-disabled': originalPdf === null}"
+              :class="{'is-disabled': !originalPdf}"
               :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
               rel="noreferrer noopener"
               target="_blank">

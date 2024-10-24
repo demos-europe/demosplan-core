@@ -32,6 +32,7 @@
             v-for="(exportType, key) in exportTypes"
             :key="key"
             :id="key"
+            class="max-w-[70%]"
             :data-cy="`exportType:${key}`"
             :label="{
               hint: active === key ? exportType.hint : '',
