@@ -2298,9 +2298,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     public function importTags(string $procedureId, $file)
     {
         $hash = explode(':', $file)[1];
-        $fileInfo = $this->fileService->getFileInfo($hash);
+        $localPath = $this->fileService->ensureLocalFileFromHash($hash);
 
-        $lexer = $this->getTagImportService();
         $this->csvImportDatasets = [];
         $interpreter = new Interpreter();
         $interpreter->addObserver(function (array $row) {
@@ -2310,7 +2309,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
             $this->csvImportDatasets[] = $row;
         });
-        $lexer->parse($fileInfo->getAbsolutePath(), $interpreter);
+        $this->tagImportService->parse($localPath, $interpreter);
 
         // Acquire data
         $newTags = [];

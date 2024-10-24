@@ -44,6 +44,7 @@ return [
     Enqueue\ElasticaBundle\EnqueueElasticaBundle::class                                => ['all' => true],
     DemosEurope\DemosplanAddon\DemosPlanAddonBundle::class                             => ['all' => true],
     Zenstruck\Foundry\ZenstruckFoundryBundle::class                                    => ['dev' => true, 'test' => true],
+    League\FlysystemBundle\FlysystemBundle::class                                      => ['all' => true],
     Scheb\TwoFactorBundle\SchebTwoFactorBundle::class                                  => ['all' => true],
     Endroid\QrCodeBundle\EndroidQrCodeBundle::class                                    => ['all' => true],
 ];

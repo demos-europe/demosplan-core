@@ -345,6 +345,7 @@ class DemosPlanKernel extends Kernel
             "{$projectConfigPath}/config_{$this->environment}",
         ];
 
+        // uses local file, no need for flysystem
         if (file_exists(DemosPlanPath::getRootPath('deploy'))) {
             // deployment services, these are a little extra
             // as they are not shipped and MUST thus not always be included
