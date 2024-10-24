@@ -116,6 +116,7 @@ class FileService extends CoreService implements FileServiceInterface
 
             $path .= '/'.$file->getHash();
             $absolutePath .= '/'.$file->getHash();
+            $absolutePath = $this->adjustPathPrefix($absolutePath);
 
             // Set String to be used in other Entities
             $this->setFileString($file->getFileString());
@@ -1186,5 +1187,27 @@ class FileService extends CoreService implements FileServiceInterface
         } catch (Exception $e) {
             $this->getLogger()->error('Could not remove local file', [$localFilePath, $e->getMessage()]);
         }
+    }
+
+    private function adjustPathPrefix(string $absolutePath): string
+    {
+        try {
+            if ($this->defaultStorage->fileExists($absolutePath)) {
+                return $absolutePath;
+            }
+        } catch (FilesystemException $e) {
+            $this->getLogger()->info('Could not check file existence', [$absolutePath, $e->getMessage()]);
+        }
+
+        // try to strip the path prefix from the absolute path
+        // as the path prefix was saved to the database prior to flysystem usage
+        $prefix = $this->globalConfig->getFileServiceFilePath();
+        if (str_starts_with($absolutePath, $prefix)) {
+            // remove the prefix
+            return substr($absolutePath, strlen($prefix));
+        }
+
+        // fallback to the original path
+        return $absolutePath;
     }
 }
