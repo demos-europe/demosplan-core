@@ -284,7 +284,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         private readonly UserRepository $userRepository,
         UserService $userService,
         private readonly StatementDeleter $statementDeleter,
-        private readonly StatementPhaseService $statementPhaseService,
+        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
     ) {
         $this->assignService = $assignService;
         $this->entityContentChangeService = $entityContentChangeService;
@@ -2887,7 +2887,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     {
         $phaseName = '';
         try {
-            $phaseVO = $this->statementPhaseService->getProcedurePhaseVO($phaseKey, $publicStatement);
+            $phaseVO = $this->statementProcedurePhaseResolver->getProcedurePhaseVO($phaseKey, $publicStatement);
             $phaseName = $phaseVO->getName();
 
             if ('' === $phaseName) {

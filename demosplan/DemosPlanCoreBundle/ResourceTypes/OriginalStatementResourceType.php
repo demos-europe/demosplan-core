@@ -23,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementPhaseService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementProcedurePhaseResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\OriginalStatementResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
@@ -41,9 +41,9 @@ use EDT\PathBuilding\End;
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface
 {
     public function __construct(
-        private readonly FileService $fileService,
-        private readonly StatementService $statementService,
-        private readonly StatementPhaseService $statementPhaseService,
+        private readonly FileService                     $fileService,
+        private readonly StatementService                $statementService,
+        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
     ) {
     }
 
@@ -121,7 +121,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         $originalStatementConfig->phaseStatement
             ->setReadableByCallable(function (Statement $statement): ?array {
                 try {
-                    return $this->statementPhaseService->getProcedurePhaseVO($statement->getPhase(), $statement->getPublicStatement())->jsonSerialize();
+                    return $this->statementProcedurePhaseResolver->getProcedurePhaseVO($statement->getPhase(), $statement->getPublicStatement())->jsonSerialize();
                 } catch (UndefinedPhaseException $e) {
                     $this->logger->error($e->getMessage());
 

@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedurePhaseVO;
 
-class StatementPhaseService
+class StatementProcedurePhaseResolver
 {
     public function __construct(private readonly GlobalConfigInterface $globalConfig)
     {

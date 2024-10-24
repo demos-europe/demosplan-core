@@ -28,7 +28,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResour
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementPhaseService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementProcedurePhaseResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
@@ -65,14 +65,14 @@ use Webmozart\Assert\Assert;
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
     public function __construct(
-        FileService $fileService,
-        HTMLSanitizer $htmlSanitizer,
-        private readonly JsonApiEsService $jsonApiEsService,
-        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
-        private readonly QueryStatement $esQuery,
-        private readonly StatementService $statementService,
-        private readonly StatementDeleter $statementDeleter,
-        private readonly StatementPhaseService $statementPhaseService,
+        FileService                                      $fileService,
+        HTMLSanitizer                                    $htmlSanitizer,
+        private readonly JsonApiEsService                $jsonApiEsService,
+        private readonly ProcedureAccessEvaluator        $procedureAccessEvaluator,
+        private readonly QueryStatement                  $esQuery,
+        private readonly StatementService                $statementService,
+        private readonly StatementDeleter                $statementDeleter,
+        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);
     }
@@ -436,7 +436,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             ->updatable($statementConditions, function (Statement $statement, array $phaseStatement): array {
                 // check that phaseKey exists so that it is not possible to set a phase that does not exist
                 try {
-                    $this->statementPhaseService->getProcedurePhaseVO($phaseStatement[ProcedurePhaseVO::PROCEDURE_PHASE_KEY], $statement->getPublicStatement());
+                    $this->statementProcedurePhaseResolver->getProcedurePhaseVO($phaseStatement[ProcedurePhaseVO::PROCEDURE_PHASE_KEY], $statement->getPublicStatement());
                     $statement->setPhase($phaseStatement[ProcedurePhaseVO::PROCEDURE_PHASE_KEY]);
                 } catch (UndefinedPhaseException $e) {
                     $this->logger->error($e->getMessage());
@@ -448,7 +448,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             })
             ->readable(false, function (Statement $statement): ?array {
                 try {
-                    return $this->statementPhaseService->getProcedurePhaseVO($statement->getPhase(), $statement->getPublicStatement())->jsonSerialize();
+                    return $this->statementProcedurePhaseResolver->getProcedurePhaseVO($statement->getPhase(), $statement->getPublicStatement())->jsonSerialize();
                 } catch (UndefinedPhaseException $e) {
                     $this->logger->error($e->getMessage());
 
@@ -459,7 +459,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         if ($this->currentUser->hasPermission('field_statement_phase')) {
             $configBuilder->availablePhases
                 ->readable(false, function (Statement $statement): ?array {
-                    return $this->statementPhaseService->getAvailableProcedurePhases($statement->getPublicStatement());
+                    return $this->statementProcedurePhaseResolver->getAvailableProcedurePhases($statement->getPublicStatement());
                 });
         }
 
