@@ -2877,17 +2877,18 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function getPhaseNameFromArray(array $statement): string
     {
+        $statementObject = $this->getStatement($statement['id']);
         return $this->getPhaseName(
             $statement['phase'],
-            $statement['publicStatement']
+            $statementObject->isSubmittedByCitizen()
         );
     }
 
-    public function getPhaseName(string $phaseKey, string $publicStatement): string
+    public function getPhaseName(string $phaseKey, bool $isSubmittedByCitizen): string
     {
         $phaseName = '';
         try {
-            $phaseVO = $this->statementProcedurePhaseResolver->getProcedurePhaseVO($phaseKey, $publicStatement);
+            $phaseVO = $this->statementProcedurePhaseResolver->getProcedurePhaseVO($phaseKey, $isSubmittedByCitizen);
             $phaseName = $phaseVO->getName();
 
             if ('' === $phaseName) {

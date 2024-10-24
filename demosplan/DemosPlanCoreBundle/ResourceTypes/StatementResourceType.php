@@ -436,7 +436,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             ->updatable($statementConditions, function (Statement $statement, array $phaseStatement): array {
                 // check that phaseKey exists so that it is not possible to set a phase that does not exist
                 try {
-                    $this->statementProcedurePhaseResolver->getProcedurePhaseVO($phaseStatement[ProcedurePhaseVO::PROCEDURE_PHASE_KEY], $statement->getPublicStatement());
+                    $this->statementProcedurePhaseResolver->getProcedurePhaseVO($phaseStatement[ProcedurePhaseVO::PROCEDURE_PHASE_KEY], $statement->isSubmittedByCitizen());
                     $statement->setPhase($phaseStatement[ProcedurePhaseVO::PROCEDURE_PHASE_KEY]);
                 } catch (UndefinedPhaseException $e) {
                     $this->logger->error($e->getMessage());
@@ -448,7 +448,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             })
             ->readable(false, function (Statement $statement): ?array {
                 try {
-                    return $this->statementProcedurePhaseResolver->getProcedurePhaseVO($statement->getPhase(), $statement->getPublicStatement())->jsonSerialize();
+                    return $this->statementProcedurePhaseResolver->getProcedurePhaseVO($statement->getPhase(), $statement->isSubmittedByCitizen())->jsonSerialize();
                 } catch (UndefinedPhaseException $e) {
                     $this->logger->error($e->getMessage());
 
@@ -459,7 +459,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         if ($this->currentUser->hasPermission('field_statement_phase')) {
             $configBuilder->availablePhases
                 ->readable(false, function (Statement $statement): ?array {
-                    return $this->statementProcedurePhaseResolver->getAvailableProcedurePhases($statement->getPublicStatement());
+                    return $this->statementProcedurePhaseResolver->getAvailableProcedurePhases($statement->isSubmittedByCitizen());
                 });
         }
 

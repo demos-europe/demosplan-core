@@ -115,13 +115,13 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         ->setReadableByCallable(
             fn (Statement $statement): string => $this->statementService->getPhaseName(
                 $statement->getPhase(),
-                $statement->getPublicStatement()
+                $statement->isSubmittedByCitizen()
             )
         );
         $originalStatementConfig->phaseStatement
             ->setReadableByCallable(function (Statement $statement): ?array {
                 try {
-                    return $this->statementProcedurePhaseResolver->getProcedurePhaseVO($statement->getPhase(), $statement->getPublicStatement())->jsonSerialize();
+                    return $this->statementProcedurePhaseResolver->getProcedurePhaseVO($statement->getPhase(), $statement->isSubmittedByCitizen())->jsonSerialize();
                 } catch (UndefinedPhaseException $e) {
                     $this->logger->error($e->getMessage());
 

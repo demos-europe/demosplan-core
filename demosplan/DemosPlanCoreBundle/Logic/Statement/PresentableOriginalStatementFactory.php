@@ -45,7 +45,7 @@ class PresentableOriginalStatementFactory
         $data->setSubmitDate($this->createValuedLabel('date.submitted', $this->dateExtension->dateFilter($statement->getSubmit())));
         $phase = $this->statementService->getPhaseName(
             $statement->getPhase(),
-            $statement->getPublicStatement()
+            $statement->isSubmittedByCitizen()
         );
         $data->setProcedurePublicPhase($this->createValuedLabel('procedure.public.phase', $phase));
 

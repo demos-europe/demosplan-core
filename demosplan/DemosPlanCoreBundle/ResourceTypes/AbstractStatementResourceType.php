@@ -188,10 +188,7 @@ abstract class AbstractStatementResourceType extends DplanResourceType
             ->readable(true)->aliasedPath(Paths::statement()->parent->id);
         $configBuilder->phase
             ->readable(true,
-                fn (Statement $statement): string => $this->statementService->getPhaseName(
-                    $statement->getPhase(),
-                    $statement->getPublicStatement()
-                )
+                fn (Statement $statement): string => $this->statementService->getPhaseName($statement)
             );
         $configBuilder->polygon->readable(true);
         $configBuilder->priority->readable(true);

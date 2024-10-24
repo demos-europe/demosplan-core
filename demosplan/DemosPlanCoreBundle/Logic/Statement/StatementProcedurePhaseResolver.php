@@ -39,9 +39,9 @@ class StatementProcedurePhaseResolver
     /**
      * @throws UndefinedPhaseException
      */
-    public function getProcedurePhaseVO(string $phaseKey, string $publicStatement): ProcedurePhaseVO
+    public function getProcedurePhaseVO(string $phaseKey, bool $isSubmittedByCitizen): ProcedurePhaseVO
     {
-        $availablePhases = $this->getAvailableProcedurePhases($publicStatement);
+        $availablePhases = $this->getAvailableProcedurePhases($isSubmittedByCitizen);
 
         foreach ($availablePhases as $phase) {
             if ($phase->getKey() === $phaseKey) {
@@ -56,11 +56,11 @@ class StatementProcedurePhaseResolver
      * // If the publicstatement is internal, then return only the internal phases
      * // if the publicstatement is external, then return only the external phases.
      */
-    public function getAvailableProcedurePhases(string $publicStatement): array
+    public function getAvailableProcedurePhases(bool $isSubmittedByCitizen): array
     {
         $phases = [];
 
-        if (StatementInterface::EXTERNAL === $publicStatement) {
+        if ($isSubmittedByCitizen) {
             foreach ($this->globalConfig->getExternalPhasesAssoc() as $internalPhase) {
                 $phases[] = $this->createProcedurePhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
             }
@@ -68,14 +68,11 @@ class StatementProcedurePhaseResolver
             return $phases;
         }
 
-        if (StatementInterface::INTERNAL === $publicStatement) {
-            foreach ($this->globalConfig->getInternalPhasesAssoc() as $internalPhase) {
-                $phases[] = $this->createProcedurePhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
-            }
-
-            return $phases;
+        foreach ($this->globalConfig->getInternalPhasesAssoc() as $internalPhase) {
+            $phases[] = $this->createProcedurePhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
         }
 
-        return [];
+        return $phases;
+
     }
 }
