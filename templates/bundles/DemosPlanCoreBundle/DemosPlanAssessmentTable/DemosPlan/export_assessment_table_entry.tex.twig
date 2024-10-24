@@ -58,7 +58,11 @@
     {% if statement.element.title is defined and statement.element.title != '' %} & {{ "document"|trans }}: & {{ statement.element.title|latex|raw }}{% if statement.document is defined and statement.document.title != '' %} / {{ statement.document.title|latex|raw }} {% endif %} \\ {% endif %}
     {% if statement.paragraph.title is defined and statement.paragraph.title != '' %} & {{ "paragraph"|trans }}:  & {{ statement.paragraph.title|latex|raw }}\\{% endif %}
     {% for attachment in statement.attachments %} & {{ "attachment.original"|trans }}: & {{ attachment.file.filename|latex|raw }}\\{% endfor %}
-    {% if statement.files|default([])|length > 0 %}{% for file in statement.files %} & {{ "file"|trans }}: & {{ file|getFile('name')|latex|raw }}\\{% endfor %}{% endif %}
+    {% if statement.files|default([])|length > 0 %}
+        {% for file in statement.files %}
+            & {{ "file"|trans }}: & {{ '{' }}{{ file|getFile('name')|replace({'_': '\_'})|latex|raw }}{{ '}' }}\\
+        {% endfor %}
+    {% endif %}
     {% block priority %} {% endblock %}
     {% block caseworker %} {% endblock %}
   			\hline
