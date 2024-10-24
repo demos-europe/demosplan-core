@@ -899,7 +899,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * cascade={"remove"} means, that the associated placeholder will be deleted, in case of this moved statement will be deleted.
      *
-     * @var Statement
+     * @var Statement|null
      *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", cascade={"remove"})
      *
@@ -3050,7 +3050,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * VoteStatskanzlei
+     * VoteStaatskanzlei
      * Get the StK-vote of this statement.
      *
      * @return string
