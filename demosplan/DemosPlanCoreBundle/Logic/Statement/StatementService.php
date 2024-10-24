@@ -2878,6 +2878,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function getPhaseNameFromArray(array $statement): string
     {
         $statementObject = $this->getStatement($statement['id']);
+
         return $this->getPhaseName(
             $statement['phase'],
             $statementObject->isSubmittedByCitizen()
