@@ -6,8 +6,8 @@
       :text="label" />
     <dp-multiselect
       v-if="editable"
-      v-model="selectedItems"
       :id="name"
+      v-model="selectedItems"
       class="w-full inline-block"
       label="name"
       multiple
@@ -26,9 +26,9 @@
             tabindex="1"
             class="multiselect__tag-icon" />
           <input
+            :name="name"
             type="hidden"
-            :value="props.option.id"
-            :name="name">
+            :value="props.option.id">
         </span>
       </template>
     </dp-multiselect>
