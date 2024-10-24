@@ -222,7 +222,7 @@ export default {
      * internal phase applies to institutions.
      */
     setDefaultPhase (isInstitution) {
-      if (isInstitution && hasPermission('field_show_internal_procedure_phases_in_dropdown')) {
+      if (isInstitution) {
         this.values.phase = Object.values(this.internalPhases).find(el => el.key === this.currentInternalPhase) || Object.values(this.internalPhases)[0]
       } else {
         this.values.phase = Object.values(this.externalPhases).find(el => el.key === this.currentExternalPhase) || Object.values(this.externalPhases)[0]
