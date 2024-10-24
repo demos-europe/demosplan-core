@@ -22,7 +22,7 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
 {
     public function __construct(
         readonly protected Procedure $procedureBeforeUpdate,
-        readonly protected Procedure $procedureAfterUpdate
+        readonly protected Procedure $procedureAfterUpdate,
     ) {
     }
 
