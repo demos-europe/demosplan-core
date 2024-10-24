@@ -97,4 +97,12 @@ class CustomerService
             $existingCustomers
         );
     }
+
+    /**
+     * @return array<int, Customer>
+     */
+    public function getAllCustomers(): array
+    {
+        return $this->customerRepository->findAll();
+    }
 }
