@@ -64,6 +64,7 @@ class StatementPhaseService
             foreach ($this->globalConfig->getExternalPhasesAssoc() as $internalPhase) {
                 $phases[] = $this->createProcedurePhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
             }
+
             return $phases;
         }
 
@@ -71,6 +72,7 @@ class StatementPhaseService
             foreach ($this->globalConfig->getInternalPhasesAssoc() as $internalPhase) {
                 $phases[] = $this->createProcedurePhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
             }
+
             return $phases;
         }
 
