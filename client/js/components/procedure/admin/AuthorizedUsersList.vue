@@ -442,7 +442,7 @@ export default {
           ].join()
         }
       }
-      return dpApi.get(url, params, { serialize: true })
+      return dpApi.get(url, params)
         .then(response => {
           this.consultationTokens = [...response.data.data].map(token => {
             if (token.relationships && token.relationships.statement) {

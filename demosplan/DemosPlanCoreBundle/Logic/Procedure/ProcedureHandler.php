@@ -861,7 +861,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 
         // internal:
         $internalWritePhaseKeys = $this->getDemosplanConfig()->getInternalPhaseKeys('write');
-        $endedInternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($internalWritePhaseKeys, true, true);
+        $endedInternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($internalWritePhaseKeys);
 
         $internalPhaseKey = 'evaluating';
         $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
@@ -871,20 +871,21 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
         }
 
+        /** @var Procedure $endedInternalProcedure */
         foreach ($endedInternalProcedures as $endedInternalProcedure) {
-            if (null !== $endedInternalProcedure['endDate']
-                && !$endedInternalProcedure['master'] && !$endedInternalProcedure['deleted']) {
-                $endedInternalProcedure['phase'] = $internalPhaseKey;
-                $endedInternalProcedure['phaseName'] = $internalPhaseName;
+            if (null !== $endedInternalProcedure->getEndDate()
+                && !$endedInternalProcedure->getMaster() && !$endedInternalProcedure->isDeleted()) {
+                $endedInternalProcedure->setPhaseKey($internalPhaseKey);
+                $endedInternalProcedure->setPhaseName($internalPhaseName);
 
-                $updatedProcedure = $this->procedureService->updateProcedure($endedInternalProcedure);
+                $updatedProcedure = $this->procedureService->updateProcedureObject($endedInternalProcedure);
                 $changedInternalProcedures->push($updatedProcedure);
             }
         }
 
         // external:
         $externalWritePhaseKeys = $this->getDemosplanConfig()->getExternalPhaseKeys('write');
-        $endedExternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($externalWritePhaseKeys, false, true);
+        $endedExternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($externalWritePhaseKeys, false);
 
         $externalPhaseKey = 'evaluating';
         $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
@@ -894,13 +895,14 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
         }
 
+        /** @var Procedure $endedExternalProcedure */
         foreach ($endedExternalProcedures as $endedExternalProcedure) {
-            if (null !== $endedExternalProcedure['publicParticipationEndDate']
-                && !$endedExternalProcedure['master'] && !$endedExternalProcedure['deleted']) {
-                $endedExternalProcedure['publicParticipationPhase'] = $externalPhaseKey;
-                $endedExternalProcedure['publicParticipationPhaseName'] = $externalPhaseName;
+            if (null !== $endedExternalProcedure->getPublicParticipationEndDate()
+                && !$endedExternalProcedure->getMaster() && !$endedExternalProcedure->isDeleted()) {
+                $endedExternalProcedure->setPublicParticipationPhase($externalPhaseKey);
+                $endedExternalProcedure->setPublicParticipationPhaseName($externalPhaseName);
 
-                $updatedProcedure = $this->procedureService->updateProcedure($endedExternalProcedure);
+                $updatedProcedure = $this->procedureService->updateProcedureObject($endedExternalProcedure);
                 $changedExternalProcedures->push($updatedProcedure);
             }
         }
@@ -909,7 +911,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         $this->getLogger()->info('Switched phases to evaluation of '.$changedInternalProcedures->count().' internal/toeb procedures.');
         $this->getLogger()->info('Switched phases to evaluation of '.$changedExternalProcedures->count().' external/public procedures.');
 
-        return $changedExternalProcedures->merge($changedInternalProcedures);
+        return $changedExternalProcedures->merge($changedInternalProcedures)->unique();
     }
 
     /**

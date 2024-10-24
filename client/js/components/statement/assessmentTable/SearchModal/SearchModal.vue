@@ -55,6 +55,7 @@
           <dp-input
             id="searchterm2"
             name="search_word"
+            data-cy="searchModal:searchAssessmentTableAdvanced"
             :placeholder="Translator.trans('searchterm')"
             v-model="searchString"
             :aria-label="Translator.trans('search.assessment.table')"
@@ -184,12 +185,14 @@
           <button
             class="btn btn--primary u-mr"
             type="button"
+            data-cy="searchModal:submitSearchAdvanced"
             @click="submit">
             {{ Translator.trans('apply') }}
           </button><!--
 
        --><button
             class="btn btn--secondary"
+            data-cy="searchModal:resetSearchAdvanced"
             @click.prevent="reset">
             {{ Translator.trans('reset') }}
           </button>

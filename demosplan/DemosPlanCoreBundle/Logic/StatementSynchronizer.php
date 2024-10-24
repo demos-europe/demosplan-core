@@ -156,6 +156,7 @@ class StatementSynchronizer
         $newOriginalStatement->setSend($sourceStatement->getSend());
         $newOriginalStatement->setAnonymous($sourceStatement->isAnonymous());
         $newOriginalStatement->setPhase($sourceStatement->getPhase());
+        $newOriginalStatement->setPhaseIteration($sourceStatement->getPhaseIteration());
         $newOriginalStatement->setMemo($sourceStatement->getMemo());
         // This may be useless information in the target procedure, but copying the value
         // from the source procedure seems like the most resilient thing to do in case

@@ -256,7 +256,7 @@ export default {
         },
         include: 'agencyExtraEmailAddresses'
       }
-      return dpApi.get(url, params, { serialize: true })
+      return dpApi.get(url, params)
         .then(({ data }) => {
           this.isLoading = false
           return {

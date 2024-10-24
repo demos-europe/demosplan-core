@@ -83,7 +83,7 @@
                 <a
                     target="_blank"
                     rel="noopener"
-                    href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">
+                    href="{{ path("core_file_procedure", { 'hash': file|getFile('hash'), 'procedureId': procedure }) }}">
                     {{ file|getFile('name') }}
                 </a><br>
             {% endfor %}

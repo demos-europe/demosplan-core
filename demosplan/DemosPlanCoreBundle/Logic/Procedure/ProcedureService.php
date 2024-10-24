@@ -482,15 +482,13 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * @param bool $asArray
-     *
      * @return Procedure[]|array[]
      *
      * @throws Exception
      */
-    public function getProceduresWithEndedParticipation(array $writePhaseKeys, bool $internal = true, $asArray = false): array
+    public function getProceduresWithEndedParticipation(array $writePhaseKeys, bool $internal = true): array
     {
-        return $this->procedureRepository->getProceduresWithEndedParticipation($writePhaseKeys, $internal, $asArray);
+        return $this->procedureRepository->getProceduresWithEndedParticipation($writePhaseKeys, $internal);
     }
 
     public function getAmountOfProcedures(): int
@@ -731,7 +729,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     public function getAuthorizedUsers(
         $procedureId,
-        User $user = null,
+        ?User $user = null,
         $excludeUser = false,
         $excludeProcedureAuthorizedUsers = true
     ): Collection {
@@ -1775,7 +1773,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * @throws CustomerNotFoundException
      */
-    public function calculateCopyMasterId(string $incomingCopyMasterId = null): string
+    public function calculateCopyMasterId(?string $incomingCopyMasterId = null): string
     {
         // use global default blueprint as default anyway:
         $masterTemplateId = $this->getMasterTemplateId();
@@ -2378,7 +2376,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      * @throws OptimisticLockException
      * @throws TransactionRequiredException
      */
-    public function isUserAuthorized(string $procedureId, User $user = null): bool
+    public function isUserAuthorized(string $procedureId, ?User $user = null): bool
     {
         if (null === $user) {
             $user = $this->currentUser->getUser();
@@ -2475,11 +2473,21 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         return $isInCustomer;
     }
 
+    /**
+     * The purpose of the copy is to be able to create a diff for report entries.
+     */
     private function cloneProcedure(Procedure $procedure): Procedure
     {
         $procedureClone = clone $procedure;
+
         $settingsClone = clone $procedureClone->getSettings();
         $procedureClone->setSettings($settingsClone);
+        $settingsClone->setProcedure($procedureClone);
+
+        $phaseClone = clone $procedure->getPhaseObject();
+        $procedureClone->setPhaseObject($phaseClone);
+        $publicParticipationPhaseClone = clone $procedure->getPublicParticipationPhaseObject();
+        $procedureClone->setPublicParticipationPhaseObject($publicParticipationPhaseClone);
 
         return $procedureClone;
     }
@@ -2567,9 +2575,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }
 
         if ($excludeArchived) {
+            // todo: use Paths::procedure() here instead of array of strings to define the paths.
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotValue('closed', ['phase']),
-                $this->conditionFactory->propertyHasNotValue('closed', ['publicParticipationPhase'])
+                $this->conditionFactory->propertyHasNotValue('closed', ['phase', 'key']),
+                $this->conditionFactory->propertyHasNotValue('closed', ['publicParticipationPhase', 'key'])
             );
         }
 
@@ -2584,8 +2593,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         if (isset($filters['excludeHiddenPhases'])) {
             // Include only procedures where at least one phase is not hidden
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase']),
-                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase']),
+                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase', 'key']),
+                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase', 'key']),
             );
         }
 
@@ -2697,6 +2706,11 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $this->settingRepository->copy($blueprintId, $newProcedure);
 
         $this->copyPlaces($blueprintId, $newProcedure);
+
+        /** @var Procedure $blueprint */
+        $blueprint = $this->procedureRepository->get($blueprintId);
+        $newProcedure->getPhaseObject()->copyValuesFromPhase($blueprint->getPhaseObject());
+        $newProcedure->getPublicParticipationPhaseObject()->copyValuesFromPhase($blueprint->getPublicParticipationPhaseObject());
 
         /** @var NewProcedureAdditionalDataEvent $additionalDataEvent */
         $additionalDataEvent = $this->eventDispatcher->dispatch(new NewProcedureAdditionalDataEvent($newProcedure));

@@ -189,7 +189,7 @@
                                                         title="{{ file|getFile('name') }}"
                                                         target="_blank"
                                                         rel="noopener"
-                                                        href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">
+                                                        href="{{ path("core_file_procedure", { 'hash': file|getFile('hash'), 'procedureId': statement.procedure.id }) }}">
                                                         <i class="fa fa-file-o" aria-hidden="true"></i> {{ file|getFile('name') }}
                                                     </a>
                                                     {% set fileContainer = templateVars['fileHashToFileContainerMapping'][file|getFile('hash')]|default(false) %}

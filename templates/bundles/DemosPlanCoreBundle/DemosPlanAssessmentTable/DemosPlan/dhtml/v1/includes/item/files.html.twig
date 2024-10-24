@@ -16,7 +16,7 @@
                                 class="u-pr-0_5 o-hellip"
                                 target="_blank"
                                 rel="noopener"
-                                href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">
+                                href="{{ path("core_file_procedure", { 'hash': file|getFile('hash'), 'procedureId': statement.procedure.id }) }}">
                                 {{ file|getFile('name') }}
                             </a>
                         {% endif %}

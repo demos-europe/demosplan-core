@@ -71,7 +71,7 @@
         \ParallelRText{{ '{' }}\textbf{{ '{' }}{{ "considerationadvice"|trans|latex|raw }}{{ '}' }}{{ '}' }}
         \end{Parallel}
     \begin{Parallel}{\columnsep}{\columnsep}
-    \ParallelLText{{ '{' }}{{ statement.text|default("notspecified"|trans)|latex|raw }}{{ '}' }}
+    \ParallelLText{{ '{' }}{{ statement.text|default("notspecified"|trans)|latex(listwidth=templateVars.listwidth)|raw }}{{ '}' }}
     \ParallelRText{{ '{' }}{{ statement.recommendation|default("notspecified"|trans)|latex|raw }}{{ '}' }}
     \end{Parallel}
     {% if statement.mapFile is defined and statement.mapFile != "" %}

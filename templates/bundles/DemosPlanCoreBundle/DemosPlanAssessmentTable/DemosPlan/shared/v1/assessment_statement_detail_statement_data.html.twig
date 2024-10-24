@@ -1143,7 +1143,7 @@
                                     title="{{ source_stn.file.name|default }}"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    href="{{ path("core_file", { 'hash': source_stn.file.hash|default }) }}">
+                                    href="{{ path("core_file_procedure", { 'hash': source_stn.file.hash|default, 'procedureId': procedure }) }}">
                                     <i class="fa fa-file-o"></i> {{ source_stn.file.filename|default }}
                                 </a>
                                 {% if not readonly %}
@@ -1211,7 +1211,7 @@
                                             title="{{ file|getFile('name') }}"
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            href="{{ path("core_file", { 'hash': file|getFile('hash') }) }}">
+                                            href="{{ path("core_file_procedure", { 'hash': file|getFile('hash'), 'procedureId': procedure }) }}">
                                             <i class="fa fa-file-o"></i> {{ file|getFile('name') }}
                                         </a>
                                         {% if not readonly %}

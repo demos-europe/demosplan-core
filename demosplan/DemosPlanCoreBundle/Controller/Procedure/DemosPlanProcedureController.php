@@ -647,6 +647,8 @@ class DemosPlanProcedureController extends BaseController
                 'r_enddate',
                 'r_externalDesc',
                 'r_externalName',
+                'r_phase_iteration',
+                'r_public_participation_phase_iteration',
                 'r_ident',
                 'r_legalNotice',
                 'r_links',

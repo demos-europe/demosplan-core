@@ -19,10 +19,9 @@ initialize()
       const data = new FormData(form)
 
       return dpApi({
-        method: 'post',
+        method: 'POST',
         url: Routing.generate('DemosPlan_procedure_public_list_json'),
-        data: data,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        data: data
       }).then(({ data }) => {
         const parsedData = JSON.parse(data)
         if (parsedData.code === 100 && parsedData.success === true) {

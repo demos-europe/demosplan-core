@@ -258,6 +258,26 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             // * Querformat: DemosPlanAssessmentTableBundle:DemosPlan:export_original.tex.twig
             // * Hochformat: DemosPlanAssessmentTableBundle:DemosPlan:export_original.tex.twig
             $fullTemplateName = '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/'.$templateName.'.tex.twig';
+
+            // the line width of lists inside the generated pdf differs in following circumstances:
+            // vertical format (portrait) split view - Text | Response
+            $listLineWidth = 7;
+            if ('portrait' === $template && 'export_original' === $templateName) {
+                // vertical format (portrait) view not split - Text only
+                $listLineWidth = 17;
+            }
+            if (('landscape' === $template && 'export' === $templateName)
+                || ('condensed' === $template && 'export_condensed' === $templateName && !$original)) {
+                // horizontal format (landscape) split view - Text | Response
+                $listLineWidth = 12;
+            }
+            if (('landscape' === $template && 'export_original' === $templateName)
+                || ('condensed' === $template && 'export_condensed' === $templateName && $original)) {
+                // horizontal format (landscape) view not split - Text only
+                $listLineWidth = 24;
+            }
+            $templateVars['listwidth'] = $listLineWidth;
+
             $content = $this->twig->render(
                 $fullTemplateName,
                 [
@@ -270,6 +290,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                     'anonymous'    => $anonymous,
                 ]
             );
+
             $procedureName = $this
                 ->assessmentTableOutput
                 ->selectProcedureName(

@@ -154,7 +154,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     /**
      * @deprecated see deprecation on property userInvitedInProcedure
      */
-    public function evaluateUserInvitedInProcedure(Procedure $procedure, Session $session): void
+    public function evaluateUserInvitedInProcedure(ProcedureInterface $procedure, Session $session): void
     {
         $invitedProcedures = $session->get('invitedProcedures', []);
         if (\in_array($procedure->getId(), $invitedProcedures, true)) {

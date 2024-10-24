@@ -164,10 +164,6 @@ export default {
       return dpApi({
         method: 'PATCH',
         url: Routing.generate('dplan_surveyvote_update', { surveyVoteId: id }),
-        headers: {
-          'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json'
-        },
         data: {
           data: {
             type: 'SurveyVote',
@@ -176,6 +172,10 @@ export default {
               textReview: textReview
             }
           }
+        },
+        headers: {
+          'Content-type': 'application/vnd.api+json',
+          Accept: 'application/vnd.api+json'
         }
       })
         .then((response) => {
