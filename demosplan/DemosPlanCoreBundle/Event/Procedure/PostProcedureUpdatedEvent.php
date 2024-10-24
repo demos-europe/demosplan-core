@@ -47,7 +47,7 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
     /**
      * @return array<string, array<string, mixed>>
      */
-    private function determineModifiedValues(object $oldObject, object $newObject): array
+    private function determineModifiedValues(object $oldObject, object $newObject, int $nestingLimit = 2): array
     {
         $modifiedValues = [];
 
@@ -71,7 +71,14 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
 
             if ($oldValue !== $newValue) {
                 if (is_object($oldValue) && is_object($newValue)) {
-                    $modifiedSubValues = $this->determineModifiedValues($oldValue, $newValue);
+                    $modifiedSubValues = [];
+                    if (0 < $nestingLimit) {
+                        $modifiedSubValues = $this->determineModifiedValues(
+                            $oldValue,
+                            $newValue,
+                            $nestingLimit - 1
+                        );
+                    }
                     if ([] !== $modifiedSubValues) {
                         $modifiedValues[$propertyName] = $modifiedSubValues;
                     }
