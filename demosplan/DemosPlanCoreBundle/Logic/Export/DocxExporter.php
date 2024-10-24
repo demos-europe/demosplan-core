@@ -1282,7 +1282,7 @@ class DocxExporter
                 // Ersetze die Phase, in der die SN eingegangen ist
                 $phaseName = $this->statementService->getPhaseName(
                     $statement->getPhase(),
-                    $statement->getPublicStatement()
+                    $statement->isSubmittedByCitizen()
                 );
                 $cell2AddText('procedure.public.phase', $phaseName);
             }

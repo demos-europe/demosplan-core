@@ -282,6 +282,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         private readonly UserRepository $userRepository,
         UserService $userService,
         private readonly StatementDeleter $statementDeleter,
+        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
     ) {
         $this->assignService = $assignService;
         $this->entityContentChangeService = $entityContentChangeService;
@@ -2745,27 +2746,21 @@ class StatementService extends CoreService implements StatementServiceInterface
      */
     public function getPhaseNameFromArray(array $statement): string
     {
+        $statementObject = $this->getStatement($statement['id']);
+
         return $this->getPhaseName(
             $statement['phase'],
-            $statement['publicStatement']
+            $statementObject->isSubmittedByCitizen()
         );
     }
 
-    public function getPhaseName(string $phaseKey, string $publicStatement): string
+    public function getPhaseName(string $phaseKey, bool $isSubmittedByCitizen): string
     {
         $phaseName = '';
-
-        if (StatementInterface::EXTERNAL === $publicStatement) {
-            $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
-            $phaseName = $externalPhases[$phaseKey]['name'] ?? '';
-        }
-
-        if (StatementInterface::INTERNAL === $publicStatement) {
-            $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
-            $phaseName = $internalPhases[$phaseKey]['name'] ?? '';
-        }
-
         try {
+            $phaseVO = $this->statementProcedurePhaseResolver->getProcedurePhaseVO($phaseKey, $isSubmittedByCitizen);
+            $phaseName = $phaseVO->getName();
+
             if ('' === $phaseName) {
                 throw new UndefinedPhaseException($phaseKey);
             }
@@ -2774,31 +2769,6 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         return $phaseName;
-    }
-
-    public function getPhaseKey(string $phaseKey, string $publicStatement): string
-    {
-        if (StatementInterface::EXTERNAL === $publicStatement) {
-            $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
-            if (array_key_exists($phaseKey, $externalPhases)) {
-                return $phaseKey;
-            }
-        }
-
-        if (StatementInterface::INTERNAL === $publicStatement) {
-            $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
-            if (array_key_exists($phaseKey, $internalPhases)) {
-                return $phaseKey;
-            }
-        }
-
-        try {
-            throw new UndefinedPhaseException($phaseKey);
-        } catch (UndefinedPhaseException $e) {
-            $this->logger->error($e->getMessage());
-        }
-
-        return '';
     }
 
     /**

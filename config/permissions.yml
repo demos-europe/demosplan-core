@@ -2663,12 +2663,6 @@ field_segment_assignee_filter:
 field_send_final_email:
     label: 'Schlussmitteilung versenden'
     loginRequired: true
-field_show_internal_procedure_phases_in_dropdown:
-    description: 'Some roles may not see internal phases in dropdown. This permission helps to discriminate them.'
-    expose: true
-    label: 'Internal scope may filter for internal phase in procedure list'
-    loginRequired: true
-    parent: area_main_procedures
 field_sign_language_overview_video_edit:
     description: 'User with this permission are able to upload a video file for their current customer including a title and description.'
     expose: true
