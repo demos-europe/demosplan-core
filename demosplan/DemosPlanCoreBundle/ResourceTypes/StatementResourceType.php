@@ -34,6 +34,7 @@ use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigB
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedurePhaseVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
@@ -432,11 +433,11 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         }
 
         $configBuilder->phaseStatement
-            ->updatable($statementConditions, function (Statement $statement, string $phaseKey): array {
+            ->updatable($statementConditions, function (Statement $statement, array $phaseStatement ): array {
                 // check that phaseKey exists so that it is not possible to set a phase that does not exist
                 try {
-                    $this->statementPhaseService->getProcedurePhaseVO($phaseKey, $statement->getPublicStatement());
-                    $statement->setPhase($phaseKey);
+                    $this->statementPhaseService->getProcedurePhaseVO($phaseStatement[ProcedurePhaseVO::PROCEDURE_PHASE_KEY], $statement->getPublicStatement());
+                    $statement->setPhase($phaseStatement[ProcedurePhaseVO::PROCEDURE_PHASE_KEY]);
                 } catch (UndefinedPhaseException $e) {
                     $this->logger->error($e->getMessage());
 
