@@ -170,7 +170,7 @@ export default {
     ]),
 
     phases () {
-      if (this.institutionSelected && hasPermission('field_show_internal_procedure_phases_in_dropdown')) {
+      if (this.institutionSelected) {
         return this.procedurePhases({
           internal: true,
           external: false
