@@ -158,7 +158,7 @@
             class="line-clamp-3 c-styled-html"
             v-cleanhtml="text" />
         </template>
-        <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
+        <template v-slot:flyout="{ assignee, id, originalId, originalPdf, segmentsCount, synchronized }">
           <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
               v-if="hasPermission('area_statement_segmentation')"
@@ -183,6 +183,13 @@
               rel="noreferrer noopener"
               target="_blank">
               {{ Translator.trans('original.pdf') }}
+            </a>
+            <a
+              v-if="hasPermission('area_admin_original_statement_list')"
+              :class="{'is-disabled': !originalId}"
+              :href="Routing.generate('dplan_procedure_original_statement_list', { procedureId: procedureId })"
+              rel="noreferrer noopener">
+              {{ Translator.trans('statement.original') }}
             </a>
             <button
               data-cy="listStatements:statementDelete"
@@ -700,6 +707,7 @@ export default {
         'internId',
         'isCitizen',
         'memo',
+        'originalId',
         'status',
         'submitDate',
         'submitName',
