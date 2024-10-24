@@ -433,7 +433,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         }
 
         $configBuilder->phaseStatement
-            ->updatable($statementConditions, function (Statement $statement, array $phaseStatement ): array {
+            ->updatable($statementConditions, function (Statement $statement, array $phaseStatement): array {
                 // check that phaseKey exists so that it is not possible to set a phase that does not exist
                 try {
                     $this->statementPhaseService->getProcedurePhaseVO($phaseStatement[ProcedurePhaseVO::PROCEDURE_PHASE_KEY], $statement->getPublicStatement());
