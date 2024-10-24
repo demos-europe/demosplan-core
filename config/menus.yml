@@ -361,7 +361,7 @@ submenu_procedures:
         path_params: ['procedureId']
         permission: 'area_admin_statement_list'
         link_attributes:
-            data-cy: 'assessmenttable'
+            data-cy: 'statementslist'
             data-extern-dataport: 'statementslist'
     segments:
         label: 'segments'
