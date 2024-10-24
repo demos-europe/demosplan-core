@@ -2444,6 +2444,11 @@ field_paragraph_lock_statement:
     description: 'Block the possibility to submit statements to chosen paragraph.'
     label: 'Statements can be locked for some paragraphs'
     loginRequired: false
+field_phase_iterator:
+    description: 'Additional counter for procedurephases to identify and count the number of itertions a specific phase is in because it is kind of usual that a phase is used and iteratet through more than once.'
+    label: 'Procedrephases extended/enhanced by a counter to identify the iteration the phase is currently in.'
+    loginRequired: false
+    expose: true
 field_priority_area_list:
     label: 'betroffene Gemeinden'
     loginRequired: true

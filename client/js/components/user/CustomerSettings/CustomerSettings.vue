@@ -158,9 +158,9 @@
             linkButton: true,
             headings: [2, 3, 4]
           }" />
-          <h3
-            class="u-mt"
-            v-text="Translator.trans('video')" />
+        <h3
+          class="u-mt"
+          v-text="Translator.trans('video')" />
         <customer-settings-sign-language-video
           v-if="!isLoadingSignLanguageOverviewVideo"
           :current-customer-id="this.currentCustomerId"
@@ -337,7 +337,7 @@ export default {
         mimetype: '',
         title: ''
       },
-      isBusy:false
+      isBusy: false
     }
   },
 
@@ -390,7 +390,7 @@ export default {
       this.isLoadingSignLanguageOverviewVideo = true
       const payload = this.getRequestPayload()
 
-      this.fetchCustomer(payload, { serialize: true })
+      this.fetchCustomer(payload)
         .then(res => {
           // Update fields
           const response = res.data

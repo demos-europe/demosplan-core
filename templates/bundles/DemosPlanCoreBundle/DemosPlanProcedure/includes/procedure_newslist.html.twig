@@ -52,6 +52,11 @@
         {# full text #}
         <div class="{{ 'c-styled-html'|prefixClass }} {% if news.picture is defined and news.picture != "" %}overflow-auto{% endif %}">
             {{ news.description|wysiwyg }}
+            {% if news.text is defined and news.text != "" %}
+                <a href="{{ path('DemosPlan_news_news_public_detail',{'newsID':news.ident,'procedure':procedure}) }}">
+                    {{ "readon"|trans }}
+                </a>
+            {% endif %}
         </div>
 
     </div>

@@ -332,7 +332,7 @@ export default {
         return this.mapOptions
       }
       return dpApi({
-        method: 'get',
+        method: 'GET',
         url: Routing.generate(this.mapOptionsRoute, { procedureId: this.procedureId })
       })
         .then(checkResponse)

@@ -1261,7 +1261,7 @@ class DemosPlanStatementController extends BaseController
                 'draftStatementVersions' => $this->draftStatementService->getVersionList($draftStatementId),
             ];
         } catch (UserNotFoundException) {
-            $this->logger->addError(UserNotFoundException::createFromId($this->currentUser->getUser()->getId()));
+            $this->logger->error(UserNotFoundException::createFromId($this->currentUser->getUser()->getId()));
         }
         $templateVars['procedureLayer'] = 'participation';
 

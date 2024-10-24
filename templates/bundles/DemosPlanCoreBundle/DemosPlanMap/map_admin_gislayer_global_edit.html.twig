@@ -70,6 +70,7 @@
                 </p>
                 <div class="u-mb-0_5">
                     <a
+                        {# a global gis layer can not us core_file_procedure as no procedure is defined #}
                         href="{{ path("core_file", { 'hash': gislayer.legend|getFile('hash') }) }}"
                         target="_blank"
                         rel="noopener">

@@ -27,12 +27,11 @@ const LocationStore = {
   actions: {
     get ({ commit }, args = { query: '' }) {
       return dpApi({
-        method: 'get',
+        method: 'GET',
         url: Routing.generate('DemosPlan_procedure_public_suggest_procedure_location_json', {
           query: args.query,
           maxResults: 12
-        }),
-        responseType: 'json'
+        })
       })
         .then(response => {
           const locations = []

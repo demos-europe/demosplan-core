@@ -87,7 +87,7 @@
         \hline
     \end{longtable}
 \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}17cm{{ '}' }}{{ '{' }}0cm{{ '}' }}
-\ParallelLText{{ '{' }}{% if statement.text is defined %}{{ statement.text|latex|raw }}{% endif %}{{ '}' }}
+\ParallelLText{{ '{' }}{% if statement.text is defined %}{{ statement.text|latex(listwidth=templateVars.listwidth)|raw }}{% endif %}{{ '}' }}
 {% if statement.mapFile is defined and statement.mapFile != "" %}
     {% if statement.mapFile != "---" %}
         \centering

@@ -647,6 +647,8 @@ class DemosPlanProcedureController extends BaseController
                 'r_enddate',
                 'r_externalDesc',
                 'r_externalName',
+                'r_phase_iteration',
+                'r_public_participation_phase_iteration',
                 'r_ident',
                 'r_legalNotice',
                 'r_links',
@@ -1061,15 +1063,6 @@ class DemosPlanProcedureController extends BaseController
 
         $procedureService = $this->procedureService;
         $procedure = $procedureService->getProcedure($procedureId);
-
-        $requestPost = $request->request->all();
-
-        if (\array_key_exists('unregirstered_toeb_add', $requestPost)) {
-            $addressBookEntryIdsToAdd = $requestPost['unregirstered_toeb_add'];
-            $procedureService->addAddressBookEntryToProcedure($procedure, $addressBookEntryIdsToAdd);
-
-            // todo: avoid reload resend request
-        }
 
         $addressBookEntriesOfOrganisation = $addressBookEntryService->getAddressBookEntriesOfOrganisation($orgaId);
 

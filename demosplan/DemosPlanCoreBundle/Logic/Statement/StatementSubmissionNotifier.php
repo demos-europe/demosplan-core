@@ -255,19 +255,15 @@ class StatementSubmissionNotifier
     /**
      * Send Notification because Statement needs to be checked by Planner.
      *
-     * @param array|Statement $statement
-     * @param string[]        $ccs
+     * @param string[] $ccs
      *
-     * @throws Throwable
-     * @throws Twig_Error_Loader
-     * @throws Twig_Error_Runtime
-     * @throws Twig_Error_Syntax
+     * @throws LoaderError|RuntimeError|SyntaxError|Throwable
      */
     protected function sendNewPublicAllowedStatementNotification(
         Statement $statement,
         Procedure $procedure,
         array $recipients,
-        $ccs = []
+        array $ccs = []
     ): void {
         $emailText = $this->twig->load(
             '@DemosPlanCore/DemosPlanStatement/send_notification_email_for_new_statement_public_allowed.html.twig'
@@ -358,7 +354,6 @@ class StatementSubmissionNotifier
      *
      * @param string $statementText
      * @param string $recipient
-     * @param mixed  $number
      *
      * @throws Throwable
      * @throws LoaderError
@@ -370,7 +365,7 @@ class StatementSubmissionNotifier
         $recipient,
         ?Statement $submittedStatement = null,
         $number = null,
-        GdprConsentRevokeToken $gdprConsentRevokeToken = null
+        ?GdprConsentRevokeToken $gdprConsentRevokeToken = null
     ): void {
         $mailTemplateVars = [];
         $vars = [];

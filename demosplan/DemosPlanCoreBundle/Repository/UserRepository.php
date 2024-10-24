@@ -424,8 +424,6 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      *
      * **User deletion is not yet supported**, instead use `UserRepository::wipe()`
      * to clear personally identifiable information from users.
-     *
-     * @return bool
      */
     public function delete($userId): never
     {
@@ -439,8 +437,6 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      * to clear personally identifiable information from users.
      *
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

@@ -13,13 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
 use Composer\Console\Input\InputOption;
-use Composer\Package\BasePackage;
-use Composer\Package\CompleteAliasPackage;
-use Composer\Package\CompletePackage;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\PackageInterface;
-use Composer\Package\RootAliasPackage;
-use Composer\Package\RootPackage;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Addon\AddonManifestCollection;
@@ -34,7 +29,6 @@ use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
@@ -65,7 +59,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         private readonly HttpClientInterface $httpClient,
         private readonly Registrator $installer,
         ParameterBagInterface $parameterBag,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -281,8 +275,6 @@ class AddonInstallFromZipCommand extends CoreCommand
     }
 
     /**
-     * @return BasePackage|CompleteAliasPackage|CompletePackage|RootAliasPackage|RootPackage|InputDefinition
-     *
      * @throws JsonException
      */
     public function loadPackageDefinition(): PackageInterface

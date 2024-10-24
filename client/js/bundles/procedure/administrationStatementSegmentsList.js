@@ -14,7 +14,7 @@ import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import { hasPermission } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 import SegmentSlidebar from '@DpJs/store/procedure/SegmentSlidebar'
-import SplitStatementStore from '@DpJs/store/procedure/SplitStatementStore'
+import SplitStatementStore from '@DpJs/store/statement/SplitStatementStore'
 import StatementSegmentsList from '@DpJs/components/procedure/StatementSegmentsList/StatementSegmentsList'
 
 const components = {

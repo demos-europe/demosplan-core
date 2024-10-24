@@ -55,7 +55,7 @@ class TagRepository extends CoreRepository implements ObjectInterface
         try {
             $em = $this->getEntityManager();
             $em->persist($tag);
-            $em->flush($tag);
+            $em->flush();
         } catch (Exception $e) {
             $this->logger->error('Add tag failed: ', [$e]);
 

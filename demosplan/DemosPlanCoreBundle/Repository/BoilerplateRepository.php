@@ -380,8 +380,6 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

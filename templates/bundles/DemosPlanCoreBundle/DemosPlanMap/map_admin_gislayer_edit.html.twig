@@ -39,8 +39,13 @@
                 </p>
                 <div class="u-mb-0_5">
                     {% if gislayer.legend is defined and gislayer.legend != '' %}
+                        {#
+                            global gis layer can use core_file_procedure as check for procedure
+                            is automatically skipped, when no procedure is saved at the file.
+                            It is better to use core_file_procedure here as it checks the procedure permissions and declines the access to the file via this route.
+                        #}
                         <a
-                            href="{{ path("core_file", { 'hash': gislayer.legend|getFile('hash') }) }}"
+                            href="{{ path("core_file_procedure", { 'hash': gislayer.legend|getFile('hash'), 'procedureId': procedure }) }}"
                             target="_blank"
                             rel="noopener">
                             <i class="fa fa-file-o"></i>
@@ -158,7 +163,7 @@
                         </p>
                         <div class="u-mb-0_5">
                             <a
-                                href="{{ path("core_file", { 'hash': gislayer.legend|getFile('hash') }) }}"
+                                href="{{ path("core_file_procedure", { 'hash': gislayer.legend|getFile('hash'), 'procedureId': procedure }) }}"
                                 target="_blank"
                                 rel="noopener">
                                 <i class="fa fa-file-o"></i>

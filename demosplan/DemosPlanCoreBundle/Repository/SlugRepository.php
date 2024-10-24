@@ -58,8 +58,6 @@ class SlugRepository extends FluentRepository implements ObjectInterface
      * Delete Entity.
      *
      * @param string $entityId
-     *
-     * @return bool
      */
     public function delete($entityId): never
     {
@@ -68,8 +66,6 @@ class SlugRepository extends FluentRepository implements ObjectInterface
 
     /**
      * @param Slug $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

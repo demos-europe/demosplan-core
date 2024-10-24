@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\Feature;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use GdImage;
-use Point;
+use geoPHP\Geometry\Point;
 use stdClass;
 use Tightenco\Collect\Support\Collection;
 
@@ -163,8 +163,6 @@ class PolygonIntoMapLayerMerger
      * wkt2px()
      * Umrechnen einer Koordinate in Pixel.
      *
-     * @param mixed    $x
-     * @param mixed    $y
      * @param stdClass $viewport
      * @param int      $width
      * @param int      $height
@@ -182,7 +180,7 @@ class PolygonIntoMapLayerMerger
      * html2rgb()
      * Transformiert eine CSS-Farbangabe nach RGB.
      *
-     * @param mixed $color
+     * @param array $color
      *
      * @return array|false
      */

@@ -33,6 +33,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
@@ -69,7 +70,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
     final public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
 
-    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler)
+    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler, protected SegmentBulkEditorService $segmentBulkEditorService)
     {
     }
 
@@ -104,32 +105,32 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                 try {
                     $this->validateRpcRequest($rpcRequest);
                     $segmentIds = $rpcRequest->params->segmentIds;
-                    $segments = $this->getValidSegments($segmentIds, $procedureId);
+                    $segments = $this->segmentBulkEditorService->getValidSegments($segmentIds, $procedureId);
 
                     // update texts directly in database for performance reasons
                     $recommendationTextEdit = $rpcRequest->params->recommendationTextEdit;
-                    $this->updateRecommendations($segments, $recommendationTextEdit, $procedureId, $entityType, $methodCallTime);
+                    $this->segmentBulkEditorService->updateRecommendations($segments, $recommendationTextEdit, $procedureId, $entityType, $methodCallTime);
 
                     // update entities with new tags, workflowPlace and assignee
-                    $addTagIds = $this->getValidTags($rpcRequest->params->addTagIds, $procedureId);
-                    $removeTagIds = $this->getValidTags(
+                    $addTagIds = $this->segmentBulkEditorService->getValidTags($rpcRequest->params->addTagIds, $procedureId);
+                    $removeTagIds = $this->segmentBulkEditorService->getValidTags(
                         $rpcRequest->params->removeTagIds,
                         $procedureId
                     );
-                    $assignee = $this->extractAssignee($rpcRequest);
+
+                    // Check if the key exists
+                    if (property_exists($rpcRequest->params, 'assigneeId')) {
+                        // Get the value using data_get
+                        $assigneeId = $rpcRequest->params->assigneeId;
+                        $assignee = $this->segmentBulkEditorService->detectAssignee($assigneeId);
+                    } else {
+                        $assignee = 'UNKNOWN';
+                    }
+
                     $workflowPlace = $this->extractWorkflowPlace($rpcRequest);
 
-                    foreach ($segments as $segment) {
-                        /* @var Segment $segment */
-                        $segment->addTags($addTagIds);
-                        $segment->removeTags($removeTagIds);
-                        if (null !== $assignee) {
-                            $segment->setAssignee($assignee);
-                        }
-                        if (null !== $workflowPlace) {
-                            $segment->setPlace($workflowPlace);
-                        }
-                    }
+                    $segments = $this->segmentBulkEditorService->updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace);
+
                     $resultSegments = [...$resultSegments, ...$segments];
                     $resultResponse[] = $this->generateMethodResult($rpcRequest);
                 } catch (InvalidArgumentException|InvalidSchemaException|UserNotAssignableException $e) {
@@ -172,45 +173,6 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         $result->id = $rpcRequest->id;
 
         return $result;
-    }
-
-    /**
-     * Given an array of segment ids and a procedureId returns the corresponding list of
-     * segment entities, validating that every id finds a match in a Segment and that they all
-     * belong to the procedure.
-     *
-     * @param array<int, string> $segmentIds
-     * @param string             $procedureId
-     *
-     * @return array<int, Segment>
-     *
-     * @throws InvalidArgumentException
-     */
-    protected function getValidSegments(array $segmentIds, $procedureId): array
-    {
-        $segments = $this->segmentHandler->findByIds($segmentIds);
-        $this->segmentValidator->validateSegments($segmentIds, $segments, $procedureId);
-
-        return $segments;
-    }
-
-    /**
-     * Given an array of tag ids and a procedureId returns the corresponding list of tag
-     * entities, validating that every id finds a match in a tag and that they all belong to the
-     * procedure.
-     *
-     * @param array<int, string> $tagIds
-     *
-     * @return array<int, Tag>
-     *
-     * @throws InvalidArgumentException
-     */
-    protected function getValidTags(array $tagIds, string $procedureId): array
-    {
-        $tags = $this->tagService->findByIds($tagIds);
-        $this->tagValidator->validateTags($tagIds, $tags, $procedureId);
-
-        return $tags;
     }
 
     public function supports(string $method): bool
@@ -290,7 +252,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     /**
      * @throws Exception
      */
-    private function extractAssignee(object $rpcRequest): ?User
+    public function extractAssignee(object $rpcRequest): ?User
     {
         $assigneeId = $this->extractAssigneeId($rpcRequest);
 
@@ -309,39 +271,5 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         $assigneeId = trim($assigneeId);
 
         return '' !== $assigneeId;
-    }
-
-    /**
-     * Update texts directly in database for performance reasons.
-     *
-     * @param array<int, Segment> $segments
-     *
-     * @throws ORMException
-     * @throws UserNotFoundException
-     */
-    private function updateRecommendations(array $segments, ?object $recommendationTextEdit, string $procedureId, string $entityType, DateTime $updateTime): void
-    {
-        if (null === $recommendationTextEdit) {
-            return;
-        }
-
-        /** @var string $recommendationText */
-        $recommendationText = $recommendationTextEdit->text;
-        /** @var bool $attach */
-        $attach = $recommendationTextEdit->attach;
-
-        if ($attach && '' === $recommendationText) {
-            return;
-        }
-
-        $this->segmentHandler->editSegmentRecommendations(
-            $segments,
-            $procedureId,
-            $recommendationText,
-            $attach,
-            $this->currentUser->getUser(),
-            $entityType,
-            $updateTime
-        );
     }
 }

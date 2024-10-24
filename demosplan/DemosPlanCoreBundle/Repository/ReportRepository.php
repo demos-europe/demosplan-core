@@ -128,7 +128,7 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
     public function addObject($entity)
     {
         $this->getEntityManager()->persist($entity);
-        $this->getEntityManager()->flush($entity);
+        $this->getEntityManager()->flush();
 
         return $entity;
     }
@@ -192,8 +192,6 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

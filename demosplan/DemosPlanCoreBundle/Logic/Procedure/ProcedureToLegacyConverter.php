@@ -64,6 +64,8 @@ class ProcedureToLegacyConverter extends CoreService
 
         if (null !== $procedureArray['settings']) {
             $procedureArray['settings'] = $this->entityHelper->toArray($procedureArray['settings']);
+            $procedureArray['phaseObject'] = $this->entityHelper->toArray($procedure->getPhaseObject());
+            $procedureArray['publicParticipationPhaseObject'] = $this->entityHelper->toArray($procedure->getPublicParticipationPhaseObject());
             $procedureArray['pictogram'] = $procedureArray['settings']['pictogram'];
         }
 

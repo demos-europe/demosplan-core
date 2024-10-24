@@ -154,9 +154,6 @@ class ManualListSortRepository extends CoreRepository implements ImmutableArrayI
         }
     }
 
-    /**
-     * @return CoreEntity|void
-     */
     public function add(array $data): never
     {
         throw new NotYetImplementedException('Method not yet implemented.');

@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use Symfony\Component\Mailer\Envelope;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
@@ -49,13 +50,20 @@ class TestMailer implements MailerInterface
         $this->emailTestTo = $config->getEmailTestTo();
     }
 
-    public function send(RawMessage $message, Envelope $envelope = null): void
+    public function send(RawMessage $message, ?Envelope $envelope = null): void
     {
-        $message = $this->adjustForTestingEnvironment($message);
         $this->mailer->send($message);
     }
 
-    private function adjustForTestingEnvironment(RawMessage $message): RawMessage
+    /**
+     * @throws TransportExceptionInterface
+     */
+    public function sendEmail(Email $message, ?Envelope $envelope = null): void
+    {
+        $this->send($this->adjustForTestingEnvironment($message), $envelope);
+    }
+
+    private function adjustForTestingEnvironment(Email $message): RawMessage
     {
         // build testmailbody if necessary
         if (false === $this->emailIsLiveSystem) {
@@ -102,6 +110,6 @@ EOT;
      */
     private function getStringFromAddresses(array $address): string
     {
-        return implode(',', collect($address)->transform(static fn(Address $address) => $address->toString())->toArray());
+        return implode(',', collect($address)->transform(static fn (Address $address) => $address->toString())->toArray());
     }
 }

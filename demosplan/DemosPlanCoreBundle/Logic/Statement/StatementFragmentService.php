@@ -862,10 +862,10 @@ class StatementFragmentService extends CoreService
 
             if ($user instanceof User) {
                 $fragment->setModifiedByUser(
-                    $em->getReference(User::class, $user->getId())
+                    $em->find(User::class, $user->getId())
                 );
                 $fragment->setModifiedByDepartment(
-                    $em->getReference(Department::class, $user->getDepartmentId())
+                    $em->find(Department::class, $user->getDepartmentId())
                 );
 
                 if (null === $user->getDepartmentId()) {
@@ -920,7 +920,7 @@ class StatementFragmentService extends CoreService
         if (array_key_exists('paragraphId', $fragmentArray)
             && 0 < \strlen((string) $fragmentArray['paragraphId'])
             && $fragmentArray['paragraphId'] != $currentFragment->getParagraphId()) {
-            $paragraphVersion = $em->getReference(
+            $paragraphVersion = $em->find(
                 Paragraph::class,
                 $fragmentArray['paragraphId']);
             $fragmentArray['paragraph'] = $this->paragraphService->createParagraphVersion($paragraphVersion);

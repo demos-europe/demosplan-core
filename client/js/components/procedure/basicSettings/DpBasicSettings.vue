@@ -22,6 +22,7 @@ import {
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'
+import ParticipationPhases from './ParticipationPhases'
 
 export default {
   name: 'DpBasicSettings',
@@ -42,7 +43,8 @@ export default {
       const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
       return DpUploadFiles
     },
-    ExportSettings
+    ExportSettings,
+    ParticipationPhases
   },
 
   props: {
@@ -126,8 +128,6 @@ export default {
       selectedDataInputOrgas: this.initDataInputOrgas,
       selectedAuthUsers: this.initAuthUsers,
       selectedProcedureCategories: this.initProcedureCategories,
-      selectedInternalPhase: this.initProcedurePhaseInternal,
-      selectedPublicPhase: this.initProcedurePhasePublic,
       selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures,
       procedureDescription: this.procedureExternalDesc,
       procedureName: this.initProcedureName
@@ -138,22 +138,13 @@ export default {
     authUsersOptions () {
       const users = JSON.parse(JSON.stringify(this.authorizedUsersOptions))
       return sortAlphabetically(users, 'name')
-    },
-
-    publicPhaseIsInParticipation () {
-      return this.participationPhases.includes(this.selectedPublicPhase)
-    },
-
-    internalPhaseIsInParticipation () {
-      return this.participationPhases.includes(this.selectedInternalPhase)
     }
   },
 
   methods: {
     getDataPlis (plisId, routeName) {
       return dpApi({
-        method: 'get',
-        responseType: 'json',
+        method: 'GET',
         url: Routing.generate(routeName, { uuid: plisId })
       })
         .then(data => {

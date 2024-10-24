@@ -12,6 +12,7 @@
     <dp-input
       aria-labelledby="token-notification"
       id="procedureCoupleToken"
+      data-cy="procedureCoupleToken"
       data-dp-validate-if="#procedureCoupleToken!==''"
       :label="{
         text: Translator.trans('procedure.couple_token.label')

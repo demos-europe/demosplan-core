@@ -505,7 +505,7 @@ export default {
         },
         include: ['annotatedStatementPdf'].join()
       }
-      const pageResponse = await dpApi.get(url, params, { serialize: true })
+      const pageResponse = await dpApi.get(url, params)
       if (hasOwnProp(pageResponse, 'data') && hasOwnProp(pageResponse.data, 'data') && pageResponse.data.data.length) {
         const pageAttrs = pageResponse.data.data[0].attributes
         this.geoJson = pageAttrs.geoJson
