@@ -1558,7 +1558,7 @@ class StatementService extends CoreService implements StatementServiceInterface
             );
         }
 
-        $this->reportService->persistAndFlushReportEntries($entries);
+        $this->reportService->persistAndFlushReportEntries(... $entries);
     }
 
     /**
