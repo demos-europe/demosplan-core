@@ -1,5 +1,5 @@
 # due to BSI SYS.1.6.A6 we need to use excplicit versions
-FROM debian:testing-20240904-slim AS fpm
+FROM debian:testing-20241016-slim AS fpm
 
 ARG PROJECT_NAME
 # ENV vars needs to be set to build the assets
@@ -65,11 +65,9 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/video && \
     mkdir -p /srv/www/var/cache && \
     mkdir -p /srv/www/var/log && \
-    mkdir -p /srv/www/client/js/generated && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web && \
     chown -R www-data /srv/www/var/cache && \
     chown -R www-data /srv/www/var/log && \
-    chown -R www-data /srv/www/client/js/generated && \
 # define doctrine in memory database for the asset build
     mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
 COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml

@@ -89,9 +89,10 @@
               </template>
               <template v-if="statement">
                 <div class="overflow-x-scroll break-words max-h-13 max-w-14 w-max">
-                  <span class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
+
+                  <span v-if="hasPermission('area_admin_import')" class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
                   <statement-meta-attachments-link
-                    v-if="originalAttachment.hash"
+                    v-if="originalAttachment.hash && hasPermission('area_admin_import')"
                     class="block whitespace-normal u-mr-0_75"
                     :attachment="originalAttachment"
                     :procedure-id="procedure.id" />
@@ -138,8 +139,6 @@
         v-if="showInfobox && statement"
         :attachments="filteredAttachments"
         :available-counties="availableCounties"
-        :available-internal-phases="availableExternalPhases"
-        :available-external-phases="availableInternalPhases"
         :available-municipalities="availableMunicipalities"
         :available-priority-areas="availablePriorityAreas"
         :current-user-id="currentUser.id"
@@ -222,18 +221,6 @@ export default {
 
   props: {
     availableCounties: { // TODO: has to be adjusted in the BE
-      type: Array,
-      required: false,
-      default: () => []
-    },
-
-    availableExternalPhases: { // TODO: has to be adjusted in the BE
-      type: Array,
-      required: false,
-      default: () => []
-    },
-
-    availableInternalPhases: { // TODO: has to be adjusted in the BE
       type: Array,
       required: false,
       default: () => []
@@ -568,6 +555,8 @@ export default {
       const statementFields = [
         'assignee',
         'attachments',
+        'availableInternalPhases',
+        'availableExternalPhases',
         'consentRevoked',
         'similarStatementSubmitters',
         'authoredDate',
@@ -588,7 +577,6 @@ export default {
         'municipalities',
         'priorityAreas',
         'phase',
-        'publicParticipationPhase', // TODO: has to be adjusted in the BE
         'recommendation',
         'segmentDraftList',
         'submitterAndAuthorMetaDataAnonymized',
@@ -650,8 +638,6 @@ export default {
     saveStatement (statement) {
       this.synchronizeAssignee(statement)
       this.synchronizeFullText(statement)
-      // The key isManual is readonly, so we should remove it before saving
-      delete statement.attributes.isManual
       this.setStatement({ ...statement, id: statement.id })
 
       this.saveStatementAction(statement.id)

@@ -22,9 +22,7 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
-use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
@@ -44,7 +42,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
@@ -58,6 +55,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NoTargetsException;
+use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -275,6 +273,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         protected readonly StatementRepository $statementRepository,
         private readonly StatementResourceType $statementResourceType,
+        private readonly StatementToLegacyConverter $statementToLegacyConverter,
         StatementValidator $statementValidator,
         private readonly StatementVoteRepository $statementVoteRepository,
         private readonly TagRepository $tagRepository,
@@ -1819,141 +1818,12 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     /**
      * Convert StatementObject to legacy.
+     *
+     * @deprecated use {@see StatementToLegacyConverter::convert} instead
      */
     public function convertToLegacy(?Statement $statement): ?array
     {
-        if (null === $statement) {
-            return null;
-        }
-        $statementId = $statement->getId();
-        try {
-            $statementAttributes = $statement->getStatementAttributes();
-            $numberOfAnonymVotes = $statement->getNumberOfAnonymVotes();
-            $submitterEmailAddress = $statement->getSubmitterEmailAddress();
-            $createdByInstitution = $statement->isCreatedByInvitableInstitution();
-            $createdByCitizen = $statement->isCreatedByCitizen();
-            $votesNum = $statement->getVotesNum();
-            $statement = $this->entityHelper->toArray($statement);
-
-            $statement['createdByToeb'] = $createdByInstitution;
-            $statement['createdByCitizen'] = $createdByCitizen;
-            $statement['submitterEmailAddress'] = $submitterEmailAddress;
-
-            $statement['numberOfAnonymVotes'] = $numberOfAnonymVotes;
-            $statement['votesNum'] = $votesNum;
-            $statement['categories'] = [];
-            if ($statement['element'] instanceof Elements) {
-                $statement['element'] = $this->serviceElements->convertElementToArray($statement['element']);
-            }
-            if ($statement['paragraph'] instanceof ParagraphVersion) {
-                try {
-                    // Legacy wird der Paragraph und nicht ParagraphVersion zurückgegeben!
-                    $parentParagraph = $statement['paragraph']->getParagraph();
-                    $statement['paragraph'] = $this->entityHelper->toArray($parentParagraph);
-                } catch (Exception) {
-                    // Einige alte Einträge verweisen möcglicherweise noch nicht auf eine ParagraphVersion
-                    $this->logger->error(
-                        'No ParagraphVersion found for Id '.DemosPlanTools::varExport($statement['paragraph']->getId(), true)
-                    );
-                    unset($statement['paragraph']);
-                    $statement['paragraphId'] = null;
-                }
-            }
-            if ($statement['procedure'] instanceof Procedure) {
-                try {
-                    $statement['procedure'] = $this->entityHelper->toArray($statement['procedure']);
-                    $statement['procedure']['settings'] = $this->entityHelper->toArray($statement['procedure']['settings']);
-                    $statement['procedure']['organisation'] = $this->entityHelper->toArray($statement['procedure']['organisation']);
-                    $statement['procedure']['planningOffices'] =
-                        isset($statement['procedure']['planningOffices']) ?
-                            $this->entityHelper->toArray($statement['procedure']['planningOffices']) :
-                            [];
-                    $statement['procedure']['planningOfficeIds'] =
-                        isset($statement['procedure']['planningOffices']) ?
-                            $this->entityHelper->toArray($statement['procedure']['planningOffices']) :
-                            [];
-                } catch (Exception $e) {
-                    $this->logger->warning(
-                        'Could not convert  Statement Procedure to Legacy. Statement: '.DemosPlanTools::varExport(
-                            $statement['id'],
-                            true
-                        ).$e
-                    );
-                }
-            }
-            if ($statement['organisation'] instanceof Orga) {
-                try {
-                    $statement['organisation'] = $this->entityHelper->toArray($statement['organisation']);
-                } catch (Exception $e) {
-                    $this->logger->warning(
-                        'Could not convert Statement Organisation to Legacy. Statement: '.DemosPlanTools::varExport(
-                            $statement['id'],
-                            true
-                        ).$e
-                    );
-                }
-            }
-            if ($statement['meta'] instanceof StatementMeta) {
-                try {
-                    $statement['meta'] = $this->entityHelper->toArray($statement['meta']);
-                } catch (Exception $e) {
-                    $this->logger->warning(
-                        'Could not convert Statement Meta to Legacy. Statement: '.DemosPlanTools::varExport($statement['id'], true).$e
-                    );
-                }
-            }
-
-            // Enter StatementAttributes
-            if ((is_countable($statementAttributes) ? count($statementAttributes) : 0) > 0) {
-                $statement['statementAttributes'] = [];
-            }
-            foreach ($statementAttributes as $sa) {
-                if (isset($statement['statementAttributes'][$sa->getType()])) {
-                    if (\is_array($statement['statementAttributes'][$sa->getType()])) {
-                        $statement['statementAttributes'][$sa->getType()][] = $sa->getValue();
-                    } else {
-                        $v = $statement['statementAttributes'][$sa->getType()];
-                        $statement['statementAttributes'][$sa->getType()] = [$v];
-                    }
-                } else {
-                    $statement['statementAttributes'][$sa->getType()] = $sa->getValue();
-                }
-            }
-
-            // Lege ein mit der Stellungnahme verknüpftes SingleDocument auf oberster Ebene in das Array
-            if (null !== $statement['documentId']) {
-                $singleDocument = $this->singleDocumentVersionRepository->get($statement['documentId']);
-                // Angezeigt wird das parent Singledocument
-                $statement['document'] = $this->entityHelper->toArray($singleDocument->getSingleDocument());
-            } else {
-                unset($statement['documentId']);
-
-                if (\array_key_exists('documentTitle', $statement)) {
-                    unset($statement['documentTitle']);
-                }
-
-                if (\array_key_exists('document', $statement)) {
-                    unset($statement['document']);
-                }
-            }
-            $votes = [];
-            if ($statement['votes'] instanceof Collection) {
-                $votesArray = $statement['votes']->toArray();
-                foreach ($votesArray as $vote) {
-                    $votes[] = $this->dateHelper->convertDatesToLegacy($this->entityHelper->toArray($vote));
-                }
-            }
-            $statement['votes'] = $votes;
-
-            $statement = $this->dateHelper->convertDatesToLegacy($statement);
-        } catch (Exception $e) {
-            $this->logger->warning(
-                'Could not convert Statement to Legacy.',
-                [$statementId, $e]
-            );
-        }
-
-        return $statement;
+        return $this->statementToLegacyConverter->convert($statement);
     }
 
     /**
@@ -2871,29 +2741,64 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @return string the internal or external phase of the given statement
      *
-     * @deprecated use {@link getInternalOrExternalPhaseNameFromObject} instead
+     * @deprecated use {@link getPhaseName} instead
      */
-    public function getInternalOrExternalPhaseName(array $statement): string
+    public function getPhaseNameFromArray(array $statement): string
     {
-        return $this->getPhaseNameFromStatementsPublicState(
-            $statement['publicStatement'],
-            $statement['phase']
+        return $this->getPhaseName(
+            $statement['phase'],
+            $statement['publicStatement']
         );
     }
 
-    public function getInternalOrExternalPhaseNameFromObject(Statement $statement): string
+    public function getPhaseName(string $phaseKey, string $publicStatement): string
     {
-        return $this->getPhaseNameFromStatementsPublicState(
-            $statement->getPublicStatement(),
-            $statement->getPhase()
-        );
+        $phaseName = '';
+
+        if (StatementInterface::EXTERNAL === $publicStatement) {
+            $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
+            $phaseName = $externalPhases[$phaseKey]['name'] ?? '';
+        }
+
+        if (StatementInterface::INTERNAL === $publicStatement) {
+            $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
+            $phaseName = $internalPhases[$phaseKey]['name'] ?? '';
+        }
+
+        try {
+            if ('' === $phaseName) {
+                throw new UndefinedPhaseException($phaseKey);
+            }
+        } catch (UndefinedPhaseException $e) {
+            $this->logger->error($e->getMessage());
+        }
+
+        return $phaseName;
     }
 
-    protected function getPhaseNameFromStatementsPublicState(string $publicStatementValue, string $phase): string
+    public function getPhaseKey(string $phaseKey, string $publicStatement): string
     {
-        return Statement::INTERNAL === $publicStatementValue
-            ? $this->globalConfig->getPhaseNameWithPriorityInternal($phase)
-            : $this->globalConfig->getPhaseNameWithPriorityExternal($phase);
+        if (StatementInterface::EXTERNAL === $publicStatement) {
+            $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
+            if (array_key_exists($phaseKey, $externalPhases)) {
+                return $phaseKey;
+            }
+        }
+
+        if (StatementInterface::INTERNAL === $publicStatement) {
+            $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
+            if (array_key_exists($phaseKey, $internalPhases)) {
+                return $phaseKey;
+            }
+        }
+
+        try {
+            throw new UndefinedPhaseException($phaseKey);
+        } catch (UndefinedPhaseException $e) {
+            $this->logger->error($e->getMessage());
+        }
+
+        return '';
     }
 
     /**

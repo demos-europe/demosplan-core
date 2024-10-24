@@ -28,10 +28,12 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PhaseVO;
 use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
@@ -68,7 +70,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly StatementService $statementService,
         private readonly StatementDeleter $statementDeleter,
     ) {
-        parent::__construct($fileService, $htmlSanitizer);
+        parent::__construct($fileService, $htmlSanitizer, $statementService);
     }
 
     public function getEntityClass(): string
@@ -226,7 +228,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $this->conditionFactory->propertyIsNull(Paths::statement()->headStatement->id),
             $this->conditionFactory->propertyIsNotNull(Paths::statement()->original->id),
             // all segments must have a segment set, hence the following check is used to ensure this resource type does not return segments
-            $this->conditionFactory->isTargetEntityNotInstanceOf(Segment::class)
+            $this->conditionFactory->isTargetEntityNotInstanceOf(
+                basename(str_replace('\\', '/', Segment::class))
+            ),
         );
 
         $statementConditions = $this->currentUser
@@ -424,7 +428,65 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             );
         }
 
+        $configBuilder->phase
+            ->updatable($statementConditions, function (Statement $statement, string $phaseKey): array {
+                // check that phaseKey exists so that it is not possible to set a phase that does not exist
+                $statement->setPhase($this->statementService->getPhaseKey(
+                    $phaseKey,
+                    $statement->getPublicStatement()
+                ));
+
+                return [];
+            })
+            ->readable(false, function (Statement $statement): string {
+                return $this->statementService->getPhaseKey(
+                    $statement->getPhase(),
+                    $statement->getPublicStatement()
+                );
+            });
+
+        if ($this->currentUser->hasPermission('field_statement_phase')) {
+            $configBuilder->availableInternalPhases
+                ->readable(false, $this->getAvailableInternalPhases(...));
+
+            $configBuilder->availableExternalPhases
+                ->readable(false, $this->getAvailableExternalPhases(...));
+        }
+
         return $configBuilder;
+    }
+
+    protected function getAvailableInternalPhases(): array
+    {
+        $phases = [];
+
+        foreach ($this->globalConfig->getInternalPhasesAssoc() as $internalPhase) {
+            $phases[] = $this->createPhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
+        }
+
+        return $phases;
+    }
+
+    protected function getAvailableExternalPhases(): array
+    {
+        $phases = [];
+        foreach ($this->globalConfig->getExternalPhasesAssoc() as $externalPhase) {
+            $phases[] = $this->createPhaseVO($externalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
+        }
+
+        return $phases;
+    }
+
+    protected function createPhaseVO(array $phase, string $type)
+    {
+        $phaseVO = new PhaseVO();
+        $phaseVO->setKey($phase[PhaseVO::PROCEDURE_PHASE_KEY]);
+        $phaseVO->setName($phase[PhaseVO::PROCEDURE_PHASE_NAME]);
+        $phaseVO->setPermissionsSet($phase[PhaseVO::PROCEDURE_PHASE_PERMISSIONS_SET]);
+        $phaseVO->setParticipationState($phase[PhaseVO::PROCEDURE_PHASE_PARTICIPATION_STATE] ?? null);
+        $phaseVO->setPhaseType($type);
+
+        return $phaseVO->lock();
     }
 
     /**

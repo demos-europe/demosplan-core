@@ -2051,8 +2051,9 @@ layer: "Kartenebene"
 # @TODO refactor everything to use "gislayer..." when referring to "Kartenebenen"
 # and "layer..." when referring to the layer inside of a getCapabilities response
 layers: "Layer"
-legend.download: "Legende herunterladen"
 legend: "Legende"
+legend.download: "Legende herunterladen"
+legend.not_available: "Legende nicht verfügbar"
 like: "Unterstützung"
 liked.by: "Unterstützt von"
 liked.by.persons: |
@@ -3171,7 +3172,7 @@ statement.anonymize.text.children.not.affected: "Texte der folgenden zugehörige
 statement.anonymize.text.children.version.update: "Nach dem Ändern dieser Stellungnahmen oder Kopien muss die Aktion \"Versionsverlauf des Stellungnahmetextes löschen\" über die zugehörige Originalstellungnahme erneut durchgeführt werden."
 statement.anonymize.text.editor.hint: "Markieren Sie Teile des Textes und klicken Sie auf \"Markierung anonymisieren\" um personenbezogenene Daten für die Entfernung zu markieren. Durch eine erneute Markierung derselben Stelle können Sie die Markierung aufheben."
 statement.anonymize.text.editor.title: "Text der Originalstellungnahme"
-statement.anonymize.text.hint: "Falls der Text der Originalstellungnahme personenbezogene Daten enthält, können Sie diese zum anonymisieren manuell markieren. Es wird ausschließlich der Text der Originalstellungnahme anonymisiert."
+statement.anonymize.text.hint: "Falls der Text der Originalstellungnahme personenbezogene Daten enthält, können Sie diese zum Anonymisieren manuell markieren. Es wird ausschließlich der Text der Originalstellungnahme anonymisiert."
 statement.anonymize.text.label: "Text der Originalstellungnahme anonymisieren"
 statement.anonymize.text.success: "Der Text der Originalstellungnahme wurde anonymisiert."
 statement.anonymize.title.actions.choose: 'Aktionen für Anonymisierung auswählen'
