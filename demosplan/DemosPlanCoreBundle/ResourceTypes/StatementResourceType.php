@@ -65,13 +65,13 @@ use Webmozart\Assert\Assert;
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
     public function __construct(
-        FileService                                      $fileService,
-        HTMLSanitizer                                    $htmlSanitizer,
-        private readonly JsonApiEsService                $jsonApiEsService,
-        private readonly ProcedureAccessEvaluator        $procedureAccessEvaluator,
-        private readonly QueryStatement                  $esQuery,
-        private readonly StatementService                $statementService,
-        private readonly StatementDeleter                $statementDeleter,
+        FileService $fileService,
+        HTMLSanitizer $htmlSanitizer,
+        private readonly JsonApiEsService $jsonApiEsService,
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly QueryStatement $esQuery,
+        private readonly StatementService $statementService,
+        private readonly StatementDeleter $statementDeleter,
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);

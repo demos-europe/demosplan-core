@@ -41,8 +41,8 @@ use EDT\PathBuilding\End;
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface
 {
     public function __construct(
-        private readonly FileService                     $fileService,
-        private readonly StatementService                $statementService,
+        private readonly FileService $fileService,
+        private readonly StatementService $statementService,
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
     ) {
     }
