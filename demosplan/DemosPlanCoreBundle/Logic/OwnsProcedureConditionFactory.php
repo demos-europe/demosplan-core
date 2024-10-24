@@ -17,10 +17,10 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\ConditionFactory\ConditionGroupFactoryInterface;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\Querying\Contracts\FunctionInterface;
 use EDT\Querying\Contracts\PathException;
 use Psr\Log\LoggerInterface;
 use Webmozart\Assert\Assert;
@@ -53,16 +53,110 @@ class OwnsProcedureConditionFactory
     }
 
     /**
+     * Requires that all the following evaluates to `true`:
+     * * call to {@link GlobalConfig::isProcedureAuthorizationViaCreatingOrgaEnabled}
+     * * the accessing user has at least one of the following roles in the given customer: {@link Role::CUSTOMER_MASTER_USER}, {@link User::PLANNING_AGENCY_ROLES}, {@link User::HEARING_AUTHORITY_ROLES}
+     * * the accessing user is in the same organisation as the user that created the procedure in question
+     *
+     * @return list<ClauseFunctionInterface<bool>> all conditions that must evaluate to `true`
+     */
+    public function isAuthorizedViaCreatingOrga(Customer $customer): array
+    {
+        if (!$this->globalConfig->isProcedureAuthorizationViaCreatingOrgaEnabled()) {
+            return [$this->conditionFactory->false()];
+        }
+
+        return [
+            $this->userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure(),
+            $this->procedureOrgaIdNotNull(),
+            ...$this->hasProcedureAccessingRole($customer),
+        ];
+    }
+
+    /**
+     * Requires that all the following evaluates to `true`:
+     * * call to {@link GlobalConfig::isProcedureAuthorizationViaExplicitUserListEnabled}
+     * * the accessing user has at least one of the following roles in the given customer: {@link Role::CUSTOMER_MASTER_USER}, {@link User::PLANNING_AGENCY_ROLES}, {@link User::HEARING_AUTHORITY_ROLES}
+     * * the accessing user is listed in {@link Procedure::$authorizedUsers} of the procedure in question
+     *
+     * @return list<ClauseFunctionInterface<bool>> all conditions that must evaluate to `true`
+     */
+    public function isAuthorizedViaExplicitUserList(Customer $customer): array
+    {
+        if (!$this->globalConfig->isProcedureAuthorizationViaExplicitUserListEnabled()) {
+            return [$this->conditionFactory->false()];
+        }
+
+        return [
+            $this->userIsExplicitlyAuthorized(),
+            $this->procedureOrgaIdNotNull(),
+            ...$this->hasProcedureAccessingRole($customer),
+        ];
+    }
+
+    /**
+     * Requires that all the following evaluates to `true`:
+     * * the accessing user has the following role in the given customer: {@link RoleInterface::PRIVATE_PLANNING_AGENCY}
+     * * the accessing user is in one of the organisations listed in {@link Procedure::$planningOffices} of the procedure in question
+     *
+     * @return list<ClauseFunctionInterface<bool>> all conditions that must evaluate to `true`
+     */
+    public function isAuthorizedViaPlanningAgencyStandardRole(Customer $currentCustomer): array
+    {
+        return [
+            $this->isAuthorizedViaPlanningAgency(),
+            ...$this->hasPlanningAgencyRole($currentCustomer),
+        ];
+    }
+
+    /**
+     * Requires that all the following evaluates to `true`:
+     * * call to {@link GlobalConfig::isProcedureAuthorizationViaPlannerInExplicitPlanningAgencyListEnabled}
+     * * the accessing user has at least one of the following roles in the given customer: {@link Role::CUSTOMER_MASTER_USER}, {@link User::PLANNING_AGENCY_ROLES}, {@link User::HEARING_AUTHORITY_ROLES}
+     * * the accessing user is in one of the organisations listed in {@link Procedure::$planningOffices} of the procedure in question
+     *
+     * @return list<ClauseFunctionInterface<bool>> all conditions that must evaluate to `true`
+     */
+    public function isAuthorizedViaPlanningAgencyPlannerRole(Customer $customer): array
+    {
+        if (!$this->globalConfig->isProcedureAuthorizationViaPlannerInExplicitPlanningAgencyListEnabled()) {
+            return [$this->conditionFactory->false()];
+        }
+
+        return [
+            $this->isAuthorizedViaPlanningAgency(),
+            $this->procedureOrgaIdNotNull(),
+            ...$this->hasProcedureAccessingRole($customer),
+        ];
+    }
+
+    /**
+     * @return ClauseFunctionInterface<bool>
+     */
+    protected function procedureOrgaIdNotNull(): ClauseFunctionInterface
+    {
+        if ($this->userOrProcedure instanceof User) {
+            return $this->conditionFactory->propertyIsNotNull(['orga', 'id']);
+        }
+
+        $procedure = $this->userOrProcedure;
+
+        return null === $procedure->getOrgaId()
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->true();
+    }
+
+    /**
      * The organisation of the user must be set as planning office in the procedure.
      *
-     * Planning agencies ("Planungsbüro") get the list of procedures they are
+     * Private planning agencies ("Planungsbüro") get the list of procedures they are
      * authorized for (enabled via field_procedure_adjustments_planning_agency).
      *
      * Will *not* check for the role of the user. Use {@link self::hasPlanningAgencyRole()} in conjunction with this method.
      *
-     * @return FunctionInterface<bool>
+     * @return ClauseFunctionInterface<bool>
      */
-    public function isAuthorizedViaPlanningAgency(): FunctionInterface
+    protected function isAuthorizedViaPlanningAgency(): ClauseFunctionInterface
     {
         if ($this->userOrProcedure instanceof User) {
             $user = $this->userOrProcedure;
@@ -74,34 +168,16 @@ class OwnsProcedureConditionFactory
         $procedure = $this->userOrProcedure;
         $procedurePlanningOffices = $procedure->getPlanningOfficesIds();
 
-        return $this->conditionFactory->propertyHasAnyOfValues($procedurePlanningOffices, ['orga', 'id']);
+        return [] === $procedurePlanningOffices
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->propertyHasAnyOfValues($procedurePlanningOffices, ['orga', 'id']);
     }
 
     /**
-     * If {@link GlobalConfigInterface::hasProcedureUserRestrictedAccess} is set to `false`,
-     * then the user must be in the organisation that created the procedure.
+     * Returns a condition to match users having the roles in the given customer to theoretically own a procedure if
+     * not in a private planning agency.
      *
-     * If {@link GlobalConfigInterface::hasProcedureUserRestrictedAccess} is set to `true`,
-     * then the user must be authorized manually for the procedure.
-     *
-     * The returned condition will not apply role checks by itself. Use in conjunction with
-     * {@link self::hasProcedureAccessingRole}.
-     *
-     * @return FunctionInterface<bool>
-     */
-    public function isAuthorizedViaOrgaOrManually(): FunctionInterface
-    {
-        // T8427: allow access by manually configured users if the config is set to `true`,
-        // overwriting the organisation-based access
-        return $this->globalConfig->hasProcedureUserRestrictedAccess()
-            ? $this->userIsExplicitlyAuthorized()
-            : $this->userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure();
-    }
-
-    /**
-     * Returns a condition to match users having the roles in the given customer to theoretically own a procedure.
-     *
-     * @return list<FunctionInterface<bool>>
+     * @return list<ClauseFunctionInterface<bool>>
      */
     public function hasProcedureAccessingRole(Customer $customer): array
     {
@@ -137,7 +213,7 @@ class OwnsProcedureConditionFactory
     /**
      * The user must have the {@link RoleInterface::PRIVATE_PLANNING_AGENCY} role.
      *
-     * @return list<FunctionInterface<bool>>
+     * @return list<ClauseFunctionInterface<bool>>
      */
     public function hasPlanningAgencyRole(Customer $customer): array
     {
@@ -167,9 +243,9 @@ class OwnsProcedureConditionFactory
     }
 
     /**
-     * @return FunctionInterface<bool>
+     * @return ClauseFunctionInterface<bool>
      */
-    protected function isUserInCustomer(Customer $customer): FunctionInterface
+    protected function isUserInCustomer(Customer $customer): ClauseFunctionInterface
     {
         $customerId = $customer->getId();
         Assert::notNull($customerId);
@@ -206,7 +282,7 @@ class OwnsProcedureConditionFactory
      *
      * @throws PathException
      */
-    public function userIsExplicitlyAuthorized(): ClauseFunctionInterface
+    protected function userIsExplicitlyAuthorized(): ClauseFunctionInterface
     {
         if ($this->userOrProcedure instanceof User) {
             $user = $this->userOrProcedure;
@@ -226,7 +302,7 @@ class OwnsProcedureConditionFactory
      *
      * @throws PathException
      */
-    public function userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure(): ClauseFunctionInterface
+    protected function userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure(): ClauseFunctionInterface
     {
         if ($this->userOrProcedure instanceof User) {
             $user = $this->userOrProcedure;

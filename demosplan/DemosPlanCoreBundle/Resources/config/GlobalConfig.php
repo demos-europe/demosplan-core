@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Resources\config;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -35,7 +36,6 @@ use function is_dir;
 use function min;
 use function realpath;
 use function strncasecmp;
-use function strpos;
 use function substr;
 use function trim;
 
@@ -480,6 +480,9 @@ class GlobalConfig implements GlobalConfigInterface
     protected $roleGroupsFaqVisibility;
 
     /**
+     * T8427: allow access by manually configured users if the config is set to `true`,
+     * overwriting the organisation-based access.
+     *
      * Defines whether access to procedure is granted by owning organisation (false)
      * or whether it is possible to define specific users withing the organisation
      * who are granted access (true).
@@ -487,6 +490,9 @@ class GlobalConfig implements GlobalConfigInterface
      * Note that in the latter case (true), a user who would have been granted access
      * via its owning organisation **may not** get access if the following is true:
      * * s/he is **not** set in {@link Procedure::$authorizedUsers}
+     *
+     * Will also allow additional roles in private planning agencies (that are already allowed via
+     * {@link Procedure::$planningOffices}) to access the procedure.
      *
      * @var bool
      */
@@ -1273,9 +1279,6 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->mapPublicExtent;
     }
 
-    /**
-     * @return mixed
-     */
     public function getMapPublicAvailableScales()
     {
         return $this->mapPublicAvailableScales;
@@ -1312,9 +1315,9 @@ class GlobalConfig implements GlobalConfigInterface
 
         return array_filter($phases, static function ($phase) use ($permissionsets, $includePreviewed) {
             $ignorePermissionset =
-                $includePreviewed &&
-                array_key_exists('previewed', $phase) &&
-                true === $phase['previewed'];
+                $includePreviewed
+                && array_key_exists('previewed', $phase)
+                && true === $phase['previewed'];
 
             return $ignorePermissionset || in_array($phase['permissionset'], $permissionsets, true);
         });
@@ -1517,9 +1520,6 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->allowedMimeTypes;
     }
 
-    /**
-     * @return mixed
-     */
     public function getProcedureEntrypointRoute()
     {
         return $this->procedureEntrypointRoute;
@@ -1784,5 +1784,20 @@ class GlobalConfig implements GlobalConfigInterface
         }
 
         return $externalLinks;
+    }
+
+    public function isProcedureAuthorizationViaCreatingOrgaEnabled(): bool
+    {
+        return !$this->procedureUserRestrictedAccess;
+    }
+
+    public function isProcedureAuthorizationViaExplicitUserListEnabled(): bool
+    {
+        return $this->procedureUserRestrictedAccess;
+    }
+
+    public function isProcedureAuthorizationViaPlannerInExplicitPlanningAgencyListEnabled(): bool
+    {
+        return $this->procedureUserRestrictedAccess;
     }
 }
