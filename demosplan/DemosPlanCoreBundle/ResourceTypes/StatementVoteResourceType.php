@@ -46,20 +46,42 @@ final class StatementVoteResourceType extends DplanResourceType
         $statementVoteConfig = $this->getConfig(StatementVoteResourceConfigBuilder::class);
 
         $statementVoteConfig->id->setReadableByPath();
-        $statementVoteConfig->firstname->setReadableByPath()->setAliasedPath(Paths::statementVote()->firstName);
-        $statementVoteConfig->lastname->setReadableByPath()->setAliasedPath(Paths::statementVote()->lastName);
+        $statementVoteConfig->firstname
+            ->setReadableByPath()
+            ->addPathUpdateBehavior()
+            ->addPathCreationBehavior()
+            ->setAliasedPath(Paths::statementVote()->firstName);
+
+        $statementVoteConfig
+            ->lastname
+            ->setReadableByPath()
+            ->addPathUpdateBehavior()
+            ->addPathCreationBehavior()
+            ->setAliasedPath(Paths::statementVote()->lastName);
         $statementVoteConfig->email->setReadableByPath()->setAliasedPath(Paths::statementVote()->userMail);
         $statementVoteConfig->city->setReadableByPath()->setAliasedPath(Paths::statementVote()->userCity);
         $statementVoteConfig->postcode->setReadableByPath()->setAliasedPath(Paths::statementVote()->userPostcode);
         $statementVoteConfig->user->setRelationshipType($this->resourceTypeStore->getUserResourceType())
-        ->setReadableByPath();
+            ->setReadableByPath();
+        $statementVoteConfig->statement->setRelationshipType($this->resourceTypeStore->getStatementResourceType());
 
         return $statementVoteConfig;
 
     }
 
+    public function isCreateAllowed(): bool
+    {
+        return true;
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        return true;
+    }
+
     protected function getAccessConditions(): array
     {
+        return [$this->conditionFactory->true()];
         $currentProcedure = $this->currentProcedureService->getProcedure();
         if (null === $currentProcedure) {
             return [$this->conditionFactory->false()];
