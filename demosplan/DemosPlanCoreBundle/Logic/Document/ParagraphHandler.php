@@ -21,7 +21,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
 {
-
     public function __construct(
         protected readonly ParagraphService $paragraphService,
         protected readonly ParagraphRepository $paragraphRepository,
