@@ -401,9 +401,8 @@ class DemosPlanMasterToebController extends BaseController
     /**
      * Exportiere die MasterTöbListe.
      *
-     * Basiert auf PHPOffice/PhpSpreadsheet, Symfonybridge von yectep/phpspreadsheet-bundle
+     * Basiert auf PHPOffice/PhpSpreadsheet
      * https://github.com/PHPOffice/PhpSpreadsheet, MIT
-     * https://github.com/yectep/phpspreadsheet-bundle, MIT
      *
      * @DplanPermissions("area_use_mastertoeblist")
      *

@@ -460,9 +460,6 @@ services:
         tags:
             - { name: monolog.logger, channel: session }
 
-    demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService:
-        arguments: ['@phpoffice.spreadsheet']
-
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler

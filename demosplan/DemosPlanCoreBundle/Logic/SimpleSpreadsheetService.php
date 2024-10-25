@@ -10,21 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
-use Yectep\PhpSpreadsheetBundle\Factory;
 
 class SimpleSpreadsheetService
 {
-    /** @var Factory */
-    protected $spreadsheetFactory;
-
-    public function __construct(Factory $spreadsheetFactory)
-    {
-        $this->spreadsheetFactory = $spreadsheetFactory;
-    }
-
     /**
      * @param string $title
      *
@@ -32,9 +24,9 @@ class SimpleSpreadsheetService
      *
      * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
      */
-    public function createExcelDocument($title = 'untitled')
+    public function createExcelDocument($title = 'untitled'): Spreadsheet
     {
-        $phpExcel = $this->spreadsheetFactory->createSpreadsheet();
+        $phpExcel = new Spreadsheet();
 
         $phpExcel
             ->getProperties()
@@ -133,12 +125,10 @@ class SimpleSpreadsheetService
     }
 
     /**
-     * @return IWriter
-     *
      * @throws Exception
      */
-    public function getExcel2007Writer(Spreadsheet $document)
+    public function getExcel2007Writer(Spreadsheet $document): IWriter
     {
-        return $this->spreadsheetFactory->createWriter($document, 'Xlsx');
+        return IOFactory::createWriter($document, 'Xlsx');
     }
 }
