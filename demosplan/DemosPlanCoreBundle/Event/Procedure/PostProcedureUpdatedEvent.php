@@ -67,7 +67,6 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
             $propertyName = $property->getName();
             // skip self references
             if ('procedure' === $propertyName) {
-
                 continue;
             }
 
