@@ -822,6 +822,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
 
         return $this;
     }
+
     public function getPictogramCopyright(): string
     {
         return $this->pictogramCopyright;
@@ -833,6 +834,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
 
         return $this;
     }
+
     public function getPictogramAltText(): string
     {
         return $this->pictogramAltText;
