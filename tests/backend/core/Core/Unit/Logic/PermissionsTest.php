@@ -1665,7 +1665,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_procedure_single_document_upload_zip',
                     'feature_procedure_sort_location',
                     'feature_procedure_sort_orga_name',
-                    'feature_statements_vote_may_vote',
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [
@@ -1726,6 +1725,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_to_entire_document',
                     'feature_statements_participation_area_always_citizen',
                     'feature_statements_represent_orga',
+                    'feature_statements_vote_may_vote',
                     'feature_surveyvote_may_vote',
                     'field_customer_accessibility_explanation_edit',
                     'field_organisation_agreement_showname',
@@ -3082,7 +3082,7 @@ class PermissionsTest extends FunctionalTestCase
         bool $ownsProcedure,
         bool $isMember,
         array $allowedPermissions,
-        array $disallowedPermissions
+        array $disallowedPermissions,
     ): void {
         // do debug a specific permission enable debugging and paste dataset name
         $debugPermission = false;
