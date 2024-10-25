@@ -24,9 +24,9 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use Exception;
-use Patchwork\Utf8;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Yaml\Parser;
 
 class UserMapperDataportGatewayHH extends UserMapperDataportGateway
@@ -208,8 +208,8 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                     $departmentNameIs = $user->getDepartment() instanceof Department ? $user->getDepartment()->getName() : '';
                     $departmentNameExpected = $this->data['user']['DEPARTMENT'].' - '.$this->data['user']['SUBDEPARTMENT'];
 
-                    $orgaNameChanged = Utf8::filter($this->data['user']['AUTHORITY']) != Utf8::filter($userOrga->getName());
-                    $departmentNameChanged = Utf8::filter($departmentNameExpected) != Utf8::filter($departmentNameIs);
+                    $orgaNameChanged = (new UnicodeString($this->data['user']['AUTHORITY']))->normalize()->toString() != (new UnicodeString($userOrga->getName()))->normalize()->toString();
+                    $departmentNameChanged = (new UnicodeString($departmentNameExpected))->normalize()->toString() != (new UnicodeString($departmentNameIs))->normalize()->toString();
 
                     // organame and Department has NOT changed, check other data to be updated
                     if ((!$orgaNameChanged && !$departmentNameChanged) || $userChangedOrgaDepartment || $userUpdatedOrgaDepartment) {

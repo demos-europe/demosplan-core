@@ -53,7 +53,6 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use DirectoryIterator;
 use Exception;
 use Pagerfanta\Adapter\ArrayAdapter;
-use Patchwork\Utf8;
 use ReflectionException;
 use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -63,6 +62,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\UnicodeString;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use ZipArchive;
@@ -804,8 +804,8 @@ class DemosPlanDocumentController extends BaseController
                 $fileinfo = pathinfo($filenameOrig);
 
                 // T5659 only filter filenames for bad chars, do not translit
-                $filename = Utf8::filter($fileinfo['basename']);
-                $dirname = Utf8::filter($fileinfo['dirname']);
+                $filename = (new UnicodeString($fileinfo['basename']))->normalize()->toString();
+                $dirname = (new UnicodeString($fileinfo['dirname']))->normalize()->toString();
 
                 // T8843 zip-slip: check whether path is in valid location
                 $destination = $extractDir.'/'.$dirname;
@@ -975,7 +975,7 @@ class DemosPlanDocumentController extends BaseController
             } else {
                 $hash = 'file_'.random_int(1, 99_999_999);
                 // T5659 only filter filenames, do not translit
-                $filename = Utf8::filter($fileInfo->getFilename());
+                $filename = (new UnicodeString($fileInfo->getFilename()))->normalize()->toString();
 
                 $result[] = [
                     'isDir' => false,
@@ -1800,7 +1800,7 @@ class DemosPlanDocumentController extends BaseController
                 foreach ($filesInfo as $fileInfo) {
                     try {
                         $streamRead = fopen($fileInfo['fullPath'], 'rb');
-                        $zip->addFileFromStream(Utf8::toAscii($fileInfo['namedPath']), $streamRead);
+                        $zip->addFileFromStream((new UnicodeString($fileInfo['namedPath']))->ascii()->toString(), $streamRead);
                     } catch (Exception $e) {
                         $this->getLogger()->error($e->getMessage(), $e->getTrace());
                     }
