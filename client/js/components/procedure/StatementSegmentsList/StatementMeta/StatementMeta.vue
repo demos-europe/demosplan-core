@@ -218,7 +218,7 @@
           :options="submitTypeOptions"
           @select="(val) => emitInput('submitType', val)" />
 
-        <template v-if="hasPermission('field_statement_phase') && availablePhases.length > 0">
+        <template v-if="hasPermission('field_statement_phase') && availableProcedurePhases.length > 0">
           <dp-select
             id="statementProcedurePhase"
             v-model="localStatement.attributes.procedurePhase.key"
@@ -227,7 +227,7 @@
             :label="{
               text: Translator.trans('procedure.public.phase')
             }"
-            :options="availablePhases"
+            :options="availableProcedurePhases"
             @select="(val) => emitInput('procedurePhase', val)" />
         </template>
 
@@ -414,8 +414,8 @@ export default {
       storageStatement: 'items'
     }),
 
-    availablePhases () {
-      const phases = this.statement.attributes?.availablePhases || []
+    availableProcedurePhases () {
+      const phases = this.statement.attributes?.availableProcedurePhases || []
 
       return phases.map(phase => ({
         label: phase.name,

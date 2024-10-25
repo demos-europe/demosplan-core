@@ -549,7 +549,7 @@ export default {
       const statementFields = [
         'assignee',
         'attachments',
-        'availablePhases',
+        'availableProcedurePhases',
         'consentRevoked',
         'similarStatementSubmitters',
         'authoredDate',

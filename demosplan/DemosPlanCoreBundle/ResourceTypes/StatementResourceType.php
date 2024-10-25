@@ -457,7 +457,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             });
 
         if ($this->currentUser->hasPermission('field_statement_phase')) {
-            $configBuilder->availablePhases
+            $configBuilder->availableProcedurePhases
                 ->readable(false, function (Statement $statement): ?array {
                     return $this->statementProcedurePhaseResolver->getAvailableProcedurePhases($statement->isSubmittedByCitizen());
                 });
