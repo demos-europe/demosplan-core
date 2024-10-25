@@ -221,14 +221,14 @@
         <template v-if="hasPermission('field_statement_phase') && availablePhases.length > 0">
           <dp-select
             id="statementProcedurePhase"
-            v-model="localStatement.attributes.phaseStatement.key"
+            v-model="localStatement.attributes.procedurePhase.key"
             class="mb-3"
             :disabled="!editable || !isStatementManual"
             :label="{
               text: Translator.trans('procedure.public.phase')
             }"
             :options="availablePhases"
-            @select="(val) => emitInput('phaseStatement', val)" />
+            @select="(val) => emitInput('procedurePhase', val)" />
         </template>
 
         <dp-text-area
