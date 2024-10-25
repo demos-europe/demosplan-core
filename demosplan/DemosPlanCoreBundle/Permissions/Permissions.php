@@ -124,7 +124,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         ProcedureAccessEvaluator $procedureAccessEvaluator,
         private ProcedureRepository $procedureRepository,
         private readonly ValidatorInterface $validator,
-        private readonly AccessControlService $accessControlPermission
+        private readonly AccessControlService $accessControlPermission,
     ) {
         $this->addonPermissionInitializers = $addonRegistry->getPermissionInitializers();
         $this->globalConfig = $globalConfig;
@@ -355,7 +355,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_manage_orgadata',  // Daten der Organisation
                 'area_mydata_organisation',  // Daten der Organisation
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_statements_vote_may_vote',
             ]);
         }
 

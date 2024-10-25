@@ -149,7 +149,7 @@ export default {
       required: false,
       default: () => [
         { field: 'legalName', label: Translator.trans('invitable_institution') },
-        hasPermission('field_organisation_competence') ? { field: 'competenceDescription', label: Translator.trans('competence.explanation') } : {}
+        ...hasPermission('field_organisation_competence') ? [{ field: 'competenceDescription', label: Translator.trans('competence.explanation') }] : []
       ]
     }
   },

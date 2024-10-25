@@ -85,4 +85,9 @@ class StatementFactory extends PersistentProxyObjectFactory
             'toSendPerMail'      => false,
         ];
     }
+
+    public function withProcedure(ProcedureFactory $procedure): self
+    {
+        return $this->with(['procedure' => $procedure]);
+    }
 }
