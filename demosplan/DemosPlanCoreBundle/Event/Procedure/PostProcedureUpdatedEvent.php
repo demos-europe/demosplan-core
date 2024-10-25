@@ -65,6 +65,11 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
 
         foreach ($properties as $property) {
             $propertyName = $property->getName();
+            // skip self references
+            if ('procedure' === $propertyName) {
+
+                continue;
+            }
 
             $oldValue = $property->getValue($oldObject);
             $newValue = $property->getValue($newObject);
