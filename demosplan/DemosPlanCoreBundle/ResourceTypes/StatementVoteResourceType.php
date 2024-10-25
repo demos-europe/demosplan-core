@@ -15,6 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementVoteResourceConfigBuilder;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 
 /**
@@ -32,17 +34,37 @@ use EDT\PathBuilding\End;
  */
 final class StatementVoteResourceType extends DplanResourceType
 {
-    protected function getProperties(): array
+
+    public static function getName(): string
     {
-        return [
-            $this->createIdentifier()->readable()->sortable()->filterable(),
-            $this->createAttribute($this->firstName)->readable(),
-            $this->createAttribute($this->lastName)->readable(),
-            $this->createAttribute($this->userMail)->readable(),
-            $this->createAttribute($this->userCity)->readable(),
-            $this->createAttribute($this->userPostcode)->readable(),
-            $this->createToOneRelationship($this->user)->readable(),
-        ];
+        return 'StatementVote';
+    }
+
+    public function getEntityClass(): string
+    {
+        return StatementVote::class;
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->currentUser->hasPermission('field_statement_votes') && null !== $this->currentProcedureService->getProcedure();
+    }
+
+    protected function getProperties(): ResourceConfigBuilderInterface
+    {
+        $statementVoteConfig = $this->getConfig(StatementVoteResourceConfigBuilder::class);
+
+        $statementVoteConfig->id->setReadableByPath();
+        $statementVoteConfig->firstName->setReadableByPath();
+        $statementVoteConfig->lastName->setReadableByPath();
+        $statementVoteConfig->userMail->setReadableByPath();
+        $statementVoteConfig->userCity->setReadableByPath();
+        $statementVoteConfig->userPostcode->setReadableByPath();
+        $statementVoteConfig->user->setRelationshipType($this->resourceTypeStore->getUserResourceType())
+        ->setReadableByPath();
+
+        return $statementVoteConfig;
+
     }
 
     protected function getAccessConditions(): array
@@ -60,18 +82,4 @@ final class StatementVoteResourceType extends DplanResourceType
         ];
     }
 
-    public static function getName(): string
-    {
-        return 'StatementVote';
-    }
-
-    public function getEntityClass(): string
-    {
-        return StatementVote::class;
-    }
-
-    public function isAvailable(): bool
-    {
-        return $this->currentUser->hasPermission('field_statement_votes') && null !== $this->currentProcedureService->getProcedure();
-    }
 }
