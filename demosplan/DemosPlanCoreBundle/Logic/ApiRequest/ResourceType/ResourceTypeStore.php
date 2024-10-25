@@ -84,6 +84,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementMetaResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementVoteResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyVoteResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
@@ -242,6 +243,8 @@ class ResourceTypeStore
 
     protected StatementSegmentResourceType $statementSegmentResourceType;
 
+    protected StatementVoteResourceType $statementVoteResourceType;
+
     protected SurveyResourceType $surveyResourceType;
 
     protected SurveyVoteResourceType $surveyVoteResourceType;
@@ -257,16 +260,16 @@ class ResourceTypeStore
     protected UserRoleInCustomerResourceType $userRoleInCustomerResourceType;
 
     public function __construct(
-        AdminProcedureResourceType $adminProcedureResourceType,
-        AdministratableUserResourceType $administratableUserResourceType,
-        AgencyEmailAddressResourceType $agencyEmailAddressResourceType,
-        AssignableUserResourceType $assignableUserResourceType,
-        BoilerplateGroupResourceType $boilerplateGroupResourceType,
-        BoilerplateResourceType $boilerplateResourceType,
-        BrandingResourceType $brandingResourceType,
-        ClaimResourceType $claimResourceType,
-        ClusterStatementResourceType $clusterStatementResourceType,
-        ConsultationTokenResourceType $consultationTokenResourceType,
+        AdminProcedureResourceType       $adminProcedureResourceType,
+        AdministratableUserResourceType  $administratableUserResourceType,
+        AgencyEmailAddressResourceType   $agencyEmailAddressResourceType,
+        AssignableUserResourceType       $assignableUserResourceType,
+        BoilerplateGroupResourceType     $boilerplateGroupResourceType,
+        BoilerplateResourceType          $boilerplateResourceType,
+        BrandingResourceType             $brandingResourceType,
+        ClaimResourceType                $claimResourceType,
+        ClusterStatementResourceType     $clusterStatementResourceType,
+        ConsultationTokenResourceType    $consultationTokenResourceType,
         ContextualHelpResourceType $contextualHelpResourceType,
         CountyResourceType $countyResourceType,
         CustomerContactResourceType $customerContactResourceType,
@@ -325,17 +328,18 @@ class ResourceTypeStore
         StatementFormDefinitionResourceType $statementFormDefinitionResourceType,
         StatementFragmentResourceType $statementFragmentResourceType,
         StatementFragmentsElementsResourceType $statementFragmentsElementsResourceType,
-        StatementMetaResourceType $statementMetaResourceType,
+        StatementMetaResourceType        $statementMetaResourceType,
         StatementReportEntryResourceType $statementReportEntryResourceType,
-        StatementResourceType $statementResourceType,
-        StatementSegmentResourceType $statementSegmentResourceType,
-        SurveyResourceType $surveyResourceType,
-        SurveyVoteResourceType $surveyVoteResourceType,
-        TagResourceType $tagResourceType,
-        TagTopicResourceType $tagTopicResourceType,
-        UserFilterSetResourceType $userFilterSetResourceType,
-        UserResourceType $userResourceType,
-        UserRoleInCustomerResourceType $userRoleInCustomerResourceType,
+        StatementResourceType            $statementResourceType,
+        StatementSegmentResourceType     $statementSegmentResourceType,
+        StatementVoteResourceType        $statementVoteResourceType,
+        SurveyResourceType               $surveyResourceType,
+        SurveyVoteResourceType           $surveyVoteResourceType,
+        TagResourceType                  $tagResourceType,
+        TagTopicResourceType             $tagTopicResourceType,
+        UserFilterSetResourceType        $userFilterSetResourceType,
+        UserResourceType                 $userResourceType,
+        UserRoleInCustomerResourceType   $userRoleInCustomerResourceType
     ) {
         $this->adminProcedureResourceType = $adminProcedureResourceType;
         $this->administratableUserResourceType = $administratableUserResourceType;
@@ -409,6 +413,7 @@ class ResourceTypeStore
         $this->statementReportEntryResourceType = $statementReportEntryResourceType;
         $this->statementResourceType = $statementResourceType;
         $this->statementSegmentResourceType = $statementSegmentResourceType;
+        $this->statementVoteResourceType =$statementVoteResourceType;
         $this->surveyResourceType = $surveyResourceType;
         $this->surveyVoteResourceType = $surveyVoteResourceType;
         $this->tagResourceType = $tagResourceType;
@@ -776,6 +781,11 @@ class ResourceTypeStore
     public function getStatementSegmentResourceType(): StatementSegmentResourceType
     {
         return $this->statementSegmentResourceType;
+    }
+
+    public function getStatementVoteResourceType(): StatementVoteResourceType
+    {
+        return $this->statementVoteResourceType;
     }
 
     public function getSurveyResourceType(): SurveyResourceType
