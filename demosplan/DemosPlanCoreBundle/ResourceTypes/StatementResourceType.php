@@ -433,11 +433,11 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         }
 
         $configBuilder->procedurePhase
-            ->updatable($statementConditions, function (Statement $statement, array $phaseStatement): array {
+            ->updatable($statementConditions, function (Statement $statement, array $procedurePhase): array {
                 // check that phaseKey exists so that it is not possible to set a phase that does not exist
                 try {
-                    $this->statementProcedurePhaseResolver->getProcedurePhaseVO($phaseStatement[ProcedurePhaseVO::PROCEDURE_PHASE_KEY], $statement->isSubmittedByCitizen());
-                    $statement->setPhase($phaseStatement[ProcedurePhaseVO::PROCEDURE_PHASE_KEY]);
+                    $this->statementProcedurePhaseResolver->getProcedurePhaseVO($procedurePhase[ProcedurePhaseVO::PROCEDURE_PHASE_KEY], $statement->isSubmittedByCitizen());
+                    $statement->setPhase($procedurePhase[ProcedurePhaseVO::PROCEDURE_PHASE_KEY]);
                 } catch (UndefinedPhaseException $e) {
                     $this->logger->error($e->getMessage());
 
