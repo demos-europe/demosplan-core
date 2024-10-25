@@ -2742,19 +2742,19 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @return string the internal or external phase of the given statement
      *
-     * @deprecated use {@link getPhaseName} instead
+     * @deprecated use {@link getProcedurePhaseName} instead
      */
-    public function getPhaseNameFromArray(array $statement): string
+    public function getProcedurePhaseNameFromArray(array $statement): string
     {
         $statementObject = $this->getStatement($statement['id']);
 
-        return $this->getPhaseName(
+        return $this->getProcedurePhaseName(
             $statement['phase'],
             $statementObject->isSubmittedByCitizen()
         );
     }
 
-    public function getPhaseName(string $phaseKey, bool $isSubmittedByCitizen): string
+    public function getProcedurePhaseName(string $phaseKey, bool $isSubmittedByCitizen): string
     {
         $phaseName = '';
         try {

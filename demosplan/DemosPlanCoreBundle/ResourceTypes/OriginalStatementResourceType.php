@@ -113,7 +113,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
             ->setReadableByCallable(static fn (Statement $statement): bool => $statement->getText() !== $statement->getTextShort());
         $originalStatementConfig->phase
         ->setReadableByCallable(
-            fn (Statement $statement): string => $this->statementService->getPhaseName(
+            fn (Statement $statement): string => $this->statementService->getProcedurePhaseName(
                 $statement->getPhase(),
                 $statement->isSubmittedByCitizen()
             )
