@@ -12,48 +12,51 @@
     <div v-if="editable">
       <div class="u-mb-0_25">
         <input
-          type="radio"
+          class="cursor-pointer"
+          data-cy="publicationPending"
           id="publicCheck"
           name="r_publicVerified"
+          type="radio"
           value="publication_pending"
-          data-cy="publicationPending"
           v-model="checked"
-          class="cursor-pointer">
+          @input="event => $emit('update', event.target.value)">
         <label
           for="publicCheck"
-          class="inline weight--normal u-ml-0_25 align-text-top">
+          class="inline font-normal u-ml-0_25 align-text-top">
           {{ Translator.trans('explanation.statement.public.check') }}
         </label>
       </div>
 
       <div class="u-mb-0_25">
         <input
-          type="radio"
+          class="cursor-pointer"
+          data-cy="publicationApproved"
           id="publicVerify"
           name="r_publicVerified"
-          data-cy="publicationApproved"
+          type="radio"
           value="publication_approved"
           v-model="checked"
-          class="cursor-pointer">
+          @input="event => $emit('update', event.target.value)">
         <label
           for="publicVerify"
-          class="inline weight--normal u-ml-0_25 align-text-top">
+          class="inline font-normal u-ml-0_25 align-text-top">
           {{ Translator.trans('explanation.statement.public.verify', { count: filesLength }) }}
         </label>
       </div>
 
       <div class="u-mb-0_25">
         <input
-          type="radio"
+          class="cursor-pointer"
+          data-cy="publicationRejected"
           id="publicReject"
           name="r_publicVerified"
-          data-cy="publicationRejected"
+          type="radio"
           value="publication_rejected"
           v-model="checked"
-          class="cursor-pointer">
+          @input="event => $emit('update', event.target.value)">
         <label
           for="publicReject"
-          class="inline weight--normal u-ml-0_25 align-text-top">
+          class="inline font-normal u-ml-0_25 align-text-top">
           {{ Translator.trans('explanation.statement.public.reject') }}
         </label>
       </div>
@@ -70,17 +73,28 @@
     <div v-else>
       {{ publicVerifiedTranslation }}
     </div>
+
+    <dp-inline-notification
+      v-if="hasPermission('feature_statements_vote')"
+      :message="Translator.trans('explanation.statement.public.activate.voting')"
+      type="info" />
   </div>
 </template>
 
 <script>
+import { DpInlineNotification } from '@demos-europe/demosplan-ui'
+
 export default {
-  name: 'DpStatementPublish',
+  name: 'StatementPublish',
 
   components: {
     DpEditor: async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
+    },
+    DpInlineNotification: async () => {
+      const { DpInlineNotification }  = await import('@demos-europe/demosplan-ui')
+      return DpInlineNotification
     }
   },
 

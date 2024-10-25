@@ -24,7 +24,7 @@ import {
 import { mapActions, mapGetters } from 'vuex'
 import DpAutofillSubmitterData from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
 import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'
-import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
+import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
 import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 
 export default {
@@ -40,7 +40,7 @@ export default {
     DpMultiselect,
     DpSelect,
     DpSelectStatementCluster,
-    DpStatementPublish,
+    StatementPublish,
     DpEditor,
     DpUploadFiles,
     StatementVoter

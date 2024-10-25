@@ -9,7 +9,7 @@
 
 <template>
   <div class="space-stack-s">
-    <div class="space-stack-s u-pb-0_5 border--bottom">
+    <div class="space-stack-s">
       <p
         class="weight--bold u-m-0"
         v-text="Translator.trans('attachment.original')" />
@@ -35,10 +35,6 @@
             :procedure-id="procedureId" />
         </li>
       </ul>
-      <p
-        v-else
-        class="color--grey"
-        v-text="Translator.trans('none')" />
       <template v-if="editable">
         <dp-upload-files
           id="uploadStatementAttachment"
@@ -56,6 +52,7 @@
           @upload-success="setFileId" />
         <dp-button
           :busy="isProcessing"
+          class="float-right"
           :disabled="fileIds.length === 0"
           :text="Translator.trans('save')"
           @click="save('generic')" />

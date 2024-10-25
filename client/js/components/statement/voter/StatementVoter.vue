@@ -11,7 +11,7 @@
   <div class="space-stack-s">
     <template v-if="hasPermission('feature_statements_vote')">
       <p class="lbl">
-        {{ Translator.trans('statement.voter') }}:
+        {{ Translator.trans('statement.voter') }}
       </p>
       <dp-editable-list
         :entries="voters"
@@ -209,20 +209,17 @@
 
       <!-- Anonymous voters -->
       <div v-if="editable">
-        <p class="lbl inline-block">
-          {{ Translator.trans('more') }}
-        </p>
-        <label class="lbl--text inline-block">
+        <label class="lbl--text">
+          {{ Translator.trans('statement.voter.anonym') }}
           <input
             id="r_voters_anonym"
             name="r_voters_anonym"
             data-cy="votersAnonym"
-            class="layout__item text-center align-baseline o-form__control-input u-3-of-12 u-mr-0_125"
+            class="align-baseline o-form__control-input block w-1/12 mt-2"
             :disabled="('1' === readonly)"
             type="number"
             placeholder=""
             v-model="anonymVotes">
-          {{ Translator.trans('statement.voter.anonym') }}
         </label>
       </div>
     </template>
@@ -300,11 +297,11 @@ export default {
       anonymVotes: 0,
       voters: {},
       translationKeys: {
-        new: Translator.trans('add'),
+        new: Translator.trans('statement.voter.add'),
         add: Translator.trans('statement.voter.add'),
         abort: Translator.trans('abort'),
         update: Translator.trans('statement.voter.update'),
-        noEntries: Translator.trans('statement.voters.none'),
+        noEntries: Translator.trans('none'),
         delete: Translator.trans('statement.voter.delete')
       }
     }

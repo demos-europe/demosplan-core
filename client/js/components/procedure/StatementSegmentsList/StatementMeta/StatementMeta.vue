@@ -8,242 +8,126 @@
 </license>
 
 <template>
-  <div class="c-statement-meta-box u-mb-0_5">
-    <div class="relative border--bottom u-pb-0_5">
-      {{ Translator.trans(editable ? 'statement.info.edit' : 'statement.info') }}
+  <div class="c-statement-meta-box mb-2">
+    <div class="relative flex border--bottom pb-2">
+      <h2 class="mb-0 text-lg">
+        {{ Translator.trans('statement.metadata') }}
+      </h2>
       <button
-        class="btn--blank o-link--default float-right"
+        class="btn--blank o-link--default ml-auto"
         @click="close">
         <dp-icon icon="close" />
       </button>
     </div>
 
-    <div
-      class="u-mt-0_5 flex gap-2"
+    <form
+      class="mt-2 mr-5"
       data-dp-validate="statementMetaData">
-      <div class="inline-block w-1/2 align-top">
-        <!--  TO DO: add if not participationGuestOnly  -->
-        <dp-input
-          v-if="hasPermission('field_statement_meta_orga_name')"
-          id="submitterRole"
-          class="u-mb-0_5"
-          disabled
-          :label="{
-            text: Translator.trans('submitted.author'),
-          }"
-          :value="submitterRole" />
-        <dp-contextual-help
-          v-if="isSubmitterAnonymous()"
-          class="float-right mt-0.5"
-          :text="submitterHelpText" />
-        <dp-input
-          v-if="hasPermission('field_statement_meta_submit_name') && this.statementFormDefinitions.name.enabled"
-          id="statementSubmitter"
-          v-model="statementSubmitterValue"
-          class="u-mb-0_5"
-          :disabled="!isStatementManual || !editable || isSubmitterAnonymous()"
-          :label="{
-            text: Translator.trans('submitter')
-          }"
-          @input="(val) => emitInput('statementSubmitterField', val)" />
-        <dp-input
-          v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
-          id="statementDepartmentName"
-          v-model="localStatement.attributes.initialOrganisationDepartmentName"
-          class="u-mb-0_5"
-          :disabled="isStatementManual ? false : !editable"
-          :label="{
-            text: Translator.trans('department')
-          }"
-          @input="(val) => emitInput('initialOrganisationDepartmentName', val)" />
-        <dp-input
-          v-if="localStatement.attributes.represents"
-          id="statementRepresentation"
-          disabled
-          :label="{
-            text: Translator.trans('statement.representation.assessment')
-          }"
-          :value="localStatement.attributes.represents" />
-        <dp-input
-          v-if="localStatement.attributes.represents"
-          id="representationCheck"
-          v-model="localStatement.attributes.representationChecked"
-          :disabled="isStatementManual ? false : !editable"
-          :label="{
-            text: Translator.trans('statement.representation.checked')
-          }"
-          type="checkbox" />
-        <dp-input
-          v-if="hasPermission('field_statement_submitter_email_address') || isStatementManual"
-          id="statementEmailAddress"
-          v-model="localStatement.attributes.submitterEmailAddress"
-          class="u-mb-0_5"
-          :disabled="isStatementManual ? false : !editable"
-          :label="{
-            text: Translator.trans('email')
-          }"
-          type="email"
-          @input="(val) => emitInput('submitterEmailAddress', val)" />
-        <!--  TO DO: add if not participationGuestOnly -->
-        <dp-input
-          v-if="!this.localStatement.attributes.isSubmittedByCitizen"
-          id="statementOrgaName"
-          v-model="localStatement.attributes.initialOrganisationName"
-          class="u-mb-0_5"
-          :disabled="isStatementManual ? false : !editable"
-          :label="{
-            text: Translator.trans('organisation')
-          }"
-          @input="(val) => emitInput('initialOrganisationName', val)" />
-        <div class="o-form__group u-mb-0_5">
-          <dp-input
-            id="statementStreet"
-            v-model="localStatement.attributes.initialOrganisationStreet"
-            class="o-form__group-item"
-            :disabled="isStatementManual ? false : !editable"
-            :label="{
-              text: Translator.trans('street')
-            }"
-            @input="(val) => emitInput('initialOrganisationStreet', val)" />
-          <dp-input
-            id="statementHouseNumber"
-            v-model="localStatement.attributes.initialOrganisationHouseNumber"
-            class="o-form__group-item shrink"
-            :disabled="isStatementManual ? false : !editable"
-            :label="{
-              text: Translator.trans('street.number.short')
-            }"
-            :size="3"
-            @input="(val) => emitInput('initialOrganisationHouseNumber', val)" />
-        </div>
-        <div class="o-form__group u-mb-0_5">
-          <dp-input
-            id="statementPostalCode"
-            v-model="localStatement.attributes.initialOrganisationPostalCode"
-            class="o-form__group-item shrink"
-            :disabled="isStatementManual ? false : !editable"
-            :label="{
-              text: Translator.trans('postalcode')
-            }"
-            pattern="^[0-9]{4,5}$"
-            :size="5"
-            @input="(val) => emitInput('initialOrganisationPostalCode', val)" />
-          <dp-input
-            id="statementCity"
-            v-model="localStatement.attributes.initialOrganisationCity"
-            class="o-form__group-item"
-            :disabled="isStatementManual ? false : !editable"
-            :label="{
-              text: Translator.trans('city')
-            }"
-            @input="(val) => emitInput('initialOrganisationCity', val)" />
-        </div>
-      </div>
-      <div class="inline-block w-1/2">
-        <dp-input
-          id="statementInternId"
-          v-model="localStatement.attributes.internId"
-          class="u-mb-0_5"
-          :disabled="!editable"
-          :label="{
-            text: Translator.trans('internId')
-          }"
-          @input="(val) => emitInput('internId', val)" />
+      <fieldset>
+        <legend class="mb-3 color-text-muted font-normal">
+          {{ Translator.trans('entry') }}
+        </legend>
 
-        <div class="o-form__group u-mb-0_5">
-          <!-- authoredDate: if manual statement -->
-          <dp-input
-            v-if="isStatementManual ? true : !editable"
-            id="statementAuthoredDate"
-            class="o-form__group-item"
-            :disabled="true"
-            :label="{
-              text: Translator.trans('statement.date.authored')
-            }"
-            :value="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : '-'"
-            @input="(val) => emitInput('authoredDate', val)" />
+        <div class="grid grid-cols-1 gap-x-4 md:grid-cols-2">
+            <!-- authoredDate: if manual statement -->
+            <dp-input
+              v-if="isStatementManual ? true : !editable"
+              id="statementAuthoredDate"
+              class="o-form__group-item"
+              :disabled="true"
+              :label="{
+                text: Translator.trans('statement.date.authored')
+              }"
+              :value="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : '-'"
+              @input="val => emitInput('authoredDate', val)" />
 
-          <!-- authoredDate: if not manual statement -->
-          <div
-            class="o-form__group-item"
-            v-else>
-            <dp-label
-              :text="Translator.trans('statement.date.authored')"
-              for="authoredDateDatepicker" />
-            <dp-datepicker
-              class="o-form__control-wrapper"
-              id="authoredDateDatepicker"
-              :value="localStatement.attributes.authoredDate"
-              :max-date="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : currentDate"
-              @input="(val) => setDate(val, 'authoredDate')" />
-          </div>
+            <!-- authoredDate: if not manual statement -->
+            <div v-else>
+              <dp-label
+                :text="Translator.trans('statement.date.authored')"
+                for="authoredDateDatepicker" />
+              <dp-datepicker
+                class="o-form__control-wrapper"
+                id="authoredDateDatepicker"
+                :value="localStatement.attributes.authoredDate"
+                :max-date="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : currentDate"
+                @input="val => setDate(val, 'authoredDate')" />
+            </div>
 
-          <!-- submitDate: if manual statement -->
-          <dp-input
-            v-if="isStatementManual ? true : !editable"
-            id="statementSubmitDate"
-            class="o-form__group-item"
-            :disabled="true"
-            :label="{
-              text: Translator.trans('statement.date.submitted')
-            }"
-            :value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'"
-            @input="(val) => emitInput('submitDate', val)" />
+            <!-- submitDate: if manual statement -->
+            <dp-input
+              v-if="isStatementManual ? true : !editable"
+              id="statementSubmitDate"
+              class="o-form__group-item"
+              :disabled="true"
+              :label="{
+                text: Translator.trans('statement.date.submitted')
+              }"
+              :value="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : '-'"
+              @input="val => emitInput('submitDate', val)" />
 
-          <!-- submitDate: if not manual statement -->
-          <div
-            class="o-form__group-item"
-            v-else>
-            <dp-label
-              :text="Translator.trans('statement.date.submitted')"
-              for="submitDateDatepicker" />
-            <dp-datepicker
-              class="o-form__control-wrapper"
-              id="submitDateDatepicker"
-              :value="convertDate(localStatement.attributes.submitDate)"
-              :max-date="currentDate"
-              :min-date="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : ''"
-              @input="(val) => setDate(val, 'submitDate')" />
-          </div>
-        </div>
-
-        <dp-select
-          id="statementSubmitType"
-          v-model="localStatement.attributes.submitType"
-          class="u-mb-0_5"
-          :disabled="!editable"
-          :label="{
-            text: Translator.trans('submit.type')
-          }"
-          :options="submitTypeOptions"
-          @select="(val) => emitInput('submitType', val)" />
-
-        <template v-if="hasPermission('field_statement_phase')">
-          <dp-select
-            v-if="hasPermission('field_show_internal_procedure_phases_in_dropdown') && !localStatement.attributes.isSubmittedByCitizen"
-            id="statementProcedureInternalPhase"
-            v-model="localStatement.attributes.phase"
-            class="mb-3"
-            :disabled="!editable || !isStatementManual"
-            :label="{
-              text: Translator.trans('procedure.public.phase')
-            }"
-            :options="availableInternalPhases"
-            @select="(val) => emitInput('phase', val)" />
+            <!-- submitDate: if not manual statement -->
+            <div v-else>
+              <dp-label
+                :text="Translator.trans('statement.date.submitted')"
+                for="submitDateDatepicker" />
+              <dp-datepicker
+                class="o-form__control-wrapper"
+                id="submitDateDatepicker"
+                :value="convertDate(localStatement.attributes.submitDate)"
+                :max-date="currentDate"
+                :min-date="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : ''"
+                @input="val => setDate(val, 'submitDate')" />
+            </div>
 
           <dp-select
-            v-else
-            id="statementProcedureExternalPhase"
-            v-model="localStatement.attributes.phase"
-            class="mb-3"
-            :disabled="!editable || !isStatementManual"
+            id="statementSubmitType"
+            v-model="localStatement.attributes.submitType"
+            class="mb-2"
+            :disabled="!editable"
             :label="{
-              text: Translator.trans('procedure.public.phase')
+              text: Translator.trans('submit.type')
             }"
-            :options="availableExternalPhases"
-            @select="(val) => emitInput('phase', val)" />
-        </template>
+            :options="submitTypeOptions"
+            @select="val => emitInput('submitType', val)" />
 
+          <dp-input
+            id="statementInternId"
+            v-model="localStatement.attributes.internId"
+            class="mb-2"
+            :disabled="!editable"
+            :label="{
+              text: Translator.trans('internId')
+            }"
+            width="w-1/4"
+            @input="val => emitInput('internId', val)" />
+
+          <template v-if="hasPermission('field_statement_phase')">
+            <dp-select
+              v-if="hasPermission('field_show_internal_procedure_phases_in_dropdown') && !localStatement.attributes.isSubmittedByCitizen"
+              id="statementProcedureInternalPhase"
+              v-model="localStatement.attributes.phase"
+              class="mb-3"
+              :disabled="!editable || !isStatementManual"
+              :label="{
+                text: Translator.trans('procedure.public.phase')
+              }"
+              :options="availableInternalPhases"
+              @select="val => emitInput('phase', val)" />
+
+            <dp-select
+              v-else
+              id="statementProcedureExternalPhase"
+              v-model="localStatement.attributes.phase"
+              class="mb-3"
+              :disabled="!editable || !isStatementManual"
+              :label="{
+                text: Translator.trans('procedure.public.phase')
+              }"
+              :options="availableExternalPhases"
+              @select="val => emitInput('phase', val)" />
+          </template>
+        </div>
         <dp-text-area
           v-if="hasPermission('field_statement_memo')"
           :disabled="!editable"
@@ -252,66 +136,260 @@
           name="r_memo"
           reduced-height
           v-model="localStatement.attributes.memo" />
-      </div>
-    </div>
 
-    <!-- need to add statement.attributes.counties and availableCounties in the BE (Array) -->
-    <statement-meta-multiselect
-      v-if="hasPermission('field_statement_county')"
-      :editable="editable"
-      :label="Translator.trans('counties')"
-      name="counties"
-      :options="availableCounties"
-      :value="localStatement.attributes.counties"
-      @change="updateLocalStatementProperties" />
+        <dp-button-row
+          v-if="editable"
+          class="mt-2 w-full"
+          primary
+          secondary
+          @primary-action="dpValidateAction('statementMetaData', save, false)"
+          @secondary-action="reset" />
+      </fieldset>
 
-    <!-- need to add statement.attributes.municipalities and availableMunicipalities in the BE (Array) -->
-    <statement-meta-multiselect
-      v-if="hasPermission('field_statement_municipality') && formDefinitions.mapAndCountyReference.enabled"
-      :editable="editable"
-      :label="Translator.trans('municipalities')"
-      name="municipalities"
-      :options="availableMunicipalities"
-      :value="localStatement.attributes.municipalities"
-      @change="updateLocalStatementProperties" />
+      <fieldset>
+        <legend
+          class="mb-3 color-text-muted font-normal"
+          id="submitter">
+          {{ Translator.trans('submitted.author') }}
+        </legend>
 
-    <!-- need to add statement.attributes.priorityAreas and availablePriorityAreas in the BE (Array) -->
-    <statement-meta-multiselect
-      v-if="procedureStatementPriorityArea && formDefinitions.mapAndCountyReference.enabled"
-      :editable="editable"
-      :label="Translator.trans('priorityAreas')"
-      name="priorityAreas"
-      :options="availablePriorityAreas"
-      :value="localStatement.attributes.priorityAreas"
-      @change="updateLocalStatementProperties" />
+        <!--  TO DO: add if not participationGuestOnly  -->
+        <div
+          v-if="hasPermission('field_statement_meta_orga_name')"
+          aria-labelledby="submitter"
+          class="mb-2">
+          {{ submitterRole }}
+        </div>
 
-    <dp-button-row
-      v-if="editable"
-      class="u-mt-0_5 w-full"
-      primary
-      secondary
-      :secondary-text="Translator.trans('discard.changes')"
-      @primary-action="dpValidateAction('statementMetaData', save, false)"
-      @secondary-action="reset" />
+        <div class="grid grid-cols-1 gap-x-4 md:grid-cols-2">
+          <dp-input
+            v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
+            id="statementDepartmentName"
+            v-model="localStatement.attributes.initialOrganisationDepartmentName"
+            class="mb-2"
+            :disabled="isStatementManual ? false : !editable"
+            :label="{
+              text: Translator.trans('department')
+            }"
+            @input="val => emitInput('initialOrganisationDepartmentName', val)" />
 
-    <statement-meta-attachments
-      :attachments="attachments"
-      class="u-pt-0_5 border--bottom u-pb-0_5"
-      :editable="editable"
-      :procedure-id="procedure.id"
-      :statement-id="statement.id"
-      @change="(value) => emitInput('attachments', value)" />
+          <!--  TO DO: add if not participationGuestOnly -->
+          <dp-input
+            v-if="!this.localStatement.attributes.isSubmittedByCitizen"
+            id="statementOrgaName"
+            v-model="localStatement.attributes.initialOrganisationName"
+            class="mb-2"
+            :disabled="isStatementManual ? false : !editable"
+            :label="{
+              text: Translator.trans('organisation')
+            }"
+            @input="val => emitInput('initialOrganisationName', val)" />
 
-    <similar-statement-submitters
-      :editable="editable"
-      :procedure-id="procedure.id"
-      :similar-statement-submitters="similarStatementSubmitters"
-      :statement-id="statement.id" />
+          <dp-contextual-help
+            v-if="isSubmitterAnonymized()"
+            class="float-right mt-0.5"
+            :text="submitterHelpText" />
+          <dp-input
+            v-if="hasPermission('field_statement_meta_submit_name') && this.statementFormDefinitions.name.enabled"
+            id="statementSubmitterName"
+            v-model="statementSubmitterValue"
+            class="mb-2"
+            :disabled="!isStatementManual || !editable || isSubmitterAnonymized()"
+            :label="{
+              text: Translator.trans('name')
+            }"
+            @input="val => emitInput('statementSubmitterField', val)" />
+
+          <dp-input
+            v-if="hasPermission('field_statement_submitter_email_address') || isStatementManual"
+            id="statementEmailAddress"
+            v-model="localStatement.attributes.submitterEmailAddress"
+            class="mb-2"
+            :disabled="isStatementManual ? false : !editable"
+            :label="{
+              text: Translator.trans('email')
+            }"
+            type="email"
+            @input="val => emitInput('submitterEmailAddress', val)" />
+
+          <dp-input
+            v-if="localStatement.attributes.represents"
+            id="statementRepresentation"
+            disabled
+            :label="{
+              text: Translator.trans('statement.representation.assessment')
+            }"
+            :value="localStatement.attributes.represents" />
+          <dp-input
+            v-if="localStatement.attributes.represents"
+            id="representationCheck"
+            v-model="localStatement.attributes.representationChecked"
+            :disabled="isStatementManual ? false : !editable"
+            :label="{
+              text: Translator.trans('statement.representation.checked')
+            }"
+            type="checkbox" />
+
+          <div class="o-form__group mb-2">
+            <dp-input
+              id="statementStreet"
+              v-model="localStatement.attributes.initialOrganisationStreet"
+              class="o-form__group-item"
+              :disabled="isStatementManual ? false : !editable"
+              :label="{
+                text: Translator.trans('street')
+              }"
+              @input="val => emitInput('initialOrganisationStreet', val)" />
+            <dp-input
+              id="statementHouseNumber"
+              v-model="localStatement.attributes.initialOrganisationHouseNumber"
+              class="o-form__group-item shrink"
+              :disabled="isStatementManual ? false : !editable"
+              :label="{
+                text: Translator.trans('street.number.short')
+              }"
+              :size="3"
+              @input="val => emitInput('initialOrganisationHouseNumber', val)" />
+          </div>
+          <div class="o-form__group mb-2">
+            <dp-input
+              id="statementPostalCode"
+              v-model="localStatement.attributes.initialOrganisationPostalCode"
+              class="o-form__group-item shrink"
+              :disabled="isStatementManual ? false : !editable"
+              :label="{
+                text: Translator.trans('postalcode')
+              }"
+              pattern="^[0-9]{4,5}$"
+              :size="5"
+              @input="val => emitInput('initialOrganisationPostalCode', val)" />
+            <dp-input
+              id="statementCity"
+              v-model="localStatement.attributes.initialOrganisationCity"
+              class="o-form__group-item"
+              :disabled="isStatementManual ? false : !editable"
+              :label="{
+                text: Translator.trans('city')
+              }"
+              @input="val => emitInput('initialOrganisationCity', val)" />
+          </div>
+        </div>
+
+        <dp-button-row
+          v-if="editable"
+          class="mt-2 w-full"
+          primary
+          secondary
+          @primary-action="dpValidateAction('statementMetaData', save, false)"
+          @secondary-action="reset" />
+      </fieldset>
+
+      <fieldset>
+        <legend class="mb-3 color-text-muted font-normal">
+          {{ Translator.trans('publication.and.voting') }}
+        </legend>
+        <div class="font-semibold mb-3">
+          {{ Translator.trans('publish.on.platform') }}
+        </div>
+
+        <statement-publish
+          class="mb-4"
+          :editable="editable"
+          @update="val => localStatement.attributes.publicVerified = val" />
+
+        <statement-voter
+          id="dp-statement-voter"
+          :init-voters="statement.attributes.votes"
+          :anonym-votes-string="localStatement.attributes.numberOfAnonymVotes?.toString() || '0'"
+          :is-manual="statement.attributes.isManual ? 'true' : ''"
+          :public-verified="localStatement.attributes.publicVerified"
+          :readonly="!editable ? '1' : '0'"  />
+
+        <dp-button-row
+          v-if="editable"
+          class="mt-2 w-full"
+          primary
+          secondary
+          @primary-action="dpValidateAction('statementMetaData', save, false)"
+          @secondary-action="reset" />
+      </fieldset>
+
+      <similar-statement-submitters
+        class="mb-4"
+        :editable="editable"
+        :procedure-id="procedure.id"
+        :similar-statement-submitters="similarStatementSubmitters"
+        :statement-id="statement.id" />
+
+      <!-- need to add statement.attributes.counties and availableCounties in the BE (Array) -->
+      <statement-meta-multiselect
+        v-if="hasPermission('field_statement_county')"
+        :editable="editable"
+        :label="Translator.trans('counties')"
+        name="counties"
+        :options="availableCounties"
+        :value="localStatement.attributes.counties"
+        @change="updateLocalStatementProperties" />
+
+      <!-- need to add statement.attributes.municipalities and availableMunicipalities in the BE (Array) -->
+      <statement-meta-multiselect
+        v-if="hasPermission('field_statement_municipality') && formDefinitions.mapAndCountyReference.enabled"
+        :editable="editable"
+        :label="Translator.trans('municipalities')"
+        name="municipalities"
+        :options="availableMunicipalities"
+        :value="localStatement.attributes.municipalities"
+        @change="updateLocalStatementProperties" />
+
+      <!-- need to add statement.attributes.priorityAreas and availablePriorityAreas in the BE (Array) -->
+      <statement-meta-multiselect
+        v-if="procedureStatementPriorityArea && formDefinitions.mapAndCountyReference.enabled"
+        :editable="editable"
+        :label="Translator.trans('priorityAreas')"
+        name="priorityAreas"
+        :options="availablePriorityAreas"
+        :value="localStatement.attributes.priorityAreas"
+        @change="updateLocalStatementProperties" />
+
+      <!--    <dp-button-row-->
+      <!--      v-if="editable"-->
+      <!--      class="u-mt-0_5 w-full"-->
+      <!--      primary-->
+      <!--      secondary-->
+      <!--      @primary-action="dpValidateAction('statementMetaData', save, false)"-->
+      <!--      @secondary-action="reset" />-->
+
+      <fieldset>
+        <legend class="mb-3 color-text-muted font-normal">
+          {{ Translator.trans('location.and.document.reference') }}
+        </legend>
+        <div class="font-semibold mb-1">
+          {{ Translator.trans('location') }}
+        </div>
+        <dp-button
+          :aria-label="Translator.trans('location.reference_view')"
+          :text="Translator.trans('see')"
+          variant="outline" />
+      </fieldset>
+
+      <fieldset>
+        <legend class="mb-3 color-text-muted font-normal">
+          {{ Translator.trans('attachments') }}
+        </legend>
+        <statement-meta-attachments
+          :attachments="attachments"
+          :editable="editable"
+          :procedure-id="procedure.id"
+          :statement-id="statement.id"
+          @change="(value) => emitInput('attachments', value)" />
+      </fieldset>
+    </form>
   </div>
 </template>
 
 <script>
 import {
+  DpButton,
   DpButtonRow,
   DpContextualHelp,
   DpDatepicker,
@@ -326,6 +404,8 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import StatementMetaAttachments from './StatementMetaAttachments'
 import StatementMetaMultiselect from './StatementMetaMultiselect'
+import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
+import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 
 const convert = (dateString) => {
   const date = dateString.split('T')[0].split('-')
@@ -336,6 +416,7 @@ export default {
   name: 'StatementMeta',
 
   components: {
+    DpButton,
     DpButtonRow,
     DpContextualHelp,
     DpDatepicker,
@@ -346,7 +427,9 @@ export default {
     DpTextArea,
     SimilarStatementSubmitters,
     StatementMetaAttachments,
-    StatementMetaMultiselect
+    StatementMetaMultiselect,
+    StatementPublish,
+    StatementVoter
   },
 
   mixins: [dpValidateMixin],
@@ -486,7 +569,7 @@ export default {
 
     statementSubmitterValue: {
       get () {
-        return this.isSubmitterAnonymous() ? Translator.trans('anonymized') : this.localStatement.attributes[this.statementSubmitterField]
+        return this.isSubmitterAnonymized() ? Translator.trans('anonymized') : this.localStatement.attributes[this.statementSubmitterField]
       },
       set (value) {
         this.localStatement.attributes[this.statementSubmitterField] = value
@@ -557,7 +640,7 @@ export default {
         : convert(date)
     },
 
-    isSubmitterAnonymous () {
+    isSubmitterAnonymized () {
       const { consentRevoked, submitterAndAuthorMetaDataAnonymized } = this.localStatement.attributes
 
       return consentRevoked || submitterAndAuthorMetaDataAnonymized
