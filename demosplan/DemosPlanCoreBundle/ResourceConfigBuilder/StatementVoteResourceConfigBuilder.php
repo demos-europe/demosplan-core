@@ -19,12 +19,20 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
 use EDT\JsonApi\PropertyConfig\Builder\ToManyRelationshipConfigBuilderInterface;
 use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
 
+/**
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $firstname
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $lastname
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $email
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $city
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $postcode
+ */
 class StatementVoteResourceConfigBuilder extends BaseStatementVoteResourceConfigBuilder
 {
 }

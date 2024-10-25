@@ -21,16 +21,7 @@ use EDT\PathBuilding\End;
 
 /**
  * @template-extends DplanResourceType<StatementVote>
- *
- * @property-read StatementResourceType $statement
- * @property-read UserResourceType $user
- * @property-read End $firstName
- * @property-read End $lastName
- * @property-read End $userMail
- * @property-read End $userCity
- * @property-read End $userPostcode
- * @property-read End $active
- * @property-read End $deleted
+ * @template-extends DplanResourceType<StatementVote>
  */
 final class StatementVoteResourceType extends DplanResourceType
 {
@@ -55,11 +46,11 @@ final class StatementVoteResourceType extends DplanResourceType
         $statementVoteConfig = $this->getConfig(StatementVoteResourceConfigBuilder::class);
 
         $statementVoteConfig->id->setReadableByPath();
-        $statementVoteConfig->firstName->setReadableByPath();
-        $statementVoteConfig->lastName->setReadableByPath();
-        $statementVoteConfig->userMail->setReadableByPath();
-        $statementVoteConfig->userCity->setReadableByPath();
-        $statementVoteConfig->userPostcode->setReadableByPath();
+        $statementVoteConfig->firstname->setReadableByPath()->setAliasedPath(Paths::statementVote()->firstName);
+        $statementVoteConfig->lastname->setReadableByPath()->setAliasedPath(Paths::statementVote()->lastName);
+        $statementVoteConfig->email->setReadableByPath()->setAliasedPath(Paths::statementVote()->userMail);
+        $statementVoteConfig->city->setReadableByPath()->setAliasedPath(Paths::statementVote()->userCity);
+        $statementVoteConfig->postcode->setReadableByPath()->setAliasedPath(Paths::statementVote()->userPostcode);
         $statementVoteConfig->user->setRelationshipType($this->resourceTypeStore->getUserResourceType())
         ->setReadableByPath();
 
