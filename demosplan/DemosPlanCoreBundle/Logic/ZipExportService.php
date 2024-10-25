@@ -21,11 +21,9 @@ use PhpOffice\PhpWord\Writer\PDF;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use ZipStream\CompressionMethod;
 use ZipStream\Exception\FileNotFoundException;
 use ZipStream\Exception\FileNotReadableException;
-use ZipStream\Option\Archive;
-use ZipStream\Option\File;
-use ZipStream\Option\Method;
 use ZipStream\ZipStream;
 
 class ZipExportService
@@ -50,18 +48,14 @@ class ZipExportService
     public function buildZipStreamResponse(string $name, callable $fillZipFunction): StreamedResponse
     {
         return new StreamedResponse(function () use ($name, $fillZipFunction): void {
-            $options = new Archive();
-            $options->setSendHttpHeaders(true);
-            $options->setContentType('application/zip');
-            $options->setContentDisposition('attachment');
-            // do not compress files
-            $options->setDeflateLevel(-1);
-            // set maximum filesize to load into memory to 120 MB
-            $options->setLargeFileSize(120 * 1024 * 1024);
-            // do not compress large files. Store should be default but somehow isn't if not set
-            $options->setLargeFileMethod(Method::STORE());
-
-            $zip = new ZipStream($name, $options);
+            $zip = new ZipStream(
+                // do not compress files
+                defaultDeflateLevel: -1,
+                sendHttpHeaders: true,
+                outputName: $name,
+                contentDisposition: 'attachment',
+                contentType: 'application/zip',
+            );
             $fillZipFunction($zip);
 
             $zip->finish();
@@ -74,9 +68,7 @@ class ZipExportService
      */
     public function addFileToZipStream(string $filePath, string $zipPath, ZipStream $zip): void
     {
-        $fileOptions = new File();
-        $fileOptions->setMethod(Method::STORE());
-        $zip->addFileFromPath($zipPath, $filePath, $fileOptions);
+        $zip->addFileFromPath($zipPath, $filePath, compressionMethod: CompressionMethod::STORE);
 
         $this->logger->info('Added File to Zip');
     }

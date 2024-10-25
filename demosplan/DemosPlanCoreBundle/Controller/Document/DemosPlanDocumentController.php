@@ -66,7 +66,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use ZipArchive;
-use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
 
 use function array_key_exists;
@@ -1790,13 +1789,12 @@ class DemosPlanDocumentController extends BaseController
             $filesInfo = $this->getFilesInfo($request, $procedureId);
 
             return new StreamedResponse(function () use ($filesInfo, $translator) {
-                $options = new Archive();
-
-                $options->setSendHttpHeaders(true);
-                $options->setContentType('application/zip');
-                $options->setContentDisposition('attachment');
-
-                $zip = new ZipStream($translator->trans('plandocument.zip.file.name'), $options);
+                $zip = new ZipStream(
+                    sendHttpHeaders: true,
+                    outputName: $translator->trans('plandocument.zip.file.name'),
+                    contentDisposition: 'attachment',
+                    contentType: 'application/zip'
+                );
                 foreach ($filesInfo as $fileInfo) {
                     try {
                         $streamRead = fopen($fileInfo['fullPath'], 'rb');
