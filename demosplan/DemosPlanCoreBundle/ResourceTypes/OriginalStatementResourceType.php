@@ -118,7 +118,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
                 $statement->isSubmittedByCitizen()
             )
         );
-        $originalStatementConfig->phaseStatement
+        $originalStatementConfig->procedurePhase
             ->setReadableByCallable(function (Statement $statement): ?array {
                 try {
                     return $this->statementProcedurePhaseResolver->getProcedurePhaseVO($statement->getPhase(), $statement->isSubmittedByCitizen())->jsonSerialize();
