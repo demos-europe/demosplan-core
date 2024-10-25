@@ -51,10 +51,6 @@ class StatementProcedurePhaseResolver
         throw new UndefinedPhaseException($phaseKey);
     }
 
-    /**
-     * // If the publicstatement is internal, then return only the internal phases
-     * // if the publicstatement is external, then return only the external phases.
-     */
     public function getAvailableProcedurePhases(bool $isSubmittedByCitizen): array
     {
         $phases = [];
