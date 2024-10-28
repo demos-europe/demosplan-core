@@ -75,12 +75,34 @@ final class StatementVoteResourceType extends DplanResourceType
             ->addPathUpdateBehavior()
             ->addPathCreationBehavior()
             ->setAliasedPath(Paths::statementVote()->lastName);
-        $statementVoteConfig->email->setReadableByPath()->setAliasedPath(Paths::statementVote()->userMail);
-        $statementVoteConfig->city->setReadableByPath()->setAliasedPath(Paths::statementVote()->userCity);
-        $statementVoteConfig->postcode->setReadableByPath()->setAliasedPath(Paths::statementVote()->userPostcode);
-        $statementVoteConfig->user->setRelationshipType($this->resourceTypeStore->getUserResourceType())
+        $statementVoteConfig->email
+            ->setReadableByPath()
+            ->addPathUpdateBehavior()
+            ->addPathCreationBehavior()
+            ->setAliasedPath(Paths::statementVote()->userMail);
+        $statementVoteConfig->city
+            ->setReadableByPath()
+            ->addPathUpdateBehavior()
+            ->addPathCreationBehavior()
+            ->setAliasedPath(Paths::statementVote()->userCity);
+        $statementVoteConfig->postcode
+            ->setReadableByPath()
+            ->addPathUpdateBehavior()
+            ->addPathCreationBehavior()
+            ->setAliasedPath(Paths::statementVote()->userPostcode);
+        $statementVoteConfig->createdByCitizen
+            ->setReadableByPath()
+            ->addPathUpdateBehavior()
+            ->addPathCreationBehavior();
+        $statementVoteConfig->organisationName
+            ->setReadableByPath()
+            ->addPathUpdateBehavior()
+            ->addPathCreationBehavior();
+        $statementVoteConfig->user
+            ->setRelationshipType($this->resourceTypeStore->getUserResourceType())
             ->setReadableByPath();
-        $statementVoteConfig->statement->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
+        $statementVoteConfig->statement
+            ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
             ->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO))
             //->addPathCreationBehavior()
             ;//->setReadableByPath();
