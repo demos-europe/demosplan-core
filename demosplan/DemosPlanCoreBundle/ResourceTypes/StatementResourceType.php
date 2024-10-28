@@ -402,6 +402,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 [$simpleStatementCondition],
                 static function (Statement $statement, string $publicVerified): array {
                     $statement->setPublicVerified($publicVerified);
+
                     return [];
                 }
             );
