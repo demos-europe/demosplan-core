@@ -23,7 +23,6 @@ use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructorBehavior;
-use Geocoder\Assert;
 
 /**
  * @template-extends DplanResourceType<StatementVote>
@@ -112,6 +111,7 @@ final class StatementVoteResourceType extends DplanResourceType
 
         $statementVoteConfig->addPostConstructorBehavior(new FixedSetBehavior(function (StatementVote $statementVote, EntityDataInterface $entityData): array {
             $this->statementVoteRepository->persistEntities([$statementVote]);
+
             return [];
         }));
 
