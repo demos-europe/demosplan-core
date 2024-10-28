@@ -398,7 +398,11 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         }
 
         if ($this->currentUser->hasPermission('field_statement_public_allowed')) {
-            $configBuilder->publicVerified->updatable(
+            $configBuilder->publicVerified
+                ->readable(true, function (Statement $statement) {
+                    return $statement->getPublicVerified();
+                })
+                ->updatable(
                 [$simpleStatementCondition],
                 static function (Statement $statement, string $publicVerified): array {
                     $statement->setPublicVerified($publicVerified);
