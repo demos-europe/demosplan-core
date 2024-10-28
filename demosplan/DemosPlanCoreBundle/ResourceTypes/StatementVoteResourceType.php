@@ -13,20 +13,13 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\SegmentComment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
-use demosplan\DemosPlanCoreBundle\Repository\SegmentCommentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementVoteResourceConfigBuilder;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
-use EDT\PathBuilding\End;
-use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\EntityDataInterface;
-use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructorBehavior;
 use Geocoder\Assert;
@@ -36,7 +29,6 @@ use Geocoder\Assert;
  */
 final class StatementVoteResourceType extends DplanResourceType
 {
-
     public function __construct(
         protected readonly StatementVoteRepository $statementVoteRepository,
     ) {
@@ -67,6 +59,7 @@ final class StatementVoteResourceType extends DplanResourceType
             ->readable(true, fn (StatementVote $statementVote): string => $statementVote->getLastName())
             ->updatable([], function (StatementVote $statementVote, ?string $name): array {
                 $statementVote->setLastName($name);
+
                 return [];
             })
             ->addPathCreationBehavior();
@@ -106,39 +99,36 @@ final class StatementVoteResourceType extends DplanResourceType
         $statementVoteConfig->statement
             ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
             ->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO))
-            //->addPathCreationBehavior()
-            ;//->setReadableByPath();
-
-
+            // ->addPathCreationBehavior()
+        ; // ->setReadableByPath();
 
         $statementVoteConfig->addPostConstructorBehavior(new FixedSetBehavior(function (StatementVote $statementVote, EntityDataInterface $entityData): array {
-            //$statement = $statementVote->getStatement();
-            //Assert::notNull($statement);
+            // $statement = $statementVote->getStatement();
+            // Assert::notNull($statement);
             $this->statementVoteRepository->persistEntities([$statementVote]);
-            //$statement->setVotes([$statementVote]);
+            // $statement->setVotes([$statementVote]);
 
             return [];
         }));
 
         return $statementVoteConfig;
-
     }
 
     public function isCreateAllowed(): bool
     {
-        //todo adjust conditions
+        // todo adjust conditions
         return true;
     }
 
     public function isUpdateAllowed(): bool
     {
-        //todo adjust conditions
+        // todo adjust conditions
         return true;
     }
 
     protected function getAccessConditions(): array
     {
-        //todo adjust conditions
+        // todo adjust conditions
         return [$this->conditionFactory->true()];
         $currentProcedure = $this->currentProcedureService->getProcedure();
         if (null === $currentProcedure) {
@@ -152,5 +142,4 @@ final class StatementVoteResourceType extends DplanResourceType
             $this->conditionFactory->propertyHasValue(false, Paths::statementVote()->deleted),
         ];
     }
-
 }
