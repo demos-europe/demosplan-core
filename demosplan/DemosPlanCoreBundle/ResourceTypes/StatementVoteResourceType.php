@@ -96,6 +96,11 @@ final class StatementVoteResourceType extends DplanResourceType
             ->addPathUpdateBehavior()
             ->addPathCreationBehavior(OptionalField::YES);
 
+        $statementVoteConfig->departmentName
+            ->setReadableByPath()
+            ->addPathUpdateBehavior()
+            ->addPathCreationBehavior(OptionalField::YES);
+
         $statementVoteConfig->user
             ->setRelationshipType($this->resourceTypeStore->getUserResourceType())
             ->setReadableByPath();
