@@ -135,6 +135,12 @@ final class StatementVoteResourceType extends DplanResourceType
         return true;
     }
 
+    public function isDeleteAllowed(): bool
+    {
+        // todo adjust conditions
+        return true;
+    }
+
     protected function getAccessConditions(): array
     {
         // todo adjust conditions
