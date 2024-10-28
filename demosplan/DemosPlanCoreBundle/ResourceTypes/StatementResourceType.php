@@ -403,13 +403,13 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     return $statement->getPublicVerified();
                 })
                 ->updatable(
-                [$simpleStatementCondition],
-                static function (Statement $statement, string $publicVerified): array {
-                    $statement->setPublicVerified($publicVerified);
+                    [$simpleStatementCondition],
+                    static function (Statement $statement, string $publicVerified): array {
+                        $statement->setPublicVerified($publicVerified);
 
-                    return [];
-                }
-            );
+                        return [];
+                    }
+                );
         }
 
         if ($this->currentUser->hasPermission('area_admin_consultations')) {
