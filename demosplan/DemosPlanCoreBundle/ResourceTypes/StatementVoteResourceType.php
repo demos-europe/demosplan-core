@@ -63,9 +63,10 @@ final class StatementVoteResourceType extends DplanResourceType
                 return [];
             })
             ->initializable(true, static function (StatementVote $statementVote, ?string $name): array {
-            $statementVote->setLastName($name);
-            return [];
-        });
+                $statementVote->setLastName($name);
+
+                return [];
+            });
 
         $statementVoteConfig->email
             ->setReadableByPath()
@@ -104,6 +105,7 @@ final class StatementVoteResourceType extends DplanResourceType
            // ->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO))
             ->initializable(false, static function (StatementVote $statementVote, Statement $statement): array {
                 $statementVote->setStatement($statement);
+
                 return [];
             });
 
