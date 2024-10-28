@@ -62,45 +62,50 @@ final class StatementVoteResourceType extends DplanResourceType
 
                 return [];
             })
-            ->addPathCreationBehavior();
+            ->initializable(true, static function (StatementVote $statementVote, ?string $name): array {
+            $statementVote->setLastName($name);
+            return [];
+        });
 
-        $statementVoteConfig
-            ->lastname
-            ->setReadableByPath()
-            ->addPathUpdateBehavior()
-            ->addPathCreationBehavior()
-            ->setAliasedPath(Paths::statementVote()->lastName);
         $statementVoteConfig->email
             ->setReadableByPath()
             ->addPathUpdateBehavior()
-            ->addPathCreationBehavior()
+            ->addPathCreationBehavior(OptionalField::YES)
             ->setAliasedPath(Paths::statementVote()->userMail);
+
         $statementVoteConfig->city
             ->setReadableByPath()
             ->addPathUpdateBehavior()
-            ->addPathCreationBehavior()
+            ->addPathCreationBehavior(OptionalField::YES)
             ->setAliasedPath(Paths::statementVote()->userCity);
+
         $statementVoteConfig->postcode
             ->setReadableByPath()
             ->addPathUpdateBehavior()
-            ->addPathCreationBehavior()
+            ->addPathCreationBehavior(OptionalField::YES)
             ->setAliasedPath(Paths::statementVote()->userPostcode);
+
         $statementVoteConfig->createdByCitizen
             ->setReadableByPath()
             ->addPathUpdateBehavior()
             ->addPathCreationBehavior();
+
         $statementVoteConfig->organisationName
             ->setReadableByPath()
             ->addPathUpdateBehavior()
-            ->addPathCreationBehavior();
+            ->addPathCreationBehavior(OptionalField::YES);
+
         $statementVoteConfig->user
             ->setRelationshipType($this->resourceTypeStore->getUserResourceType())
             ->setReadableByPath();
+
         $statementVoteConfig->statement
             ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
-            ->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO))
-            // ->addPathCreationBehavior()
-        ; // ->setReadableByPath();
+           // ->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO))
+            ->initializable(false, static function (StatementVote $statementVote, Statement $statement): array {
+                $statementVote->setStatement($statement);
+                return [];
+            });
 
         $statementVoteConfig->addPostConstructorBehavior(new FixedSetBehavior(function (StatementVote $statementVote, EntityDataInterface $entityData): array {
             // $statement = $statementVote->getStatement();
