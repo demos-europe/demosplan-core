@@ -13,11 +13,23 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\SegmentComment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentCommentRepository;
+use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementVoteResourceConfigBuilder;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Wrapping\Contracts\AccessException;
+use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructorBehavior;
+use Geocoder\Assert;
 
 /**
  * @template-extends DplanResourceType<StatementVote>
@@ -25,6 +37,11 @@ use EDT\PathBuilding\End;
  */
 final class StatementVoteResourceType extends DplanResourceType
 {
+
+    public function __construct(
+        protected readonly StatementVoteRepository $statementVoteRepository,
+    ) {
+    }
 
     public static function getName(): string
     {
@@ -45,7 +62,7 @@ final class StatementVoteResourceType extends DplanResourceType
     {
         $statementVoteConfig = $this->getConfig(StatementVoteResourceConfigBuilder::class);
 
-        $statementVoteConfig->id->setReadableByPath();
+        $statementVoteConfig->id->setReadableByPath()->initializable();
         $statementVoteConfig->firstname
             ->setReadableByPath()
             ->addPathUpdateBehavior()
@@ -63,7 +80,21 @@ final class StatementVoteResourceType extends DplanResourceType
         $statementVoteConfig->postcode->setReadableByPath()->setAliasedPath(Paths::statementVote()->userPostcode);
         $statementVoteConfig->user->setRelationshipType($this->resourceTypeStore->getUserResourceType())
             ->setReadableByPath();
-        $statementVoteConfig->statement->setRelationshipType($this->resourceTypeStore->getStatementResourceType());
+        $statementVoteConfig->statement->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
+            ->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO))
+            //->addPathCreationBehavior()
+            ;//->setReadableByPath();
+
+
+
+        $statementVoteConfig->addPostConstructorBehavior(new FixedSetBehavior(function (StatementVote $statementVote, EntityDataInterface $entityData): array {
+            //$statement = $statementVote->getStatement();
+            //Assert::notNull($statement);
+            $this->statementVoteRepository->persistEntities([$statementVote]);
+            //$statement->setVotes([$statementVote]);
+
+            return [];
+        }));
 
         return $statementVoteConfig;
 
@@ -71,16 +102,19 @@ final class StatementVoteResourceType extends DplanResourceType
 
     public function isCreateAllowed(): bool
     {
+        //todo adjust conditions
         return true;
     }
 
     public function isUpdateAllowed(): bool
     {
+        //todo adjust conditions
         return true;
     }
 
     protected function getAccessConditions(): array
     {
+        //todo adjust conditions
         return [$this->conditionFactory->true()];
         $currentProcedure = $this->currentProcedureService->getProcedure();
         if (null === $currentProcedure) {
