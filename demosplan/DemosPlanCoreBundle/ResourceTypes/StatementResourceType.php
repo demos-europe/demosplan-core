@@ -397,6 +397,10 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->memo->updatable([$simpleStatementCondition]);
         }
 
+        if ($this->currentUser->hasPermission('field_statement_public_allowed')) {
+            $configBuilder->publicVerified->updatable([$simpleStatementCondition]);
+        }
+
         if ($this->currentUser->hasPermission('area_admin_consultations')) {
             $configBuilder->submitterEmailAddress->updatable($statementConditions);
             $configBuilder->submitterName
