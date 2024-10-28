@@ -33,7 +33,6 @@ use Geocoder\Assert;
 
 /**
  * @template-extends DplanResourceType<StatementVote>
- * @template-extends DplanResourceType<StatementVote>
  */
 final class StatementVoteResourceType extends DplanResourceType
 {
@@ -62,12 +61,15 @@ final class StatementVoteResourceType extends DplanResourceType
     {
         $statementVoteConfig = $this->getConfig(StatementVoteResourceConfigBuilder::class);
 
-        $statementVoteConfig->id->setReadableByPath()->initializable();
-        $statementVoteConfig->firstname
-            ->setReadableByPath()
-            ->addPathUpdateBehavior()
-            ->addPathCreationBehavior()
-            ->setAliasedPath(Paths::statementVote()->firstName);
+        $statementVoteConfig->id->setReadableByPath();
+
+        $statementVoteConfig->name
+            ->readable(true, fn (StatementVote $statementVote): string => $statementVote->getLastName())
+            ->addPathUpdateBehavior([], function (StatementVote $statementVote, ?string $name): array {
+                $statementVote->setLastName($name);
+                return [];
+            })
+            ->addPathCreationBehavior();
 
         $statementVoteConfig
             ->lastname
