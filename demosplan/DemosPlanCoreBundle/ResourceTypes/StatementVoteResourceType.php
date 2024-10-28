@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
@@ -110,11 +111,7 @@ final class StatementVoteResourceType extends DplanResourceType
             });
 
         $statementVoteConfig->addPostConstructorBehavior(new FixedSetBehavior(function (StatementVote $statementVote, EntityDataInterface $entityData): array {
-            // $statement = $statementVote->getStatement();
-            // Assert::notNull($statement);
             $this->statementVoteRepository->persistEntities([$statementVote]);
-            // $statement->setVotes([$statementVote]);
-
             return [];
         }));
 
