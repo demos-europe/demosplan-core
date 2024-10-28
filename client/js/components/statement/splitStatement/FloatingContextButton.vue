@@ -1,7 +1,7 @@
 <template>
   <button
     v-show="isVisible"
-    class="bg-surface rounded shadow absolute p-0.5"
+    class="bg-white rounded shadow absolute p-0.5"
     :aria-controls="section"
     :aria-expanded="isContentCollapsed"
     :data-cy="`sidebar:floatingContextButton:${section}`"
