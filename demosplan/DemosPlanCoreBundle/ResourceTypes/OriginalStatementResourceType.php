@@ -111,13 +111,6 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         )->setAliasedPath(Paths::statement()->text);
         $originalStatementConfig->textIsTruncated
             ->setReadableByCallable(static fn (Statement $statement): bool => $statement->getText() !== $statement->getTextShort());
-        $originalStatementConfig->phase
-        ->setReadableByCallable(
-            fn (Statement $statement): string => $this->statementService->getProcedurePhaseName(
-                $statement->getPhase(),
-                $statement->isSubmittedByCitizen()
-            )
-        );
         $originalStatementConfig->procedurePhase
             ->setReadableByCallable(function (Statement $statement): ?array {
                 try {
