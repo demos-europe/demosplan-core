@@ -13,8 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SlugInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use ReflectionClass;
 
@@ -59,6 +61,9 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
 
             return $modifiedValues;
         }
+        if ($oldObject instanceof Slug && $newObject instanceof Slug) {
+            return $this->handleSlugRelation($oldObject, $newObject);
+        }
 
         $reflectionClass = new ReflectionClass($oldObject);
         $properties = $reflectionClass->getProperties();
@@ -93,6 +98,22 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
                     ];
                 }
             }
+        }
+
+        return $modifiedValues;
+    }
+
+    /** The Slugs need special treatment as the newly added Slug is not a proxy like the others and does not
+     * support access to doctrine proxy properties
+     */
+    private function handleSlugRelation(SlugInterface $oldSlug, SlugInterface $newSlug): array
+    {
+        $modifiedValues = [];
+        if ($oldSlug->getId() !== $newSlug->getId()) {
+            $modifiedValues['id'] = ['old' => $oldSlug->getId(), 'new' => $newSlug->getId()];
+        }
+        if ($oldSlug->getName() !== $newSlug->getName()) {
+            $modifiedValues['name'] = ['old' => $oldSlug->getName(), 'new' => $newSlug->getName()];
         }
 
         return $modifiedValues;
