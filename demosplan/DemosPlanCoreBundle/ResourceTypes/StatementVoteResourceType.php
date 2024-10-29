@@ -32,7 +32,7 @@ final class StatementVoteResourceType extends DplanResourceType
 {
     public function __construct(
         protected readonly StatementVoteRepository $statementVoteRepository,
-        protected readonly StatementService $statementService
+        protected readonly StatementService $statementService,
     ) {
     }
 
@@ -53,7 +53,6 @@ final class StatementVoteResourceType extends DplanResourceType
 
     protected function getProperties(): ResourceConfigBuilderInterface
     {
-
         /**
          * Create, update or delete votes are allowed if:
          * - if the statement is manual OR
@@ -65,7 +64,6 @@ final class StatementVoteResourceType extends DplanResourceType
                 [StatementInterface::PUBLICATION_PENDING, StatementInterface::PUBLICATION_APPROVED, StatementInterface::PUBLICATION_REJECTED],
                 Paths::statementVote()->statement->publicVerified)
         );
-
 
         $statementVoteConfig = $this->getConfig(StatementVoteResourceConfigBuilder::class);
 
@@ -93,13 +91,13 @@ final class StatementVoteResourceType extends DplanResourceType
         $statementVoteConfig->city
             ->setReadableByPath()
             ->addPathUpdateBehavior([$voteConditions])
-            ->addPathCreationBehavior(OptionalField::YES,  [$voteConditions])
+            ->addPathCreationBehavior(OptionalField::YES, [$voteConditions])
             ->setAliasedPath(Paths::statementVote()->userCity);
 
         $statementVoteConfig->postcode
             ->setReadableByPath()
             ->addPathUpdateBehavior([$voteConditions])
-            ->addPathCreationBehavior(OptionalField::YES,  [$voteConditions])
+            ->addPathCreationBehavior(OptionalField::YES, [$voteConditions])
             ->setAliasedPath(Paths::statementVote()->userPostcode);
 
         $statementVoteConfig->createdByCitizen
