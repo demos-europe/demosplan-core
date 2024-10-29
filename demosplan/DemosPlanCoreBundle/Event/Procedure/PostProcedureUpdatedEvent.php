@@ -104,7 +104,7 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
     }
 
     /** The Slugs need special treatment as the newly added Slug is not a proxy like the others and does not
-     * support access to doctrine proxy properties
+     * support access to doctrine proxy properties.
      */
     private function handleSlugRelation(SlugInterface $oldSlug, SlugInterface $newSlug): array
     {
