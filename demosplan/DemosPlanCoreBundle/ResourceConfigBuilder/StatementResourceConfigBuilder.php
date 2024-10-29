@@ -90,6 +90,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $segmentDraftList
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $availableInternalPhases
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $availableExternalPhases
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $location
  */
 class StatementResourceConfigBuilder extends BaseStatementResourceConfigBuilder
 {

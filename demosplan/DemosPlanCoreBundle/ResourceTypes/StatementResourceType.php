@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
@@ -69,6 +70,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly QueryStatement $esQuery,
         private readonly StatementService $statementService,
         private readonly StatementDeleter $statementDeleter,
+        protected readonly CoordinateJsonConverter $coordinateJsonConverter,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);
     }
@@ -273,6 +275,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->assignee->readable()->filterable();
             $configBuilder->authorName->readable(true)->filterable();
             $configBuilder->submitName->readable(true)->filterable()->sortable();
+            $configBuilder->location
+                ->readable(true, fn (Statement $statement): ?array => $this->coordinateJsonConverter->convertJsonToCoordinates($statement->getPolygon()))
+                ->aliasedPath(Paths::statement()->polygon);
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
