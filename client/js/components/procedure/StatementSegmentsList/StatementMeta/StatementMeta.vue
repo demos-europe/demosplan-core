@@ -190,7 +190,7 @@
               id="statementDepartmentName"
               v-model="localStatement.attributes.initialOrganisationDepartmentName"
               class="mb-2"
-              :disabled="isStatementManual ? false : !editable"
+              :disabled="!editable || !isStatementManual"
               :label="{
                 text: Translator.trans('department')
               }"
@@ -202,7 +202,7 @@
               id="statementOrgaName"
               v-model="localStatement.attributes.initialOrganisationName"
               class="mb-2"
-              :disabled="isStatementManual ? false : !editable"
+              :disabled="!editable || !isStatementManual"
               :label="{
                 text: Translator.trans('organisation')
               }"
@@ -228,7 +228,7 @@
               id="statementEmailAddress"
               v-model="localStatement.attributes.submitterEmailAddress"
               class="mb-2"
-              :disabled="isStatementManual ? false : !editable"
+              :disabled="!editable || !isStatementManual"
               :label="{
                 text: Translator.trans('email')
               }"
@@ -247,7 +247,7 @@
               v-if="localStatement.attributes.represents"
               id="representationCheck"
               v-model="localStatement.attributes.representationChecked"
-              :disabled="isStatementManual ? false : !editable"
+              :disabled="!editable || !isStatementManual"
               :label="{
                 text: Translator.trans('statement.representation.checked')
               }"
@@ -258,7 +258,7 @@
                 id="statementStreet"
                 v-model="localStatement.attributes.initialOrganisationStreet"
                 class="o-form__group-item"
-                :disabled="isStatementManual ? false : !editable"
+                :disabled="!editable || !isStatementManual"
                 :label="{
                   text: Translator.trans('street')
                 }"
@@ -267,7 +267,7 @@
                 id="statementHouseNumber"
                 v-model="localStatement.attributes.initialOrganisationHouseNumber"
                 class="o-form__group-item shrink"
-                :disabled="isStatementManual ? false : !editable"
+                :disabled="!editable || !isStatementManual"
                 :label="{
                   text: Translator.trans('street.number.short')
                 }"
@@ -279,7 +279,7 @@
                 id="statementPostalCode"
                 v-model="localStatement.attributes.initialOrganisationPostalCode"
                 class="o-form__group-item shrink"
-                :disabled="isStatementManual ? false : !editable"
+                :disabled="!editable || !isStatementManual"
                 :label="{
                   text: Translator.trans('postalcode')
                 }"
@@ -290,7 +290,7 @@
                 id="statementCity"
                 v-model="localStatement.attributes.initialOrganisationCity"
                 class="o-form__group-item"
-                :disabled="isStatementManual ? false : !editable"
+                :disabled="!editable || !isStatementManual"
                 :label="{
                   text: Translator.trans('city')
                 }"
