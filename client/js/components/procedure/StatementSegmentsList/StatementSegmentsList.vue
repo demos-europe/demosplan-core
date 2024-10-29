@@ -579,7 +579,8 @@ export default {
         'submitterAndAuthorMetaDataAnonymized',
         'submitterEmailAddress',
         'submitType',
-        'status'
+        'status',
+        'votes'
       ]
 
       if (this.isSourceAndCoupledProcedure) {
@@ -598,7 +599,7 @@ export default {
           'attachments.file',
           'files',
           'similarStatementSubmitters',
-          'statementVote'
+          'votes'
         ].join(),
         fields: {
           File: [
