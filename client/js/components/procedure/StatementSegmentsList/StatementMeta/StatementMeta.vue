@@ -22,15 +22,20 @@
 
     <div class="flex">
       <div class="sticky top-[70px] mt-2 basis-1/4 max-h-11">
-        <ul class="pr-5">
+        <ul
+          aria-label="Metadaten Menü"
+          class="pr-5"
+          role="menu" >
           <li
             v-for="entry in menuEntries"
             :class="{
                 'bg-selected': activeItem === entry.id
               }"
-            class="p-1.5 rounded">
+            class="p-1.5 rounded"
+            role="presentation">
             <button
               class="text-left"
+              role="menuitem"
               v-text=Translator.trans(entry.transKey)
               @click="setActiveItem(entry.id)"/>
           </li>
