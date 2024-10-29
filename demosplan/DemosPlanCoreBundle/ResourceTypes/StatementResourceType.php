@@ -397,6 +397,21 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->memo->updatable([$simpleStatementCondition]);
         }
 
+        if ($this->currentUser->hasPermission('field_statement_public_allowed')) {
+            $configBuilder->publicVerified
+                ->readable(true, function (Statement $statement) {
+                    return $statement->getPublicVerified();
+                })
+                ->updatable(
+                    [$simpleStatementCondition],
+                    static function (Statement $statement, string $publicVerified): array {
+                        $statement->setPublicVerified($publicVerified);
+
+                        return [];
+                    }
+                );
+        }
+
         if ($this->currentUser->hasPermission('area_admin_consultations')) {
             $configBuilder->submitterEmailAddress->updatable($statementConditions);
             $configBuilder->submitterName
@@ -451,6 +466,12 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
             $configBuilder->availableExternalPhases
                 ->readable(false, $this->getAvailableExternalPhases(...));
+        }
+
+        if ($this->resourceTypeStore->getStatementVoteResourceType()->isAvailable()) {
+            $configBuilder->votes
+                ->setRelationshipType($this->getTypes()->getStatementVoteResourceType())
+                ->readable(true);
         }
 
         return $configBuilder;
