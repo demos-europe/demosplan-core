@@ -597,7 +597,8 @@ export default {
           'attachments',
           'attachments.file',
           'files',
-          'similarStatementSubmitters'
+          'similarStatementSubmitters',
+          'statementVote'
         ].join(),
         fields: {
           File: [
@@ -616,6 +617,15 @@ export default {
           StatementAttachment: [
             'file',
             'attachmentType'
+          ].join(),
+          StatementVote: [
+            'city',
+            'createdByCitizen',
+            'departmentName',
+            'email',
+            'name',
+            'organisationName',
+            'postcode'
           ].join()
         }
       })
