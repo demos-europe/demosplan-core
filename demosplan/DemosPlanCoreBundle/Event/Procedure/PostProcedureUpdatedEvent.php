@@ -55,6 +55,7 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
     }
 
     /**
+     * Attention! This method will not discover newly added entities for a ToMany Collection relation
      * @return array<string, array<string, mixed>>
      */
     private function determineModifiedValues(object $oldObject, object $newObject, int $nestingLimit = 2): array
