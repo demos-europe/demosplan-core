@@ -70,7 +70,7 @@ final class StatementVoteResourceType extends DplanResourceType
         $statementVoteConfig->id->setReadableByPath();
 
         $statementVoteConfig->name
-            ->readable(true, fn (StatementVote $statementVote): string => $statementVote->getLastName())
+            ->readable(true, fn (StatementVote $statementVote): string => $statementVote->getName())
             ->updatable([$voteConditions], function (StatementVote $statementVote, ?string $name): array {
                 $statementVote->setLastName($name);
 
