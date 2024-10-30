@@ -392,10 +392,6 @@ export default {
     },
 
     save (data) {
-      // If authorName has been changed, change submitName as well, see https://yaits.demos-deutschland.de/T20363#479858
-      // if (this.localStatement.attributes.authorName !== this.statement.attributes.authorName) {
-      //   this.syncAuthorAndSubmitter()
-      // }
       this.$emit('save', data)
     },
 
