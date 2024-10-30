@@ -211,7 +211,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
             $title,
             $text,
             $documents,
-            $visibleDocuments
+            $visibleDocuments,
         ];
 
         if ($this->currentUser->hasPermission('field_procedure_elements')) {
