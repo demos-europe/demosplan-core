@@ -98,7 +98,7 @@ final class GisLayerResourceType extends DplanResourceType
             $currentProcedure = $this->currentProcedureService->getProcedure();
             $rootCategory = $this->gisLayerCategoryRepository->getRootLayerCategory($currentProcedure->getId());
             $gislayer = $rootCategory->getGisLayers();
-            $baseGislayer = $gislayer->filter(fn (GisLayerInterface $gisLayer) => $gisLayer->getType() === 'base');
+            $baseGislayer = $gislayer->filter(fn (GisLayerInterface $gisLayer) => 'base' === $gisLayer->getType());
             if (1 === count($baseGislayer)) {
                 $this->messageBag->add('error', 'mindestens eine Grundkarte muss vorhanden sein');
             }
