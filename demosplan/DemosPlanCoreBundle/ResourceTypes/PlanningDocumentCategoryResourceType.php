@@ -181,8 +181,6 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
         $title = $this->createAttribute($this->title);
         $text = $this->createAttribute($this->text);
 
-        $paragraphs = $this->createToManyRelationship($this->paragraphs)->readable();
-
         $children = $this->createToManyRelationship($this->children);
 
         if ($this->currentUser->hasPermission('field_procedure_elements')) {
@@ -213,8 +211,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
             $title,
             $text,
             $documents,
-            $visibleDocuments,
-            $paragraphs
+            $visibleDocuments
         ];
 
         if ($this->currentUser->hasPermission('field_procedure_elements')) {
