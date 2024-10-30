@@ -42,10 +42,10 @@ final class ParagraphVersionResourceType extends DplanResourceType
     }
 
     /**
-     * Emulate this behaviour
-     * @link \demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService::getEntityVersions
-     * @link \demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService::createParagraphVersion
-     * @return bool
+     * Emulate this behaviour.
+     *
+     * @see \demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService::getEntityVersions
+     * @see \demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService::createParagraphVersion
      */
     public function isCreateAllowed(): bool
     {
