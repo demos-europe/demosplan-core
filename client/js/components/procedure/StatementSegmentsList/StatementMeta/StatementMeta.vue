@@ -149,9 +149,9 @@ import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/Simila
 import StatementEntry from './StatementEntry'
 import StatementMetaAttachments from './StatementMetaAttachments'
 import StatementMetaMultiselect from './StatementMetaMultiselect'
-import StatementPublicationAndVoting from './StatementPublicationAndVoting'
+// import StatementPublicationAndVoting from './StatementPublicationAndVoting'
 import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
-import StatementSubmitter from './StatementSubmitter'
+// import StatementSubmitter from './StatementSubmitter'
 import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 
 export default {
@@ -171,9 +171,9 @@ export default {
     StatementEntry,
     StatementMetaAttachments,
     StatementMetaMultiselect,
-    StatementPublicationAndVoting,
+    // StatementPublicationAndVoting,
     StatementPublish,
-    StatementSubmitter,
+    // StatementSubmitter,
     StatementVoter
   },
 
