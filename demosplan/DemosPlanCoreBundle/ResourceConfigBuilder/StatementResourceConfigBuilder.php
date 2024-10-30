@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceConfigBuilder;
 
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseStatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
-use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
