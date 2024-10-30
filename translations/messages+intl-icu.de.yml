@@ -2050,8 +2050,9 @@ layer: "Kartenebene"
 # @TODO refactor everything to use "gislayer..." when referring to "Kartenebenen"
 # and "layer..." when referring to the layer inside of a getCapabilities response
 layers: "Layer"
-legend.download: "Legende herunterladen"
 legend: "Legende"
+legend.download: "Legende herunterladen"
+legend.not_available: "Legende nicht verfügbar"
 like: "Unterstützung"
 liked.by: "Unterstützt von"
 liked.by.persons: |
@@ -2125,6 +2126,7 @@ map.base.url: "URL der Grundkarte"
 map.base.url.hint: "Geben Sie hier die Web-Adresse für einen Web-Map-Service (WMS) ein. Die in der Adresse angegebene Kartenebene wird auf der Startseite als Grundkarte angezeigt. Die Kartenebene muss die Projektion EPSG:3857 (Web Mercator) unterstützen."
 map.base.settings.preview: "Hier können Sie prüfen, ob die URL und Layer Eingaben korrekt sind"
 map.bases: "Grundkarten"
+info.gislayer.delete: " Hinweis: mindestens eine Grundkarte muss vorhanden sein"
 map.base.minimap: "Übersichtskarte"
 map.base.minimap.hint: "Legen Sie hier eine eigene Kartenebene für die Übersichtskarte fest. Sie können aus den eingerichteten Grundkarten wählen. Standardmäßig wird die aktuell sichtbare Grundkarte genutzt."
 # uhuh...
