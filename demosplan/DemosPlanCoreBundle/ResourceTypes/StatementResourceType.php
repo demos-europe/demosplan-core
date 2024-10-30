@@ -17,8 +17,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
-use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -282,7 +280,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->aliasedPath(Paths::statement()->polygon);
 
             if ($this->currentUser->hasPermission('field_procedure_elements')) {
-                //@todo double check permission to update
+                // @todo double check permission to update
                 $configBuilder->elements
                     ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryResourceType())
                     ->updatable()
