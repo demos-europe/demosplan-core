@@ -162,8 +162,8 @@
           <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
               v-if="hasPermission('area_statement_segmentation')"
-              data-cy="listStatements:statementSplit"
               :class="`${(segmentsCount > 0 && segmentsCount !== '-') ? 'is-disabled' : '' } btn--blank o-link--default`"
+              data-cy="listStatements:statementSplit"
               :disabled="segmentsCount > 0 && segmentsCount !== '-'"
               @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
               rel="noopener">
@@ -177,8 +177,8 @@
             </a>
             <a
               v-if="hasPermission('feature_read_source_statement_via_api') && hasPermission('area_admin_import')"
-              data-cy="listStatements:originalPDF"
               :class="{'is-disabled': !originalPdf}"
+              data-cy="listStatements:originalPDF"
               :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
               rel="noreferrer noopener"
               target="_blank">
@@ -187,13 +187,14 @@
             <a
               v-if="hasPermission('area_admin_original_statement_list')"
               :class="{'is-disabled': !originalId}"
+              data-cy="listStatements:originalStatement"
               :href="Routing.generate('dplan_procedure_original_statement_list', { procedureId: procedureId })"
               rel="noreferrer noopener">
               {{ Translator.trans('statement.original') }}
             </a>
             <button
-              data-cy="listStatements:statementDelete"
               :class="`${ !synchronized || assignee.id === currentUserId ? 'hover:underline--hover' : 'is-disabled' } btn--blank o-link--default`"
+              data-cy="listStatements:statementDelete"
               :disabled="synchronized || assignee.id !== currentUserId"
               type="button"
               @click="triggerStatementDeletion(id)">
