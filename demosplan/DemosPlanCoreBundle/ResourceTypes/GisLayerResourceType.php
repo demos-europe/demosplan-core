@@ -68,7 +68,6 @@ use EDT\PathBuilding\End;
  */
 final class GisLayerResourceType extends DplanResourceType
 {
-
     public function __construct(private readonly GisLayerCategoryRepository $gisLayerCategoryRepository)
     {
     }
