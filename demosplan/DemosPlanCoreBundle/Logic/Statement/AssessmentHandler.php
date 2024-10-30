@@ -326,7 +326,7 @@ class AssessmentHandler extends CoreHandler
         // TODO: this seems to do nothing as the statement changed seems to be just a copy, please verify and delete code or falsify and explain with comment
         foreach ($statements as $statement) {
             // Ersetze die Phase, in der die SN eingegangen ist
-            $statement['phase'] = $this->statementService->getPhaseNameFromArray($statement);
+            $statement['phase'] = $this->statementService->getProcedurePhaseNameFromArray($statement);
         }
 
         return StatementHandlingResult::createCopyWithDifferentStatements($outputResult, $statements);

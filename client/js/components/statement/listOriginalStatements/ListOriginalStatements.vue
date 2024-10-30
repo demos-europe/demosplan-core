@@ -48,10 +48,10 @@
             class="line-clamp-3 c-styled-html"
             v-cleanhtml="shortText" />
         </template>
-        <template v-slot:phase="{ phase }">
+        <template v-slot:procedurePhase="{ procedurePhase }">
           <span
-            v-if="phase">
-            {{ phase }}
+            v-if="procedurePhase.name">
+            {{ procedurePhase.name }}
           </span>
         </template>
         <template
@@ -305,7 +305,7 @@ export default {
           label: Translator.trans('text')
         },
         {
-          field: 'phase',
+          field: 'procedurePhase',
           label: Translator.trans('procedure.public.phase')
         }
       ],
@@ -494,7 +494,7 @@ export default {
         'files',
         'meta',
         'paragraph',
-        'phase',
+        'procedurePhase',
         'polygon',
         'sourceAttachment',
         'shortText',
