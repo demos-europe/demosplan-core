@@ -154,11 +154,6 @@ import StatementPublish from '@DpJs/components/statement/statement/StatementPubl
 import StatementSubmitter from './StatementSubmitter'
 import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 
-const convert = (dateString) => {
-  const date = dateString.split('T')[0].split('-')
-  return date[2] + '.' + date[1] + '.' + date[0]
-}
-
 export default {
   name: 'StatementMeta',
 
@@ -372,15 +367,6 @@ export default {
       this.$emit('input', { fieldName, value })
     },
 
-    convertDate (date) {
-      if (!date) {
-        return ''
-      }
-      return date.match(/[0-9]{2}.[0-9]{2}.[0-9]{4}/)
-        ? date
-        : convert(date)
-    },
-
     isSubmitterAnonymized () {
       const { consentRevoked, submitterAndAuthorMetaDataAnonymized } = this.localStatement.attributes
 
@@ -414,15 +400,8 @@ export default {
       this.scrollToItem(id)
     },
 
-    setDate (val, field) {
-      this.localStatement.attributes[field] = val
-      this.emitInput(field, val)
-    },
-
     setInitValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
-      this.localStatement.attributes.authoredDate = this.convertDate(this.localStatement.attributes.authoredDate)
-      this.localStatement.attributes.submitDate = this.convertDate(this.localStatement.attributes.submitDate)
 
       this.finalMailDefaultText = Translator.trans('statement.send.final_mail.default', {
         hasStatementText: this.localStatement.attributes.fullText.length < 2000 ? 0 : 1,
@@ -431,10 +410,6 @@ export default {
         statementText: this.localStatement.attributes.fullText,
         statementRecommendation: this.localStatement.attributes.recommendation
       })
-    },
-
-    syncAuthorAndSubmitter () {
-      this.localStatement.attributes.submitName = this.localStatement.attributes.authorName
     },
 
     updateLocalStatementProperties (value, field) {
