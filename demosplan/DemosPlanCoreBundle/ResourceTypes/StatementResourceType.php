@@ -285,6 +285,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryResourceType())
                     ->updatable()
                     ->readable()->aliasedPath(Paths::statement()->element);
+                $configBuilder->paragraphVersion
+                    ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
+                    ->readable()->aliasedPath(Paths::statement()->paragraph);
             }
         }
 
