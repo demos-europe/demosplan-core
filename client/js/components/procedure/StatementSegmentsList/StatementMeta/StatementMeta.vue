@@ -268,15 +268,6 @@ export default {
       storageStatement: 'items'
     }),
 
-    availableProcedurePhases () {
-      const phases = this.statement.attributes?.availableProcedurePhases || []
-
-      return phases.map(phase => ({
-        label: phase.name,
-        value: phase.key
-      }))
-    },
-
     currentDate () {
       let today = new Date()
       const dd = today.getDate().toString().padStart(2, '0')

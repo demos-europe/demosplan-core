@@ -173,6 +173,15 @@ export default {
   },
 
   computed : {
+    availableProcedurePhases () {
+      const phases = this.statement.attributes?.availableProcedurePhases || []
+
+      return phases.map(phase => ({
+        label: phase.name,
+        value: phase.key
+      }))
+    },
+
     isStatementManual() {
       return this.localStatement.attributes.isManual
     }
