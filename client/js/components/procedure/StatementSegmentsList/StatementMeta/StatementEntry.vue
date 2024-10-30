@@ -8,7 +8,7 @@ All rights reserved
 </license>
 
 <template>
-  <fieldset>
+  <fieldset data-dp-validate="statementEntryData">
     <legend
       id="entry"
       class="mb-3 color-text-muted font-normal">
@@ -111,7 +111,7 @@ All rights reserved
       class="mt-2 w-full"
       primary
       secondary
-      @primary-action="dpValidateAction('statementMetaData', save, false)"
+      @primary-action="dpValidateAction('statementEntryData', save, false)"
       @secondary-action="reset" />
   </fieldset>
 </template>
