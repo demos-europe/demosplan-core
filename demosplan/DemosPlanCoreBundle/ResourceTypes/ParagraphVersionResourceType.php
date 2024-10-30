@@ -72,8 +72,9 @@ final class ParagraphVersionResourceType extends DplanResourceType
     {
         $paragraphVersionConfig = $this->getConfig(BaseParagraphVersionResourceConfigBuilder::class);
         $paragraphVersionConfig->id->setReadableByPath()->setSortable()->setFilterable();
-        // $paragraphVersionConfig->paragraph
-        //    ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())->setReadableByPath();
+        $paragraphVersionConfig->paragraph
+            ->setRelationshipType($this->resourceTypeStore->getParagraphResourceType())
+            ->setReadableByPath();
         $paragraphVersionConfig->title->setReadableByPath();
 
         return $paragraphVersionConfig;
