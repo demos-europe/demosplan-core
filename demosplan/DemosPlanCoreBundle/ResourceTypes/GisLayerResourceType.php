@@ -68,7 +68,6 @@ use EDT\PathBuilding\End;
  */
 final class GisLayerResourceType extends DplanResourceType
 {
-
     public function __construct(private readonly GisLayerCategoryRepository $gisLayerCategoryRepository)
     {
     }
@@ -99,7 +98,7 @@ final class GisLayerResourceType extends DplanResourceType
             $currentProcedure = $this->currentProcedureService->getProcedure();
             $rootCategory = $this->gisLayerCategoryRepository->getRootLayerCategory($currentProcedure->getId());
             $gislayer = $rootCategory->getGisLayers();
-            $baseGislayer = $gislayer->filter(fn (GisLayerInterface $gisLayer) => $gisLayer->getType() === 'base');
+            $baseGislayer = $gislayer->filter(fn (GisLayerInterface $gisLayer) => 'base' === $gisLayer->getType());
 
             return $this->hasManagementPermission() && (count($baseGislayer) > 1);
         }
