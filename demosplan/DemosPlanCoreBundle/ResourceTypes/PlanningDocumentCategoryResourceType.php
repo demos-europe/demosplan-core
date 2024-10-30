@@ -45,7 +45,6 @@ use Webmozart\Assert\Assert;
  * @property-read ProcedureResourceType $procedure
  * @property-read SingleDocumentResourceType $documents
  * @property-read SingleDocumentResourceType $visibleDocuments
- * @property-read ParagraphResourceType $paragraphs
  */
 final class PlanningDocumentCategoryResourceType extends DplanResourceType
 {
