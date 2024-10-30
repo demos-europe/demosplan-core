@@ -41,6 +41,12 @@ final class ParagraphVersionResourceType extends DplanResourceType
         return true;
     }
 
+    public function isUpdateAllowed(): bool
+    {
+        //@todo update to proper conditions
+        return true;
+    }
+
     public function isGetAllowed(): bool
     {
         return false;
