@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PhasePermissionsetLoader;
@@ -62,14 +63,15 @@ use EDT\PathBuilding\End;
  * @property-read End                                 $externalPhasePermissionset
  * @property-read End                                 $internalPhasePermissionset
  * @property-read CustomerResourceType                $customer
+ * @property-read PlanningDocumentCategoryResourceType                $elements
  */
 final class ProcedureResourceType extends DplanResourceType implements ProcedureResourceTypeInterface
 {
     public function __construct(
         private readonly PhasePermissionsetLoader $phasePermissionsetLoader,
-        private readonly DraftStatementService $draftStatementService,
+        private readonly DraftStatementService    $draftStatementService,
         private readonly ProcedureAccessEvaluator $accessEvaluator,
-        private readonly ProcedureExtension $procedureExtension
+        private readonly ProcedureExtension       $procedureExtension
     ) {
     }
 
@@ -176,16 +178,20 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             $invitedOrganisations,
         ];
 
+
         if ($this->hasAdminPermissions()) {
             $owningOrganisation->readable()->sortable()->filterable();
             $invitedOrganisations->readable()->sortable()->filterable();
             $properties[] = $this->createAttribute($this->agencyMainEmailAddress)->readable(true)->sortable()->filterable();
+            $properties[] = $this->createToManyRelationship($this->elements)->readable()->sortable()->filterable();
         }
 
         if ($this->currentUser->hasPermission('area_procedure_type_edit')) {
             $properties[] = $this->createToOneRelationship($this->procedureType)->readable()->sortable()->filterable();
             $properties[] = $this->createToOneRelationship($this->procedureUiDefinition)->readable()->sortable()->filterable();
             $properties[] = $this->createToOneRelationship($this->statementFormDefinition)->readable()->sortable()->filterable();
+
+
         }
         if ($this->currentUser->hasAnyPermissions('area_public_participation', 'area_admin_map')) {
             $properties[] = $this->createAttribute($this->coordinate)->readable()->aliasedPath(Paths::procedure()->settings->coordinate);

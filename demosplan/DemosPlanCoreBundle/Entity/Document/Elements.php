@@ -186,6 +186,15 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
      */
     protected $children;
 
+
+    /**
+     * @var Collection<int,Paragraph>
+     *
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", mappedBy="element")
+     * @ORM\OrderBy({"order" = "ASC"})
+     */
+    protected $paragraphs;
+
     /**
      * @var Collection<int,Orga>|Orga[]
      *

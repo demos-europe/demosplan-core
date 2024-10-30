@@ -45,6 +45,7 @@ use Webmozart\Assert\Assert;
  * @property-read ProcedureResourceType $procedure
  * @property-read SingleDocumentResourceType $documents
  * @property-read SingleDocumentResourceType $visibleDocuments
+ * @property-read ParagraphResourceType $paragraphs
  */
 final class PlanningDocumentCategoryResourceType extends DplanResourceType
 {
@@ -179,7 +180,11 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
             });
         $title = $this->createAttribute($this->title);
         $text = $this->createAttribute($this->text);
+
+        $paragraphs = $this->createToManyRelationship($this->paragraphs)->readable();
+
         $children = $this->createToManyRelationship($this->children);
+
         if ($this->currentUser->hasPermission('field_procedure_elements')) {
             $children->readable(
                 true,
@@ -209,6 +214,7 @@ final class PlanningDocumentCategoryResourceType extends DplanResourceType
             $text,
             $documents,
             $visibleDocuments,
+            $paragraphs
         ];
 
         if ($this->currentUser->hasPermission('field_procedure_elements')) {
