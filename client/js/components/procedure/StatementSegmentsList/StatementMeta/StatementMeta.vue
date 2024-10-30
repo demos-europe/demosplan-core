@@ -268,19 +268,10 @@ export default {
       storageStatement: 'items'
     }),
 
-    availableExternalPhases () {
-      const externalPhases = this.statement.attributes?.availableExternalPhases || []
+    availableProcedurePhases () {
+      const phases = this.statement.attributes?.availableProcedurePhases || []
 
-      return externalPhases.map(phase => ({
-        label: phase.name,
-        value: phase.key
-      }))
-    },
-
-    availableInternalPhases () {
-      const internalPhases = this.statement.attributes?.availableInternalPhases || []
-
-      return internalPhases.map(phase => ({
+      return phases.map(phase => ({
         label: phase.name,
         value: phase.key
       }))
