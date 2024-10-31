@@ -1149,6 +1149,12 @@ feature_map_attribution:
     expose: true
     loginRequired: true
     parent: area_admin_map
+feature_map_required:
+    description: "this permission will be enabled in projects where a procedure had to have at least one layer, that's means
+    that users will not be able to delete the last layer of a procedure."
+    label: check if one layer is available
+    expose: true
+    loginRequired: true
 feature_map_baselayer:
     description: |-
         Enables the usage of custom baselayers (next to the overlays) in the map
@@ -2663,12 +2669,6 @@ field_segment_assignee_filter:
 field_send_final_email:
     label: 'Schlussmitteilung versenden'
     loginRequired: true
-field_show_internal_procedure_phases_in_dropdown:
-    description: 'Some roles may not see internal phases in dropdown. This permission helps to discriminate them.'
-    expose: true
-    label: 'Internal scope may filter for internal phase in procedure list'
-    loginRequired: true
-    parent: area_main_procedures
 field_sign_language_overview_video_edit:
     description: 'User with this permission are able to upload a video file for their current customer including a title and description.'
     expose: true
