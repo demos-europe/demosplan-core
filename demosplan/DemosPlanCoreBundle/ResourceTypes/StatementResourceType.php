@@ -65,13 +65,13 @@ use Webmozart\Assert\Assert;
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
     public function __construct(
-        FileService                                $fileService,
-        HTMLSanitizer                              $htmlSanitizer,
-        private readonly JsonApiEsService          $jsonApiEsService,
-        private readonly ProcedureAccessEvaluator  $procedureAccessEvaluator,
-        private readonly QueryStatement            $esQuery,
-        private readonly StatementService          $statementService,
-        private readonly StatementDeleter          $statementDeleter,
+        FileService $fileService,
+        HTMLSanitizer $htmlSanitizer,
+        private readonly JsonApiEsService $jsonApiEsService,
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly QueryStatement $esQuery,
+        private readonly StatementService $statementService,
+        private readonly StatementDeleter $statementDeleter,
         protected readonly CoordinateJsonConverter $coordinateJsonConverter,
         private readonly ParagraphVersionRepository $paragraphVersionRepository,
         private readonly ParagraphRepository $paragraphRepository,
@@ -279,6 +279,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     Assert::notNull($paragraphEntity);
                     $paragraphVersion = $this->paragraphVersionRepository->createVersion($paragraphEntity);
                     $statement->setParagraph($paragraphVersion);
+
                     return [];
                 });
             $configBuilder->paragraphTitle
