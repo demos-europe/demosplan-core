@@ -49,8 +49,12 @@
           :editable="editable"
           :statement="statement"
           :submit-type-options="submitTypeOptions"
-          @save="(data) => save(data)"/>
-<!--        <statement-submitter/>-->
+          @save="(data) => save(data)" />
+        <statement-submitter
+          :editable="editable"
+          :statement="statement"
+          :statement-form-definitions="statementFormDefinitions"
+          @save="(data) => save(data)" />
 <!--        <statement-publication-and-voting/>-->
 
         <similar-statement-submitters
@@ -151,7 +155,7 @@ import StatementMetaAttachments from './StatementMetaAttachments'
 import StatementMetaMultiselect from './StatementMetaMultiselect'
 // import StatementPublicationAndVoting from './StatementPublicationAndVoting'
 import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
-// import StatementSubmitter from './StatementSubmitter'
+import StatementSubmitter from './StatementSubmitter'
 import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 
 export default {
@@ -173,7 +177,7 @@ export default {
     StatementMetaMultiselect,
     // StatementPublicationAndVoting,
     StatementPublish,
-    // StatementSubmitter,
+    StatementSubmitter,
     StatementVoter
   },
 
@@ -291,54 +295,7 @@ export default {
       return null
     },
 
-    statementSubmitterField () {
-      const attr = this.localStatement.attributes
-      let submitterField = 'authorName'
-      // If submitter is an orga and name has a value
-      if (attr.submitName && !attr.isSubmittedByCitizen) {
-        submitterField = 'submitName'
-      }
-
-      return submitterField
-    },
-
-    statementSubmitterValue: {
-      get () {
-        return this.isSubmitterAnonymized() ? Translator.trans('anonymized') : this.localStatement.attributes[this.statementSubmitterField]
-      },
-      set (value) {
-        this.localStatement.attributes[this.statementSubmitterField] = value
-      }
-    },
-
-    submitterHelpText () {
-      const { consentRevoked, submitterAndAuthorMetaDataAnonymized } = this.localStatement.attributes
-      let helpText = ''
-
-      const isAnonymized = hasPermission('area_statement_anonymize') && submitterAndAuthorMetaDataAnonymized
-
-      if (consentRevoked) {
-        helpText = Translator.trans('personal.data.usage.revoked')
-
-        if (isAnonymized) {
-          helpText = helpText + `<br><br>${Translator.trans('statement.anonymized.submitter.data')}`
-        }
-      }
-
-      if (!consentRevoked && isAnonymized) {
-        helpText = Translator.trans('statement.anonymized.submitter.data')
-      }
-
-      return helpText
-    },
-
-    submitterRole () {
-      const isSubmittedByCitizen = this.localStatement.attributes.isSubmittedByCitizen &&
-        this.localStatement.attributes.submitterRole !== 'publicagency'
-
-      return isSubmittedByCitizen ? Translator.trans('role.citizen') : Translator.trans('institution')
-    },
-
+    // TO DO: Is this still needed?
     submitType () {
       if (!this.statement.attributes.submitType) {
         return '-'
@@ -365,12 +322,6 @@ export default {
     // TO DO: Deprecated? Remove?
     emitInput (fieldName, value) {
       this.$emit('input', { fieldName, value })
-    },
-
-    isSubmitterAnonymized () {
-      const { consentRevoked, submitterAndAuthorMetaDataAnonymized } = this.localStatement.attributes
-
-      return consentRevoked || submitterAndAuthorMetaDataAnonymized
     },
 
     reset () {
