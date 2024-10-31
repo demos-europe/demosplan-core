@@ -130,8 +130,8 @@ All rights reserved
       </div>
     </div>
 
-<!--    TO DO: Add permission -->
     <similar-statement-submitters
+      v-if="hasPermission('feature_similar_statement_submitter')"
       class="mb-4"
       :editable="editable"
       :procedure-id="procedure.id"

@@ -575,7 +575,6 @@ export default {
         'publicVerifiedTranslation',
         'recommendation',
         'segmentDraftList',
-        'similarStatementSubmitters',
         'submitDate',
         'submitName',
         'submitterAndAuthorMetaDataAnonymized',
@@ -593,44 +592,58 @@ export default {
         statementFields.push('segmentDraftList')
       }
 
+      if (hasPermission('feature_similar_statement_submitter')) {
+        statementFields.push('similarStatementSubmitters')
+      }
+
+      const allFields = {
+        File: [
+          'hash',
+          'filename'
+        ].join(),
+        Statement: statementFields.join(),
+        StatementAttachment: [
+          'file',
+          'attachmentType'
+        ].join(),
+        StatementVote: [
+          'city',
+          'createdByCitizen',
+          'departmentName',
+          'email',
+          'name',
+          'organisationName',
+          'postcode'
+        ].join()
+      }
+
+      if (hasPermission('feature_similar_statement_submitter')) {
+        allFields.SimilarStatementSubmitter = [
+          'city',
+          'emailAddress',
+          'fullName',
+          'postalCode',
+          'streetName',
+          'streetNumber'
+        ].join();
+      }
+
+      const include = [
+        'assignee',
+        'attachments',
+        'attachments.file',
+        'files',
+        'votes'
+      ]
+
+      if (hasPermission('feature_similar_statement_submitter')) {
+        include.push('similarStatementSubmitters')
+      }
+
       return this.getStatementAction({
         id: this.statementId,
-        include: [
-          'assignee',
-          'attachments',
-          'attachments.file',
-          'files',
-          'similarStatementSubmitters',
-          'votes'
-        ].join(),
-        fields: {
-          File: [
-            'hash',
-            'filename'
-          ].join(),
-          SimilarStatementSubmitter: [
-            'city',
-            'emailAddress',
-            'fullName',
-            'postalCode',
-            'streetName',
-            'streetNumber'
-          ].join(),
-          Statement: statementFields.join(),
-          StatementAttachment: [
-            'file',
-            'attachmentType'
-          ].join(),
-          StatementVote: [
-            'city',
-            'createdByCitizen',
-            'departmentName',
-            'email',
-            'name',
-            'organisationName',
-            'postcode'
-          ].join()
-        }
+        include: include.join(),
+        fields: allFields
       })
     },
 
