@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -24,12 +25,15 @@ use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
@@ -65,16 +69,16 @@ use Webmozart\Assert\Assert;
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
     public function __construct(
-        FileService $fileService,
-        HTMLSanitizer $htmlSanitizer,
-        private readonly JsonApiEsService $jsonApiEsService,
-        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
-        private readonly QueryStatement $esQuery,
-        private readonly StatementService $statementService,
-        private readonly StatementDeleter $statementDeleter,
-        protected readonly CoordinateJsonConverter $coordinateJsonConverter,
+        FileService                                 $fileService,
+        HTMLSanitizer                               $htmlSanitizer,
+        private readonly JsonApiEsService           $jsonApiEsService,
+        private readonly ProcedureAccessEvaluator   $procedureAccessEvaluator,
+        private readonly QueryStatement             $esQuery,
+        private readonly StatementService           $statementService,
+        private readonly StatementDeleter           $statementDeleter,
+        protected readonly CoordinateJsonConverter  $coordinateJsonConverter,
         private readonly ParagraphVersionRepository $paragraphVersionRepository,
-        private readonly ParagraphRepository $paragraphRepository,
+        private readonly ParagraphRepository        $paragraphRepository, private readonly ElementsRepository $elementsRepository, private readonly ElementHandler $elementHandler, private readonly ElementsService $elementsService,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);
     }
@@ -299,7 +303,15 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 // @todo double check permission to update
                 $configBuilder->elements
                     ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryResourceType())
-                    ->updatable()
+                    ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?Elements $planningDocumentCategory): array {
+                        if (null === $planningDocumentCategory) {
+                            $planningDocumentCategory = $this->elementsService->getPlanningDocumentCategoryByTitle($statement->getProcedureId(),$this->globalConfig->getElementsStatementCategoryTitle());
+                        }
+                        Assert::notNull($planningDocumentCategory);
+
+                        $statement->setElement($planningDocumentCategory);
+                        return [];
+                    })
                     ->readable()->aliasedPath(Paths::statement()->element);
                 $configBuilder->paragraphVersion
                     ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
