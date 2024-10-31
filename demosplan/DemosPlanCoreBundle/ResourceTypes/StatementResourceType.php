@@ -395,6 +395,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     return [];
                 }
             );
+
+            $configBuilder->numberOfAnonymVotes->readable()->updatable();
         }
 
         // always updatable if access to type and instances was granted
@@ -488,6 +490,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->setRelationshipType($this->getTypes()->getStatementVoteResourceType())
                 ->readable(true);
         }
+
 
         return $configBuilder;
     }
