@@ -12,17 +12,18 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementVoteResourceConfigBuilder;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
-use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructorBehavior;
 
 /**
  * @template-extends DplanResourceType<StatementVote>
@@ -31,6 +32,7 @@ final class StatementVoteResourceType extends DplanResourceType
 {
     public function __construct(
         protected readonly StatementVoteRepository $statementVoteRepository,
+        protected readonly StatementService $statementService,
     ) {
     }
 
@@ -51,13 +53,25 @@ final class StatementVoteResourceType extends DplanResourceType
 
     protected function getProperties(): ResourceConfigBuilderInterface
     {
+        /**
+         * Create, update votes are allowed if:
+         * - if the statement is manual OR
+         * - if public verified has any of the mentioned values
+         * */
+        $voteConditions = $this->conditionFactory->anyConditionApplies(
+            $this->conditionFactory->propertyHasValue(true, Paths::statementVote()->statement->manual),
+            $this->conditionFactory->propertyHasAnyOfValues(
+                [StatementInterface::PUBLICATION_PENDING, StatementInterface::PUBLICATION_APPROVED, StatementInterface::PUBLICATION_REJECTED],
+                Paths::statementVote()->statement->publicVerified)
+        );
+
         $statementVoteConfig = $this->getConfig(StatementVoteResourceConfigBuilder::class);
 
         $statementVoteConfig->id->setReadableByPath();
 
         $statementVoteConfig->name
-            ->readable(true, fn (StatementVote $statementVote): string => $statementVote->getLastName())
-            ->updatable([], function (StatementVote $statementVote, ?string $name): array {
+            ->readable(true, fn (StatementVote $statementVote): string => $statementVote->getName())
+            ->updatable([$voteConditions], function (StatementVote $statementVote, ?string $name): array {
                 $statementVote->setLastName($name);
 
                 return [];
@@ -70,36 +84,36 @@ final class StatementVoteResourceType extends DplanResourceType
 
         $statementVoteConfig->email
             ->setReadableByPath()
-            ->addPathUpdateBehavior()
-            ->addPathCreationBehavior(OptionalField::YES)
+            ->addPathUpdateBehavior([$voteConditions])
+            ->addPathCreationBehavior(OptionalField::YES, [$voteConditions])
             ->setAliasedPath(Paths::statementVote()->userMail);
 
         $statementVoteConfig->city
             ->setReadableByPath()
-            ->addPathUpdateBehavior()
-            ->addPathCreationBehavior(OptionalField::YES)
+            ->addPathUpdateBehavior([$voteConditions])
+            ->addPathCreationBehavior(OptionalField::YES, [$voteConditions])
             ->setAliasedPath(Paths::statementVote()->userCity);
 
         $statementVoteConfig->postcode
             ->setReadableByPath()
-            ->addPathUpdateBehavior()
-            ->addPathCreationBehavior(OptionalField::YES)
+            ->addPathUpdateBehavior([$voteConditions])
+            ->addPathCreationBehavior(OptionalField::YES, [$voteConditions])
             ->setAliasedPath(Paths::statementVote()->userPostcode);
 
         $statementVoteConfig->createdByCitizen
             ->setReadableByPath()
-            ->addPathUpdateBehavior()
-            ->addPathCreationBehavior();
+            ->addPathUpdateBehavior([$voteConditions])
+            ->addPathCreationBehavior(OptionalField::NO, [$voteConditions]);
 
         $statementVoteConfig->organisationName
             ->setReadableByPath()
-            ->addPathUpdateBehavior()
-            ->addPathCreationBehavior(OptionalField::YES);
+            ->addPathUpdateBehavior([$voteConditions])
+            ->addPathCreationBehavior(OptionalField::YES, [$voteConditions]);
 
         $statementVoteConfig->departmentName
             ->setReadableByPath()
-            ->addPathUpdateBehavior()
-            ->addPathCreationBehavior(OptionalField::YES);
+            ->addPathUpdateBehavior([$voteConditions])
+            ->addPathCreationBehavior(OptionalField::YES, [$voteConditions]);
 
         $statementVoteConfig->user
             ->setRelationshipType($this->resourceTypeStore->getUserResourceType())
@@ -125,26 +139,21 @@ final class StatementVoteResourceType extends DplanResourceType
 
     public function isCreateAllowed(): bool
     {
-        // todo adjust conditions
-        return true;
+        return $this->hasAdminPermissions();
     }
 
     public function isUpdateAllowed(): bool
     {
-        // todo adjust conditions
-        return true;
+        return $this->hasAdminPermissions();
     }
 
     public function isDeleteAllowed(): bool
     {
-        // todo adjust conditions
-        return true;
+        return $this->hasAdminPermissions();
     }
 
     protected function getAccessConditions(): array
     {
-        // todo adjust conditions
-        return [$this->conditionFactory->true()];
         $currentProcedure = $this->currentProcedureService->getProcedure();
         if (null === $currentProcedure) {
             return [$this->conditionFactory->false()];
@@ -156,5 +165,15 @@ final class StatementVoteResourceType extends DplanResourceType
             $this->conditionFactory->propertyHasValue($procedureId, Paths::statementVote()->statement->procedure->id),
             $this->conditionFactory->propertyHasValue(false, Paths::statementVote()->deleted),
         ];
+    }
+
+    private function hasAdminPermissions(): bool
+    {
+        return $this->currentUser->hasAnyPermissions(
+            'feature_segments_of_statement_list',
+            'area_statement_segmentation',
+            'area_admin_statement_list',
+            'area_admin_submitters'
+        );
     }
 }

@@ -1149,6 +1149,12 @@ feature_map_attribution:
     expose: true
     loginRequired: true
     parent: area_admin_map
+feature_map_required:
+    description: "this permission will be enabled in projects where a procedure had to have at least one layer, that's means
+    that users will not be able to delete the last layer of a procedure."
+    label: check if one layer is available
+    expose: true
+    loginRequired: true
 feature_map_baselayer:
     description: |-
         Enables the usage of custom baselayers (next to the overlays) in the map
