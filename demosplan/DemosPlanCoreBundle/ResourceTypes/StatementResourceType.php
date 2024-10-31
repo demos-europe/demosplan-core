@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -274,11 +275,15 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->readable(true)->aliasedPath(Paths::statement()->original->id);
             $configBuilder->paragraphParentId
                 ->readable(true)->aliasedPath(Paths::statement()->paragraph->paragraph->id)
-                ->updatable([$simpleStatementCondition], function (Statement $statement, string $paragraphParentId): array {
-                    $paragraphEntity = $this->paragraphRepository->get($paragraphParentId);
-                    Assert::notNull($paragraphEntity);
-                    $paragraphVersion = $this->paragraphVersionRepository->createVersion($paragraphEntity);
-                    $statement->setParagraph($paragraphVersion);
+                ->updatable([$simpleStatementCondition], function (Statement $statement, ?string $paragraphParentId): array {
+                    if (null === $paragraphParentId || '' === $paragraphParentId) {
+                        $statement->setParagraph(null);
+                    } else {
+                        $paragraphEntity = $this->paragraphRepository->get($paragraphParentId);
+                        Assert::notNull($paragraphEntity);
+                        $paragraphVersion = $this->paragraphVersionRepository->createVersion($paragraphEntity);
+                        $statement->setParagraph($paragraphVersion);
+                    }
 
                     return [];
                 });
