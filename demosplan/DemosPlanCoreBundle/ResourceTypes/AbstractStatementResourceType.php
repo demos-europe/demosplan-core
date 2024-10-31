@@ -230,7 +230,7 @@ abstract class AbstractStatementResourceType extends DplanResourceType
             ->readable(false, fn (Statement $statement): string => $this->htmlSanitizer->purify($statement->getText()));
         // keep `isManual` optional, as it may be removed when the resource type is splitted
         $configBuilder->isManual->readable()->aliasedPath(Paths::statement()->manual);
-        $configBuilder->numberOfAnonymVotes->filterable();
+        $configBuilder->numberOfAnonymVotes->readable()->updatable()->filterable();
         $configBuilder->files
             ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
             // files need to be fetched via Filecontainer
