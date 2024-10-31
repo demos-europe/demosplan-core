@@ -117,8 +117,6 @@ All rights reserved
 </template>
 
 <script>
-import StatementMetaAttachments from "./StatementMetaAttachments.vue";
-
 const convert = (dateString) => {
   const date = dateString.split('T')[0].split('-')
   return date[2] + '.' + date[1] + '.' + date[0]
@@ -180,6 +178,16 @@ export default {
         label: phase.name,
         value: phase.key
       }))
+    },
+
+    currentDate () {
+      let today = new Date()
+      const dd = today.getDate().toString().padStart(2, '0')
+      const mm = (today.getMonth() + 1).toString().padEnd(2, '0') // January is 0
+      const yyyy = today.getFullYear()
+
+      today = dd + '.' + mm + '.' + yyyy
+      return today
     },
 
     isStatementManual() {
