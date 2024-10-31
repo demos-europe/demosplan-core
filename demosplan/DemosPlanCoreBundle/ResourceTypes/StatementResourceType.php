@@ -69,16 +69,16 @@ use Webmozart\Assert\Assert;
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
     public function __construct(
-        FileService                                 $fileService,
-        HTMLSanitizer                               $htmlSanitizer,
-        private readonly JsonApiEsService           $jsonApiEsService,
-        private readonly ProcedureAccessEvaluator   $procedureAccessEvaluator,
-        private readonly QueryStatement             $esQuery,
-        private readonly StatementService           $statementService,
-        private readonly StatementDeleter           $statementDeleter,
-        protected readonly CoordinateJsonConverter  $coordinateJsonConverter,
+        FileService $fileService,
+        HTMLSanitizer $htmlSanitizer,
+        private readonly JsonApiEsService $jsonApiEsService,
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly QueryStatement $esQuery,
+        private readonly StatementService $statementService,
+        private readonly StatementDeleter $statementDeleter,
+        protected readonly CoordinateJsonConverter $coordinateJsonConverter,
         private readonly ParagraphVersionRepository $paragraphVersionRepository,
-        private readonly ParagraphRepository        $paragraphRepository, private readonly ElementsRepository $elementsRepository, private readonly ElementHandler $elementHandler, private readonly ElementsService $elementsService,
+        private readonly ParagraphRepository $paragraphRepository, private readonly ElementsRepository $elementsRepository, private readonly ElementHandler $elementHandler, private readonly ElementsService $elementsService,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);
     }
@@ -305,11 +305,12 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryResourceType())
                     ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?Elements $planningDocumentCategory): array {
                         if (null === $planningDocumentCategory) {
-                            $planningDocumentCategory = $this->elementsService->getPlanningDocumentCategoryByTitle($statement->getProcedureId(),$this->globalConfig->getElementsStatementCategoryTitle());
+                            $planningDocumentCategory = $this->elementsService->getPlanningDocumentCategoryByTitle($statement->getProcedureId(), $this->globalConfig->getElementsStatementCategoryTitle());
                         }
                         Assert::notNull($planningDocumentCategory);
 
                         $statement->setElement($planningDocumentCategory);
+
                         return [];
                     })
                     ->readable()->aliasedPath(Paths::statement()->element);
