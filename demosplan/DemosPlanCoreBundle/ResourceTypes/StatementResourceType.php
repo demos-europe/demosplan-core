@@ -30,6 +30,8 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
@@ -63,14 +65,16 @@ use Webmozart\Assert\Assert;
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
     public function __construct(
-        FileService $fileService,
-        HTMLSanitizer $htmlSanitizer,
-        private readonly JsonApiEsService $jsonApiEsService,
-        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
-        private readonly QueryStatement $esQuery,
-        private readonly StatementService $statementService,
-        private readonly StatementDeleter $statementDeleter,
+        FileService                                $fileService,
+        HTMLSanitizer                              $htmlSanitizer,
+        private readonly JsonApiEsService          $jsonApiEsService,
+        private readonly ProcedureAccessEvaluator  $procedureAccessEvaluator,
+        private readonly QueryStatement            $esQuery,
+        private readonly StatementService          $statementService,
+        private readonly StatementDeleter          $statementDeleter,
         protected readonly CoordinateJsonConverter $coordinateJsonConverter,
+        private readonly ParagraphVersionRepository $paragraphVersionRepository,
+        private readonly ParagraphRepository $paragraphRepository,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);
     }
@@ -269,7 +273,14 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->originalId
                 ->readable(true)->aliasedPath(Paths::statement()->original->id);
             $configBuilder->paragraphParentId
-                ->readable(true)->aliasedPath(Paths::statement()->paragraph->paragraph->id);
+                ->readable(true)->aliasedPath(Paths::statement()->paragraph->paragraph->id)
+                ->updatable([$simpleStatementCondition], function (Statement $statement, string $paragraphParentId): array {
+                    $paragraphEntity = $this->paragraphRepository->get($paragraphParentId);
+                    Assert::notNull($paragraphEntity);
+                    $paragraphVersion = $this->paragraphVersionRepository->createVersion($paragraphEntity);
+                    $statement->setParagraph($paragraphVersion);
+                    return [];
+                });
             $configBuilder->paragraphTitle
                 ->readable(true)->aliasedPath(Paths::statement()->paragraph->title);
             $configBuilder->assignee->readable()->filterable();
