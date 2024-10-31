@@ -491,7 +491,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->readable(true);
         }
 
-
         return $configBuilder;
     }
 
