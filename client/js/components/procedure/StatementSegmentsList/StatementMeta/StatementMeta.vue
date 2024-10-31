@@ -50,19 +50,18 @@
           :statement="statement"
           :submit-type-options="submitTypeOptions"
           @save="(data) => save(data)" />
+
         <statement-submitter
           :editable="editable"
+          :procedure="procedure"
           :statement="statement"
           :statement-form-definitions="statementFormDefinitions"
           @save="(data) => save(data)" />
-<!--        <statement-publication-and-voting/>-->
 
-        <similar-statement-submitters
-          class="mb-4"
+        <statement-publication-and-voting
           :editable="editable"
-          :procedure-id="procedure.id"
-          :similar-statement-submitters="similarStatementSubmitters"
-          :statement-id="statement.id" />
+          :statement="statement"
+          @save="(data) => save(data)" />
 
         <!-- need to add statement.attributes.counties and availableCounties in the BE (Array) -->
         <statement-meta-multiselect
@@ -149,14 +148,11 @@ import {
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 import StatementEntry from './StatementEntry'
 import StatementMetaAttachments from './StatementMetaAttachments'
 import StatementMetaMultiselect from './StatementMetaMultiselect'
-// import StatementPublicationAndVoting from './StatementPublicationAndVoting'
-import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
+import StatementPublicationAndVoting from './StatementPublicationAndVoting'
 import StatementSubmitter from './StatementSubmitter'
-import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 
 export default {
   name: 'StatementMeta',
@@ -171,14 +167,11 @@ export default {
     DpLabel,
     DpSelect,
     DpTextArea,
-    SimilarStatementSubmitters,
     StatementEntry,
     StatementMetaAttachments,
     StatementMetaMultiselect,
-    // StatementPublicationAndVoting,
-    StatementPublish,
-    StatementSubmitter,
-    StatementVoter
+    StatementPublicationAndVoting,
+    StatementSubmitter
   },
 
   mixins: [dpValidateMixin],
@@ -286,13 +279,6 @@ export default {
 
     isStatementManual () {
       return this.statement.attributes.isManual
-    },
-
-    similarStatementSubmitters () {
-      if (typeof this.statement.hasRelationship === 'function' && this.statement.hasRelationship('similarStatementSubmitters')) {
-        return Object.values(this.statement.relationships.similarStatementSubmitters.list())
-      }
-      return null
     },
 
     // TO DO: Is this still needed?

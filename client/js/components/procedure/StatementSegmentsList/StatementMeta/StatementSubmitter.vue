@@ -130,6 +130,14 @@ All rights reserved
       </div>
     </div>
 
+<!--    TO DO: Add permission -->
+    <similar-statement-submitters
+      class="mb-4"
+      :editable="editable"
+      :procedure-id="procedure.id"
+      :similar-statement-submitters="similarStatementSubmitters"
+      :statement-id="statement.id" />
+
     <dp-button-row
       v-if="editable"
       class="mt-2 w-full"
@@ -146,12 +154,14 @@ import {
   DpInput,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
+import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
 export default {
   name: 'StatementSubmitter',
 
   components: {
     DpButtonRow,
-    DpInput
+    DpInput,
+    SimilarStatementSubmitters
   },
 
   mixins: [dpValidateMixin],
@@ -161,6 +171,11 @@ export default {
       required: false,
       type: Boolean,
       default: false
+    },
+
+    procedure: {
+      type: Object,
+      required: true
     },
 
     statement: {
@@ -183,6 +198,13 @@ export default {
   computed: {
     isStatementManual() {
       return this.localStatement.attributes.isManual
+    },
+
+    similarStatementSubmitters () {
+      if (typeof this.statement.hasRelationship === 'function' && this.statement.hasRelationship('similarStatementSubmitters')) {
+        return Object.values(this.statement.relationships.similarStatementSubmitters.list())
+      }
+      return null
     },
 
     statementSubmitterField () {

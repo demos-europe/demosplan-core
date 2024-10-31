@@ -15,9 +15,9 @@
     <dp-editable-list
       :entries="voters"
       :has-permission-to-edit="!!(readonly !== '1' && isManual)"
+      :translation-keys="translationKeys"
       @reset="resetForm"
       @saveEntry="index => dpValidateAction('newVoterForm', () => addElement(index), false)"
-      :translation-keys="translationKeys"
       ref="listComponent">
       <!-- List of voters -->
       <template v-slot:list="{entry, index}">
@@ -212,13 +212,14 @@
         {{ Translator.trans('statement.voter.anonym') }}
         <input
           id="r_voters_anonym"
-          name="r_voters_anonym"
-          data-cy="votersAnonym"
+          v-model="anonymVotes"
           class="align-baseline o-form__control-input block w-1/12 mt-2"
+          data-cy="votersAnonym"
           :disabled="('1' === readonly)"
-          type="number"
+          name="r_voters_anonym"
           placeholder=""
-          v-model="anonymVotes">
+          type="number"
+          @input="event => $emit('updateAnonymVotes', event.target.value)">
       </label>
     </div>
   </div>
@@ -266,8 +267,8 @@ export default {
 
     publicAllowed: {
       required: false,
-      type: String,
-      default: '0'
+      type: Boolean,
+      default: false
     },
 
     readonly: {
@@ -325,7 +326,7 @@ export default {
     },
 
     editable () {
-      return (!!this.publicAllowed || this.isManual)
+      return (this.publicAllowed || this.isManual)
     },
 
     isInstitutionParticipation () {
@@ -349,9 +350,11 @@ export default {
 
         if (index === 'new') {
           this.addNewVoter(this.formFields)
+          this.$emit('updateVoter', this.formFields)
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         } else {
           this.updateVoter({ index: index, newData: this.formFields })
+          this.$emit('updateVoter', this.formFields)
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         }
 
