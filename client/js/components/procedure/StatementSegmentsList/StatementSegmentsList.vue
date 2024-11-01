@@ -554,6 +554,7 @@ export default {
         'authorName',
         'consentRevoked',
         'counties',
+        'elements',
         'files',
         'fullText',
         'initialOrganisationCity',
@@ -568,6 +569,8 @@ export default {
         'memo',
         'municipalities',
         'numberOfAnonymVotes',
+        'paragraph',
+        'polygon',
         'priorityAreas',
         'priorityAreas',
         'procedurePhase',
@@ -597,9 +600,15 @@ export default {
       }
 
       const allFields = {
+        Elements: [
+          'title'
+        ].join(),
         File: [
           'hash',
           'filename'
+        ].join(),
+        ParagraphVersion: [
+          'title'
         ].join(),
         Statement: statementFields.join(),
         StatementAttachment: [
@@ -632,7 +641,9 @@ export default {
         'assignee',
         'attachments',
         'attachments.file',
+        'elements',
         'files',
+        'paragraph',
         'votes'
       ]
 

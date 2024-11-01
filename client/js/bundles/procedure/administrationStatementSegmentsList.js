@@ -37,6 +37,7 @@ if (hasPermission('area_admin_boilerplates')) {
 const apiStores = [
   'AggregationFilterItems',
   'AssignableUser',
+  'ElementsDetails',
   'Place',
   'SegmentComment',
   'Statement',

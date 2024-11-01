@@ -93,42 +93,20 @@
           :value="localStatement.attributes.priorityAreas"
           @change="updateLocalStatementProperties" />
 
-        <!--    <dp-button-row-->
-        <!--      v-if="editable"-->
-        <!--      class="u-mt-0_5 w-full"-->
-        <!--      primary-->
-        <!--      secondary-->
-        <!--      @primary-action="dpValidateAction('statementMetaData', save, false)"-->
-        <!--      @secondary-action="reset" />-->
+        <statement-meta-location-and-document-reference
+          :editable="editable"
+          :initially-selected-element-id="initiallySelectedElementId"
+          :initially-selected-paragraph-id="initiallySelectedParagraphId"
+          :procedure-id="procedure.id"
+          :statement="statement"
+          @save="updatedStatement => save(updatedStatement)" />
 
-        <fieldset>
-          <legend
-            id="locationAndDocuments"
-            class="mb-3 color-text-muted font-normal">
-            {{ Translator.trans('location.and.document.reference') }}
-          </legend>
-          <div class="font-semibold mb-1">
-            {{ Translator.trans('location') }}
-          </div>
-          <dp-button
-            :aria-label="Translator.trans('location.reference_view')"
-            :text="Translator.trans('see')"
-            variant="outline" />
-        </fieldset>
-
-        <fieldset>
-          <legend
-            id="attachments"
-            class="mb-3 color-text-muted font-normal">
-            {{ Translator.trans('attachments') }}
-          </legend>
-          <statement-meta-attachments
-            :attachments="attachments"
-            :editable="editable"
-            :procedure-id="procedure.id"
-            :statement-id="statement.id"
-            @change="(value) => emitInput('attachments', value)" />
-        </fieldset>
+        <statement-meta-attachments
+          :attachments="attachments"
+          :editable="editable"
+          :procedure-id="procedure.id"
+          :statement-id="statement.id"
+          @change="(value) => emitInput('attachments', value)" />
       </form>
     </div>
   </div>
@@ -150,6 +128,7 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import StatementEntry from './StatementEntry'
 import StatementMetaAttachments from './StatementMetaAttachments'
+import StatementMetaLocationAndDocumentReference from './StatementMetaLocationAndDocumentReference'
 import StatementMetaMultiselect from './StatementMetaMultiselect'
 import StatementPublicationAndVoting from './StatementPublicationAndVoting'
 import StatementSubmitter from './StatementSubmitter'
@@ -169,6 +148,7 @@ export default {
     DpTextArea,
     StatementEntry,
     StatementMetaAttachments,
+    StatementMetaLocationAndDocumentReference,
     StatementMetaMultiselect,
     StatementPublicationAndVoting,
     StatementSubmitter
@@ -279,6 +259,16 @@ export default {
 
     isStatementManual () {
       return this.statement.attributes.isManual
+    },
+
+    initiallySelectedElementId () {
+      const element = this.statement.relationships.elements?.data ? this.statement.relationships.elements.get() : null
+      return element?.id ?? ''
+    },
+
+    initiallySelectedParagraphId () {
+      const paragraph = this.statement.relationships.paragraph?.data ? this.statement.relationships.paragraph.get() : null
+      return paragraph?.id ?? ''
     },
 
     // TO DO: Is this still needed?

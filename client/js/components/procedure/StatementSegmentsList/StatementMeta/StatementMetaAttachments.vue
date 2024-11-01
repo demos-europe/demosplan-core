@@ -8,61 +8,105 @@
 </license>
 
 <template>
-  <div class="space-stack-s">
-    <div class="space-stack-s">
-      <p
-        class="weight--bold u-m-0"
-        v-text="Translator.trans('attachment.original')" />
-      <statement-meta-attachments-link
-        v-if="attachments.originalAttachment.hash"
-        :attachment="attachments.originalAttachment"
-        :procedure-id="procedureId" />
-      <p
-        v-else
-        class="color--grey"
-        v-text="Translator.trans('none')" />
-    </div>
-    <div class="space-stack-s">
-      <dp-label
-        :text="Translator.trans('more.attachments')"
-        for="uploadStatementAttachment" />
-      <ul v-if="attachments.additionalAttachments.length > 0">
-        <li
-          v-for="attachment in attachments.additionalAttachments"
-          :key="attachment.hash">
-          <statement-meta-attachments-link
-            :attachment="attachment"
-            :procedure-id="procedureId" />
-        </li>
-      </ul>
-      <template v-if="editable">
+  <fieldset>
+    <legend
+      id="attachments"
+      class="mb-3 color-text-muted font-normal">
+      {{ Translator.trans('attachments') }}
+    </legend>
+    <div class="space-stack-m">
+      <!-- Statement as attachment -->
+      <div>
+        <p
+          class="weight--bold u-m-0"
+          v-text="Translator.trans('attachment.original')" />
+        <statement-meta-attachments-link
+          v-if="attachments.originalAttachment.hash"
+          :attachment="attachments.originalAttachment"
+          :procedure-id="procedureId" />
+        <p
+          v-if="!attachments.originalAttachment.hash && !editable"
+          v-text="Translator.trans('none')" />
+
         <dp-upload-files
-          id="uploadStatementAttachment"
-          ref="uploadStatementAttachment"
+          v-if="editable"
+          id="uploadSourceStatementAttachment"
+          ref="uploadSourceStatementAttachment"
           allowed-file-types="all"
           :basic-auth="dplan.settings.basicAuth"
-          :class="editable ? '' : 'pointer-events-none opacity-70'"
+          :class="editable ? 'mt-1' : 'pointer-events-none opacity-70'"
           :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
-          :max-number-of-files="1000"
-          name="uploadStatementAttachment"
+          :max-number-of-files="1"
+          name="uploadSourceStatementAttachment"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
           :tus-endpoint="dplan.paths.tusEndpoint"
-          @file-remove="removeFileId"
-          @upload-success="setFileId" />
-        <dp-button
-          :busy="isProcessing"
-          class="float-right"
-          :disabled="fileIds.length === 0"
-          :text="Translator.trans('save')"
-          @click="save('generic')" />
-      </template>
+          @file-remove="removeSourceStatementFileId"
+          @upload-success="setSourceStatementFileId" />
+      </div>
+
+      <!-- Other attachments -->
+      <div>
+        <dp-label
+          :text="Translator.trans('more.attachments')"
+          for="uploadStatementAttachment" />
+
+        <!-- List of existing attachments -->
+        <ul
+          v-if="attachments.additionalAttachments.length > 0"
+          class="space-y-2">
+          <li
+            v-for="attachment in attachments.additionalAttachments"
+            :key="attachment.hash">
+            <statement-meta-attachments-link
+              :attachment="attachment"
+              :procedure-id="procedureId" />
+          </li>
+        </ul>
+        <p
+          v-if="attachments.additionalAttachments.length === 0 && !editable"
+          v-text="Translator.trans('none')" />
+
+        <!-- File upload -->
+        <template v-if="editable">
+          <dp-upload-files
+            id="uploadStatementAttachment"
+            ref="uploadStatementAttachment"
+            allowed-file-types="all"
+            :basic-auth="dplan.settings.basicAuth"
+            :class="editable ? 'mt-1' : 'pointer-events-none opacity-70'"
+            :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
+            :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
+            :max-number-of-files="1000"
+            name="uploadStatementAttachment"
+            :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+            :tus-endpoint="dplan.paths.tusEndpoint"
+            @file-remove="removeFileId""
+            @upload-success="setFileId" />
+
+          <div class="text-right">
+            <dp-button-row
+              class="mt-4"
+              primary
+              secondary
+              :disabled="fileIds.length === 0 && fileIdsSourceStatement.length === 0"
+              @primary-action="save"
+              @secondary-action="reset" />
+          </div>
+        </template>
+      </div>
     </div>
-  </div>
+  </fieldset>
 </template>
 
 <script>
-import { dpApi, DpButton, DpLabel, DpUploadFiles } from '@demos-europe/demosplan-ui'
+import {
+  dpApi,
+  DpButton,
+  DpButtonRow,
+  DpLabel,
+  DpUploadFiles
+} from '@demos-europe/demosplan-ui'
 import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink'
 
 export default {
@@ -70,6 +114,7 @@ export default {
 
   components: {
     DpButton,
+    DpButtonRow,
     DpLabel,
     DpUploadFiles,
     StatementMetaAttachmentsLink
@@ -107,8 +152,7 @@ export default {
       fileIds: [],
       fileIdsSourceStatement: [],
       isEditingSourceStatement: false,
-      isProcessing: false,
-      isProcessingSourceStatement: false
+      isProcessing: false
     }
   },
 
@@ -141,56 +185,88 @@ export default {
       this.fileIds.splice(fileIdx, 1)
     },
 
-    removeFileIdSource (file) {
+    removeSourceStatementFileId (file) {
       const fileIdx = this.fileIdsSourceStatement.findIndex(el => el === file.hash)
       this.fileIdsSourceStatement.splice(fileIdx, 1)
     },
 
-    resetSourceStatement () {
+    reset () {
+      this.resetSourceStatementAttachment()
+      this.resetAttachments()
+    },
+
+    resetAttachments () {
+      this.fileIds = []
+      this.$refs.uploadStatementAttachment.clearFilesList()
+    },
+
+    resetSourceStatementAttachment () {
       this.isEditingSourceStatement = false
       this.fileIdsSourceStatement = []
       this.$refs.uploadSourceStatementAttachment.clearFilesList()
     },
 
-    save (attachmentType) {
-      const { fileIdsField, uploadRef, processing } = {
+    save () {
+      const areAttachmentsAdded = this.fileIds.length > 0
+      const isSourceAttachmentAdded = this.fileIdsSourceStatement.length > 0
+      const propertyNames = {
         generic: {
           fileIdsField: 'fileIds',
-          processing: 'isProcessing',
-          uploadRef: 'uploadStatementAttachment'
         },
         source_statement: {
           fileIdsField: 'fileIdsSourceStatement',
-          processing: 'isProcessingSourceStatement',
-          uploadRef: 'uploadSourceStatementAttachment'
         }
-      }[attachmentType]
-
-      if (this[fileIdsField].length === 0 && !dpconfirm(Translator.trans('files.empty'))) {
-        return
-      }
-      if (attachmentType === 'source_statement' && !dpconfirm(Translator.trans('check.statement.replace_source_attachment'))) {
-        return
       }
 
-      this[processing] = true
+      const attachmentTypes = []
 
-      const uploadPromises = this[fileIdsField].map((hash) => {
-        const resource = this.getItemResource(hash, attachmentType)
+      if (areAttachmentsAdded) {
+        attachmentTypes.push('generic')
+      }
 
-        return dpApi.post(Routing.generate('api_resource_create', { resourceType: 'StatementAttachment' }), {}, { data: resource })
+      if (isSourceAttachmentAdded) {
+        attachmentTypes.push('source_statement')
+      }
+
+      let uploadPromises = []
+
+      attachmentTypes.forEach(type => {
+        const {
+          fileIdsField
+        } = propertyNames[type]
+
+        if (this[fileIdsField].length === 0 && !dpconfirm(Translator.trans('files.empty'))) {
+          return
+        }
+
+        if (type === 'source_statement' && this.attachments.originalAttachment.hash && !dpconfirm(Translator.trans('check.statement.replace_source_attachment'))) {
+          return
+        }
+
+        this.isProcessing = true
+
+        uploadPromises = [
+          ...uploadPromises,
+          ...this[fileIdsField].map(hash => {
+          const resource = this.getItemResource(hash, type)
+          const url = Routing.generate('api_resource_create', { resourceType: 'StatementAttachment' })
+          const params = {}
+          const data = {
+            data: resource
+          }
+
+          return dpApi.post(url, params, data)
+        })]
       })
 
       Promise.allSettled(uploadPromises)
         .then(() => {
-          this[fileIdsField] = []
-          this.$refs[uploadRef].clearFilesList()
-          this.$root.$emit('statement-attachments-added')
-          this[processing] = false
-
-          if (attachmentType === 'source_statement') {
-            this.isEditingSourceStatement = false
-          }
+          this.reset()
+          this.triggerStatementRequest()
+          this.isProcessing = false
+        })
+        .catch(error => {
+          this.isProcessing = false
         })
     },
 
@@ -198,8 +274,12 @@ export default {
       this.fileIds.push(file.fileId)
     },
 
-    setFileIdSource (file) {
+    setSourceStatementFileId (file) {
       this.fileIdsSourceStatement.push(file.fileId)
+    },
+
+    triggerStatementRequest () {
+      this.$root.$emit('statement-attachments-added')
     }
   }
 }
