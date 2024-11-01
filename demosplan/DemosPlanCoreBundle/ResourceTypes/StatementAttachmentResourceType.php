@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\Contracts\ContentField;
@@ -39,8 +40,8 @@ use Webmozart\Assert\Assert;
 final class StatementAttachmentResourceType extends DplanResourceType
 {
     public function __construct(
-        private readonly FileService $fileService,
-        private readonly StatementResourceType $statementResourceType
+        private readonly FileService           $fileService,
+        private readonly StatementResourceType $statementResourceType, private readonly StatementAttachmentService $statementAttachmentService
     ) {
     }
 
@@ -163,11 +164,19 @@ final class StatementAttachmentResourceType extends DplanResourceType
      */
     private function createAttachment(Statement $statement, File $file, string $attachmentType): StatementAttachment
     {
+        //@todo adjust here
         $this->fileService->addStatementFileContainer(
             $statement->getId(),
             $file->getId(),
             $file->getFileString()
         );
+
+        if (StatementAttachmentInterface::SOURCE_STATEMENT === $attachmentType) {
+            $originalAttachment =  $this->statementAttachmentService->createAttachment($statement, $file, $attachmentType);
+            $this->entityManager->persist($originalAttachment);
+            return $originalAttachment;
+        }
+
 
         $attachment = new StatementAttachment();
         $attachment->setId('');
