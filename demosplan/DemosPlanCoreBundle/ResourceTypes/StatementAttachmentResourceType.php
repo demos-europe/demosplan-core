@@ -40,7 +40,7 @@ final class StatementAttachmentResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly FileService $fileService,
-        private readonly StatementResourceType $statementResourceType
+        private readonly StatementResourceType $statementResourceType,
     ) {
     }
 
@@ -127,7 +127,7 @@ final class StatementAttachmentResourceType extends DplanResourceType
 
                     $attachment = match ($attachmentType) {
                         StatementAttachmentInterface::SOURCE_STATEMENT => $this->createAttachment($statement, $file, StatementAttachmentInterface::SOURCE_STATEMENT),
-                        StatementAttachmentInterface::GENERIC          => $this->createAttachment($statement, $file,StatementAttachmentInterface::GENERIC),
+                        StatementAttachmentInterface::GENERIC          => $this->createAttachment($statement, $file, StatementAttachmentInterface::GENERIC),
                         default                                        => throw new InvalidArgumentException("Attachment type not available: $attachmentType"),
                     };
                     $modifiedEntity = new ModifiedEntity($attachment, []);
