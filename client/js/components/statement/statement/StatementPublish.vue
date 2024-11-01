@@ -69,20 +69,23 @@
           :value="emailText"
           hidden-input="r_publicRejectionEmail" />
       </div>
-    </div>
-    <div v-else>
-      {{ publicVerifiedTranslation }}
+
+      <dp-inline-notification
+        v-if="hasPermission('feature_statements_vote')"
+        :message="Translator.trans('explanation.statement.public.activate.voting')"
+        type="info" />
     </div>
 
-    <dp-inline-notification
-      v-if="hasPermission('feature_statements_vote')"
-      :message="Translator.trans('explanation.statement.public.activate.voting')"
-      type="info" />
+    <voting-status
+      v-else
+      class="mt-0.5"
+      :public-verified="publicVerified" />
   </div>
 </template>
 
 <script>
 import { DpInlineNotification } from '@demos-europe/demosplan-ui'
+import VotingStatus from './VotingStatus'
 
 export default {
   name: 'StatementPublish',
@@ -95,7 +98,8 @@ export default {
     DpInlineNotification: async () => {
       const { DpInlineNotification }  = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    }
+    },
+    VotingStatus
   },
 
   props: {

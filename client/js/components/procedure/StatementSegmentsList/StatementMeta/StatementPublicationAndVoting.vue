@@ -14,7 +14,7 @@ All rights reserved
       class="mb-3 color-text-muted font-normal">
       {{ Translator.trans('publication.and.voting') }}
     </legend>
-    <div class="font-semibold mb-3">
+    <div class="font-semibold">
       {{ Translator.trans('publish.on.platform') }}
     </div>
 
