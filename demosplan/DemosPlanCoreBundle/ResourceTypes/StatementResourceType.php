@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -25,12 +26,18 @@ use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementProcedurePhaseResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
@@ -74,6 +81,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly StatementService $statementService,
         private readonly StatementDeleter $statementDeleter,
         protected readonly CoordinateJsonConverter $coordinateJsonConverter,
+        private readonly ParagraphVersionRepository $paragraphVersionRepository,
+        private readonly ParagraphRepository $paragraphRepository, private readonly ElementsRepository $elementsRepository, private readonly ElementHandler $elementHandler, private readonly ElementsService $elementsService,
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);
@@ -273,7 +282,19 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->originalId
                 ->readable(true)->aliasedPath(Paths::statement()->original->id);
             $configBuilder->paragraphParentId
-                ->readable(true)->aliasedPath(Paths::statement()->paragraph->paragraph->id);
+                ->readable(true)->aliasedPath(Paths::statement()->paragraph->paragraph->id)
+                ->updatable([$simpleStatementCondition], function (Statement $statement, ?string $paragraphParentId): array {
+                    if (null === $paragraphParentId || '' === $paragraphParentId) {
+                        $statement->setParagraph(null);
+                    } else {
+                        $paragraphEntity = $this->paragraphRepository->get($paragraphParentId);
+                        Assert::notNull($paragraphEntity);
+                        $paragraphVersion = $this->paragraphVersionRepository->createVersion($paragraphEntity);
+                        $statement->setParagraph($paragraphVersion);
+                    }
+
+                    return [];
+                });
             $configBuilder->paragraphTitle
                 ->readable(true)->aliasedPath(Paths::statement()->paragraph->title);
             $configBuilder->assignee->readable()->filterable();
@@ -282,6 +303,26 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->location
                 ->readable(true, fn (Statement $statement): ?array => $this->coordinateJsonConverter->convertJsonToCoordinates($statement->getPolygon()))
                 ->aliasedPath(Paths::statement()->polygon);
+
+            if ($this->currentUser->hasPermission('field_procedure_elements')) {
+                // @todo double check permission to update
+                $configBuilder->elements
+                    ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryResourceType())
+                    ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?Elements $planningDocumentCategory): array {
+                        if (null === $planningDocumentCategory) {
+                            $planningDocumentCategory = $this->elementsService->getPlanningDocumentCategoryByTitle($statement->getProcedureId(), $this->globalConfig->getElementsStatementCategoryTitle());
+                        }
+                        Assert::notNull($planningDocumentCategory);
+
+                        $statement->setElement($planningDocumentCategory);
+
+                        return [];
+                    })
+                    ->readable()->aliasedPath(Paths::statement()->element);
+                $configBuilder->paragraphVersion
+                    ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
+                    ->readable()->aliasedPath(Paths::statement()->paragraph);
+            }
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {

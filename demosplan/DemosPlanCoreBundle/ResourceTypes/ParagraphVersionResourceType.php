@@ -41,6 +41,18 @@ final class ParagraphVersionResourceType extends DplanResourceType
         return true;
     }
 
+    /**
+     * Emulate this behaviour.
+     *
+     * @see \demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService::getEntityVersions
+     * @see \demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService::createParagraphVersion
+     */
+    public function isCreateAllowed(): bool
+    {
+        // @todo update to proper conditions
+        return true;
+    }
+
     public function isGetAllowed(): bool
     {
         return false;
@@ -60,8 +72,9 @@ final class ParagraphVersionResourceType extends DplanResourceType
     {
         $paragraphVersionConfig = $this->getConfig(BaseParagraphVersionResourceConfigBuilder::class);
         $paragraphVersionConfig->id->setReadableByPath()->setSortable()->setFilterable();
-        // $paragraphVersionConfig->paragraph
-        //    ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())->setReadableByPath();
+        $paragraphVersionConfig->paragraph
+            ->setRelationshipType($this->resourceTypeStore->getParagraphResourceType())
+            ->setReadableByPath();
         $paragraphVersionConfig->title->setReadableByPath();
 
         return $paragraphVersionConfig;
