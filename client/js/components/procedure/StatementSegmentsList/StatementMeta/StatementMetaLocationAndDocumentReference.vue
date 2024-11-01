@@ -67,7 +67,7 @@
             {{ Translator.trans('paragraph') }}
           </dt>
           <dd>
-            -
+            {{ selectedParagraphTitle }}
           </dd>
         </div>
       </dl>
@@ -155,11 +155,23 @@ export default {
       )
     },
 
-    paragraphOptions (elementId) {
-      return this.elements[elementId]?.relationships?.paragraph?.data.map(paragraph => ({
-        label: paragraph.attributes.title,
-        value: paragraph.id
-      })) || []
+    paragraphOptions () {
+      const paragraphs = this.getParagraphs()
+
+      return paragraphs.length > 0
+        ? paragraphs.map(paragraph => ({
+          label: paragraph.attributes.title,
+          value: paragraph.id
+        }))
+        : []
+    },
+
+    selectedParagraphTitle () {
+      const paragraphs = this.getParagraphs()
+
+      return paragraphs.length > 0
+        ? paragraphs.find(paragraph => paragraph.id === this.selectedParagraphId)?.attributes?.title
+        : '-'
     }
   },
 
@@ -167,6 +179,14 @@ export default {
     ...mapActions('ElementsDetails', {
       getElementsDetailsAction: 'list'
     }),
+
+    getParagraphs () {
+      const selectedElement = this.elements[this.selectedElementId]
+
+      return selectedElement?.relationships?.paragraphs?.data.length > 0
+        ?  Object.values(selectedElement?.relationships?.paragraphs.list())
+        : []
+    },
 
     reset () {
       this.setInitialStatementData()
