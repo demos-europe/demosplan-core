@@ -53,15 +53,14 @@
         v-text="Translator.trans('procedure.data')" />
 
       <addon-wrapper hook-name="procedure.fields" />
-
       <template v-if="hasPermission('feature_use_plis')">
-        <dp-form-row class="u-mb-0_75">
-          <dp-select
-            id="r_plisId"
-            :label="{ text: Translator.trans('name'), hint: Translator.trans('explanation.plis.procedurename') }"
-            name="r_plisId"
-            :options="plisNameOptions" />
-        </dp-form-row>
+        <dp-select
+          id="r_plisId"
+          class="mb-4"
+          :label="{ text: Translator.trans('name'), hint: Translator.trans('explanation.plis.procedurename') }"
+          name="r_plisId"
+          :options="plisNameOptions" />
+
         <dl>
           <dt
             v-text="Translator.trans('public.participation.desc')"
@@ -73,33 +72,30 @@
         </dl>
       </template>
 
-      <dp-form-row
-        class="u-mb-0_75"
-        v-else>
-        <dp-input
-          data-cy="newProcedureTitle"
-          id="r_name"
-          :label="{ text: Translator.trans('name') }"
-          maxlength="200"
-          name="r_name"
-          :required="requireField"
-          type="text" />
-      </dp-form-row>
-      <dp-form-row
-        class="u-mb-0_75"
-        v-if="hasPermission('feature_procedure_templates')">
-        <dp-select
-          id="blueprint"
-          :label="{
-            hint: procedureTemplateHint,
-            text: Translator.trans('master')
-          }"
-          name="r_copymaster"
-          data-cy="newProcedureForm:blueprintOptions"
-          :options="blueprintOptions"
-          :selected="masterBlueprintId"
-          @select="setBlueprintData" />
-      </dp-form-row>
+      <dp-input
+        v-else
+        class="mb-4"
+        data-cy="newProcedureTitle"
+        id="r_name"
+        :label="{ text: Translator.trans('name') }"
+        maxlength="200"
+        name="r_name"
+        :required="requireField"
+        type="text" />
+
+      <dp-select
+        v-if="hasPermission('feature_procedure_templates')"
+        id="blueprint"
+        class="mb-4"
+        :label="{
+          hint: procedureTemplateHint,
+          text: Translator.trans('master')
+        }"
+        name="r_copymaster"
+        data-cy="newProcedureForm:blueprintOptions"
+        :options="blueprintOptions"
+        :selected="masterBlueprintId"
+        @select="setBlueprintData" />
 
       <!-- Only show select if there is more than one choice. Otherwise, pass the id as the value of a hidden field. -->
       <template v-if="procedureTypes.length > 1">
@@ -134,31 +130,31 @@
         type="hidden"
         :value="procedureTypes[0].id">
 
-      <dp-form-row class="u-mb-0_75">
-        <dp-input
-          id="main-email"
-          data-cy="agencyMainEmailAddress"
-          :label="{
-            hint: Translator.trans('explanation.organisation.email.procedure.agency'),
-            text: Translator.trans('email.procedure.agency')
-          }"
-          name="agencyMainEmailAddress[fullAddress]"
-          required
-          type="email"
-          :value="mainEmail" />
-      </dp-form-row>
-      <dp-form-row class="u-mb-0_75">
-        <dp-text-area
-          :hint="Translator.trans('internalnote.visibility.hint')"
-          id="r_desc"
-          :label="Translator.trans('internalnote')"
-          data-cy="newProcedureForm:internalNote"
-          name="r_desc"
-          reduced-height />
-      </dp-form-row>
+      <dp-input
+        id="main-email"
+        class="mb-4"
+        data-cy="agencyMainEmailAddress"
+        :label="{
+          hint: Translator.trans('explanation.organisation.email.procedure.agency'),
+          text: Translator.trans('email.procedure.agency')
+        }"
+        name="agencyMainEmailAddress[fullAddress]"
+        required
+        type="email"
+        :value="mainEmail" />
 
-      <div class="u-mb-0_75">
+      <dp-text-area
+        id="r_desc"
+        class="mb-4"
+        :hint="Translator.trans('internalnote.visibility.hint')"
+        :label="Translator.trans('internalnote')"
+        data-cy="newProcedureForm:internalNote"
+        name="r_desc"
+        reduced-height />
+
+      <div class="mb-4">
         <dp-label
+          class="mb-0"
           for="startdate"
           :hint="Translator.trans('explanation.date.procedure')"
           :required="hasPermission('field_required_procedure_end_date')"
@@ -166,7 +162,7 @@
           :tooltip="Translator.trans('explanation.date.format')" />
 
         <dp-date-range-picker
-          class="u-2-of-4"
+          class="w-1/2"
           start-id="startdate"
           start-name="r_startdate"
           end-id="enddate"
@@ -185,7 +181,7 @@
 
       <div
         v-if="hasPermission('feature_procedure_couple_by_token')"
-        class="u-mb-0_75">
+        class="mb-4">
         <h3
           class="weight--normal color--grey u-mt-1_5"
           v-text="Translator.trans('procedure.couple_token.vht.title')" />
@@ -221,7 +217,6 @@ import {
   dpApi,
   DpButton,
   DpDateRangePicker,
-  DpFormRow,
   DpInlineNotification,
   DpInput,
   DpLabel,
@@ -241,7 +236,6 @@ export default {
     CoupleTokenInput,
     DpButton,
     DpDateRangePicker,
-    DpFormRow,
     DpInput,
     DpLabel,
     DpInlineNotification,
@@ -295,7 +289,7 @@ export default {
     },
 
     tokenLength: {
-      type: length,
+      type: Number,
       required: false,
       default: 12
     }

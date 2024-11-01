@@ -35,49 +35,47 @@
       <legend
         class="sr-only"
         v-text="Translator.trans('blueprint.data')" />
-      <dp-form-row class="u-mb-0_75">
-        <dp-input
-          id="r_name"
-          data-cy="newMasterName"
-          :label="{
-            text: Translator.trans('name')
-          }"
-          maxlength="200"
-          name="r_name"
-          required />
-      </dp-form-row>
+      <dp-input
+        class="mb-0.5"
+        id="r_name"
+        data-cy="newMasterName"
+        :label="{
+          text: Translator.trans('name')
+        }"
+        maxlength="200"
+        name="r_name"
+        required />
 
-      <dp-form-row class="u-mb-0_75">
-        <dp-select
-          id="r_copymaster"
-          v-model="selectedBlueprint"
-          :label="{
-            hint: Translator.trans('procedure.template.fields', { fields: procedureTemplateFields }),
-            text: Translator.trans('master')
-          }"
-          data-cy="NewBlueprintForm:selectedBlueprint"
-          name="r_copymaster"
-          :options="blueprintOptions"
-          :show-placeholder="false"
-          @select="setValuesFromSelectedBlueprint" />
-      </dp-form-row>
+      <dp-select
+        id="r_copymaster"
+        class="mt-4"
+        data-cy="NewBlueprintForm:selectedBlueprint"
+        v-model="selectedBlueprint"
+        :label="{
+          hint: Translator.trans('procedure.template.fields', { fields: procedureTemplateFields }),
+          text: Translator.trans('master')
+        }"
+        name="r_copymaster"
+        :options="blueprintOptions"
+        :show-placeholder="false"
+        @select="setValuesFromSelectedBlueprint" />
 
-      <div class="relative">
+      <div class="relative mt-4">
         <dp-loading
           v-if="isLoading"
           overlay />
 
-        <dp-form-row class="u-mb-0_75">
-          <dp-text-area
-            :label="Translator.trans('internalnote')"
-            id="r_desc"
-            data-cy="NewBlueprintForm:internalNote"
-            name="r_desc"
-            reduced-height />
-        </dp-form-row>
+        <dp-text-area
+          id="r_desc"
+          class="mb-0.5"
+          data-cy="NewBlueprintForm:internalNote"
+          :label="Translator.trans('internalnote')"
+          name="r_desc"
+          reduced-height />
 
         <dp-input
           :id="agencyMainEmailId"
+          class="mt-4"
           data-cy="agencyMainEmailAddress"
           :label="{
             hint: Translator.trans('explanation.organisation.email.procedure.agency'),
@@ -89,7 +87,7 @@
           v-model="mainEmail" />
 
         <dp-label
-          class="u-mt"
+          class="mt-4 mb-2"
           for="emailList"
           :text="Translator.trans('email.address.more')"
           :hint="Translator.trans('email.address.more.explanation')"
@@ -102,6 +100,7 @@
 
         <dp-text-area
           v-if="hasPermission('field_procedure_contact_person')"
+          class="mt-4"
           :label="Translator.trans('public.participation.contact')"
           :hint="Translator.trans('explanation.public.participation.contact')"
           id="r_publicParticipationContact"
@@ -111,6 +110,7 @@
         <dp-checkbox
           v-if="hasPermission('feature_admin_customer_master_procedure_template')"
           id="r_customerMasterBlueprint"
+          class="mt-4"
           :disabled="isCustomerMasterBlueprintExisting"
           :label="{
             hint: Translator.trans('explanation.customer.masterblueprint'),
@@ -120,7 +120,7 @@
 
         <p
           v-if="isCustomerMasterBlueprintExisting && hasPermission('feature_admin_customer_master_procedure_template')"
-          class="lbl__hint u-ml-0_75 u-mb">
+          class="flash-warning lbl__hint p-1 ml-4 mb-4 mt-1">
           {{ Translator.trans('explanation.customer.masterblueprint.uncheck.existing') }}
         </p>
 
@@ -149,7 +149,6 @@ import {
   CleanHtml,
   dpApi,
   DpCheckbox,
-  DpFormRow,
   DpInput,
   DpLabel,
   DpLoading,
@@ -168,7 +167,6 @@ export default {
   components: {
     DpCheckbox,
     DpEmailList,
-    DpFormRow,
     DpInput,
     DpLabel,
     DpLoading,
