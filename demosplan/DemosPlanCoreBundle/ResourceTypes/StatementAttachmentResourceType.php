@@ -65,6 +65,11 @@ final class StatementAttachmentResourceType extends DplanResourceType
         return false;
     }
 
+    public function isDeleteAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('feature_read_source_statement_via_api');
+    }
+
     public function isListAllowed(): bool
     {
         return false;
