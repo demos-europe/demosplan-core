@@ -126,8 +126,8 @@ final class StatementAttachmentResourceType extends DplanResourceType
                     Assert::stringNotEmpty($attachmentType);
 
                     $attachment = match ($attachmentType) {
-                        StatementAttachmentInterface::SOURCE_STATEMENT => throw new InvalidArgumentException('Creation of non-generic attachments not available.'),
-                        StatementAttachmentInterface::GENERIC          => $this->createGenericAttachment($statement, $file),
+                        StatementAttachmentInterface::SOURCE_STATEMENT => $this->createAttachment($statement, $file, StatementAttachmentInterface::SOURCE_STATEMENT),
+                        StatementAttachmentInterface::GENERIC          => $this->createAttachment($statement, $file,StatementAttachmentInterface::GENERIC),
                         default                                        => throw new InvalidArgumentException("Attachment type not available: $attachmentType"),
                     };
                     $modifiedEntity = new ModifiedEntity($attachment, []);
@@ -161,7 +161,7 @@ final class StatementAttachmentResourceType extends DplanResourceType
      * return a `StatementAttachment` resource to the client, as is required by the JSON:API
      * implementation.
      */
-    private function createGenericAttachment(Statement $statement, File $file): StatementAttachment
+    private function createAttachment(Statement $statement, File $file, string $attachmentType): StatementAttachment
     {
         $this->fileService->addStatementFileContainer(
             $statement->getId(),
@@ -173,7 +173,7 @@ final class StatementAttachmentResourceType extends DplanResourceType
         $attachment->setId('');
         $attachment->setFile($file);
         $attachment->setStatement($statement);
-        $attachment->setType(StatementAttachmentInterface::GENERIC);
+        $attachment->setType($attachmentType);
 
         return $attachment;
     }
