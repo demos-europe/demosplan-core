@@ -20,8 +20,6 @@ class SimpleSpreadsheetService
     /**
      * @param string $title
      *
-     * @return Spreadsheet
-     *
      * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
      */
     public function createExcelDocument($title = 'untitled'): Spreadsheet
@@ -50,7 +48,7 @@ class SimpleSpreadsheetService
      * @param bool   $wrapText      - determines if text will wrap at the end of column width
      * @param bool   $forceNewSheet - if this is true, a new sheet will also be created if there's only one sheet in the document
      *
-     * @return spreadsheet - created Table with given content and formatted header
+     * @return Spreadsheet - created Table with given content and formatted header
      *
      * @internal param $ [] $columnTitles - The content to set to the first row. Will be the header of the table.
      * @internal param $ [] $data - The actually content. Will be the "body" of the table.
@@ -58,11 +56,11 @@ class SimpleSpreadsheetService
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
     public function addWorksheet(Spreadsheet $phpExcel,
-                                 array $formattedData = [],
-                                 array $columnTitles = [],
-                                 $sheetTitle = 'untitled',
-                                 $wrapText = true,
-                                 $forceNewSheet = false
+        array $formattedData = [],
+        array $columnTitles = [],
+        $sheetTitle = 'untitled',
+        $wrapText = true,
+        $forceNewSheet = false,
     ) {
         // if there's only one worksheet in the document, we assume that it's the first one and just return it
         if (1 === $phpExcel->getSheetCount() && !$forceNewSheet) {
