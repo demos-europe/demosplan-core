@@ -21,7 +21,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  */
 final class ServiceTagAutoconfigurator
 {
-
     /**
      * Method solvers for the generic RPC implementation.
      *
