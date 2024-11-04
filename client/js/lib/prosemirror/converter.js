@@ -1,11 +1,10 @@
 /**
  * This ProseMirrorConverter class is responsible for converting
- * a data-structure in the prosemirror format to an HTML string and vice versa.
+ * a data-structure in the prosemirror format to an HTML string.
  * For more Information about the prosemirror format, see: https://prosemirror.net/docs/
  *
  * Example usage:
  * - from ProseMirror to html: `converter.fromProseMirror(ProseMirrorData).toHtml().getHtml()`
- * - from html to ProseMirror: `converter.fromHtml(htmlString).toProseMirror()`
  *
  * @param proseMirrorData - object
  * @param htmlString - string
@@ -52,76 +51,6 @@ export class ProseMirrorConverter {
     } catch (error) {
       console.error('Error converting ProseMirror data to HTML: ', error)
     }
-  }
-
-  /**
-   * Returns a ProseMirrorConverter instance filled with an HTML string.
-   * @param htmlString
-   * @returns { ProseMirrorConverter }
-   */
-  fromHtml(htmlString) {
-    try {
-      const parser = new DOMParser()
-      const doc = parser.parseFromString(htmlString, 'text/html')
-
-      const customContents = doc.querySelectorAll('custom-content')
-      const draftSegments = []
-      const included = []
-
-      customContents.forEach(customContent => {
-        const id = customContent.getAttribute('id')
-        const segmentText = customContent.innerHTML
-        draftSegments.push({ id, type: 'DraftSegment' })
-
-        included.push({
-          type: 'DraftSegment',
-          id,
-          attributes: {
-            position: {
-              start: 0, // TODO: calculate start and stop positions
-              stop: segmentText.length
-            },
-            segment_text: segmentText
-          },
-          relationships: {
-            tags: {
-              data: [] // TODO: add tags
-            }
-          }
-        });
-      });
-
-      const type = customContents[0]?.getAttribute('type') || 'SegmentedStatement'
-      const statementId = customContents[0]?.getAttribute('statement-id') || null
-
-      this.prosemirrorData = {
-        data: {
-          type,
-          id: customContents[0]?.getAttribute('id') || null,
-          relationships: {
-            draftSegments: {
-              data: draftSegments
-            },
-            statement: {
-              data: { type: 'Statement', id: statementId }
-            }
-          }
-        },
-        included
-      };
-      return this
-    } catch (error) {
-      console.error('Error converting HTML to ProseMirror data: ', error)
-    }
-  }
-
-  /**
-   * Returns a data-structure in the prosemirror format
-   * @returns { object }
-   */
-  toProseMirror() {
-    console.log(this.prosemirrorData)
-    return this.prosemirrorData
   }
 
   /**
