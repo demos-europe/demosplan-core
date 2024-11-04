@@ -33,20 +33,16 @@ export class ProseMirrorConverter {
   toHtml = () => {
     try {
       const { type, id, relationships } = this.prosemirrorData.data
-      const draftSegments = relationships.draftSegments.data.map(segment => segment.id).join(', ')
-      const statementId = relationships.statement.data.id
 
       // TODO: create valid html string
       this.htmlString = `
-        <custom-html-tag>
+        <dp-statement :statement-id="${id}">
           ${relationships.draftSegments.data.map(segment => `
-          <custom-content
-            type="${type}"
-            id="${segment.id}"
-            draft-segments="[${draftSegments}]"
-            statement-id="${statementId}">
-          </custom-content>`).join('')}
-        </custom-html-tag>`
+          <dp-segment
+            :type="${type}"
+            :id="${segment.id}">
+          </dp-segment>`).join('')}
+        </dp-statement>`.trim()
       return this
     } catch (error) {
       console.error('Error converting ProseMirror data to HTML: ', error)

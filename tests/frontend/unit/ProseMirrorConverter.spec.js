@@ -17,17 +17,13 @@ describe('ProseMirrorConverter', () => {
   it('Creates a valid HTML string from prosemirror data', () => {
     const proseMirrorData = converterData
     const validHTML = `
-      <custom-html-tag>
+      <dp-statement :statement-id="${proseMirrorData.data.relationships.statement.data.id}">
         ${proseMirrorData.data.relationships.draftSegments.data.map(segment => `
-        <custom-content
-          type="${proseMirrorData.data.type}"
-          id="${segment.id}"
-          draft-segments="[${proseMirrorData.data.relationships.draftSegments.data.map(s => {
-            s.id, s.segment_text
-          }).join(', ')}]"
-          statement-id="${proseMirrorData.data.relationships.statement.data.id}">
-        </custom-content>`).join('')}
-      </custom-html-tag>`.trim()
+        <dp-segment
+          :type="${proseMirrorData.data.type}"
+          :id="${segment.id}">
+        </dp-segment>`).join('')}
+      </dp-statement>`.trim()
     const convertedProseMirrorData = converter.fromProseMirror(proseMirrorData).toHtml().getHtml()
     expect(normalizeHtmlString(convertedProseMirrorData)).toBe(normalizeHtmlString(validHTML))
   })
