@@ -23,6 +23,16 @@
         <!-- postgresql+advisory://db_user:db_password@localhost/db_name -->
         <env name="LOCK_DSN" value="flock"/>
         <!-- ###- symfony/lock ### -->
+
+        <!-- ###+ symfony/mercure-bundle ### -->
+        <!-- See https://symfony.com/doc/current/mercure.html#configuration -->
+        <!-- The URL of the Mercure hub, used by the app to publish updates (can be a local URL) -->
+        <env name="MERCURE_URL" value="https://example.com/.well-known/mercure"/>
+        <!-- The public URL of the Mercure hub, used by the browser to connect -->
+        <env name="MERCURE_PUBLIC_URL" value="https://example.com/.well-known/mercure"/>
+        <!-- The secret used to sign the JWTs -->
+        <env name="MERCURE_JWT_SECRET" value="!ChangeThisMercureHubJWTSecretKey!"/>
+        <!-- ###- symfony/mercure-bundle ### -->
     </php>
 
     <coverage processUncoveredFiles="false">
