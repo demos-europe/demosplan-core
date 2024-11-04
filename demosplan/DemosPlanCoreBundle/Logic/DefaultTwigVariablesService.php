@@ -160,6 +160,8 @@ class DefaultTwigVariablesService
             'jwtToken'                         => $this->jwtTokenManager->create($user),
             'permissions'                      => $this->permissions->getPermissions(),
             'piwik'                            => $this->loadPiwikVariables(),
+            'procedure'                        => $this->currentProcedureService->getProcedure()?->getId(), // legacy twig code in twigs
+            'procedureId'                      => $this->currentProcedureService->getProcedure()?->getId(),
             'procedureObject'                  => $this->currentProcedureService->getProcedure(),
             'proceduresettings'                => $this->currentProcedureService->getProcedureArray(),
             'projectCoreVersion'               => $this->globalConfig->getProjectCoreVersion(),

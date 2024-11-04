@@ -52,8 +52,6 @@ class StatementListController extends BaseController
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanStatement/list_statements.html.twig',
             [
-                'procedureId'    => $procedureId,
-                'procedure'      => $procedureId, // legacy twig code in twigs
                 'title'          => 'statements',
                 'templateVars'   => [
                     'isSourceAndCoupledProcedure' => $isSourceAndCoupledProcedure,
@@ -88,8 +86,6 @@ class StatementListController extends BaseController
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanStatement/list_original_statements.html.twig',
             [
-                'procedureId'    => $procedureId,
-                'procedure'      => $procedureId, // legacy twig code in twigs
                 'title'          => 'statements.original',
             ]
         );
