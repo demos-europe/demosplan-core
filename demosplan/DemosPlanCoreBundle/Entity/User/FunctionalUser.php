@@ -44,6 +44,7 @@ class FunctionalUser extends User
             self::FUNCTIONAL_USER_CUSTOMER_NAME,
             self::FUNCTIONAL_USER_CUSTOMER_SUBDOMAIN
         );
+        $this->setDefaultOrgaDepartment();
 
         parent::__construct();
     }

@@ -23,7 +23,6 @@ class AnonymousUser extends FunctionalUser
         $this->id = self::ANONYMOUS_USER_ID;
         $this->login = self::ANONYMOUS_USER_LOGIN;
         $this->lastname = self::ANONYMOUS_USER_NAME;
-        $this->setDefaultOrgaDepartment();
 
         $role = new Role();
         $role->setCode(RoleInterface::GUEST);

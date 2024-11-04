@@ -23,8 +23,6 @@ class AiApiUser extends FunctionalUser
         $this->id = self::AI_API_USER_ID;
         $this->login = self::AI_API_USER_LOGIN;
 
-        $this->setDefaultOrgaDepartment();
-
         $role = new Role();
         $role->setCode(RoleInterface::API_AI_COMMUNICATOR);
         $role->setGroupCode(RoleInterface::GAICOM);
