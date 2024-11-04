@@ -218,30 +218,17 @@
           :options="submitTypeOptions"
           @select="(val) => emitInput('submitType', val)" />
 
-        <template v-if="hasPermission('field_statement_phase')">
+        <template v-if="hasPermission('field_statement_phase') && availableProcedurePhases.length > 0">
           <dp-select
-            v-if="hasPermission('field_show_internal_procedure_phases_in_dropdown') && !localStatement.attributes.isSubmittedByCitizen"
-            id="statementProcedureInternalPhase"
-            v-model="localStatement.attributes.phase"
+            id="statementProcedurePhase"
+            v-model="localStatement.attributes.procedurePhase.key"
             class="mb-3"
             :disabled="!editable || !isStatementManual"
             :label="{
               text: Translator.trans('procedure.public.phase')
             }"
-            :options="availableInternalPhases"
-            @select="(val) => emitInput('phase', val)" />
-
-          <dp-select
-            v-else
-            id="statementProcedureExternalPhase"
-            v-model="localStatement.attributes.phase"
-            class="mb-3"
-            :disabled="!editable || !isStatementManual"
-            :label="{
-              text: Translator.trans('procedure.public.phase')
-            }"
-            :options="availableExternalPhases"
-            @select="(val) => emitInput('phase', val)" />
+            :options="availableProcedurePhases"
+            @select="(val) => emitInput('procedurePhase', val)" />
         </template>
 
         <dp-text-area
@@ -427,19 +414,10 @@ export default {
       storageStatement: 'items'
     }),
 
-    availableExternalPhases () {
-      const externalPhases = this.statement.attributes?.availableExternalPhases || []
+    availableProcedurePhases () {
+      const phases = this.statement.attributes?.availableProcedurePhases || []
 
-      return externalPhases.map(phase => ({
-        label: phase.name,
-        value: phase.key
-      }))
-    },
-
-    availableInternalPhases () {
-      const internalPhases = this.statement.attributes?.availableInternalPhases || []
-
-      return internalPhases.map(phase => ({
+      return phases.map(phase => ({
         label: phase.name,
         value: phase.key
       }))

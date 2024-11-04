@@ -137,6 +137,9 @@
         <h3 class="mt-4">
           {{ Translator.trans('map.bases') }}
         </h3>
+        <h5 v-if="hasPermission('feature_map_required')">
+          {{ Translator.trans('info.gislayer.delete') }}
+        </h5>
         <!-- List-Head -->
         <div class="color--grey mb-1 mt-2 mr-2">
           <div class="c-at-item__row-icon pl-0">

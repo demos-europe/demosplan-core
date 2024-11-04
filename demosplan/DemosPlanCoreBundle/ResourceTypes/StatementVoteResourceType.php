@@ -54,7 +54,7 @@ final class StatementVoteResourceType extends DplanResourceType
     protected function getProperties(): ResourceConfigBuilderInterface
     {
         /**
-         * Create, update or delete votes are allowed if:
+         * Create, update votes are allowed if:
          * - if the statement is manual OR
          * - if public verified has any of the mentioned values
          * */
@@ -139,17 +139,17 @@ final class StatementVoteResourceType extends DplanResourceType
 
     public function isCreateAllowed(): bool
     {
-        return $this->isAvailable();
+        return $this->hasAdminPermissions();
     }
 
     public function isUpdateAllowed(): bool
     {
-        return $this->isAvailable();
+        return $this->hasAdminPermissions();
     }
 
     public function isDeleteAllowed(): bool
     {
-        return $this->isAvailable();
+        return $this->hasAdminPermissions();
     }
 
     protected function getAccessConditions(): array
@@ -165,5 +165,15 @@ final class StatementVoteResourceType extends DplanResourceType
             $this->conditionFactory->propertyHasValue($procedureId, Paths::statementVote()->statement->procedure->id),
             $this->conditionFactory->propertyHasValue(false, Paths::statementVote()->deleted),
         ];
+    }
+
+    private function hasAdminPermissions(): bool
+    {
+        return $this->currentUser->hasAnyPermissions(
+            'feature_segments_of_statement_list',
+            'area_statement_segmentation',
+            'area_admin_statement_list',
+            'area_admin_submitters'
+        );
     }
 }

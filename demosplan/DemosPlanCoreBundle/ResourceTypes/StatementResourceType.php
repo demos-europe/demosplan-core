@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
+use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
@@ -31,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementProcedurePhaseResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
@@ -40,7 +42,8 @@ use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigB
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
-use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PhaseVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\ProcedurePhaseVO;
+use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 use Doctrine\Common\Collections\ArrayCollection;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
@@ -64,6 +67,7 @@ use Webmozart\Assert\Assert;
  * @property-read End $paragraphTitle @deprecated Use {@link StatementResourceType::$paragraph} instead
  * @property-read End $segmentDraftList
  * @property-read End $status
+ * @property-read ValueObject $phaseStatement
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
@@ -79,6 +83,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         protected readonly CoordinateJsonConverter $coordinateJsonConverter,
         private readonly ParagraphVersionRepository $paragraphVersionRepository,
         private readonly ParagraphRepository $paragraphRepository, private readonly ElementsRepository $elementsRepository, private readonly ElementHandler $elementHandler, private readonly ElementsService $elementsService,
+        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);
     }
@@ -431,6 +436,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     return [];
                 }
             );
+
+            $configBuilder->numberOfAnonymVotes->readable()->updatable();
         }
 
         // always updatable if access to type and instances was granted
@@ -488,29 +495,35 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             );
         }
 
-        $configBuilder->phase
-            ->updatable($statementConditions, function (Statement $statement, string $phaseKey): array {
+        $configBuilder->procedurePhase
+            ->updatable($statementConditions, function (Statement $statement, array $procedurePhase): array {
                 // check that phaseKey exists so that it is not possible to set a phase that does not exist
-                $statement->setPhase($this->statementService->getPhaseKey(
-                    $phaseKey,
-                    $statement->getPublicStatement()
-                ));
+                try {
+                    $this->statementProcedurePhaseResolver->getProcedurePhaseVO($procedurePhase[ProcedurePhaseVO::PROCEDURE_PHASE_KEY], $statement->isSubmittedByCitizen());
+                    $statement->setPhase($procedurePhase[ProcedurePhaseVO::PROCEDURE_PHASE_KEY]);
+                } catch (UndefinedPhaseException $e) {
+                    $this->logger->error($e->getMessage());
+
+                    return [];
+                }
 
                 return [];
             })
-            ->readable(false, function (Statement $statement): string {
-                return $this->statementService->getPhaseKey(
-                    $statement->getPhase(),
-                    $statement->getPublicStatement()
-                );
+            ->readable(false, function (Statement $statement): ?array {
+                try {
+                    return $this->statementProcedurePhaseResolver->getProcedurePhaseVO($statement->getPhase(), $statement->isSubmittedByCitizen())->jsonSerialize();
+                } catch (UndefinedPhaseException $e) {
+                    $this->logger->error($e->getMessage());
+
+                    return null;
+                }
             });
 
         if ($this->currentUser->hasPermission('field_statement_phase')) {
-            $configBuilder->availableInternalPhases
-                ->readable(false, $this->getAvailableInternalPhases(...));
-
-            $configBuilder->availableExternalPhases
-                ->readable(false, $this->getAvailableExternalPhases(...));
+            $configBuilder->availableProcedurePhases
+                ->readable(false, function (Statement $statement): ?array {
+                    return $this->statementProcedurePhaseResolver->getAvailableProcedurePhases($statement->isSubmittedByCitizen());
+                });
         }
 
         if ($this->resourceTypeStore->getStatementVoteResourceType()->isAvailable()) {
@@ -520,39 +533,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         }
 
         return $configBuilder;
-    }
-
-    protected function getAvailableInternalPhases(): array
-    {
-        $phases = [];
-
-        foreach ($this->globalConfig->getInternalPhasesAssoc() as $internalPhase) {
-            $phases[] = $this->createPhaseVO($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
-        }
-
-        return $phases;
-    }
-
-    protected function getAvailableExternalPhases(): array
-    {
-        $phases = [];
-        foreach ($this->globalConfig->getExternalPhasesAssoc() as $externalPhase) {
-            $phases[] = $this->createPhaseVO($externalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
-        }
-
-        return $phases;
-    }
-
-    protected function createPhaseVO(array $phase, string $type)
-    {
-        $phaseVO = new PhaseVO();
-        $phaseVO->setKey($phase[PhaseVO::PROCEDURE_PHASE_KEY]);
-        $phaseVO->setName($phase[PhaseVO::PROCEDURE_PHASE_NAME]);
-        $phaseVO->setPermissionsSet($phase[PhaseVO::PROCEDURE_PHASE_PERMISSIONS_SET]);
-        $phaseVO->setParticipationState($phase[PhaseVO::PROCEDURE_PHASE_PARTICIPATION_STATE] ?? null);
-        $phaseVO->setPhaseType($type);
-
-        return $phaseVO->lock();
     }
 
     /**
