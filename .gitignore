@@ -37,6 +37,12 @@ logs
 /projects/core/web/js
 /projects/core/web/video
 /projects/core/web/files
+/public/css
+/public/fonts
+/public/img
+/public/js
+/public/video
+/public/files
 !/var/.gitkeep
 
 ###> symfony/framework-bundle ###

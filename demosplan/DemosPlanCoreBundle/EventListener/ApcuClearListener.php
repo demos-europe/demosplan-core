@@ -46,7 +46,7 @@ class ApcuClearListener
             return;
         }
 
-        $cacheScheduleFile = DemosPlanPath::getProjectPath(CacheClearCommand::APCU_CLEAR_SCHEDULE_FILE);
+        $cacheScheduleFile = DemosPlanPath::getPublicPath(CacheClearCommand::APCU_CLEAR_SCHEDULE_FILE);
 
         if (file_exists($cacheScheduleFile)) {
             $this->logger->info('Performing scheduled cache clear for apcu and op caches');

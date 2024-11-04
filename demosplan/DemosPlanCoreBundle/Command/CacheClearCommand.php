@@ -29,7 +29,7 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class CacheClearCommand extends CoreCommand
 {
-    final public const APCU_CLEAR_SCHEDULE_FILE = 'web/uploads/scheduled-apcu-clear';
+    final public const APCU_CLEAR_SCHEDULE_FILE = 'uploads/scheduled-apcu-clear';
 
     protected static $defaultName = 'dplan:cache:clear';
     protected static $defaultDescription = 'Clear apcu and op caches';
@@ -95,7 +95,7 @@ class CacheClearCommand extends CoreCommand
         $output->comment('Schedule clearing of Web APCu');
 
         $fs = new DemosFilesystem();
-        $file = DemosPlanPath::getProjectPath(self::APCU_CLEAR_SCHEDULE_FILE);
+        $file = DemosPlanPath::getPublicPath(self::APCU_CLEAR_SCHEDULE_FILE);
 
         // in case of our dev servers the file would be put into src folder,
         // but needs to be in the htdocs web/uploads folder

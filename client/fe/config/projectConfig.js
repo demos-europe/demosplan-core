@@ -54,7 +54,7 @@ function projectConfig (mode, project) {
     cssPrefix: '.' + beConfig['cssPrefix'],
     project: project,
     projectRoot: beConfig['projectDir'],
-    publicPath: beConfig['projectDir'] + '/web/',
+    publicPath: beConfig['publicDir'],
     stylesEntryPoint: beConfig['projectDir'] + '/app/Resources/DemosPlanCoreBundle/client/scss/style.scss',
     publicStylesEntryPoint: beConfig['projectDir'] + '/app/Resources/DemosPlanCoreBundle/client/scss/style-public.scss',
     urlPathPrefix: beConfig['urlPrefix']

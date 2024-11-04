@@ -59,13 +59,13 @@ USER root
 COPY . /srv/www
 
 # set permissions needed during build
-RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/fonts && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/images && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/video && \
+RUN mkdir -p /srv/www/public/js && \
+    mkdir -p /srv/www/public/fonts && \
+    mkdir -p /srv/www/public/images && \
+    mkdir -p /srv/www/public/video && \
     mkdir -p /srv/www/var/cache && \
     mkdir -p /srv/www/var/log && \
-    chown -R www-data /srv/www/projects/$PROJECT_NAME/web && \
+    chown -R www-data /srv/www/public && \
     chown -R www-data /srv/www/var/cache && \
     chown -R www-data /srv/www/var/log && \
 # define doctrine in memory database for the asset build
@@ -83,12 +83,12 @@ COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/paramet
 
 RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     ln -s /opt/config/parameters.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
-    mkdir -p /srv/www/projects/$PROJECT_NAME/web/uploads/files && \
-    chmod -R 775 /srv/www/projects/$PROJECT_NAME/web/uploads && \
+    mkdir -p /srv/www/public/uploads/files && \
+    chmod -R 775 /srv/www/public/uploads && \
     mkdir -p /opt/uploads && \
-    chown -R root:root /srv/www/projects/$PROJECT_NAME/web && \
+    chown -R root:root /srv/www/public && \
     chown -R www-data /opt/uploads && \
-    chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
+    chown -R www-data /srv/www/public/uploads && \
     ## set facls for /tmp (trick the system) still needed?
     setfacl -dRm u:www-data:rwx /tmp && \
     touch /var/log/php8.2-fpm.log && chown www-data:www-data /var/log/php8.2-fpm.log
@@ -107,4 +107,4 @@ COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 WORKDIR /srv/www
 # only webfolder with frontcontroller and static files is needed for nginx
-COPY --from=fpm /srv/www/projects/$PROJECT_NAME/web /srv/www/projects/$PROJECT_NAME/web
+COPY --from=fpm /srv/www/public /srv/www/public

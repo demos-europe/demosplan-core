@@ -199,7 +199,7 @@ class WebpackBundleExtension extends ExtensionBase
      */
     protected function loadManifest(string $manifest): array
     {
-        $manifestFile = DemosPlanPath::getProjectPath("web/{$manifest}.manifest.json");
+        $manifestFile = DemosPlanPath::getPublicPath("{$manifest}.manifest.json");
 
         $manifestArray = [];
         if (file_exists($manifestFile)) {

@@ -95,6 +95,10 @@ class DemosPlanPath
 
         return self::getRootPath("{$projectPath}/{$path}");
     }
+    public static function getPublicPath(string $path = ''): string
+    {
+        return self::getRootPath("public/{$path}");
+    }
 
     /**
      * Gets the path to the tests folder.
