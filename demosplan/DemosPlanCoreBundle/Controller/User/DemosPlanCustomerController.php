@@ -129,7 +129,7 @@ class DemosPlanCustomerController extends BaseController
      *
      * @throws MessageBagException
      */
-    #[Route(path: '/einstellungen/plattform/send/mail', methods: ['GET', 'POST'], name: 'dplan_customer_mail_send_all_users')]
+    #[Route(path: '/einstellungen/plattform/send/mail', methods: ['GET', 'POST'], name: 'dplan_customer_mail_send_all_users', options: ['expose' => true])]
     public function sendMailToAllCustomersAction(
         CustomerHandler $customerHandler,
         HTMLSanitizer $HTMLSanitizer,
