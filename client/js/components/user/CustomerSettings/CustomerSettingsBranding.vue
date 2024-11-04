@@ -126,7 +126,6 @@ export default {
         return this.brandingList[this.brandingId].attributes || { styling: '', logoHash: null }
       },
       set ({ key, value }) {
-        console.log('set', key, value)
         this.updateBranding({
           ...this.brandingList[this.brandingId],
           attributes: {
@@ -204,8 +203,6 @@ export default {
           }
         }
       }
-
-      console.log('saveBrandingSettings', payload)
 
       this.updateBranding(payload)
       this.saveBranding(this.brandingId).then(() => {
