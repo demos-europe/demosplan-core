@@ -18,8 +18,6 @@ use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
 
 /**
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $firstname
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $lastname
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $email
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $city
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $postcode
