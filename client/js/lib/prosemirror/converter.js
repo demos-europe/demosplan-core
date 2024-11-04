@@ -37,6 +37,7 @@ export class ProseMirrorConverter {
       const draftSegments = relationships.draftSegments.data.map(segment => segment.id).join(', ')
       const statementId = relationships.statement.data.id
 
+      // TODO: create valid html string
       this.htmlString = `
         <custom-html-tag>
           ${relationships.draftSegments.data.map(segment => `
@@ -60,25 +61,43 @@ export class ProseMirrorConverter {
    */
   fromHtml(htmlString) {
     try {
-      const doc = this.parser.parseFromString(htmlString, 'text/html')
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(htmlString, 'text/html')
 
       const customContents = doc.querySelectorAll('custom-content')
       const draftSegments = []
+      const included = []
 
       customContents.forEach(customContent => {
-        const type = customContent.getAttribute('type')
         const id = customContent.getAttribute('id')
-        const segmentText = customContent.getAttribute('segment-text')
-        draftSegments.push({ id, type: type, segment_text: segmentText ?? 'no text' })
-      })
+        const segmentText = customContent.innerHTML
+        draftSegments.push({ id, type: 'DraftSegment' })
 
-      const type = customContents[0].getAttribute('type');
-      const statementId = customContents[0].getAttribute('statement-id');
+        included.push({
+          type: 'DraftSegment',
+          id,
+          attributes: {
+            position: {
+              start: 0, // TODO: calculate start and stop positions
+              stop: segmentText.length
+            },
+            segment_text: segmentText
+          },
+          relationships: {
+            tags: {
+              data: [] // TODO: add tags
+            }
+          }
+        });
+      });
+
+      const type = customContents[0]?.getAttribute('type') || 'SegmentedStatement'
+      const statementId = customContents[0]?.getAttribute('statement-id') || null
 
       this.prosemirrorData = {
         data: {
           type,
-          id: customContents[0].getAttribute('id'),
+          id: customContents[0]?.getAttribute('id') || null,
           relationships: {
             draftSegments: {
               data: draftSegments
@@ -87,8 +106,9 @@ export class ProseMirrorConverter {
               data: { type: 'Statement', id: statementId }
             }
           }
-        }
-      }
+        },
+        included
+      };
       return this
     } catch (error) {
       console.error('Error converting HTML to ProseMirror data: ', error)
