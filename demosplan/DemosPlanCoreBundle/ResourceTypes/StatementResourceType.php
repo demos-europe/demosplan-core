@@ -531,7 +531,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 });
         }
 
-        if ($this->resourceTypeStore->getStatementVoteResourceType()->isAvailable()) {
+        if ($this->getTypes()->getStatementVoteResourceType()->isAvailable()) {
             $configBuilder->votes
                 ->setRelationshipType($this->getTypes()->getStatementVoteResourceType())
                 ->readable(true);
