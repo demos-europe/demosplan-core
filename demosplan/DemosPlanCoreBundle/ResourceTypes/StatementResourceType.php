@@ -81,7 +81,10 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly StatementDeleter $statementDeleter,
         protected readonly CoordinateJsonConverter $coordinateJsonConverter,
         private readonly ParagraphVersionRepository $paragraphVersionRepository,
-        private readonly ParagraphRepository $paragraphRepository, private readonly ElementsRepository $elementsRepository, private readonly ElementHandler $elementHandler, private readonly ElementsService $elementsService,
+        private readonly ParagraphRepository $paragraphRepository,
+        private readonly ElementsRepository $elementsRepository,
+        private readonly ElementHandler $elementHandler,
+        private readonly ElementsService $elementsService,
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);
