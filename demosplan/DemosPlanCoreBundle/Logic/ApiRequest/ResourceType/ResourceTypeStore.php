@@ -84,6 +84,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementMetaResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementVoteResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyVoteResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
@@ -242,6 +243,8 @@ class ResourceTypeStore
 
     protected StatementSegmentResourceType $statementSegmentResourceType;
 
+    protected StatementVoteResourceType $statementVoteResourceType;
+
     protected SurveyResourceType $surveyResourceType;
 
     protected SurveyVoteResourceType $surveyVoteResourceType;
@@ -329,6 +332,7 @@ class ResourceTypeStore
         StatementReportEntryResourceType $statementReportEntryResourceType,
         StatementResourceType $statementResourceType,
         StatementSegmentResourceType $statementSegmentResourceType,
+        StatementVoteResourceType $statementVoteResourceType,
         SurveyResourceType $surveyResourceType,
         SurveyVoteResourceType $surveyVoteResourceType,
         TagResourceType $tagResourceType,
@@ -409,6 +413,7 @@ class ResourceTypeStore
         $this->statementReportEntryResourceType = $statementReportEntryResourceType;
         $this->statementResourceType = $statementResourceType;
         $this->statementSegmentResourceType = $statementSegmentResourceType;
+        $this->statementVoteResourceType = $statementVoteResourceType;
         $this->surveyResourceType = $surveyResourceType;
         $this->surveyVoteResourceType = $surveyVoteResourceType;
         $this->tagResourceType = $tagResourceType;
@@ -776,6 +781,11 @@ class ResourceTypeStore
     public function getStatementSegmentResourceType(): StatementSegmentResourceType
     {
         return $this->statementSegmentResourceType;
+    }
+
+    public function getStatementVoteResourceType(): StatementVoteResourceType
+    {
+        return $this->statementVoteResourceType;
     }
 
     public function getSurveyResourceType(): SurveyResourceType

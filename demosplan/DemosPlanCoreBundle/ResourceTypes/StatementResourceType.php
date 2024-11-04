@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementProcedurePhaseResolver;
@@ -72,6 +73,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly QueryStatement $esQuery,
         private readonly StatementService $statementService,
         private readonly StatementDeleter $statementDeleter,
+        protected readonly CoordinateJsonConverter $coordinateJsonConverter,
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);
@@ -277,6 +279,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->assignee->readable()->filterable();
             $configBuilder->authorName->readable(true)->filterable();
             $configBuilder->submitName->readable(true)->filterable()->sortable();
+            $configBuilder->location
+                ->readable(true, fn (Statement $statement): ?array => $this->coordinateJsonConverter->convertJsonToCoordinates($statement->getPolygon()))
+                ->aliasedPath(Paths::statement()->polygon);
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
@@ -390,6 +395,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     return [];
                 }
             );
+
+            $configBuilder->numberOfAnonymVotes->readable()->updatable();
         }
 
         // always updatable if access to type and instances was granted
@@ -399,6 +406,21 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         if ($this->currentUser->hasPermission('field_statement_memo')) {
             $configBuilder->memo->updatable([$simpleStatementCondition]);
+        }
+
+        if ($this->currentUser->hasPermission('field_statement_public_allowed')) {
+            $configBuilder->publicVerified
+                ->readable(true, function (Statement $statement) {
+                    return $statement->getPublicVerified();
+                })
+                ->updatable(
+                    [$simpleStatementCondition],
+                    static function (Statement $statement, string $publicVerified): array {
+                        $statement->setPublicVerified($publicVerified);
+
+                        return [];
+                    }
+                );
         }
 
         if ($this->currentUser->hasPermission('area_admin_consultations')) {
@@ -461,6 +483,12 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->readable(false, function (Statement $statement): ?array {
                     return $this->statementProcedurePhaseResolver->getAvailableProcedurePhases($statement->isSubmittedByCitizen());
                 });
+        }
+
+        if ($this->resourceTypeStore->getStatementVoteResourceType()->isAvailable()) {
+            $configBuilder->votes
+                ->setRelationshipType($this->getTypes()->getStatementVoteResourceType())
+                ->readable(true);
         }
 
         return $configBuilder;
