@@ -25,7 +25,6 @@ use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
-use EDT\Wrapping\PropertyBehavior\Identifier\PathIdentifierPostConstructorBehavior;
 
 /**
  * @template-extends DplanResourceType<StatementVote>
@@ -74,14 +73,16 @@ final class StatementVoteResourceType extends DplanResourceType
         $statementVoteConfig->name
             ->setReadableByCallable(fn (StatementVote $statementVote): string => $statementVote->getName())
             ->addUpdateBehavior(new CallbackAttributeSetBehaviorFactory([], static function (StatementVote $statementVote, ?string $name): array {
-                    $statementVote->setLastName($name);
-                    return [];
-                }, OptionalField::NO)
+                $statementVote->setLastName($name);
+
+                return [];
+            }, OptionalField::NO)
             )
-            //See for more details vendor/demos-europe/edt-jsonapi/src/PropertyConfig/Builder/AttributeConfigBuilder.php:78
+            // See for more details vendor/demos-europe/edt-jsonapi/src/PropertyConfig/Builder/AttributeConfigBuilder.php:78
             ->addCreationBehavior(
                 new CallbackAttributeSetBehaviorFactory([], static function (StatementVote $statementVote, ?string $name): array {
                     $statementVote->setLastName($name);
+
                     return [];
                 }, OptionalField::NO)
             );
