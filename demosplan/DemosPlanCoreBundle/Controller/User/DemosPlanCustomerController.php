@@ -47,7 +47,7 @@ class DemosPlanCustomerController extends BaseController
         EntityWrapperFactory $wrapperFactory,
         PrefilledResourceTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
-        RouterInterface $router
+        RouterInterface $router,
     ): Response {
         try {
             // Using a resource instead of the unrestricted entity is done here to easily notice
@@ -94,7 +94,7 @@ class DemosPlanCustomerController extends BaseController
         CustomerHandler $customerHandler,
         Request $request,
         FileUploadService $fileUploadService,
-        FileService $fileService
+        FileService $fileService,
     ): Response {
         try {
             $messageBag = $this->getMessageBag();
@@ -136,7 +136,7 @@ class DemosPlanCustomerController extends BaseController
         MailService $mailService,
         Request $request,
         TranslatorInterface $translator,
-        UserService $userService
+        UserService $userService,
     ): Response {
         $templateVars = [];
         $vars = [];
