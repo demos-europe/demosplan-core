@@ -16,10 +16,10 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use GuzzleHttp\Exception\InvalidArgumentException;
+use Illuminate\Support\Collection;
 use Nelmio\SecurityBundle\EventListener\ContentSecurityPolicyListener;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
-use Illuminate\Support\Collection;
 use Twig\TwigFunction;
 
 class WebpackBundleExtension extends ExtensionBase
@@ -185,15 +185,15 @@ class WebpackBundleExtension extends ExtensionBase
      */
     protected function renderTag($bundleSrc, bool $legacy, string $bundleName, string $dataBundle): string
     {
-        $tagTemplate = '<script src="%s" '. $this->addNonce("script") . '></script>';
+        $tagTemplate = '<script src="%s" '.$this->addNonce('script').'></script>';
 
         if (!$legacy && !in_array($bundleName, self::NON_DATA_BUNDLES, true)) {
             $dataBundle = explode('.', $dataBundle)[0];
-            $tagTemplate = '<script src="%s" data-bundle="%s" '. $this->addNonce("script") . '></script>';
+            $tagTemplate = '<script src="%s" data-bundle="%s" '.$this->addNonce('script').'></script>';
         }
 
         if (strpos($bundleName, '.css') > 0) {
-            $tagTemplate = '<link rel="stylesheet" href="%s" '. $this->addNonce("style") . '>';
+            $tagTemplate = '<link rel="stylesheet" href="%s" '.$this->addNonce('style').'>';
         }
 
         return sprintf($tagTemplate, $this->formatBundlePath($bundleSrc), $dataBundle);
