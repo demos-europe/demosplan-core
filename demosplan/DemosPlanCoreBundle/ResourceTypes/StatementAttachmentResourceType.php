@@ -163,13 +163,13 @@ final class StatementAttachmentResourceType extends DplanResourceType
      * to {@link Statement::$attachments} in the backend.
      *
      * The {@link StatementAttachment} instance available in the return
-     * *must not* be persisted. It exists only to
+     * is persisted only when it is a source attachment.
+     * For the generic attachments, it exists only to
      * return a `StatementAttachment` resource to the client, as is required by the JSON:API
      * implementation.
      */
     private function createAttachment(Statement $statement, File $file, string $attachmentType): StatementAttachment
     {
-        // @todo adjust here
         $this->fileService->addStatementFileContainer(
             $statement->getId(),
             $file->getId(),
@@ -177,12 +177,22 @@ final class StatementAttachmentResourceType extends DplanResourceType
         );
 
         if (StatementAttachmentInterface::SOURCE_STATEMENT === $attachmentType) {
-            $originalAttachment = $this->statementAttachmentService->createAttachment($statement, $file, $attachmentType);
-            $this->entityManager->persist($originalAttachment);
-
-            return $originalAttachment;
+            return $this->createAndPersistAttachment($statement, $file, $attachmentType);
         }
 
+        return $this->createTemporaryAttachment($statement, $file, $attachmentType);
+    }
+
+    private function createAndPersistAttachment(Statement $statement, File $file, string $attachmentType): StatementAttachment
+    {
+        $originalAttachment = $this->statementAttachmentService->createAttachment($statement, $file, $attachmentType);
+        $this->entityManager->persist($originalAttachment);
+
+        return $originalAttachment;
+    }
+
+    private function createTemporaryAttachment(Statement $statement, File $file, string $attachmentType): StatementAttachment
+    {
         $attachment = new StatementAttachment();
         $attachment->setId('');
         $attachment->setFile($file);
