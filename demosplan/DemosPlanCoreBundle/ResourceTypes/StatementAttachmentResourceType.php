@@ -40,8 +40,8 @@ use Webmozart\Assert\Assert;
 final class StatementAttachmentResourceType extends DplanResourceType
 {
     public function __construct(
-        private readonly FileService           $fileService,
-        private readonly StatementResourceType $statementResourceType, private readonly StatementAttachmentService $statementAttachmentService
+        private readonly FileService $fileService,
+        private readonly StatementResourceType $statementResourceType, private readonly StatementAttachmentService $statementAttachmentService,
     ) {
     }
 
@@ -133,7 +133,7 @@ final class StatementAttachmentResourceType extends DplanResourceType
 
                     $attachment = match ($attachmentType) {
                         StatementAttachmentInterface::SOURCE_STATEMENT => $this->createAttachment($statement, $file, StatementAttachmentInterface::SOURCE_STATEMENT),
-                        StatementAttachmentInterface::GENERIC          => $this->createAttachment($statement, $file,StatementAttachmentInterface::GENERIC),
+                        StatementAttachmentInterface::GENERIC          => $this->createAttachment($statement, $file, StatementAttachmentInterface::GENERIC),
                         default                                        => throw new InvalidArgumentException("Attachment type not available: $attachmentType"),
                     };
                     $modifiedEntity = new ModifiedEntity($attachment, []);
@@ -169,7 +169,7 @@ final class StatementAttachmentResourceType extends DplanResourceType
      */
     private function createAttachment(Statement $statement, File $file, string $attachmentType): StatementAttachment
     {
-        //@todo adjust here
+        // @todo adjust here
         $this->fileService->addStatementFileContainer(
             $statement->getId(),
             $file->getId(),
@@ -177,11 +177,11 @@ final class StatementAttachmentResourceType extends DplanResourceType
         );
 
         if (StatementAttachmentInterface::SOURCE_STATEMENT === $attachmentType) {
-            $originalAttachment =  $this->statementAttachmentService->createAttachment($statement, $file, $attachmentType);
+            $originalAttachment = $this->statementAttachmentService->createAttachment($statement, $file, $attachmentType);
             $this->entityManager->persist($originalAttachment);
+
             return $originalAttachment;
         }
-
 
         $attachment = new StatementAttachment();
         $attachment->setId('');
