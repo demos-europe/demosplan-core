@@ -33,6 +33,7 @@ export class ProseMirrorConverter {
   toHtml = () => {
     try {
       const { type, id, relationships } = this.prosemirrorData.data
+      const { included } = this.prosemirrorData
 
       // TODO: create valid html string
       this.htmlString = `
@@ -41,6 +42,7 @@ export class ProseMirrorConverter {
           <dp-segment
             :type="${type}"
             :id="${segment.id}">
+            ${included.filter(el => el.id === segment.id).map(el => el.attributes.segment_text)}
           </dp-segment>`).join('')}
         </dp-statement>`.trim()
       return this
@@ -54,7 +56,6 @@ export class ProseMirrorConverter {
    * @returns { string }
    */
   getHtml() {
-    console.log(this.htmlString)
     return this.htmlString
   }
 }
