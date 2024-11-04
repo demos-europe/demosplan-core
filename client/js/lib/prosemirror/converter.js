@@ -61,5 +61,5 @@ export class ProseMirrorConverter {
 }
 
 export const normalizeHtmlString = (htmlString) => {
-  htmlString.replace(/\s+/g, '')
+  return htmlString.replace(/\s+/g, '')
 }
