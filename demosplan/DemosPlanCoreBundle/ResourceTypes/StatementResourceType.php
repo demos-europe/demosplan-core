@@ -309,25 +309,25 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->readable(true, fn (Statement $statement): ?array => $this->coordinateJsonConverter->convertJsonToCoordinates($statement->getPolygon()))
                 ->aliasedPath(Paths::statement()->polygon);
 
-            if ($this->currentUser->hasPermission('field_procedure_elements')) {
-                // @todo double check permission to update
-                $configBuilder->elements
-                    ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryResourceType())
-                    ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?Elements $planningDocumentCategory): array {
-                        if (null === $planningDocumentCategory) {
-                            $planningDocumentCategory = $this->elementsService->getPlanningDocumentCategoryByTitle($statement->getProcedureId(), $this->globalConfig->getElementsStatementCategoryTitle());
-                        }
-                        Assert::notNull($planningDocumentCategory);
+            $configBuilder->elements
+                ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryResourceType())
+                ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?Elements $planningDocumentCategory): array {
+                    if (null === $planningDocumentCategory) {
+                        //If the planningDocumentCategory is not sent in the request, we set the default planningDocumentCategory
+                        $planningDocumentCategory = $this->elementsService->getPlanningDocumentCategoryByTitle($statement->getProcedureId(), $this->globalConfig->getElementsStatementCategoryTitle());
+                    }
+                    Assert::notNull($planningDocumentCategory);
 
-                        $statement->setElement($planningDocumentCategory);
+                    $statement->setElement($planningDocumentCategory);
 
-                        return [];
-                    })
-                    ->readable()->aliasedPath(Paths::statement()->element);
-                $configBuilder->paragraphVersion
-                    ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
-                    ->readable()->aliasedPath(Paths::statement()->paragraph);
-            }
+                    return [];
+                })
+                ->readable()
+                ->aliasedPath(Paths::statement()->element);
+            $configBuilder->paragraphVersion
+                ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
+                ->readable()
+                ->aliasedPath(Paths::statement()->paragraph);
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
