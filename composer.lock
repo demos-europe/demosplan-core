@@ -9154,16 +9154,16 @@
         },
         {
             "name": "php-amqplib/rabbitmq-bundle",
-            "version": "2.17.1",
+            "version": "2.17.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-amqplib/RabbitMqBundle.git",
-                "reference": "6b8b029a0d4c1a0dd0c13871186cc7d24fa5709c"
+                "reference": "fc816b77d3dee4045f8044b70059942832b079b3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-amqplib/RabbitMqBundle/zipball/6b8b029a0d4c1a0dd0c13871186cc7d24fa5709c",
-                "reference": "6b8b029a0d4c1a0dd0c13871186cc7d24fa5709c",
+                "url": "https://api.github.com/repos/php-amqplib/RabbitMqBundle/zipball/fc816b77d3dee4045f8044b70059942832b079b3",
+                "reference": "fc816b77d3dee4045f8044b70059942832b079b3",
                 "shasum": ""
             },
             "require": {
@@ -9227,9 +9227,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-amqplib/RabbitMqBundle/issues",
-                "source": "https://github.com/php-amqplib/RabbitMqBundle/tree/2.17.1"
+                "source": "https://github.com/php-amqplib/RabbitMqBundle/tree/2.17.2"
             },
-            "time": "2024-10-18T16:11:37+00:00"
+            "time": "2024-10-29T16:00:15+00:00"
         },
         {
             "name": "php-http/curl-client",
@@ -12604,16 +12604,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v5.4.44",
+            "version": "v5.4.45",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "5b5a0aa66e3296e303e22490f90f521551835a83"
+                "reference": "108d436c2af470858bdaba3257baab3a74172017"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/5b5a0aa66e3296e303e22490f90f521551835a83",
-                "reference": "5b5a0aa66e3296e303e22490f90f521551835a83",
+                "url": "https://api.github.com/repos/symfony/console/zipball/108d436c2af470858bdaba3257baab3a74172017",
+                "reference": "108d436c2af470858bdaba3257baab3a74172017",
                 "shasum": ""
             },
             "require": {
@@ -12683,7 +12683,7 @@
                 "terminal"
             ],
             "support": {
-                "source": "https://github.com/symfony/console/tree/v5.4.44"
+                "source": "https://github.com/symfony/console/tree/v5.4.45"
             },
             "funding": [
                 {
@@ -12699,7 +12699,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-20T07:56:40+00:00"
+            "time": "2024-10-08T07:27:17+00:00"
         },
         {
             "name": "symfony/css-selector",
