@@ -61,12 +61,14 @@
       v-if="hasPermission('feature_customer_branding_edit')">
       <dp-text-area
         :hint="Translator.trans('branding.styling.hint')"
-        id="r_cssvars"
-        name="r_cssvars"
+        id="r_styling"
+        name="r_styling"
         data-cy="customerSettingsBranding:brandingStylingInput"
         :label="Translator.trans('branding.styling.input')"
         reduced-height
-        :value="branding.cssvars" />
+        :value="branding.styling"
+        @input="branding = { key: 'styling', value: $event }"
+      />
       <dp-details
         :summary="Translator.trans('branding.styling.details')"
         data-cy="customerSettingsBranding:brandingStylingDetails">
@@ -101,11 +103,6 @@ export default {
   },
 
   props: {
-    branding: {
-      required: true,
-      type: Object
-    },
-
     brandingId: {
       required: true,
       type: String
@@ -122,7 +119,23 @@ export default {
   computed: {
     ...mapState('Branding', {
       brandingList: 'items'
-    })
+    }),
+
+    branding: {
+      get () {
+        return this.brandingList[this.brandingId].attributes || { styling: '', logoHash: null }
+      },
+      set ({ key, value }) {
+        console.log('set', key, value)
+        this.updateBranding({
+          ...this.brandingList[this.brandingId],
+          attributes: {
+            ...this.brandingList[this.brandingId].attributes,
+            [key]: value
+          }
+        })
+      }
+    }
   },
 
   methods: {
@@ -148,7 +161,8 @@ export default {
         id: this.brandingId,
         type: 'Branding',
         attributes: {
-          ...this.brandingList[this.brandingId].attributes
+          ...this.branding,
+          logoHash: null
         },
         relationships: {
           logo: {
@@ -159,7 +173,6 @@ export default {
       this.updateBranding(payload)
       this.saveBranding(this.brandingId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        this.branding.logoHash = null
       })
     },
 
@@ -169,8 +182,9 @@ export default {
     },
 
     saveBrandingSettings () {
-      if (!this.uploadedFileId) {
+      if (!this.uploadedFileId && !hasPermission('feature_customer_branding_edit')) {
         this.isBusy = false
+
         return
       }
 
@@ -180,19 +194,24 @@ export default {
         type: 'Branding',
         attributes: {
           ...this.brandingList[this.brandingId].attributes
-        },
-        relationships: {
+        }
+      }
+
+      if (this.uploadedFileId) {
+        payload.relationships = {
           logo: {
             data: { id: this.uploadedFileId, type: 'File' }
           }
         }
       }
 
+      console.log('saveBrandingSettings', payload)
+
       this.updateBranding(payload)
       this.saveBranding(this.brandingId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+
         this.isBusy = false
-        this.branding.logoHash = this.brandingList[this.brandingId].relationships?.logo?.data.id
         this.unsetFile()
         this.$refs.logoUpload.clearFilesList()
       })
