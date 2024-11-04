@@ -313,7 +313,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryResourceType())
                 ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?Elements $planningDocumentCategory): array {
                     if (null === $planningDocumentCategory) {
-                        //If the planningDocumentCategory is not sent in the request, we set the default planningDocumentCategory
+                        // If the planningDocumentCategory is not sent in the request, we set the default planningDocumentCategory
                         $planningDocumentCategory = $this->elementsService->getPlanningDocumentCategoryByTitle($statement->getProcedureId(), $this->globalConfig->getElementsStatementCategoryTitle());
                     }
                     Assert::notNull($planningDocumentCategory);
