@@ -549,8 +549,7 @@ export default {
       const statementFields = [
         'assignee',
         'attachments',
-        'availableInternalPhases',
-        'availableExternalPhases',
+        'availableProcedurePhases',
         'consentRevoked',
         'similarStatementSubmitters',
         'authoredDate',
@@ -570,7 +569,7 @@ export default {
         'memo',
         'municipalities',
         'priorityAreas',
-        'phase',
+        'procedurePhase',
         'recommendation',
         'segmentDraftList',
         'submitterAndAuthorMetaDataAnonymized',

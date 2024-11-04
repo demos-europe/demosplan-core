@@ -1280,9 +1280,9 @@ class DocxExporter
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_PROCEDURE_PHASE, $exportConfig, $statement)) {
                 // Verfahrensschritt
                 // Ersetze die Phase, in der die SN eingegangen ist
-                $phaseName = $this->statementService->getPhaseName(
+                $phaseName = $this->statementService->getProcedurePhaseName(
                     $statement->getPhase(),
-                    $statement->getPublicStatement()
+                    $statement->isSubmittedByCitizen()
                 );
                 $cell2AddText('procedure.public.phase', $phaseName);
             }

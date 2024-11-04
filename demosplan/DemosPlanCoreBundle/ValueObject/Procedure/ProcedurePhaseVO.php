@@ -26,7 +26,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  * @method string getPhaseType()
  * @method void   setPhaseType(string $phaseType)
  */
-class PhaseVO extends ValueObject
+class ProcedurePhaseVO extends ValueObject
 {
     final public const PROCEDURE_PHASE_NAME = 'name';
     final public const PROCEDURE_PHASE_KEY = 'key';

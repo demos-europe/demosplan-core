@@ -1133,7 +1133,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         // Ersetze die Phase, in der die SN eingegangen ist
         $templateVars['table']['statement']['phase'] =
-            $statementService->getPhaseNameFromArray($statementAsArray);
+            $statementService->getProcedurePhaseNameFromArray($statementAsArray);
 
         // hole Infos zu den Mitzeichnern
         foreach ($templateVars['table']['statement']['votes'] as $key => $vote) {
