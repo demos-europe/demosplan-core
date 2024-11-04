@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eb2576c9b0dbb4625594a3803d63c922",
+    "content-hash": "84a497bec703f934acc104931b729bdc",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -77,52 +77,56 @@
         },
         {
             "name": "babdev/pagerfanta-bundle",
-            "version": "v3.8.0",
+            "version": "v4.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/BabDev/PagerfantaBundle.git",
-                "reference": "39df12df63177fee40c17c6efff8d4110bea3c94"
+                "reference": "838e486e0aad9a4485eeb9d5ea854872ae23dadc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/BabDev/PagerfantaBundle/zipball/39df12df63177fee40c17c6efff8d4110bea3c94",
-                "reference": "39df12df63177fee40c17c6efff8d4110bea3c94",
+                "url": "https://api.github.com/repos/BabDev/PagerfantaBundle/zipball/838e486e0aad9a4485eeb9d5ea854872ae23dadc",
+                "reference": "838e486e0aad9a4485eeb9d5ea854872ae23dadc",
                 "shasum": ""
             },
             "require": {
-                "pagerfanta/core": "^3.1",
-                "php": "^7.4 || ^8.0",
-                "symfony/config": "^4.4 || ^5.4 || ^6.0",
-                "symfony/dependency-injection": "^4.4 || ^5.4 || ^6.0",
-                "symfony/deprecation-contracts": "^2.1 || ^3.0",
-                "symfony/http-foundation": "^4.4 || ^5.4 || ^6.0",
-                "symfony/http-kernel": "^4.4 || ^5.4 || ^6.0",
-                "symfony/polyfill-php80": "^1.15",
-                "symfony/property-access": "^4.4 || ^5.4 || ^6.0",
-                "symfony/routing": "^4.4 || ^5.4 || ^6.0"
+                "pagerfanta/core": "^3.7 || ^4.0",
+                "php": "^8.1",
+                "psr/container": "^1.0 || ^2.0",
+                "symfony/config": "^5.4 || ^6.4 || ^7.1",
+                "symfony/dependency-injection": "^5.4 || ^6.4 || ^7.1",
+                "symfony/http-foundation": "^5.4 || ^6.4 || ^7.1",
+                "symfony/http-kernel": "^5.4 || ^6.4 || ^7.1",
+                "symfony/property-access": "^5.4 || ^6.4 || ^7.1",
+                "symfony/routing": "^5.4 || ^6.4 || ^7.1"
             },
             "conflict": {
-                "pagerfanta/twig": "<3.1",
-                "twig/twig": "<1.35 || >=2.0,<2.5",
+                "jms/serializer": "<3.18",
+                "jms/serializer-bundle": "<4.2",
+                "pagerfanta/twig": "<3.7",
+                "symfony/serializer": "<5.4 || >=6.0,<6.4 || >=7.0,<7.1",
+                "symfony/translation": "<5.4 || >=6.0,<6.4 || >=7.0,<7.1",
+                "symfony/twig-bridge": "<5.4 || >=6.0,<6.4 || >=7.0,<7.1",
+                "symfony/twig-bundle": "<5.4 || >=6.0,<6.4 || >=7.0,<7.1",
+                "twig/twig": "<2.13",
                 "white-october/pagerfanta-bundle": "*"
             },
             "require-dev": {
-                "doctrine/annotations": "^1.8",
-                "jms/serializer": "^3.0",
-                "jms/serializer-bundle": "^3.0 || ^4.0",
-                "matthiasnoback/symfony-dependency-injection-test": "^4.3",
-                "pagerfanta/twig": "^3.1",
-                "phpstan/extension-installer": "^1.2",
-                "phpstan/phpstan": "1.10.15",
-                "phpstan/phpstan-phpunit": "1.3.13",
-                "phpstan/phpstan-symfony": "1.2.19",
-                "phpunit/phpunit": "9.6.8",
-                "symfony/phpunit-bridge": "^5.4 || ^6.0",
-                "symfony/serializer": "^4.4 || ^5.4 || ^6.0",
-                "symfony/translation": "^4.4 || ^5.4 || ^6.0",
-                "symfony/twig-bridge": "^4.4 || ^5.4 || ^6.0",
-                "symfony/twig-bundle": "^4.4 || ^5.4 || ^6.0",
-                "twig/twig": "^1.35 || ^2.5 || ^3.0"
+                "jms/serializer": "^3.18",
+                "jms/serializer-bundle": "^4.2 || ^5.0",
+                "matthiasnoback/symfony-dependency-injection-test": "^5.0",
+                "pagerfanta/twig": "^3.7 || ^4.0",
+                "phpstan/extension-installer": "^1.3",
+                "phpstan/phpstan": "1.12.7",
+                "phpstan/phpstan-phpunit": "1.4.0",
+                "phpstan/phpstan-symfony": "1.4.11",
+                "phpunit/phpunit": "9.6.21",
+                "symfony/phpunit-bridge": "^5.4 || ^6.4 || ^7.1",
+                "symfony/serializer": "^5.4 || ^6.4 || ^7.1",
+                "symfony/translation": "^5.4 || ^6.4 || ^7.1",
+                "symfony/twig-bridge": "^5.4 || ^6.4 || ^7.1",
+                "symfony/twig-bundle": "^5.4 || ^6.4 || ^7.1",
+                "twig/twig": "^2.13 || ^3.0"
             },
             "suggest": {
                 "jms/serializer-bundle": "To use the Pagerfanta class with the JMS Serializer",
@@ -148,7 +152,7 @@
             ],
             "support": {
                 "issues": "https://github.com/BabDev/PagerfantaBundle/issues",
-                "source": "https://github.com/BabDev/PagerfantaBundle/tree/v3.8.0"
+                "source": "https://github.com/BabDev/PagerfantaBundle/tree/v4.5.0"
             },
             "funding": [
                 {
@@ -156,7 +160,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-06-01T01:04:54+00:00"
+            "time": "2024-11-03T20:23:50+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -8776,32 +8780,31 @@
         },
         {
             "name": "pagerfanta/pagerfanta",
-            "version": "v3.8.0",
+            "version": "v4.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/BabDev/Pagerfanta.git",
-                "reference": "a07c84296e491add39d103b812129de77610c33b"
+                "reference": "301903c1be505769e932ba5523cc01969f954d37"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/BabDev/Pagerfanta/zipball/a07c84296e491add39d103b812129de77610c33b",
-                "reference": "a07c84296e491add39d103b812129de77610c33b",
+                "url": "https://api.github.com/repos/BabDev/Pagerfanta/zipball/301903c1be505769e932ba5523cc01969f954d37",
+                "reference": "301903c1be505769e932ba5523cc01969f954d37",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": "^7.4 || ^8.0",
-                "symfony/deprecation-contracts": "^2.1 || ^3.0",
-                "symfony/polyfill-php80": "^1.15"
+                "php": "^8.1",
+                "symfony/deprecation-contracts": "^2.1 || ^3.0"
             },
             "conflict": {
                 "doctrine/collections": "<1.8",
-                "doctrine/dbal": "<3.1",
-                "doctrine/mongodb-odm": "<2.2.2",
-                "doctrine/orm": "<2.8",
-                "doctrine/phpcr-odm": "<1.5",
-                "ruflin/elastica": "<6.0",
-                "solarium/solarium": "<5.0",
+                "doctrine/dbal": "<3.5",
+                "doctrine/mongodb-odm": "<2.4",
+                "doctrine/orm": "<2.14",
+                "doctrine/phpcr-odm": "<1.7",
+                "ruflin/elastica": "<7.3",
+                "solarium/solarium": "<6.2",
                 "twig/twig": "<2.13"
             },
             "replace": {
@@ -8816,22 +8819,21 @@
                 "pagerfanta/twig": "self.version"
             },
             "require-dev": {
-                "dg/bypass-finals": "^1.3",
-                "doctrine/cache": "^1.11 || ^2.0",
+                "dg/bypass-finals": "^1.5.1",
                 "doctrine/collections": "^1.8 || ^2.0",
-                "doctrine/dbal": "^3.1",
-                "doctrine/mongodb-odm": "^2.2.2",
-                "doctrine/orm": "^2.8",
-                "doctrine/phpcr-odm": "^1.5",
-                "jackalope/jackalope-doctrine-dbal": "^1.7.4",
-                "phpstan/extension-installer": "^1.1",
-                "phpstan/phpstan": "1.9.14",
-                "phpstan/phpstan-phpunit": "1.3.3",
-                "phpunit/phpunit": "9.6.7 || 10.1.0",
-                "rector/rector": "0.15.12",
-                "ruflin/elastica": "^6.0 || ^7.0",
-                "solarium/solarium": "^5.0 || ^6.0",
-                "symfony/cache": "^5.4 || ^6.0",
+                "doctrine/dbal": "^3.5 || ^4.0",
+                "doctrine/mongodb-odm": "^2.4",
+                "doctrine/orm": "^2.14 || ^3.0",
+                "doctrine/phpcr-odm": "^1.7 || ^2.0",
+                "jackalope/jackalope-doctrine-dbal": "^1.9 || ^2.0",
+                "phpstan/extension-installer": "^1.3.1",
+                "phpstan/phpstan": "1.11.10",
+                "phpstan/phpstan-phpunit": "1.4.0",
+                "phpunit/phpunit": "10.5.30",
+                "rector/rector": "1.2.3",
+                "ruflin/elastica": "^7.3 || ^8.0",
+                "solarium/solarium": "^6.2",
+                "symfony/cache": "^5.4 || ^6.3 || ^7.0",
                 "twig/twig": "^2.13 || ^3.0"
             },
             "suggest": {
@@ -8867,7 +8869,7 @@
             ],
             "support": {
                 "issues": "https://github.com/BabDev/Pagerfanta/issues",
-                "source": "https://github.com/BabDev/Pagerfanta/tree/v3.8.0"
+                "source": "https://github.com/BabDev/Pagerfanta/tree/v4.7.0"
             },
             "funding": [
                 {
@@ -8875,7 +8877,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-04-15T16:39:36+00:00"
+            "time": "2024-08-13T23:52:34+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",

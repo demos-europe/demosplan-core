@@ -28,7 +28,7 @@
         "ext-xmlwriter": "*",
         "ext-zip": "*",
         "ext-zlib": "*",
-        "babdev/pagerfanta-bundle": "^3.0",
+        "babdev/pagerfanta-bundle": "^4.5",
         "bamarni/composer-bin-plugin": "^1.8",
         "beberlei/doctrineextensions": "^1.0",
         "cebe/php-openapi": "^1.5",
