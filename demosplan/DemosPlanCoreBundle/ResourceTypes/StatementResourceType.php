@@ -302,6 +302,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->location
                 ->readable(true, fn (Statement $statement): ?array => $this->coordinateJsonConverter->convertJsonToCoordinates($statement->getPolygon()))
                 ->aliasedPath(Paths::statement()->polygon);
+            $configBuilder->location
+                ->readable(true, fn (Statement $statement): ?array => $this->coordinateJsonConverter->convertJsonToCoordinates($statement->getPolygon()))
+                ->aliasedPath(Paths::statement()->polygon);
 
             if ($this->currentUser->hasPermission('field_procedure_elements')) {
                 // @todo double check permission to update
