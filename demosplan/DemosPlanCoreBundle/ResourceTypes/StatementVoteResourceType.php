@@ -26,7 +26,6 @@ use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
-use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructorBehavior;
 
 /**
  * @template-extends DplanResourceType<StatementVote>
@@ -80,7 +79,7 @@ final class StatementVoteResourceType extends DplanResourceType
                 return [];
             }, OptionalField::NO)
             )
-            /** See for more details @link \EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilder::initializable */
+            /* See for more details @link \EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilder::initializable */
             ->addCreationBehavior(
                 new CallbackAttributeSetBehaviorFactory([], static function (StatementVote $statementVote, ?string $name): array {
                     $statementVote->setLastName($name);
@@ -128,15 +127,14 @@ final class StatementVoteResourceType extends DplanResourceType
 
         $statementVoteConfig->statement
             ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
-            /** see more @link \EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilder::initializable */
+            /* see more @link \EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilder::initializable */
             ->addCreationBehavior(
-            CallbackToOneRelationshipSetBehavior::createFactory(static function (StatementVote $statementVote, Statement $statement): array {
-                $statementVote->setStatement($statement);
+                CallbackToOneRelationshipSetBehavior::createFactory(static function (StatementVote $statementVote, Statement $statement): array {
+                    $statementVote->setStatement($statement);
 
-                return [];
-            }, [], OptionalField::NO, [])
-        );
-
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
 
         $statementVoteConfig->addPostConstructorBehavior(new FixedSetBehavior(function (StatementVote $statementVote, EntityDataInterface $entityData): array {
             $this->statementVoteRepository->persistEntities([$statementVote]);
