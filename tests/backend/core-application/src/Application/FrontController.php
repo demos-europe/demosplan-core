@@ -28,7 +28,7 @@ class FrontController
         $input = BasicFrontController::bootstrapConsole();
 
         $kernel = new DemosPlanTestKernel(DemosPlanTestKernel::TEST_PROJECT_NAME, 'test', (bool) $_SERVER['APP_DEBUG']);
-        $application = new ConsoleApplication($kernel, false);
+        $application = new ConsoleApplication($kernel);
 
         $application->run($input);
     }

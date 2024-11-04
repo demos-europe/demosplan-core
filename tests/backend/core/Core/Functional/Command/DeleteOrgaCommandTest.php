@@ -67,7 +67,7 @@ class DeleteOrgaCommandTest extends FunctionalTestCase
     private function executeCommand(string $OrgaIds): CommandTester
     {
         $kernel = self::bootKernel();
-        $application = new ConsoleApplication($kernel, false);
+        $application = new ConsoleApplication($kernel);
 
         $orgaDeleter = $this->getMock(OrgaDeleter::class);
         $orgaDeleter->method('deleteOrganisations')->willReturnCallback(function ($param): void {});
@@ -89,7 +89,7 @@ class DeleteOrgaCommandTest extends FunctionalTestCase
     private function executeCommandWithoutArgument(): CommandTester
     {
         $kernel = self::bootKernel();
-        $application = new ConsoleApplication($kernel, false);
+        $application = new ConsoleApplication($kernel);
 
         $orgaDeleter = $this->getMock(OrgaDeleter::class);
         $orgaDeleter->method('deleteOrganisations')->willReturnCallback(function ($param): void {});

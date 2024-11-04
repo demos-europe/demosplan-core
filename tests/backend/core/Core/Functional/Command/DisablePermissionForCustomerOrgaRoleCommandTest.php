@@ -22,7 +22,7 @@ class DisablePermissionForCustomerOrgaRoleCommandTest extends PermissionForCusto
     public function testExecute(): CommandTester
     {
         $kernel = self::bootKernel();
-        $application = new ConsoleApplication($kernel, false);
+        $application = new ConsoleApplication($kernel);
 
         $application->add(new DisablePermissionForCustomerOrgaRoleCommand(
             $this->createMock(ParameterBagInterface::class),

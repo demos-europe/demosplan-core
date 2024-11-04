@@ -20,7 +20,7 @@ trait CommandTesterTrait
 {
     private function getCommandTesterByName($kernel, string $commandName): CommandTester
     {
-        $application = new ConsoleApplication($kernel, false);
+        $application = new ConsoleApplication($kernel);
 
         $command = $application->find($commandName);
 

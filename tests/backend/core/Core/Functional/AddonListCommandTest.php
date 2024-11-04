@@ -93,7 +93,7 @@ class AddonListCommandTest extends FunctionalTestCase
     private function executeCommand(array $info): CommandTester
     {
         $kernel = self::bootKernel();
-        $application = new ConsoleApplication($kernel, false);
+        $application = new ConsoleApplication($kernel);
 
         $tokenMockMethods = [
             new MockMethodDefinition('load', $info),

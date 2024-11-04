@@ -22,7 +22,7 @@ class EnablePermissionForCustomerOrgaRoleCommandTest extends PermissionForCustom
     public function testExecute(): CommandTester
     {
         $kernel = self::bootKernel();
-        $application = new ConsoleApplication($kernel, false);
+        $application = new ConsoleApplication($kernel);
 
         $application->add(new EnablePermissionForCustomerOrgaRoleCommand(
             $this->createMock(ParameterBagInterface::class),
