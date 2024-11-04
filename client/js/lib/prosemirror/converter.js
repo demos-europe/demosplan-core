@@ -41,10 +41,12 @@ export class ProseMirrorConverter {
           ${relationships.draftSegments.data.map(segment => `
           <dp-segment
             :type="${type}"
-            :id="${segment.id}">
+            :id="${segment.id}"
+            :tags="${JSON.stringify(included.filter(el => el.id === segment.id)[0].relationships.tags.data)}">
             ${included.filter(el => el.id === segment.id).map(el => el.attributes.segment_text)}
           </dp-segment>`).join('')}
         </dp-statement>`.trim()
+      console.log(this.htmlString)
       return this
     } catch (error) {
       console.error('Error converting ProseMirror data to HTML: ', error)
