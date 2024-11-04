@@ -19,7 +19,6 @@ class AiApiUser extends FunctionalUser
 
     public function __construct()
     {
-
         $this->id = self::AI_API_USER_ID;
         $this->login = self::AI_API_USER_LOGIN;
 
@@ -31,6 +30,4 @@ class AiApiUser extends FunctionalUser
 
         parent::__construct();
     }
-
-
 }
