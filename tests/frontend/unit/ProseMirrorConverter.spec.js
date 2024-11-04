@@ -16,12 +16,14 @@ describe('ProseMirrorConverter', () => {
 
   it('Creates a valid HTML string from prosemirror data', () => {
     const proseMirrorData = converterData
+    const { included } = converterData
     const validHTML = `
-      <dp-statement :statement-id="${proseMirrorData.data.relationships.statement.data.id}">
+      <dp-statement :statement-id="${proseMirrorData.data.id}">
         ${proseMirrorData.data.relationships.draftSegments.data.map(segment => `
         <dp-segment
           :type="${proseMirrorData.data.type}"
           :id="${segment.id}">
+          ${included.filter(el => el.id === segment.id).map(el => el.attributes.segment_text)}
         </dp-segment>`).join('')}
       </dp-statement>`.trim()
     const convertedProseMirrorData = converter.fromProseMirror(proseMirrorData).toHtml().getHtml()
