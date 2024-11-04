@@ -24,10 +24,10 @@ use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
+use Illuminate\Support\Collection;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
-use Illuminate\Support\Collection;
 
 use function str_replace;
 
