@@ -3,7 +3,7 @@ exercise_html_purifier:
     html_profiles:
         default:
             config:
-                Cache.SerializerPermissions: 0o777
+                Cache.SerializerPermissions: 0777
                 # the charset used by the original contents
                 Core.Encoding: 'UTF-8'
                 # full configuration reference: http://htmlpurifier.org/live/configdoc/plain.html
