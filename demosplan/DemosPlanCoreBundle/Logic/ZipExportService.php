@@ -85,7 +85,7 @@ class ZipExportService
         string $folderPath,
         FileInfo $fileInfo,
         ZipStream $zip,
-        string $fileNamePrefix
+        string $fileNamePrefix,
     ): void {
         $path = (new UnicodeString($folderPath.$fileNamePrefix.$fileInfo->getFileName()))->ascii()->toString();
         $pathHash = md5((string) $path);
@@ -145,7 +145,7 @@ class ZipExportService
         DemosFilesystem $fs,
         string $fileFolderPath,
         ZipStream $zip,
-        string ...$fileStrings
+        string ...$fileStrings,
     ): void {
         foreach ($fileStrings as $fileString) {
             try {
