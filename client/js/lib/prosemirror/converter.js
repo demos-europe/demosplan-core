@@ -40,9 +40,9 @@ export class ProseMirrorConverter {
         <dp-statement :statement-id="${id}">
           ${relationships.draftSegments.data.map(segment => `
           <dp-segment
-            :type="${type}"
-            :id="${segment.id}"
-            :tags="${JSON.stringify(included.filter(el => el.id === segment.id)[0].relationships.tags.data)}">
+            type="${type}"
+            id="${segment.id}"
+            tags="${JSON.stringify(included.filter(el => el.id === segment.id)[0].relationships.tags.data).replace(/"/g, '\'')}">
             ${included.filter(el => el.id === segment.id).map(el => el.attributes.segment_text)}
           </dp-segment>`).join('')}
         </dp-statement>`.trim()
