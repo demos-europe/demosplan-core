@@ -23,6 +23,7 @@
         <statement-meta-attachments-link
           v-if="attachments.originalAttachment.hash"
           :attachment="attachments.originalAttachment"
+          class="block mt-2 mb-3"
           :procedure-id="procedureId" />
         <p
           v-if="!attachments.originalAttachment.hash && !editable"
@@ -54,12 +55,13 @@
         <!-- List of existing attachments -->
         <ul
           v-if="attachments.additionalAttachments.length > 0"
-          class="space-y-2">
+          class="space-y-2 mb-3">
           <li
             v-for="attachment in attachments.additionalAttachments"
             :key="attachment.hash">
             <statement-meta-attachments-link
               :attachment="attachment"
+              class="block mt-2"
               :procedure-id="procedureId" />
           </li>
         </ul>
