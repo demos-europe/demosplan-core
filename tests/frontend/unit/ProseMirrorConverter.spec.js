@@ -22,8 +22,9 @@ describe('ProseMirrorConverter', () => {
         ${proseMirrorData.data.relationships.draftSegments.data.map(segment => `
         <dp-segment
           :type="${proseMirrorData.data.type}"
-          :id="${segment.id}">
-          ${included.filter(el => el.id === segment.id).map(el => el.attributes.segment_text)}
+          :id="${segment.id}"
+          :tags="${JSON.stringify(included.filter(el => el.id === segment.id)[0].relationships.tags.data)}">
+          ${included.filter(el => el.id === segment.id).map(el =>  el.attributes.segment_text)}
         </dp-segment>`).join('')}
       </dp-statement>`.trim()
     const convertedProseMirrorData = converter.fromProseMirror(proseMirrorData).toHtml().getHtml()
