@@ -29,6 +29,7 @@ doctrine:
     orm:
         auto_generate_proxy_classes: true
         default_entity_manager: default
+        #enable_lazy_ghost_objects: true # needs to be enabled for symfony 6, not before
         entity_managers:
             default:
                 naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
