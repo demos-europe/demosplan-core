@@ -25,7 +25,7 @@ use Zenstruck\Foundry\Proxy;
 
 class DeleteProcedureCommandTest extends FunctionalTestCase
 {
-    private null|Procedure|Proxy $testProcedure;
+    private Procedure|Proxy|null $testProcedure;
 
     /** @var SqlQueriesService */
     protected $queriesService;

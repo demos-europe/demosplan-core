@@ -23,7 +23,7 @@ use Zenstruck\Foundry\Proxy;
 
 class DeleteOrgaCommandTest extends FunctionalTestCase
 {
-    private null|Orga|Proxy $testOrga;
+    private Orga|Proxy|null $testOrga;
 
     /** @var SqlQueriesService */
     protected $queriesService;

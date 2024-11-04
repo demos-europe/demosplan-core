@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
+use Closure;
 use demosplan\DemosPlanCoreBundle\Addon\AddonAutoloading;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Symfony\Component\Dotenv\Dotenv;
@@ -45,14 +46,13 @@ final class FrontController
         AddonAutoloading::register();
     }
 
-    public static function console(): \Closure
+    public static function console(): Closure
     {
         set_time_limit(0);
 
         self::bootstrap();
 
-        return static function (array $context): ConsoleApplication
-        {
+        return static function (array $context): ConsoleApplication {
             $kernel = new DemosPlanKernel($context['ACTIVE_PROJECT'], $context['APP_ENV'], (bool) $context['APP_DEBUG']);
 
             // returning an "Application" makes the Runtime run a Console
@@ -61,7 +61,7 @@ final class FrontController
         };
     }
 
-    public static function web(): \Closure
+    public static function web(): Closure
     {
         self::bootstrap();
 

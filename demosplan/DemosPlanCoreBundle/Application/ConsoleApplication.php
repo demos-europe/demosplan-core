@@ -22,5 +22,4 @@ class ConsoleApplication extends Application
         /* @var DemosPlanKernel $kernel */
         $this->setName('demosplan.'.$kernel->getActiveProject().' on Symfony');
     }
-
 }
