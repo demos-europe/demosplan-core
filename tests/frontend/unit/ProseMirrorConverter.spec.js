@@ -23,7 +23,7 @@ describe('ProseMirrorConverter', () => {
         <dp-segment
           type="${proseMirrorData.data.type}"
           id="${segment.id}"
-          tags="${JSON.stringify(included.filter(el => el.id === segment.id)[0].relationships.tags.data).replace(/"/g, '\'')}">
+          tags="${JSON.stringify(included.filter(el => el.id === segment.id)[0].relationships.tags.data.map(tags => tags.id)).replace(/"/g, '\'')}">
           ${included.filter(el => el.id === segment.id).map(el =>  el.attributes.segment_text)}
         </dp-segment>`).join('')}
       </dp-statement>`.trim()
