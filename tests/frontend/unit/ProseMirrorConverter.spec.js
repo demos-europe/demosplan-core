@@ -18,10 +18,9 @@ describe('ProseMirrorConverter', () => {
     const proseMirrorData = converterData
     const { included } = converterData
     const validHTML = `
-      <dp-statement :statement-id="${proseMirrorData.data.id}">
+      <dp-statement statement-id="${proseMirrorData.data.id}">
         ${proseMirrorData.data.relationships.draftSegments.data.map(segment => `
         <dp-segment
-          type="${proseMirrorData.data.type}"
           id="${segment.id}"
           tags="${JSON.stringify(included.filter(el => el.id === segment.id)[0].relationships.tags.data.map(tags => tags.id)).replace(/"/g, '\'')}">
           ${included.filter(el => el.id === segment.id).map(el =>  el.attributes.segment_text)}
