@@ -20,7 +20,6 @@
         is-open
         :title="Translator.trans('customer.branding.label')">
         <customer-settings-branding
-          :branding="branding"
           :branding-id="customerBrandingId"
           @saveBrandingUpdate="fetchCustomerData" />
       </customer-settings-section>
@@ -311,10 +310,6 @@ export default {
 
   data () {
     return {
-      branding: {
-        cssvars: '',
-        logoHash: ''
-      },
       customer: {
         accessibilityExplanation: '',
         dataProtection: '',
@@ -426,7 +421,7 @@ export default {
 
       if (hasPermission('feature_customer_branding_edit')) {
         this.requestIncludes.push('branding')
-        this.addAttributesToField('Branding', ['cssvars'])
+        this.addAttributesToField('Branding', ['styling'])
         this.addAttributesToField('Customer', ['branding'])
       }
 
