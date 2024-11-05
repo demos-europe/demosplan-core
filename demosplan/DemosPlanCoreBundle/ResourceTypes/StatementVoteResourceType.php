@@ -73,7 +73,7 @@ final class StatementVoteResourceType extends DplanResourceType
 
         $statementVoteConfig->name
             ->setReadableByCallable(fn (StatementVote $statementVote): string => $statementVote->getName())
-            ->addUpdateBehavior(new CallbackAttributeSetBehaviorFactory([], static function (StatementVote $statementVote, ?string $name): array {
+            ->addUpdateBehavior(new CallbackAttributeSetBehaviorFactory([$voteConditions], static function (StatementVote $statementVote, ?string $name): array {
                 $statementVote->setLastName($name);
 
                 return [];
