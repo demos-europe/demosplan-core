@@ -40,7 +40,8 @@
           text: Translator.trans('plandocument')
         }"
           :options="elementsOptions"
-          v-model="selectedElementId" />
+          v-model="selectedElementId"
+          @select="unsetSelectedParagraphId" />
 
         <dp-select
           data-cy="statement:paragraphSelect"
@@ -207,7 +208,11 @@ export default {
       if (polygon) {
         this.$refs.locationReferenceModal.toggleModal(polygon)
       }
-    }
+    },
+
+    unsetSelectedParagraphId () {
+      this.selectedParagraphId = ''
+    },
   },
 
   created () {
