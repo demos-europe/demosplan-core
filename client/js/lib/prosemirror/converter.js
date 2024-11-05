@@ -32,10 +32,9 @@ export class ProseMirrorConverter {
    */
   toHtml = () => {
     try {
-      const { type, id, relationships } = this.prosemirrorData.data
+      const { id, relationships } = this.prosemirrorData.data
       const { included } = this.prosemirrorData
 
-      // TODO: create valid html string
       this.htmlString = `
         <dp-statement statement-id="${id}">
           ${relationships.draftSegments.data.map(segment => `
