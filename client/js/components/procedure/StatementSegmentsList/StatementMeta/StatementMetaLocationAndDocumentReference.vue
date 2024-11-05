@@ -64,7 +64,7 @@
             {{ elements[selectedElementId] ? elements[selectedElementId].attributes.title : '-' }}
           </dd>
         </div>
-        <div>
+        <div v-if="selectedParagraphId">
           <dt class="font-semibold">
             {{ Translator.trans('paragraph') }}
           </dt>
