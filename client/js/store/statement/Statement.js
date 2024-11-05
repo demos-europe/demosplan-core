@@ -342,7 +342,7 @@ export default {
      */
 
     updateFilterHash (state, value) {
-      set(state, 'filterHash', value)
+      state.filterHash = value
     },
 
     updatePagination (state, value) {
