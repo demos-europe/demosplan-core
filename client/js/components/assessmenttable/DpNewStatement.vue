@@ -248,7 +248,6 @@ export default {
     },
 
     setPhaseValue (value) {
-      console.log('setPhaseValue', value)
       if (value) {
         this.values.phase = this.phases.find(el => el.value === value)
       }
