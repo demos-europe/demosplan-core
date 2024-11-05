@@ -94,7 +94,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
 
     Object.keys(components).forEach(comp => {
       if (components[comp]) {
-        app.component(components[comp].name, components[comp])
+        app.component(comp, components[comp])
       } else {
         console.log(`${components[comp]} is undefined}`, components)
       }
