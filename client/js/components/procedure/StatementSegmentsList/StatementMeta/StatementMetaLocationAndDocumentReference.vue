@@ -75,6 +75,7 @@
       <dp-button-row
         v-if="editable"
         class="w-full"
+        :disabled="selectedElementId === initiallySelectedElementId && selectedParagraphId === initiallySelectedParagraphId"
         primary
         secondary
         @primary-action="dpValidateAction('statementLocationAndDocumentReference', save, false)"
