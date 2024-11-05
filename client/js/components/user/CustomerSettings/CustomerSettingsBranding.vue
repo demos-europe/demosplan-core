@@ -156,10 +156,7 @@ export default {
     setFile (file) {
       this.branding = { key: 'logoHash', value: file.hash }
       this.updateFile({ id: file.fileId, attributes: { hash: file.hash } })
-      console.log('file', file)
       this.uploadedFileId = file.fileId
-
-      console.log('file', file, this.uploadedFileId)
     },
 
     saveBrandingSettings () {
@@ -182,8 +179,6 @@ export default {
       }
 
       this.updateBranding(payload)
-      console.log('payload', payload)
-      console.log('branding', this.brandingList[this.brandingId])
       this.saveBranding(this.brandingId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         this.isBusy = false
