@@ -44,6 +44,7 @@
           @select="unsetSelectedParagraphId" />
 
         <dp-select
+          v-if="paragraphOptions.length > 0"
           data-cy="statement:paragraphSelect"
           :label="{
           text: Translator.trans('paragraph')
