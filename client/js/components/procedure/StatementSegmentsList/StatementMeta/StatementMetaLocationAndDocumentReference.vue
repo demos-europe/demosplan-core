@@ -197,11 +197,32 @@ export default {
     },
 
     save () {
+      if (this.selectedElementId) {
+        this.localStatement.relationships.elements.data = {
+          id: this.selectedElementId,
+          type: 'Elements'
+        }
+      }
+
+      if (this.selectedParagraphId) {
+        this.localStatement.attributes.paragraphParentId = this.selectedParagraphId
+      }
+
       this.$emit('save', this.localStatement)
     },
 
+    /*
+      * Set id of initially selected element
+      * If no element is selected, set it to 'Gesamtstellungnahme'
+     */
+    setInitiallySelectedElementId () {
+      this.selectedElementId = this.initiallySelectedElementId
+        ? this.initiallySelectedElementId
+        : this.elementsOptions.find(option => option.label === 'Gesamtstellungnahme')?.value ?? ''
+    },
+
     setInitialStatementData () {
-      this.localStatement = { ...this.statement }
+      this.localStatement = JSON.parse(JSON.stringify(this.statement))
     },
 
     toggleLocationModal () {
@@ -244,6 +265,9 @@ export default {
         }
       }
     })
+      .then(() => {
+        this.setInitiallySelectedElementId()
+      })
   }
 }
 </script>

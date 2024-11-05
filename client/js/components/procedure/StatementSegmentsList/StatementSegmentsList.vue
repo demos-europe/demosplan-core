@@ -570,6 +570,8 @@ export default {
         'municipalities',
         'numberOfAnonymVotes',
         'paragraph',
+        'paragraphParentId',
+        'paragraphVersion',
         'polygon',
         'priorityAreas',
         'priorityAreas',
@@ -601,7 +603,8 @@ export default {
 
       const allFields = {
         Elements: [
-          'title'
+          'title',
+          'paragraphs'
         ].join(),
         File: [
           'hash',
@@ -644,6 +647,8 @@ export default {
         'elements',
         'files',
         'paragraph',
+        'paragraphs',
+        'paragraphVersion.paragraph',
         'votes'
       ]
 
