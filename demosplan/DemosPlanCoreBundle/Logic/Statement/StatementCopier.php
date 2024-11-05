@@ -519,7 +519,15 @@ class StatementCopier extends CoreService
         }
         // persist to get an ID for the FileContainer copying below
         $this->getDoctrine()->getManager()->persist($newStatement);
-        $this->statementService->addFilesToCopiedStatement($newStatement, $statement->getId());
+        if ([] !== $statement->getFiles()) {
+            $this->statementService->addFilesToCopiedStatement($newStatement, $statement->getId());
+
+            return $newStatement;
+        }
+
+        // We do have to flush the new copied statement here if the original statement has no FileContainers otherwise
+        // the new copied statement is already flushed while copying FileContainers in the previous method 'addFilesToCopiedStatement'.
+        $this->getDoctrine()->getManager()->flush();
 
         return $newStatement;
     }

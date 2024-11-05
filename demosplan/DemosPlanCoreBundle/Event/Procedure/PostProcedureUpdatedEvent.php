@@ -22,7 +22,7 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
 {
     public function __construct(
         readonly protected Procedure $procedureBeforeUpdate,
-        readonly protected Procedure $procedureAfterUpdate
+        readonly protected Procedure $procedureAfterUpdate,
     ) {
     }
 
@@ -47,7 +47,7 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
     /**
      * @return array<string, array<string, mixed>>
      */
-    private function determineModifiedValues(object $oldObject, object $newObject): array
+    private function determineModifiedValues(object $oldObject, object $newObject, int $nestingLimit = 2): array
     {
         $modifiedValues = [];
 
@@ -65,13 +65,24 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
 
         foreach ($properties as $property) {
             $propertyName = $property->getName();
+            // skip self references
+            if ('procedure' === $propertyName) {
+                continue;
+            }
 
             $oldValue = $property->getValue($oldObject);
             $newValue = $property->getValue($newObject);
 
             if ($oldValue !== $newValue) {
                 if (is_object($oldValue) && is_object($newValue)) {
-                    $modifiedSubValues = $this->determineModifiedValues($oldValue, $newValue);
+                    $modifiedSubValues = [];
+                    if (0 < $nestingLimit) {
+                        $modifiedSubValues = $this->determineModifiedValues(
+                            $oldValue,
+                            $newValue,
+                            $nestingLimit - 1
+                        );
+                    }
                     if ([] !== $modifiedSubValues) {
                         $modifiedValues[$propertyName] = $modifiedSubValues;
                     }
