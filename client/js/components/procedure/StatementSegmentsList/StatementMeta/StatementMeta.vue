@@ -267,8 +267,7 @@ export default {
     },
 
     initiallySelectedParagraphId () {
-      const paragraph = this.statement.relationships.paragraph?.data ? this.statement.relationships.paragraph.get() : null
-      return paragraph?.id ?? ''
+      return this.statement.attributes.paragraphParentId || ''
     },
 
     // TO DO: Is this still needed?
