@@ -105,6 +105,13 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     protected $boilerplate;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="topicalTag", type="boolean", nullable=false, options={"default":false})
+     */
+    protected $topicalTag = false;
+
+    /**
      * Create a Tag-Entity.
      *
      * @param string $title
@@ -280,5 +287,15 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     public function setCreateDate($date)
     {
         $this->createDate = $date;
+    }
+
+    public function isTopicalTag(): bool
+    {
+        return $this->topicalTag;
+    }
+
+    public function setTopicalTag(bool $topicalTag): void
+    {
+        $this->topicalTag = $topicalTag;
     }
 }
