@@ -192,7 +192,8 @@ export default {
     },
 
     reset () {
-      this.setInitialStatementData()
+      this.setInitiallySelectedElementId()
+      this.selectedParagraphId = this.initiallySelectedParagraphId
     },
 
     save () {
