@@ -1254,15 +1254,17 @@ export default {
       this.setStatementData({ immediate_submit: immediateSubmit })
       this.setStatementData({ r_loadtime: dayjs().unix() })
 
+      const dataToSend = { ...this.formData }
+
       /*
        * If we have no map/county-reference enabled we can't set it as default, because then this would be preselected
        * which we don't want
        */
-      if (this.formData.location_is_set === '') {
+      if (dataToSend.location_is_set === '') {
         this.setStatementData({ location_is_set: 'notLocated' })
       }
 
-      if (this.formData.r_location !== 'county') {
+      if (dataToSend.r_location !== 'county') {
         this.setStatementData({ r_county: '' })
       }
 
@@ -1270,11 +1272,11 @@ export default {
        * If no submitter type is selected we assume its a citizen.
        * it can't be preset to prevent the radio options from being preselected
        */
-      if (this.formData.r_submitter_role === '') {
+      if (dataToSend.r_submitter_role === '') {
         this.setStatementData({ r_submitter_role: 'citizen' })
       }
 
-      if (this.formData.r_location !== 'point') {
+      if (dataToSend.r_location !== 'point') {
         this.setStatementData({
           r_location_point: '',
           r_location_priority_area_key: '',
@@ -1288,27 +1290,27 @@ export default {
        * thats neccessary because the BE checks for their existance to decide what do show (e.g. in exports)
        *
        */
-      if (this.formData.r_getFeedback === 'off') {
-        delete this.formData.r_getFeedback
+      if (dataToSend.r_getFeedback === 'off') {
+        delete dataToSend.r_getFeedback
       }
-      if (this.formData.r_houseNumber === '') {
-        delete this.formData.r_houseNumber
+      if (dataToSend.r_houseNumber === '') {
+        delete dataToSend.r_houseNumber
       }
-      if (this.formData.r_postalCode === '') {
-        delete this.formData.r_postalCode
+      if (dataToSend.r_postalCode === '') {
+        delete dataToSend.r_postalCode
       }
-      if (this.formData.r_city === '') {
-        delete this.formData.r_city
+      if (dataToSend.r_city === '') {
+        delete dataToSend.r_city
       }
       if (hasPermission('feature_statements_feedback_check_email') === false) {
-        delete this.formData.r_email2
+        delete dataToSend.r_email2
       }
       /*
        * Tweak e-mail values so they fit to the update request
        * due to the dynamic handling there can be inconsistencies
        */
-      if ((hasOwnProp(this.formData, 'r_getFeedback') === false || this.formData.r_getEvaluation !== 'email') && this.formData.r_email === '') {
-        delete this.formData.r_email
+      if ((hasOwnProp(dataToSend, 'r_getFeedback') === false || dataToSend.r_getEvaluation !== 'email') && dataToSend.r_email === '') {
+        delete dataToSend.r_email
       }
 
       let route = Routing.generate('DemosPlan_statement_public_participation_new_ajax', { procedure: this.procedureId }) + (immediateSubmit ? '?immediate_submit=true' : '')
@@ -1321,7 +1323,7 @@ export default {
         this.setStatementData({ action: 'statementpublicnew' })
       }
 
-      return makeFormPost(this.formData, route)
+      return makeFormPost(dataToSend, route)
         .then(response => {
           if (response.status === 429) {
             dplan.notify.notify('error', Translator.trans('error.statement.not.saved.throttle'))
