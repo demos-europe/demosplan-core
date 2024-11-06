@@ -309,8 +309,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->readable(true, fn (Statement $statement): ?array => $this->coordinateJsonConverter->convertJsonToCoordinates($statement->getPolygon()))
                 ->aliasedPath(Paths::statement()->polygon);
 
+
             $configBuilder->elements
-                ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryResourceType())
+                ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryDetailsResourceType())
                 ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?Elements $planningDocumentCategory): array {
                     if (null === $planningDocumentCategory) {
                         // If the planningDocumentCategory is not sent in the request, we set the default planningDocumentCategory
