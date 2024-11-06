@@ -200,7 +200,7 @@ export default {
       if (this.selectedElementId) {
         this.localStatement.relationships.elements.data = {
           id: this.selectedElementId,
-          type: 'Elements'
+          type: 'ElementsDetails'
         }
       }
 
