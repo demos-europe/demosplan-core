@@ -83,12 +83,11 @@
             name="uploadStatementAttachment"
             :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
             :tus-endpoint="dplan.paths.tusEndpoint"
-            @file-remove="removeFileId""
+            @file-remove="removeFileId"
             @upload-success="setFileId" />
 
           <div class="text-right">
             <dp-button-row
-              class="mt-4"
               primary
               secondary
               :disabled="fileIds.length === 0 && fileIdsSourceStatement.length === 0"
