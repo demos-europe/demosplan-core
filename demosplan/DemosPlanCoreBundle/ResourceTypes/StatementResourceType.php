@@ -309,7 +309,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->readable(true, fn (Statement $statement): ?array => $this->coordinateJsonConverter->convertJsonToCoordinates($statement->getPolygon()))
                 ->aliasedPath(Paths::statement()->polygon);
 
-
             $configBuilder->elements
                 ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryDetailsResourceType())
                 ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?Elements $planningDocumentCategory): array {
