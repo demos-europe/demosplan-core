@@ -228,6 +228,7 @@ const LayersStore = {
             'mapOrder',
             'name',
             'opacity',
+            'projectionLabel',
             'treeOrder',
             'url',
             'visibilityGroupId'
