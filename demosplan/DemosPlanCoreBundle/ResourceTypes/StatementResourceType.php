@@ -19,7 +19,6 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInter
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -39,7 +38,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
-use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
@@ -303,7 +301,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     return [];
                 });
             $configBuilder->document
-                ->updatable([$simpleStatementCondition], [],function (Statement $statement, ?SingleDocumentInterface $singleDocument): array {
+                ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?SingleDocumentInterface $singleDocument): array {
                     if (null === $singleDocument) {
                         $statement->setDocument(null);
                     } else {
@@ -311,6 +309,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                         Assert::notNull($singleDocumentVersion);
                         $statement->setDocument($singleDocumentVersion);
                     }
+
                     return [];
                 });
 
