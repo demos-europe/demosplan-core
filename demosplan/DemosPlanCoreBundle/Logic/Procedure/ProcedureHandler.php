@@ -98,7 +98,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         QueryProcedure $esQueryProcedure,
         ServiceOutput $serviceOutput,
         ServiceStorage $serviceStorage,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         parent::__construct($messageBag);
         $this->contentService = $contentService;
