@@ -27,8 +27,4 @@ class DemosPlanArrayAdapter extends ArrayAdapter
         return $this->nbResults;
     }
 
-    public function getSlice(int $offset, int $length): iterable
-    {
-        return $this->getArray();
-    }
 }
