@@ -149,6 +149,13 @@ class FileContainerRepository extends FluentRepository implements ObjectInterfac
      */
     public function get($entityId)
     {
+        try {
+            return $this->find($entityId);
+        } catch (Exception $e) {
+            $this->logger->warning('Get FileContainer failed: ', [$e]);
+
+            return null;
+        }
     }
 
     /**
