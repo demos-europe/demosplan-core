@@ -19,18 +19,18 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementMetaF
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
-class SegmentsByStatementsExporterTest extends FunctionalTestCase
+class FileNameGeneratorTest extends FunctionalTestCase
 {
     private Statement|Proxy|null $testStatement;
 
     private StatementMeta|Proxy|null $testStatementeMeta;
 
     /**
-     * @var SegmentsByStatementsExporter
+     * @var FileNameGenerator
      */
     protected $sut;
 
@@ -39,11 +39,31 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut = $this->getContainer()->get(SegmentsByStatementsExporter::class);
+        $this->sut = $this->getContainer()->get(FileNameGenerator::class);
         $this->slugify = $this->getContainer()->get(Slugify::class);
         $this->testStatement = StatementFactory::createOne();
         $this->testStatementeMeta = StatementMetaFactory::createOne();
         $this->testStatement->setMeta($this->testStatementeMeta->_real());
+    }
+
+    public function testGetFileName(): void
+    {
+        $this->testStatement->setInternId('12345');
+        $this->testStatement->_save();
+
+        $testData = [
+            FileNameGenerator::DEFAULT_TEMPLATE_NAME => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
+            FileNameGenerator::PLACEHOLDER_NAME      => $this->testStatement->getMeta()->getOrgaName(),
+            'My Custom Template'                     => 'My Custom Template',
+            ''                                       => $this->testStatement->getExternId().'-'.$this->testStatement->getMeta()->getOrgaName().'-'.$this->testStatement->getInternId(),
+        ];
+
+        foreach ($testData as $templateName => $rawExpectedFileName) {
+            $this->verifyFileNameFromTemplate(
+                $rawExpectedFileName,
+                $templateName,
+                $this->testStatement);
+        }
     }
 
     public function testMapStatementsToPathInZipWithTrueDuplicate(): void
@@ -80,6 +100,13 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $expectedBKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementB->getId().'.docx';
         self::assertArrayHasKey($expectedBKey, $statements);
         self::assertSame($statementB->_real(), $statements[$expectedBKey]);
+    }
+
+    private function verifyFileNameFromTemplate(string $rawExpectedFileName, string $templateName, Statement|Proxy|null $testStatement): void
+    {
+        $expectedFileName = $this->slugify->slugify($rawExpectedFileName);
+        $fileName = $this->sut->getFileName($testStatement->_real(), $templateName);
+        self::assertSame($expectedFileName, $fileName);
     }
 
     private function createMinimalTestStatement(string $idSuffix, string $internIdSuffix, string $submitterNameSuffix): Statement|Proxy

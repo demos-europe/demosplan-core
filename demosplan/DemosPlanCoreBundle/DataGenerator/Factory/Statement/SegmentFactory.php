@@ -37,6 +37,15 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  */
 final class SegmentFactory extends StatementFactory
 {
+    protected function defaults(): array|callable
+    {
+        $defaults = parent::defaults();
+
+        $defaults['orderInProcedure'] = self::faker()->numberBetween(1, 9999);
+
+        return $defaults;
+    }
+
     public static function class(): string
     {
         return Segment::class;

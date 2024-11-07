@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Repository\StatementMetaRepository;
-use Doctrine\ORM\EntityRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
@@ -35,22 +34,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static StatementMeta[]|Proxy[]                          findBy(array $attributes)
  * @method static StatementMeta[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
  * @method static StatementMeta[]|Proxy[]                          randomSet(int $number, array $attributes = [])
- *
- * @phpstan-method        StatementMeta&Proxy<StatementMeta> create(array|callable $attributes = [])
- * @phpstan-method static StatementMeta&Proxy<StatementMeta> createOne(array $attributes = [])
- * @phpstan-method static StatementMeta&Proxy<StatementMeta> find(object|array|mixed $criteria)
- * @phpstan-method static StatementMeta&Proxy<StatementMeta> findOrCreate(array $attributes)
- * @phpstan-method static StatementMeta&Proxy<StatementMeta> first(string $sortedField = 'id')
- * @phpstan-method static StatementMeta&Proxy<StatementMeta> last(string $sortedField = 'id')
- * @phpstan-method static StatementMeta&Proxy<StatementMeta> random(array $attributes = [])
- * @phpstan-method static StatementMeta&Proxy<StatementMeta> randomOrCreate(array $attributes = [])
- * @phpstan-method static ProxyRepositoryDecorator<StatementMeta, EntityRepository> repository()
- * @phpstan-method static list<StatementMeta&Proxy<StatementMeta>> all()
- * @phpstan-method static list<StatementMeta&Proxy<StatementMeta>> createMany(int $number, array|callable $attributes = [])
- * @phpstan-method static list<StatementMeta&Proxy<StatementMeta>> createSequence(iterable|callable $sequence)
- * @phpstan-method static list<StatementMeta&Proxy<StatementMeta>> findBy(array $attributes)
- * @phpstan-method static list<StatementMeta&Proxy<StatementMeta>> randomRange(int $min, int $max, array $attributes = [])
- * @phpstan-method static list<StatementMeta&Proxy<StatementMeta>> randomSet(int $number, array $attributes = [])
  */
 final class StatementMetaFactory extends PersistentProxyObjectFactory
 {
@@ -59,9 +42,6 @@ final class StatementMetaFactory extends PersistentProxyObjectFactory
         return StatementMeta::class;
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     */
     protected function defaults(): array|callable
     {
         return [
@@ -78,13 +58,5 @@ final class StatementMetaFactory extends PersistentProxyObjectFactory
             'statement'          => StatementFactory::new(),
             'submitName'         => self::faker()->text(255),
         ];
-    }
-
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
-    protected function initialize(): static
-    {
-        return $this;
     }
 }

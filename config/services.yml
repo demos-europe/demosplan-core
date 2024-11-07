@@ -1087,7 +1087,7 @@ services:
     # Segment Service
     demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService: ~
     demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter: ~
-    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter: ~
+    demosplan\DemosPlanCoreBundle\Logic\Segment\XlsxSegmentsExporter: ~
 
     # Drafts Info Handler
     demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\DraftsInfoHandler: ~
