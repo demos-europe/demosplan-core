@@ -49,6 +49,7 @@ use Monolog\Logger;
 use Patchwork\Utf8;
 use PhpOffice\PhpWord\Settings;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use ZipStream\ZipStream;
@@ -841,6 +842,9 @@ class ExportService
         $filepath = DemosPlanPath::getTemporaryPath($internalFilename);
         $writer->save($filepath);
         $this->zipExportService->addFileToZipStream($filepath, $filename, $zip);
+        // uses local file, no need for flysystem
+        $fs = new Filesystem();
+        $fs->remove($filepath);
     }
 
     /**

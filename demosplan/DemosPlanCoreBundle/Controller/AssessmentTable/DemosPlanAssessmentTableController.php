@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\ClusterStatementCopyNotImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -30,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
-use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
@@ -598,12 +596,10 @@ class DemosPlanAssessmentTableController extends BaseController
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
         CurrentUserInterface $currentUser,
-        EventDispatcherPostInterface $eventDispatcherPost,
         FileService $fileService,
         FileUploadService $fileUploadService,
         MapService $mapService,
         Request $request,
-        ServiceOutput $serviceOutput,
         StatementService $statementService,
         TranslatorInterface $translator,
         $procedureId,
