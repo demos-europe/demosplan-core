@@ -41,7 +41,7 @@
         {% include '@DemosPlanCore/DemosPlanCore/includes/base_js_class.html.twig' %}
 
         {# Prevent "flash of unstyled content" revealing vue inline templates being revealed before all css has loaded #}
-        <style>
+        <style nonce="{{ csp_nonce('style') }}">
             [v-cloak] {
                 display: none;
             }

@@ -1376,6 +1376,8 @@ services:
 
     Intervention\Image\ImageManager: ~
 
+    Nelmio\SecurityBundle\EventListener\ContentSecurityPolicyListener: '@nelmio_security.csp_listener'
+
     Pagerfanta\View\ViewFactory: '@white_october_pagerfanta.view_factory'
 
     path_based_model_to_elastica_transformer:
