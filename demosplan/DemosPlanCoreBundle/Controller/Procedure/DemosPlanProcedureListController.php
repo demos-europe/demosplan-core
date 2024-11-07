@@ -617,10 +617,9 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                 $this->getMessageBag()->add('error', 'error.procedure.deleted.noselection');
             } else {
                 $this->procedureService->deleteProcedure($selectedProcedures);
-                $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
             }
         } catch (Exception) {
-            $this->getMessageBag()->add('error', 'error.procedure.deleted');
+            $this->getMessageBag()->add('error', 'error.procedure.onDelete');
         }
     }
 
