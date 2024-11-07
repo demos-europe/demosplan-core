@@ -1054,12 +1054,18 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $this->logger->info('Procedure updated without known user');
             }
             $procedure = $this->procedureRepository->update($data['ident'], $data);
+            // set procedurePhase properties: permissionSet, name
+            // they are not mapped do a database but the updated ones are needed within the upcoming event
+            $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
+            $procedure->setPublicParticipationPhaseName(
+                $this->globalConfig->getPhaseNameWithPriorityExternal(
+                    $procedure->getPublicParticipationPhase()
+                )
+            );
             $this->eventDispatcher->dispatch(
                 new PostProcedureUpdatedEvent($sourceProcedure, $procedure),
                 PostProcedureUpdatedEventInterface::class
             );
-
-            $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
             // always update elasticsearch as changes that where made only in
             // ProcedureSettings not automatically trigger an ES update
             if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
@@ -1107,7 +1113,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             $destinationProcedure = $this->procedureRepository->get($procedure->getId());
-
+            // set procedurePhase properties: permissionSet, name
+            // they are not mapped do a database but the updated ones are needed within the upcoming event
+            $destinationProcedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($destinationProcedure);
+            $destinationProcedure->setPublicParticipationPhaseName(
+                $this->globalConfig->getPhaseNameWithPriorityExternal(
+                    $destinationProcedure->getPublicParticipationPhase()
+                )
+            );
             $this->eventDispatcher->dispatch(
                 new PostProcedureUpdatedEvent($sourceProcedure, $destinationProcedure),
                 PostProcedureUpdatedEventInterface::class
@@ -1145,6 +1158,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             $sourceProcedure = $this->cloneProcedure($this->procedureRepository->get($data['ident']));
             $procedure = $this->procedureRepository->update($data['ident'], $data);
+            // set procedurePhase properties: permissionSet, name
+            // they are not mapped do a database but the updated ones are needed within the upcoming event
+            $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
+            $procedure->setPublicParticipationPhaseName(
+                $this->globalConfig->getPhaseNameWithPriorityExternal(
+                    $procedure->getPublicParticipationPhase()
+                )
+            );
             $this->eventDispatcher->dispatch(
                 new PostProcedureUpdatedEvent($sourceProcedure, $procedure),
                 PostProcedureUpdatedEventInterface::class
