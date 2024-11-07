@@ -19,13 +19,12 @@ class DemosPlanArrayAdapter extends ArrayAdapter
 
     /**
      * The constructor is needed as parent constructor defines array variable as private
-     * and we need to access it here
+     * and we need to access it here.
      */
     public function __construct(
         private readonly array $array,
     ) {
         parent::__construct($array);
-
     }
 
     public function setNbResults(int $resultCount)
@@ -42,5 +41,4 @@ class DemosPlanArrayAdapter extends ArrayAdapter
     {
         return $this->array;
     }
-
 }
