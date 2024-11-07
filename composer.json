@@ -108,6 +108,7 @@
         "symfony/http-client": "5.*.*",
         "symfony/http-foundation": "5.*.*",
         "symfony/intl": "5.*.*",
+        "symfony/lock": "5.*.*",
         "symfony/mailer": "5.*.*",
         "symfony/mime": "5.*.*",
         "symfony/monolog-bundle": "^3",
