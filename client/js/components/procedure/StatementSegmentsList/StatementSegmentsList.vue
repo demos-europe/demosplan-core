@@ -149,8 +149,9 @@
         :statement="statement"
         :submit-type-options="submitTypeOptions"
         @close="showInfobox = false"
+        @input="checkStatementClaim"
         @save="(statement) => saveStatement(statement)"
-        @input="checkStatementClaim" />
+        @updatedVoters="getStatement"/>
       <segments-recommendations
         v-if="currentAction === 'addRecommendation' && hasPermission('feature_segment_recommendation_edit')"
         :current-user="currentUser"
@@ -629,6 +630,7 @@ export default {
         ].join(),
         StatementVote: [
           'city',
+          'createdDate',
           'createdByCitizen',
           'departmentName',
           'email',

@@ -28,15 +28,141 @@ All rights reserved
       :submitter-email="statement.attributes.submitterEmailAddress"
       @update="val => localStatement.attributes.publicVerified = val" />
 
-    <statement-voter
-      id="dp-statement-voter"
-      :anonym-votes-string="localStatement.attributes.numberOfAnonymVotes?.toString() || '0'"
-      :init-voters="statement.attributes.votes"
-      :is-manual="statement.attributes.isManual ? 'true' : ''"
-      :public-allowed="statement.attributes.publicVerified === 'publication_approved'"
-      :readonly="!editable ? '1' : '0'"
-      @updateAnonymVotes="val => localStatement.attributes.numberOfAnonymVotes = val"
-      @updateVoter="updateVoter"/>
+    <div class="font-semibold">
+      {{ Translator.trans('statement.voter') }}
+    </div>
+    <p
+      class="color-text-muted"
+      v-text="Translator.trans('statement_vote.length', { count: votesLength })" />
+    <dp-loading v-if="isLoading" />
+    <dp-editable-list
+      v-else
+      :entries="votes"
+      :has-permission-to-edit="editable && statement.attributes.isManual"
+      :translation-keys="translationKeys"
+      ref="listComponent"
+      @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)">
+      <template v-slot:list="{entry, index}">
+        <span v-if="entry.attributes.name" class="voteEntry">{{ entry.attributes.name }}</span>
+        <span v-if="entry.attributes.organisationName" class="voteEntry">{{ entry.attributes.organisationName }}</span>
+        <span v-if="entry.attributes.departmentName" class="voteEntry">{{ entry.attributes.departmentName }}</span>
+        <span v-if="entry.attributes.postcode" class="voteEntry">{{ entry.attributes.postcode }}</span>
+        <span v-if="entry.attributes.city" class="voteEntry">{{ entry.attributes.city }}</span>
+        <span v-if="entry.attributes.email" class="voteEntry">{{ entry.attributes.email }}</span>
+      </template>
+      <template v-slot:form>
+        <div
+          data-dp-validate="newVoterForm"
+          v-if="editable && statement.attributes.isManual"
+          class="space-stack-s space-inset-s border">
+          <!-- Role -->
+          <div>
+            <dp-radio
+              id="createdByCitizen_true"
+              data-cy="statementVoter:roleCitizen"
+              :label="{
+                text: Translator.trans('role.citizen')
+              }"
+              value="true"
+              :checked="formFields.createdByCitizen"
+              @change="formFields.createdByCitizen = true" />
+            <dp-radio
+              id="createdByCitizen_false"
+              data-cy="statementVoter:invitableInstitution"
+              :label="{
+                text: Translator.trans('invitable_institution')
+              }"
+              value="false"
+              :checked="formFields.createdByCitizen === false"
+              @change="formFields.role = false" />
+          </div>
+
+          <div
+            v-show="isInstitutionParticipation && (hasPermission('field_statement_meta_orga_name') || hasPermission('field_statement_meta_orga_department_name'))"
+            class="layout">
+            <dp-input
+              v-show="hasPermission('field_statement_meta_orga_name')"
+              id="voter_publicagency"
+              data-cy="voterPublicAgency"
+              v-model="formFields.organisationName"
+              class="layout__item u-1-of-2"
+              :label="{
+                text: Translator.trans('invitable_institution')
+              }" />
+            <dp-input
+              v-show="hasPermission('field_statement_meta_orga_department_name')"
+              id="voter_department"
+              data-cy="voterDepartment"
+              v-model="formFields.departmentName"
+              class="layout__item u-1-of-2"
+              :label="{
+                text: Translator.trans('department')
+              }" />
+          </div>
+
+          <div class="layout">
+            <dp-input
+              v-if="hasPermission('field_statement_meta_submit_name')"
+              id="voter_username"
+              data-cy="voterUsername"
+              v-model="formFields.name"
+              class="layout__item u-1-of-2"
+              :label="{
+                text: Translator.trans('statement.form.name')
+              }" />
+            <dp-input
+              v-if="hasPermission('field_statement_meta_email')"
+              id="voter_email"
+              data-cy="voterEmail"
+              v-model="formFields.email"
+              class="layout__item u-1-of-2"
+              :label="{
+                text: Translator.trans('email')
+              }"
+              type="email" />
+          </div>
+
+          <div class="layout">
+            <dp-input
+              v-if="hasPermission('field_statement_meta_postal_code')"
+              id="voter_postalcode"
+              data-cy="voterPostalCode"
+              v-model="formFields.postcode"
+              class="layout__item u-1-of-8"
+              :label="{
+                text: Translator.trans('postalcode')
+              }"
+              pattern="^[0-9]{4,5}$" />
+            <dp-input
+              v-if="hasPermission('field_statement_meta_city')"
+              id="voter_city"
+              data-cy="voterCity"
+              v-model="formFields.city"
+              :class="hasPermission('field_statement_meta_postal_code') ? 'layout__item u-3-of-8' : 'layout__item'"
+              :label="{
+                text: Translator.trans('city')
+              }" />
+          </div>
+        </div>
+      </template>
+    </dp-editable-list>
+
+    <!-- Anonymous voters -->
+    <div
+      v-if="editable"
+      class="w-1/4">
+      <dp-input
+        id="numberOfAnonymVotes"
+        v-model="localStatement.attributes.numberOfAnonymVotes"
+        class="mt-4"
+        data-cy="numberOfAnonymVotes"
+        :disabled="!editable"
+        :label="{
+          text: Translator.trans('statement.voter.anonym')
+        }"
+        name="numberOfAnonymVotes"
+        type="number"/>
+    </div>
 
     <dp-button-row
       v-if="editable"
@@ -51,8 +177,14 @@ All rights reserved
 <script>
 import {
   DpButtonRow,
+  DpEditableList,
+  DpLoading,
+  DpInput,
+  DpRadio,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
+import { mapActions, mapMutations, mapState } from 'vuex'
+import { v4 as uuid } from 'uuid'
 import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
 import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 
@@ -61,6 +193,10 @@ export default {
 
   components: {
     DpButtonRow,
+    DpEditableList,
+    DpLoading,
+    DpInput,
+    DpRadio,
     StatementPublish,
     StatementVoter
   },
@@ -82,40 +218,227 @@ export default {
 
   data () {
     return {
-      localStatement: null
+      localStatement: null,
+      formFields: {
+        createdByCitizen: true,
+        organisationName: '',
+        departmentName: '',
+        name: '',
+        email: '',
+        postcode: '',
+        city: ''
+      },
+      isLoading: false,
+      translationKeys: {
+        new: Translator.trans('statement.voter.add'),
+        add: Translator.trans('statement.voter.add'),
+        abort: Translator.trans('abort'),
+        update: Translator.trans('statement.voter.update'),
+        noEntries: Translator.trans('none'),
+        delete: Translator.trans('statement.voter.delete')
+      }
     }
   },
 
+  computed: {
+    ...mapState('StatementVote', {
+      initialVotes: 'initial',
+      votes: 'items'
+    }),
+
+    isInstitutionParticipation () {
+      return hasPermission('feature_institution_participation') && this.formFields.createdByCitizen === false
+    },
+
+    votesLength: {
+      get () {
+        return (this.localStatement.attributes.numberOfAnonymVotes + Object.keys(this.votes).length)
+      }
+    },
+  },
+
   methods: {
+    ...mapMutations('StatementVote', {
+      removeStatementVote: 'remove',
+      resetStatementVote: 'resetItems',
+      setStatementVote: 'setItem'
+    }),
+
+    ...mapActions('StatementVote', {
+      createStatementVoteAction: 'create',
+      deleteStatementVoteAction: 'delete',
+      saveStatementVoteAction: 'save'
+    }),
+
+    addVote (index) {
+      // TO DO: Do we need this?
+      if (this.checkIfEmpty() === false) {
+        let voteId = ''
+        if (index === 'new') {
+          voteId = `newItem${uuid()}`
+        } else {
+          voteId = index
+        }
+
+        const vote = {
+          type: 'StatementVote',
+          attributes: this.formFields
+        }
+
+        this.setStatementVote({ ...vote, id: voteId })
+
+        this.resetForm()
+        this.$refs.listComponent.toggleFormVisibility(false)
+        this.$refs.listComponent.currentlyUpdating = ''
+      }
+    },
+
+    checkIfEmpty () {
+      let isEmpty = true
+      const fieldsToCheck = ['organisationName', 'departmentName', 'name', 'email', 'postcode', 'city']
+
+      for (let i = 0; i < fieldsToCheck.length; i++) {
+        if (this.formFields[fieldsToCheck[i]] !== '' && typeof this.formFields[fieldsToCheck[i]] !== 'undefined') {
+          isEmpty = false
+        }
+      }
+      return isEmpty
+    },
+
     reset () {
       this.setInitValues()
+      this.resetStatementVote()
+    },
+
+    resetForm () {
+      this.formFields = {
+        createdByCitizen: true,
+        organisationName: '',
+        departmentName: '',
+        name: '',
+        email: '',
+        postcode: '',
+        city: ''
+      }
     },
 
     save () {
+      this.saveStatementVote()
       this.$emit('save', this.localStatement)
+    },
+
+    saveStatementVote () {
+      const createVotePromise = this.sendCreateVote()
+      const updateVotePromise = this.sendUpdateVote()
+      const deleteVotePromise = this.sendDeleteVote()
+
+      const promises = [createVotePromise, updateVotePromise, deleteVotePromise].filter(promise => promise);
+
+      if (promises.length === 0) {
+        return; // No requests to send
+      }
+
+      Promise.any(promises)
+        .then(() => {
+          this.$emit('updatedVoters')
+        })
+        .catch(() => {
+          dplan.notify.error(Translator.trans('error.api.generic'));
+        })
+    },
+
+    sendCreateVote () {
+      const votesToCreate = Object.values(this.votes).filter(vote => vote.id.includes('newItem'))
+      // We need a loading state here, because the added voter in store with fake id gets replaced with the real one after
+      // BE response, otherwise UI blinks
+      if (votesToCreate.length > 0) {
+        this.isLoading = true
+      }
+      const promises = votesToCreate.map(vote => {
+        const payload = {
+          type: 'StatementVote',
+          attributes: vote.attributes,
+          relationships: {
+            statement: {
+              data: {
+                type: 'Statement',
+                id: this.statement.id
+              }
+            }
+          }
+        }
+        return this.createStatementVoteAction(payload)
+          .then(() => {
+            this.$emit('updatedVoters')
+            this.removeStatementVote(vote.id)
+            return true
+          })
+          .catch(() => {
+            dplan.notify.error(Translator.trans('error.api.generic'))
+            return false
+          })
+          .finally(() => {
+            this.isLoading = false
+          })
+      })
+
+      return Promise.all(promises).then(results => results.some(result => result))
+    },
+
+    sendDeleteVote () {
+      const promises = Object.keys(this.initialVotes).map(voteId => {
+        if (!this.votes[voteId]) {
+          this.deleteStatementVoteAction(voteId)
+          .then(() => {
+            return true
+          })
+          .catch(() => {
+            dplan.notify.error(Translator.trans('error.api.generic'))
+            return false
+          })
+        }
+      }).filter(Boolean); // Remove undefined values
+
+      return Promise.all(promises).then(results => results.some(result => result))
+    },
+
+    sendUpdateVote () {
+      const promises = Object.values(this.initialVotes).map(vote => {
+        if (this.votes[vote.id]) {
+          this.saveStatementVoteAction(vote.id)
+          .then(() => {
+            return true
+          })
+          .catch(() => {
+            dplan.notify.error(Translator.trans('error.api.generic'))
+            return false
+          })
+        }
+      }).filter(Boolean); // Remove undefined values
+
+      return Promise.all(promises).then(results => results.some(result => result))
     },
 
     setInitValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
-    },
-
-    updateVoter (data) {
-      const newVoter = {
-        city: data.userCity,
-        createdByCitizen: data.role === 0,
-        departmentName: data.departmentName,
-        email: data.userMail,
-        name: data.userName,
-        organisationName: data.organisationName,
-        postcode: data.userPostcode,
-      }
-
-      // TODO: Implement Api post (only after save?)
     },
   },
 
   created() {
     this.setInitValues()
   },
+
+  mounted() {
+    this.$on('showUpdateForm', (index) => {
+      for (const key in this.formFields) {
+        this.formFields[key] = this.votes[index]['attributes'][key]
+      }
+    })
+
+    this.$on('delete', (index) => {
+      this.removeStatementVote(index)
+      this.resetForm()
+    })
+  }
 }
 </script>

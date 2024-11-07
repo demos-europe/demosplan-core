@@ -61,7 +61,8 @@
         <statement-publication-and-voting
           :editable="editable"
           :statement="statement"
-          @save="(data) => save(data)" />
+          @save="(data) => save(data)"
+          @updatedVoters="() => $emit('updatedVoters')"/>
 
         <!-- need to add statement.attributes.counties and availableCounties in the BE (Array) -->
         <statement-meta-multiselect

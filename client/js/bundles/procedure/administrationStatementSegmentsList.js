@@ -42,6 +42,7 @@ const apiStores = [
   'SegmentComment',
   'Statement',
   'StatementSegment',
+  'StatementVote',
   'Tags',
   'User'
 ]
