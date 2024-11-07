@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceConfigBuilder;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileContainerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseFileContainerResourceConfigBuilder;
-use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseStatementVoteResourceConfigBuilder;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;

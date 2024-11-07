@@ -546,7 +546,6 @@ class ResourceTypeStore
     public function getGenericStatementAttachmentResourceType(): GenericStatementAttachmentResourceType
     {
         return $this->genericStatementAttachmentResourceType;
-
     }
 
     public function getGisLayerCategoryResourceType(): GisLayerCategoryResourceType
