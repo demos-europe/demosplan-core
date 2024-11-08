@@ -80,15 +80,15 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         HTMLSanitizer $htmlSanitizer,
         private readonly JsonApiEsService $jsonApiEsService,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
-        private readonly QueryStatement                  $esQuery,
-        private readonly StatementService                $statementService,
-        private readonly StatementDeleter                $statementDeleter,
-        protected readonly CoordinateJsonConverter       $coordinateJsonConverter,
-        private readonly ParagraphVersionRepository      $paragraphVersionRepository,
-        private readonly ParagraphRepository             $paragraphRepository,
-        private readonly ElementsRepository              $elementsRepository,
-        private readonly ElementHandler                  $elementHandler,
-        private readonly ElementsService                 $elementsService,
+        private readonly QueryStatement $esQuery,
+        private readonly StatementService $statementService,
+        private readonly StatementDeleter $statementDeleter,
+        protected readonly CoordinateJsonConverter $coordinateJsonConverter,
+        private readonly ParagraphVersionRepository $paragraphVersionRepository,
+        private readonly ParagraphRepository $paragraphRepository,
+        private readonly ElementsRepository $elementsRepository,
+        private readonly ElementHandler $elementHandler,
+        private readonly ElementsService $elementsService,
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository, private readonly FileContainerRepository $fileContainerRepository,
     ) {
@@ -152,8 +152,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         $conditions = [
             // Statement resources can never be deleted
-            $this->conditionFactory->propertyHasValue(false,  $pathStartResourceType->deleted),
-            //$this->conditionFactory->propertyHasValue(false, $pathStartResourceType['deleted']),
+            $this->conditionFactory->propertyHasValue(false, $pathStartResourceType->deleted),
+            // $this->conditionFactory->propertyHasValue(false, $pathStartResourceType['deleted']),
             $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement),
