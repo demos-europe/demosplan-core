@@ -61,6 +61,7 @@ class TusUploadEventSubscriber implements EventSubscriberInterface
         $filePathParts = explode('/', $file->getFilePath());
         $uploadedFilename = array_pop($filePathParts);
         if ($filename !== $uploadedFilename) {
+            // local file is valid, no need for flysystem
             $fs = new Filesystem();
             $filePathParts[] = $filename;
             $sanitizedPath = implode('/', $filePathParts);
@@ -77,7 +78,7 @@ class TusUploadEventSubscriber implements EventSubscriberInterface
         try {
             $checkVirus = FileService::VIRUSCHECK_ASYNC;
             $this->logger->info('Try to save temporary file', [$file->getFilePath()]);
-            $fileId = $this->fileService->saveTemporaryFile(
+            $fileId = $this->fileService->saveTemporaryLocalFile(
                 $file->getFilePath(),
                 $filename,
                 null,

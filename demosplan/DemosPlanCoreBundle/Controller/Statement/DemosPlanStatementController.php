@@ -2342,9 +2342,21 @@ class DemosPlanStatementController extends BaseController
             $statementCount = 0;
             /** @var FileInfo $fileInfo */
             foreach ($files as $fileInfo) {
-                $this->importStatementsFromXls($fileInfo, $importer);
+                $localPath = $fileService->ensureLocalFile($fileInfo->getAbsolutePath());
+                $localFileInfo = new FileInfo(
+                    $fileInfo->getHash(),
+                    '',
+                    0,
+                    '',
+                    $localPath,
+                    $localPath,
+                    null
+                );
+                $this->importStatementsFromXls($localFileInfo, $importer);
                 $fileNames[] = $fileInfo->getFileName();
                 $statementCount += count($importer->getCreatedStatements());
+                $fileService->deleteFile($fileInfo->getHash());
+                $fileService->deleteLocalFile($localPath);
             }
             if ($importer->hasErrors()) {
                 return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
@@ -2396,13 +2408,24 @@ class DemosPlanStatementController extends BaseController
             $statementsCount = 0;
             /** @var FileInfo $zipFileInfo */
             foreach ($files as $zipFileInfo) {
-                $this->importStatementsFromXls($zipFileInfo, $importer);
+                $localPath = $fileService->ensureLocalFile($zipFileInfo->getAbsolutePath());
+                $localFileInfo = new FileInfo(
+                    $zipFileInfo->getHash(),
+                    '',
+                    0,
+                    '',
+                    $localPath,
+                    $localPath,
+                    null
+                );
+                $this->importStatementsFromXls($localFileInfo, $importer);
 
                 $fileNames[] = $zipFileInfo->getFileName();
                 $statements = $importer->getCreatedStatements();
                 $statementsCount += count($statements);
 
                 $fileService->deleteFile($zipFileInfo->getHash());
+                $fileService->deleteLocalFile($localPath);
             }
             if ($importer->hasErrors()) {
                 return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
@@ -2426,15 +2449,13 @@ class DemosPlanStatementController extends BaseController
         FileInfo $fileInfo,
         XlsxStatementImport $importer,
     ): void {
-        if ($fileInfo instanceof FileInfo) {
-            $fileInfo = new SplFileInfo(
-                $fileInfo->getAbsolutePath(),
-                '',
-                $fileInfo->getHash()
-            );
-        }
+        $splFileInfo = new SplFileInfo(
+            $fileInfo->getAbsolutePath(),
+            '',
+            $fileInfo->getHash()
+        );
         try {
-            $importer->importFromFile($fileInfo);
+            $importer->importFromFile($splFileInfo);
         } catch (RowAwareViolationsException $e) {
             $this->getMessageBag()->add(
                 'error',
