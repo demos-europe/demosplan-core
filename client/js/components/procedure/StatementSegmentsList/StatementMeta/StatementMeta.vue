@@ -95,6 +95,7 @@
 
         <statement-meta-location-and-document-reference
           :editable="editable"
+          :initially-selected-document-id="initiallySelectedDocumentId"
           :initially-selected-element-id="initiallySelectedElementId"
           :initially-selected-paragraph-id="initiallySelectedParagraphId"
           :procedure-id="procedure.id"
@@ -261,9 +262,12 @@ export default {
       return this.statement.attributes.isManual
     },
 
+    initiallySelectedDocumentId () {
+      return this.statement.relationships.document?.data ? this.statement.relationships.document.get()?.id : ''
+    },
+
     initiallySelectedElementId () {
-      const element = this.statement.relationships.elements?.data ? this.statement.relationships.elements.get() : null
-      return element?.id ?? ''
+      return this.statement.relationships.elements?.data ? this.statement.relationships.elements.get()?.id : ''
     },
 
     initiallySelectedParagraphId () {

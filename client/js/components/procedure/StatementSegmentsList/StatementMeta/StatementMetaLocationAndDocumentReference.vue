@@ -41,7 +41,7 @@
         }"
           :options="elementsOptions"
           v-model="selectedElementId"
-          @select="unsetSelectedParagraphId" />
+          @select="handleSelect" />
 
         <dp-select
           v-if="paragraphOptions.length > 0"
@@ -50,7 +50,18 @@
           text: Translator.trans('paragraph')
         }"
           :options="paragraphOptions"
+          required
           v-model="selectedParagraphId" />
+
+        <dp-select
+          v-if="documentOptions.length > 0"
+          data-cy="statement:documentSelect"
+          :label="{
+            text: Translator.trans('file')
+          }"
+          :options="documentOptions"
+          required
+          v-model="selectedDocumentId" />
       </div>
 
       <dl
@@ -72,12 +83,20 @@
             {{ selectedParagraphTitle }}
           </dd>
         </div>
+        <div v-if="selectedDocumentId">
+          <dt class="font-semibold">
+            {{ Translator.trans('file') }}
+          </dt>
+          <dd>
+            {{ selectedDocumentTitle }}
+          </dd>
+        </div>
       </dl>
 
       <dp-button-row
         v-if="editable"
         class="w-full"
-        :disabled="selectedElementId === initiallySelectedElementId && selectedParagraphId === initiallySelectedParagraphId"
+        :disabled="isButtonRowDisabled"
         primary
         secondary
         @primary-action="dpValidateAction('statementLocationAndDocumentReference', save, false)"
@@ -114,6 +133,12 @@ export default {
       default: false
     },
 
+    initiallySelectedDocumentId: {
+      type: String,
+      required: false,
+      default: ''
+    },
+
     initiallySelectedElementId: {
       type: String,
       required: false,
@@ -140,6 +165,7 @@ export default {
   data () {
     return {
       localStatement: null,
+      selectedDocumentId: this.initiallySelectedDocumentId,
       selectedElementId: this.initiallySelectedElementId,
       selectedParagraphId: this.initiallySelectedParagraphId
     }
@@ -150,12 +176,32 @@ export default {
       elements: 'items'
     }),
 
+    documentOptions () {
+      const documents = this.getDocuments()
+
+      return documents.length > 0
+        ? documents.map(document => ({
+          label: document.attributes.title,
+          value: document.id
+        }))
+        : []
+    },
+
     elementsOptions () {
       return Object.values(this.elements).map(element => ({
         label: element.attributes.title,
         value: element.id
       })
       )
+    },
+
+    isButtonRowDisabled () {
+      const elementIsChanged = this.selectedElementId !== this.initiallySelectedElementId
+      const paragraphIsChanged = this.selectedParagraphId !== this.initiallySelectedParagraphId
+      const documentIsChanged = this.selectedDocumentId !== this.initiallySelectedDocumentId
+
+      return !elementIsChanged
+        || (elementIsChanged && ((this.paragraphOptions.length > 0 && !paragraphIsChanged) || (this.documentOptions.length > 0 && !documentIsChanged)))
     },
 
     paragraphOptions () {
@@ -167,6 +213,14 @@ export default {
           value: paragraph.id
         }))
         : []
+    },
+
+    selectedDocumentTitle () {
+      const documents = this.getDocuments()
+
+      return documents.length > 0
+        ? documents.find(document => document.id === this.selectedDocumentId)?.attributes?.title
+        : '-'
     },
 
     selectedParagraphTitle () {
@@ -183,12 +237,25 @@ export default {
       getElementsDetailsAction: 'list'
     }),
 
+    getDocuments () {
+      const selectedElement = this.elements[this.selectedElementId]
+
+      return selectedElement?.relationships?.documents?.data.length > 0
+        ? Object.values(selectedElement?.relationships?.documents.list())
+        : []
+    },
+
     getParagraphs () {
       const selectedElement = this.elements[this.selectedElementId]
 
       return selectedElement?.relationships?.paragraphs?.data.length > 0
         ?  Object.values(selectedElement?.relationships?.paragraphs.list())
         : []
+    },
+
+    handleSelect () {
+      this.unsetSelectedParagraphId()
+      this.unsetSelectedDocumentId()
     },
 
     reset () {
@@ -198,14 +265,25 @@ export default {
 
     save () {
       if (this.selectedElementId) {
-        this.localStatement.relationships.elements.data = {
-          id: this.selectedElementId,
-          type: 'ElementsDetails'
+        this.localStatement.relationships.elements = {
+          data: {
+            id: this.selectedElementId,
+            type: 'ElementsDetails'
+          }
         }
       }
 
-      if (this.selectedParagraphId) {
+      if (this.selectedParagraphId !== this.initiallySelectedParagraphId) {
         this.localStatement.attributes.paragraphParentId = this.selectedParagraphId
+      }
+
+      if (this.selectedDocumentId !== this.initiallySelectedDocumentId) {
+        this.localStatement.relationships.document = {
+          data: {
+            id: this.selectedDocumentId,
+            type: 'SingleDocument'
+          }
+        }
       }
 
       this.$emit('save', this.localStatement)
@@ -217,8 +295,6 @@ export default {
      */
     setInitiallySelectedElementId () {
       this.selectedElementId = this.initiallySelectedElementId
-        ? this.initiallySelectedElementId
-        : this.elementsOptions.find(option => option.label === 'Gesamtstellungnahme')?.value ?? ''
     },
 
     setInitialStatementData () {
@@ -231,6 +307,10 @@ export default {
       if (polygon) {
         this.$refs.locationReferenceModal.toggleModal(polygon)
       }
+    },
+
+    unsetSelectedDocumentId () {
+      this.selectedDocumentId = ''
     },
 
     unsetSelectedParagraphId () {
@@ -246,14 +326,19 @@ export default {
     this.getElementsDetailsAction({
       fields: {
         ElementsDetails: [
+          'documents',
           'paragraphs',
           'title'
         ].join(),
         Paragraph: [
           'title'
+        ].join(),
+        SingleDocument: [
+          'title'
         ].join()
       },
       include: [
+        'documents',
         'paragraphs'
       ].join(),
       filter: {
@@ -265,9 +350,6 @@ export default {
         }
       }
     })
-      .then(() => {
-        this.setInitiallySelectedElementId()
-      })
   }
 }
 </script>

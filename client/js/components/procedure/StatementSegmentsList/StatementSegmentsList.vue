@@ -554,6 +554,7 @@ export default {
         'authorName',
         'consentRevoked',
         'counties',
+        'documents',
         'elements',
         'files',
         'fullText',
@@ -602,15 +603,19 @@ export default {
       }
 
       const allFields = {
-        Elements: [
-          'title',
-          'paragraphs'
+        ElementsDetails: [
+          'document',
+          'paragraphs',
+          'title'
         ].join(),
         File: [
           'hash',
           'filename'
         ].join(),
         ParagraphVersion: [
+          'title'
+        ].join(),
+        SingleDocument: [
           'title'
         ].join(),
         Statement: statementFields.join(),
@@ -644,6 +649,7 @@ export default {
         'assignee',
         'attachments',
         'attachments.file',
+        'document',
         'elements',
         'files',
         'paragraph',
