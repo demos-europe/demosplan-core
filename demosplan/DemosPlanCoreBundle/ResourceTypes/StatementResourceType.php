@@ -129,7 +129,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
      *
      * @throws PathException
      *
-     * buildAccessConditions(array $pathStartResourceType
      */
     public function buildAccessConditions(StatementResourceType $pathStartResourceType, bool $allowOriginals = false): array
     {
@@ -153,7 +152,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         $conditions = [
             // Statement resources can never be deleted
             $this->conditionFactory->propertyHasValue(false, $pathStartResourceType->deleted),
-            // $this->conditionFactory->propertyHasValue(false, $pathStartResourceType['deleted']),
             $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement),
