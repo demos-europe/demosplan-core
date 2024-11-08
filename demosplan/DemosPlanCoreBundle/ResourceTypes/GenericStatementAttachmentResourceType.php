@@ -13,7 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
@@ -27,7 +29,7 @@ use Webmozart\Assert\Assert;
  *
  * @template-extends DplanResourceType<T>
  *
- * @property-read End $statement
+ * @property-read StatementResourceType $statement
  * /// Generic attachment resource type because when deleting I really lnow that it belongs to the stament.
  * /// also overrite delet emethod to double check the statement id
  */
@@ -44,17 +46,31 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
         $configBuilder = $this->getConfig(GenericStatementAttachmentConfigBuilder::class);
         $configBuilder->id
             ->setReadableByPath();
-        $configBuilder->statement->setRelationshipType($this->resourceTypeStore->getStatementResourceType());
+        $configBuilder->file
+            ->setRelationshipType($this->getTypes()->getFileResourceType())
+            ->setReadableByPath();
+       // $configBuilder->statement->setRelationshipType($this->resourceTypeStore->getStatementResourceType())->readable();
 
         return $configBuilder;
     }
 
     protected function getAccessConditions(): array
     {
+        return [$this->conditionFactory->true()];
         // The access to an attachment is allowed only if access to the corresponding
         // statement is granted.
-        return [$this->conditionFactory->true()];
-        // return $this->statementResourceType->buildAccessConditions($this->statement, true);
+        //$fileContainer = $this->fileContainerRepository->get($this->entityId);
+        //Assert::notNull($fileContainer);
+
+        $statement = $this->statementRepository->get($this->entityId);
+        Assert::notNull($statement);
+        $valueObject = [
+            'entityId' => $statement->getId(),
+            'entityClass' => Statement::class,
+        ];
+
+        new StatementResourceType($this->statementRepository);
+        return $this->getTypes()->getStatementResourceType()->buildAccessConditions($valueObject, true);
     }
 
     public static function getName(): string

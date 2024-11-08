@@ -36,6 +36,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementProcedurePhaseResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
+use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
@@ -70,6 +71,7 @@ use Webmozart\Assert\Assert;
  * @property-read End $status
  * @property-read ValueObject $phaseStatement
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
+ * @property-read GenericStatementAttachmentResourceType $genericAttachments
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
@@ -78,17 +80,17 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         HTMLSanitizer $htmlSanitizer,
         private readonly JsonApiEsService $jsonApiEsService,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
-        private readonly QueryStatement $esQuery,
-        private readonly StatementService $statementService,
-        private readonly StatementDeleter $statementDeleter,
-        protected readonly CoordinateJsonConverter $coordinateJsonConverter,
-        private readonly ParagraphVersionRepository $paragraphVersionRepository,
-        private readonly ParagraphRepository $paragraphRepository,
-        private readonly ElementsRepository $elementsRepository,
-        private readonly ElementHandler $elementHandler,
-        private readonly ElementsService $elementsService,
+        private readonly QueryStatement                  $esQuery,
+        private readonly StatementService                $statementService,
+        private readonly StatementDeleter                $statementDeleter,
+        protected readonly CoordinateJsonConverter       $coordinateJsonConverter,
+        private readonly ParagraphVersionRepository      $paragraphVersionRepository,
+        private readonly ParagraphRepository             $paragraphRepository,
+        private readonly ElementsRepository              $elementsRepository,
+        private readonly ElementHandler                  $elementHandler,
+        private readonly ElementsService                 $elementsService,
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
-        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
+        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository, private readonly FileContainerRepository $fileContainerRepository,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);
     }
@@ -126,6 +128,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
      * @return list<ClauseFunctionInterface<bool>>
      *
      * @throws PathException
+     *
+     * buildAccessConditions(array $pathStartResourceType
      */
     public function buildAccessConditions(StatementResourceType $pathStartResourceType, bool $allowOriginals = false): array
     {
@@ -148,7 +152,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
         $conditions = [
             // Statement resources can never be deleted
-            $this->conditionFactory->propertyHasValue(false, $pathStartResourceType->deleted),
+            $this->conditionFactory->propertyHasValue(false,  $pathStartResourceType->deleted),
+            //$this->conditionFactory->propertyHasValue(false, $pathStartResourceType['deleted']),
             $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement),
@@ -344,6 +349,13 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
                 ->readable()
                 ->aliasedPath(Paths::statement()->paragraph);
+            $configBuilder->genericAttachments
+                ->setRelationshipType($this->resourceTypeStore->getGenericStatementAttachmentResourceType())
+                ->readable(false, function (Statement $statement): ?array {
+                    $fileContainers = $this->fileContainerRepository->getStatementFileContainers($statement->getId());
+
+                    return $fileContainers;
+                });
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {

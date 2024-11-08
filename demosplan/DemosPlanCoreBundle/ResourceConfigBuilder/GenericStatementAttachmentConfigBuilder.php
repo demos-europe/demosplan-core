@@ -20,7 +20,7 @@ use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
 
 /**
- * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,FileContainerInterface, StatementInterface> $statement
+ *
  */
 class GenericStatementAttachmentConfigBuilder extends BaseFileContainerResourceConfigBuilder
 {
