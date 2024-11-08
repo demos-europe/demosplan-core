@@ -18,9 +18,9 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayer;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
 use Geometry;
+use Illuminate\Support\Collection;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Tests\Base\UnitTestCase;
-use Illuminate\Support\Collection;
 
 class GeoJsonToFeaturesConverterTest extends UnitTestCase
 {
@@ -122,6 +122,7 @@ class GeoJsonToFeaturesConverterTest extends UnitTestCase
 
     private function getFileContents(string $fullPath): string
     {
+        // uses local file, no need for flysystem
         if (!$fileContents = file_get_contents($fullPath)) {
             throw new FileNotFoundException('File not found in path: '.$fullPath);
         }

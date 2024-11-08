@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
@@ -30,7 +29,7 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
     /**
      * Hole Infos zum File.
      */
-    public function getFileInfo(string $hash, string $procedureId = null): ?File
+    public function getFile(string $hash, ?string $procedureId = null): ?File
     {
         // Der übergebene Hash ist der Ident der Datenbank
         // Die Spalte Hash bezeichnet den Namen, unter dem die Datei auf dem
@@ -111,7 +110,7 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
      *
      * @param string $entityId
      *
-     * @return CoreEntity|null
+     * @return File|null
      */
     public function get($entityId)
     {
