@@ -13,17 +13,12 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
-use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\GenericStatementAttachmentConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
-use Webmozart\Assert\Assert;
 
 /**
  * @template T of EntityInterface
@@ -37,7 +32,7 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
     public function __construct(
         private readonly StatementRepository $statementRepository,
         private readonly FileContainerRepository $fileContainerRepository,
-        private readonly StatementResourceType $statementResourceType
+        private readonly StatementResourceType $statementResourceType,
     ) {
     }
 
