@@ -170,12 +170,6 @@ final class StatementAttachmentResourceType extends DplanResourceType
      */
     private function createAttachment(Statement $statement, File $file, string $attachmentType): StatementAttachment
     {
-        $this->fileService->addStatementFileContainer(
-            $statement->getId(),
-            $file->getId(),
-            $file->getFileString()
-        );
-
         if (StatementAttachmentInterface::SOURCE_STATEMENT === $attachmentType) {
             return $this->createAndPersistAttachment($statement, $file, $attachmentType);
         }
@@ -193,6 +187,13 @@ final class StatementAttachmentResourceType extends DplanResourceType
 
     private function createTemporaryAttachment(Statement $statement, File $file, string $attachmentType): StatementAttachment
     {
+
+        $this->fileService->addStatementFileContainer(
+            $statement->getId(),
+            $file->getId(),
+            $file->getFileString()
+        );
+
         $attachment = new StatementAttachment();
         $attachment->setId('');
         $attachment->setFile($file);
