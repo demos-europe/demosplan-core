@@ -44,7 +44,6 @@ class FileContainer extends CoreEntity implements UuidEntityInterface, FileConta
      */
     protected $entityId;
 
-
     /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement")
      *
