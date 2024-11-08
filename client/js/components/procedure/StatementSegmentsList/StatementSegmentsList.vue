@@ -558,6 +558,7 @@ export default {
         'elements',
         'files',
         'fullText',
+        'genericAttachments',
         'initialOrganisationCity',
         'initialOrganisationDepartmentName',
         'initialOrganisationHouseNumber',
@@ -612,6 +613,9 @@ export default {
           'hash',
           'filename'
         ].join(),
+        GenericStatementAttachment: [
+          'file'
+        ].join(),
         ParagraphVersion: [
           'title'
         ].join(),
@@ -652,6 +656,8 @@ export default {
         'document',
         'elements',
         'files',
+        'genericAttachments',
+        'genericAttachments.file',
         'paragraph',
         'paragraphs',
         'paragraphVersion.paragraph',

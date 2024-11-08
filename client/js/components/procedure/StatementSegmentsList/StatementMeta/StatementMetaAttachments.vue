@@ -20,30 +20,52 @@
         <p
           class="weight--bold u-m-0"
           v-text="Translator.trans('attachment.original')" />
-        <statement-meta-attachments-link
+        <div
           v-if="attachments.originalAttachment.hash"
-          :attachment="attachments.originalAttachment"
-          class="block mt-2 mb-3"
-          :procedure-id="procedureId" />
+          class="flex mb-2">
+          <statement-meta-attachments-link
+            :attachment="attachments.originalAttachment"
+            class="block mt-1 mb-1 text-ellipsis overflow-hidden whitespace-nowrap"
+            :procedure-id="procedureId" />
+          <button
+            class="btn--blank o-link--default"
+            type="button"
+            @click="deleteSourceAttachment">
+            <dp-icon
+              class="ml-2"
+              icon="delete" />
+          </button>
+        </div>
+
         <p
           v-if="!attachments.originalAttachment.hash && !editable"
           v-text="Translator.trans('none')" />
 
         <dp-upload-files
-          v-if="editable"
+          v-if="!attachments.originalAttachment.hash && editable"
           id="uploadSourceStatementAttachment"
           ref="uploadSourceStatementAttachment"
           allowed-file-types="all"
           :basic-auth="dplan.settings.basicAuth"
-          :class="editable ? 'mt-1' : 'pointer-events-none opacity-70'"
+          :class="!editable ? 'pointer-events-none opacity-70' : ''"
           :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
           :max-number-of-files="1"
           name="uploadSourceStatementAttachment"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
           :tus-endpoint="dplan.paths.tusEndpoint"
-          @file-remove="removeSourceStatementFileId"
+          @file-remove="removeSourceAttachmentFileId"
           @upload-success="setSourceStatementFileId" />
+
+        <div class="text-right">
+          <dp-button-row
+            primary
+            secondary
+            :busy="isProcessingSourceAttachment"
+            :disabled="fileIdSourceAttachment === ''"
+            @primary-action="saveSourceAttachment"
+            @secondary-action="resetSourceAttachment" />
+        </div>
       </div>
 
       <!-- Other attachments -->
@@ -55,14 +77,23 @@
         <!-- List of existing attachments -->
         <ul
           v-if="attachments.additionalAttachments.length > 0"
-          class="space-y-2 mb-3">
+          class="mb-3">
           <li
             v-for="attachment in attachments.additionalAttachments"
+            class="flex"
             :key="attachment.hash">
             <statement-meta-attachments-link
               :attachment="attachment"
-              class="block mt-2"
+              class="block mt-1 text-ellipsis overflow-hidden whitespace-nowrap"
               :procedure-id="procedureId" />
+            <button
+              class="btn--blank o-link--default mt-1"
+              type="button"
+              @click="deleteAttachment(attachment.hash)">
+              <dp-icon
+                class="ml-2"
+                icon="delete" />
+            </button>
           </li>
         </ul>
         <p
@@ -90,9 +121,10 @@
             <dp-button-row
               primary
               secondary
-              :disabled="fileIds.length === 0 && fileIdsSourceStatement.length === 0"
-              @primary-action="save"
-              @secondary-action="reset" />
+              :busy="isProcessingOtherAttachments"
+              :disabled="fileIds.length === 0"
+              @primary-action="saveOtherAttachments"
+              @secondary-action="resetOtherAttachments" />
           </div>
         </template>
       </div>
@@ -105,6 +137,7 @@ import {
   dpApi,
   DpButton,
   DpButtonRow,
+  DpIcon,
   DpLabel,
   DpUploadFiles
 } from '@demos-europe/demosplan-ui'
@@ -116,6 +149,7 @@ export default {
   components: {
     DpButton,
     DpButtonRow,
+    DpIcon,
     DpLabel,
     DpUploadFiles,
     StatementMetaAttachmentsLink
@@ -151,13 +185,50 @@ export default {
   data () {
     return {
       fileIds: [],
-      fileIdsSourceStatement: [],
-      isEditingSourceStatement: false,
-      isProcessing: false
+      fileIdSourceAttachment: '',
+      isEditingSourceAttachment: false,
+      isProcessingOtherAttachments: false,
+      isProcessingSourceAttachment: false
     }
   },
 
   methods: {
+    createSourceAttachment () {
+      const resource = this.getItemResource(this.fileIdSourceAttachment, 'source_statement')
+      const url = Routing.generate('api_resource_create', { resourceType: 'StatementAttachment' })
+      const params = {}
+      const data = {
+        data: resource
+      }
+
+      return dpApi.post(url, params, data)
+        .then(() => {
+          this.resetSourceAttachment()
+          this.triggerStatementRequest()
+          this.isProcessingSourceAttachment = false
+        })
+        .catch(error => {
+          console.error(error)
+          this.isProcessingSourceAttachment = false
+        })
+    },
+
+    deleteAttachment (id) {
+      const url = Routing.generate('api_resource_delete', { resourceType: 'GenericStatementAttachment', resourceId: id })
+      return dpApi.delete(url)
+        .then(() => {
+          this.resetOtherAttachments()
+        })
+    },
+
+    deleteSourceAttachment () {
+      const url = Routing.generate('api_resource_delete', { resourceType: 'SourceAttachment', resourceId: this.attachments.originalAttachment.id })
+      return dpApi.delete(url)
+        .then(() => {
+          this.resetSourceAttachment()
+        })
+    },
+
     getItemResource (fileHash, attachmentType) {
       return {
         type: 'StatementAttachment',
@@ -186,70 +257,41 @@ export default {
       this.fileIds.splice(fileIdx, 1)
     },
 
-    removeSourceStatementFileId (file) {
-      const fileIdx = this.fileIdsSourceStatement.findIndex(el => el === file.hash)
-      this.fileIdsSourceStatement.splice(fileIdx, 1)
+    removeSourceAttachmentFileId () {
+      this.fileIdSourceAttachment = ''
     },
 
-    reset () {
-      this.resetSourceStatementAttachment()
-      this.resetAttachments()
-    },
-
-    resetAttachments () {
+    resetOtherAttachments () {
       this.fileIds = []
       this.$refs.uploadStatementAttachment.clearFilesList()
     },
 
-    resetSourceStatementAttachment () {
-      this.isEditingSourceStatement = false
-      this.fileIdsSourceStatement = []
+    resetSourceAttachment () {
+      this.isEditingSourceAttachment = false
+      this.fileIdSourceAttachment = ''
       this.$refs.uploadSourceStatementAttachment.clearFilesList()
     },
 
-    save () {
-      const areAttachmentsAdded = this.fileIds.length > 0
-      const isSourceAttachmentAdded = this.fileIdsSourceStatement.length > 0
-      const propertyNames = {
-        generic: {
-          fileIdsField: 'fileIds',
-        },
-        source_statement: {
-          fileIdsField: 'fileIdsSourceStatement',
-        }
+    saveSourceAttachment () {
+      const statementHasSourceAttachment = this.attachments.originalAttachment.hash
+
+      if (statementHasSourceAttachment && !dpconfirm(Translator.trans('check.statement.replace_source_attachment'))) {
+        return
       }
 
-      const attachmentTypes = []
+      this.isProcessingSourceAttachment = true
+      this.createSourceAttachment()
+    },
 
-      if (areAttachmentsAdded) {
-        attachmentTypes.push('generic')
-      }
-
-      if (isSourceAttachmentAdded) {
-        attachmentTypes.push('source_statement')
-      }
-
-      let uploadPromises = []
-
-      attachmentTypes.forEach(type => {
-        const {
-          fileIdsField
-        } = propertyNames[type]
-
-        if (this[fileIdsField].length === 0 && !dpconfirm(Translator.trans('files.empty'))) {
+    saveOtherAttachments () {
+        if (this.fileIds.length === 0 && !dpconfirm(Translator.trans('files.empty'))) {
           return
         }
 
-        if (type === 'source_statement' && this.attachments.originalAttachment.hash && !dpconfirm(Translator.trans('check.statement.replace_source_attachment'))) {
-          return
-        }
+        this.isProcessingOtherAttachments = true
 
-        this.isProcessing = true
-
-        uploadPromises = [
-          ...uploadPromises,
-          ...this[fileIdsField].map(hash => {
-          const resource = this.getItemResource(hash, type)
+        const uploadPromises = this.fileIds.map(hash => {
+          const resource = this.getItemResource(hash, 'generic')
           const url = Routing.generate('api_resource_create', { resourceType: 'StatementAttachment' })
           const params = {}
           const data = {
@@ -257,17 +299,16 @@ export default {
           }
 
           return dpApi.post(url, params, data)
-        })]
-      })
+        })
 
       Promise.allSettled(uploadPromises)
         .then(() => {
-          this.reset()
+          this.resetOtherAttachments()
           this.triggerStatementRequest()
-          this.isProcessing = false
+          this.isProcessingOtherAttachments = false
         })
         .catch(error => {
-          this.isProcessing = false
+          this.isProcessingOtherAttachments = false
         })
     },
 
@@ -276,7 +317,7 @@ export default {
     },
 
     setSourceStatementFileId (file) {
-      this.fileIdsSourceStatement.push(file.fileId)
+      this.fileIdSourceAttachment = file.fileId
     },
 
     triggerStatementRequest () {

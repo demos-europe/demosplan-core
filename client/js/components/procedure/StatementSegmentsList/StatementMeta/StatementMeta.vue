@@ -42,7 +42,7 @@
         </ul>
       </div>
       <form
-        class="mt-2 pt-1.5 mr-5 basis-3/4"
+        class="mt-2 pt-1.5 mr-5 basis-3/4 max-w-[80%]"
         data-dp-validate="statementMetaData">
 
         <statement-entry
