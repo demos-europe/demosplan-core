@@ -510,7 +510,7 @@ export default {
         fields.County = 'name'
       }
 
-      if (hasAnyPermissions(['field_statement_municipality', 'area_admin_assessmenttable'])) {
+      if (hasPermission('field_statement_municipality')) {
         includes.push('municipalities')
         statementFields.push('municipalities')
         fields.Municipality = 'name'
@@ -865,7 +865,6 @@ export default {
             'elements',
             'files',
             'fragmentsElements',
-            'municipalities',
             'paragraph',
             'priorityAreas',
             'tags'
