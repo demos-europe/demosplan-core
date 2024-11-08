@@ -187,7 +187,6 @@ final class StatementAttachmentResourceType extends DplanResourceType
 
     private function createTemporaryAttachment(Statement $statement, File $file, string $attachmentType): StatementAttachment
     {
-
         $this->fileService->addStatementFileContainer(
             $statement->getId(),
             $file->getId(),
