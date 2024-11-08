@@ -35,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\FaqResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FileResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FinalMailReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GeneralReportEntryResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\GenericStatementAttachmentResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GisLayerCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GisLayerResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GlobalNewsCategoryResourceType;
@@ -144,6 +145,8 @@ class ResourceTypeStore
     protected FinalMailReportEntryResourceType $finalMailReportEntryResourceType;
 
     protected GeneralReportEntryResourceType $generalReportEntryResourceType;
+
+    protected GenericStatementAttachmentResourceType $genericStatementAttachmentResourceType;
 
     protected GisLayerCategoryResourceType $gisLayerCategoryResourceType;
 
@@ -283,6 +286,7 @@ class ResourceTypeStore
         FileResourceType $fileResourceType,
         FinalMailReportEntryResourceType $finalMailReportEntryResourceType,
         GeneralReportEntryResourceType $generalReportEntryResourceType,
+        GenericStatementAttachmentResourceType $genericStatementAttachmentResourceType,
         GisLayerCategoryResourceType $gisLayerCategoryResourceType,
         GisLayerResourceType $gisLayerResourceType,
         GlobalNewsCategoryResourceType $globalNewsCategoryResourceType,
@@ -364,6 +368,7 @@ class ResourceTypeStore
         $this->fileResourceType = $fileResourceType;
         $this->finalMailReportEntryResourceType = $finalMailReportEntryResourceType;
         $this->generalReportEntryResourceType = $generalReportEntryResourceType;
+        $this->genericStatementAttachmentResourceType = $genericStatementAttachmentResourceType;
         $this->gisLayerCategoryResourceType = $gisLayerCategoryResourceType;
         $this->gisLayerResourceType = $gisLayerResourceType;
         $this->globalNewsCategoryResourceType = $globalNewsCategoryResourceType;
@@ -536,6 +541,11 @@ class ResourceTypeStore
     public function getGeneralReportEntryResourceType(): GeneralReportEntryResourceType
     {
         return $this->generalReportEntryResourceType;
+    }
+
+    public function getGenericStatementAttachmentResourceType(): GenericStatementAttachmentResourceType
+    {
+        return $this->genericStatementAttachmentResourceType;
     }
 
     public function getGisLayerCategoryResourceType(): GisLayerCategoryResourceType

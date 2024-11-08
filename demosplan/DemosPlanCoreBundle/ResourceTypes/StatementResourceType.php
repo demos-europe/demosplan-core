@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
@@ -37,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
@@ -86,6 +88,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly ElementHandler $elementHandler,
         private readonly ElementsService $elementsService,
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
+        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);
     }
@@ -297,6 +300,19 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
                     return [];
                 });
+            $configBuilder->document
+                ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?SingleDocumentInterface $singleDocument): array {
+                    if (null === $singleDocument) {
+                        $statement->setDocument(null);
+                    } else {
+                        $singleDocumentVersion = $this->singleDocumentVersionRepository->createVersion($singleDocument);
+                        Assert::notNull($singleDocumentVersion);
+                        $statement->setDocument($singleDocumentVersion);
+                    }
+
+                    return [];
+                });
+
             $configBuilder->paragraphTitle
                 ->readable(true)->aliasedPath(Paths::statement()->paragraph->title);
             $configBuilder->assignee->readable()->filterable();
