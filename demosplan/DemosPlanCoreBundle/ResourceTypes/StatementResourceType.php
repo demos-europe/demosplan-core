@@ -128,7 +128,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
      * @return list<ClauseFunctionInterface<bool>>
      *
      * @throws PathException
-     *
      */
     public function buildAccessConditions(StatementResourceType $pathStartResourceType, bool $allowOriginals = false): array
     {
