@@ -74,8 +74,6 @@ class ZipExportService
     public function addFileToZipStream(string $filePath, string $zipPath, ZipStream $zip): void
     {
         $fs = new Filesystem();
-        $fileOptions = new File();
-        $fileOptions->setMethod(Method::STORE());
         if ($this->defaultStorage->fileExists($filePath)) {
             $zip->addFileFromStream($zipPath, $this->defaultStorage->readStream($filePath));
             $this->logger->info('Added File to Zip from stream');
