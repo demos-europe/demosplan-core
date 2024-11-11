@@ -723,6 +723,16 @@
                                 </div>
                             {% endif %}
 
+
+                            <addon-wrapper
+                                hook-name="mein.berlin.procedure.data"
+                                :addon-props="{
+                                  class: 'mb-4'
+                                }"
+                                @input="updateMeinBerlinProcedureData">
+                            </addon-wrapper>
+
+
                             {% if hasPermission('feature_short_url') %}
                                 <div>
                                     <label class="inline-block u-mb-0" for="r_shortUrl">
@@ -898,6 +908,28 @@
                                             )
                                             }}
                                         {% endif %}
+
+                                        <dp-input
+                                            id="pictogramCopyright"
+                                            class="my-2"
+                                            :label="{
+                                                text: Translator.trans('procedure.pictogram.copyright')
+                                            }"
+                                            name="pictogramCopyright"
+                                            value="{{ proceduresettings.pictogramCopyright|default }}"
+                                            required>
+                                        </dp-input>
+
+                                        <dp-input
+                                            id="pictogramAltText"
+                                            class="my-2"
+                                            :label="{
+                                                text: Translator.trans('procedure.pictogram.altText')
+                                            }"
+                                            name="pictogramAltText"
+                                            value="{{ proceduresettings.pictogramAltText|default }}"
+                                            required>
+                                        </dp-input>
                                     </div>
                                 {% endif %}
 
@@ -1277,13 +1309,15 @@
 
             {# form controls when not in wizard mode #}
             <div class="text-right space-inline-s">
-                <input
+                <button
                     class="btn btn--primary"
                     id="saveConfig"
                     name="saveConfig"
                     data-cy="saveConfig"
                     type="submit"
-                    value="{{ "save"|trans }}">
+                    @click="submit">
+                    {{ "save"|trans }}
+                </button>
                 <a
                     class="btn btn--secondary"
                     data-cy="abortConfig"

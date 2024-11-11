@@ -70,9 +70,9 @@
 </template>
 
 <script>
-import { DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButtonRow, DpIcon, dpValidateMixin} from '@demos-europe/demosplan-ui'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 
 export default {
   name: 'DpOrganisationListItem',
@@ -125,6 +125,7 @@ export default {
     return {
       isOpen: false,
       isLoading: true,
+      meinBerlinOrganisationId: '',
       moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : ''
     }
   },
@@ -159,6 +160,10 @@ export default {
   },
 
   methods: {
+    ...mapMutations('Orga', {
+      updateOrga: 'update'
+    }),
+
     reset () {
       this.restoreOrganisation(this.organisation.id)
         .then(() => {
@@ -171,9 +176,13 @@ export default {
       return this.$store.dispatch(`Orga${this.moduleSubstring}/restoreFromInitial`, payload)
     },
 
-    save () {
+    save: function () {
       if (this.dpValidate.organisationForm) {
         this.isOpen = !this.isOpen
+
+        if (this.meinBerlinOrganisationId) {
+          this.saveMeinBerlinOrganisationId()
+        }
         /*
          * Some update requests need this information, others cant handle them
          * depending on the permissions
@@ -185,6 +194,7 @@ export default {
         if (hasPermission('feature_notification_statement_new')) {
           additionalAttributes.push('emailNotificationNewStatement')
         }
+
         this.saveOrganisationAction({
           id: this.organisation.id,
           options: {
@@ -197,6 +207,29 @@ export default {
       } else {
         dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
       }
+    },
+
+    saveMeinBerlinOrganisationId () {
+      const payload = {
+        type: 'MeinBerlinAddonOrganisation',
+        attributes: {
+          meinBerlinOrganisationId: this.meinBerlinOrganisationId
+        },
+        relationships: {
+          orga: {
+            data: {
+              type: 'Orga',
+              id: this.organisation.id
+            }
+          }
+        }
+      }
+      dpApi.post(Routing.generate('api_resource_create', { resourceType: 'MeinBerlinAddonOrganisation' }), {}, { data: payload })
+        .then(checkResponse)
+        .then(response => {
+
+          console.log('response (check it by similarStatementsSubmitters.vue line 294)', response)
+        })
     },
 
     saveOrganisationAction (payload) {
@@ -225,7 +258,8 @@ export default {
     },
 
     updateOrganisation (payload) {
-      this.setItem({ ...payload, id: payload.id })
+      this.meinBerlinOrganisationId = payload.meinBerlinAddon
+      this.setItem({ ...payload.organisation, id: payload.organisation.id })
     }
   }
 }

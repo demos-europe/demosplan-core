@@ -126,6 +126,7 @@ export default {
   data () {
     return {
       isLoadingPlisData: false,
+      meinBerlinProcedureData: '',
       selectedAgencies: this.initAgencies,
       selectedDataInputOrgas: this.initDataInputOrgas,
       selectedAuthUsers: this.initAuthUsers,
@@ -168,8 +169,16 @@ export default {
       this.selectedPublicPhase = phase
     },
 
+    submit () {
+      this.$refs.configForm.submit()
+    },
+
     unselectAllAuthUsers () {
       this.selectedAuthUsers = []
+    },
+
+    updateMeinBerlinProcedureData (value) {
+      this.meinBerlinProcedureData = value
     }
   },
 

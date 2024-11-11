@@ -177,6 +177,15 @@
         </p>
       </div>
 
+      <addon-wrapper
+        :addon-props="{
+          class: 'ml-4',
+          organisationId: this.organisationId
+        }"
+        class="w-1/2"
+        hook-name="mein.berlin.organisation.id"
+        @input="updateMeinBerlinOrganisationId" />
+
       <div class="layout__item u-1-of-1 u-mt">
         <legend class="u-pb-0_5">
           {{ Translator.trans('organisation.types.permissions') }}
@@ -729,11 +738,13 @@
 
 <script>
 import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
   name: 'DpOrganisationFormFields',
 
   components: {
+    AddonWrapper,
     DpCheckbox,
     DpDetails,
     DpEditor,
@@ -837,6 +848,7 @@ export default {
   data () {
     return {
       localOrganisation: {},
+      meinBerlinOrganisationId: '',
       typeStatuses: [
         {
           value: 'accepted',
@@ -918,6 +930,11 @@ export default {
   },
 
   methods: {
+    updateMeinBerlinOrganisationId (value) {
+      this.meinBerlinOrganisationId = value
+      this.emitOrganisationUpdate()
+    },
+
     canEdit (field) {
       return hasPermission('feature_orga_edit_all_fields') && this.writableFields.includes(field)
     },
@@ -959,7 +976,7 @@ export default {
     emitOrganisationUpdate () {
       // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
       Vue.nextTick(() => {
-        this.$emit('organisation-update', this.localOrganisation)
+        this.$emit('organisation-update', { organisation: this.localOrganisation, meinBerlinAddon: this.meinBerlinOrganisationId })
       })
     },
 
