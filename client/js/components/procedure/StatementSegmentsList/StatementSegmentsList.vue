@@ -90,7 +90,7 @@
               <template v-if="statement">
                 <div class="overflow-x-scroll break-words max-h-13 max-w-14 w-max">
 
-                  <span class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
+                  <span v-if="originalAttachment.hash" class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
                   <statement-meta-attachments-link
                     v-if="originalAttachment.hash"
                     class="block whitespace-normal u-mr-0_75"
