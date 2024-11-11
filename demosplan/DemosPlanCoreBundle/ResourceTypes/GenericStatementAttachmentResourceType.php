@@ -13,26 +13,18 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceCreateFlushEvent;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
-use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
-use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\GenericStatementAttachmentConfigBuilder;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\Wrapping\Contracts\ContentField;
 use EDT\Wrapping\CreationDataInterface;
-use EDT\Wrapping\EntityDataInterface;
-use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Exception;
 use Webmozart\Assert\Assert;
@@ -61,7 +53,7 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
         $configBuilder->file
             ->setRelationshipType($this->getTypes()->getFileResourceType())
             ->setReadableByPath()
-            //->addPathCreationBehavior();
+            // ->addPathCreationBehavior();
             ->addCreationBehavior(
                 CallbackToOneRelationshipSetBehavior::createFactory(static function (FileContainer $fileContainer, File $file): array {
                     $fileContainer->setFile($file);
@@ -71,7 +63,7 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
             );
         $configBuilder->statement
             ->setRelationshipType($this->getTypes()->getStatementResourceType())
-            ->setReadableByCallable( function (FileContainer $fileContainer): Statement {
+            ->setReadableByCallable(function (FileContainer $fileContainer): Statement {
                 return $this->resourceTypeStore->getStatementResourceType()->getEntity($fileContainer->getEntityId());
             })
             ->addCreationBehavior(
@@ -83,9 +75,6 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
                     return [];
                 }, [], OptionalField::NO, [])
             );
-
-
-
 
         return $configBuilder;
     }
@@ -114,7 +103,6 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
                         false
                     );
 
-
                     $modifiedEntity = new ModifiedEntity($fileContainer, []);
 
                     $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent(
@@ -131,9 +119,6 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
             throw $exception;
         }
     }
-
-
-
 
     protected function getAccessConditions(): array
     {
@@ -164,8 +149,6 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
 
     public function isCreateAllowed(): bool
     {
-
         return true;
-
     }
 }

@@ -37,7 +37,6 @@ class FileContainer extends CoreEntity implements UuidEntityInterface, FileConta
      */
     protected $id;
 
-
     /**
      * @var Statement\Statement|null
      */
@@ -49,8 +48,6 @@ class FileContainer extends CoreEntity implements UuidEntityInterface, FileConta
      * @ORM\Column(name="entity_id", type="string", length=36, options={"fixed":true}, nullable=false)
      */
     protected $entityId;
-
-
 
     /**
      * @var string
@@ -274,5 +271,4 @@ class FileContainer extends CoreEntity implements UuidEntityInterface, FileConta
     {
         return $this->publicAllowed;
     }
-
 }
