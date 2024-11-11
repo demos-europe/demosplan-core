@@ -38,11 +38,6 @@ class FileContainer extends CoreEntity implements UuidEntityInterface, FileConta
     protected $id;
 
     /**
-     * @var Statement\Statement|null
-     */
-    protected $statement;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="entity_id", type="string", length=36, options={"fixed":true}, nullable=false)
