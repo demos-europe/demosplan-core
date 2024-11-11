@@ -56,7 +56,7 @@
     "@sentry/tracing": "^7.114.0",
     "@uppy/core": "^4.2.2",
     "@uppy/drag-drop": "^3.0.3",
-    "@uppy/progress-bar": "^4.0.0",
+    "@uppy/progress-bar": "^4.0.1",
     "a11y-datepicker": " ^0.9.0",
     "core-js": "^3.39.0",
     "d3": "^7.9.0",
