@@ -63,6 +63,7 @@ class DumpGraphContainerPass implements CompilerPassInterface
             $containerDplanDotfilePath = $container->getParameter($parameterFileDplanParam);
         }
 
+        // local file only, no need for flysystem
         $fs = new Filesystem();
         if ($fs->exists($containerDotfilePath)) {
             $fs->remove($containerDotfilePath);

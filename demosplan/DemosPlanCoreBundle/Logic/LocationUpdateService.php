@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
-use GuzzleHttp\Client;
 use demosplan\DemosPlanCoreBundle\Entity\Location;
 use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -21,6 +20,7 @@ use Doctrine\Persistence\ObjectManager;
 use Goodby\CSV\Import\Standard\Interpreter;
 use Goodby\CSV\Import\Standard\Lexer;
 use Goodby\CSV\Import\Standard\LexerConfig;
+use GuzzleHttp\Client;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
@@ -52,6 +52,7 @@ class LocationUpdateService
         $this->logger->info('Start to repopulate location Database', ['includeOnly', $includeOnly]);
         $xlsFile = DemosPlanPath::getTemporaryPath('GV1Q.xlsx');
         $csvFile = DemosPlanPath::getTemporaryPath('GV1Q.csv');
+        // local file only, no need for flysystem
         $fs = new Filesystem();
         $fileUrl = 'https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/Archiv/GVAuszugQ/AuszugGV1QAktuell.xlsx?__blob=publicationFile';
         $guzzleClient = new Client();

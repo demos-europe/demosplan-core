@@ -16,10 +16,13 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
 use Patchwork\Utf8;
 use PhpOffice\PhpWord\Writer\PDF;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use ZipStream\CompressionMethod;
 use ZipStream\Exception\FileNotFoundException;
@@ -33,8 +36,11 @@ class ZipExportService
      */
     private $filesAdded = [];
 
-    public function __construct(private readonly FileService $fileService, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        private readonly FilesystemOperator $defaultStorage,
+        private readonly FileService $fileService,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -63,14 +69,27 @@ class ZipExportService
     }
 
     /**
-     * @throws FileNotFoundException
-     * @throws FileNotReadableException
+     * @throws FilesystemException
      */
     public function addFileToZipStream(string $filePath, string $zipPath, ZipStream $zip): void
     {
-        $zip->addFileFromPath($zipPath, $filePath, compressionMethod: CompressionMethod::STORE);
-
-        $this->logger->info('Added File to Zip');
+        $fs = new Filesystem();
+        $fileOptions = new File();
+        $fileOptions->setMethod(Method::STORE());
+        if ($this->defaultStorage->fileExists($filePath)) {
+            $zip->addFileFromStream($zipPath, $this->defaultStorage->readStream($filePath));
+            $this->logger->info('Added File to Zip from stream');
+        // file may be stored temporarily locally
+        } elseif ($fs->exists($filePath)) {
+            try {
+                $zip->addFileFromPath($zipPath, $filePath, compressionMethod: CompressionMethod::STORE);
+                $this->logger->info('Added File to Zip from local stream');
+            } catch (FileNotFoundException|FileNotReadableException $e) {
+                $this->logger->warning('Could not add File to Zip. File not found or not readable', ['path' => $filePath, 'exception' => $e]);
+            }
+        } else {
+            $this->logger->warning('Could not add File to Zip. File does not exist', ['path' => $filePath]);
+        }
     }
 
     public function addFileToZip(
@@ -126,10 +145,12 @@ class ZipExportService
 
     public function addStringToZipStream(string $filename, string $string, ZipStream $zip): void
     {
+        // local "file" is valid, no need for flysystem
         $streamRead = fopen('php://temp', 'rwb');
         fwrite($streamRead, $string);
         rewind($streamRead);
         $zip->addFileFromStream(Utf8::toAscii($filename), $streamRead);
+        fclose($streamRead);
     }
 
     public function addFiles(
@@ -174,6 +195,9 @@ class ZipExportService
 
         $temporaryFullFilePath = $this->writeToTemporaryFilePath($writer, $tmpPrefix, $tmpSuffix);
         $this->addFileToZipStream($temporaryFullFilePath, $pathInZip, $zipStream);
+        // uses local file, no need for flysystem
+        $fs = new Filesystem();
+        $fs->remove($temporaryFullFilePath);
     }
 
     /**
@@ -191,6 +215,7 @@ class ZipExportService
         $temporaryFullFilePath = DemosPlanPath::getTemporaryPath($tempFileName);
         // `PDF` doesn't implement `WriterInterface`, but has a `save` method available via
         // magic `call` method
+        // uses local file, no need for flysystem
         $writer->save($temporaryFullFilePath);
 
         return $temporaryFullFilePath;

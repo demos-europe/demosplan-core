@@ -12,9 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
 use EDT\PathBuilding\End;
 
 /**
@@ -66,6 +68,10 @@ use EDT\PathBuilding\End;
  */
 final class GisLayerResourceType extends DplanResourceType
 {
+    public function __construct(private readonly GisLayerCategoryRepository $gisLayerCategoryRepository)
+    {
+    }
+
     public static function getName(): string
     {
         return 'GisLayer';
@@ -88,6 +94,18 @@ final class GisLayerResourceType extends DplanResourceType
 
     public function isDeleteAllowed(): bool
     {
+        if ($this->currentUser->hasPermission('area_map_participation_area')) {
+            $currentProcedure = $this->currentProcedureService->getProcedure();
+            $rootCategory = $this->gisLayerCategoryRepository->getRootLayerCategory($currentProcedure->getId());
+            $gislayer = $rootCategory->getGisLayers();
+            $baseGislayer = $gislayer->filter(fn (GisLayerInterface $gisLayer) => 'base' === $gisLayer->getType());
+            if (1 === count($baseGislayer)) {
+                $this->messageBag->add('error', 'mindestens eine Grundkarte muss vorhanden sein');
+            }
+
+            return $this->hasManagementPermission() && (count($baseGislayer) > 1);
+        }
+
         return $this->hasManagementPermission();
     }
 

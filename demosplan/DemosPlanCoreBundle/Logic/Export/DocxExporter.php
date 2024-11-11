@@ -35,9 +35,11 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
 use Exception;
 use Illuminate\Support\Collection;
+use League\Flysystem\FilesystemOperator;
 use Monolog\Logger;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
@@ -49,6 +51,7 @@ use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -107,11 +110,6 @@ class DocxExporter
 
     protected $logger;
 
-    /**
-     * @var ProcedureHandler
-     */
-    protected $procedureHandler;
-
     /** @var MessageBag */
     protected $messageBag;
 
@@ -134,10 +132,12 @@ class DocxExporter
         private readonly EditorService $editorService,
         private readonly FieldDecider $exportFieldDecider,
         FileService $fileService,
+        protected readonly FilesystemOperator $defaultStorage,
         GlobalConfigInterface $config,
         LoggerInterface $logger,
         protected readonly MapService $mapService,
         PermissionsInterface $permissions,
+        protected readonly ProcedureHandler $procedureHandler,
         private readonly StatementFragmentService $statementFragmentService,
         private readonly StatementHandler $statementHandler,
         StatementService $statementService,
@@ -174,7 +174,7 @@ class DocxExporter
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
 
         $incomingStatements = $outputResult->getStatements();
-        $procedure = $this->getProcedureHandler()->getProcedureWithCertainty($outputResult->getProcedure()['id']);
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($outputResult->getProcedure()['id']);
         if ('condensed' === $templateName) {
             switch ($sortType) {
                 case self::EXPORT_SORT_BY_PARAGRAPH:
@@ -461,22 +461,6 @@ class DocxExporter
         }
 
         return $objWriter;
-    }
-
-    /**
-     * @param ProcedureHandler $procedureHandler
-     */
-    public function setProcedureHandler($procedureHandler)
-    {
-        $this->procedureHandler = $procedureHandler;
-    }
-
-    /**
-     * @return ProcedureHandler
-     */
-    protected function getProcedureHandler()
-    {
-        return $this->procedureHandler;
     }
 
     /**
@@ -1721,9 +1705,15 @@ class DocxExporter
                 null,
                 $cellHCentered
             );
-            if (file_exists($fileAbsolutePath)) {
+
+            if ($this->defaultStorage->fileExists($fileAbsolutePath)) {
+                $fs = new Filesystem();
+                $tmpFilePath = DemosPlanPath::getTemporaryPath(random_int(10, 9999999).'.png');
+                $fs->dumpFile($tmpFilePath, $this->defaultStorage->read($fileAbsolutePath));
                 // use Html::addHtml() because $cell2->addImage() ignored sizes
-                Html::addHtml($cell2, $this->getDocxImageTag($fileAbsolutePath));
+                Html::addHtml($cell2, $this->getDocxImageTag($tmpFilePath));
+                // unfortunately it is not possible to clean up the temporary file
+                // as the file is still in use by the Word document which is returned as a streamed response
             }
             $cell2->addText($this->mapService->getReplacedMapAttribution($statement->getProcedure()));
         }
@@ -1731,6 +1721,7 @@ class DocxExporter
 
     /**
      * Generate Html imagetag to be used in PhpWord Html::addHtml().
+     * File needs to be locally accessible.
      *
      * @param string $imageFile
      * @param int    $maxWidth  maximum image width in pixel
@@ -1743,6 +1734,7 @@ class DocxExporter
         $width = 300;
         $height = 300;
         $margin = 10;
+        // phpword needs a local file, no need for flysystem
         if (!file_exists($imageFile)) {
             return $imgTag;
         }
