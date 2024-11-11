@@ -13,12 +13,29 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceCreateFlushEvent;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
+use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\GenericStatementAttachmentConfigBuilder;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
+use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
+use EDT\Wrapping\Contracts\ContentField;
+use EDT\Wrapping\CreationDataInterface;
+use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
+use Exception;
+use Webmozart\Assert\Assert;
 
 /**
  * @template T of EntityInterface
@@ -26,13 +43,13 @@ use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
  * @template-extends DplanResourceType<T>
  *
  * @property-read StatementResourceType $statement
+ * @property-read FileResourceType $file
+ * @property-read string $entityId
  */
 class GenericStatementAttachmentResourceType extends DplanResourceType
 {
     public function __construct(
-        private readonly StatementRepository $statementRepository,
-        private readonly FileContainerRepository $fileContainerRepository,
-        private readonly StatementResourceType $statementResourceType,
+        private readonly FileService $fileService,
     ) {
     }
 
@@ -43,17 +60,84 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
             ->setReadableByPath();
         $configBuilder->file
             ->setRelationshipType($this->getTypes()->getFileResourceType())
-            ->setReadableByPath();
+            ->setReadableByPath()
+            //->addPathCreationBehavior();
+            ->addCreationBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(static function (FileContainer $fileContainer, File $file): array {
+                    $fileContainer->setFile($file);
+
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
         $configBuilder->statement
-            ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
-            ->readable();
+            ->setRelationshipType($this->getTypes()->getStatementResourceType())
+            ->setReadableByCallable( function (FileContainer $fileContainer): Statement {
+                return $this->resourceTypeStore->getStatementResourceType()->getEntity($fileContainer->getEntityId());
+            })
+            ->addCreationBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(static function (FileContainer $fileContainer, Statement $statement): array {
+                    $fileContainer->setEntityId($statement->getId());
+                    $fileContainer->setEntityClass(Statement::class);
+                    $fileContainer->setEntityField(FileService::ENTITY_FIELD_FILE);
+
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
+
+
+
 
         return $configBuilder;
     }
 
+    public function createEntity(CreationDataInterface $entityData): ModifiedEntity
+    {
+        try {
+            return $this->getTransactionService()->executeAndFlushInTransaction(
+                function () use ($entityData): ModifiedEntity {
+                    $toOneRelationships = $entityData->getToOneRelationships();
+
+                    $statementRef = $toOneRelationships[$this->statement->getAsNamesInDotNotation()];
+                    Assert::notNull($statementRef);
+                    /** @var Statement $statement */
+                    $statement = $this->resourceTypeStore->getStatementResourceType()->getEntity($statementRef[ContentField::ID]);
+
+                    $fileRef = $toOneRelationships[$this->file->getAsNamesInDotNotation()];
+                    Assert::notNull($fileRef);
+                    /** @var File $file */
+                    $file = $this->resourceTypeStore->getFileResourceType()->getEntity($fileRef[ContentField::ID]);
+
+                    $fileContainer = $this->fileService->addStatementFileContainer(
+                        $statement->getId(),
+                        $file->getId(),
+                        $file->getFileString(),
+                        false
+                    );
+
+
+                    $modifiedEntity = new ModifiedEntity($fileContainer, []);
+
+                    $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent(
+                        $this,
+                        $modifiedEntity->getEntity()
+                    ));
+
+                    return $modifiedEntity;
+                }
+            );
+        } catch (Exception $exception) {
+            $this->addCreationErrorMessage([]);
+
+            throw $exception;
+        }
+    }
+
+
+
+
     protected function getAccessConditions(): array
     {
-        return $this->statementResourceType->buildAccessConditions($this->statement, true);
+        return [];
     }
 
     public static function getName(): string
@@ -76,5 +160,12 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
     {
         // @todo doublecheck if this is the right permission
         return $this->currentUser->hasPermission('feature_read_source_statement_via_api');
+    }
+
+    public function isCreateAllowed(): bool
+    {
+
+        return true;
+
     }
 }

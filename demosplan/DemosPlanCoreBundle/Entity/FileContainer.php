@@ -37,6 +37,12 @@ class FileContainer extends CoreEntity implements UuidEntityInterface, FileConta
      */
     protected $id;
 
+
+    /**
+     * @var Statement\Statement|null
+     */
+    protected $statement;
+
     /**
      * @var string
      *
@@ -44,12 +50,7 @@ class FileContainer extends CoreEntity implements UuidEntityInterface, FileConta
      */
     protected $entityId;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement")
-     *
-     * @ORM\JoinColumn(name="entity_id", referencedColumnName="_st_id", nullable=false)
-     */
-    protected $statement;
+
 
     /**
      * @var string
@@ -273,4 +274,5 @@ class FileContainer extends CoreEntity implements UuidEntityInterface, FileConta
     {
         return $this->publicAllowed;
     }
+
 }
