@@ -259,6 +259,7 @@ export default {
 
   methods: {
     ...mapMutations('StatementVote', {
+      removeStatementVote: 'remove',
       resetStatementVote: 'resetItems',
       setStatementVote: 'setItem'
     }),
@@ -306,7 +307,7 @@ export default {
 
     reset () {
       this.setInitValues()
-      this.resetStatementVote()
+      this.resetStore()
     },
 
     resetForm () {
@@ -321,6 +322,20 @@ export default {
       }
     },
 
+    resetStore () {
+      // Remove items not in initial state
+      for (const id in this.votes) {
+        if (!this.initialVotes[id]) {
+          this.removeStatementVote(id)
+        }
+      }
+
+      // Set items to their initial values
+      for (const id in this.initialVotes) {
+        this.setStatementVote({ ...this.initialVotes[id], id })
+      }
+    },
+
     save () {
       this.saveStatementVote()
       this.$emit('save', this.localStatement)
@@ -331,10 +346,10 @@ export default {
       const updateVotePromise = this.sendUpdateVote()
       const deleteVotePromise = this.sendDeleteVote()
 
-      const promises = [createVotePromise, updateVotePromise, deleteVotePromise].filter(promise => promise);
+      const promises = [createVotePromise, updateVotePromise, deleteVotePromise].filter(promise => promise)
 
       if (promises.length === 0) {
-        return; // No requests to send
+        return // No requests to send
       }
 
       Promise.any(promises)
@@ -342,7 +357,7 @@ export default {
           this.$emit('updatedVoters')
         })
         .catch(() => {
-          dplan.notify.error(Translator.trans('error.api.generic'));
+          dplan.notify.error(Translator.trans('error.api.generic'))
         })
     },
 
@@ -396,7 +411,7 @@ export default {
             return false
           })
         }
-      }).filter(Boolean); // Remove undefined values
+      }).filter(Boolean) // Remove undefined values
 
       return Promise.all(promises).then(results => results.some(result => result))
     },
@@ -413,7 +428,7 @@ export default {
             return false
           })
         }
-      }).filter(Boolean); // Remove undefined values
+      }).filter(Boolean) // Remove undefined values
 
       return Promise.all(promises).then(results => results.some(result => result))
     },
@@ -435,10 +450,13 @@ export default {
     })
 
     this.$on('delete', (index) => {
-      // This is only needed until Vue 3
-      // Using delete as in vuex-json-api directly does not trigger reactivity in Vue 2
-      this.$delete(this.$store.state.StatementVote.items, index)
-      this.resetForm()
+      const name = this.votes[index]?.attributes?.name ? this.votes[index].attributes.name : false
+      if (dpconfirm(Translator.trans('statement_vote.delete_vote', { name: name }))) {
+        // This is only needed until Vue 3
+        // vuex-json-api uses delete directly which does not trigger reactivity in Vue 2
+        this.$delete(this.$store.state.StatementVote.items, index)
+        this.resetForm()
+      }
     })
   }
 }

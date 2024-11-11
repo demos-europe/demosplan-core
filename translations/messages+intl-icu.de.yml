@@ -3586,6 +3586,11 @@ statement_vote.length: |
       =1 { # Person }
       other { # Personen }
   }
+statement_vote.delete_vote: |
+    {name, select,
+        false { Möchten Sie die mitzeichnende Person wirklich löschen? }
+        other { Möchten Sie die mitzeichnende Person "{name}" wirklich löschen? }
+    }
 statementtext: "Text der Stellungnahme"
 static.documents: "Unterlagen"
 statistics: "Statistik"
