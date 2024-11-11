@@ -56,9 +56,9 @@ All rights reserved
         <div
           data-dp-validate="newVoterForm"
           v-if="editable && statement.attributes.isManual"
-          class="space-stack-s space-inset-s border">
+          class="space-stack-s border-t py-3">
           <!-- Role -->
-          <div>
+          <div class="flex">
             <dp-radio
               id="createdByCitizen_true"
               data-cy="statementVoter:roleCitizen"
@@ -70,24 +70,24 @@ All rights reserved
               @change="formFields.createdByCitizen = true" />
             <dp-radio
               id="createdByCitizen_false"
+              class="ml-5"
               data-cy="statementVoter:invitableInstitution"
               :label="{
                 text: Translator.trans('invitable_institution')
               }"
               value="false"
               :checked="formFields.createdByCitizen === false"
-              @change="formFields.role = false" />
+              @change="formFields.createdByCitizen = false" />
           </div>
-
           <div
             v-show="isInstitutionParticipation && (hasPermission('field_statement_meta_orga_name') || hasPermission('field_statement_meta_orga_department_name'))"
-            class="layout">
+            class="flex">
             <dp-input
               v-show="hasPermission('field_statement_meta_orga_name')"
               id="voter_publicagency"
               data-cy="voterPublicAgency"
               v-model="formFields.organisationName"
-              class="layout__item u-1-of-2"
+              class="pr-2"
               :label="{
                 text: Translator.trans('invitable_institution')
               }" />
@@ -96,19 +96,19 @@ All rights reserved
               id="voter_department"
               data-cy="voterDepartment"
               v-model="formFields.departmentName"
-              class="layout__item u-1-of-2"
+              class="pl-2"
               :label="{
                 text: Translator.trans('department')
               }" />
           </div>
 
-          <div class="layout">
+          <div class="flex">
             <dp-input
               v-if="hasPermission('field_statement_meta_submit_name')"
               id="voter_username"
               data-cy="voterUsername"
               v-model="formFields.name"
-              class="layout__item u-1-of-2"
+              class="pr-2"
               :label="{
                 text: Translator.trans('statement.form.name')
               }" />
@@ -117,20 +117,20 @@ All rights reserved
               id="voter_email"
               data-cy="voterEmail"
               v-model="formFields.email"
-              class="layout__item u-1-of-2"
+              class="pl-2"
               :label="{
                 text: Translator.trans('email')
               }"
               type="email" />
           </div>
 
-          <div class="layout">
+          <div class="flex w-1/2">
             <dp-input
               v-if="hasPermission('field_statement_meta_postal_code')"
               id="voter_postalcode"
               data-cy="voterPostalCode"
               v-model="formFields.postcode"
-              class="layout__item u-1-of-8"
+              class="u-1-of-4 pr-2"
               :label="{
                 text: Translator.trans('postalcode')
               }"
@@ -140,7 +140,8 @@ All rights reserved
               id="voter_city"
               data-cy="voterCity"
               v-model="formFields.city"
-              :class="hasPermission('field_statement_meta_postal_code') ? 'layout__item u-3-of-8' : 'layout__item'"
+              class="px-2"
+              :class="hasPermission('field_statement_meta_postal_code') ? ' u-3-of-4' : ''"
               :label="{
                 text: Translator.trans('city')
               }" />
