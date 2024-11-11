@@ -36,7 +36,6 @@ use Webmozart\Assert\Assert;
  *
  * @property-read StatementResourceType $statement
  * @property-read FileResourceType $file
- * @property-read string $entityId
  */
 class GenericStatementAttachmentResourceType extends DplanResourceType
 {
@@ -53,28 +52,11 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
         $configBuilder->file
             ->setRelationshipType($this->getTypes()->getFileResourceType())
             ->setReadableByPath()
-            // ->addPathCreationBehavior();
-            ->addCreationBehavior(
-                CallbackToOneRelationshipSetBehavior::createFactory(static function (FileContainer $fileContainer, File $file): array {
-                    $fileContainer->setFile($file);
+            ->addPathCreationBehavior();
 
-                    return [];
-                }, [], OptionalField::NO, [])
-            );
         $configBuilder->statement
             ->setRelationshipType($this->getTypes()->getStatementResourceType())
-            ->setReadableByCallable(function (FileContainer $fileContainer): Statement {
-                return $this->resourceTypeStore->getStatementResourceType()->getEntity($fileContainer->getEntityId());
-            })
-            ->addCreationBehavior(
-                CallbackToOneRelationshipSetBehavior::createFactory(static function (FileContainer $fileContainer, Statement $statement): array {
-                    $fileContainer->setEntityId($statement->getId());
-                    $fileContainer->setEntityClass(Statement::class);
-                    $fileContainer->setEntityField(FileService::ENTITY_FIELD_FILE);
-
-                    return [];
-                }, [], OptionalField::NO, [])
-            );
+            ->addPathCreationBehavior();
 
         return $configBuilder;
     }
@@ -137,18 +119,16 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        // @todo doublecheck if this is the right permission
-        return $this->currentUser->hasPermission('feature_read_source_statement_via_api');
+        return true;
     }
 
     public function isDeleteAllowed(): bool
     {
-        // @todo doublecheck if this is the right permission
         return $this->currentUser->hasPermission('feature_read_source_statement_via_api');
     }
 
     public function isCreateAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('feature_generic_statement_attachment_add');
     }
 }
