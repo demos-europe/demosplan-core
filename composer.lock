@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4f0e93ade67d016b0fb887a00a9d46f7",
+    "content-hash": "473bbd3bb191c7083f7c290a2cd8a288",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -8251,32 +8251,35 @@
         },
         {
             "name": "maennchen/zipstream-php",
-            "version": "2.4.0",
+            "version": "3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/maennchen/ZipStream-PHP.git",
-                "reference": "3fa72e4c71a43f9e9118752a5c90e476a8dc9eb3"
+                "reference": "6187e9cc4493da94b9b63eb2315821552015fca9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maennchen/ZipStream-PHP/zipball/3fa72e4c71a43f9e9118752a5c90e476a8dc9eb3",
-                "reference": "3fa72e4c71a43f9e9118752a5c90e476a8dc9eb3",
+                "url": "https://api.github.com/repos/maennchen/ZipStream-PHP/zipball/6187e9cc4493da94b9b63eb2315821552015fca9",
+                "reference": "6187e9cc4493da94b9b63eb2315821552015fca9",
                 "shasum": ""
             },
             "require": {
                 "ext-mbstring": "*",
-                "myclabs/php-enum": "^1.5",
-                "php": "^8.0",
-                "psr/http-message": "^1.0"
+                "ext-zlib": "*",
+                "php-64bit": "^8.1"
             },
             "require-dev": {
                 "ext-zip": "*",
-                "friendsofphp/php-cs-fixer": "^3.9",
-                "guzzlehttp/guzzle": "^6.5.3 || ^7.2.0",
+                "friendsofphp/php-cs-fixer": "^3.16",
+                "guzzlehttp/guzzle": "^7.5",
                 "mikey179/vfsstream": "^1.6",
-                "php-coveralls/php-coveralls": "^2.4",
-                "phpunit/phpunit": "^8.5.8 || ^9.4.2",
+                "php-coveralls/php-coveralls": "^2.5",
+                "phpunit/phpunit": "^10.0",
                 "vimeo/psalm": "^5.0"
+            },
+            "suggest": {
+                "guzzlehttp/psr7": "^2.4",
+                "psr/http-message": "^2.0"
             },
             "type": "library",
             "autoload": {
@@ -8313,19 +8316,15 @@
             ],
             "support": {
                 "issues": "https://github.com/maennchen/ZipStream-PHP/issues",
-                "source": "https://github.com/maennchen/ZipStream-PHP/tree/2.4.0"
+                "source": "https://github.com/maennchen/ZipStream-PHP/tree/3.1.1"
             },
             "funding": [
                 {
                     "url": "https://github.com/maennchen",
                     "type": "github"
-                },
-                {
-                    "url": "https://opencollective.com/zipstream",
-                    "type": "open_collective"
                 }
             ],
-            "time": "2022-12-08T12:29:14+00:00"
+            "time": "2024-10-10T12:33:01+00:00"
         },
         {
             "name": "makasim/temp-file",
