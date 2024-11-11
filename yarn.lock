@@ -12559,7 +12559,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.11.0":
+"qs@npm:^6.11.0, qs@npm:^6.13.0":
   version: 6.13.0
   resolution: "qs@npm:6.13.0"
   dependencies:
@@ -12568,7 +12568,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.12.1, qs@npm:~6.12.3":
+"qs@npm:~6.12.3":
   version: 6.12.3
   resolution: "qs@npm:6.12.3"
   dependencies:
@@ -13084,7 +13084,7 @@ __metadata:
     postcss-preset-env: "npm:^9.6.0"
     proj4: "npm:^2.11.0"
     purgecss-webpack-plugin: "npm:^6.0.0"
-    qs: "npm:^6.12.1"
+    qs: "npm:^6.13.0"
     raf: "npm:^3.4.1"
     regenerator-runtime: "npm:^0.14.1"
     sass-embedded: "npm:^1.77.8"
