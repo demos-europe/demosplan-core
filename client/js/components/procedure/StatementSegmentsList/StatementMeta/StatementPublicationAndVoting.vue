@@ -8,7 +8,9 @@ All rights reserved
 </license>
 
 <template>
-  <fieldset data-dp-validate="statementPublicationAndVotingData">
+  <fieldset
+    class="c-statement-meta-voting"
+    data-dp-validate="statementPublicationAndVotingData">
     <legend
       id="publicationAndVoting"
       class="mb-3 color-text-muted font-normal">
