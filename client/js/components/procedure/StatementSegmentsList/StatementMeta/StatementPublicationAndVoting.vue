@@ -259,7 +259,6 @@ export default {
 
   methods: {
     ...mapMutations('StatementVote', {
-      removeStatementVote: 'remove',
       resetStatementVote: 'resetItems',
       setStatementVote: 'setItem'
     }),
@@ -436,7 +435,9 @@ export default {
     })
 
     this.$on('delete', (index) => {
-      this.removeStatementVote(index)
+      // This is only needed until Vue 3
+      // Using delete as in vuex-json-api directly does not trigger reactivity in Vue 2
+      this.$delete(this.$store.state.StatementVote.items, index)
       this.resetForm()
     })
   }
