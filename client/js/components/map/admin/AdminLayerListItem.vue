@@ -93,6 +93,7 @@
         <a
           v-if="layer.attributes.isBaseLayer === false && isChildOfCategoryThatAppearsAsLayer === false"
           data-cy="adminLayerListItem:toggleVisibilityGroup"
+          class="w-full flex items-center justify-center"
           :title="hintTextForLockedLayer"
           @click.stop.prevent="toggleVisibilityGroup"
           @mouseover="setIconHoverState"
