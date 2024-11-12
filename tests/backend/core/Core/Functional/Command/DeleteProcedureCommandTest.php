@@ -47,16 +47,21 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
 
         $this->assertStringContainsString($successString, $output);
     }
-
-    public function testNoFoundMatchingProcedure()
+    
+    public function testDeleteAllProcedures()
     {
-        $commandTester = $this->executeCommand('');
-        $output = $commandTester->getDisplay();
-        $warningString = 'Matching procedure(s) not found for id(s)';
-        $infoString = 'no procedure(s) found to delete';
+        $proceduresToDelete = $this->getEntries(Procedure::class);
 
-        $this->assertStringContainsString($warningString, $output);
-        $this->assertStringContainsString($infoString, $output);
+        $procedureIds = [];
+
+        foreach($proceduresToDelete as $procedure) {
+            $procedureIds[] = $procedure->getId();
+        }
+
+        $commandTester = $this->executeCommand(implode(', ', $procedureIds));
+        $output = $commandTester->getDisplay();
+        $successString = "procedure(s) with id(s) $procedureIds are deleted";
+        $this->assertStringContainsString($successString, $output);
     }
 
     public function testMissingArgument()
