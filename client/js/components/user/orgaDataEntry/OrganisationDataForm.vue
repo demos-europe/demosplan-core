@@ -1,7 +1,26 @@
 <template>
-  <div>
-    <fieldset class="w-3/4">
-      <legend class="font-size-large weight--normal mb-3">
+  <form
+    :class="prefixClass('u-mt')"
+    :action="Routing.generate('DemosPlan_orga_edit_save', { orgaId: organisation.id })"
+    @submit="precheckSubmit"
+    method="post"
+    data-dp-validate="orgadata">
+    <input
+      data-cy="editOrga:organisationId"
+      type="hidden"
+      name="organisation_ident"
+      :value="organisation.id">
+    <input
+      data-cy="editOrga:addressIdent"
+      type="hidden"
+      name="address_ident"
+      :value="organisation.addressId">
+    <input
+      type="hidden"
+      name="_token"
+      :value="csrfToken">
+    <fieldset :class="prefixClass('w-3/4')">
+      <legend :class="prefixClass('font-size-large weight--normal mb-3')">
         {{ Translator.trans('organisation.data') }}
       </legend>
 
@@ -217,13 +236,27 @@
 
     <organisation-branding-settings
       :organisation="organisation"
-      :project-name="projectName">
-    </organisation-branding-settings>
-  </div>
+      :project-name="projectName" />
+
+    <div
+      v-if="displayButtons"
+      :class="prefixClass('text-right space-inline-s')">
+      <dp-button
+        type="submit"
+        data-cy="organisationData:saveButton"
+        :text="Translator.trans('save')" />
+
+      <dp-button
+        type="reset"
+        color="secondary"
+        data-cy="organisationData:abortButton"
+        :text="Translator.trans('reset')" />
+    </div>
+  </form>
 </template>
 
 <script>
-import { DpInput, DpRadio, DpSelect } from '@demos-europe/demosplan-ui'
+import { DpButton, DpInput, DpRadio, DpSelect, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import EmailNotificationSettings from '@DpJs/components/user/orgaDataEntry/EmailNotificationSettings'
 import OrganisationBrandingSettings from '@DpJs/components/user/orgaDataEntry/OrganisationBrandingSettings'
 import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyPreferences'
@@ -231,7 +264,10 @@ import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyP
 export default {
   name: 'OrganisationDataForm',
 
+  mixins: [prefixClassMixin],
+
   components: {
+    DpButton,
     DpInput,
     DpRadio,
     DpSelect,
@@ -241,6 +277,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     customers: {
       type: Array,
       required: false,
@@ -328,9 +369,16 @@ export default {
         !hasPermission('feature_orga_slug_edit') &&
         this.organisation.currentSlugName !== ''
     },
+  },
+  methods: {
+    precheckSubmit (e) {
+      if (hasPermission('feature_change_submission_type')
+        && this.organisation.submissionType === this.submissionTypeShort
+        && !window.dpconfirm(Translator.trans('confirm.statement.orgaedit.change'))) {
+        e.preventDefault()
 
-    displayCustomer () {
-      return hasPermission('feature_display_customer_names') && this.customers?.length
+        return false
+      }
     }
   }
 }

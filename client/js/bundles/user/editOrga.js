@@ -26,23 +26,4 @@ const components = {
 initialize(components).then(() => {
   UrlPreview()
   dpValidate()
-
-  if (hasPermission('feature_change_submission_type')) {
-    const form = document.querySelector('#content form')
-    const orgaId = form.getAttribute('data-orga-id')
-    const precheckSubmit = (e) => {
-      const currentSubmissionType = document.querySelector('input[name="' + orgaId + ':current_submission_type"]').value
-      const selectedSubmissionType = document.querySelector('input[name="' + orgaId + ':submission_type"]:checked').value
-
-      if (currentSubmissionType !== selectedSubmissionType &&
-        !window.dpconfirm(Translator.trans('confirm.statement.orgaedit.change'))) {
-        e.preventDefault()
-        return false
-      }
-
-      return true
-    }
-
-    document.querySelector('#content form [type=submit]').addEventListener('click', precheckSubmit)
-  }
 })
