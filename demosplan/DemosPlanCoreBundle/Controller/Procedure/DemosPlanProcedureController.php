@@ -660,6 +660,8 @@ class DemosPlanProcedureController extends BaseController
                 'r_oldSlug',
                 'r_phase',
                 'r_pictogram',
+                'r_pictogramCopyright',
+                'r_pictogramAltText',
                 'r_procedure_categories',
                 'r_publicParticipation',
                 'r_publicParticipationContact',

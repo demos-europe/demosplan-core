@@ -625,6 +625,12 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             if (array_key_exists('r_deletePictogram', $data)) {
                 $procedure['settings']['pictogram'] = '';
             }
+            if (array_key_exists('r_pictogramCopyright', $data)) {
+                $procedure['settings']['pictogramCopyright'] = $data['r_pictogramCopyright'];
+            }
+            if (array_key_exists('r_pictogramAltText', $data)) {
+                $procedure['settings']['pictogramAltText'] = $data['r_pictogramAltText'];
+            }
         }
 
         // Add exportSettings to procedure
