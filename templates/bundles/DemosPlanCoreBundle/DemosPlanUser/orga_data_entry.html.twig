@@ -57,8 +57,7 @@
         :has-types="Boolean({{ hasTypes }})"
         :user="JSON.parse('{{ userData|json_encode|e('js', 'utf-8') }}')"
         :will-receive-new-statement-notification="Boolean({{ willReceiveNewStatementNotification }})"
-        :has-notification-section="Boolean({{ hasNotificationSection }})"
-        :has-paper-copy-section="Boolean({{ hasPaperCopySection }})">
+        :has-notification-section="Boolean({{ hasNotificationSection }})">
     </organisation-data-form>
 {% endblock content %}
 

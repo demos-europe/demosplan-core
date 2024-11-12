@@ -305,12 +305,6 @@ export default {
       default: false
     },
 
-    hasPaperCopySection: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-
     projectName: {
       type: String,
       required: true
@@ -363,11 +357,25 @@ export default {
     }
   },
 
+  data () {
+    return {
+      displayCustomer: hasPermission('feature_display_customer_names') && this.customers?.length > 0,
+      displaySlug: hasPermission('feature_orga_slug')
+        && !hasPermission('feature_orga_slug_edit')
+        && this.organisation.currentSlugName !== '',
+      hasPaperCopyPermission: hasPermission('field_organisation_paper_copy') ||
+        hasPermission('field_organisation_paper_copy_spec') ||
+        hasPermission('field_organisation_competence')
+    }
+  },
+
   computed: {
-    displaySlug () {
-      return hasPermission('feature_orga_slug') &&
-        !hasPermission('feature_orga_slug_edit') &&
-        this.organisation.currentSlugName !== ''
+    displayButtons () {
+      return this.isOrgaDataEditable
+        || this.hasPaperCopyPermission
+        || this.hasNotificationSection
+        || this.showDetailedInfo
+        || hasPermission('feature_change_submission_type')
     },
   },
   methods: {
