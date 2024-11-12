@@ -48,6 +48,7 @@ class ApcuClearListener
 
         $cacheScheduleFile = DemosPlanPath::getProjectPath(CacheClearCommand::APCU_CLEAR_SCHEDULE_FILE);
 
+        // uses local file, no need for flysystem
         if (file_exists($cacheScheduleFile)) {
             $this->logger->info('Performing scheduled cache clear for apcu and op caches');
 

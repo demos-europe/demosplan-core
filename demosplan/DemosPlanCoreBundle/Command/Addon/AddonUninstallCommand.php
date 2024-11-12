@@ -45,7 +45,7 @@ class AddonUninstallCommand extends CoreCommand
         private readonly AddonRegistry $registry,
         private readonly Registrator $registrator,
         ParameterBagInterface $parameterBag,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -151,6 +151,7 @@ class AddonUninstallCommand extends CoreCommand
     {
         $loader = new ArrayLoader();
         $installPath = $addonInfo->getInstallPath();
+        // uses local file, no need for flysystem
         $composerJsonArray = Json::decodeToArray(file_get_contents($installPath.'/composer.json'));
         if (!array_key_exists('version', $composerJsonArray)) {
             $composerJsonArray['version'] = PackageInformation::UNDEFINED_VERSION;
@@ -165,6 +166,7 @@ class AddonUninstallCommand extends CoreCommand
     private function deleteDirectory(AddonInfo $addonInfo, SymfonyStyle $output): void
     {
         $installPath = $addonInfo->getInstallPath();
+        // local file only, no need for flysystem
         $filesystem = new Filesystem();
         // remove files in symlinked target if they exist
         $symlinkedPath = $filesystem->readlink($installPath, true);
@@ -177,6 +179,7 @@ class AddonUninstallCommand extends CoreCommand
             $filesystem->remove($symlinkedPath);
         } else {
             // remove cache symlink to dev directory
+            // local file is valid, no need for flysystem
             unlink($cachePath);
         }
         $filesystem->remove($installPath);

@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceConfigBuilder;
 
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseStatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
+use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -91,6 +92,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $availableInternalPhases
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $availableExternalPhases
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $location
+ * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, ParagraphVersion> $paragraphVersion
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $procedurePhase
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $availableProcedurePhases
  */

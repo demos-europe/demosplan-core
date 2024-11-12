@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\Contracts\ContentField;
@@ -40,7 +41,7 @@ final class StatementAttachmentResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly FileService $fileService,
-        private readonly StatementResourceType $statementResourceType
+        private readonly StatementResourceType $statementResourceType, private readonly StatementAttachmentService $statementAttachmentService,
     ) {
     }
 
@@ -62,6 +63,11 @@ final class StatementAttachmentResourceType extends DplanResourceType
     public function isGetAllowed(): bool
     {
         return false;
+    }
+
+    public function isDeleteAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('feature_read_source_statement_via_api');
     }
 
     public function isListAllowed(): bool
@@ -126,8 +132,8 @@ final class StatementAttachmentResourceType extends DplanResourceType
                     Assert::stringNotEmpty($attachmentType);
 
                     $attachment = match ($attachmentType) {
-                        StatementAttachmentInterface::SOURCE_STATEMENT => throw new InvalidArgumentException('Creation of non-generic attachments not available.'),
-                        StatementAttachmentInterface::GENERIC          => $this->createGenericAttachment($statement, $file),
+                        StatementAttachmentInterface::SOURCE_STATEMENT => $this->createAttachment($statement, $file, StatementAttachmentInterface::SOURCE_STATEMENT),
+                        StatementAttachmentInterface::GENERIC          => $this->createAttachment($statement, $file, StatementAttachmentInterface::GENERIC),
                         default                                        => throw new InvalidArgumentException("Attachment type not available: $attachmentType"),
                     };
                     $modifiedEntity = new ModifiedEntity($attachment, []);
@@ -157,11 +163,12 @@ final class StatementAttachmentResourceType extends DplanResourceType
      * to {@link Statement::$attachments} in the backend.
      *
      * The {@link StatementAttachment} instance available in the return
-     * *must not* be persisted. It exists only to
+     * is persisted only when it is a source attachment.
+     * For the generic attachments, it exists only to
      * return a `StatementAttachment` resource to the client, as is required by the JSON:API
      * implementation.
      */
-    private function createGenericAttachment(Statement $statement, File $file): StatementAttachment
+    private function createAttachment(Statement $statement, File $file, string $attachmentType): StatementAttachment
     {
         $this->fileService->addStatementFileContainer(
             $statement->getId(),
@@ -169,11 +176,28 @@ final class StatementAttachmentResourceType extends DplanResourceType
             $file->getFileString()
         );
 
+        if (StatementAttachmentInterface::SOURCE_STATEMENT === $attachmentType) {
+            return $this->createAndPersistAttachment($statement, $file, $attachmentType);
+        }
+
+        return $this->createTemporaryAttachment($statement, $file, $attachmentType);
+    }
+
+    private function createAndPersistAttachment(Statement $statement, File $file, string $attachmentType): StatementAttachment
+    {
+        $originalAttachment = $this->statementAttachmentService->createAttachment($statement, $file, $attachmentType);
+        $this->entityManager->persist($originalAttachment);
+
+        return $originalAttachment;
+    }
+
+    private function createTemporaryAttachment(Statement $statement, File $file, string $attachmentType): StatementAttachment
+    {
         $attachment = new StatementAttachment();
         $attachment->setId('');
         $attachment->setFile($file);
         $attachment->setStatement($statement);
-        $attachment->setType(StatementAttachmentInterface::GENERIC);
+        $attachment->setType($attachmentType);
 
         return $attachment;
     }

@@ -28,9 +28,9 @@ use geoPHP\Geometry\LineString;
 use geoPHP\Geometry\Point;
 use geoPHP\Geometry\Polygon;
 use geoPHP\geoPHP;
+use Illuminate\Support\Collection;
 use SimpleXMLElement;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Illuminate\Support\Collection;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -58,7 +58,7 @@ class StatementGeoService extends CoreService
         private readonly PriorityAreaService $priorityAreaService,
         private readonly StatementAttributeRepository $statementAttributeRepository,
         private readonly StatementService $statementService,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
     ) {
         $this->twig = $twig;
         $this->eventDispatcher = $eventDispatcher;
@@ -265,7 +265,7 @@ class StatementGeoService extends CoreService
      */
     public function bulkRestrictToExistingPdfsInSpecialCaseWind4(
         array $priorityAreaStrings,
-        Statement $statement
+        Statement $statement,
     ): array {
         $output = [];
         foreach ($priorityAreaStrings as $priorityAreaString) {
@@ -589,6 +589,7 @@ class StatementGeoService extends CoreService
         );
         $datasheetAbsolutePah = $event->getDatasheetFilePathAbsolute();
 
+        // uses local file, no need for flysystem
         return file_exists(
             $datasheetAbsolutePah.
             '/version4/pdf/'.

@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseElementsResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\PlaningDocumentCategoryResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 
 /**
@@ -28,9 +28,12 @@ class PlanningDocumentCategoryDetailsResourceType extends DplanResourceType
 {
     protected function getProperties(): ResourceConfigBuilderInterface
     {
-        $planningDocumentCategoryTitleConfig = $this->getConfig(BaseElementsResourceConfigBuilder::class);
+        $planningDocumentCategoryTitleConfig = $this->getConfig(PlaningDocumentCategoryResourceConfigBuilder::class);
         $planningDocumentCategoryTitleConfig->id->setReadableByPath();
         $planningDocumentCategoryTitleConfig->title->setReadableByPath();
+        $planningDocumentCategoryTitleConfig->procedure->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())->setFilterable();
+        $planningDocumentCategoryTitleConfig->paragraphs->setRelationshipType($this->resourceTypeStore->getParagraphResourceType())
+            ->setReadableByPath();
 
         return $planningDocumentCategoryTitleConfig;
     }
