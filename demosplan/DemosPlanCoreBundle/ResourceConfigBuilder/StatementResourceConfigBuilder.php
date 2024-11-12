@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
+use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GenericStatementAttachmentResourceType;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
@@ -98,6 +99,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $procedurePhase
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $availableProcedurePhases
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,StatementInterface,GenericStatementAttachmentResourceType> $genericAttachments
+ * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,StatementInterface,StatementAttachment> $sourceAttachments
  */
 class StatementResourceConfigBuilder extends BaseStatementResourceConfigBuilder
 {
