@@ -555,7 +555,7 @@ export default {
         'authorName',
         'consentRevoked',
         'counties',
-        'documents',
+        'document',
         'elements',
         'files',
         'fullText',
