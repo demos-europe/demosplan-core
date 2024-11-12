@@ -106,6 +106,7 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
         if (null === $procedure) {
             return [$this->conditionFactory->false()];
         }
+
         return [];
     }
 
