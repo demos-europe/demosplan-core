@@ -156,7 +156,7 @@ All rights reserved
       class="w-1/4">
       <dp-input
         id="numberOfAnonymVotes"
-        v-model="localStatement.attributes.numberOfAnonymVotes"
+        v-model.number="localStatement.attributes.numberOfAnonymVotes"
         class="mt-4"
         data-cy="numberOfAnonymVotes"
         :disabled="!editable"
@@ -164,7 +164,7 @@ All rights reserved
           text: Translator.trans('statement.voter.anonym')
         }"
         name="numberOfAnonymVotes"
-        type="number"/>
+        type="number" />
     </div>
 
     <dp-button-row
