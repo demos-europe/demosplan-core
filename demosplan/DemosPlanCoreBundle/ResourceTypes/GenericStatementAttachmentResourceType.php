@@ -102,6 +102,10 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
 
     protected function getAccessConditions(): array
     {
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (null === $procedure) {
+            return [$this->conditionFactory->false()];
+        }
         return [];
     }
 
