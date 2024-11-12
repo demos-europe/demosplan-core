@@ -76,6 +76,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\SignLanguageOverviewVideoResourc
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SingleDocumentResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SlugResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\SourceStatementAttachmentResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementAttachmentResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFieldDefinitionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFormDefinitionResourceType;
@@ -228,7 +229,7 @@ class ResourceTypeStore
 
     protected SlugResourceType $slugResourceType;
 
-    protected StatementAttachmentResourceType $statementAttachmentResourceType;
+    protected SourceStatementAttachmentResourceType $sourceStatementAttachmentResourceType;
 
     protected StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType;
 
@@ -317,27 +318,27 @@ class ResourceTypeStore
         ProcedureResourceType $procedureResourceType,
         ProcedureTemplateResourceType $procedureTemplateResourceType,
         ProcedureTypeResourceType $procedureTypeResourceType,
-        ProcedureUiDefinitionResourceType $procedureUiDefinitionResourceType,
-        PublicPhaseReportEntryResourceType $publicPhaseReportEntryResourceType,
+        ProcedureUiDefinitionResourceType         $procedureUiDefinitionResourceType,
+        PublicPhaseReportEntryResourceType        $publicPhaseReportEntryResourceType,
         RegisterInvitationReportEntryResourceType $registerInvitationReportEntryResourceType,
-        ReportEntryResourceType $reportEntryResourceType,
-        RoleResourceType $roleResourceType,
-        SegmentCommentResourceType $segmentCommentResourceType,
-        SignLanguageOverviewVideoResourceType $signLanguageOverviewVideoResourceType,
-        SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
-        SingleDocumentResourceType $singleDocumentResourceType,
-        SlugResourceType $slugResourceType,
-        StatementAttachmentResourceType $statementAttachmentResourceType,
-        StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType,
-        StatementFormDefinitionResourceType $statementFormDefinitionResourceType,
-        StatementFragmentResourceType $statementFragmentResourceType,
-        StatementFragmentsElementsResourceType $statementFragmentsElementsResourceType,
-        StatementMetaResourceType $statementMetaResourceType,
-        StatementReportEntryResourceType $statementReportEntryResourceType,
-        StatementResourceType $statementResourceType,
-        StatementSegmentResourceType $statementSegmentResourceType,
-        StatementVoteResourceType $statementVoteResourceType,
-        SurveyResourceType $surveyResourceType,
+        ReportEntryResourceType                   $reportEntryResourceType,
+        RoleResourceType                          $roleResourceType,
+        SegmentCommentResourceType                $segmentCommentResourceType,
+        SignLanguageOverviewVideoResourceType     $signLanguageOverviewVideoResourceType,
+        SimilarStatementSubmitterResourceType     $similarStatementSubmitterResourceType,
+        SingleDocumentResourceType                $singleDocumentResourceType,
+        SlugResourceType                          $slugResourceType,
+        SourceStatementAttachmentResourceType     $sourceStatementAttachmentResourceType,
+        StatementFieldDefinitionResourceType      $statementFieldDefinitionResourceType,
+        StatementFormDefinitionResourceType       $statementFormDefinitionResourceType,
+        StatementFragmentResourceType             $statementFragmentResourceType,
+        StatementFragmentsElementsResourceType    $statementFragmentsElementsResourceType,
+        StatementMetaResourceType                 $statementMetaResourceType,
+        StatementReportEntryResourceType          $statementReportEntryResourceType,
+        StatementResourceType                     $statementResourceType,
+        StatementSegmentResourceType              $statementSegmentResourceType,
+        StatementVoteResourceType                 $statementVoteResourceType,
+        SurveyResourceType                        $surveyResourceType,
         SurveyVoteResourceType $surveyVoteResourceType,
         TagResourceType $tagResourceType,
         TagTopicResourceType $tagTopicResourceType,
@@ -409,7 +410,7 @@ class ResourceTypeStore
         $this->similarStatementSubmitterResourceType = $similarStatementSubmitterResourceType;
         $this->singleDocumentResourceType = $singleDocumentResourceType;
         $this->slugResourceType = $slugResourceType;
-        $this->statementAttachmentResourceType = $statementAttachmentResourceType;
+        $this->sourceStatementAttachmentResourceType = $sourceStatementAttachmentResourceType;
         $this->statementFieldDefinitionResourceType = $statementFieldDefinitionResourceType;
         $this->statementFormDefinitionResourceType = $statementFormDefinitionResourceType;
         $this->statementFragmentResourceType = $statementFragmentResourceType;
@@ -748,9 +749,9 @@ class ResourceTypeStore
         return $this->slugResourceType;
     }
 
-    public function getStatementAttachmentResourceType(): StatementAttachmentResourceType
+    public function getSourceStatementAttachmentResourceType(): SourceStatementAttachmentResourceType
     {
-        return $this->statementAttachmentResourceType;
+        return $this->sourceStatementAttachmentResourceType;
     }
 
     public function getStatementFieldDefinitionResourceType(): StatementFieldDefinitionResourceType

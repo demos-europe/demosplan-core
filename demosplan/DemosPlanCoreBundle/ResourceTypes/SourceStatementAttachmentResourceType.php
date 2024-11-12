@@ -31,7 +31,7 @@ use Webmozart\Assert\Assert;
  * @property-read FileResourceType      $file
  * @property-read StatementResourceType $statement
  */
-final class StatementAttachmentResourceType extends DplanResourceType
+final class SourceStatementAttachmentResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly FileService $fileService,
@@ -41,7 +41,7 @@ final class StatementAttachmentResourceType extends DplanResourceType
 
     public static function getName(): string
     {
-        return 'StatementAttachment';
+        return 'SourceStatementAttachment';
     }
 
     public function getEntityClass(): string
