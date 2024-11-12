@@ -99,7 +99,7 @@ use EDT\PathBuilding\End;
  * @property-read End $isManual
  * @property-read End $manual
  * @property-read End $anonymous
- * @property-read FileResourceType $files @deprecated Use {@link StatementResourceType::sourceAttachments or @link StatementResourceType::genericAttachments} instead (needs implementation changes)
+ * @property-read FileResourceType $files @deprecated Use {@link StatementResourceType::sourceAttachments or @see StatementResourceType::genericAttachments} instead (needs implementation changes)
  * @property-read TagResourceType $tags
  * @property-read PlanningDocumentCategoryResourceType $elements
  * @property-read PlanningDocumentCategoryResourceType $element
