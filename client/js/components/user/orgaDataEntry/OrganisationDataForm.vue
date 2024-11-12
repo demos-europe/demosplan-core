@@ -226,13 +226,11 @@
       :organisation="organisation"
       :user="user"
       :will-receive-new-statement-notification="willReceiveNewStatementNotification"
-      :has-notification-section="hasNotificationSection">
-    </email-notification-settings>
+      :has-notification-section="hasNotificationSection" />
 
     <paper-copy-preferences
-      v-if="hasPaperCopySection"
-      :organisation="organisation">
-    </paper-copy-preferences>
+      v-if="hasPaperCopyPermission"
+      :organisation="organisation" />
 
     <organisation-branding-settings
       :organisation="organisation"

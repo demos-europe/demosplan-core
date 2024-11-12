@@ -8,6 +8,7 @@
 {% set organisationData = {
     id: organisation.ident|default,
     name: organisation.nameLegal|default,
+    addressId: organisation.address_ident|default,
     street: organisation.street|default,
     houseNumber: organisation.houseNumber|default,
     postalcode: organisation.postalcode|default,
@@ -41,10 +42,10 @@
 {% set showDetailedInfo = true %}
 {% set hasNotificationSection =  true %}
 {% set hasTypes = false %}
-{% set hasPaperCopySection = true %}
 
 {% block content %}
     <organisation-data-form
+        :csrf-token="{{ csrf_token('csrf')|json_encode }}"
         :customers="JSON.parse('{{ customers|default([])|json_encode|e('js', 'utf-8') }}')"
         :is-orga-data-editable="Boolean({{ mayEditOrgaData }})"
         :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"
@@ -60,10 +61,3 @@
         :has-notification-section="Boolean({{ hasNotificationSection }})">
     </organisation-data-form>
 {% endblock content %}
-
-{% block buttonRow %}
-    {{ uiComponent('button-row', {
-        primary: uiComponent('button', { type: 'submit' }),
-        secondary: uiComponent('button', { color: 'secondary', type: 'reset' })
-    }) }}
-{% endblock buttonRow %}
