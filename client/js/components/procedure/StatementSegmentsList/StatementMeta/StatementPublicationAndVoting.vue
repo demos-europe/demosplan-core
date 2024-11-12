@@ -260,6 +260,15 @@ export default {
     },
   },
 
+  watch: {
+    statement: {
+      handler() {
+        this.setInitValues();
+      },
+      deep: true
+    }
+  },
+
   methods: {
     ...mapMutations('StatementVote', {
       removeStatementVote: 'remove',
@@ -405,6 +414,7 @@ export default {
     sendDeleteVote () {
       const promises = Object.keys(this.initialVotes).map(voteId => {
         if (!this.votes[voteId]) {
+          // TO DO: Must also be deleted from initial, or initial must be updated, works for update and create, but not for delete
           this.deleteStatementVoteAction(voteId)
           .then(() => {
             return true
