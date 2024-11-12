@@ -152,9 +152,7 @@ All rights reserved
     </dp-editable-list>
 
     <!-- Anonymous voters -->
-    <div
-      v-if="editable"
-      class="w-1/4">
+    <div class="w-1/4">
       <dp-input
         id="numberOfAnonymVotes"
         v-model.number="localStatement.attributes.numberOfAnonymVotes"
@@ -238,7 +236,7 @@ export default {
         add: Translator.trans('statement.voter.add'),
         abort: Translator.trans('abort'),
         update: Translator.trans('statement.voter.update'),
-        noEntries: Translator.trans('none'),
+        noEntries: '',
         delete: Translator.trans('statement.voter.delete')
       }
     }
@@ -256,7 +254,7 @@ export default {
 
     votesLength: {
       get () {
-        return (this.localStatement.attributes.numberOfAnonymVotes + Object.keys(this.votes).length)
+        return Object.keys(this.votes).length
       }
     },
   },
