@@ -380,6 +380,16 @@ export default {
         return false
       }
     }
+  },
+
+  mounted () {
+    this.$el.querySelectorAll('input[type=text]').forEach((input) => {
+      input.defaultValue = input.value
+    })
+
+    this.$el.querySelectorAll('input[type=radio]').forEach((input) => {
+      input.defaultChecked = input.checked
+    })
   }
 }
 </script>
