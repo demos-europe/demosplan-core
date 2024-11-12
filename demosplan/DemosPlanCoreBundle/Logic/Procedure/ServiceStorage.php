@@ -106,7 +106,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         private readonly ProcedureTypeService $procedureTypeService,
         ParameterBagInterface $parameterBag,
         private readonly ReportService $reportService,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->contentService = $contentService;
         $this->customerService = $customerService;
@@ -969,7 +969,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
     protected function checkSwitchDateMandatoryFields(
         $data,
         $fieldsToCheck,
-        $mandatoryErrors
+        $mandatoryErrors,
     ): array {
         $hasMandatoryAutoSwitchError = false;
         foreach ($fieldsToCheck as $fieldToCheck => $fieldTranslationLabel) {
@@ -1002,7 +1002,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
     protected function checkSwitchDateValidFields(
         string $startDate,
         string $endDate,
-        $mandatoryErrors
+        $mandatoryErrors,
     ) {
         $hasMandatoryAutoSwitchError = false;
 
