@@ -40,6 +40,9 @@ jms/serializer-bundle: MIT
 khanamiryan/qrcode-detector-decoder: MIT
 knplabs/knp-menu-bundle: MIT
 knpuniversity/oauth2-client-bundle: MIT
+league/flysystem-aws-s3-v3: MIT
+league/flysystem-bundle: MIT
+league/flysystem-memory: MIT
 league/fractal: MIT
 league/html-to-markdown: MIT
 lexik/jwt-authentication-bundle: MIT
@@ -89,8 +92,8 @@ symfony/flex: MIT
 symfony/form: MIT
 symfony/http-client: MIT
 symfony/http-foundation: MIT
-symfony/inflector: MIT
 symfony/intl: MIT
+symfony/lock: MIT
 symfony/mailer: MIT
 symfony/maker-bundle: MIT
 symfony/mime: MIT
@@ -131,4 +134,4 @@ wsdltophp/packagegenerator: MIT
 yectep/phpspreadsheet-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 17.10.2024 07:02
+As of 11.11.2024 07:02
