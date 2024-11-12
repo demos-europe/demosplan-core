@@ -28,7 +28,7 @@
         <dp-input
           id="orga_name"
           v-model="organisation.name"
-          class="mb-2"
+          :class="prefixClass('mb-2')"
           data-cy="organisationData:name"
           :name="`${organisation.id}:name`"
           :label="{
@@ -38,11 +38,11 @@
           required />
 
         <!-- Street -->
-        <div class="flex items-start gap-1 mb-2">
+        <div :class="prefixClass('flex items-start gap-1 mb-2')">
           <dp-input
             id="orga_address_street"
             v-model="organisation.street"
-            :class="{ 'w-4': !organisation.street.length }"
+            :class="!organisation.street.length ? prefixClass('w-4') : ''"
             data-cy="organisationData:address:street"
             :name="`${organisation.id}:address_street`"
             :label="{
@@ -65,14 +65,12 @@
         </div>
 
         <!-- Postal Code and City -->
-        <div
-          class="flex items-start gap-1 mb-2"
-          :class="showDetailedInfo ? 'flex-row' : 'flex-col'">
+        <div :class="[prefixClass(showDetailedInfo ? 'flex-row' : 'flex-col'), prefixClass('flex items-start gap-1 mb-2')]">
           <dp-input
             id="orga_address_postalcode"
             v-model="organisation.postalcode"
             data-cy="organisationData:address:postalcode"
-            class="shrink"
+            :class="prefixClass('shrink')"
             :name="`${organisation.id}:address_postalcode`"
             :label="{
               text: Translator.trans('postalcode')
@@ -96,7 +94,7 @@
         <dp-input
           v-if="hasPermission('field_organisation_phone')"
           id="orga_address_phone"
-          class="mb-2"
+          :class="prefixClass('mb-2')"
           v-model="organisation.phone"
           data-cy="organisationData:phone"
           :name="`${organisation.id}:address_phone`"
@@ -109,7 +107,7 @@
         <dp-select
           v-if="hasTypes"
           id="orga_type"
-          class="mb-2"
+          :class="prefixClass('mb-2')"
           data-cy="organisationData:type"
           :name="`${organisation.id}:type`"
           :options="orgaTypes"
@@ -124,15 +122,15 @@
         <div v-if="hasPermission('feature_orga_slug') && hasPermission('feature_orga_slug_edit')">
           <label
             for="orga_slug"
-            class="o-form__label">
+            :class="prefixClass('o-form__label')">
             {{ Translator.trans('organisation.procedurelist.slug') }}
           </label>
-          <small class="lbl_hint block">
+          <small :class="prefixClass('lbl_hint block')">
             {{ Translator.trans('organisation.procedurelist.slug.explanation') }}
           </small>
 
-          <div class="flex flex-row items-center">
-            <span class="color--grey">
+          <div :class="prefixClass('flex flex-row items-center')">
+            <span :class="prefixClass('color--grey')">
               {{ proceduresDirectlinkPrefix }}
             </span>
             <dp-input
@@ -146,7 +144,7 @@
           <div>
             <label
               :for="`${organisation.id}:urlPreview`"
-              class="o-form__label">
+              :class="prefixClass('o-form__label')">
               {{ Translator.trans('preview') }}
             </label>
             <p
@@ -161,24 +159,24 @@
       <template v-if="showDetailedInfo">
         <dl
           v-if="displaySlug || displayCustomer"
-          class="description-list space-stack-s">
+          :class="prefixClass('description-list space-stack-s')">
           <div v-if="displaySlug">
             <dt class="font-semibold">
               {{ Translator.trans('organisation.procedurelist.slug') }}
             </dt>
-            <dd class="color--grey">
+            <dd :class="prefixClass('color--grey')">
               {{ proceduresDirectlinkPrefix }}/{{ organisation.currentSlugName }}
             </dd>
           </div>
 
           <div v-if="displayCustomer">
-            <dt class="font-semibold">
+            <dt :class="prefixClass('font-semibold')">
               {{ Translator.trans('customer', { count: customers.length }) }}
             </dt>
             <dd
               v-for="(customer, index) in customers"
               :key="customer.id"
-              class="color--grey inline">
+              :class="prefixClass('color--grey inline')">
               {{ customer.name }}<span v-if="index < customers.length - 1">, </span>
             </dd>
           </div>
@@ -190,8 +188,8 @@
     <fieldset
       v-if="hasPermission('feature_change_submission_type')"
       id="submissionType"
-      class="w-3/4 mb-2">
-      <legend class="font-size-large weight--normal mb-3">
+      :class="prefixClass('w-3/4 mb-2')">
+      <legend :class="prefixClass('font-size-large weight--normal mb-3')">
         {{ Translator.trans('statement.submission.type') }}
       </legend>
       <input
