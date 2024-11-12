@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 /**
  * This file is part of the package demosplan.
- *
  * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
- *
  * All rights reserved
  */
 
@@ -38,7 +36,7 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
         $this->testProcedure = ProcedureFactory::createOne();
     }
 
-    public function testExecute()
+    public function testExecute(): void
     {
         $id = $this->testProcedure->getId();
         $commandTester = $this->executeCommand($id);
@@ -47,14 +45,14 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
 
         $this->assertStringContainsString($successString, $output);
     }
-    
-    public function testDeleteAllProcedures()
+
+    public function testDeleteAllProcedures(): void
     {
         $proceduresToDelete = $this->getEntries(Procedure::class);
 
         $procedureIds = [];
 
-        foreach($proceduresToDelete as $procedure) {
+        foreach ($proceduresToDelete as $procedure) {
             $procedureIds[] = $procedure->getId();
         }
 
@@ -64,7 +62,7 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
         $this->assertStringContainsString($successString, $output);
     }
 
-    public function testMissingArgument()
+    public function testMissingArgument(): void
     {
         $this->expectException("Symfony\Component\Console\Exception\RuntimeException");
         $this->expectExceptionMessage('Not enough arguments (missing: "procedureIds")');
@@ -77,18 +75,28 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
         $application = new ConsoleApplication($kernel, false);
 
         $procedureDeleter = $this->getMock(ProcedureDeleter::class);
-        $procedureDeleter->method('deleteProcedures')->willReturnCallback(function ($param): void {});
+        $procedureDeleter->method('deleteProcedures')->willReturnCallback(function ($param): void {
+        });
 
-        $application->add(new DeleteProcedureCommand(
-            $this->createMock(ParameterBagInterface::class),
-            $procedureDeleter,
-            $this->queriesService,
-            null
-        ));
+        $application->add(
+            new DeleteProcedureCommand(
+                $this->createMock(ParameterBagInterface::class),
+                $procedureDeleter,
+                $this->queriesService,
+                null
+            )
+        );
 
         $command = $application->find(DeleteProcedureCommand::getDefaultName());
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), 'procedureIds' => $procedureIds, '--without-repopulate' => true, '--dry-run' => true]);
+        $commandTester->execute(
+            [
+                'command' => $command->getName(),
+                'procedureIds' => $procedureIds,
+                '--without-repopulate' => true,
+                '--dry-run' => true,
+            ]
+        );
 
         return $commandTester;
     }
@@ -99,18 +107,23 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
         $application = new ConsoleApplication($kernel, false);
 
         $procedureDeleter = $this->getMock(ProcedureDeleter::class);
-        $procedureDeleter->method('deleteProcedures')->willReturnCallback(function ($param): void {});
+        $procedureDeleter->method('deleteProcedures')->willReturnCallback(function ($param): void {
+        });
 
-        $application->add(new DeleteProcedureCommand(
-            $this->createMock(ParameterBagInterface::class),
-            $procedureDeleter,
-            $this->queriesService,
-            null
-        ));
+        $application->add(
+            new DeleteProcedureCommand(
+                $this->createMock(ParameterBagInterface::class),
+                $procedureDeleter,
+                $this->queriesService,
+                null
+            )
+        );
 
         $command = $application->find(DeleteProcedureCommand::getDefaultName());
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '--without-repopulate' => true, '--dry-run' => true]);
+        $commandTester->execute(
+            ['command' => $command->getName(), '--without-repopulate' => true, '--dry-run' => true]
+        );
 
         return $commandTester;
     }
