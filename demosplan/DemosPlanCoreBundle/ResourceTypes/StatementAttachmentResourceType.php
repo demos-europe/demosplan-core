@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceCreateFlushEvent;
 use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -136,21 +135,6 @@ final class StatementAttachmentResourceType extends DplanResourceType
         }
     }
 
-    /**
-     * Adds a generic attachment to the {@link Statement::$files} array via {@link FileContainer},
-     * thus circumventing the usage of {@link Statement::$attachments} and an actual
-     * {@link StatementAttachment} entity.
-     *
-     * This is a workaround to allow the creation of generic attachments via this resource type,
-     * to avoid the need to adjust the requests later when {@link Statement::$files} is migrated
-     * to {@link Statement::$attachments} in the backend.
-     *
-     * The {@link StatementAttachment} instance available in the return
-     * is persisted only when it is a source attachment.
-     * For the generic attachments, it exists only to
-     * return a `StatementAttachment` resource to the client, as is required by the JSON:API
-     * implementation.
-     */
     private function createAttachment(Statement $statement, File $file): StatementAttachment
     {
         $originalAttachment = $this->statementAttachmentService->createAttachment($statement, $file, StatementAttachment::SOURCE_STATEMENT);
