@@ -33,7 +33,6 @@ use Webmozart\Assert\Assert;
 /**
  * @template-extends DplanResourceType<StatementAttachment>
  *
- * @property-read End                   $attachmentType
  * @property-read FileResourceType      $file
  * @property-read StatementResourceType $statement
  */
@@ -86,12 +85,6 @@ final class StatementAttachmentResourceType extends DplanResourceType
     {
         $properties = [
             $this->createIdentifier()->readable()->sortable()->filterable(),
-            $this->createAttribute($this->attachmentType)
-                ->readable(true)
-                ->aliasedPath(Paths::statementAttachment()->type)
-                ->sortable()
-                ->filterable()
-                ->initializable(),
         ];
 
         if ($this->currentUser->hasPermission('feature_read_source_statement_via_api')) {
@@ -128,13 +121,8 @@ final class StatementAttachmentResourceType extends DplanResourceType
                     /** @var File $file */
                     $file = $this->resourceTypeStore->getFileResourceType()->getEntity($fileRef[ContentField::ID]);
 
-                    $attachmentType = $attributes[$this->attachmentType->getAsNamesInDotNotation()];
-                    Assert::stringNotEmpty($attachmentType);
+                    $attachment =  $this->createAttachment($statement, $file);
 
-                    $attachment = match ($attachmentType) {
-                        StatementAttachmentInterface::SOURCE_STATEMENT => $this->createAttachment($statement, $file),
-                        default                                        => throw new InvalidArgumentException("Attachment type not available: $attachmentType"),
-                    };
                     $modifiedEntity = new ModifiedEntity($attachment, []);
 
                     $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent(
