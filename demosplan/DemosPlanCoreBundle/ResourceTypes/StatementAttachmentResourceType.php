@@ -12,19 +12,15 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceCreateFlushEvent;
-use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
-use EDT\PathBuilding\End;
 use EDT\Wrapping\Contracts\ContentField;
 use EDT\Wrapping\CreationDataInterface;
 use Exception;
@@ -121,7 +117,7 @@ final class StatementAttachmentResourceType extends DplanResourceType
                     /** @var File $file */
                     $file = $this->resourceTypeStore->getFileResourceType()->getEntity($fileRef[ContentField::ID]);
 
-                    $attachment =  $this->createAttachment($statement, $file);
+                    $attachment = $this->createAttachment($statement, $file);
 
                     $modifiedEntity = new ModifiedEntity($attachment, []);
 
