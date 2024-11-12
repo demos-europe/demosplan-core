@@ -262,7 +262,7 @@ abstract class AbstractStatementResourceType extends DplanResourceType
         $configBuilder->counties
             ->setRelationshipType($this->resourceTypeStore->getCountyResourceType())
             ->readable();
-        $configBuilder->sourceAttachments
+        $configBuilder->sourceAttachment
             ->setRelationshipType($this->resourceTypeStore->getSourceStatementAttachmentResourceType())
             ->readable()->setAliasedPath(Paths::statement()->attachments);
         $configBuilder->paragraph
