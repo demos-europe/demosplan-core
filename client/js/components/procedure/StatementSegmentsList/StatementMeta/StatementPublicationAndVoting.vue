@@ -43,6 +43,7 @@ All rights reserved
       :has-permission-to-edit="editable && statement.attributes.isManual"
       :translation-keys="translationKeys"
       ref="listComponent"
+      @reset="resetForm()"
       @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)">
       <template v-slot:list="{entry, index}">
         <span v-if="entry.attributes.name" class="voteEntry">{{ entry.attributes.name }}</span>
