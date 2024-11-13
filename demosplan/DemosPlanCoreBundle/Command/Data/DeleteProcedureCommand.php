@@ -95,7 +95,7 @@ class DeleteProcedureCommand extends CoreCommand
 
         try {
             $output->info('Procedures id(s) to delete: '.implode(',', $retrievedProceduresIds));
-            $output->info("Dry-run: $isDryRun");
+            $output->info($isDryRun ? 'Dry-run: true' : 'Dry-run: false');
 
             $this->procedureDeleter->beginTransactionAndDisableForeignKeyChecks();
             $this->procedureDeleter->deleteProcedures($retrievedProceduresIds, $isDryRun);
