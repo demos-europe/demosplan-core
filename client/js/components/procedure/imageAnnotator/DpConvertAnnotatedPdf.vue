@@ -54,7 +54,10 @@
           :tags="tags"
           :used-intern-ids="usedInternIds"
           :init-values="formValues"
-          submit-route-name="dplan_pdf_import_to_statement" />
+          submit-route-name="dplan_pdf_import_to_statement">
+          <dp-button
+            text="Text zwischenspeichern" />
+        </dp-simplified-new-statement-form>
       </div>
     </div>
     <dp-send-beacon
@@ -65,7 +68,7 @@
 </template>
 
 <script>
-import { dpApi, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpLoading } from '@demos-europe/demosplan-ui'
 import DpSendBeacon from './DpSendBeacon'
 import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
 
@@ -73,9 +76,10 @@ export default {
   name: 'DpConvertAnnotatedPdf',
 
   components: {
+    DpButton,
+    DpLoading,
     DpSendBeacon,
-    DpSimplifiedNewStatementForm,
-    DpLoading
+    DpSimplifiedNewStatementForm
   },
 
   props: {
