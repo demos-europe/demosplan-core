@@ -21,15 +21,13 @@ class DraftStatementFileHandler
     {
     }
 
-
     public function getDraftStatementRelatedToThisFile(string $fileId): array
-
     {
         $file = $this->fileService->getFileById($fileId);
         if (null === $file) {
             return [];
         }
+
         return $this->draftStatementFileRepository->getDraftStatementFilesByFile($file);
     }
-
 }
