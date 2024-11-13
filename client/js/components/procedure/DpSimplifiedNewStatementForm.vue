@@ -323,6 +323,8 @@
         hidden-input="r_text"
         v-model="values.text" />
 
+      <slot />
+
       <!-- File upload fields -->
       <template v-if="allowFileUpload">
         <dp-label
