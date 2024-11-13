@@ -112,7 +112,6 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
         return [];
     }
 
-
     public function deleteEntity(string $entityIdentifier): void
     {
         // Since the FileContainer does not have a direct reference to the Statement, we need to check the access conditions of the Statement.
@@ -122,9 +121,9 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
         Assert::notNull($fileContainer);
 
         $statementConditions = $this->getTypes()->getStatementResourceType()->buildAccessConditions($this->getTypes()->getStatementResourceType());
-        $statementConditions [] = $this->conditionFactory->propertyHasValue($fileContainer->getEntityId(), 'id');
+        $statementConditions[] = $this->conditionFactory->propertyHasValue($fileContainer->getEntityId(), 'id');
 
-        $statement = $this->statementRepository->getEntities($statementConditions,[]);
+        $statement = $this->statementRepository->getEntities($statementConditions, []);
 
         Assert::notNull($statement);
 
