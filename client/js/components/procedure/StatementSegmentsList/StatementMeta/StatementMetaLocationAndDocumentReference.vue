@@ -274,14 +274,24 @@ export default {
       }
 
       if (this.selectedParagraphId !== this.initiallySelectedParagraphId) {
-        this.localStatement.attributes.paragraphParentId = this.selectedParagraphId
+        if (this.selectedParagraphId === '') {
+          this.localStatement.attributes.paragraphParentId = null
+        } else {
+          this.localStatement.attributes.paragraphParentId = this.selectedParagraphId
+        }
       }
 
       if (this.selectedDocumentId !== this.initiallySelectedDocumentId) {
-        this.localStatement.relationships.document = {
-          data: {
-            id: this.selectedDocumentId,
-            type: 'SingleDocument'
+        if (this.selectedDocumentId === '') {
+          this.localStatement.relationships.document = {
+            data: null
+          }
+        } else {
+          this.localStatement.relationships.document = {
+            data: {
+              id: this.selectedDocumentId,
+              type: 'SingleDocument'
+            }
           }
         }
       }
