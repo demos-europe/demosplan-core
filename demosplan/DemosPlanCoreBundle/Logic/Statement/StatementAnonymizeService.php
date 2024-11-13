@@ -32,7 +32,15 @@ class StatementAnonymizeService extends CoreService
     /** @var string Tag before anonymization, it means: "this still needs to be anonymized!" */
     private const TAG = 'anonymize-text';
 
-    public function __construct(private readonly EntityContentChangeService $entityContentChangeService, private readonly FileService $fileService, private PermissionsInterface $permissions, private readonly ReportService $reportService, private readonly StatementService $statementService, private readonly StatementAttachmentService $statementAttachmentService, private readonly TranslatorInterface $translator, private readonly DraftStatementService $draftStatementService, private readonly DraftStatementHandler $draftStatementHandler, private readonly DraftStatementFileHandler $draftStatementFileHandler)
+    public function __construct(
+        private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly FileService $fileService,
+        private PermissionsInterface $permissions,
+        private readonly ReportService $reportService,
+        private readonly StatementService $statementService,
+        private readonly StatementAttachmentService $statementAttachmentService,
+        private readonly TranslatorInterface $translator,
+        private readonly DraftStatementFileHandler $draftStatementFileHandler)
     {
     }
 
@@ -174,9 +182,9 @@ class StatementAnonymizeService extends CoreService
         foreach ($statement->getFiles() as $fileString) {
             $fileStringParts = explode(':', $fileString);
             $this->fileService->deleteFileContainer($fileStringParts[1], $statement->getId());
-            $draftStatements = $this->draftStatementFileHandler->getDraftStatementRelatedToThisFile($fileString);
+            $draftStatements = $this->draftStatementFileHandler->getDraftStatementRelatedToThisFile($fileStringParts[1]);
 
-            if (null === $draftStatements) {
+            if (0 === sizeof($draftStatements)) {
                 $this->fileService->deleteFileFromFileString($fileString); //
                 // we cannot delete the file if it belongs to a draft statement because it means it belongs to a priveate user
                 // this is the line that trigger the error
