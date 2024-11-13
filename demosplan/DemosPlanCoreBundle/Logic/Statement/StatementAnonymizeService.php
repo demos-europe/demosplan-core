@@ -22,6 +22,9 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementFileHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
@@ -32,7 +35,7 @@ class StatementAnonymizeService extends CoreService
     /** @var string Tag before anonymization, it means: "this still needs to be anonymized!" */
     private const TAG = 'anonymize-text';
 
-    public function __construct(private readonly EntityContentChangeService $entityContentChangeService, private readonly FileService $fileService, private PermissionsInterface $permissions, private readonly ReportService $reportService, private readonly StatementService $statementService, private readonly StatementAttachmentService $statementAttachmentService, private readonly TranslatorInterface $translator)
+    public function __construct(private readonly EntityContentChangeService $entityContentChangeService, private readonly FileService $fileService, private PermissionsInterface $permissions, private readonly ReportService $reportService, private readonly StatementService $statementService, private readonly StatementAttachmentService $statementAttachmentService, private readonly TranslatorInterface $translator, private readonly DraftStatementService $draftStatementService, private readonly DraftStatementHandler $draftStatementHandler, private readonly DraftStatementFileHandler $draftStatementFileHandler)
     {
     }
 
@@ -174,7 +177,14 @@ class StatementAnonymizeService extends CoreService
         foreach ($statement->getFiles() as $fileString) {
             $fileStringParts = explode(':', $fileString);
             $this->fileService->deleteFileContainer($fileStringParts[1], $statement->getId());
-            $this->fileService->deleteFileFromFileString($fileString);
+            $draftStatements = $this->draftStatementFileHandler->getDraftStatementRelatedToThisFile($fileString);
+
+            if (null === $draftStatements) {
+                $this->fileService->deleteFileFromFileString($fileString); //
+                //we cannot delete the file if it belongs to a draft statement because it means it belongs to a priveate user
+                //this is the line that trigger the error
+            }
+
         }
         $statement->setFile('');
         $statement->setFiles([]);
