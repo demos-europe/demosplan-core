@@ -182,12 +182,11 @@ class StatementAnonymizeService extends CoreService
         foreach ($statement->getFiles() as $fileString) {
             $fileStringParts = explode(':', $fileString);
             $this->fileService->deleteFileContainer($fileStringParts[1], $statement->getId());
-            $draftStatements = $this->draftStatementFileHandler->getDraftStatementRelatedToThisFile($fileStringParts[1]);
 
-            if (0 === sizeof($draftStatements)) {
-                $this->fileService->deleteFileFromFileString($fileString); //
-                // we cannot delete the file if it belongs to a draft statement because it means it belongs to a priveate user
-                // this is the line that trigger the error
+            // Do not delete the file if it belongs to a draft statement (private user)
+            $draftStatements = $this->draftStatementFileHandler->getDraftStatementRelatedToThisFile($fileStringParts[1]);
+            if (0 === count($draftStatements)) {
+                $this->fileService->deleteFileFromFileString($fileString);
             }
         }
         $statement->setFile('');
