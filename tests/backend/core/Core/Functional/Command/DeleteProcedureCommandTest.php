@@ -60,9 +60,9 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
         $commandTester = $this->executeCommand($procedureIdsAsString);
         $output = $commandTester->getDisplay();
 
-        //extract UUIDs from output
+        // extract UUIDs from output
         $successPartOfTheOutput = explode(' are deleted', explode('procedure(s) with id(s)', $output)[1])[0];
-        $extractedUUIDsAsString = trim(str_replace(["\n", "        "], "", $successPartOfTheOutput));
+        $extractedUUIDsAsString = trim(str_replace(["\n", '        '], '', $successPartOfTheOutput));
         $successfullyDeletedProcedureIds = explode(',', $extractedUUIDsAsString);
 
         static::assertEqualsCanonicalizing($procedureIds, $successfullyDeletedProcedureIds);
@@ -130,6 +130,5 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
         $commandTester->execute(
             ['command' => $command->getName(), '--without-repopulate' => true, '--dry-run' => true]
         );
-
     }
 }

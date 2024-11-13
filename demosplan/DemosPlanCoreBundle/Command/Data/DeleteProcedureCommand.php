@@ -34,7 +34,7 @@ class DeleteProcedureCommand extends CoreCommand
         ParameterBagInterface $parameterBag,
         private readonly ProcedureDeleter $procedureDeleter,
         private readonly SqlQueriesService $queriesService,
-        string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
