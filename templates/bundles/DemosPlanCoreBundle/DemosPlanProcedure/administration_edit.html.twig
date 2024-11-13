@@ -108,7 +108,8 @@
         :init-procedure-categories="JSON.parse('{{ selectedProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
         init-procedure-phase-internal="{{ proceduresettings.phase }}"
         init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
-        :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')">
+        :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
+        procedure-id="{{ proceduresettings.id|default() }}">
         <form
             name="configForm"
             enctype="multipart/form-data"
@@ -725,7 +726,7 @@
 
 
                             <addon-wrapper
-                                hook-name="mein.berlin.procedure.data"
+                                hook-name="mein.berlin.procedure.data.field"
                                 :addon-props="{
                                   class: 'mb-4'
                                 }"

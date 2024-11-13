@@ -180,10 +180,10 @@
       <addon-wrapper
         :addon-props="{
           class: 'ml-4',
-          organisationId: this.organisationId
+          orgaId: this.organisationId
         }"
         class="w-1/2"
-        hook-name="mein.berlin.organisation.id"
+        hook-name="mein.berlin.organisation.id.field"
         @input="updateMeinBerlinOrganisationId" />
 
       <div class="layout__item u-1-of-1 u-mt">

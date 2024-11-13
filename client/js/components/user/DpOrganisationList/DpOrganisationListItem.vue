@@ -180,9 +180,6 @@ export default {
       if (this.dpValidate.organisationForm) {
         this.isOpen = !this.isOpen
 
-        if (this.meinBerlinOrganisationId) {
-          this.saveMeinBerlinOrganisationId()
-        }
         /*
          * Some update requests need this information, others cant handle them
          * depending on the permissions
@@ -207,29 +204,6 @@ export default {
       } else {
         dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
       }
-    },
-
-    saveMeinBerlinOrganisationId () {
-      const payload = {
-        type: 'MeinBerlinAddonOrganisation',
-        attributes: {
-          meinBerlinOrganisationId: this.meinBerlinOrganisationId
-        },
-        relationships: {
-          orga: {
-            data: {
-              type: 'Orga',
-              id: this.organisation.id
-            }
-          }
-        }
-      }
-      dpApi.post(Routing.generate('api_resource_create', { resourceType: 'MeinBerlinAddonOrganisation' }), {}, { data: payload })
-        .then(checkResponse)
-        .then(response => {
-
-          console.log('response (check it by similarStatementsSubmitters.vue line 294)', response)
-        })
     },
 
     saveOrganisationAction (payload) {
