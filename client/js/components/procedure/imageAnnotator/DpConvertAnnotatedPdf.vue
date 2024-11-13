@@ -56,7 +56,7 @@
           :init-values="formValues"
           submit-route-name="dplan_pdf_import_to_statement">
           <div class="flex justify-end mt-2">
-            <dp-button text="Text zwischenspeichern" />
+            <dp-button :text="Translator.trans('statement.save.quickSave')" />
           </div>
         </dp-simplified-new-statement-form>
       </div>
