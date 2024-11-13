@@ -104,7 +104,7 @@
           @save="updatedStatement => save(updatedStatement)" />
 
         <statement-meta-attachments
-          :attachments="attachments"
+          :initial-attachments="attachments"
           :editable="editable"
           :procedure-id="procedure.id"
           :statement-id="statement.id"

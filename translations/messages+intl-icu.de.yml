@@ -1324,8 +1324,6 @@ error.statement.not.saved.throttle: "Die Stellungnahme konnte nicht gespeichert 
 error.statement.no.county: "Bitte wählen Sie die Kreiszugehörigkeit aus."
 error.statement.not.assigned: "Sie können keine Stellungnahmen bearbeiten, die Ihnen nicht zugewiesen sind."
 error.statement.orgaedit.submissiontype.short: "Beim Einrichten des verkürzten Stellungnahmeprozesses ist ein Fehler aufgetreten. Bitte schalten Sie zurück in den Standardprozess und versuchen es erneut. Sollte dies fehlschlagen überprüfen Sie bitte die freigegebenen Stellungnahmen"
-error.statement.source.attachment.create: "Die Stellungnahme als Anhang konnte nicht gespeichert werden. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut."
-error.statement.source.attachment.delete: "Die Stellungnahme als Anhang konnte nicht gelöscht werden. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut."
 error.statement.similar_submitter.invalid: "Die zusätzlichen Einreichenden konnten nicht gespeichert werden. Bitte überprüfen Sie die Daten und fügen Sie diese erneut der Stellungnahme hinzu."
 error.statement.status.update: "Beim Ändern des Status ist ein Fehler aufgetreten, bitte versuchen Sie es erneut."
 error.statement.submit.nowriteaccess: "In dem Verfahren können derzeit keine Stellungnahmen eingereicht werden. Bitte wenden Sie sich bei Fragen an den Verfahrensträger."
