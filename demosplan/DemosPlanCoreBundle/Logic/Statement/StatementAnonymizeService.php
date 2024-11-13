@@ -22,9 +22,6 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementFileHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
@@ -73,7 +70,7 @@ class StatementAnonymizeService extends CoreService
         bool $recursively,
         bool $forceOriginal,
         string $userId,
-        bool $revokeGdpr
+        bool $revokeGdpr,
     ): Statement {
         $statement = $this->forceAnonymizationOfOriginal($forceOriginal, $statement);
         if (null === $statement->getGdprConsent()) {
@@ -181,10 +178,9 @@ class StatementAnonymizeService extends CoreService
 
             if (null === $draftStatements) {
                 $this->fileService->deleteFileFromFileString($fileString); //
-                //we cannot delete the file if it belongs to a draft statement because it means it belongs to a priveate user
-                //this is the line that trigger the error
+                // we cannot delete the file if it belongs to a draft statement because it means it belongs to a priveate user
+                // this is the line that trigger the error
             }
-
         }
         $statement->setFile('');
         $statement->setFiles([]);
@@ -195,6 +191,7 @@ class StatementAnonymizeService extends CoreService
     private function anonymizeText(string $anonymizedTextWithTags): string
     {
         $blackSharpie = '<span class="anonymized">***</span>';
+
         /*
          * (.+?) means:
          * - a group: ()
@@ -420,7 +417,7 @@ class StatementAnonymizeService extends CoreService
         bool $recursively,
         Statement $statement,
         string $userId,
-        bool $revokeGdpr
+        bool $revokeGdpr,
     ): void {
         if ($recursively) {
             /** @var Statement[] $children */
