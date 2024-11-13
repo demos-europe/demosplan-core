@@ -48,7 +48,7 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
         static::assertStringContainsString($successString, $output);
     }
 
-    public function testSuccessOutput(): void
+    public function testSuccessOutputForMultipleProcedures(): void
     {
         $proceduresToDelete = $this->getEntries(Procedure::class);
         $procedureIds = [];
