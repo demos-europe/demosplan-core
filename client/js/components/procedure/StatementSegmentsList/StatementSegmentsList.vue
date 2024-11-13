@@ -334,19 +334,16 @@ export default {
     ...mapGetters('SegmentSlidebar', ['commentsList']),
 
     additionalAttachments () {
-      /**
-       * Until we move completely to the "new way" of handling files,
-       * We have to get the additional files directly from files since that's the place where they get stored.
-       * When crating a new 'additionalFile' via API, the backend creates this kind of relationship as a sideeffect
-       */
-      if (this?.statement?.hasRelationship('files')) {
-        const files = this.statement.relationships.files.list()
+      if (this.statement?.hasRelationship('genericAttachments')) {
+        const attachments = this.statement.relationships.genericAttachments.list()
 
-        return Object.values(files).map(file => {
+        return Object.values(attachments).map(attachment => {
+          const file = attachment?.relationships?.file.get()
+
           return {
-            hash: file.attributes.hash,
             filename: file.attributes.filename,
-            type: file.type
+            hash: file.attributes.hash,
+            id: attachment.id
           }
         })
       } else {
@@ -361,23 +358,6 @@ export default {
           id: user.id
         }))
         : []
-    },
-
-    attachments () {
-      if (this?.statement?.hasRelationship('attachments')) {
-        const attachments = this.statement.relationships.attachments.list()
-
-        return Object.values(attachments).map(attachment => {
-          const file = attachment?.relationships?.file.get()
-          return {
-            hash: file.attributes.hash,
-            filename: file.attributes.filename,
-            type: attachment.attributes.attachmentType
-          }
-        })
-      } else {
-        return []
-      }
     },
 
     attachmentsAndOriginalPdfCount () {
@@ -449,7 +429,19 @@ export default {
     },
 
     originalAttachment () {
-      return this.attachments.find((attachment) => attachment.type === 'source_statement') || {}
+      const originalAttachment = this.statement.hasRelationship('sourceAttachment')
+        ? Object.values(this.statement.relationships.sourceAttachment.list())[0]
+        : {}
+
+      const file = originalAttachment?.relationships?.file.get()
+
+      return originalAttachment && file
+        ? {
+            filename: file.attributes.filename,
+            hash: file.attributes.hash,
+            id: originalAttachment.id
+          }
+        : {}
     },
 
     statement () {
@@ -549,7 +541,6 @@ export default {
     getStatement () {
       const statementFields = [
         'assignee',
-        'attachments',
         'availableProcedurePhases',
         'authoredDate',
         'authorName',
@@ -583,6 +574,7 @@ export default {
         'publicVerifiedTranslation',
         'recommendation',
         'segmentDraftList',
+        'sourceAttachment',
         'submitDate',
         'submitName',
         'submitterAndAuthorMetaDataAnonymized',
@@ -623,11 +615,10 @@ export default {
         SingleDocument: [
           'title'
         ].join(),
-        Statement: statementFields.join(),
-        StatementAttachment: [
-          'file',
-          'attachmentType'
+        SourceStatementAttachment: [
+          'file'
         ].join(),
+        Statement: statementFields.join(),
         StatementVote: [
           'city',
           'createdDate',
@@ -653,8 +644,6 @@ export default {
 
       const include = [
         'assignee',
-        'attachments',
-        'attachments.file',
         'document',
         'elements',
         'files',
@@ -663,6 +652,8 @@ export default {
         'paragraph',
         'paragraphs',
         'paragraphVersion.paragraph',
+        'sourceAttachment',
+        'sourceAttachment.file',
         'votes'
       ]
 

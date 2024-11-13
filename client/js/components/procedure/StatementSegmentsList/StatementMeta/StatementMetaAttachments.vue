@@ -89,7 +89,7 @@
             <button
               class="btn--blank o-link--default mt-1"
               type="button"
-              @click="deleteAttachment(attachment.hash)">
+              @click="deleteAttachment(attachment.id)">
               <dp-icon
                 class="ml-2"
                 icon="delete" />
@@ -123,8 +123,8 @@
               secondary
               :busy="isProcessingOtherAttachments"
               :disabled="fileIds.length === 0"
-              @primary-action="saveOtherAttachments"
-              @secondary-action="resetOtherAttachments" />
+              @primary-action="saveGenericAttachments"
+              @secondary-action="resetGenericAttachments" />
           </div>
         </template>
       </div>
@@ -158,7 +158,10 @@ export default {
   props: {
     attachments: {
       type: Object,
-      required: true
+      required: true,
+      validator(value) {
+        return value.hasOwnProperty('originalAttachment') && value.hasOwnProperty('additionalAttachments')
+      }
     },
 
     /**
@@ -195,7 +198,8 @@ export default {
   methods: {
     createSourceAttachment () {
       const resource = this.getItemResource(this.fileIdSourceAttachment, 'source_statement')
-      const url = Routing.generate('api_resource_create', { resourceType: 'StatementAttachment' })
+
+      const url = Routing.generate('api_resource_create', { resourceType: 'SourceStatementAttachment' })
       const params = {}
       const data = {
         data: resource
@@ -203,49 +207,84 @@ export default {
 
       return dpApi.post(url, params, data)
         .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.statement.source.attachment.created'))
           this.resetSourceAttachment()
           this.triggerStatementRequest()
           this.isProcessingSourceAttachment = false
         })
         .catch(error => {
           console.error(error)
+          dplan.notify.error(Translator.trans('error.statement.source.attachment.create'))
           this.isProcessingSourceAttachment = false
         })
     },
 
     deleteAttachment (id) {
       const url = Routing.generate('api_resource_delete', { resourceType: 'GenericStatementAttachment', resourceId: id })
+
       return dpApi.delete(url)
-        .then(() => {
-          this.resetOtherAttachments()
+        .then(response => {
+          dplan.notify.confirm(Translator.trans('confirm.statement.attachment.deleted'))
+          this.resetGenericAttachments()
+        })
+        .catch(error => {
+          console.error(error)
+          dplan.notify.error(Translator.trans('error.statement.attachment.delete'))
         })
     },
 
     deleteSourceAttachment () {
-      const url = Routing.generate('api_resource_delete', { resourceType: 'SourceAttachment', resourceId: this.attachments.originalAttachment.id })
+      const url = Routing.generate('api_resource_delete', { resourceType: 'SourceStatementAttachment', resourceId: this.attachments.originalAttachment.id })
+
       return dpApi.delete(url)
-        .then(() => {
-          this.resetSourceAttachment()
+        .then(response => {
+          dplan.notify.confirm(Translator.trans('confirm.statement.source.attachment.deleted'))
+          if (this.fileIdSourceAttachment) {
+            this.resetSourceAttachment()
+          }
+        })
+        .catch(error => {
+          console.error(error)
+          dplan.notify.error(Translator.trans('error.statement.source.attachment.delete'))
         })
     },
 
     getItemResource (fileHash, attachmentType) {
-      return {
-        type: 'StatementAttachment',
-        attributes: {
-          attachmentType: attachmentType
-        },
-        relationships: {
-          statement: {
-            data: {
-              id: this.statementId,
-              type: 'Statement'
+      if (attachmentType === 'generic') {
+        return {
+          type: 'GenericStatementAttachment',
+          relationships: {
+            statement: {
+              data: {
+                id: this.statementId,
+                type: 'Statement'
+              }
+            },
+            file: {
+              data: {
+                id: fileHash,
+                type: 'File'
+              }
             }
-          },
-          file: {
-            data: {
-              id: fileHash,
-              type: 'File'
+          }
+        }
+      }
+
+      if (attachmentType === 'source_statement') {
+        return {
+          type: 'SourceStatementAttachment',
+          relationships: {
+            statement: {
+              data: {
+                id: this.statementId,
+                type: 'Statement'
+              }
+            },
+            file: {
+              data: {
+                id: fileHash,
+                type: 'File'
+              }
             }
           }
         }
@@ -261,7 +300,7 @@ export default {
       this.fileIdSourceAttachment = ''
     },
 
-    resetOtherAttachments () {
+    resetGenericAttachments () {
       this.fileIds = []
       this.$refs.uploadStatementAttachment.clearFilesList()
     },
@@ -283,7 +322,7 @@ export default {
       this.createSourceAttachment()
     },
 
-    saveOtherAttachments () {
+    saveGenericAttachments () {
         if (this.fileIds.length === 0 && !dpconfirm(Translator.trans('files.empty'))) {
           return
         }
@@ -292,7 +331,7 @@ export default {
 
         const uploadPromises = this.fileIds.map(hash => {
           const resource = this.getItemResource(hash, 'generic')
-          const url = Routing.generate('api_resource_create', { resourceType: 'StatementAttachment' })
+          const url = Routing.generate('api_resource_create', { resourceType: 'GenericStatementAttachment' })
           const params = {}
           const data = {
             data: resource
@@ -303,11 +342,14 @@ export default {
 
       Promise.allSettled(uploadPromises)
         .then(() => {
-          this.resetOtherAttachments()
+          dplan.notify.confirm(Translator.trans('confirm.statement.attachment.created'))
+          this.resetGenericAttachments()
           this.triggerStatementRequest()
           this.isProcessingOtherAttachments = false
         })
         .catch(error => {
+          console.error(error)
+          dplan.notify.error(Translator.trans('error.statement.source.attachment.create'))
           this.isProcessingOtherAttachments = false
         })
     },
