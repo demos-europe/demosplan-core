@@ -21,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
-use Zenstruck\Foundry\Proxy;
+use Zenstruck\Foundry\Persistence\Proxy;
 
 class DeleteProcedureCommandTest extends FunctionalTestCase
 {
@@ -45,23 +45,27 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
         $output = $commandTester->getDisplay();
         $successString = "procedure(s) with id(s) $id are deleted";
 
-        $this->assertStringContainsString($successString, $output);
+        static::assertStringContainsString($successString, $output);
     }
 
-    public function testDeleteAllProcedures(): void
+    public function testSuccessOutput(): void
     {
         $proceduresToDelete = $this->getEntries(Procedure::class);
-
         $procedureIds = [];
-
         foreach ($proceduresToDelete as $procedure) {
             $procedureIds[] = $procedure->getId();
         }
+        $procedureIdsAsString = implode(',', $procedureIds);
 
-        $commandTester = $this->executeCommand(implode(', ', $procedureIds));
+        $commandTester = $this->executeCommand($procedureIdsAsString);
         $output = $commandTester->getDisplay();
-        $successString = "procedure(s) with id(s) $procedureIds are deleted";
-        $this->assertStringContainsString($successString, $output);
+
+        //extract UUIDs from output
+        $successPartOfTheOutput = explode(' are deleted', explode('procedure(s) with id(s)', $output)[1])[0];
+        $extractedUUIDsAsString = trim(str_replace(["\n", "        "], "", $successPartOfTheOutput));
+        $successfullyDeletedProcedureIds = explode(',', $extractedUUIDsAsString);
+
+        static::assertEqualsCanonicalizing($procedureIds, $successfullyDeletedProcedureIds);
     }
 
     public function testMissingArgument(): void
@@ -96,14 +100,14 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
                 'command'              => $command->getName(),
                 'procedureIds'         => $procedureIds,
                 '--without-repopulate' => true,
-                '--dry-run'            => true,
+                '--dry-run'            => false,
             ]
         );
 
         return $commandTester;
     }
 
-    private function executeCommandWithoutArgument(): CommandTester
+    private function executeCommandWithoutArgument(): void
     {
         $kernel = self::bootKernel();
         $application = new ConsoleApplication($kernel, false);
@@ -127,6 +131,5 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
             ['command' => $command->getName(), '--without-repopulate' => true, '--dry-run' => true]
         );
 
-        return $commandTester;
     }
 }
