@@ -178,13 +178,13 @@
       </div>
 
       <addon-wrapper
+        hook-name="mein.berlin.organisation.id.field"
         :addon-props="{
           class: 'ml-4',
           orgaId: this.organisationId
         }"
         class="w-1/2"
-        hook-name="mein.berlin.organisation.id.field"
-        @input="updateMeinBerlinOrganisationId" />
+        @blur="updateAddonPayload" />
 
       <div class="layout__item u-1-of-1 u-mt">
         <legend class="u-pb-0_5">
@@ -930,11 +930,6 @@ export default {
   },
 
   methods: {
-    updateMeinBerlinOrganisationId (value) {
-      this.meinBerlinOrganisationId = value
-      this.emitOrganisationUpdate()
-    },
-
     canEdit (field) {
       return hasPermission('feature_orga_edit_all_fields') && this.writableFields.includes(field)
     },
@@ -976,7 +971,7 @@ export default {
     emitOrganisationUpdate () {
       // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
       Vue.nextTick(() => {
-        this.$emit('organisation-update', { organisation: this.localOrganisation, meinBerlinAddon: this.meinBerlinOrganisationId })
+        this.$emit('organisation-update', this.localOrganisation)
       })
     },
 
@@ -989,7 +984,11 @@ export default {
       })
       this.emitOrganisationUpdate()
       this.resetRegistrationStatus()
-    }
+    },
+
+    updateAddonPayload (payload) {
+      this.$emit('addon-update', payload)
+    },
   },
 
   created () {

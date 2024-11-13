@@ -724,15 +724,11 @@
                                 </div>
                             {% endif %}
 
-
                             <addon-wrapper
                                 hook-name="mein.berlin.procedure.data.field"
-                                :addon-props="{
-                                  class: 'mb-4'
-                                }"
-                                @input="updateMeinBerlinProcedureData">
+                                :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')"
+                                @blur="updateAddonPayload">
                             </addon-wrapper>
-
 
                             {% if hasPermission('feature_short_url') %}
                                 <div>

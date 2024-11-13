@@ -25,7 +25,6 @@ import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'
 import ParticipationPhases from './ParticipationPhases'
-import { mapActions, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'DpBasicSettings',
@@ -132,6 +131,7 @@ export default {
 
   data () {
     return {
+      addonPayload: null,
       isLoadingPlisData: false,
       selectedAgencies: this.initAgencies,
       selectedDataInputOrgas: this.initDataInputOrgas,
@@ -141,19 +141,11 @@ export default {
       selectedProcedureCategories: this.initProcedureCategories,
       selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures,
       procedureDescription: this.procedureExternalDesc,
-      procedureName: this.initProcedureName,
-      procedureShortName: '',
-      meinBerlinProcedure: null,
-      meinBerlinProcedureId: '',
-      payload: null
+      procedureName: this.initProcedureName
     }
   },
 
   computed: {
-    ...mapState('MeinBerlinAddonProcedureData', {
-      meinBerlinAddonProcedureData: 'items'
-    }),
-
     authUsersOptions () {
       const users = JSON.parse(JSON.stringify(this.authorizedUsersOptions))
       return sortAlphabetically(users, 'name')
@@ -161,9 +153,35 @@ export default {
   },
 
   methods: {
-    ...mapActions('MeinBerlinAddonProcedureData', {
-      meinBerlinAddonProcedureDataList: 'list'
-    }),
+    addonRequest () {
+      const payload = this.createAddonPayload()
+
+      const apiCall = this.addonPayload.request === 'PATCH'
+        ? dpApi.patch(Routing.generate('api_resource_update', { resourceType: this.addonPayload.resourceType, resourceId: this.addonPayload.id }), {}, { data: payload })
+        : dpApi.post(Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType }), {}, { data: payload })
+
+      apiCall
+        .then(checkResponse)
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        })
+    },
+
+    createAddonPayload () {
+      return {
+        type: this.addonPayload.resourceType,
+        attributes: this.addonPayload.attributes,
+        relationships: this.addonPayload.request === 'PATCH' ? undefined : {
+          procedure: {
+            data: {
+              type: 'Procedure',
+              id: this.procedureId
+            }
+          }
+        },
+        ...(this.addonPayload.request === 'PATCH' ? { id: this.addonPayload.id } : {}),
+      }
+    },
 
     getDataPlis (plisId, routeName) {
       return dpApi({
@@ -188,7 +206,7 @@ export default {
     },
 
     submit () {
-      this.updateMeinBerlinAddonProcedureData()
+      this.addonRequest()
       this.$refs.configForm.submit()
     },
 
@@ -196,57 +214,12 @@ export default {
       this.selectedAuthUsers = []
     },
 
-    updateMeinBerlinProcedureData (value) {
-      this.procedureShortName = value
-    },
-
-    updateMeinBerlinAddonProcedureData () {
-      const payload = this.createPayload()
-
-      /*const apiCall = this.meinBerlinProcedureData
-        ? dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'MeinBerlinAddonProcedureData', resourceId: this.meinBerlinProcedureData }), {}, { data: payload })
-        : dpApi.post(Routing.generate('api_resource_create', { resourceType: 'MeinBerlinAddonProcedureData' }), {}, { data: payload })*/
-
-      const apiCall = dpApi.post(Routing.generate('api_resource_create', { resourceType: 'MeinBerlinAddonProcedureData' }), {}, { data: payload })
-
-      apiCall
-        .then(checkResponse)
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        })
-    },
-
-    createPayload () {
-      return {
-        type: 'MeinBerlinAddonProcedureData', // TODO: event kommt aus dem addon
-        attributes: {
-          procedureShortName: this.procedureShortName
-        },
-        relationships: this.meinBerlinProcedure ? undefined : {
-          procedure: {
-            data: {
-              type: 'Procedure',
-              id: this.procedureId
-            }
-          }
-        },
-        ...(this.meinBerlinProcedure ? { id: this.meinBerlinProcedureId } : {}),
-      }
+    updateAddonPayload (payload) {
+      this.addonPayload = payload
     }
   },
 
   mounted () {
-    this.meinBerlinAddonProcedureDataList({ include: ['procedure'].join() })
-      .then((response) => {
-        if (response) {
-          this.meinBerlinProcedure = Object.values(response.data?.MeinBerlinAddonProcedureData).find(el => el.relationships.procedure.data.id === this.procedureId) || null
-
-          if (this.meinBerlinProcedure) {
-            this.meinBerlinProcedureId = this.meinBerlinProcedure.id
-            this.procedureShortName = this.meinBerlinProcedure.attributes.procedueShortName
-          }
-        }
-      })
     const users = JSON.parse(JSON.stringify(this.initAuthUsers))
     this.selectedAuthUsers = sortAlphabetically(users, 'name')
   }

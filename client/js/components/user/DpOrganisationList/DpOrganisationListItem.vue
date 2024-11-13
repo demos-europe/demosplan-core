@@ -56,7 +56,8 @@
         :initial-organisation="initialOrganisation"
         :organisation="organisation"
         :organisation-id="organisation.id"
-        @organisation-update="updateOrganisation" />
+        @organisation-update="updateOrganisation"
+        @addon-update="updateAddonPayload" />
 
       <!-- Button row -->
       <dp-button-row
@@ -123,6 +124,7 @@ export default {
 
   data () {
     return {
+      addonPayload: null,
       isOpen: false,
       isLoading: true,
       meinBerlinOrganisationId: '',
@@ -176,9 +178,11 @@ export default {
       return this.$store.dispatch(`Orga${this.moduleSubstring}/restoreFromInitial`, payload)
     },
 
-    save: function () {
+    save () {
       if (this.dpValidate.organisationForm) {
         this.isOpen = !this.isOpen
+
+        this.addonRequest()
 
         /*
          * Some update requests need this information, others cant handle them
@@ -231,9 +235,42 @@ export default {
       this.isOpen = open
     },
 
+    addonRequest () {
+      const payload = this.createAddonPayload()
+
+      const apiCall = this.addonPayload.request === 'PATCH'
+        ? dpApi.patch(Routing.generate('api_resource_update', { resourceType: this.addonPayload.resourceType, resourceId: this.addonPayload.id }), {}, { data: payload })
+        : dpApi.post(Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType }), {}, { data: payload })
+
+      apiCall
+        .then(checkResponse)
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        })
+    },
+
+    createAddonPayload () {
+      return {
+        type: this.addonPayload.resourceType,
+        attributes: this.addonPayload.attributes,
+        relationships: this.addonPayload.request === 'PATCH' ? undefined : {
+          orga: {
+            data: {
+              type: 'Orga',
+              id: this.organisation.id
+            }
+          }
+        },
+        ...(this.addonPayload.request === 'PATCH' ? { id: this.addonPayload.id } : {}),
+      }
+    },
+
+    updateAddonPayload (payload) {
+      this.addonPayload = payload
+    },
+
     updateOrganisation (payload) {
-      this.meinBerlinOrganisationId = payload.meinBerlinAddon
-      this.setItem({ ...payload.organisation, id: payload.organisation.id })
+      this.setItem({ ...payload, id: payload.id })
     }
   }
 }
