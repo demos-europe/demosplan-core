@@ -19,6 +19,8 @@ use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\GenericStatementAttachmentConfigBuilder;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
@@ -38,7 +40,7 @@ use Webmozart\Assert\Assert;
 class GenericStatementAttachmentResourceType extends DplanResourceType
 {
     public function __construct(
-        private readonly FileService $fileService,
+        private readonly FileService $fileService, private readonly StatementRepository $statementRepository, private readonly FileContainerRepository $fileContainerRepository,
     ) {
     }
 
@@ -108,6 +110,25 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
         }
 
         return [];
+    }
+
+
+    public function deleteEntity(string $entityIdentifier): void
+    {
+        // Since the FileContainer does not have a direct reference to the Statement, we need to check the access conditions of the Statement.
+        // Therefore, we retrieve the Statement from the FileContainer and verify its access conditions.
+
+        $fileContainer = $this->getEntity($entityIdentifier);
+        Assert::notNull($fileContainer);
+
+        $statementConditions = $this->getTypes()->getStatementResourceType()->buildAccessConditions($this->getTypes()->getStatementResourceType());
+        $statementConditions [] = $this->conditionFactory->propertyHasValue($fileContainer->getEntityId(), 'id');
+
+        $statement = $this->statementRepository->getEntities($statementConditions,[]);
+
+        Assert::notNull($statement);
+
+        parent::deleteEntity($entityIdentifier);
     }
 
     public static function getName(): string
