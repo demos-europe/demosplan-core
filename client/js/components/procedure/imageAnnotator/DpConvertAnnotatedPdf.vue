@@ -55,8 +55,9 @@
           :used-intern-ids="usedInternIds"
           :init-values="formValues"
           submit-route-name="dplan_pdf_import_to_statement">
-          <dp-button
-            text="Text zwischenspeichern" />
+          <div class="flex justify-end mt-2">
+            <dp-button text="Text zwischenspeichern" />
+          </div>
         </dp-simplified-new-statement-form>
       </div>
     </div>
@@ -142,10 +143,11 @@ export default {
       document: null,
       formValues: {
         authoredDate: '',
+        quickSave: '',
+        submitter: { ...this.initSubmitter },
         submittedDate: '',
         tags: [],
-        text: '',
-        submitter: { ...this.initSubmitter }
+        text: ''
       },
       isLoading: false,
       largeColumnWidth: 66.6,
@@ -205,7 +207,11 @@ export default {
       }
       const documentResponse = await dpApi.get(url, params)
       this.document = documentResponse.data.data.find(el => el.type === 'AnnotatedStatementPdf')
-      this.formValues = { ...this.formValues, text: this.document.attributes.text }
+      this.formValues = {
+        ...this.formValues,
+        quickSave: this.document.attributes.quickSave,
+        text: this.document.attributes.text
+      }
       this.pages = documentResponse.data.included.filter(el => el.type === 'AnnotatedStatementPdfPage')
       this.isLoading = false
     },

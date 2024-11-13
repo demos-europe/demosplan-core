@@ -321,7 +321,7 @@
         :toolbar-items="{ linkButton: true }"
         required
         hidden-input="r_text"
-        v-model="values.text" />
+        v-model="values.quickSave ?? values.text" />
 
       <slot />
 
@@ -475,6 +475,7 @@ export default {
       required: false,
       default: () => ({
         authoredDate: '',
+        quickSave: '',
         submittedDate: '',
         tags: [],
         text: '',
@@ -531,6 +532,7 @@ export default {
       values: {
         authoredDate: '',
         memo: '',
+        quickSave: '',
         submittedDate: '',
         tags: [],
         text: '',
