@@ -46,31 +46,33 @@
           v-if="!localAttachments.originalAttachment.hash && !editable"
           v-text="Translator.trans('none')" />
 
-        <dp-upload-files
-          v-if="!localAttachments.originalAttachment.hash && editable"
-          id="uploadSourceStatementAttachment"
-          ref="uploadSourceStatementAttachment"
-          allowed-file-types="all"
-          :basic-auth="dplan.settings.basicAuth"
-          :class="!editable ? 'pointer-events-none opacity-70' : 'mt-1'"
-          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
-          :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
-          :max-number-of-files="1"
-          name="uploadSourceStatementAttachment"
-          :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
-          :tus-endpoint="dplan.paths.tusEndpoint"
-          @file-remove="setSourceAttachmentFileId('')"
-          @upload-success="handleSourceAttachmentUploadSuccess" />
+        <template  v-if="editable">
+          <dp-upload-files
+            v-if="!localAttachments.originalAttachment.hash"
+            id="uploadSourceStatementAttachment"
+            ref="uploadSourceStatementAttachment"
+            allowed-file-types="all"
+            :basic-auth="dplan.settings.basicAuth"
+            :class="!editable ? 'pointer-events-none opacity-70' : 'mt-1'"
+            :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
+            :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
+            :max-number-of-files="1"
+            name="uploadSourceStatementAttachment"
+            :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
+            :tus-endpoint="dplan.paths.tusEndpoint"
+            @file-remove="setSourceAttachmentFileId('')"
+            @upload-success="handleSourceAttachmentUploadSuccess" />
 
-        <div class="text-right">
-          <dp-button-row
-            primary
-            secondary
-            :busy="isProcessingSourceAttachment"
-            :disabled="fileIdSourceAttachment === '' && isSourceAttachmentMarkedForDeletion === false"
-            @primary-action="saveSourceAttachment"
-            @secondary-action="handleResetSourceAttachment" />
-        </div>
+          <div class="text-right">
+            <dp-button-row
+              primary
+              secondary
+              :busy="isProcessingSourceAttachment"
+              :disabled="fileIdSourceAttachment === '' && isSourceAttachmentMarkedForDeletion === false"
+              @primary-action="saveSourceAttachment"
+              @secondary-action="handleResetSourceAttachment" />
+          </div>
+        </template>
       </div>
 
       <!-- Other attachments -->
