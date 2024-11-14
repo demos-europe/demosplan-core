@@ -54,7 +54,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  */
 final class UserFactory extends PersistentProxyObjectFactory
 {
-
     public static function class(): string
     {
         return User::class;
@@ -62,7 +61,6 @@ final class UserFactory extends PersistentProxyObjectFactory
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
      */
     protected function defaults(): array|callable
     {
@@ -81,6 +79,6 @@ final class UserFactory extends PersistentProxyObjectFactory
      */
     protected function initialize(): static
     {
-        return $this ;
+        return $this;
     }
 }
