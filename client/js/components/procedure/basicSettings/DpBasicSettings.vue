@@ -202,7 +202,9 @@ export default {
     },
 
     submit () {
-      this.addonRequest().then(this.$refs.configForm.submit)
+      if (this.dpValidate.configForm) {
+        this.addonRequest().then(this.$refs.configForm.submit)
+      }
     },
 
     unselectAllAuthUsers () {

@@ -127,7 +127,6 @@ export default {
       addonPayload: null,
       isOpen: false,
       isLoading: true,
-      meinBerlinOrganisationId: '',
       moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : ''
     }
   },
@@ -162,10 +161,6 @@ export default {
   },
 
   methods: {
-    ...mapMutations('Orga', {
-      updateOrga: 'update'
-    }),
-
     reset () {
       this.restoreOrganisation(this.organisation.id)
         .then(() => {
@@ -181,9 +176,7 @@ export default {
     save () {
       if (this.dpValidate.organisationForm) {
         this.isOpen = !this.isOpen
-
         this.addonRequest()
-
         /*
          * Some update requests need this information, others cant handle them
          * depending on the permissions

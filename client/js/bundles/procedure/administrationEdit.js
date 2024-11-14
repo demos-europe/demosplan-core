@@ -20,10 +20,9 @@ import DPWizard from '@DpJs/lib/procedure/DPWizard'
 import { initialize } from '@DpJs/InitVue'
 import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 
-const apiStores = ['MeinBerlinAddonProcedureData']
 const components = { DpBasicSettings, DpEmailList, DpDateRangePicker }
 
-initialize(components, {}, apiStores).then(() => {
+initialize(components).then(() => {
   UrlPreview()
   DPWizard()
   AdministrationMaster()

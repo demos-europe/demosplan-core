@@ -851,7 +851,6 @@ export default {
   data () {
     return {
       localOrganisation: {},
-      meinBerlinOrganisationId: '',
       typeStatuses: [
         {
           value: 'accepted',
