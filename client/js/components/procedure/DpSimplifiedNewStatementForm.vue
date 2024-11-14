@@ -584,7 +584,7 @@ export default {
     quickSaveText () {
       const payload = {
         data: {
-          type: 'AnnotatedStatementPdfPage',
+          type: 'AnnotatedStatementPdf',
           id: this.documentId,
           attributes: { quickSave: this.values.text }
         }
