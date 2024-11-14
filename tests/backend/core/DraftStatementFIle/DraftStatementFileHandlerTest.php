@@ -54,8 +54,6 @@ class DraftStatementFileHandlerTest extends FunctionalTestCase
         $draftStatementFile->_save();
 
         $result = $this->sut->getDraftStatementRelatedToThisFile($fileId);
-        $this->assertNotEmpty($result);
-
-        $this->assertSame([$draftStatementFile], $result);
+        $this->assertSame([$draftStatementFile->_real()], $result);
     }
 }
