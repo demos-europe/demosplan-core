@@ -217,6 +217,19 @@ export default {
   },
 
   watch: {
+    editable: {
+      handler(newVal) {
+        /**
+         * Reset unsaved attachment changes (additon + deletion) when editable is changed to false by the user
+         */
+        if (!newVal) {
+          this.resetGenericAttachments()
+          this.setLocalGenericAttachments(this.initialAttachments.additionalAttachments)
+          this.resetSourceAttachment()
+          this.setLocalOriginalAttachment(this.initialAttachments.originalAttachment)
+        }
+      }
+    },
     'initialAttachments.additionalAttachments': {
       handler(newVal) {
         this.localAttachments.additionalAttachments = JSON.parse(JSON.stringify(newVal))
@@ -408,7 +421,7 @@ export default {
 
     removeSourceAttachment () {
       this.setSourceAttachmentFileId('')
-      this.localAttachments.originalAttachment = {}
+      this.setLocalOriginalAttachment({})
     },
 
     resetGenericAttachments () {
