@@ -24,18 +24,11 @@ class DraftStatementFileHandlerTest extends FunctionalTestCase
     /** @var DraftStatementFileHandler */
     protected $sut;
 
-    /** @var DraftStatement */
-    protected $testDraftStatement;
-
-    /** @var File */
-    protected $testFile;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->sut = $this->getContainer()->get(DraftStatementFileHandler::class);
-        $this->testDraftStatement = $this->fixtures->getReference('testDraftStatement');
     }
 
     public function testGetDraftStatementRelatedToThisFileReturnsEmptyArrayWhenFileIsNull(): void
