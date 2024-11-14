@@ -40,7 +40,7 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly FileService $fileService,
-        private readonly StatementRepository $statementRepository
+        private readonly StatementRepository $statementRepository,
     ) {
     }
 
