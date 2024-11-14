@@ -1285,7 +1285,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-modules-commonjs@npm:^7.2.0, @babel/plugin-transform-modules-commonjs@npm:^7.24.8":
+"@babel/plugin-transform-modules-commonjs@npm:^7.2.0":
   version: 7.24.8
   resolution: "@babel/plugin-transform-modules-commonjs@npm:7.24.8"
   dependencies:
@@ -12999,7 +12999,7 @@ __metadata:
     "@babel/eslint-plugin": "npm:^7.24.7"
     "@babel/plugin-proposal-object-rest-spread": "npm:^7.20.7"
     "@babel/plugin-syntax-dynamic-import": "npm:^7.8.3"
-    "@babel/plugin-transform-modules-commonjs": "npm:^7.24.8"
+    "@babel/plugin-transform-modules-commonjs": "npm:^7.25.9"
     "@babel/plugin-transform-object-assign": "npm:^7.25.9"
     "@babel/plugin-transform-runtime": "npm:^7.25.9"
     "@babel/preset-env": "npm:^7.26.0"
