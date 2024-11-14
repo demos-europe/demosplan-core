@@ -178,10 +178,13 @@
       </div>
 
       <addon-wrapper
-        hook-name="mein.berlin.organisation.id.field"
+        hook-name="mein.berlin.additional.field"
         :addon-props="{
           class: 'ml-4',
-          orgaId: this.organisationId
+          relationshipId: this.organisationId,
+          resourceType: 'MeinBerlinAddonOrganisation',
+          label: Translator.trans('organisation.mein.berlin.id'),
+          required: true
         }"
         class="w-1/2"
         @blur="updateAddonPayload" />

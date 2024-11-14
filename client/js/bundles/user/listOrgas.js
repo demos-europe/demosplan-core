@@ -24,7 +24,7 @@ const components = {
   DpEditor
 }
 
-const apiStores = ['Customer', 'Orga', 'MeinBerlinAddonOrganisation']
+const apiStores = ['Customer', 'Orga']
 const presetStoreModules = {
   Orga: [{
     name: 'Pending',

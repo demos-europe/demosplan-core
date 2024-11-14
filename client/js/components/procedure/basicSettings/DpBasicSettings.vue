@@ -160,11 +160,7 @@ export default {
         ? dpApi.patch(Routing.generate('api_resource_update', { resourceType: this.addonPayload.resourceType, resourceId: this.addonPayload.id }), {}, { data: payload })
         : dpApi.post(Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType }), {}, { data: payload })
 
-      apiCall
-        .then(checkResponse)
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        })
+      return apiCall.then(checkResponse)
     },
 
     createAddonPayload () {
@@ -206,8 +202,7 @@ export default {
     },
 
     submit () {
-      this.addonRequest()
-      this.$refs.configForm.submit()
+      this.addonRequest().then(this.$refs.configForm.submit)
     },
 
     unselectAllAuthUsers () {

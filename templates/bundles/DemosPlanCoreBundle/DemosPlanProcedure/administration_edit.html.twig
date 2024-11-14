@@ -725,8 +725,12 @@
                             {% endif %}
 
                             <addon-wrapper
-                                hook-name="mein.berlin.procedure.data.field"
-                                :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')"
+                                hook-name="mein.berlin.additional.field"
+                                :addon-props="{
+                                    'label': '{{ 'procedure.mein.berlin.id'|trans }}',
+                                    'relationshipId': '{{ proceduresettings.id }}',
+                                    'resourceType': 'MeinBerlinAddonProcedureData'
+                                }"
                                 @blur="updateAddonPayload">
                             </addon-wrapper>
 
@@ -907,7 +911,7 @@
                                         {% endif %}
 
                                         <dp-input
-                                            id="pictogramCopyright"
+                                            id="r_pictogramCopyright"
                                             class="my-2"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.copyright')
@@ -918,12 +922,12 @@
                                         </dp-input>
 
                                         <dp-input
-                                            id="pictogramAltText"
+                                            id="r_pictogramAltText"
                                             class="my-2"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.altText')
                                             }"
-                                            name="pictogramAltText"
+                                            name="r_pictogramAltText"
                                             value="{{ proceduresettings.pictogramAltText|default }}"
                                             required>
                                         </dp-input>
