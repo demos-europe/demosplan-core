@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\GenericStatementAttachmentConfigBuilder;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
@@ -40,7 +39,8 @@ use Webmozart\Assert\Assert;
 class GenericStatementAttachmentResourceType extends DplanResourceType
 {
     public function __construct(
-        private readonly FileService $fileService, private readonly StatementRepository $statementRepository, private readonly FileContainerRepository $fileContainerRepository,
+        private readonly FileService $fileService,
+        private readonly StatementRepository $statementRepository
     ) {
     }
 
