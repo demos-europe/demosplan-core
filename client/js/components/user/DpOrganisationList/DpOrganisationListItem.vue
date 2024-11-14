@@ -176,28 +176,31 @@ export default {
     save () {
       if (this.dpValidate.organisationForm) {
         this.isOpen = !this.isOpen
-        this.addonRequest()
-        /*
-         * Some update requests need this information, others cant handle them
-         * depending on the permissions
-         */
-        const additionalAttributes = ['showname', 'showlist']
-        if (hasPermission('feature_notification_ending_phase')) {
-          additionalAttributes.push('emailNotificationEndingPhase')
-        }
-        if (hasPermission('feature_notification_statement_new')) {
-          additionalAttributes.push('emailNotificationNewStatement')
-        }
 
-        this.saveOrganisationAction({
-          id: this.organisation.id,
-          options: {
-            attributes: {
-              full: ['registrationStatuses'],
-              unchanged: additionalAttributes
+        this.handleAddonRequest()
+          .then(() => {
+            /*
+             * Some update requests need this information, others cant handle them
+             * depending on the permissions
+             */
+            const additionalAttributes = ['showname', 'showlist']
+            if (hasPermission('feature_notification_ending_phase')) {
+              additionalAttributes.push('emailNotificationEndingPhase')
             }
-          }
-        })
+            if (hasPermission('feature_notification_statement_new')) {
+              additionalAttributes.push('emailNotificationNewStatement')
+            }
+
+            this.saveOrganisationAction({
+              id: this.organisation.id,
+              options: {
+                attributes: {
+                  full: ['registrationStatuses'],
+                  unchanged: additionalAttributes
+                }
+              }
+            })
+          })
       } else {
         dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
       }
@@ -228,18 +231,14 @@ export default {
       this.isOpen = open
     },
 
-    addonRequest () {
+    handleAddonRequest () {
       const payload = this.createAddonPayload()
 
       const apiCall = this.addonPayload.request === 'PATCH'
         ? dpApi.patch(Routing.generate('api_resource_update', { resourceType: this.addonPayload.resourceType, resourceId: this.addonPayload.id }), {}, { data: payload })
         : dpApi.post(Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType }), {}, { data: payload })
 
-      apiCall
-        .then(checkResponse)
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        })
+      return apiCall.then(checkResponse)
     },
 
     createAddonPayload () {

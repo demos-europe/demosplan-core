@@ -153,16 +153,6 @@ export default {
   },
 
   methods: {
-    addonRequest () {
-      const payload = this.createAddonPayload()
-
-      const apiCall = this.addonPayload.request === 'PATCH'
-        ? dpApi.patch(Routing.generate('api_resource_update', { resourceType: this.addonPayload.resourceType, resourceId: this.addonPayload.id }), {}, { data: payload })
-        : dpApi.post(Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType }), {}, { data: payload })
-
-      return apiCall.then(checkResponse)
-    },
-
     createAddonPayload () {
       return {
         type: this.addonPayload.resourceType,
@@ -189,6 +179,16 @@ export default {
         })
     },
 
+    handleAddonRequest () {
+      const payload = this.createAddonPayload()
+
+      const apiCall = this.addonPayload.request === 'PATCH'
+        ? dpApi.patch(Routing.generate('api_resource_update', { resourceType: this.addonPayload.resourceType, resourceId: this.addonPayload.id }), {}, { data: payload })
+        : dpApi.post(Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType }), {}, { data: payload })
+
+      return apiCall.then(checkResponse)
+    },
+
     selectAllAuthUsers () {
       this.selectedAuthUsers = this.authorizedUsersOptions
     },
@@ -203,7 +203,8 @@ export default {
 
     submit () {
       if (this.dpValidate.configForm) {
-        this.addonRequest().then(this.$refs.configForm.submit)
+        this.handleAddonRequest()
+          .then(this.$refs.configForm.submit)
       }
     },
 
