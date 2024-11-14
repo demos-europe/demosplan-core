@@ -13110,7 +13110,7 @@ __metadata:
     timers-browserify: "npm:^2.0.12"
     tippy.js: "npm:^6.3.7"
     util: "npm:^0.12.4"
-    uuid: "npm:^10.0.0"
+    uuid: "npm:^11.0.3"
     vue: "npm:~2.7.16"
     vue-loader: "npm:^15.11.1"
     vue-scrollto: "npm:^2.20.0"
@@ -14963,6 +14963,15 @@ __metadata:
   bin:
     uuid: dist/bin/uuid
   checksum: 10c0/eab18c27fe4ab9fb9709a5d5f40119b45f2ec8314f8d4cf12ce27e4c6f4ffa4a6321dc7db6c515068fa373c075b49691ba969f0010bf37f44c37ca40cd6bf7fe
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^11.0.3":
+  version: 11.0.3
+  resolution: "uuid@npm:11.0.3"
+  bin:
+    uuid: dist/esm/bin/uuid
+  checksum: 10c0/cee762fc76d949a2ff9205770334699e0043d52bb766472593a25f150077c9deed821230251ea3d6ab3943a5ea137d2826678797f1d5f6754c7ce5ce27e9f7a6
   languageName: node
   linkType: hard
 
