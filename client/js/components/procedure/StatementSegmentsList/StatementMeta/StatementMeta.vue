@@ -104,7 +104,7 @@
           @save="updatedStatement => save(updatedStatement)" />
 
         <statement-meta-attachments
-          :attachments="attachments"
+          :initial-attachments="attachments"
           :editable="editable"
           :procedure-id="procedure.id"
           :statement-id="statement.id"
@@ -226,6 +226,7 @@ export default {
     return {
       activeItem: 'entry',
       finalMailDefaultText: '',
+      isScrolling: false,
       localStatement: null,
       menuEntries: [
         { id: 'entry', transKey: 'entry' },
@@ -304,6 +305,21 @@ export default {
       this.$emit('input', { fieldName, value })
     },
 
+    handleScroll() {
+      if (this.isScrolling) return
+
+      const sections = this.menuEntries.map(entry => document.querySelector(`#${entry.id}`))
+      const scrollPosition = window.scrollY + 62
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i]
+        if (section && section.offsetTop <= scrollPosition) {
+          this.activeItem = this.menuEntries[i].id
+          break
+        }
+      }
+    },
+
     reset () {
       this.setInitValues()
     },
@@ -313,11 +329,19 @@ export default {
     },
 
     scrollToItem (id) {
+      this.isScrolling = true
       const element = document.querySelector(`#${id}`)
       if (element) {
         const headerOffset = 62
         const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
         const offsetPosition = elementPosition - headerOffset
+
+        const onScrollEnd = () => {
+          this.isScrolling = false
+          window.removeEventListener('scrollend', onScrollEnd)
+        };
+
+        window.addEventListener('scrollend', onScrollEnd)
 
         window.scrollTo({
           top: offsetPosition,
@@ -351,6 +375,14 @@ export default {
 
   created () {
     this.setInitValues()
+  },
+
+  mounted() {
+    window.addEventListener('scroll', this.handleScroll)
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('scroll', this.handleScroll)
   }
 }
 </script>

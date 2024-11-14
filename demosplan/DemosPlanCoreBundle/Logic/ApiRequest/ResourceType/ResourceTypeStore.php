@@ -76,7 +76,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\SignLanguageOverviewVideoResourc
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SingleDocumentResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SlugResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementAttachmentResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\SourceStatementAttachmentResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFieldDefinitionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFormDefinitionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFragmentResourceType;
@@ -228,7 +228,7 @@ class ResourceTypeStore
 
     protected SlugResourceType $slugResourceType;
 
-    protected StatementAttachmentResourceType $statementAttachmentResourceType;
+    protected SourceStatementAttachmentResourceType $sourceStatementAttachmentResourceType;
 
     protected StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType;
 
@@ -327,7 +327,7 @@ class ResourceTypeStore
         SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
         SingleDocumentResourceType $singleDocumentResourceType,
         SlugResourceType $slugResourceType,
-        StatementAttachmentResourceType $statementAttachmentResourceType,
+        SourceStatementAttachmentResourceType $sourceStatementAttachmentResourceType,
         StatementFieldDefinitionResourceType $statementFieldDefinitionResourceType,
         StatementFormDefinitionResourceType $statementFormDefinitionResourceType,
         StatementFragmentResourceType $statementFragmentResourceType,
@@ -409,7 +409,7 @@ class ResourceTypeStore
         $this->similarStatementSubmitterResourceType = $similarStatementSubmitterResourceType;
         $this->singleDocumentResourceType = $singleDocumentResourceType;
         $this->slugResourceType = $slugResourceType;
-        $this->statementAttachmentResourceType = $statementAttachmentResourceType;
+        $this->sourceStatementAttachmentResourceType = $sourceStatementAttachmentResourceType;
         $this->statementFieldDefinitionResourceType = $statementFieldDefinitionResourceType;
         $this->statementFormDefinitionResourceType = $statementFormDefinitionResourceType;
         $this->statementFragmentResourceType = $statementFragmentResourceType;
@@ -748,9 +748,9 @@ class ResourceTypeStore
         return $this->slugResourceType;
     }
 
-    public function getStatementAttachmentResourceType(): StatementAttachmentResourceType
+    public function getSourceStatementAttachmentResourceType(): SourceStatementAttachmentResourceType
     {
-        return $this->statementAttachmentResourceType;
+        return $this->sourceStatementAttachmentResourceType;
     }
 
     public function getStatementFieldDefinitionResourceType(): StatementFieldDefinitionResourceType

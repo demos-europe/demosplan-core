@@ -116,6 +116,10 @@ services:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType
         public: true
 
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\OrgaResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType
+        public: true
+
     DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType
         public: true

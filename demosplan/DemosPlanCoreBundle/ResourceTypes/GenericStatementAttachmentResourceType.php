@@ -13,13 +13,18 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceCreateFlushEvent;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
-use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\GenericStatementAttachmentConfigBuilder;
+use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
+use EDT\Wrapping\Contracts\ContentField;
+use EDT\Wrapping\CreationDataInterface;
+use Exception;
 use Webmozart\Assert\Assert;
 
 /**
@@ -28,14 +33,12 @@ use Webmozart\Assert\Assert;
  * @template-extends DplanResourceType<T>
  *
  * @property-read StatementResourceType $statement
- * /// Generic attachment resource type because when deleting I really lnow that it belongs to the stament.
- * /// also overrite delet emethod to double check the statement id
+ * @property-read FileResourceType $file
  */
 class GenericStatementAttachmentResourceType extends DplanResourceType
 {
     public function __construct(
-        private readonly StatementRepository $statementRepository,
-        private readonly FileContainerRepository $fileContainerRepository,
+        private readonly FileService $fileService,
     ) {
     }
 
@@ -46,30 +49,65 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
             ->setReadableByPath();
         $configBuilder->file
             ->setRelationshipType($this->getTypes()->getFileResourceType())
-            ->setReadableByPath();
-        // $configBuilder->statement->setRelationshipType($this->resourceTypeStore->getStatementResourceType())->readable();
+            ->setReadableByPath()
+            ->addPathCreationBehavior();
+
+        $configBuilder->statement
+            ->setRelationshipType($this->getTypes()->getStatementResourceType())
+            ->addPathCreationBehavior();
 
         return $configBuilder;
     }
 
+    public function createEntity(CreationDataInterface $entityData): ModifiedEntity
+    {
+        try {
+            return $this->getTransactionService()->executeAndFlushInTransaction(
+                function () use ($entityData): ModifiedEntity {
+                    $toOneRelationships = $entityData->getToOneRelationships();
+
+                    $statementRef = $toOneRelationships[$this->statement->getAsNamesInDotNotation()];
+                    Assert::notNull($statementRef);
+                    /** @var Statement $statement */
+                    $statement = $this->resourceTypeStore->getStatementResourceType()->getEntity($statementRef[ContentField::ID]);
+
+                    $fileRef = $toOneRelationships[$this->file->getAsNamesInDotNotation()];
+                    Assert::notNull($fileRef);
+                    /** @var File $file */
+                    $file = $this->resourceTypeStore->getFileResourceType()->getEntity($fileRef[ContentField::ID]);
+
+                    $fileContainer = $this->fileService->addStatementFileContainer(
+                        $statement->getId(),
+                        $file->getId(),
+                        $file->getFileString(),
+                        false
+                    );
+
+                    $modifiedEntity = new ModifiedEntity($fileContainer, []);
+
+                    $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent(
+                        $this,
+                        $modifiedEntity->getEntity()
+                    ));
+
+                    return $modifiedEntity;
+                }
+            );
+        } catch (Exception $exception) {
+            $this->addCreationErrorMessage([]);
+
+            throw $exception;
+        }
+    }
+
     protected function getAccessConditions(): array
     {
-        return [$this->conditionFactory->true()];
-        // The access to an attachment is allowed only if access to the corresponding
-        // statement is granted.
-        // $fileContainer = $this->fileContainerRepository->get($this->entityId);
-        // Assert::notNull($fileContainer);
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (null === $procedure) {
+            return [$this->conditionFactory->false()];
+        }
 
-        $statement = $this->statementRepository->get($this->entityId);
-        Assert::notNull($statement);
-        $valueObject = [
-            'entityId'    => $statement->getId(),
-            'entityClass' => Statement::class,
-        ];
-
-        new StatementResourceType($this->statementRepository);
-
-        return $this->getTypes()->getStatementResourceType()->buildAccessConditions($valueObject, true);
+        return [];
     }
 
     public static function getName(): string
@@ -84,25 +122,16 @@ class GenericStatementAttachmentResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        // @todo doublecheck if this is the right permission
-        return $this->currentUser->hasPermission('feature_read_source_statement_via_api');
+        return true;
     }
 
     public function isDeleteAllowed(): bool
     {
-        // @todo doublecheck if this is the right permission
         return $this->currentUser->hasPermission('feature_read_source_statement_via_api');
     }
 
-    public function deleteEntity(string $entityIdentifier): void
+    public function isCreateAllowed(): bool
     {
-        // Double check if $entityIdentifier belongs to a statement
-        $fileContainer = $this->fileContainerRepository->get($entityIdentifier);
-        Assert::notNull($fileContainer);
-
-        $statement = $this->statementRepository->get($fileContainer->getEntityId());
-        Assert::notNull($statement);
-
-        parent::deleteEntity($entityIdentifier);
+        return $this->currentUser->hasPermission('feature_generic_statement_attachment_add');
     }
 }
