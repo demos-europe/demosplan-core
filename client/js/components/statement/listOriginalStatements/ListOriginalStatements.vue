@@ -467,7 +467,7 @@ export default {
 
     getOriginalStatementAsAttachment (originalStatementId) {
       const originalStatement = this.items[originalStatementId]
-      const attachments = originalStatement.relationships.attachments?.data.length > 0 ? Object.values(originalStatement.relationships.attachments.list()) : []
+      const attachments = originalStatement.relationships.sourceAttachment?.data.length > 0 ? Object.values(originalStatement.relationships.sourceAttachment.list()) : []
 
       return attachments?.length > 0 ? attachments[0].relationships?.file.get() : null
     },
