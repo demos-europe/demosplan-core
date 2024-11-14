@@ -111,6 +111,7 @@
         :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
         procedure-id="{{ proceduresettings.id|default() }}">
         <form
+            ref="configForm"
             name="configForm"
             enctype="multipart/form-data"
             data-procedure="{{ proceduresettings.ident }}"
@@ -727,7 +728,6 @@
                             <addon-wrapper
                                 hook-name="mein.berlin.additional.field"
                                 :addon-props="{
-                                    'label': '{{ 'procedure.mein.berlin.id'|trans }}',
                                     'relationshipId': '{{ proceduresettings.id }}',
                                     'resourceType': 'MeinBerlinAddonProcedureData'
                                 }"
@@ -1315,7 +1315,7 @@
                     id="saveConfig"
                     name="saveConfig"
                     data-cy="saveConfig"
-                    type="submit"
+                    type="button"
                     @click="submit">
                     {{ "save"|trans }}
                 </button>

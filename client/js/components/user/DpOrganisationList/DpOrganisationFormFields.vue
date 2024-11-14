@@ -183,7 +183,6 @@
           class: 'ml-4',
           relationshipId: this.organisationId,
           resourceType: 'MeinBerlinAddonOrganisation',
-          label: Translator.trans('organisation.mein.berlin.id'),
           required: true
         }"
         class="w-1/2"

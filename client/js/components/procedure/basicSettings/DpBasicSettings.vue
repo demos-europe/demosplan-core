@@ -183,8 +183,8 @@ export default {
       const payload = this.createAddonPayload()
 
       const apiCall = this.addonPayload.request === 'PATCH'
-        ? dpApi.patch(Routing.generate('api_resource_update', { resourceType: this.addonPayload.resourceType, resourceId: this.addonPayload.id }), {}, { data: payload })
-        : dpApi.post(Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType }), {}, { data: payload })
+        ? dpApi.patch(Routing.generate('api_resource_update', { resourceType: this.addonPayload.resourceType, resourceId: this.addonPayload.id}), {}, { data: payload })
+        : dpApi.post(Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType}), {}, { data: payload })
 
       return apiCall.then(checkResponse)
     },
@@ -202,9 +202,10 @@ export default {
     },
 
     submit () {
-      if (this.dpValidate.configForm) {
-        this.handleAddonRequest()
-          .then(this.$refs.configForm.submit)
+      if (this.addonPayload.value) {
+        this.handleAddonRequest().then(() => this.$refs.configForm?.submit())
+      } else {
+        this.$refs.configForm?.submit()
       }
     },
 
