@@ -42,6 +42,7 @@
       </div>
       <div class="convert-annotated-pdf__form">
         <dp-simplified-new-statement-form
+          ref="annotatedPdfForm"
           :allow-file-upload="false"
           :csrf-token="csrfToken"
           :current-procedure-phase="currentProcedurePhase"
@@ -56,7 +57,9 @@
           :init-values="formValues"
           submit-route-name="dplan_pdf_import_to_statement">
           <div class="flex justify-end mt-2">
-            <dp-button :text="Translator.trans('statement.save.quickSave')" />
+            <dp-button
+              :text="Translator.trans('statement.save.quickSave')"
+              @click="$refs.annotatedPdfForm.quickSaveText()" />
           </div>
         </dp-simplified-new-statement-form>
       </div>
