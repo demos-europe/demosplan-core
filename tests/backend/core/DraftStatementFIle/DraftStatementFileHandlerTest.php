@@ -14,12 +14,9 @@ namespace Tests\Core\DraftStatementFIle;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\FileFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\DraftStatementFileFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementFile;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementFileHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use Tests\Base\FunctionalTestCase;
 
 class DraftStatementFileHandlerTest extends FunctionalTestCase
@@ -30,7 +27,6 @@ class DraftStatementFileHandlerTest extends FunctionalTestCase
     /** @var DraftStatement */
     protected $testDraftStatement;
 
-
     /** @var File */
     protected $testFile;
 
@@ -40,7 +36,6 @@ class DraftStatementFileHandlerTest extends FunctionalTestCase
 
         $this->sut = $this->getContainer()->get(DraftStatementFileHandler::class);
         $this->testDraftStatement = $this->fixtures->getReference('testDraftStatement');
-
     }
 
     public function testGetDraftStatementRelatedToThisFileReturnsEmptyArrayWhenFileIsNull(): void
@@ -60,7 +55,6 @@ class DraftStatementFileHandlerTest extends FunctionalTestCase
 
         $result = $this->sut->getDraftStatementRelatedToThisFile($fileId);
         $this->assertNotEmpty($result);
-
 
         $this->assertSame([$draftStatementFile], $result);
     }
