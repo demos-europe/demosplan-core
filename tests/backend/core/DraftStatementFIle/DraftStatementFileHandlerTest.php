@@ -14,8 +14,6 @@ namespace Tests\Core\DraftStatementFIle;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\FileFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\DraftStatementFileFactory;
-use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementFileHandler;
 use Tests\Base\FunctionalTestCase;
 
