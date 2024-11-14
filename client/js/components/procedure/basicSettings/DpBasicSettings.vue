@@ -9,6 +9,7 @@
 
 <script>
 import {
+  checkResponse,
   dpApi,
   DpButton,
   DpContextualHelp,
@@ -120,13 +121,18 @@ export default {
       required: false,
       type: String,
       default: ''
+    },
+
+    procedureId: {
+      required: true,
+      type: String
     }
   },
 
   data () {
     return {
+      addonPayload: null,
       isLoadingPlisData: false,
-      meinBerlinProcedureData: '',
       selectedAgencies: this.initAgencies,
       selectedDataInputOrgas: this.initDataInputOrgas,
       selectedAuthUsers: this.initAuthUsers,
@@ -147,6 +153,22 @@ export default {
   },
 
   methods: {
+    createAddonPayload () {
+      return {
+        type: this.addonPayload.resourceType,
+        attributes: this.addonPayload.attributes,
+        relationships: this.addonPayload.request === 'PATCH' ? undefined : {
+          procedure: {
+            data: {
+              type: 'Procedure',
+              id: this.procedureId
+            }
+          }
+        },
+        ...(this.addonPayload.request === 'PATCH' ? { id: this.addonPayload.id } : {}),
+      }
+    },
+
     getDataPlis (plisId, routeName) {
       return dpApi({
         method: 'GET',
@@ -155,6 +177,16 @@ export default {
         .then(data => {
           return data.data
         })
+    },
+
+    handleAddonRequest () {
+      const payload = this.createAddonPayload()
+
+      const apiCall = this.addonPayload.request === 'PATCH'
+        ? dpApi.patch(Routing.generate('api_resource_update', { resourceType: this.addonPayload.resourceType, resourceId: this.addonPayload.id }), {}, { data: payload })
+        : dpApi.post(Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType }), {}, { data: payload })
+
+      return apiCall.then(checkResponse)
     },
 
     selectAllAuthUsers () {
@@ -170,15 +202,18 @@ export default {
     },
 
     submit () {
-      this.$refs.configForm.submit()
+      if (this.dpValidate.configForm) {
+        this.handleAddonRequest()
+          .then(this.$refs.configForm.submit)
+      }
     },
 
     unselectAllAuthUsers () {
       this.selectedAuthUsers = []
     },
 
-    updateMeinBerlinProcedureData (value) {
-      this.meinBerlinProcedureData = value
+    updateAddonPayload (payload) {
+      this.addonPayload = payload
     }
   },
 

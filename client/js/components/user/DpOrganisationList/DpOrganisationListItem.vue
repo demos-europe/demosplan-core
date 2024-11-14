@@ -56,7 +56,8 @@
         :initial-organisation="initialOrganisation"
         :organisation="organisation"
         :organisation-id="organisation.id"
-        @organisation-update="updateOrganisation" />
+        @organisation-update="updateOrganisation"
+        @addon-update="updateAddonPayload" />
 
       <!-- Button row -->
       <dp-button-row
@@ -72,7 +73,7 @@
 <script>
 import { checkResponse, dpApi, DpButtonRow, DpIcon, dpValidateMixin} from '@demos-europe/demosplan-ui'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
-import { mapState, mapMutations } from 'vuex'
+import { mapState } from 'vuex'
 
 export default {
   name: 'DpOrganisationListItem',
@@ -123,9 +124,9 @@ export default {
 
   data () {
     return {
+      addonPayload: null,
       isOpen: false,
       isLoading: true,
-      meinBerlinOrganisationId: '',
       moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : ''
     }
   },
@@ -160,10 +161,6 @@ export default {
   },
 
   methods: {
-    ...mapMutations('Orga', {
-      updateOrga: 'update'
-    }),
-
     reset () {
       this.restoreOrganisation(this.organisation.id)
         .then(() => {
@@ -176,60 +173,37 @@ export default {
       return this.$store.dispatch(`Orga${this.moduleSubstring}/restoreFromInitial`, payload)
     },
 
-    save: function () {
+    save () {
       if (this.dpValidate.organisationForm) {
         this.isOpen = !this.isOpen
 
-        if (this.meinBerlinOrganisationId) {
-          this.saveMeinBerlinOrganisationId()
-        }
-        /*
-         * Some update requests need this information, others cant handle them
-         * depending on the permissions
-         */
-        const additionalAttributes = ['showname', 'showlist']
-        if (hasPermission('feature_notification_ending_phase')) {
-          additionalAttributes.push('emailNotificationEndingPhase')
-        }
-        if (hasPermission('feature_notification_statement_new')) {
-          additionalAttributes.push('emailNotificationNewStatement')
-        }
-
-        this.saveOrganisationAction({
-          id: this.organisation.id,
-          options: {
-            attributes: {
-              full: ['registrationStatuses'],
-              unchanged: additionalAttributes
+        this.handleAddonRequest()
+          .then(() => {
+            /*
+             * Some update requests need this information, others cant handle them
+             * depending on the permissions
+             */
+            const additionalAttributes = ['showname', 'showlist']
+            if (hasPermission('feature_notification_ending_phase')) {
+              additionalAttributes.push('emailNotificationEndingPhase')
             }
-          }
-        })
+            if (hasPermission('feature_notification_statement_new')) {
+              additionalAttributes.push('emailNotificationNewStatement')
+            }
+
+            this.saveOrganisationAction({
+              id: this.organisation.id,
+              options: {
+                attributes: {
+                  full: ['registrationStatuses'],
+                  unchanged: additionalAttributes
+                }
+              }
+            })
+          })
       } else {
         dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
       }
-    },
-
-    saveMeinBerlinOrganisationId () {
-      const payload = {
-        type: 'MeinBerlinAddonOrganisation',
-        attributes: {
-          meinBerlinOrganisationId: this.meinBerlinOrganisationId
-        },
-        relationships: {
-          orga: {
-            data: {
-              type: 'Orga',
-              id: this.organisation.id
-            }
-          }
-        }
-      }
-      dpApi.post(Routing.generate('api_resource_create', { resourceType: 'MeinBerlinAddonOrganisation' }), {}, { data: payload })
-        .then(checkResponse)
-        .then(response => {
-
-          console.log('response (check it by similarStatementsSubmitters.vue line 294)', response)
-        })
     },
 
     saveOrganisationAction (payload) {
@@ -257,9 +231,38 @@ export default {
       this.isOpen = open
     },
 
+    handleAddonRequest () {
+      const payload = this.createAddonPayload()
+
+      const apiCall = this.addonPayload.request === 'PATCH'
+        ? dpApi.patch(Routing.generate('api_resource_update', { resourceType: this.addonPayload.resourceType, resourceId: this.addonPayload.id }), {}, { data: payload })
+        : dpApi.post(Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType }), {}, { data: payload })
+
+      return apiCall.then(checkResponse)
+    },
+
+    createAddonPayload () {
+      return {
+        type: this.addonPayload.resourceType,
+        attributes: this.addonPayload.attributes,
+        relationships: this.addonPayload.request === 'PATCH' ? undefined : {
+          orga: {
+            data: {
+              type: 'Orga',
+              id: this.organisation.id
+            }
+          }
+        },
+        ...(this.addonPayload.request === 'PATCH' ? { id: this.addonPayload.id } : {}),
+      }
+    },
+
+    updateAddonPayload (payload) {
+      this.addonPayload = payload
+    },
+
     updateOrganisation (payload) {
-      this.meinBerlinOrganisationId = payload.meinBerlinAddon
-      this.setItem({ ...payload.organisation, id: payload.organisation.id })
+      this.setItem({ ...payload, id: payload.id })
     }
   }
 }

@@ -108,7 +108,8 @@
         :init-procedure-categories="JSON.parse('{{ selectedProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
         init-procedure-phase-internal="{{ proceduresettings.phase }}"
         init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
-        :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')">
+        :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
+        procedure-id="{{ proceduresettings.id|default() }}">
         <form
             name="configForm"
             enctype="multipart/form-data"
@@ -723,15 +724,15 @@
                                 </div>
                             {% endif %}
 
-
                             <addon-wrapper
-                                hook-name="mein.berlin.procedure.data"
+                                hook-name="mein.berlin.additional.field"
                                 :addon-props="{
-                                  class: 'mb-4'
+                                    'label': '{{ 'procedure.mein.berlin.id'|trans }}',
+                                    'relationshipId': '{{ proceduresettings.id }}',
+                                    'resourceType': 'MeinBerlinAddonProcedureData'
                                 }"
-                                @input="updateMeinBerlinProcedureData">
+                                @blur="updateAddonPayload">
                             </addon-wrapper>
-
 
                             {% if hasPermission('feature_short_url') %}
                                 <div>
@@ -910,7 +911,7 @@
                                         {% endif %}
 
                                         <dp-input
-                                            id="pictogramCopyright"
+                                            id="r_pictogramCopyright"
                                             class="my-2"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.copyright')
@@ -921,7 +922,7 @@
                                         </dp-input>
 
                                         <dp-input
-                                            id="pictogramAltText"
+                                            id="r_pictogramAltText"
                                             class="my-2"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.altText')
