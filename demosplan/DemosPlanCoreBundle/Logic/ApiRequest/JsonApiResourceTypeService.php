@@ -46,7 +46,7 @@ class JsonApiResourceTypeService implements JsonApiResourceTypeServiceInterface
         protected readonly Sorter $sorter,
         protected readonly DqlConditionFactory $conditionFactory,
         protected readonly MessageBagInterface $messageBag,
-        protected readonly EntityManagerInterface $entityManager
+        protected readonly EntityManagerInterface $entityManager,
     ) {
     }
 
