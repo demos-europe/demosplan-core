@@ -802,6 +802,11 @@ feature_customer_xplanning_edit:
     label: 'Permission to edit a xplanning page'
     loginRequired: true
     parent: area_main_xplanning
+feature_data_in_export:
+    description: 'This permission allows to configure which data of the statement should be included in the export.'
+    expose: true
+    label: 'Allow to configure which data of the statement should be included in the export.'
+    loginRequired: true
 feature_data_protection_text_customized_view:
     description: |-
         Each customer and each organisation has its own small text that is added to the overall text:
@@ -1149,12 +1154,6 @@ feature_map_attribution:
     expose: true
     loginRequired: true
     parent: area_admin_map
-feature_map_required:
-    description: "this permission will be enabled in projects where a procedure had to have at least one layer, that's means
-    that users will not be able to delete the last layer of a procedure."
-    label: check if one layer is available
-    expose: true
-    loginRequired: true
 feature_map_baselayer:
     description: |-
         Enables the usage of custom baselayers (next to the overlays) in the map

@@ -1095,6 +1095,7 @@
                 {% endif %}
                 {# end wizard item: Verortung des Verfahrens #}
 
+                {% if hasPermission('feature_data_in_export') %}
                 {# wizard item: Daten im Export #}
                 <fieldset
                     name="settingsForm"
@@ -1141,6 +1142,7 @@
                     </button>
                 </fieldset>
                 {# end wizard item: Daten im Export #}
+                {% endif %}
 
                 {# wizard item: Erweiterte Einstellungen #}
                 {% if hasPermission('feature_statement_notify_counties') %}
