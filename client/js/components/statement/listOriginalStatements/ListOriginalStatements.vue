@@ -487,11 +487,11 @@ export default {
 
     preparePayload (page) {
       const originalStatementFields = [
-        'attachments',
         'document',
         'elements',
         'externId',
         'files',
+        'genericAttachments',
         'meta',
         'paragraph',
         'procedurePhase',
@@ -527,13 +527,15 @@ export default {
             'filename',
             'hash'
           ].join(),
+          GenericStatementAttachment: [
+            'file'
+          ].join(),
           OriginalStatement: originalStatementFields.join(),
           ParagraphVersion: [
             'title'
           ].join(),
-          StatementAttachment: [
+          SourceStatementAttachment: [
             'file',
-            'attachmentType'
           ].join(),
           StatementMeta: statementMetaFields.join(),
           SingleDocument: [
@@ -541,13 +543,15 @@ export default {
           ].join()
         },
         include: [
-          'attachments',
-          'attachments.file',
           'document',
           'elements',
           'files',
+          'genericAttachments',
+          'genericAttachments.file',
           'meta',
-          'paragraph'
+          'paragraph',
+          'sourceAttachment',
+          'sourceAttachment.file',
         ].join()
       }
     },
