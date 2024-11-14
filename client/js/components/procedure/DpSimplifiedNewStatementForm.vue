@@ -321,7 +321,7 @@
         :toolbar-items="{ linkButton: true }"
         required
         hidden-input="r_text"
-        v-model="values.quickSave ?? values.text" />
+        v-model="values.text" />
 
       <slot />
 
@@ -384,6 +384,7 @@
 <script>
 import {
   DpAccordion,
+  dpApi,
   DpButtonRow,
   DpDatepicker,
   DpInput,
@@ -581,7 +582,15 @@ export default {
 
   methods: {
     quickSaveText () {
-      alert('child component works')
+      const payload = {
+        data: {
+          type: 'AnnotatedStatementPdfPage',
+          id: this.documentId,
+          attributes: { quickSave: this.values.text }
+        }
+      }
+
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'AnnotatedStatementPdf', resourceId: this.documentId }), {}, payload)
     },
 
     setInitialValues () {
