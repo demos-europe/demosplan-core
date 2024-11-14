@@ -93,6 +93,7 @@
         <a
           v-if="layer.attributes.isBaseLayer === false && isChildOfCategoryThatAppearsAsLayer === false"
           data-cy="adminLayerListItem:toggleVisibilityGroup"
+          class="w-full flex items-center justify-center"
           :title="hintTextForLockedLayer"
           @click.stop.prevent="toggleVisibilityGroup"
           @mouseover="setIconHoverState"
@@ -321,80 +322,80 @@ export default {
 
       if (this.isActive) {
         if (this.hasSettingsThatPreventGrouping) {
-          return 'fa-lock color--grey cursor-help'
+          return 'fa fa-lock color--grey cursor-help'
         } else if (this.hasGroupId) {
           if (toggleMyIconInSameGroup && this.currentGroupSize <= 2) {
-            return 'fa-unlink color-highlight'
+            return 'fa fa-unlink color-highlight'
           } else {
             if (toggleMyIconWithoutGroup) {
-              return 'fa-link cursor-default color-highlight'
+              return 'fa fa-link cursor-default color-highlight'
             } else {
-              return 'fa-link color--grey cursor-default'
+              return 'fa fa-link color--grey cursor-default'
             }
           }
         } else {
           if (this.isHovered === false && toggleMyIconWithoutGroup) {
-            return 'fa-link color-highlight'
+            return 'fa fa-link color-highlight'
           } else {
-            return 'fa-unlink color--grey'
+            return 'fa fa-unlink color--grey'
           }
         }
       }
 
       if (this.isHovered && this.thereIsAnActiveElement === false) {
         if (this.hasSettingsThatPreventGrouping) {
-          return 'fa-lock color--grey cursor-help'
+          return 'fa fa-lock color--grey cursor-help'
         }
         if (this.hasGroupId) {
           if (this.showCurrentIconState) {
-            return 'fa-unlink color-highlight'
+            return 'fa fa-unlink color-highlight'
           } else {
-            return 'fa-link color--grey'
+            return 'fa fa-link color--grey'
           }
         } else {
           if (this.showCurrentIconState) {
-            return 'fa-link color-highlight'
+            return 'fa fa-link color-highlight'
           } else {
-            return 'fa-unlink  color-highlight cursor-default'
+            return 'fa fa-unlink  color-highlight cursor-default'
           }
         }
       }
 
       if (this.isLinkedWithCurrentlyHovered && this.thereIsAnActiveElement === false) {
-        return 'fa-link color--grey cursor-default'
+        return 'fa fa-link color--grey cursor-default'
       }
 
       if (this.isHovered && this.thereIsAnActiveElement === true) {
         if (this.hasSettingsThatPreventGrouping || this.hasDifferentDefaultVisibility || this.isInAnotherGroupThatsNotEmpty) {
-          return 'fa-lock color--grey cursor-help'
+          return 'fa fa-lock color--grey cursor-help'
         }
         if (this.hasGroupId) {
           if (this.showCurrentIconState) {
-            return 'fa-unlink color-highlight'
+            return 'fa fa-unlink color-highlight'
           } else {
-            return 'fa-link color--grey'
+            return 'fa fa-link color--grey'
           }
         } else {
           if (this.showCurrentIconState) {
-            return 'fa-link color-highlight'
+            return 'fa fa-link color-highlight'
           } else {
-            return 'fa-unlink color--grey cursor-default'
+            return 'fa fa-unlink color--grey cursor-default'
           }
         }
       }
 
       if (this.thereIsAnActiveElement) {
         if (this.hasSettingsThatPreventGrouping || this.hasDifferentDefaultVisibility || this.isInAnotherGroupThatsNotEmpty) {
-          return 'fa-lock color--grey'
+          return 'fa fa-lock color--grey'
         } else {
           if (this.hasGroupId) {
             if (toggleMyIconWithoutGroup) {
-              return 'fa-link cursor-default color-highlight'
+              return 'fa fa-link cursor-default color-highlight'
             } else {
-              return 'fa-link color--grey cursor-default'
+              return 'fa fa-link color--grey cursor-default'
             }
           } else {
-            return 'fa-unlink color--grey cursor-default'
+            return 'fa fa-unlink color--grey cursor-default'
           }
         }
       }
