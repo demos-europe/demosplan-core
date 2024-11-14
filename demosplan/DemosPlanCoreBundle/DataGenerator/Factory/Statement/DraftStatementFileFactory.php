@@ -54,14 +54,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  */
 final class DraftStatementFileFactory extends PersistentProxyObjectFactory
 {
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
-     * @todo inject services if required
-     */
-    public function __construct()
-    {
-    }
 
     public static function class(): string
     {
@@ -71,7 +63,6 @@ final class DraftStatementFileFactory extends PersistentProxyObjectFactory
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
      *
-     * @todo add your default values here
      */
     protected function defaults(): array|callable
     {
@@ -86,8 +77,6 @@ final class DraftStatementFileFactory extends PersistentProxyObjectFactory
      */
     protected function initialize(): static
     {
-        return $this
-            // ->afterInstantiate(function(DraftStatementFile $draftStatementFile): void {})
-        ;
+        return $this;
     }
 }
