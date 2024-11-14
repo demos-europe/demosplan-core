@@ -73,7 +73,7 @@
 <script>
 import { checkResponse, dpApi, DpButtonRow, DpIcon, dpValidateMixin} from '@demos-europe/demosplan-ui'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
-import { mapState, mapMutations } from 'vuex'
+import { mapState } from 'vuex'
 
 export default {
   name: 'DpOrganisationListItem',
