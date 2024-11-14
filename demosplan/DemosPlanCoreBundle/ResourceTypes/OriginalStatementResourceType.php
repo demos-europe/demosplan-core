@@ -142,9 +142,10 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         $originalStatementConfig->textPassagesAnonymized->setReadableByCallable(
             static fn (Statement $statement): bool => $statement->isTextPassagesAnonymized()
         );
-        $originalStatementConfig->attachments
+        $originalStatementConfig->sourceAttachment
             ->setRelationshipType($this->resourceTypeStore->getSourceStatementAttachmentResourceType())
-            ->setReadableByPath();
+            ->setReadableByPath()
+            ->aliasedPath(Paths::statement()->attachments);
         $originalStatementConfig->files
             ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
             // files need to be fetched via Filecontainer
