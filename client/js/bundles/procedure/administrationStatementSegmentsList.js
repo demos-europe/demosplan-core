@@ -26,8 +26,7 @@ const components = {
 const stores = {
   ProcedureMapSettings: procedureMapSettings,
   SegmentSlidebar,
-  SplitStatement: SplitStatementStore,
-  Voter
+  SplitStatement: SplitStatementStore
 }
 
 if (hasPermission('area_admin_boilerplates')) {
