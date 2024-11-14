@@ -35,7 +35,7 @@
             :class="isSourceAttachmentMarkedForDeletion ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
             :disabled="isSourceAttachmentMarkedForDeletion"
             type="button"
-            @click="markSourceAttachmentForDeletion">
+            @click="fileIdSourceAttachment === localAttachments.originalAttachment.hash ? removeSourceAttachment() : markSourceAttachmentForDeletion()">
             <dp-icon
               class="ml-2"
               icon="delete" />
@@ -47,20 +47,19 @@
           v-text="Translator.trans('none')" />
 
         <template  v-if="editable">
-          <dp-upload-files
+          <dp-upload
             v-if="!localAttachments.originalAttachment.hash"
             id="uploadSourceStatementAttachment"
             ref="uploadSourceStatementAttachment"
             allowed-file-types="all"
             :basic-auth="dplan.settings.basicAuth"
-            :class="!editable ? 'pointer-events-none opacity-70' : 'mt-1'"
+            :class="!editable ? 'pointer-events-none opacity-70' : 'mt-1 mb-3'"
             :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
             :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
             :max-number-of-files="1"
             name="uploadSourceStatementAttachment"
             :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
             :tus-endpoint="dplan.paths.tusEndpoint"
-            @file-remove="setSourceAttachmentFileId('')"
             @upload-success="handleSourceAttachmentUploadSuccess" />
 
           <div class="text-right">
@@ -92,11 +91,14 @@
             <statement-meta-attachments-link
               :attachment="attachment"
               class="block mt-1 text-ellipsis overflow-hidden whitespace-nowrap"
+              :class="{ 'line-through text-muted pointer-events-none': genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) }"
               :procedure-id="procedureId" />
             <button
-              class="btn--blank o-link--default mt-1"
+              class="o-link--default mt-1"
+              :class="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+              :disabled="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id )"
               type="button"
-              @click="deleteAttachment(attachment.id)">
+              @click="fileIds.includes(attachment.hash) ? removeGenericAttachment(attachment.hash) : markGenericAttachmentForDeletion(attachment.id)">
               <dp-icon
                 class="ml-2"
                 icon="delete" />
@@ -109,29 +111,28 @@
 
         <!-- File upload -->
         <template v-if="editable">
-          <dp-upload-files
+          <dp-upload
             id="uploadStatementAttachment"
             ref="uploadStatementAttachment"
             allowed-file-types="all"
             :basic-auth="dplan.settings.basicAuth"
-            :class="editable ? 'mt-1' : 'pointer-events-none opacity-70'"
+            :class="editable ? 'mt-1 mb-3' : 'pointer-events-none opacity-70'"
             :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
             :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
             :max-number-of-files="1000"
             name="uploadStatementAttachment"
             :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
             :tus-endpoint="dplan.paths.tusEndpoint"
-            @file-remove="removeFileId"
-            @upload-success="setFileId" />
+            @upload-success="handleGenericAttachmentUploadSuccess" />
 
           <div class="text-right">
             <dp-button-row
               primary
               secondary
               :busy="isProcessingGenericAttachments"
-              :disabled="fileIds.length === 0"
+              :disabled="fileIds.length === 0 && genericAttachmentsMarkedForDeletion.length === 0"
               @primary-action="saveGenericAttachments"
-              @secondary-action="resetGenericAttachments" />
+              @secondary-action="handleResetGenericAttachments" />
           </div>
         </template>
       </div>
@@ -146,7 +147,7 @@ import {
   DpButtonRow,
   DpIcon,
   DpLabel,
-  DpUploadFiles,
+  DpUpload,
   checkResponse
 } from '@demos-europe/demosplan-ui'
 import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink'
@@ -159,7 +160,7 @@ export default {
     DpButtonRow,
     DpIcon,
     DpLabel,
-    DpUploadFiles,
+    DpUpload,
     StatementMetaAttachmentsLink
   },
 
@@ -195,15 +196,39 @@ export default {
 
   data () {
     return {
-      attachmentsMarkedForDeletion: [],
+      // used for saving (creating) generic attachments
       fileIds: [],
+      // used for saving (creating) the source attachment
       fileIdSourceAttachment: '',
+      // used for deleting generic attachments
+      genericAttachmentsMarkedForDeletion: [],
       isProcessingGenericAttachments: false,
       isProcessingSourceAttachment: false,
       isSourceAttachmentMarkedForDeletion: false,
+      // used for displaying the source and generic attachments
       localAttachments: JSON.parse(JSON.stringify(this.initialAttachments)),
-      sourceAttachmentMarkedForDeletion: {},
-      previousSourceAttachment: {}
+      // used for resetting the attachments
+      previousGenericAttachments: [],
+      // used for resetting the source attachment
+      previousSourceAttachment: {},
+      // used for deleting the source attachment
+      sourceAttachmentMarkedForDeletion: {}
+    }
+  },
+
+  watch: {
+    'initialAttachments.additionalAttachments': {
+      handler(newVal) {
+        this.localAttachments.additionalAttachments = JSON.parse(JSON.stringify(newVal))
+      },
+      deep: true
+    },
+
+    'initialAttachments.originalAttachment': {
+      handler(newVal) {
+        this.localAttachments.originalAttachment = JSON.parse(JSON.stringify(newVal))
+      },
+      deep: true
     }
   },
 
@@ -234,15 +259,24 @@ export default {
 
     deleteAttachment (id) {
       const url = Routing.generate('api_resource_delete', { resourceType: 'GenericStatementAttachment', resourceId: id })
+      const attachmentToBeDeleted = { ...this.localAttachments.additionalAttachments.find(attachment => attachment.id === id) }
 
       return dpApi.delete(url)
         .then(checkResponse)
         .then(() => {
-          dplan.notify.confirm(Translator.trans('confirm.statement.attachment.deleted'))
+          const genericAttachments = this.localAttachments.additionalAttachments.filter(attachment => attachment.id !== id)
+
+          this.setLocalGenericAttachments(genericAttachments)
           this.resetGenericAttachments()
         })
         .catch(error => {
           console.error(error)
+          const restoredAttachments = [
+            ...this.localAttachments.additionalAttachments,
+            attachmentToBeDeleted
+          ]
+
+          this.setLocalGenericAttachments(restoredAttachments)
           dplan.notify.error(Translator.trans('error.statement.attachment.delete'))
         })
     },
@@ -261,7 +295,7 @@ export default {
         })
         .catch(error => {
           console.error(error)
-          this.localAttachments.originalAttachment = this.initialAttachments.originalAttachment
+          this.setLocalOriginalAttachment(this.initialAttachments.originalAttachment)
         })
     },
 
@@ -307,13 +341,35 @@ export default {
       }
     },
 
+    handleGenericAttachmentUploadSuccess (file) {
+      this.previousGenericAttachments = [...this.localAttachments.additionalAttachments]
+
+      const updatedGenericAttachments = [
+        ...this.localAttachments.additionalAttachments,
+        {
+          filename: file.name,
+          hash: file.fileId
+        }
+      ]
+
+      this.setLocalGenericAttachments(updatedGenericAttachments)
+      this.setGenericAttachmentFileId(file.fileId)
+    },
+
+    handleResetGenericAttachments () {
+      this.resetGenericAttachments()
+
+      if (this.genericAttachmentsMarkedForDeletion.length > 0) {
+        this.genericAttachmentsMarkedForDeletion = []
+        this.setLocalGenericAttachments(this.initialAttachments.additionalAttachments)
+      } else {
+        this.setLocalGenericAttachments(this.previousGenericAttachments)
+      }
+    },
+
     handleResetSourceAttachment () {
       if (this.isSourceAttachmentMarkedForDeletion) {
         this.setSourceAttachmentFileId(this.sourceAttachmentMarkedForDeletion.hash)
-        this.setLocalOriginalAttachment({
-          filename: this.sourceAttachmentMarkedForDeletion.filename,
-          hash: this.sourceAttachmentMarkedForDeletion.hash
-        })
         this.isSourceAttachmentMarkedForDeletion = false
       } else {
         this.resetSourceAttachment()
@@ -331,8 +387,9 @@ export default {
       })
     },
 
-    markAttachmentsForDeletion (ids) {
-      this.attachmentsMarkedForDeletion.push(...ids)
+    markGenericAttachmentForDeletion (id) {
+      const genericAttachmentToBeDeleted = { ...this.localAttachments.additionalAttachments.find(attachment => attachment.id === id) }
+      this.genericAttachmentsMarkedForDeletion.push(genericAttachmentToBeDeleted)
     },
 
     markSourceAttachmentForDeletion () {
@@ -340,24 +397,28 @@ export default {
       this.isSourceAttachmentMarkedForDeletion = true
     },
 
-    removeFileId (file) {
-      const fileIdx = this.fileIds.findIndex(el => el === file.hash)
-      this.fileIds.splice(fileIdx, 1)
+    removeFileId (hash) {
+      this.fileIds = this.fileIds.filter(el => el !== hash)
+    },
+
+    removeGenericAttachment (hash) {
+      this.removeFileId(hash)
+      this.localAttachments.additionalAttachments = this.localAttachments.additionalAttachments.filter(attachment => attachment.hash !== hash)
+    },
+
+    removeSourceAttachment () {
+      this.setSourceAttachmentFileId('')
+      this.localAttachments.originalAttachment = {}
     },
 
     resetGenericAttachments () {
       this.fileIds = []
-      this.$refs.uploadStatementAttachment.clearFilesList()
     },
 
     resetSourceAttachment () {
       this.isSourceAttachmentMarkedForDeletion = false
       this.sourceAttachmentMarkedForDeletion = {}
       this.setSourceAttachmentFileId('')
-
-      if (this.$refs.uploadSourceStatementAttachment) {
-        this.$refs.uploadSourceStatementAttachment.clearFilesList()
-      }
     },
 
     saveSourceAttachment () {
@@ -369,13 +430,17 @@ export default {
     },
 
     saveGenericAttachments () {
-        if (this.fileIds.length === 0 && !dpconfirm(Translator.trans('files.empty'))) {
-          return
-        }
+      this.isProcessingGenericAttachments = true
+      const promises = []
 
-        this.isProcessingGenericAttachments = true
+      if (this.genericAttachmentsMarkedForDeletion.length > 0) {
+        this.genericAttachmentsMarkedForDeletion.forEach(attachment => {
+          promises.push(this.deleteAttachment(attachment.id))
+        })
+      }
 
-        const uploadPromises = this.fileIds.map(hash => {
+      if (this.fileIds.length > 0) {
+        this.fileIds.forEach(hash => {
           const resource = this.getItemResource(hash, 'generic')
           const url = Routing.generate('api_resource_create', { resourceType: 'GenericStatementAttachment' })
           const params = {}
@@ -383,25 +448,37 @@ export default {
             data: resource
           }
 
-          return dpApi.post(url, params, data)
+          promises.push(dpApi.post(url, params, data))
         })
+      }
 
-      Promise.allSettled(uploadPromises)
+      Promise.allSettled(promises)
         .then(() => {
-          dplan.notify.confirm(Translator.trans('confirm.statement.attachment.created'))
-          this.resetGenericAttachments()
+          if (this.genericAttachmentsMarkedForDeletion.length > 0) {
+            this.genericAttachmentsMarkedForDeletion = []
+            dplan.notify.confirm(Translator.trans('confirm.statement.attachment.deleted', { count: this.genericAttachmentsMarkedForDeletion.length }))
+          }
+
+          if (this.fileIds.length > 0) {
+            dplan.notify.confirm(Translator.trans('confirm.statement.attachment.created', { count: this.fileIds.length }))
+            this.resetGenericAttachments()
+          }
+
           this.triggerStatementRequest()
           this.isProcessingGenericAttachments = false
         })
         .catch(error => {
           console.error(error)
-          dplan.notify.error(Translator.trans('error.statement.source.attachment.create'))
           this.isProcessingGenericAttachments = false
         })
     },
 
-    setFileId (file) {
-      this.fileIds.push(file.fileId)
+    setGenericAttachmentFileId (id) {
+      this.fileIds.push(id)
+    },
+
+    setLocalGenericAttachments (genericAttachments) {
+      this.localAttachments.additionalAttachments = genericAttachments
     },
 
     setLocalOriginalAttachment (originalAttachment) {

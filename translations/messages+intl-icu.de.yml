@@ -579,8 +579,16 @@ confirm.statement.assignment.assigned: "Die Stellungnahme wurde Ihnen erfolgreic
 confirm.statement.assignment.changed: "Die Zuweisung der Stellungnahme wurde erfolgreich geändert."
 confirm.statements.assignment.changed: "Die Zuweisung der Stellungnahmen wurde erfolgreich geändert."
 confirm.statement.assignment.unassigned: "Die Stellungnahme wurde erfolgreich freigegeben."
-confirm.statement.attachment.created: "Der Anhang wurde gespeichert."
-confirm.statement.attachment.deleted: "Der Anhang wurde gelöscht."
+confirm.statement.attachment.created: |
+    {count, plural,
+        =1 {Der Anhang wurde gespeichert.}
+        other {Die Anhänge wurden gespeichert.}
+    }
+confirm.statement.attachment.deleted: |
+    {count, plural,
+        =1 {Der Anhang wurde gelöscht.}
+        other {Die Anhänge wurden gelöscht.}
+    }
 confirm.statement.cluster.added: "Die Stellungnahme {addedStatement} wurde der Gruppe {headStatement} hinzugefügt."
 confirm.statement.cluster.created: "Die Gruppe {clusterId} wurde erfolgreich erstellt"
 confirm.statement.cluster.merged: "Die Stellungnahmengruppen {sourceCluster} und {targetCluster} wurden zusammengeführt."
