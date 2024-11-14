@@ -81,6 +81,6 @@ class JsonApiResourceTypeService implements JsonApiResourceTypeServiceInterface
      */
     public function addCreationErrorMessage(array $parameters): void
     {
-        $this->messageBag->add('error', 'generic.error');
+        $this->messageBag->add('error', 'error.api.generic');
     }
 }
