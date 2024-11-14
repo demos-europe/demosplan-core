@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -68,10 +76,10 @@ final class DepartmentFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'createdDate' => self::faker()->dateTime(),
-            'deleted' => self::faker()->boolean(),
+            'createdDate'  => self::faker()->dateTime(),
+            'deleted'      => self::faker()->boolean(),
             'modifiedDate' => self::faker()->dateTime(),
-            'name' => self::faker()->text(255),
+            'name'         => self::faker()->text(255),
         ];
     }
 

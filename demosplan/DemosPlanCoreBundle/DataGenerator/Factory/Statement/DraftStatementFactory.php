@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
@@ -72,44 +80,44 @@ final class DraftStatementFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'anonymous' => self::faker()->boolean(),
-            'createdDate' => self::faker()->dateTime(),
-            'dName' => self::faker()->text(255),
-            'deleted' => self::faker()->boolean(),
-            'deletedDate' => self::faker()->dateTime(),
-            'department' => DepartmentFactory::new(),
-            'externId' => self::faker()->text(25),
-            'feedback' => self::faker()->text(10),
-            'file' => self::faker()->text(255),
-            'houseNumber' => self::faker()->text(255),
-            'lastModifiedDate' => self::faker()->dateTime(),
-            'negativ' => self::faker()->boolean(),
-            'number' => self::faker()->randomNumber(),
-            'oName' => self::faker()->text(255),
-            'organisation' => OrgaFactory::new(),
-            'phase' => self::faker()->text(50),
-            'polygon' => self::faker()->text(65535),
-            'procedure' => ProcedureFactory::new(),
-            'publicAllowed' => self::faker()->boolean(),
+            'anonymous'            => self::faker()->boolean(),
+            'createdDate'          => self::faker()->dateTime(),
+            'dName'                => self::faker()->text(255),
+            'deleted'              => self::faker()->boolean(),
+            'deletedDate'          => self::faker()->dateTime(),
+            'department'           => DepartmentFactory::new(),
+            'externId'             => self::faker()->text(25),
+            'feedback'             => self::faker()->text(10),
+            'file'                 => self::faker()->text(255),
+            'houseNumber'          => self::faker()->text(255),
+            'lastModifiedDate'     => self::faker()->dateTime(),
+            'negativ'              => self::faker()->boolean(),
+            'number'               => self::faker()->randomNumber(),
+            'oName'                => self::faker()->text(255),
+            'organisation'         => OrgaFactory::new(),
+            'phase'                => self::faker()->text(50),
+            'polygon'              => self::faker()->text(65535),
+            'procedure'            => ProcedureFactory::new(),
+            'publicAllowed'        => self::faker()->boolean(),
             'publicDraftStatement' => self::faker()->text(20),
-            'publicUseName' => self::faker()->boolean(),
-            'rejected' => self::faker()->boolean(),
-            'rejectedDate' => self::faker()->dateTime(),
-            'rejectedReason' => self::faker()->text(4000),
-            'released' => self::faker()->boolean(),
-            'releasedDate' => self::faker()->dateTime(),
-            'showToAll' => self::faker()->boolean(),
-            'submitted' => self::faker()->boolean(),
-            'submittedDate' => self::faker()->dateTime(),
-            'text' => self::faker()->text(15000000),
-            'title' => self::faker()->text(4000),
-            'uCity' => self::faker()->text(255),
-            'uEmail' => self::faker()->text(255),
-            'uFeedback' => self::faker()->boolean(),
-            'uName' => self::faker()->text(255),
-            'uPostalCode' => self::faker()->text(6),
-            'uStreet' => self::faker()->text(255),
-            'user' => UserFactory::new(),
+            'publicUseName'        => self::faker()->boolean(),
+            'rejected'             => self::faker()->boolean(),
+            'rejectedDate'         => self::faker()->dateTime(),
+            'rejectedReason'       => self::faker()->text(4000),
+            'released'             => self::faker()->boolean(),
+            'releasedDate'         => self::faker()->dateTime(),
+            'showToAll'            => self::faker()->boolean(),
+            'submitted'            => self::faker()->boolean(),
+            'submittedDate'        => self::faker()->dateTime(),
+            'text'                 => self::faker()->text(15000000),
+            'title'                => self::faker()->text(4000),
+            'uCity'                => self::faker()->text(255),
+            'uEmail'               => self::faker()->text(255),
+            'uFeedback'            => self::faker()->boolean(),
+            'uName'                => self::faker()->text(255),
+            'uPostalCode'          => self::faker()->text(6),
+            'uStreet'              => self::faker()->text(255),
+            'user'                 => UserFactory::new(),
         ];
     }
 

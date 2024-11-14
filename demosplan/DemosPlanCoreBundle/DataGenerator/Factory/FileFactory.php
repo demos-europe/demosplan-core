@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory;
 
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -68,13 +76,13 @@ final class FileFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'blocked' => false,
-            'created' => self::faker()->dateTime(),
-            'deleted' => false,
-            'infected' => false,
-            'lastVScan' => self::faker()->dateTime(),
-            'modified' => self::faker()->dateTime(),
-            'statDown' => self::faker()->randomNumber(),
+            'blocked'    => false,
+            'created'    => self::faker()->dateTime(),
+            'deleted'    => false,
+            'infected'   => false,
+            'lastVScan'  => self::faker()->dateTime(),
+            'modified'   => self::faker()->dateTime(),
+            'statDown'   => self::faker()->randomNumber(),
             'validUntil' => self::faker()->dateTime(),
         ];
     }
