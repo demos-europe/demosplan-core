@@ -99,7 +99,6 @@ use EDT\PathBuilding\End;
  * @property-read End $isManual
  * @property-read End $manual
  * @property-read End $anonymous
- * @property-read FileResourceType $files @deprecated Use {@link StatementResourceType::sourceAttachments or @see StatementResourceType::genericAttachments} instead (needs implementation changes)
  * @property-read TagResourceType $tags
  * @property-read PlanningDocumentCategoryResourceType $elements
  * @property-read PlanningDocumentCategoryResourceType $element
@@ -228,14 +227,6 @@ abstract class AbstractStatementResourceType extends DplanResourceType
         // keep `isManual` optional, as it may be removed when the resource type is splitted
         $configBuilder->isManual->readable()->aliasedPath(Paths::statement()->manual);
         $configBuilder->numberOfAnonymVotes->filterable();
-        $configBuilder->files
-            ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
-            // files need to be fetched via Filecontainer
-            ->readable(false, fn (Statement $statement): array => $this->fileService->getEntityFiles(
-                Statement::class,
-                $statement->getId(),
-                'file')
-            );
         $configBuilder->cluster
             ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
             ->filterable();
