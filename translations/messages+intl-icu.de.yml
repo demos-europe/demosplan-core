@@ -3420,6 +3420,7 @@ statement.representation.creation: "Die Stellungnahme im Namen folgender Institu
 statement.save.altered: "Stellungnahme verändert speichern"
 statement.save.as.draft: "Stellungnahme als Entwurf speichern"
 statement.save.immediate: "Stellungnahme direkt einreichen"
+statement.save.quickSave: "Text zwischenspeichern"
 statement.save.text: "Sie haben Änderungen am Text der Stellungnahme vorgenommen. Wenn Sie fortfahren, werden diese ebenfalls gespeichert."
 statement.send.email: "Stellungnahme per E-Mail versenden"
 statement.send.email.label: "Sende unten stehende Stellungnahme an"
