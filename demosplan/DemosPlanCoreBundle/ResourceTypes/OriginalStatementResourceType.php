@@ -155,16 +155,6 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
 
                 return $fileContainers;
             });
-        $originalStatementConfig->files
-            ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
-            // files need to be fetched via Filecontainer
-            ->setReadableByCallable(
-                fn (Statement $statement): array => $this->fileService->getEntityFiles(
-                    Statement::class,
-                    $statement->getId(),
-                    'file'
-                )
-            );
 
         return $originalStatementConfig;
     }
