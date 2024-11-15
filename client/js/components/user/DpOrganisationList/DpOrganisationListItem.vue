@@ -124,7 +124,14 @@ export default {
 
   data () {
     return {
-      addonPayload: null,
+      addonPayload: {
+        id: '',
+        resourceType: '',
+        attributes: null,
+        request: '',
+        value: '',
+        initValue: ''
+      },
       isOpen: false,
       isLoading: true,
       moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : ''

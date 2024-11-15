@@ -19,6 +19,7 @@ import {
   DpInlineNotification,
   DpInput,
   DpMultiselect,
+  dpValidateMixin,
   sortAlphabetically
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
@@ -49,6 +50,8 @@ export default {
     ExportSettings,
     ParticipationPhases
   },
+
+  mixins: [dpValidateMixin],
 
   props: {
     authorizedUsersOptions: {
@@ -131,7 +134,14 @@ export default {
 
   data () {
     return {
-      addonPayload: null,
+      addonPayload: {
+        id: '',
+        resourceType: '',
+        attributes: null,
+        request: '',
+        value: '',
+        initValue: ''
+      },
       isLoadingPlisData: false,
       selectedAgencies: this.initAgencies,
       selectedDataInputOrgas: this.initDataInputOrgas,
@@ -187,6 +197,12 @@ export default {
         : dpApi.post(Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType}), {}, { data: payload })
 
       return apiCall.then(checkResponse)
+       /* .catch(error => {
+         const input = document.getElementById('addonAdditionalField')
+          input.classList.add('is-invalid')
+
+          throw error
+      })*/
     },
 
     selectAllAuthUsers () {
@@ -202,10 +218,22 @@ export default {
     },
 
     submit () {
-      if (this.addonPayload.value) {
-        this.handleAddonRequest().then(() => this.$refs.configForm?.submit())
+      if (window['MeinBerlinAdditionalField']) {
+        if (this.addonPayload && this.addonPayload.value || this.addonPayload.initValue) {
+          this.handleAddonRequest().then(() => {
+            this.dpValidateAction('configForm', () => {
+              this.$refs.configForm.submit()
+            }, false)
+          })
+        } else {
+          this.dpValidateAction('configForm', () => {
+            this.$refs.configForm.submit()
+          }, false)
+        }
       } else {
-        this.$refs.configForm?.submit()
+        this.dpValidateAction('configForm', () => {
+          this.$refs.configForm.submit()
+        }, false)
       }
     },
 
