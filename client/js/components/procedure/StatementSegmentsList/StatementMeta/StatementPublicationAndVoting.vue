@@ -30,141 +30,144 @@ All rights reserved
       :submitter-email="statement.attributes.submitterEmailAddress"
       @update="val => localStatement.attributes.publicVerified = val" />
 
-    <div class="font-semibold">
-      {{ Translator.trans('statement.voter') }}
-    </div>
-    <p
-      class="color-text-muted"
-      v-text="Translator.trans('statement_vote.length', { count: votesLength })" />
-    <dp-loading v-if="isLoading" />
-    <dp-editable-list
-      v-else
-      :entries="votes"
-      :has-permission-to-edit="editable && statement.attributes.isManual"
-      :translation-keys="translationKeys"
-      ref="listComponent"
-      @reset="resetForm()"
-      @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)">
-      <template v-slot:list="{entry, index}">
-        <span v-if="entry.attributes.name" class="voteEntry">{{ entry.attributes.name }}</span>
-        <span v-if="entry.attributes.organisationName" class="voteEntry">{{ entry.attributes.organisationName }}</span>
-        <span v-if="entry.attributes.departmentName" class="voteEntry">{{ entry.attributes.departmentName }}</span>
-        <span v-if="entry.attributes.postcode" class="voteEntry">{{ entry.attributes.postcode }}</span>
-        <span v-if="entry.attributes.city" class="voteEntry">{{ entry.attributes.city }}</span>
-        <span v-if="entry.attributes.email" class="voteEntry">{{ entry.attributes.email }}</span>
-      </template>
-      <template v-slot:form>
-        <div
-          data-dp-validate="newVoterForm"
-          v-if="editable && statement.attributes.isManual"
-          class="space-stack-s border-t py-3">
-          <!-- Role -->
-          <div class="flex">
-            <dp-radio
-              id="createdByCitizen_true"
-              data-cy="statementVoter:roleCitizen"
-              :label="{
-                text: Translator.trans('role.citizen')
-              }"
-              value="true"
-              :checked="formFields.createdByCitizen"
-              @change="formFields.createdByCitizen = true" />
-            <dp-radio
-              id="createdByCitizen_false"
-              class="ml-5"
-              data-cy="statementVoter:invitableInstitution"
-              :label="{
-                text: Translator.trans('invitable_institution')
-              }"
-              value="false"
-              :checked="formFields.createdByCitizen === false"
-              @change="formFields.createdByCitizen = false" />
-          </div>
+
+    <template v-if="hasPermission('feature_statements_vote')">
+      <div class="font-semibold">
+        {{ Translator.trans('statement.voter') }}
+      </div>
+      <p
+        class="color-text-muted"
+        v-text="Translator.trans('statement_vote.length', { count: votesLength })" />
+      <dp-loading v-if="isLoading" />
+      <dp-editable-list
+        v-else
+        :entries="votes"
+        :has-permission-to-edit="editable && statement.attributes.isManual"
+        :translation-keys="translationKeys"
+        ref="listComponent"
+        @reset="resetForm()"
+        @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)">
+        <template v-slot:list="{entry, index}">
+          <span v-if="entry.attributes.name" class="voteEntry">{{ entry.attributes.name }}</span>
+          <span v-if="entry.attributes.organisationName" class="voteEntry">{{ entry.attributes.organisationName }}</span>
+          <span v-if="entry.attributes.departmentName" class="voteEntry">{{ entry.attributes.departmentName }}</span>
+          <span v-if="entry.attributes.postcode" class="voteEntry">{{ entry.attributes.postcode }}</span>
+          <span v-if="entry.attributes.city" class="voteEntry">{{ entry.attributes.city }}</span>
+          <span v-if="entry.attributes.email" class="voteEntry">{{ entry.attributes.email }}</span>
+        </template>
+        <template v-slot:form>
           <div
-            v-show="isInstitutionParticipation && (hasPermission('field_statement_meta_orga_name') || hasPermission('field_statement_meta_orga_department_name'))"
-            class="flex">
-            <dp-input
-              v-show="hasPermission('field_statement_meta_orga_name')"
-              id="voter_publicagency"
-              data-cy="voterPublicAgency"
-              v-model="formFields.organisationName"
-              class="pr-2"
-              :label="{
-                text: Translator.trans('invitable_institution')
-              }" />
-            <dp-input
-              v-show="hasPermission('field_statement_meta_orga_department_name')"
-              id="voter_department"
-              data-cy="voterDepartment"
-              v-model="formFields.departmentName"
-              class="pl-2"
-              :label="{
-                text: Translator.trans('department')
-              }" />
-          </div>
+            data-dp-validate="newVoterForm"
+            v-if="editable && statement.attributes.isManual"
+            class="space-stack-s border-t py-3">
+            <!-- Role -->
+            <div class="flex">
+              <dp-radio
+                id="createdByCitizen_true"
+                data-cy="statementVoter:roleCitizen"
+                :label="{
+                  text: Translator.trans('role.citizen')
+                }"
+                value="true"
+                :checked="formFields.createdByCitizen"
+                @change="formFields.createdByCitizen = true" />
+              <dp-radio
+                id="createdByCitizen_false"
+                class="ml-5"
+                data-cy="statementVoter:invitableInstitution"
+                :label="{
+                  text: Translator.trans('invitable_institution')
+                }"
+                value="false"
+                :checked="formFields.createdByCitizen === false"
+                @change="formFields.createdByCitizen = false" />
+            </div>
+            <div
+              v-show="isInstitutionParticipation && (hasPermission('field_statement_meta_orga_name') || hasPermission('field_statement_meta_orga_department_name'))"
+              class="flex">
+              <dp-input
+                v-show="hasPermission('field_statement_meta_orga_name')"
+                id="voter_publicagency"
+                data-cy="voterPublicAgency"
+                v-model="formFields.organisationName"
+                class="pr-2"
+                :label="{
+                  text: Translator.trans('invitable_institution')
+                }" />
+              <dp-input
+                v-show="hasPermission('field_statement_meta_orga_department_name')"
+                id="voter_department"
+                data-cy="voterDepartment"
+                v-model="formFields.departmentName"
+                class="pl-2"
+                :label="{
+                  text: Translator.trans('department')
+                }" />
+            </div>
 
-          <div class="flex">
-            <dp-input
-              v-if="hasPermission('field_statement_meta_submit_name')"
-              id="voter_username"
-              data-cy="voterUsername"
-              v-model="formFields.name"
-              class="pr-2"
-              :label="{
-                text: Translator.trans('statement.form.name')
-              }" />
-            <dp-input
-              v-if="hasPermission('field_statement_meta_email')"
-              id="voter_email"
-              data-cy="voterEmail"
-              v-model="formFields.email"
-              class="pl-2"
-              :label="{
-                text: Translator.trans('email')
-              }"
-              type="email" />
-          </div>
+            <div class="flex">
+              <dp-input
+                v-if="hasPermission('field_statement_meta_submit_name')"
+                id="voter_username"
+                data-cy="voterUsername"
+                v-model="formFields.name"
+                class="pr-2"
+                :label="{
+                  text: Translator.trans('statement.form.name')
+                }" />
+              <dp-input
+                v-if="hasPermission('field_statement_meta_email')"
+                id="voter_email"
+                data-cy="voterEmail"
+                v-model="formFields.email"
+                class="pl-2"
+                :label="{
+                  text: Translator.trans('email')
+                }"
+                type="email" />
+            </div>
 
-          <div class="flex w-1/2">
-            <dp-input
-              v-if="hasPermission('field_statement_meta_postal_code')"
-              id="voter_postalcode"
-              data-cy="voterPostalCode"
-              v-model="formFields.postcode"
-              class="u-1-of-4 pr-2"
-              :label="{
-                text: Translator.trans('postalcode')
-              }"
-              pattern="^[0-9]{4,5}$" />
-            <dp-input
-              v-if="hasPermission('field_statement_meta_city')"
-              id="voter_city"
-              data-cy="voterCity"
-              v-model="formFields.city"
-              class="px-2"
-              :class="hasPermission('field_statement_meta_postal_code') ? ' u-3-of-4' : ''"
-              :label="{
-                text: Translator.trans('city')
-              }" />
+            <div class="flex w-1/2">
+              <dp-input
+                v-if="hasPermission('field_statement_meta_postal_code')"
+                id="voter_postalcode"
+                data-cy="voterPostalCode"
+                v-model="formFields.postcode"
+                class="u-1-of-4 pr-2"
+                :label="{
+                  text: Translator.trans('postalcode')
+                }"
+                pattern="^[0-9]{4,5}$" />
+              <dp-input
+                v-if="hasPermission('field_statement_meta_city')"
+                id="voter_city"
+                data-cy="voterCity"
+                v-model="formFields.city"
+                class="px-2"
+                :class="hasPermission('field_statement_meta_postal_code') ? ' u-3-of-4' : ''"
+                :label="{
+                  text: Translator.trans('city')
+                }" />
+            </div>
           </div>
-        </div>
-      </template>
-    </dp-editable-list>
+        </template>
+      </dp-editable-list>
 
-    <!-- Anonymous voters -->
-    <div class="w-1/4">
-      <dp-input
-        id="numberOfAnonymVotes"
-        v-model.number="localStatement.attributes.numberOfAnonymVotes"
-        class="mt-4"
-        data-cy="numberOfAnonymVotes"
-        :disabled="!editable"
-        :label="{
-          text: Translator.trans('statement.voter.anonym')
-        }"
-        name="numberOfAnonymVotes"
-        type="number" />
-    </div>
+      <!-- Anonymous voters -->
+      <div class="w-1/4">
+        <dp-input
+          id="numberOfAnonymVotes"
+          v-model.number="localStatement.attributes.numberOfAnonymVotes"
+          class="mt-4"
+          data-cy="numberOfAnonymVotes"
+          :disabled="!editable"
+          :label="{
+            text: Translator.trans('statement.voter.anonym')
+          }"
+          name="numberOfAnonymVotes"
+          type="number" />
+      </div>
+    </template>
 
     <dp-button-row
       v-if="editable"

@@ -617,8 +617,11 @@ export default {
         SourceStatementAttachment: [
           'file'
         ].join(),
-        Statement: statementFields.join(),
-        StatementVote: [
+        Statement: statementFields.join()
+      }
+
+      if (hasPermission('feature_statements_vote')) {
+        allFields.StatementVote = [
           'city',
           'createdDate',
           'createdByCitizen',
