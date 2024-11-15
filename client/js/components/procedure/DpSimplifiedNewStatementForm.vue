@@ -384,7 +384,6 @@
 <script>
 import {
   DpAccordion,
-  dpApi,
   DpButtonRow,
   DpDatepicker,
   DpInput,
@@ -581,18 +580,6 @@ export default {
   },
 
   methods: {
-    quickSaveText () {
-      const payload = {
-        data: {
-          type: 'AnnotatedStatementPdf',
-          id: this.documentId,
-          attributes: { quickSave: this.values.text }
-        }
-      }
-
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'AnnotatedStatementPdf', resourceId: this.documentId }), {}, payload)
-    },
-
     setInitialValues () {
       this.values = { ...this.initValues }
 

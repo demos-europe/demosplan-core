@@ -59,7 +59,7 @@
           <div class="flex justify-end mt-2">
             <dp-button
               :text="Translator.trans('statement.save.quickSave')"
-              @click="$refs.annotatedPdfForm.quickSaveText()" />
+              @click="quickSaveText" />
           </div>
         </dp-simplified-new-statement-form>
       </div>
@@ -217,6 +217,18 @@ export default {
       }
       this.pages = documentResponse.data.included.filter(el => el.type === 'AnnotatedStatementPdfPage')
       this.isLoading = false
+    },
+
+    quickSaveText () {
+      const payload = {
+        data: {
+          type: 'AnnotatedStatementPdf',
+          id: this.documentId,
+          attributes: { quickSave: this.$refs.annotatedPdfForm._data.values.text }
+        }
+      }
+
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'AnnotatedStatementPdf', resourceId: this.documentId }), {}, payload)
     },
 
     sortSelected (property) {
