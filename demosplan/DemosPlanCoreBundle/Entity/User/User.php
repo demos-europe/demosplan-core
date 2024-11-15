@@ -1825,11 +1825,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
 
     public function getEmailAuthCode(): string
     {
-        if (null === $this->authCode) {
-            throw new LogicException('The email authentication code was not set');
-        }
-
-        return $this->authCode;
+        return $this->authCode ?? '';
     }
 
     public function setEmailAuthCode(string $authCode): void
