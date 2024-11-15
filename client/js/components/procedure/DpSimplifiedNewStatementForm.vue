@@ -583,10 +583,6 @@ export default {
     setInitialValues () {
       this.values = { ...this.initValues }
 
-      if (this.values.quickSave) {
-        this.values.text = this.values.quickSave
-      }
-
       // Set default values to ensure reactivity.
       if (typeof this.values.submitter !== 'undefined' && typeof this.values.submitter.institution === 'undefined') {
         // Since Data sends us the key toeb instead of institution, we need to transform this for now but keep all init values

@@ -213,7 +213,7 @@ export default {
       this.formValues = {
         ...this.formValues,
         quickSave: this.document.attributes.quickSave,
-        text: this.document.attributes.text
+        text: this.document.attributes.quickSave ?? this.document.attributes.text
       }
       this.pages = documentResponse.data.included.filter(el => el.type === 'AnnotatedStatementPdfPage')
       this.isLoading = false
