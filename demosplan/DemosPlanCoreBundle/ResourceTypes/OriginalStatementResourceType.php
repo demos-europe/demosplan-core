@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementProcedurePhaseResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\OriginalStatementResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
@@ -41,9 +42,10 @@ use EDT\PathBuilding\End;
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface
 {
     public function __construct(
-        private readonly FileService $fileService,
-        private readonly StatementService $statementService,
+        private readonly FileService                     $fileService,
+        private readonly StatementService                $statementService,
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
+        private readonly FileContainerRepository $fileContainerRepository,
     ) {
     }
 
@@ -146,6 +148,12 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
             ->setRelationshipType($this->resourceTypeStore->getSourceStatementAttachmentResourceType())
             ->setReadableByPath()
             ->aliasedPath(Paths::statement()->attachments);
+        $originalStatementConfig->genericAttachments
+            ->setRelationshipType($this->resourceTypeStore->getGenericStatementAttachmentResourceType())
+            ->readable(false, function (Statement $statement): ?array {
+                $fileContainers = $this->fileContainerRepository->getStatementFileContainers($statement->getId());
+                return $fileContainers;
+            });
         $originalStatementConfig->files
             ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
             // files need to be fetched via Filecontainer
