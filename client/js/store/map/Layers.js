@@ -222,6 +222,7 @@ const LayersStore = {
             'isBplan',
             'isEnabled',
             'isMinimap',
+            'isPrint',
             'isScope',
             'layers',
             'layerType',
