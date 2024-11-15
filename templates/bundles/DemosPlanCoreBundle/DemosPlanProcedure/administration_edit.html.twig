@@ -156,7 +156,7 @@
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.edit.planning_agency'|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
 
@@ -192,7 +192,7 @@
                                 </label>
                                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                     helpText: 'email.procedure.agency.help'|trans,
-                                    cssClasses:'u-mt-0_125',
+                                    cssClasses:'mb-1',
                                     showPlainHint: true
                                 } %}
                                 {{ form_errors(form.agencyMainEmailAddress) }}
@@ -214,7 +214,7 @@
                                 </label>
                                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                     helpText: 'email.address.more.explanation.help'|trans,
-                                    cssClasses:'u-mt-0_125',
+                                    cssClasses:'mb-1',
                                     showPlainHint: true
                                 } %}
 
@@ -243,7 +243,7 @@
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.edit.data_input_orgas'|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
 
@@ -276,7 +276,7 @@
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.edit.authorized.users'|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
 
@@ -328,7 +328,7 @@
                                 </label>
                                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                     helpText: 'text.procedure.edit.note'|trans,
-                                    cssClasses:'u-mt-0_125',
+                                    cssClasses:'mb-1',
                                     showPlainHint: true
                                 } %}
                                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
@@ -426,7 +426,7 @@
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.internal.legalNotice'|trans,
-                                            cssClasses:'u-mt-0_125',
+                                            cssClasses:'mb-1',
                                             showPlainHint: true
                                         } %}
                                         <p class="lbl__hint">
@@ -453,7 +453,7 @@
                                     {% endif %}
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: helpTextInternalStartDate|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
 
@@ -580,7 +580,7 @@
 
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: helpTextExternalStartDate|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
                                     <dp-date-range-picker
@@ -679,7 +679,7 @@
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.name'|trans,
-                                            cssClasses:'u-mt-0_125',
+                                            cssClasses:'mb-1',
                                             showPlainHint: true
                                         } %}
                                         <p class="lbl__hint">
@@ -705,7 +705,7 @@
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.name.public'|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
                                     <p class="lbl__hint">
@@ -730,7 +730,7 @@
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'explanation.shorturl'|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
                                     <p class="lbl__hint">
@@ -815,7 +815,7 @@
                                             </label>
                                             {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                                 helpText: 'text.procedure.description.wizard'|trans,
-                                                cssClasses:'u-mt-0_125',
+                                                cssClasses:'mb-1',
                                                 showPlainHint: true
                                             } %}
 
@@ -841,7 +841,7 @@
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.external.contact_person'|trans,
-                                            cssClasses:'u-mt-0_125',
+                                            cssClasses:'mb-1',
                                             showPlainHint: true
                                         } %}
                                         <p class="lbl__hint">
@@ -868,7 +868,7 @@
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.external.pictogram'|trans,
-                                            cssClasses:'u-mt-0_125',
+                                            cssClasses:'mb-1',
                                             showPlainHint: true
                                         } %}
                                         {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
@@ -936,7 +936,7 @@
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.link_box'|trans,
-                                            cssClasses:'u-mt-0_125',
+                                            cssClasses:'mb-1',
                                             showPlainHint: true
                                         } %}
                                         <dp-editor
@@ -1011,7 +1011,7 @@
                                                 {% endif %}
                                                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                                     helpText: location_name_trans_help,
-                                                    cssClasses:'u-mt-0_125',
+                                                    cssClasses:'mb-1',
                                                     showPlainHint: true
                                                 } %}
                                                 <label class="layout__item u-1-of-6 u-pl-0 u-mb-0">
@@ -1041,7 +1041,7 @@
                                         </div>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.external.coordinates'|trans,
-                                            cssClasses:'u-mt-0_125',
+                                            cssClasses:'mb-1',
                                             showPlainHint: true
                                         } %}
                                         <p class="lbl__hint">
@@ -1171,7 +1171,7 @@
                                     </div>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.edit.additional.notifyCounty.hint'|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
                                     <div class="layout__item u-pl-0">
