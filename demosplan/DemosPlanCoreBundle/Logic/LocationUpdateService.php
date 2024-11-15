@@ -17,10 +17,8 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
-use Goodby\CSV\Import\Standard\Interpreter;
-use Goodby\CSV\Import\Standard\Lexer;
-use Goodby\CSV\Import\Standard\LexerConfig;
 use GuzzleHttp\Client;
+use League\Csv\Reader;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
@@ -72,17 +70,17 @@ class LocationUpdateService
         $this->logger->info('Save sheet as csv');
         $writer->save($csvFile);
 
-        $config = new LexerConfig();
-        $config
-            ->setDelimiter(';') // Customize delimiter. Default value is comma(,)
-            ->setEnclosure('"')  // Customize enclosure. Default value is double quotation(")
-            ->setEscape('\\')    // Customize escape character. Default value is backslash(\)
-            ->setToCharset('UTF-8') // Customize target encoding. Default value is null, no converting.
-        ;
-        $interpreter = new Interpreter();
-        $interpreter->addObserver(static function (array $row) use (&$locations, $includeOnly) {
+        $reader = Reader::createFromPath($csvFile, 'r');
+        $reader->setEscape(''); //required in PHP8.4+
+        $reader->setDelimiter(';');
+        $reader->setEnclosure('"');
+        $this->logger->info('Parse csv file');
+        $records = $reader->getRecords();
+
+        $locations = [];
+        foreach ($records as $row) {
             if (0 < count($includeOnly) && !in_array($row[2], $includeOnly, true)) {
-                return;
+                continue;
             }
             switch ($row[0]) {
                 // kreis
@@ -92,32 +90,28 @@ class LocationUpdateService
                         ->setName($row[7]);
                     $locations[] = $location;
                     break;
-                    // gemeindeverband
+                // gemeindeverband
                 case '50':
                     $location = new Location();
                     $location->setArs($row[2].$row[3].$row[4].$row[5])
                         ->setName($row[7]);
                     $locations[] = $location;
                     break;
-                    // gemeinde
+                // gemeinde
                 case '60':
                     $location = new Location();
                     $location->setArs($row[2].$row[3].$row[4].$row[5].$row[6])
-                         ->setMunicipalCode($row[2].$row[3].$row[4].$row[6])
-                         ->setName($row[7])
-                         ->setPostcode($row[13])
-                         ->setLon((float) str_replace(',', '.', (string) $row[14]))
-                         ->setLat((float) str_replace(',', '.', (string) $row[15]));
+                        ->setMunicipalCode($row[2].$row[3].$row[4].$row[6])
+                        ->setName($row[7])
+                        ->setPostcode($row[13])
+                        ->setLon((float) str_replace(',', '.', (string) $row[14]))
+                        ->setLat((float) str_replace(',', '.', (string) $row[15]));
                     $locations[] = $location;
                     break;
                 default:
                     break;
             }
-        });
-
-        $lexer = new Lexer($config);
-        $this->logger->info('Parse csv file');
-        $lexer->parse($csvFile, $interpreter);
+        }
 
         /** @var LocationRepository $repository */
         $repository = $this->em->getRepository(Location::class);

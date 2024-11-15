@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "473bbd3bb191c7083f7c290a2cd8a288",
+    "content-hash": "7bb41031ba6197d245f66be7fd165c32",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -5705,67 +5705,6 @@
             "time": "2024-04-12T22:55:31+00:00"
         },
         {
-            "name": "goodby/csv",
-            "version": "1.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/goodby/csv.git",
-                "reference": "e71217b8d6110f3d1ac3784ef9b8a2383c3398b9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/goodby/csv/zipball/e71217b8d6110f3d1ac3784ef9b8a2383c3398b9",
-                "reference": "e71217b8d6110f3d1ac3784ef9b8a2383c3398b9",
-                "shasum": ""
-            },
-            "require": {
-                "ext-mbstring": "*",
-                "php": ">=5.3.2"
-            },
-            "require-dev": {
-                "mikey179/vfsstream": ">=1.1.0",
-                "mockery/mockery": ">=0.7.2",
-                "phpunit/phpunit": "3.7.*",
-                "suin/php-expose": ">=1.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Goodby\\CSV": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "suin",
-                    "email": "suinyeze@gmail.com",
-                    "homepage": "https://www.facebook.com/suinyeze",
-                    "role": "Developer, Renaming Specialist"
-                },
-                {
-                    "name": "reoring",
-                    "email": "mori.reo@gmail.com",
-                    "homepage": "https://www.facebook.com/reoring",
-                    "role": "Developer"
-                }
-            ],
-            "description": "CSV import/export library",
-            "homepage": "https://github.com/goodby/csv",
-            "keywords": [
-                "csv",
-                "export",
-                "import"
-            ],
-            "support": {
-                "issues": "https://github.com/goodby/csv/issues",
-                "source": "https://github.com/goodby/csv/tree/master"
-            },
-            "time": "2015-06-29T10:28:19+00:00"
-        },
-        {
             "name": "guzzlehttp/guzzle",
             "version": "7.9.2",
             "source": {
@@ -6368,64 +6307,6 @@
                 }
             ],
             "time": "2022-05-21T17:30:32+00:00"
-        },
-        {
-            "name": "intriro/csv-bundle",
-            "version": "v1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/intriro/csv-bundle.git",
-                "reference": "bbce423046b69a6db1946606cafc355adf6d4f7a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/intriro/csv-bundle/zipball/bbce423046b69a6db1946606cafc355adf6d4f7a",
-                "reference": "bbce423046b69a6db1946606cafc355adf6d4f7a",
-                "shasum": ""
-            },
-            "require": {
-                "goodby/csv": "^1.1",
-                "php": ">=7.1",
-                "symfony/framework-bundle": "^4.0 || ^5.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^6.0",
-                "symfony/phpunit-bridge": "^2.7 || ^3.0 || ^4.0"
-            },
-            "type": "symfony-bundle",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Intriro\\Bundle\\CsvBundle\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "alsar",
-                    "email": "ales@intriro.com"
-                }
-            ],
-            "description": "Integration of Goodby CSV into Symfony2",
-            "homepage": "https://github.com/intriro/csv-bundle",
-            "keywords": [
-                "bundle",
-                "csv",
-                "goodby csv",
-                "symfony"
-            ],
-            "support": {
-                "issues": "https://github.com/intriro/csv-bundle/issues",
-                "source": "https://github.com/intriro/csv-bundle/tree/v1.1.0"
-            },
-            "time": "2020-01-10T13:35:15+00:00"
         },
         {
             "name": "jean85/pretty-package-versions",
@@ -7551,6 +7432,93 @@
                 }
             ],
             "time": "2024-04-11T23:07:54+00:00"
+        },
+        {
+            "name": "league/csv",
+            "version": "9.18.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/csv.git",
+                "reference": "b02d010e4055ae992247f6ffd1e7b103ef2a0790"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/csv/zipball/b02d010e4055ae992247f6ffd1e7b103ef2a0790",
+                "reference": "b02d010e4055ae992247f6ffd1e7b103ef2a0790",
+                "shasum": ""
+            },
+            "require": {
+                "ext-filter": "*",
+                "php": "^8.1.2"
+            },
+            "require-dev": {
+                "ext-dom": "*",
+                "ext-xdebug": "*",
+                "friendsofphp/php-cs-fixer": "^3.64.0",
+                "phpbench/phpbench": "^1.3.1",
+                "phpstan/phpstan": "^1.12.6",
+                "phpstan/phpstan-deprecation-rules": "^1.2.1",
+                "phpstan/phpstan-phpunit": "^1.4.0",
+                "phpstan/phpstan-strict-rules": "^1.6.1",
+                "phpunit/phpunit": "^10.5.16 || ^11.4.1",
+                "symfony/var-dumper": "^6.4.8 || ^7.1.5"
+            },
+            "suggest": {
+                "ext-dom": "Required to use the XMLConverter and the HTMLConverter classes",
+                "ext-iconv": "Needed to ease transcoding CSV using iconv stream filters",
+                "ext-mbstring": "Needed to ease transcoding CSV using mb stream filters"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "9.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/functions_include.php"
+                ],
+                "psr-4": {
+                    "League\\Csv\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ignace Nyamagana Butera",
+                    "email": "nyamsprod@gmail.com",
+                    "homepage": "https://github.com/nyamsprod/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "CSV data manipulation made easy in PHP",
+            "homepage": "https://csv.thephpleague.com",
+            "keywords": [
+                "convert",
+                "csv",
+                "export",
+                "filter",
+                "import",
+                "read",
+                "transform",
+                "write"
+            ],
+            "support": {
+                "docs": "https://csv.thephpleague.com",
+                "issues": "https://github.com/thephpleague/csv/issues",
+                "rss": "https://github.com/thephpleague/csv/releases.atom",
+                "source": "https://github.com/thephpleague/csv"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/nyamsprod",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-10-18T08:14:48+00:00"
         },
         {
             "name": "league/flysystem",
@@ -24308,5 +24276,5 @@
     "platform-overrides": {
         "php": "8.1.12"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }

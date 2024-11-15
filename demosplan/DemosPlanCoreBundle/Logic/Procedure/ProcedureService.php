@@ -1558,8 +1558,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             return $this->boilerplateRepository->add($data, $addToCategories);
-        } catch (Exception) {
-            $this->logger->warning('Post boilerplate failed');
+        } catch (Exception $e) {
+            $this->logger->warning('Post boilerplate failed', [$e]);
         }
 
         return false;

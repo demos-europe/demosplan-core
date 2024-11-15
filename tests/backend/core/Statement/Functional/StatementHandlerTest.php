@@ -36,9 +36,11 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Illuminate\Support\Collection;
+use League\Flysystem\FilesystemOperator;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -415,28 +417,29 @@ class StatementHandlerTest extends FunctionalTestCase
 
     public function testImportTags()
     {
-        self::markSkippedForCIIntervention();
+        //self::markSkippedForCIIntervention();
 
-        $this->setMocks();
+        //$this->setMocks();
 
         $statementService = $this->getMockBuilder(
             StatementService::class
         )
             ->disableOriginalConstructor()
             ->getMock();
-
+/*
         $statementService->expects($this->any())
             ->method('attachBoilerplateToTag')
             ->willReturn(true);
-
+*/
         $this->sut->setRequestValues([
             'r_import'    => '',
             'r_importCsv' => 'asdfasdfasdf',
         ]);
 
+        // wie ist das korrekte Format? mit , oder ;
         /* @var StatementService $statementService */
         $this->sut->setStatementService($statementService);
-        $this->sut->importTags('foo', 'datei:hash:mime');
+        $this->sut->importTags($this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE)->getId(), fopen($this->getFileInfoTagImport()->getAbsolutePath(), 'rb'));
     }
 
     /**
@@ -2151,7 +2154,7 @@ class StatementHandlerTest extends FunctionalTestCase
             ->willReturn(true);
         $mock->expects($this->any())
             ->method('submitHandler')
-            ->willReturn(true);
+            ->willReturn([]);
 
         return $mock;
     }
@@ -2161,14 +2164,17 @@ class StatementHandlerTest extends FunctionalTestCase
      */
     protected function getFileServiceMock()
     {
+        $fileInfo = $this->getFileInfoTagImport();
         $mock = $this->getMockBuilder(FileService::class)
             ->disableOriginalConstructor()
             ->getMock();
         $mock->expects($this->any())
             ->method('getFileInfo')
-            ->willReturn(['absolutePath' => __DIR__.'/res/final.csv']);
+            ->willReturn($fileInfo);
+        return $mock->expects($this->any())
+            ->method('getFileContentStream')
+            ->willReturn(fopen($fileInfo->getAbsolutePath(), 'rb'));
 
-        return $mock;
     }
 
     /**
@@ -2996,5 +3002,18 @@ class StatementHandlerTest extends FunctionalTestCase
         // new map file has reference to target procedure
         $newFile = $fileService->getFileFromFileString($copiedStatement->getMapFile());
         static::assertEquals($targetProcedure->getId(), $newFile->getProcedure()->getId());
+    }
+
+    private function getFileInfoTagImport(): FileInfo
+    {
+        return new FileInfo(
+            hash: 'someHash',
+            fileName: 'final.csv',
+            fileSize: 12345,
+            contentType: 'any/thing',
+            path: __DIR__ . '/res/final.csv',
+            absolutePath: __DIR__ . '/res/final.csv',
+            procedure: null
+        );
     }
 }

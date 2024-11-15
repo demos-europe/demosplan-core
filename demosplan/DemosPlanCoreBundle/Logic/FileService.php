@@ -753,6 +753,19 @@ class FileService extends CoreService implements FileServiceInterface
         return $this->ensureLocalFile($file->getAbsolutePath(), $hash, $path);
     }
 
+    public function getFileContent(FileInfo $fileInfo): string
+    {
+        return $this->defaultStorage->read($fileInfo->getPath());
+    }
+
+    /**
+     * @return resource
+     */
+    public function getFileContentStream(FileInfo $fileInfo)
+    {
+        return $this->defaultStorage->readStream($fileInfo->getPath());
+    }
+
     /**
      * Generate a unique name for the file.
      */
