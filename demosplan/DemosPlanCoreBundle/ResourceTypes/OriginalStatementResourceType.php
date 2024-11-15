@@ -42,8 +42,8 @@ use EDT\PathBuilding\End;
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface
 {
     public function __construct(
-        private readonly FileService                     $fileService,
-        private readonly StatementService                $statementService,
+        private readonly FileService $fileService,
+        private readonly StatementService $statementService,
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
         private readonly FileContainerRepository $fileContainerRepository,
     ) {
@@ -152,6 +152,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
             ->setRelationshipType($this->resourceTypeStore->getGenericStatementAttachmentResourceType())
             ->readable(false, function (Statement $statement): ?array {
                 $fileContainers = $this->fileContainerRepository->getStatementFileContainers($statement->getId());
+
                 return $fileContainers;
             });
         $originalStatementConfig->files
