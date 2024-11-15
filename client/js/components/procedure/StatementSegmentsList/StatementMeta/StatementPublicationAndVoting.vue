@@ -43,7 +43,6 @@ All rights reserved
       :has-permission-to-edit="editable && statement.attributes.isManual"
       :translation-keys="translationKeys"
       ref="listComponent"
-      @delete="handleDeleteVote"
       @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)">
       <template v-slot:list="{entry, index}">
         <span v-if="entry.attributes.name" class="voteEntry">{{ entry.attributes.name }}</span>
@@ -320,6 +319,14 @@ export default {
       return isEmpty
     },
 
+    removeSavedNewStatementsFromTheStore () {
+      for (const id in this.votes) {
+        if (id.includes('newItem')) {
+          this.removeStatementVote(id)
+        }
+      }
+    },
+
     removeVote (id) {
       // The Vuex-json-Api has a bug, where the store is not updated correctly,
       // so we have to remove the item from the store and the local data
@@ -360,6 +367,10 @@ export default {
 
     save () {
       this.saveStatementVote()
+      this.$emit('save', this.localStatement)
+      this.removeSavedNewStatementsFromTheStore()
+      // Keep comonent in sync with the store after save-fetch
+      // this.votes = Object.assign({}, this.votesState)
     },
 
     saveStatementVote () {
@@ -376,6 +387,7 @@ export default {
       Promise.any(promises)
         .then(() => {
           this.$emit('updatedVoters')
+          this.resetStatementVote()
         })
         .catch(() => {
           dplan.notify.error(Translator.trans('error.api.generic'))
@@ -465,9 +477,17 @@ export default {
   },
 
   mounted() {
-    this.$on('showUpdateForm', (index) => {
+    this.$on('showUpdateForm', (id) => {
+      let votes = this.votes
+
+      // Check if index is NOT a uuid
+      if (!id.includes('-')) {
+        console.log('showUpdateForm', id, 'its really an index')
+        Object.values(this.votes)
+      }
+
       for (const key in this.formFields) {
-        this.formFields[key] = Object.values(this.votes)[index]['attributes'][key]
+        this.formFields[key] = votes[id]['attributes'][key]
       }
     })
 

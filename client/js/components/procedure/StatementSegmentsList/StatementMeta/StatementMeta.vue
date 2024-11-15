@@ -49,19 +49,20 @@
           :editable="editable"
           :statement="statement"
           :submit-type-options="submitTypeOptions"
-          @save="(data) => save(data)" />
+          @save="save" />
 
         <statement-submitter
           :editable="editable"
           :procedure="procedure"
           :statement="statement"
           :statement-form-definitions="statementFormDefinitions"
-          @save="(data) => save(data)" />
+          @save="save" />
 
         <statement-publication-and-voting
+          ref="publicationAndVotes"
           :editable="editable"
           :statement="statement"
-          @save="(data) => save(data)"
+          @save="save"
           @updatedVoters="() => $emit('updatedVoters')"/>
 
         <!-- need to add statement.attributes.counties and availableCounties in the BE (Array) -->

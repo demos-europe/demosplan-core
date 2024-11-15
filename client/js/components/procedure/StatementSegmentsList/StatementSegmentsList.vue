@@ -143,6 +143,7 @@
         :available-priority-areas="availablePriorityAreas"
         :current-user-id="currentUser.id"
         :editable="editable"
+        ref="metadata"
         :statement-form-definitions="statementFormDefinitions"
         :procedure="procedure"
         :procedure-statement-priority-area="procedureStatementPriorityArea"
@@ -150,7 +151,7 @@
         :submit-type-options="submitTypeOptions"
         @close="showInfobox = false"
         @input="checkStatementClaim"
-        @save="(statement) => saveStatement(statement)"
+        @save="saveStatement"
         @updatedVoters="getStatement"/>
       <segments-recommendations
         v-if="currentAction === 'addRecommendation' && hasPermission('feature_segment_recommendation_edit')"
@@ -685,6 +686,9 @@ export default {
       this.saveStatementAction(statement.id)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        })
+        .then(() => {
+          this.$refs.metadata.$refs.publicationAndVotes.resetStatementVote()
         })
         .catch(() => {
           dplan.notify.error(Translator.trans('error.api.generic'))
