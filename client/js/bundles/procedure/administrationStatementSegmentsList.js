@@ -17,6 +17,7 @@ import procedureMapSettings from '@DpJs/store/map/ProcedureMapSettings'
 import SegmentSlidebar from '@DpJs/store/procedure/SegmentSlidebar'
 import SplitStatementStore from '@DpJs/store/statement/SplitStatementStore'
 import StatementSegmentsList from '@DpJs/components/procedure/StatementSegmentsList/StatementSegmentsList'
+import voter from '@DpJs/store/statement/Voter'
 
 const components = {
   StatementSegmentsList
@@ -25,7 +26,8 @@ const components = {
 const stores = {
   ProcedureMapSettings: procedureMapSettings,
   SegmentSlidebar,
-  SplitStatement: SplitStatementStore
+  SplitStatement: SplitStatementStore,
+  voter
 }
 
 if (hasPermission('area_admin_boilerplates')) {
