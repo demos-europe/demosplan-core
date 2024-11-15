@@ -139,7 +139,7 @@ All rights reserved
       :statement-id="statement.id" />
 
     <dp-button-row
-      v-if="editable"
+      v-if="editable && isStatementManual"
       class="mt-2 w-full"
       primary
       secondary
