@@ -64,7 +64,6 @@
             :basic-auth="dplan.settings.basicAuth"
             class="u-mb"
             hidden-input="r_text"
-            procedure-id="{{ procedure }}"
             :required="true"
             :routes="{
                getFileByHash: (hash) => Routing.generate('core_file_procedure', { hash: hash, procedureId: '{{ procedure }}' }),

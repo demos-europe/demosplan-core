@@ -49,6 +49,7 @@ use Monolog\Logger;
 use Patchwork\Utf8;
 use PhpOffice\PhpWord\Settings;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use ZipStream\ZipStream;
@@ -126,7 +127,7 @@ class ExportService
         TranslatorInterface $translator,
         private readonly ZipExportService $zipExportService,
         private readonly string $rendererName,
-        private readonly string $rendererPath
+        private readonly string $rendererPath,
     ) {
         $this->assessmentTableOutput = $assessmentTableServiceOutput;
         $this->draftStatementService = $draftStatementService;
@@ -217,7 +218,9 @@ class ExportService
                 }
 
                 // Titelblatt
-                $zip = $this->addTitlePageToZip($procedureId, $procedureName, $zip);
+                if ($this->permissions->hasPermission('feature_procedure_export_include_cover_page')) {
+                    $zip = $this->addTitlePageToZip($procedureId, $procedureName, $zip);
+                }
 
                 // Aktuelles
                 if ($this->permissions->hasPermission('feature_procedure_export_include_current_news')) {
@@ -382,7 +385,7 @@ class ExportService
         string $procedureId,
         string $procedureName,
         string $exportType,
-        ZipStream $zip
+        ZipStream $zip,
     ): ZipStream {
         $rParams = [
             'filters' => [],
@@ -392,10 +395,11 @@ class ExportService
         ];
 
         $type = [
-            'anonymous'  => false,
-            'exportType' => $exportType,
-            'template'   => 'condensed',
-            'sortType'   => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
+            'anonymous'        => false,
+            'numberStatements' => false,
+            'exportType'       => $exportType,
+            'template'         => 'condensed',
+            'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
 
         try {
@@ -431,13 +435,14 @@ class ExportService
         string $procedureId,
         string $procedureName,
         string $exportType,
-        ZipStream $zip
+        ZipStream $zip,
     ): ZipStream {
         $type = [
-            'anonymous'  => true,
-            'exportType' => $exportType,
-            'template'   => 'condensed',
-            'sortType'   => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
+            'anonymous'        => true,
+            'numberStatements' => false,
+            'exportType'       => $exportType,
+            'template'         => 'condensed',
+            'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
 
         $rParams = [
@@ -489,7 +494,7 @@ class ExportService
     public function addAssessmentTableOriginalToZip(
         string $procedureId,
         string $procedureName,
-        ZipStream $zip
+        ZipStream $zip,
     ): ZipStream {
         $rParams = [
             'filters' => ['original' => 'IS NULL'],
@@ -809,7 +814,7 @@ class ExportService
         string $fileFolderPath,
         ZipStream $zip,
         string $fileNamePrefix,
-        Collection $attachments
+        Collection $attachments,
     ): void {
         collect($attachments)
             ->filter(
@@ -837,6 +842,9 @@ class ExportService
         $filepath = DemosPlanPath::getTemporaryPath($internalFilename);
         $writer->save($filepath);
         $this->zipExportService->addFileToZipStream($filepath, $filename, $zip);
+        // uses local file, no need for flysystem
+        $fs = new Filesystem();
+        $fs->remove($filepath);
     }
 
     /**

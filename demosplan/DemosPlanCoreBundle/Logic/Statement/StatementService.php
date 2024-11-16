@@ -22,9 +22,7 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
-use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
@@ -44,7 +42,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
@@ -84,7 +81,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Grouping\EntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
-use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
@@ -115,6 +111,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditV
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\MovedStatementData;
 use demosplan\DemosPlanCoreBundle\ValueObject\PercentageDistribution;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementViewed;
 use demosplan\DemosPlanCoreBundle\ValueObject\StatementMovement;
 use demosplan\DemosPlanCoreBundle\ValueObject\StatementMovementCollection;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
@@ -276,6 +273,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         protected readonly StatementRepository $statementRepository,
         private readonly StatementResourceType $statementResourceType,
+        private readonly StatementToLegacyConverter $statementToLegacyConverter,
         StatementValidator $statementValidator,
         private readonly StatementVoteRepository $statementVoteRepository,
         private readonly TagRepository $tagRepository,
@@ -283,7 +281,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         private readonly TranslatorInterface $translator,
         private readonly UserRepository $userRepository,
         UserService $userService,
-        private readonly StatementDeleter $statementDeleter
+        private readonly StatementDeleter $statementDeleter,
     ) {
         $this->assignService = $assignService;
         $this->entityContentChangeService = $entityContentChangeService;
@@ -418,17 +416,6 @@ class StatementService extends CoreService implements StatementServiceInterface
 
         /** @var StatementCreatedEvent $statementCreatedEvent */
         $statementCreatedEvent = $this->eventDispatcher->dispatch(new ManualOriginalStatementCreatedEvent($statement));
-
-        if ($this->permissions->hasPermission('area_admin_statement_list')) {
-            $this->messageBag->addObject(LinkMessageSerializable::createLinkMessage(
-                'confirm',
-                'confirm.statement.new',
-                ['externId' => $statementCreatedEvent->getStatement()->getExternId()],
-                'dplan_procedure_statement_list',
-                ['procedureId' => $statementCreatedEvent->getStatement()->getProcedure()->getId()],
-                $statementCreatedEvent->getStatement()->getExternId()
-            ));
-        }
 
         // statement similarities are calculated?
         $statementSimilarities = $statementCreatedEvent->getStatementSimilarities();
@@ -566,7 +553,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         DraftStatement $draftStatement,
         $user,
         ?NotificationReceiver $notificationReceiver = null,
-        bool $gdprConsentReceived = false
+        bool $gdprConsentReceived = false,
     ) {
         try {
             $originalStatement = $this->statementRepository
@@ -833,7 +820,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         $aggregationsMinDocumentCount = 1,
         $logStatementViews = true,
         $addAllAggregations = true,
-        array $customAggregations = []
+        array $customAggregations = [],
     ): ElasticsearchResultSet {
         try {
             // get Elasticsearch aggregations aka Userfilters
@@ -873,16 +860,18 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function logStatementViewed($procedureId, $statements): void
     {
         try {
+            $entries = [];
             $accessMap = $this->generateAccessMap();
             if (0 !== count($accessMap) && 0 < sizeof($statements)) {
                 foreach ($statements as $statement) {
                     $publicStatement = $statement instanceof Statement ? $statement->getPublicStatement() : $statement['publicStatement'];
                     $statementId = $statement instanceof Statement ? $statement->getId() : $statement['id'];
                     if (0 < count($accessMap) && 0 === \strcmp((string) $publicStatement, (string) Statement::EXTERNAL)) {
-                        $this->addStatementViewedReport($procedureId, $accessMap, $statementId);
+                        $entries[] = new StatementViewed($procedureId, $accessMap, $statementId);
                     }
                 }
             }
+            $this->addStatementViewedReport($entries);
         } catch (Exception $e) {
             $this->logger->warning('protocol not saved: ', [$e]);
         }
@@ -1522,35 +1511,40 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * Add a report entry to the DB.
      *
-     * @param string $procedureId
-     * @param array  $accessMap
-     * @param string $statementId
+     * @var StatementViewed[]
      *
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws ReflectionException
      */
-    private function addStatementViewedReport($procedureId, $accessMap, $statementId): void
+    private function addStatementViewedReport(array $viewsToLog): void
     {
-        // only log if user is known
-        if (!\array_key_exists('user', $accessMap)) {
-            return;
+        $entries = [];
+        foreach ($viewsToLog as $viewedEntry) {
+            $procedureId = $viewedEntry->getProcedureId();
+            $accessMap = $viewedEntry->getAccessMap();
+            $statementId = $viewedEntry->getStatementId();
+
+            // only log if user is known
+            if (!\array_key_exists('user', $accessMap)) {
+                return;
+            }
+            $alreadyLogged = $this->reportService
+                ->statementViewLogged($procedureId, $accessMap['user'], $statementId);
+
+            // logging access once is enough
+            if ($alreadyLogged) {
+                return;
+            }
+
+            $entries[] = $this->statementReportEntryFactory->createViewedEntry(
+                $statementId,
+                $procedureId,
+                $accessMap
+            );
         }
-        $alreadyLogged = $this->reportService
-            ->statementViewLogged($procedureId, $accessMap['user'], $statementId);
 
-        // logging access once is enough
-        if ($alreadyLogged) {
-            return;
-        }
-
-        $entry = $this->statementReportEntryFactory->createViewedEntry(
-            $statementId,
-            $procedureId,
-            $accessMap
-        );
-
-        $this->reportService->persistAndFlushReportEntries($entry);
+        $this->reportService->persistAndFlushReportEntries(...$entries);
     }
 
     /**
@@ -1629,7 +1623,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         try {
             if (0 < count($accessMap) && 0 === \strcmp($statement->getPublicStatement(), (string) Statement::EXTERNAL)) {
                 try {
-                    $this->addStatementViewedReport($statement->getPId(), $accessMap, $statement->getId());
+                    $this->addStatementViewedReport([new StatementViewed($statement->getPId(), $accessMap, $statement->getId())]);
                 } catch (Exception $e) {
                     $this->logger->warning('Add Report in getStatementByIdent() failed Message: ', [$e]);
                 }
@@ -1664,7 +1658,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $accessMap = $this->generateAccessMap();
                 if (0 < count($accessMap) && 0 === \strcmp($statement->getPublicStatement(), (string) Statement::EXTERNAL)) {
                     try {
-                        $this->addStatementViewedReport($statement->getPId(), $accessMap, $statement->getId());
+                        $this->addStatementViewedReport([new StatementViewed($statement->getPId(), $accessMap, $statement->getId())]);
                     } catch (Exception $e) {
                         $this->logger->warning('Add Report in getStatement() failed Message: ', [$e]);
                     }
@@ -1831,141 +1825,12 @@ class StatementService extends CoreService implements StatementServiceInterface
 
     /**
      * Convert StatementObject to legacy.
+     *
+     * @deprecated use {@see StatementToLegacyConverter::convert} instead
      */
     public function convertToLegacy(?Statement $statement): ?array
     {
-        if (null === $statement) {
-            return null;
-        }
-        $statementId = $statement->getId();
-        try {
-            $statementAttributes = $statement->getStatementAttributes();
-            $numberOfAnonymVotes = $statement->getNumberOfAnonymVotes();
-            $submitterEmailAddress = $statement->getSubmitterEmailAddress();
-            $createdByInstitution = $statement->isCreatedByInvitableInstitution();
-            $createdByCitizen = $statement->isCreatedByCitizen();
-            $votesNum = $statement->getVotesNum();
-            $statement = $this->entityHelper->toArray($statement);
-
-            $statement['createdByToeb'] = $createdByInstitution;
-            $statement['createdByCitizen'] = $createdByCitizen;
-            $statement['submitterEmailAddress'] = $submitterEmailAddress;
-
-            $statement['numberOfAnonymVotes'] = $numberOfAnonymVotes;
-            $statement['votesNum'] = $votesNum;
-            $statement['categories'] = [];
-            if ($statement['element'] instanceof Elements) {
-                $statement['element'] = $this->serviceElements->convertElementToArray($statement['element']);
-            }
-            if ($statement['paragraph'] instanceof ParagraphVersion) {
-                try {
-                    // Legacy wird der Paragraph und nicht ParagraphVersion zurückgegeben!
-                    $parentParagraph = $statement['paragraph']->getParagraph();
-                    $statement['paragraph'] = $this->entityHelper->toArray($parentParagraph);
-                } catch (Exception) {
-                    // Einige alte Einträge verweisen möcglicherweise noch nicht auf eine ParagraphVersion
-                    $this->logger->error(
-                        'No ParagraphVersion found for Id '.DemosPlanTools::varExport($statement['paragraph']->getId(), true)
-                    );
-                    unset($statement['paragraph']);
-                    $statement['paragraphId'] = null;
-                }
-            }
-            if ($statement['procedure'] instanceof Procedure) {
-                try {
-                    $statement['procedure'] = $this->entityHelper->toArray($statement['procedure']);
-                    $statement['procedure']['settings'] = $this->entityHelper->toArray($statement['procedure']['settings']);
-                    $statement['procedure']['organisation'] = $this->entityHelper->toArray($statement['procedure']['organisation']);
-                    $statement['procedure']['planningOffices'] =
-                        isset($statement['procedure']['planningOffices']) ?
-                            $this->entityHelper->toArray($statement['procedure']['planningOffices']) :
-                            [];
-                    $statement['procedure']['planningOfficeIds'] =
-                        isset($statement['procedure']['planningOffices']) ?
-                            $this->entityHelper->toArray($statement['procedure']['planningOffices']) :
-                            [];
-                } catch (Exception $e) {
-                    $this->logger->warning(
-                        'Could not convert  Statement Procedure to Legacy. Statement: '.DemosPlanTools::varExport(
-                            $statement['id'],
-                            true
-                        ).$e
-                    );
-                }
-            }
-            if ($statement['organisation'] instanceof Orga) {
-                try {
-                    $statement['organisation'] = $this->entityHelper->toArray($statement['organisation']);
-                } catch (Exception $e) {
-                    $this->logger->warning(
-                        'Could not convert Statement Organisation to Legacy. Statement: '.DemosPlanTools::varExport(
-                            $statement['id'],
-                            true
-                        ).$e
-                    );
-                }
-            }
-            if ($statement['meta'] instanceof StatementMeta) {
-                try {
-                    $statement['meta'] = $this->entityHelper->toArray($statement['meta']);
-                } catch (Exception $e) {
-                    $this->logger->warning(
-                        'Could not convert Statement Meta to Legacy. Statement: '.DemosPlanTools::varExport($statement['id'], true).$e
-                    );
-                }
-            }
-
-            // Enter StatementAttributes
-            if ((is_countable($statementAttributes) ? count($statementAttributes) : 0) > 0) {
-                $statement['statementAttributes'] = [];
-            }
-            foreach ($statementAttributes as $sa) {
-                if (isset($statement['statementAttributes'][$sa->getType()])) {
-                    if (\is_array($statement['statementAttributes'][$sa->getType()])) {
-                        $statement['statementAttributes'][$sa->getType()][] = $sa->getValue();
-                    } else {
-                        $v = $statement['statementAttributes'][$sa->getType()];
-                        $statement['statementAttributes'][$sa->getType()] = [$v];
-                    }
-                } else {
-                    $statement['statementAttributes'][$sa->getType()] = $sa->getValue();
-                }
-            }
-
-            // Lege ein mit der Stellungnahme verknüpftes SingleDocument auf oberster Ebene in das Array
-            if (null !== $statement['documentId']) {
-                $singleDocument = $this->singleDocumentVersionRepository->get($statement['documentId']);
-                // Angezeigt wird das parent Singledocument
-                $statement['document'] = $this->entityHelper->toArray($singleDocument->getSingleDocument());
-            } else {
-                unset($statement['documentId']);
-
-                if (\array_key_exists('documentTitle', $statement)) {
-                    unset($statement['documentTitle']);
-                }
-
-                if (\array_key_exists('document', $statement)) {
-                    unset($statement['document']);
-                }
-            }
-            $votes = [];
-            if ($statement['votes'] instanceof Collection) {
-                $votesArray = $statement['votes']->toArray();
-                foreach ($votesArray as $vote) {
-                    $votes[] = $this->dateHelper->convertDatesToLegacy($this->entityHelper->toArray($vote));
-                }
-            }
-            $statement['votes'] = $votes;
-
-            $statement = $this->dateHelper->convertDatesToLegacy($statement);
-        } catch (Exception $e) {
-            $this->logger->warning(
-                'Could not convert Statement to Legacy.',
-                [$statementId, $e]
-            );
-        }
-
-        return $statement;
+        return $this->statementToLegacyConverter->convert($statement);
     }
 
     /**
@@ -2210,7 +2075,7 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function createElementsGroupStructure(
         string $procedureId,
         array $statementsIds,
-        array $fragmentIds
+        array $fragmentIds,
     ): StatementEntityGroup {
         $statements = $this->getStatementsByIds($statementsIds);
         $fragments = $this->statementFragmentRepository->getFragmentsById($fragmentIds);
@@ -2974,12 +2839,14 @@ class StatementService extends CoreService implements StatementServiceInterface
                 foreach ($agg['buckets'] as $bucket) {
                     /** @var Procedure $procedure */
                     $procedure = $this->procedureService->getProcedure($bucket['key']);
-                    $procedures[] = new StatementMovement(
-                        'from-'.$procedure->getId(),
-                        $procedure->getName(),
-                        $bucket['doc_count']
-                    );
-                    $total += $bucket['doc_count'];
+                    if (0 < $bucket['doc_count']) {
+                        $procedures[] = new StatementMovement(
+                            'from-'.$procedure->getId(),
+                            $procedure->getName(),
+                            $bucket['doc_count']
+                        );
+                        $total += $bucket['doc_count'];
+                    }
                 }
             }
         } catch (Exception $e) {
@@ -3026,12 +2893,14 @@ class StatementService extends CoreService implements StatementServiceInterface
             foreach ($aggs as $agg) {
                 foreach ($agg['buckets'] as $bucket) {
                     $procedure = $this->procedureService->getProcedure($bucket['key']);
-                    $procedures[] = new StatementMovement(
-                        'to-'.$procedure->getId(),
-                        $procedure->getName(),
-                        $bucket['doc_count']
-                    );
-                    $total += $bucket['doc_count'];
+                    if (0 < $bucket['doc_count']) {
+                        $procedures[] = new StatementMovement(
+                            'to-'.$procedure->getId(),
+                            $procedure->getName(),
+                            $bucket['doc_count']
+                        );
+                        $total += $bucket['doc_count'];
+                    }
                 }
             }
         } catch (Exception $e) {

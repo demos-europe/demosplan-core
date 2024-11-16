@@ -68,9 +68,6 @@
     "composer/xdebug-handler": {
         "version": "1.4.6"
     },
-    "demos-europe/demosplan-addon": {
-        "version": "dev-main"
-    },
     "dnoegel/php-xdg-base-dir": {
         "version": "v0.1.1"
     },
@@ -181,6 +178,9 @@
     },
     "elasticsearch/elasticsearch": {
         "version": "v6.8.2"
+    },
+    "endroid/qr-code-bundle": {
+        "version": "5.0.1"
     },
     "enqueue/dsn": {
         "version": "0.10.8"
@@ -324,9 +324,6 @@
     "guzzlehttp/psr7": {
         "version": "2.0.0"
     },
-    "hslavich/oneloginsaml-bundle": {
-        "version": "v1.6.4"
-    },
     "intervention/image": {
         "version": "2.6.1"
     },
@@ -395,6 +392,19 @@
     },
     "lcobucci/jwt": {
         "version": "3.4.5"
+    },
+    "league/flysystem-bundle": {
+        "version": "3.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "913dc3d7a5a1af0d2b044c5ac3a16e2f851d7380"
+        },
+        "files": [
+            "config/packages/flysystem.yaml",
+            "var/storage/.gitignore"
+        ]
     },
     "league/fractal": {
         "version": "0.19.2"
@@ -465,17 +475,8 @@
     "netresearch/jsonmapper": {
         "version": "v3.1.1"
     },
-    "nette/php-generator": {
-        "version": "v3.5.4"
-    },
-    "nette/utils": {
-        "version": "v3.2.3"
-    },
     "nikic/php-parser": {
         "version": "v4.12.0"
-    },
-    "onelogin/php-saml": {
-        "version": "3.6.1"
     },
     "openlss/lib-array2xml": {
         "version": "1.0.0"
@@ -642,9 +643,6 @@
     "react/promise": {
         "version": "v2.8.0"
     },
-    "robrichards/xmlseclibs": {
-        "version": "3.1.1"
-    },
     "rollerworks/password-strength-bundle": {
         "version": "v2.2.3"
     },
@@ -656,6 +654,19 @@
     },
     "sabberworm/php-css-parser": {
         "version": "8.3.1"
+    },
+    "scheb/2fa-bundle": {
+        "version": "5.13",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.0",
+            "ref": "0a83961ef50ff91812b229a6f0caf28431d94aec"
+        },
+        "files": [
+            "config/packages/scheb_2fa.yaml",
+            "config/routes/scheb_2fa.yaml"
+        ]
     },
     "sebastian/cli-parser": {
         "version": "1.0.1"
@@ -870,9 +881,6 @@
     },
     "symfony/http-kernel": {
         "version": "v4.4.29"
-    },
-    "symfony/inflector": {
-        "version": "v4.4.27"
     },
     "symfony/intl": {
         "version": "v5.3.4"

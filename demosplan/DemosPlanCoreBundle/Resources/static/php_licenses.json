@@ -91,6 +91,11 @@
     },
     {
         "license": "MIT",
+        "package": "endroid/qr-code-bundle",
+        "website": "https://github.com/endroid/qr-code-bundle"
+    },
+    {
+        "license": "MIT",
         "package": "enqueue/elastica-bundle",
         "website": "https://github.com/php-enqueue/enqueue-elastica-bundle"
     },
@@ -161,11 +166,6 @@
     },
     {
         "license": "MIT",
-        "package": "hslavich/oneloginsaml-bundle",
-        "website": "https://github.com/hslavich/OneloginSamlBundle"
-    },
-    {
-        "license": "MIT",
         "package": "illuminate/collections",
         "website": "https://github.com/illuminate/collections"
     },
@@ -196,6 +196,11 @@
     },
     {
         "license": "MIT",
+        "package": "khanamiryan/qrcode-detector-decoder",
+        "website": "https://github.com/khanamiryan/php-qrcode-detector-decoder"
+    },
+    {
+        "license": "MIT",
         "package": "knplabs/knp-menu-bundle",
         "website": "https://github.com/KnpLabs/KnpMenuBundle"
     },
@@ -203,6 +208,21 @@
         "license": "MIT",
         "package": "knpuniversity/oauth2-client-bundle",
         "website": "https://github.com/knpuniversity/oauth2-client-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "league/flysystem-aws-s3-v3",
+        "website": "https://github.com/thephpleague/flysystem-aws-s3-v3"
+    },
+    {
+        "license": "MIT",
+        "package": "league/flysystem-bundle",
+        "website": "https://github.com/thephpleague/flysystem-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "league/flysystem-memory",
+        "website": "https://github.com/thephpleague/flysystem-memory"
     },
     {
         "license": "MIT",
@@ -336,6 +356,21 @@
     },
     {
         "license": "MIT",
+        "package": "scheb/2fa-bundle",
+        "website": "https://github.com/scheb/2fa-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "scheb/2fa-email",
+        "website": "https://github.com/scheb/2fa-email"
+    },
+    {
+        "license": "MIT",
+        "package": "scheb/2fa-totp",
+        "website": "https://github.com/scheb/2fa-totp"
+    },
+    {
+        "license": "MIT",
         "package": "sentry/sentry-symfony",
         "website": "https://github.com/getsentry/sentry-symfony"
     },
@@ -436,13 +471,13 @@
     },
     {
         "license": "MIT",
-        "package": "symfony/inflector",
-        "website": "https://github.com/symfony/inflector"
+        "package": "symfony/intl",
+        "website": "https://github.com/symfony/intl"
     },
     {
         "license": "MIT",
-        "package": "symfony/intl",
-        "website": "https://github.com/symfony/intl"
+        "package": "symfony/lock",
+        "website": "https://github.com/symfony/lock"
     },
     {
         "license": "MIT",

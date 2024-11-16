@@ -143,6 +143,7 @@
               @click="saveAndFinish"
               :busy="isBusy"
               :text="Translator.trans('statement.split.complete')"
+              data-cy="statementSplitComplete"
               variant="outline" />
           </div>
         </div>

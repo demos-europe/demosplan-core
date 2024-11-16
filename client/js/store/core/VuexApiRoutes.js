@@ -54,6 +54,12 @@ const api1_0Routes = [
       'id'
     ]
   },
+  // WARNING: When using api 2.0 route, AdministratableUserResourceType must be used
+  {
+    module: 'User',
+    action: 'list',
+    url: '/1.0/user/'
+  },
   {
     module: 'User',
     action: 'create',

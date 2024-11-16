@@ -99,7 +99,8 @@ const bundlesConfig = merge(baseConfig, {
   },
   devtool: (config.isProduction) ? false : 'eval',
   resolve: {
-    extensions: ['.js', '.vue', '.json'],
+    fullySpecified: false,
+    extensions: ['...', '.js', '.vue', '.json', '.ts', '.tsx'],
     alias: resolveAliases()
   },
   optimization: optimization(),

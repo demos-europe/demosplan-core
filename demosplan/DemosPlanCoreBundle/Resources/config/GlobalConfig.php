@@ -35,7 +35,6 @@ use function is_dir;
 use function min;
 use function realpath;
 use function strncasecmp;
-use function strpos;
 use function substr;
 use function trim;
 
@@ -44,6 +43,7 @@ use const FILTER_VALIDATE_BOOLEAN;
 class GlobalConfig implements GlobalConfigInterface
 {
     private const PHASE_TRANSLATION_KEY_FIELD = 'translationKey';
+    private const CUSTOMER_PLACEHOLFER = '{customer}';
 
     /**
      * @var string
@@ -572,7 +572,7 @@ class GlobalConfig implements GlobalConfigInterface
     public function __construct(
         ParameterBagInterface $params,
         TranslatorInterface $translator,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
         $this->setParams($params, $translator);
     }
@@ -818,7 +818,7 @@ class GlobalConfig implements GlobalConfigInterface
 
         $this->advancedSupport = $parameterBag->get('advanced_support');
 
-        $this->externalLinks = $this->getValidatedExternalLinks($parameterBag);
+        $this->externalLinks = $parameterBag->get('external_links');
     }
 
     /**
@@ -1273,9 +1273,6 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->mapPublicExtent;
     }
 
-    /**
-     * @return mixed
-     */
     public function getMapPublicAvailableScales()
     {
         return $this->mapPublicAvailableScales;
@@ -1312,9 +1309,9 @@ class GlobalConfig implements GlobalConfigInterface
 
         return array_filter($phases, static function ($phase) use ($permissionsets, $includePreviewed) {
             $ignorePermissionset =
-                $includePreviewed &&
-                array_key_exists('previewed', $phase) &&
-                true === $phase['previewed'];
+                $includePreviewed
+                && array_key_exists('previewed', $phase)
+                && true === $phase['previewed'];
 
             return $ignorePermissionset || in_array($phase['permissionset'], $permissionsets, true);
         });
@@ -1517,9 +1514,6 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->allowedMimeTypes;
     }
 
-    /**
-     * @return mixed
-     */
     public function getProcedureEntrypointRoute()
     {
         return $this->procedureEntrypointRoute;
@@ -1754,12 +1748,17 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->externalLinks;
     }
 
+    public function addCurrentCustomerToUrl(): void
+    {
+        $externalLinks = array_map($this->addCustomerToUrl(...), $this->externalLinks);
+        $this->externalLinks = $this->getValidatedExternalLinks($externalLinks);
+    }
+
     /**
      * @return array<non-empty-string, non-empty-string>
      */
-    private function getValidatedExternalLinks(ParameterBagInterface $parameterBag): array
+    private function getValidatedExternalLinks(array $externalLinks): array
     {
-        $externalLinks = $parameterBag->get('external_links');
         $violations = $this->validator->validate($externalLinks, [
             new Type('array'),
             new NotNull(),
@@ -1784,5 +1783,10 @@ class GlobalConfig implements GlobalConfigInterface
         }
 
         return $externalLinks;
+    }
+
+    private function addCustomerToUrl(string $url): string
+    {
+        return str_replace(self::CUSTOMER_PLACEHOLFER, $this->subdomain, $url);
     }
 }

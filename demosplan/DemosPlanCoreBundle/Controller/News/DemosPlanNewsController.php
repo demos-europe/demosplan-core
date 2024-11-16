@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
@@ -71,7 +72,7 @@ class DemosPlanNewsController extends BaseController
         CurrentProcedureService $currentProcedureService,
         PermissionsInterface $permissions,
         string $newsID,
-        string $procedure
+        string $procedure,
     ) {
         // @improve T14613
         $procedureId = $procedure;
@@ -156,7 +157,7 @@ class DemosPlanNewsController extends BaseController
     public function newsListGlobalIndexAction(
         Breadcrumb $breadcrumb,
         CurrentUserService $currentUserService,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         // Reichere die breadcrumb mit einem extraItem an
         $breadcrumb->addItem(
@@ -293,7 +294,7 @@ class DemosPlanNewsController extends BaseController
      * @throws Exception
      */
     #[Route(name: 'DemosPlan_globalnews_administration_news', path: '/news/verwalten', options: ['expose' => true])]
-    public function globalNewsAdminListAction(ManualListSorter $manualListSorter, Request $request, TranslatorInterface $translator)
+    public function globalNewsAdminListAction(ManualListSorter $manualListSorter, Request $request, TranslatorInterface $translator, CustomerService $customerService)
     {
         $this->handleNewsAdminListManualSortPostRequest($request, $translator);
 
@@ -301,7 +302,7 @@ class DemosPlanNewsController extends BaseController
         $pressResult = $this->globalNewsHandler->getGlobalNewsAdminList('press');
 
         $mergedResult = array_merge($newsResult, $pressResult);
-        $sortedMergedResult = $manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $mergedResult);
+        $sortedMergedResult = $manualListSorter->orderByManualListSort('global:news', 'global', 'content:news', $mergedResult, customer: $customerService->getCurrentCustomer());
 
         $templateVars = [
             'list' => [
@@ -393,7 +394,7 @@ class DemosPlanNewsController extends BaseController
         ProcedureService $procedureService,
         Request $request,
         TranslatorInterface $translator,
-        string $procedure
+        string $procedure,
     ) {
         // reichere die breadcrumb mit extraItem an (hier procedure news)
         $breadcrumb->addItem(
@@ -432,7 +433,7 @@ class DemosPlanNewsController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         string $newsID,
-        string $procedure
+        string $procedure,
     ) {
         // reichere die breadcrumb mit extraItem an (hier procedure news)
         $breadcrumb->addItem(
@@ -468,7 +469,7 @@ class DemosPlanNewsController extends BaseController
         ProcedureService $procedureService,
         Request $request,
         TranslatorInterface $translator,
-        string $newsID
+        string $newsID,
     ) {
         // reichere die breadcrumb mit extraItem an (hier global news)
         $breadcrumb->addItem(
@@ -500,7 +501,7 @@ class DemosPlanNewsController extends BaseController
         FileUploadService $fileUploadService,
         ProcedureService $procedureService,
         Request $request,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         // reichere die breadcrumb mit extraItem an (hier global news)
         $breadcrumb->addItem(
@@ -749,7 +750,7 @@ class DemosPlanNewsController extends BaseController
     protected function handleNewsExport(
         string $pdfContent,
         string $pdfName,
-        NameGenerator $nameGenerator
+        NameGenerator $nameGenerator,
     ): Response {
         $this->getLogger()->debug('Got Response: '.DemosPlanTools::varExport($pdfContent, true));
 

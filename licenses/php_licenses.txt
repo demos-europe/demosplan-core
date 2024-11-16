@@ -16,6 +16,7 @@ dompdf/dompdf: LGPL-2.1
 efrane/console-additions: MIT
 efrane/tus-bundle: MIT
 egulias/email-validator: MIT
+endroid/qr-code-bundle: MIT
 enqueue/elastica-bundle: MIT
 enqueue/enqueue-bundle: MIT
 enqueue/fs: MIT
@@ -30,15 +31,18 @@ geocoder-php/nominatim-provider: MIT
 goetas-webservices/xsd2php: MIT
 goetas-webservices/xsd2php-runtime: MIT
 guzzlehttp/guzzle: MIT
-hslavich/oneloginsaml-bundle: MIT
 illuminate/collections: MIT
 intervention/image: MIT
 intriro/csv-bundle: MIT
 jfcherng/php-diff: BSD-3-Clause
 jmikola/geojson: MIT
 jms/serializer-bundle: MIT
+khanamiryan/qrcode-detector-decoder: MIT
 knplabs/knp-menu-bundle: MIT
 knpuniversity/oauth2-client-bundle: MIT
+league/flysystem-aws-s3-v3: MIT
+league/flysystem-bundle: MIT
+league/flysystem-memory: MIT
 league/fractal: MIT
 league/html-to-markdown: MIT
 lexik/jwt-authentication-bundle: MIT
@@ -65,6 +69,9 @@ psalm/plugin-symfony: MIT
 ramsey/uuid: MIT
 rector/rector: MIT
 rollerworks/password-strength-bundle: MIT
+scheb/2fa-bundle: MIT
+scheb/2fa-email: MIT
+scheb/2fa-totp: MIT
 sentry/sentry-symfony: MIT
 squizlabs/php_codesniffer: BSD-3-Clause
 stevenmaguire/oauth2-keycloak: MIT
@@ -85,8 +92,8 @@ symfony/flex: MIT
 symfony/form: MIT
 symfony/http-client: MIT
 symfony/http-foundation: MIT
-symfony/inflector: MIT
 symfony/intl: MIT
+symfony/lock: MIT
 symfony/mailer: MIT
 symfony/maker-bundle: MIT
 symfony/mime: MIT
@@ -127,4 +134,4 @@ wsdltophp/packagegenerator: MIT
 yectep/phpspreadsheet-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 30.07.2024 07:03
+As of 11.11.2024 07:02
