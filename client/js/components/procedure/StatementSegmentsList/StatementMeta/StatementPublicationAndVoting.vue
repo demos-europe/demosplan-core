@@ -416,6 +416,7 @@ export default {
         return this.createStatementVoteAction(payload)
           .then(() => {
             this.$emit('updatedVoters')
+            this.removeStatementVote(vote.id)
             return true
           })
           .catch(() => {
