@@ -452,12 +452,22 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * Type: TipTap-Editor String
      * Allowed values: May not be empty (https://demosdeutschland.slack.com/archives/C03AD7Z2Y/p1576674603017800).
+     * This field is read only, changes are updated via listener to changes to the textRaw field.
      *
      * @var string
      *
      * @ORM\Column(name="_st_text", type="text", nullable=false, length=15000000)
      */
     protected $text = '';
+    /**
+     * Type: XML String that is used as single source of truth for the statement text.
+     * Allowed values: May not be empty (https://demosdeutschland.slack.com/archives/C03AD7Z2Y/p1576674603017800).
+     *
+     * @var string
+     *
+     * @ORM\Column(name="_st_text_raw", type="text", nullable=false, length=15000000)
+     */
+    protected $textRaw = '';
 
     /**
      * Sliced Version of StatementText for better Performance.
@@ -4176,9 +4186,19 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this;
     }
 
-    public function getParts(): ArrayCollection|array
+    public function getParts(): Collection|array
     {
         return $this->parts;
+    }
+
+    public function getTextRaw(): string
+    {
+        return $this->textRaw;
+    }
+
+    public function setTextRaw(string $textRaw): void
+    {
+        $this->textRaw = $textRaw;
     }
 
 

@@ -21,7 +21,7 @@ class StatementPartsDivider
 
     public function getStatementParts(Statement $statement)
     {
-        $html = $statement->getMemo();
+        $html = $statement->getTextRaw();
         if ("" === $html) {
             return [];
         }
