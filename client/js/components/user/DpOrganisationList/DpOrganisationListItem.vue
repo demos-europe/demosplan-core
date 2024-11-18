@@ -180,34 +180,43 @@ export default {
       return this.$store.dispatch(`Orga${this.moduleSubstring}/restoreFromInitial`, payload)
     },
 
+    submitOrganisationForm () {
+      /*
+       * Some update requests need this information, others cant handle them
+       * depending on the permissions
+       */
+      const additionalAttributes = ['showname', 'showlist']
+
+      if (hasPermission('feature_notification_ending_phase')) {
+        additionalAttributes.push('emailNotificationEndingPhase')
+      }
+      if (hasPermission('feature_notification_statement_new')) {
+        additionalAttributes.push('emailNotificationNewStatement')
+      }
+
+      this.saveOrganisationAction({
+        id: this.organisation.id,
+        options: {
+          attributes: {
+            full: ['registrationStatuses'],
+            unchanged: additionalAttributes
+          }
+        }
+      })
+    },
+
     save () {
       if (this.dpValidate.organisationForm) {
         this.isOpen = !this.isOpen
+        const addonExists = Boolean(window['MeinBerlinAdditionalField']) // have to check if addon is presented (another option to check it?)
+        const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
 
-        this.handleAddonRequest()
-          .then(() => {
-            /*
-             * Some update requests need this information, others cant handle them
-             * depending on the permissions
-             */
-            const additionalAttributes = ['showname', 'showlist']
-            if (hasPermission('feature_notification_ending_phase')) {
-              additionalAttributes.push('emailNotificationEndingPhase')
-            }
-            if (hasPermission('feature_notification_statement_new')) {
-              additionalAttributes.push('emailNotificationNewStatement')
-            }
+        if (addonExists && addonHasValue) {
+          this.handleAddonRequest().then(() => this.submitOrganisationForm())
+        } else {
+          this.submitOrganisationForm()
+        }
 
-            this.saveOrganisationAction({
-              id: this.organisation.id,
-              options: {
-                attributes: {
-                  full: ['registrationStatuses'],
-                  unchanged: additionalAttributes
-                }
-              }
-            })
-          })
       } else {
         dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
       }

@@ -225,23 +225,22 @@ export default {
     },
 
     submit () {
-      if (window['MeinBerlinAdditionalField']) {
-        if (this.addonPayload && this.addonPayload.value || this.addonPayload.initValue) {
-          this.handleAddonRequest().then(() => {
-            this.dpValidateAction('configForm', () => {
-              this.$refs.configForm.submit()
-            }, false)
-          })
-        } else {
-          this.dpValidateAction('configForm', () => {
-            this.$refs.configForm.submit()
-          }, false)
-        }
+      const addonExists = Boolean(window['MeinBerlinAdditionalField']) // have to check if addon is presented (another option to check it?)
+      const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
+
+      if (addonExists && addonHasValue) {
+        this.handleAddonRequest().then(() => {
+          this.submitConfigForm()
+        })
       } else {
-        this.dpValidateAction('configForm', () => {
-          this.$refs.configForm.submit()
-        }, false)
+        this.submitConfigForm()
       }
+    },
+
+    submitConfigForm() {
+      this.dpValidateAction('configForm', () => {
+        this.$refs.configForm.submit()
+      }, false)
     },
 
     unselectAllAuthUsers () {
