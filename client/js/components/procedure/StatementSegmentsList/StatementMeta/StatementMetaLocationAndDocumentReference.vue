@@ -219,7 +219,7 @@ export default {
       const documents = this.getDocuments()
 
       return documents.length > 0
-        ? documents.find(document => document.id === this.selectedDocumentId)?.attributes?.title
+        ? documents.find(document => document.id === this.selectedDocumentId)?.attributes?.title || '-'
         : '-'
     },
 
@@ -227,7 +227,7 @@ export default {
       const paragraphs = this.getParagraphs()
 
       return paragraphs.length > 0
-        ? paragraphs.find(paragraph => paragraph.id === this.selectedParagraphId)?.attributes?.title
+        ? paragraphs.find(paragraph => paragraph.id === this.selectedParagraphId)?.attributes?.title || '-'
         : '-'
     }
   },
