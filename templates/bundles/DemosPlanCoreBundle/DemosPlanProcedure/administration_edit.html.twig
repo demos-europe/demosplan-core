@@ -726,10 +726,10 @@
                             {% endif %}
 
                             <addon-wrapper
-                                hook-name="mein.berlin.additional.field"
+                                hook-name="addon.additional.field"
                                 :addon-props="{
                                     'relationshipId': '{{ proceduresettings.id }}',
-                                    'resourceType': 'MeinBerlinAddonProcedureData'
+                                    'relationshipKey': 'procedure'
                                 }"
                                 @blur="updateAddonPayload">
                             </addon-wrapper>

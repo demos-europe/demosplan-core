@@ -178,11 +178,11 @@
       </div>
 
       <addon-wrapper
-        hook-name="mein.berlin.additional.field"
+        hook-name="addon.additional.field"
         :addon-props="{
           class: 'ml-4',
           relationshipId: this.organisationId,
-          resourceType: 'MeinBerlinAddonOrganisation',
+          relationshipKey: 'orga',
           isValueRemovable: true
         }"
         class="w-1/2"

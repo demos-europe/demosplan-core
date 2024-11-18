@@ -219,7 +219,7 @@ export default {
     },
 
     submit () {
-      const addonExists = Boolean(window['MeinBerlinAdditionalField']) // have to check if addon is presented (another option to check it?)
+      const addonExists = Boolean(window['AddonAdditionalField']) // have to check if addon is presented (another option to check it?)
       const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
 
       if (addonExists && addonHasValue) {
