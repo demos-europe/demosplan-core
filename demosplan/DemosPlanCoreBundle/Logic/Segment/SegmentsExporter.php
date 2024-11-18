@@ -54,7 +54,7 @@ class SegmentsExporter
         protected readonly ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         $this->translator = $translator;
         $this->styles = $styleInitializer->initialize();
