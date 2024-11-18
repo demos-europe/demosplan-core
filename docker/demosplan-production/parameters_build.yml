@@ -1,0 +1,3 @@
+# These are the parameters as they are needed during the build process. They are used to build the docker image.
+parameters:
+    fileservice_filepath: "/opt/uploads"
