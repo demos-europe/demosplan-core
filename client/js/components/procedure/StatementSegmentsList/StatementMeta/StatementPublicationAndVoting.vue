@@ -364,6 +364,7 @@ export default {
 
     save () {
       this.saveStatementVote()
+      this.$emit('save', this.localStatement)
     },
 
     saveStatementVote () {
