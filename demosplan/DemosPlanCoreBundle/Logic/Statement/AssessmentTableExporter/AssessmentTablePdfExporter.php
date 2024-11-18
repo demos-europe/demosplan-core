@@ -35,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use Illuminate\Support\Collection;
+use League\Flysystem\FilesystemOperator;
 use LogicException;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
@@ -62,6 +63,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         private readonly CurrentUserInterface $currentUser,
         Environment $twig,
         private readonly FileService $fileService,
+        private readonly FilesystemOperator $defaultStorage,
         LoggerInterface $logger,
         private readonly MapService $mapService,
         private readonly PermissionsInterface $permissions,
@@ -445,8 +447,8 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 }
                 if (null !== $mapFile && 0 < strlen((string) $mapFile) && Statement::MAP_FILE_EMPTY_DASHED !== $mapFile) {
                     $fileInfo = $this->fileService->getFileInfoFromFileString($mapFile);
-                    if (is_file($fileInfo->getAbsolutePath())) {
-                        $fileContent = file_get_contents($fileInfo->getAbsolutePath());
+                    if ($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+                        $fileContent = $this->defaultStorage->read($fileInfo->getAbsolutePath());
                         $pictures['picture'.$i] = $fileInfo->getHash().'###'.$fileInfo->getFileName().'###'.base64_encode($fileContent);
                         ++$i;
                     }

@@ -78,6 +78,23 @@ class SecurityUserTest extends TestCase
         $this->assertFalse($securityUser->isLoggedIn());
     }
 
+    public function testGetEmailAuthCode()
+    {
+        $user = new User();
+        $expectedAuthCode = 'someAuthCode';
+
+        // Assuming there is a method to set the auth code
+        $user->setEmailAuthCode($expectedAuthCode);
+
+        $this->assertEquals($expectedAuthCode, $user->getEmailAuthCode());
+    }
+
+    public function testAuthCodeIsNull()
+    {
+        $user = new User();
+        $this->assertNull($user->getEmailAuthCode());
+    }
+
     private function getSecurityUser(array $roles = ['ROLE_ADMIN', 'ROLE_USER']): SecurityUser
     {
         $userMock = $this->createMock(User::class);

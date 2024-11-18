@@ -17,6 +17,16 @@ class DemosPlanArrayAdapter extends ArrayAdapter
     /** @var int */
     protected $nbResults = 0;
 
+    /**
+     * The constructor is needed as parent constructor defines array variable as private
+     * and we need to access it here.
+     */
+    public function __construct(
+        private readonly array $array,
+    ) {
+        parent::__construct($array);
+    }
+
     public function setNbResults(int $resultCount)
     {
         $this->nbResults = $resultCount;
@@ -29,6 +39,6 @@ class DemosPlanArrayAdapter extends ArrayAdapter
 
     public function getSlice(int $offset, int $length): iterable
     {
-        return $this->getArray();
+        return $this->array;
     }
 }
