@@ -216,7 +216,7 @@ export default {
     save () {
       if (this.dpValidate.organisationForm) {
         this.isOpen = !this.isOpen
-        const addonExists = Boolean(window['AddonAdditionalField']) // have to check if addon is presented (another option to check it?)
+        const addonExists = Boolean(window.dplan.loadedAddons['addon.additional.field'])
         const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
 
         if (addonExists && addonHasValue) {

@@ -219,9 +219,10 @@ export default {
     },
 
     submit () {
-      const addonExists = Boolean(window['AddonAdditionalField']) // have to check if addon is presented (another option to check it?)
+      const addonExists = Boolean(window.dplan.loadedAddons['addon.additional.field'])
       const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
 
+      console.log('window.dplan.loadedAddons: ', Boolean(window.dplan.loadedAddons['addon.additional.field']))
       if (addonExists && addonHasValue) {
         this.handleAddonRequest().then(() => {
           this.submitConfigForm()
