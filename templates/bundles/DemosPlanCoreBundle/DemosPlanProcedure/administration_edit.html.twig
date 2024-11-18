@@ -1310,13 +1310,17 @@
 
             {# form controls when not in wizard mode #}
             <div class="text-right space-inline-s">
+                <input
+                    type="submit"
+                    class="hidden"
+                    value="{{ "save"|trans }}">
                 <button
                     class="btn btn--primary"
                     id="saveConfig"
                     name="saveConfig"
                     data-cy="saveConfig"
                     type="button"
-                    @click.prevent="submit">
+                    @click="submit">
                     {{ "save"|trans }}
                 </button>
                 <a

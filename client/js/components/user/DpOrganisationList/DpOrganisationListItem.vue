@@ -241,11 +241,18 @@ export default {
     handleAddonRequest () {
       const payload = this.createAddonPayload()
 
-      const apiCall = this.addonPayload.request === 'PATCH'
-        ? dpApi.patch(Routing.generate('api_resource_update', { resourceType: this.addonPayload.resourceType, resourceId: this.addonPayload.id }), {}, { data: payload })
-        : dpApi.post(Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType }), {}, { data: payload })
+      const addonRequest = dpApi({
+        method: this.addonPayload.request,
+        url: Routing.generate(this.addonPayload.url, {
+          resourceType: this.addonPayload.resourceType,
+          ...(this.addonPayload.request === 'PATCH' && { resourceId: this.addonPayload.id })
+        }),
+        data: {
+          data: payload
+        }
+      })
 
-      return apiCall.then(checkResponse)
+      return addonRequest.then(checkResponse)
     },
 
     createAddonPayload () {
