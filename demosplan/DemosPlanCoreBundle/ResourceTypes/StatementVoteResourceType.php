@@ -23,7 +23,9 @@ use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementVoteResourceCon
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 
 /**
  * @template-extends DplanResourceType<StatementVote>
@@ -70,17 +72,21 @@ final class StatementVoteResourceType extends DplanResourceType
         $statementVoteConfig->id->setReadableByPath();
 
         $statementVoteConfig->name
-            ->readable(true, fn (StatementVote $statementVote): string => $statementVote->getName())
-            ->updatable([$voteConditions], function (StatementVote $statementVote, ?string $name): array {
+            ->setReadableByCallable(fn (StatementVote $statementVote): string => $statementVote->getName())
+            ->addUpdateBehavior(new CallbackAttributeSetBehaviorFactory([$voteConditions], static function (StatementVote $statementVote, ?string $name): array {
                 $statementVote->setLastName($name);
 
                 return [];
-            })
-            ->initializable(true, static function (StatementVote $statementVote, ?string $name): array {
-                $statementVote->setLastName($name);
+            }, OptionalField::NO)
+            )
+            /* See for more details @link \EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilder::initializable */
+            ->addCreationBehavior(
+                new CallbackAttributeSetBehaviorFactory([], static function (StatementVote $statementVote, ?string $name): array {
+                    $statementVote->setLastName($name);
 
-                return [];
-            });
+                    return [];
+                }, OptionalField::NO)
+            );
 
         $statementVoteConfig->email
             ->setReadableByPath()
@@ -121,12 +127,14 @@ final class StatementVoteResourceType extends DplanResourceType
 
         $statementVoteConfig->statement
             ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
-           // ->addConstructorBehavior(ToOneRelationshipConstructorBehavior::createFactory(null, [], null, OptionalField::NO))
-            ->initializable(false, static function (StatementVote $statementVote, Statement $statement): array {
-                $statementVote->setStatement($statement);
+            /* see more @link \EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilder::initializable */
+            ->addCreationBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(static function (StatementVote $statementVote, Statement $statement): array {
+                    $statementVote->setStatement($statement);
 
-                return [];
-            });
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
 
         $statementVoteConfig->addPostConstructorBehavior(new FixedSetBehavior(function (StatementVote $statementVote, EntityDataInterface $entityData): array {
             $this->statementVoteRepository->persistEntities([$statementVote]);
