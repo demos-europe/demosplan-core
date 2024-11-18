@@ -18,6 +18,7 @@
         <template v-if="statement.attributes.polygon">
           <dp-button
             :aria-label="Translator.trans('location.reference_view')"
+            data-cy="statementMeta:toggleLocationReference"
             :text="Translator.trans('map.view')"
             variant="outline"
             @click="toggleLocationModal" />
@@ -35,12 +36,12 @@
         v-if="editable"
         class="grid grid-cols-1 gap-x-4 md:grid-cols-2">
         <dp-select
+          v-model="selectedElementId"
           data-cy="statement:elementSelect"
           :label="{
-          text: Translator.trans('plandocument')
-        }"
+            text: Translator.trans('plandocument')
+          }"
           :options="elementsOptions"
-          v-model="selectedElementId"
           @select="handleSelect" />
 
         <dp-select

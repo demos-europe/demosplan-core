@@ -28,6 +28,7 @@ All rights reserved
         v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
         id="statementDepartmentName"
         v-model="localStatement.attributes.initialOrganisationDepartmentName"
+        data-cy="statementSubmitter:departmentName"
         class="mb-2"
         :disabled="!editable || !isStatementManual"
         :label="{
@@ -40,6 +41,7 @@ All rights reserved
         id="statementOrgaName"
         v-model="localStatement.attributes.initialOrganisationName"
         class="mb-2"
+        data-cy="statementSubmitter:orgaName"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('organisation')
@@ -54,6 +56,7 @@ All rights reserved
         id="statementSubmitterName"
         v-model="statementSubmitterValue"
         class="mb-2"
+        data-cy="statementSubmitter:submitterName"
         :disabled="!isStatementManual || !editable || isSubmitterAnonymized()"
         :label="{
           text: Translator.trans('name')
@@ -64,6 +67,7 @@ All rights reserved
         id="statementEmailAddress"
         v-model="localStatement.attributes.submitterEmailAddress"
         class="mb-2"
+        data-cy="statementSubmitter:emailAddress"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('email')
@@ -73,6 +77,7 @@ All rights reserved
       <dp-input
         v-if="localStatement.attributes.represents"
         id="statementRepresentation"
+        data-cy="statementSubmitter:representation"
         disabled
         :label="{
           text: Translator.trans('statement.representation.assessment')
@@ -81,6 +86,7 @@ All rights reserved
       <dp-checkbox
         id="representationCheck"
         v-model="localStatement.attributes.representationChecked"
+        data-cy="statementSubmitter:representationCheck"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('statement.representation.checked')
@@ -91,6 +97,7 @@ All rights reserved
           id="statementStreet"
           v-model="localStatement.attributes.initialOrganisationStreet"
           class="o-form__group-item"
+          data-cy="statementSubmitter:street"
           :disabled="!editable || !isStatementManual"
           :label="{
             text: Translator.trans('street')
@@ -99,6 +106,7 @@ All rights reserved
           id="statementHouseNumber"
           v-model="localStatement.attributes.initialOrganisationHouseNumber"
           class="o-form__group-item shrink"
+          data-cy="statementSubmitter:houseNumber"
           :disabled="!editable || !isStatementManual"
           :label="{
             text: Translator.trans('street.number.short')
@@ -110,6 +118,7 @@ All rights reserved
           id="statementPostalCode"
           v-model="localStatement.attributes.initialOrganisationPostalCode"
           class="o-form__group-item shrink"
+          data-cy="statementSubmitter:postalCode"
           :disabled="!editable || !isStatementManual"
           :label="{
             text: Translator.trans('postalcode')
@@ -120,6 +129,7 @@ All rights reserved
           id="statementCity"
           v-model="localStatement.attributes.initialOrganisationCity"
           class="o-form__group-item"
+          data-cy="statementSubmitter:city"
           :disabled="!editable || !isStatementManual"
           :label="{
             text: Translator.trans('city')

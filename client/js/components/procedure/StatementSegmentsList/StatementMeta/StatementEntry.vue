@@ -21,6 +21,7 @@ All rights reserved
         v-if="isStatementManual ? true : !editable"
         id="statementAuthoredDate"
         class="o-form__group-item"
+        data-cy="statementEntry:authoredDate"
         disabled
         :label="{
           text: Translator.trans('statement.date.authored')
@@ -35,6 +36,7 @@ All rights reserved
         <dp-datepicker
           id="authoredDateDatepicker"
           class="o-form__control-wrapper"
+          data-cy="statementEntry:authoredDate"
           :max-date="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : currentDate"
           :value="localStatement.attributes.authoredDate"
           @input="val => setDate(val, 'authoredDate')" />
@@ -45,6 +47,7 @@ All rights reserved
         v-if="isStatementManual ? true : !editable"
         id="statementSubmitDate"
         class="o-form__group-item"
+        data-cy="statementEntry:submitDate"
         :disabled="true"
         :label="{
           text: Translator.trans('statement.date.submitted')
@@ -59,6 +62,7 @@ All rights reserved
         <dp-datepicker
           id="submitDateDatepicker"
           class="o-form__control-wrapper"
+          data-cy="statementEntry:submitDate"
           :max-date="currentDate"
           :min-date="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : ''"
           :value="getFormattedDate(localStatement.attributes.submitDate)"
@@ -69,6 +73,7 @@ All rights reserved
         id="statementSubmitType"
         v-model="localStatement.attributes.submitType"
         class="mb-2"
+        data-cy="statementEntry:submitType"
         :disabled="!editable"
         :label="{
           text: Translator.trans('submit.type')
@@ -79,6 +84,7 @@ All rights reserved
         id="statementInternId"
         v-model="localStatement.attributes.internId"
         class="mb-2"
+        data-cy="statementEntry:internId"
         :disabled="!editable"
         :label="{
           text: Translator.trans('internId')
@@ -90,6 +96,7 @@ All rights reserved
           id="statementProcedurePhase"
           v-model="localStatement.attributes.procedurePhase.key"
           class="mb-3"
+          data-cy="statementEntry:procedurePhase"
           :disabled="!editable || !isStatementManual"
           :label="{
             text: Translator.trans('procedure.public.phase')
@@ -101,6 +108,7 @@ All rights reserved
       v-if="hasPermission('field_statement_memo')"
       id="r_memo"
       v-model="localStatement.attributes.memo"
+      data-cy="statementEntry:memo"
       :disabled="!editable"
       :label="Translator.trans('memo')"
       name="r_memo"
