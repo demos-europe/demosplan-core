@@ -33,6 +33,7 @@
           <button
             class="o-link--default"
             :class="isSourceAttachmentMarkedForDeletion ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+            data-cy="statementMetaAttachments:removeSourceAttachment"
             :disabled="isSourceAttachmentMarkedForDeletion"
             type="button"
             @click="fileIdSourceAttachment === localAttachments.originalAttachment.hash ? removeSourceAttachment() : markSourceAttachmentForDeletion()">
@@ -64,10 +65,11 @@
 
           <div class="text-right">
             <dp-button-row
+              :busy="isProcessingSourceAttachment"
+              data-cy="statementMetaAttachments:saveSourceAttachment"
+              :disabled="fileIdSourceAttachment === '' && isSourceAttachmentMarkedForDeletion === false"
               primary
               secondary
-              :busy="isProcessingSourceAttachment"
-              :disabled="fileIdSourceAttachment === '' && isSourceAttachmentMarkedForDeletion === false"
               @primary-action="saveSourceAttachment"
               @secondary-action="handleResetSourceAttachment" />
           </div>
@@ -96,6 +98,7 @@
             <button
               class="o-link--default mt-1"
               :class="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id ) ? 'opacity-100 text-muted pointer-events-none' : 'btn--blank'"
+              data-cy="statementMetaAttachments:removeGenericAttachment"
               :disabled="genericAttachmentsMarkedForDeletion.find(el => el.id === attachment.id )"
               type="button"
               @click="fileIds.includes(attachment.hash) ? removeGenericAttachment(attachment.hash) : markGenericAttachmentForDeletion(attachment.id)">
@@ -127,10 +130,11 @@
 
           <div class="text-right">
             <dp-button-row
+              :busy="isProcessingGenericAttachments"
+              data-cy="statementMetaAttachments:saveGenericAttachments"
+              :disabled="fileIds.length === 0 && genericAttachmentsMarkedForDeletion.length === 0"
               primary
               secondary
-              :busy="isProcessingGenericAttachments"
-              :disabled="fileIds.length === 0 && genericAttachmentsMarkedForDeletion.length === 0"
               @primary-action="saveGenericAttachments"
               @secondary-action="handleResetGenericAttachments" />
           </div>

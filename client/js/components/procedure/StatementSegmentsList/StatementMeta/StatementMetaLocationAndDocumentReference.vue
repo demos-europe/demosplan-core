@@ -97,6 +97,7 @@
       <dp-button-row
         v-if="editable"
         class="w-full"
+        data-cy="statementLocationAndDocumentReference:buttonRow"
         :disabled="isButtonRowDisabled"
         primary
         secondary
