@@ -168,6 +168,39 @@ export default {
   },
 
   methods: {
+    createAddonPayload () {
+      return {
+        type: this.addonPayload.resourceType,
+        attributes: this.addonPayload.attributes,
+        relationships: this.addonPayload.url === 'api_resource_update' ? undefined : {
+          orga: {
+            data: {
+              type: 'Orga',
+              id: this.organisation.id
+            }
+          }
+        },
+        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {}),
+      }
+    },
+
+    handleAddonRequest () {
+      const payload = this.createAddonPayload()
+
+      const addonRequest = dpApi({
+        method: this.addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST',
+        url: Routing.generate(this.addonPayload.url, {
+          resourceType: this.addonPayload.resourceType,
+          ...(this.addonPayload.url === 'api_resource_update' && { resourceId: this.addonPayload.id })
+        }),
+        data: {
+          data: payload
+        }
+      })
+
+      return addonRequest.then(checkResponse)
+    },
+
     reset () {
       this.restoreOrganisation(this.organisation.id)
         .then(() => {
@@ -245,39 +278,6 @@ export default {
 
     toggleItem (open) {
       this.isOpen = open
-    },
-
-    handleAddonRequest () {
-      const payload = this.createAddonPayload()
-
-      const addonRequest = dpApi({
-        method: this.addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST',
-        url: Routing.generate(this.addonPayload.url, {
-          resourceType: this.addonPayload.resourceType,
-          ...(this.addonPayload.url === 'api_resource_update' && { resourceId: this.addonPayload.id })
-        }),
-        data: {
-          data: payload
-        }
-      })
-
-      return addonRequest.then(checkResponse)
-    },
-
-    createAddonPayload () {
-      return {
-        type: this.addonPayload.resourceType,
-        attributes: this.addonPayload.attributes,
-        relationships: this.addonPayload.url === 'api_resource_update' ? undefined : {
-          orga: {
-            data: {
-              type: 'Orga',
-              id: this.organisation.id
-            }
-          }
-        },
-        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {}),
-      }
     },
 
     updateAddonPayload (payload) {
