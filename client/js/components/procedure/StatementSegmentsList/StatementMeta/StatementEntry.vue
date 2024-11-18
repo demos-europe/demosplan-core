@@ -21,7 +21,7 @@ All rights reserved
         v-if="isStatementManual ? true : !editable"
         id="statementAuthoredDate"
         class="o-form__group-item"
-        :disabled="true"
+        disabled
         :label="{
           text: Translator.trans('statement.date.authored')
         }"
