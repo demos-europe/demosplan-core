@@ -183,7 +183,7 @@
           class: 'ml-4',
           relationshipId: this.organisationId,
           resourceType: 'MeinBerlinAddonOrganisation',
-          valueCanBeRemoved: true
+          isValueRemovable: true
         }"
         class="w-1/2"
         @blur="updateAddonPayload" />

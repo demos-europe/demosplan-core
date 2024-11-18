@@ -138,7 +138,7 @@ export default {
         id: '',
         resourceType: '',
         attributes: null,
-        request: '',
+        url: '',
         value: '',
         initValue: ''
       },
@@ -167,7 +167,7 @@ export default {
       return {
         type: this.addonPayload.resourceType,
         attributes: this.addonPayload.attributes,
-        relationships: this.addonPayload.request === 'PATCH' ? undefined : {
+        relationships: this.addonPayload.url === 'api_resource_update' ? undefined : {
           procedure: {
             data: {
               type: 'Procedure',
@@ -175,7 +175,7 @@ export default {
             }
           }
         },
-        ...(this.addonPayload.request === 'PATCH' ? { id: this.addonPayload.id } : {}),
+        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {}),
       }
     },
 
@@ -192,12 +192,19 @@ export default {
     handleAddonRequest () {
       const payload = this.createAddonPayload()
 
-      const apiCall = this.addonPayload.request === 'PATCH'
-        ? dpApi.patch(Routing.generate('api_resource_update', { resourceType: this.addonPayload.resourceType, resourceId: this.addonPayload.id}), {}, { data: payload })
-        : dpApi.post(Routing.generate('api_resource_create', { resourceType: this.addonPayload.resourceType}), {}, { data: payload })
+      const addonRequest = dpApi({
+        method: this.addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST',
+        url: Routing.generate(this.addonPayload.url, {
+          resourceType: this.addonPayload.resourceType,
+          ...(this.addonPayload.url === 'api_resource_update' && { resourceId: this.addonPayload.id })
+        }),
+        data: {
+          data: payload
+        }
+      })
 
-      return apiCall.then(checkResponse)
-       /* .catch(error => {
+      return addonRequest.then(checkResponse)
+      /* .catch(error => {
          const input = document.getElementById('addonAdditionalField')
           input.classList.add('is-invalid')
 

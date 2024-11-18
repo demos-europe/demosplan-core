@@ -125,12 +125,12 @@ export default {
   data () {
     return {
       addonPayload: {
-        id: '',
-        resourceType: '',
         attributes: null,
-        request: '',
+        id: '',
+        initValue: '',
+        resourceType: '',
+        url: '',
         value: '',
-        initValue: ''
       },
       isOpen: false,
       isLoading: true,
@@ -242,10 +242,10 @@ export default {
       const payload = this.createAddonPayload()
 
       const addonRequest = dpApi({
-        method: this.addonPayload.request,
+        method: this.addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST',
         url: Routing.generate(this.addonPayload.url, {
           resourceType: this.addonPayload.resourceType,
-          ...(this.addonPayload.request === 'PATCH' && { resourceId: this.addonPayload.id })
+          ...(this.addonPayload.url === 'api_resource_update' && { resourceId: this.addonPayload.id })
         }),
         data: {
           data: payload
@@ -259,7 +259,7 @@ export default {
       return {
         type: this.addonPayload.resourceType,
         attributes: this.addonPayload.attributes,
-        relationships: this.addonPayload.request === 'PATCH' ? undefined : {
+        relationships: this.addonPayload.url === 'api_resource_update' ? undefined : {
           orga: {
             data: {
               type: 'Orga',
@@ -267,7 +267,7 @@ export default {
             }
           }
         },
-        ...(this.addonPayload.request === 'PATCH' ? { id: this.addonPayload.id } : {}),
+        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {}),
       }
     },
 
