@@ -169,21 +169,21 @@
                   {{ Translator.trans('more.attachments') }}:
                 </dt>
                 <dd
-                  v-if="getFiles(id).length > 0"
+                  v-if="getGenericAttachments(id).length > 0"
                   class="ml-0">
                   <a
-                    v-for="(file, idx) in getFiles(id)"
+                    v-for="(file, idx) in getGenericAttachments(id)"
                     class="block"
-                    :href="Routing.generate('core_file_procedure', { hash: file.attributes.hash, procedureId: procedureId })"
+                    :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
                     :key="idx"
                     rel="noopener"
                     target="_blank"
-                    :title="file.attributes.filename">
+                    :title="file.filename">
                     <i
                       aria-hidden="true"
                       class="fa fa-paperclip color--grey"
-                      :title="file.attributes.filename" />
-                    {{ file.attributes.filename }}
+                      :title="file.filename" />
+                    {{ file.filename }}
                   </a>
                 </dd>
                 <dd
@@ -452,10 +452,25 @@ export default {
       return element ? element.attributes.title : '-'
     },
 
-    getFiles (originalStatementId) {
+    getGenericAttachments (originalStatementId) {
       const originalStatement = this.items[originalStatementId]
+      const genericAttachments = originalStatement.relationships.genericAttachments?.data.length > 0 ? originalStatement.relationships.genericAttachments.list() : []
 
-      return originalStatement.relationships?.files?.data?.length > 0 ? Object.values(originalStatement.relationships.files.list()) : []
+      return Object.values(genericAttachments).length > 0
+        ? Object.values(genericAttachments)
+          .map(attachment => {
+            const file = attachment.relationships.file.data ? attachment.relationships.file.get() : null
+
+            return file
+              ? {
+                filename: file.attributes.filename,
+                hash: file.attributes.hash,
+                id: attachment.id
+              }
+              : null
+          })
+          .filter(file => file !== null)
+        : []
     },
 
     getOrganisationName (originalStatementId) {
@@ -467,7 +482,7 @@ export default {
 
     getOriginalStatementAsAttachment (originalStatementId) {
       const originalStatement = this.items[originalStatementId]
-      const attachments = originalStatement.relationships.attachments?.data.length > 0 ? Object.values(originalStatement.relationships.attachments.list()) : []
+      const attachments = originalStatement.relationships.sourceAttachment?.data.length > 0 ? Object.values(originalStatement.relationships.sourceAttachment.list()) : []
 
       return attachments?.length > 0 ? attachments[0].relationships?.file.get() : null
     },
@@ -487,11 +502,10 @@ export default {
 
     preparePayload (page) {
       const originalStatementFields = [
-        'attachments',
         'document',
         'elements',
         'externId',
-        'files',
+        'genericAttachments',
         'meta',
         'paragraph',
         'procedurePhase',
@@ -527,13 +541,15 @@ export default {
             'filename',
             'hash'
           ].join(),
+          GenericStatementAttachment: [
+            'file'
+          ].join(),
           OriginalStatement: originalStatementFields.join(),
           ParagraphVersion: [
             'title'
           ].join(),
-          StatementAttachment: [
+          SourceStatementAttachment: [
             'file',
-            'attachmentType'
           ].join(),
           StatementMeta: statementMetaFields.join(),
           SingleDocument: [
@@ -541,13 +557,14 @@ export default {
           ].join()
         },
         include: [
-          'attachments',
-          'attachments.file',
           'document',
           'elements',
-          'files',
+          'genericAttachments',
+          'genericAttachments.file',
           'meta',
-          'paragraph'
+          'paragraph',
+          'sourceAttachment',
+          'sourceAttachment.file',
         ].join()
       }
     },

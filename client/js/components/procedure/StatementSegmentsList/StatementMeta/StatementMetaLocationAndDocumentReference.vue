@@ -14,7 +14,7 @@
     </div>
 
     <div class="space-y-4">
-      <div v-if="hasPermission('field_statement_polygon')">
+      <template v-if="hasPermission('field_statement_polygon')">
         <template v-if="statement.attributes.polygon">
           <dp-button
             :aria-label="Translator.trans('location.reference_view')"
@@ -28,7 +28,7 @@
         <template v-else>
           -
         </template>
-      </div>
+      </template>
 
       <!-- Document reference -->
       <div
@@ -47,8 +47,8 @@
           v-if="paragraphOptions.length > 0"
           data-cy="statement:paragraphSelect"
           :label="{
-          text: Translator.trans('paragraph')
-        }"
+            text: Translator.trans('paragraph')
+          }"
           :options="paragraphOptions"
           required
           v-model="selectedParagraphId" />

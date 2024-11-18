@@ -24,11 +24,9 @@ use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use ZipStream\CompressionMethod;
 use ZipStream\Exception\FileNotFoundException;
 use ZipStream\Exception\FileNotReadableException;
-use ZipStream\Option\Archive;
-use ZipStream\Option\File;
-use ZipStream\Option\Method;
 use ZipStream\ZipStream;
 
 class ZipExportService
@@ -56,18 +54,14 @@ class ZipExportService
     public function buildZipStreamResponse(string $name, callable $fillZipFunction): StreamedResponse
     {
         return new StreamedResponse(function () use ($name, $fillZipFunction): void {
-            $options = new Archive();
-            $options->setSendHttpHeaders(true);
-            $options->setContentType('application/zip');
-            $options->setContentDisposition('attachment');
-            // do not compress files
-            $options->setDeflateLevel(-1);
-            // set maximum filesize to load into memory to 120 MB
-            $options->setLargeFileSize(120 * 1024 * 1024);
-            // do not compress large files. Store should be default but somehow isn't if not set
-            $options->setLargeFileMethod(Method::STORE());
-
-            $zip = new ZipStream($name, $options);
+            $zip = new ZipStream(
+                // do not compress files
+                defaultDeflateLevel: -1,
+                sendHttpHeaders: true,
+                outputName: $name,
+                contentDisposition: 'attachment',
+                contentType: 'application/zip',
+            );
             $fillZipFunction($zip);
 
             $zip->finish();
@@ -80,15 +74,13 @@ class ZipExportService
     public function addFileToZipStream(string $filePath, string $zipPath, ZipStream $zip): void
     {
         $fs = new Filesystem();
-        $fileOptions = new File();
-        $fileOptions->setMethod(Method::STORE());
         if ($this->defaultStorage->fileExists($filePath)) {
             $zip->addFileFromStream($zipPath, $this->defaultStorage->readStream($filePath));
             $this->logger->info('Added File to Zip from stream');
         // file may be stored temporarily locally
         } elseif ($fs->exists($filePath)) {
             try {
-                $zip->addFileFromPath($zipPath, $filePath);
+                $zip->addFileFromPath($zipPath, $filePath, compressionMethod: CompressionMethod::STORE);
                 $this->logger->info('Added File to Zip from local stream');
             } catch (FileNotFoundException|FileNotReadableException $e) {
                 $this->logger->warning('Could not add File to Zip. File not found or not readable', ['path' => $filePath, 'exception' => $e]);

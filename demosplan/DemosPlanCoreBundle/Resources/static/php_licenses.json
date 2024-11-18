@@ -211,6 +211,21 @@
     },
     {
         "license": "MIT",
+        "package": "league/flysystem-aws-s3-v3",
+        "website": "https://github.com/thephpleague/flysystem-aws-s3-v3"
+    },
+    {
+        "license": "MIT",
+        "package": "league/flysystem-bundle",
+        "website": "https://github.com/thephpleague/flysystem-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "league/flysystem-memory",
+        "website": "https://github.com/thephpleague/flysystem-memory"
+    },
+    {
+        "license": "MIT",
         "package": "league/fractal",
         "website": "https://github.com/thephpleague/fractal"
     },
@@ -456,13 +471,13 @@
     },
     {
         "license": "MIT",
-        "package": "symfony/inflector",
-        "website": "https://github.com/symfony/inflector"
+        "package": "symfony/intl",
+        "website": "https://github.com/symfony/intl"
     },
     {
         "license": "MIT",
-        "package": "symfony/intl",
-        "website": "https://github.com/symfony/intl"
+        "package": "symfony/lock",
+        "website": "https://github.com/symfony/lock"
     },
     {
         "license": "MIT",

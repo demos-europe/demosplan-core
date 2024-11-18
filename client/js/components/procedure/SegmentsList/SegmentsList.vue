@@ -503,7 +503,13 @@ export default {
         }
       }
       const payload = {
-        include: ['assignee', 'place', 'tags', 'parentStatement.attachments.file'].join(),
+        include: [
+          'assignee',
+          'place',
+          'tags',
+          'parentStatement.genericAttachments.file',
+          'parentStatement.sourceAttachment.file'
+        ].join(),
         page: {
           number: page,
           size: this.pagination.perPage
@@ -511,8 +517,34 @@ export default {
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
         filter: filter,
         fields: {
+          File: [
+            'hash'
+          ].join(),
+          GenericStatementAttachment: [
+            'file'
+          ].join(),
           Place: [
             'name'
+          ].join(),
+          SourceStatementAttachment: ['file'].join(),
+          Statement: [
+            'authoredDate',
+            'authorName',
+            'genericAttachments',
+            'isSubmittedByCitizen',
+            'initialOrganisationDepartmentName',
+            'initialOrganisationName',
+            'initialOrganisationStreet',
+            'initialOrganisationHouseNumber',
+            'initialOrganisationPostalCode',
+            'initialOrganisationCity',
+            'internId',
+            'memo',
+            'sourceAttachment',
+            'status',
+            'submitDate',
+            'submitName',
+            'submitType'
           ].join(),
           StatementSegment: [
             'assignee',
@@ -524,27 +556,9 @@ export default {
             'text',
             'recommendation'
           ].join(),
-          Statement: [
-            'attachments',
-            'authoredDate',
-            'authorName',
-            'isSubmittedByCitizen',
-            'initialOrganisationDepartmentName',
-            'initialOrganisationName',
-            'initialOrganisationStreet',
-            'initialOrganisationHouseNumber',
-            'initialOrganisationPostalCode',
-            'initialOrganisationCity',
-            'internId',
-            'memo',
-            'status',
-            'submitDate',
-            'submitName',
-            'submitType'
-          ].join(),
-          Tag: 'title',
-          StatementAttachment: ['file', 'attachmentType'].join(),
-          File: 'hash'
+          Tag: [
+            'title'
+          ].join()
         }
       }
       if (this.searchTerm !== '') {

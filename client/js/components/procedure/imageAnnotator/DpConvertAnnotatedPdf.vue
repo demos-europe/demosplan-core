@@ -42,6 +42,7 @@
       </div>
       <div class="convert-annotated-pdf__form">
         <dp-simplified-new-statement-form
+          ref="annotatedPdfForm"
           :allow-file-upload="false"
           :csrf-token="csrfToken"
           :current-procedure-phase="currentProcedurePhase"
@@ -54,7 +55,13 @@
           :tags="tags"
           :used-intern-ids="usedInternIds"
           :init-values="formValues"
-          submit-route-name="dplan_pdf_import_to_statement" />
+          submit-route-name="dplan_pdf_import_to_statement">
+          <div class="flex justify-end mt-2">
+            <dp-button
+              :text="Translator.trans('statement.save.quickSave')"
+              @click="quickSaveText" />
+          </div>
+        </dp-simplified-new-statement-form>
       </div>
     </div>
     <dp-send-beacon
@@ -65,7 +72,7 @@
 </template>
 
 <script>
-import { dpApi, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpLoading } from '@demos-europe/demosplan-ui'
 import DpSendBeacon from './DpSendBeacon'
 import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
 
@@ -73,9 +80,10 @@ export default {
   name: 'DpConvertAnnotatedPdf',
 
   components: {
+    DpButton,
+    DpLoading,
     DpSendBeacon,
-    DpSimplifiedNewStatementForm,
-    DpLoading
+    DpSimplifiedNewStatementForm
   },
 
   props: {
@@ -138,10 +146,11 @@ export default {
       document: null,
       formValues: {
         authoredDate: '',
+        quickSave: '',
+        submitter: { ...this.initSubmitter },
         submittedDate: '',
         tags: [],
-        text: '',
-        submitter: { ...this.initSubmitter }
+        text: ''
       },
       isLoading: false,
       largeColumnWidth: 66.6,
@@ -201,9 +210,25 @@ export default {
       }
       const documentResponse = await dpApi.get(url, params)
       this.document = documentResponse.data.data.find(el => el.type === 'AnnotatedStatementPdf')
-      this.formValues = { ...this.formValues, text: this.document.attributes.text }
+      this.formValues = {
+        ...this.formValues,
+        quickSave: this.document.attributes.quickSave,
+        text: this.document.attributes.quickSave ?? this.document.attributes.text
+      }
       this.pages = documentResponse.data.included.filter(el => el.type === 'AnnotatedStatementPdfPage')
       this.isLoading = false
+    },
+
+    quickSaveText () {
+      const payload = {
+        data: {
+          type: 'AnnotatedStatementPdf',
+          id: this.documentId,
+          attributes: { quickSave: this.$refs.annotatedPdfForm._data.values.text }
+        }
+      }
+
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'AnnotatedStatementPdf', resourceId: this.documentId }), {}, payload)
     },
 
     sortSelected (property) {

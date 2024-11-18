@@ -548,7 +548,6 @@ export default {
         'counties',
         'document',
         'elements',
-        'files',
         'fullText',
         'genericAttachments',
         'initialOrganisationCity',
@@ -618,8 +617,11 @@ export default {
         SourceStatementAttachment: [
           'file'
         ].join(),
-        Statement: statementFields.join(),
-        StatementVote: [
+        Statement: statementFields.join()
+      }
+
+      if (hasPermission('feature_statements_vote')) {
+        allFields.StatementVote = [
           'city',
           'createdDate',
           'createdByCitizen',
@@ -646,7 +648,6 @@ export default {
         'assignee',
         'document',
         'elements',
-        'files',
         'genericAttachments',
         'genericAttachments.file',
         'paragraph',
