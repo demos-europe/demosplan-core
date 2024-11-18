@@ -84,6 +84,7 @@ All rights reserved
         }"
         :value="localStatement.attributes.represents" />
       <dp-checkbox
+        v-if="localStatement.attributes.represents"
         id="representationCheck"
         v-model="localStatement.attributes.representationChecked"
         data-cy="statementSubmitter:representationCheck"
