@@ -233,6 +233,7 @@ export default {
         postcode: '',
         city: ''
       },
+      initialVotes: {},
       isLoading: false,
       translationKeys: {
         new: Translator.trans('statement.voter.add'),
@@ -241,14 +242,15 @@ export default {
         update: Translator.trans('statement.voter.update'),
         noEntries: '',
         delete: Translator.trans('statement.voter.delete')
-      }
+      },
+      votes: {},
+      votesToDelete: []
     }
   },
 
   computed: {
     ...mapState('StatementVote', {
-      initialVotes: 'initial',
-      votes: 'items'
+      votesState: 'items'
     }),
 
     isInstitutionParticipation () {
@@ -265,7 +267,7 @@ export default {
   watch: {
     statement: {
       handler() {
-        this.setInitValues();
+        this.setLocalValues()
       },
       deep: true
     }
@@ -296,10 +298,13 @@ export default {
 
         const vote = {
           type: 'StatementVote',
+          id: voteId,
           attributes: this.formFields
         }
 
-        this.setStatementVote({ ...vote, id: voteId })
+        // due to a reactivity bug in vuex json api, we have to update the store and hold the data locally
+        this.votes[voteId] = vote
+        this.setStatementVote(vote)
 
         this.resetForm()
         this.$refs.listComponent.toggleFormVisibility(false)
@@ -319,9 +324,21 @@ export default {
       return isEmpty
     },
 
+    removeVote (id) {
+      // Only send delete request if the vote is not a new one
+      if (!id.includes('newItem')) {
+        this.votesToDelete.push(this.votes[id])
+      }
+      // The Vuex-json-Api has a bug, where the store is not updated correctly,
+      // so we have to remove the item from the store and the local data
+      this.$delete(this.votes, id)
+      this.removeStatementVote(id)
+    },
+
     reset () {
-      this.setInitValues()
+      this.votesToDelete = []
       this.resetStore()
+      this.setLocalValues()
     },
 
     resetForm () {
@@ -340,7 +357,7 @@ export default {
       // Remove items not in initial state
       for (const id in this.votes) {
         if (!this.initialVotes[id]) {
-          this.removeStatementVote(id)
+          this.removeVote(id)
         }
       }
 
@@ -369,6 +386,7 @@ export default {
       Promise.any(promises)
         .then(() => {
           this.$emit('updatedVoters')
+          this.setInitVoters()
         })
         .catch(() => {
           dplan.notify.error(Translator.trans('error.api.generic'))
@@ -414,18 +432,17 @@ export default {
     },
 
     sendDeleteVote () {
-      const promises = Object.keys(this.initialVotes).map(voteId => {
-        if (!this.votes[voteId]) {
-          // TO DO: Must also be deleted from initial, or initial must be updated, works for update and create, but not for delete
-          this.deleteStatementVoteAction(voteId)
-          .then(() => {
-            return true
-          })
-          .catch(() => {
-            dplan.notify.error(Translator.trans('error.api.generic'))
-            return false
-          })
-        }
+      const promises = this.votesToDelete.map(vote => {
+        // TO DO: Must also be deleted from initial, or initial must be updated, works for update and create, but not for delete
+        this.deleteStatementVoteAction(vote.id)
+        .then(() => {
+          this.votesToDelete = this.votesToDelete.filter(v => v.id !== vote.id)
+          return true
+        })
+        .catch(() => {
+          dplan.notify.error(Translator.trans('error.api.generic'))
+          return false
+        })
       }).filter(Boolean) // Remove undefined values
 
       return Promise.all(promises).then(results => results.some(result => result))
@@ -448,28 +465,33 @@ export default {
       return Promise.all(promises).then(results => results.some(result => result))
     },
 
-    setInitValues () {
-      this.localStatement = JSON.parse(JSON.stringify(this.statement))
+    setInitVoters () {
+      // Create a deep copy of the votes to compare later
+      this.initialVotes = JSON.parse(JSON.stringify(this.votes))
     },
+
+    setLocalValues () {
+      this.localStatement = JSON.parse(JSON.stringify(this.statement))
+      this.votes = Object.assign({}, this.votesState)
+    }
   },
 
   created() {
-    this.setInitValues()
+    this.setLocalValues()
+    this.setInitVoters()
   },
 
   mounted() {
-    this.$on('showUpdateForm', (index) => {
+    this.$on('showUpdateForm', (id) => {
       for (const key in this.formFields) {
-        this.formFields[key] = this.votes[index]['attributes'][key]
+        this.formFields[key] = this.votes[id]['attributes'][key]
       }
     })
 
-    this.$on('delete', (index) => {
-      const name = this.votes[index]?.attributes?.name ? this.votes[index].attributes.name : false
+    this.$on('delete', (voteId) => {
+      const name = this.votes[voteId]?.attributes?.name ? this.votes[voteId].attributes.name : false
       if (dpconfirm(Translator.trans('statement_vote.delete_vote', { name: name }))) {
-        // This is only needed until Vue 3
-        // vuex-json-api uses delete directly which does not trigger reactivity in Vue 2
-        this.$delete(this.$store.state.StatementVote.items, index)
+        this.removeVote(voteId)
         this.resetForm()
       }
     })
