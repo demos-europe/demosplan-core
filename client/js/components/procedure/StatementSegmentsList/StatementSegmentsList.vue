@@ -149,8 +149,9 @@
         :statement="statement"
         :submit-type-options="submitTypeOptions"
         @close="showInfobox = false"
+        @input="checkStatementClaim"
         @save="(statement) => saveStatement(statement)"
-        @input="checkStatementClaim" />
+        @updatedVoters="getStatement"/>
       <segments-recommendations
         v-if="currentAction === 'addRecommendation' && hasPermission('feature_segment_recommendation_edit')"
         :current-user="currentUser"
@@ -333,19 +334,16 @@ export default {
     ...mapGetters('SegmentSlidebar', ['commentsList']),
 
     additionalAttachments () {
-      /**
-       * Until we move completely to the "new way" of handling files,
-       * We have to get the additional files directly from files since that's the place where they get stored.
-       * When crating a new 'additionalFile' via API, the backend creates this kind of relationship as a sideeffect
-       */
-      if (this?.statement?.hasRelationship('files')) {
-        const files = this.statement.relationships.files.list()
+      if (this.statement?.hasRelationship('genericAttachments')) {
+        const attachments = this.statement.relationships.genericAttachments.list()
 
-        return Object.values(files).map(file => {
+        return Object.values(attachments).map(attachment => {
+          const file = attachment?.relationships?.file.get()
+
           return {
-            hash: file.attributes.hash,
             filename: file.attributes.filename,
-            type: file.type
+            hash: file.attributes.hash,
+            id: attachment.id
           }
         })
       } else {
@@ -360,23 +358,6 @@ export default {
           id: user.id
         }))
         : []
-    },
-
-    attachments () {
-      if (this?.statement?.hasRelationship('attachments')) {
-        const attachments = this.statement.relationships.attachments.list()
-
-        return Object.values(attachments).map(attachment => {
-          const file = attachment?.relationships?.file.get()
-          return {
-            hash: file.attributes.hash,
-            filename: file.attributes.filename,
-            type: attachment.attributes.attachmentType
-          }
-        })
-      } else {
-        return []
-      }
     },
 
     attachmentsAndOriginalPdfCount () {
@@ -448,7 +429,19 @@ export default {
     },
 
     originalAttachment () {
-      return this.attachments.find((attachment) => attachment.type === 'source_statement') || {}
+      const originalAttachment = this.statement.hasRelationship('sourceAttachment')
+        ? Object.values(this.statement.relationships.sourceAttachment.list())[0]
+        : {}
+
+      const file = originalAttachment?.relationships?.file.get()
+
+      return originalAttachment && file
+        ? {
+            filename: file.attributes.filename,
+            hash: file.attributes.hash,
+            id: originalAttachment.id
+          }
+        : {}
     },
 
     statement () {
@@ -548,16 +541,15 @@ export default {
     getStatement () {
       const statementFields = [
         'assignee',
-        'attachments',
         'availableProcedurePhases',
-        'consentRevoked',
-        'similarStatementSubmitters',
         'authoredDate',
         'authorName',
+        'consentRevoked',
         'counties',
-        'files',
+        'document',
+        'elements',
         'fullText',
-        'isSubmittedByCitizen',
+        'genericAttachments',
         'initialOrganisationCity',
         'initialOrganisationDepartmentName',
         'initialOrganisationHouseNumber',
@@ -566,18 +558,29 @@ export default {
         'initialOrganisationStreet',
         'internId',
         'isManual',
+        'isSubmittedByCitizen',
         'memo',
         'municipalities',
+        'numberOfAnonymVotes',
+        'paragraph',
+        'paragraphParentId',
+        'paragraphVersion',
+        'polygon',
+        'priorityAreas',
         'priorityAreas',
         'procedurePhase',
+        'publicVerified',
+        'publicVerifiedTranslation',
         'recommendation',
         'segmentDraftList',
-        'submitterAndAuthorMetaDataAnonymized',
-        'status',
+        'sourceAttachment',
         'submitDate',
         'submitName',
+        'submitterAndAuthorMetaDataAnonymized',
+        'submitterEmailAddress',
         'submitType',
-        'submitterEmailAddress'
+        'status',
+        'votes'
       ]
 
       if (this.isSourceAndCoupledProcedure) {
@@ -588,34 +591,81 @@ export default {
         statementFields.push('segmentDraftList')
       }
 
+      if (hasPermission('feature_similar_statement_submitter')) {
+        statementFields.push('similarStatementSubmitters')
+      }
+
+      const allFields = {
+        ElementsDetails: [
+          'document',
+          'paragraphs',
+          'title'
+        ].join(),
+        File: [
+          'hash',
+          'filename'
+        ].join(),
+        GenericStatementAttachment: [
+          'file'
+        ].join(),
+        ParagraphVersion: [
+          'title'
+        ].join(),
+        SingleDocument: [
+          'title'
+        ].join(),
+        SourceStatementAttachment: [
+          'file'
+        ].join(),
+        Statement: statementFields.join()
+      }
+
+      if (hasPermission('feature_statements_vote')) {
+        allFields.StatementVote = [
+          'city',
+          'createdDate',
+          'createdByCitizen',
+          'departmentName',
+          'email',
+          'name',
+          'organisationName',
+          'postcode'
+        ].join()
+      }
+
+      if (hasPermission('feature_similar_statement_submitter')) {
+        allFields.SimilarStatementSubmitter = [
+          'city',
+          'emailAddress',
+          'fullName',
+          'postalCode',
+          'streetName',
+          'streetNumber'
+        ].join();
+      }
+
+      const include = [
+        'assignee',
+        'document',
+        'elements',
+        'genericAttachments',
+        'genericAttachments.file',
+        'paragraph',
+        'paragraphs',
+        'paragraphVersion.paragraph',
+        'sourceAttachment',
+        'sourceAttachment.file',
+        'votes'
+      ]
+
+      if (hasPermission('feature_similar_statement_submitter')) {
+        include.push('similarStatementSubmitters')
+      }
+
       return this.getStatementAction({
         id: this.statementId,
-        include: [
-          'assignee',
-          'attachments',
-          'attachments.file',
-          'files',
-          'similarStatementSubmitters'
-        ].join(),
-        fields: {
-          File: [
-            'hash',
-            'filename'
-          ].join(),
-          SimilarStatementSubmitter: [
-            'city',
-            'emailAddress',
-            'fullName',
-            'postalCode',
-            'streetName',
-            'streetNumber'
-          ].join(),
-          Statement: statementFields.join(),
-          StatementAttachment: [
-            'file',
-            'attachmentType'
-          ].join()
-        }
+        include: include.join(),
+        fields: allFields
       })
     },
 

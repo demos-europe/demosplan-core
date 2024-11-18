@@ -34,6 +34,8 @@ class PlanningDocumentCategoryDetailsResourceType extends DplanResourceType
         $planningDocumentCategoryTitleConfig->procedure->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())->setFilterable();
         $planningDocumentCategoryTitleConfig->paragraphs->setRelationshipType($this->resourceTypeStore->getParagraphResourceType())
             ->setReadableByPath();
+        $planningDocumentCategoryTitleConfig->documents->setRelationshipType($this->resourceTypeStore->getSingleDocumentResourceType())
+            ->setReadableByPath();
 
         return $planningDocumentCategoryTitleConfig;
     }
