@@ -2,7 +2,6 @@
   <form
     :class="prefixClass('u-mt')"
     :action="Routing.generate('DemosPlan_orga_edit_save', { orgaId: organisation.id })"
-    @submit="precheckSubmit"
     method="post"
     data-dp-validate="orgadata">
     <input
@@ -238,9 +237,9 @@
       v-if="displayButtons"
       :class="prefixClass('text-right space-inline-s')">
       <dp-button
-        type="submit"
         data-cy="organisationData:saveButton"
-        :text="Translator.trans('save')" />
+        :text="Translator.trans('save')"
+        @click="handleSubmit" />
 
       <dp-button
         type="reset"
@@ -375,14 +374,16 @@ export default {
     },
   },
   methods: {
-    precheckSubmit (e) {
+    handleSubmit () {
       if (hasPermission('feature_change_submission_type')
         && this.organisation.submissionType === this.submissionTypeShort
         && !window.dpconfirm(Translator.trans('confirm.statement.orgaedit.change'))) {
-        e.preventDefault()
 
+        this.$el.reset()
         return false
       }
+
+      this.$el.submit()
     }
   },
 
