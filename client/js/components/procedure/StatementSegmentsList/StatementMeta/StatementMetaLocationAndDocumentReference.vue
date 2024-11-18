@@ -47,8 +47,8 @@
           v-if="paragraphOptions.length > 0"
           data-cy="statement:paragraphSelect"
           :label="{
-          text: Translator.trans('paragraph')
-        }"
+            text: Translator.trans('paragraph')
+          }"
           :options="paragraphOptions"
           required
           v-model="selectedParagraphId" />
