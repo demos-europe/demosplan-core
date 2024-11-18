@@ -61,7 +61,7 @@ All rights reserved
           class="o-form__control-wrapper"
           :max-date="currentDate"
           :min-date="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : ''"
-          :value="convertDate(localStatement.attributes.submitDate)"
+          :value="getFormattedDate(localStatement.attributes.submitDate)"
           @input="val => setDate(val, 'submitDate')" />
       </div>
 
@@ -117,11 +117,6 @@ All rights reserved
 </template>
 
 <script>
-const convert = (dateString) => {
-  const date = dateString.split('T')[0].split('-')
-  return date[2] + '.' + date[1] + '.' + date[0]
-}
-
 import {
   DpButtonRow,
   DpDatepicker,
@@ -196,13 +191,19 @@ export default {
   },
 
   methods: {
-    convertDate (date) {
+    getFormattedDate (date) {
       if (!date) {
         return ''
       }
       return date.match(/[0-9]{2}.[0-9]{2}.[0-9]{4}/)
         ? date
-        : convert(date)
+        : this.formatDate(date)
+    },
+
+    formatDate (dateString) {
+      const date = dateString.split('T')[0].split('-')
+
+      return date[2] + '.' + date[1] + '.' + date[0]
     },
 
     reset () {
@@ -223,8 +224,8 @@ export default {
 
     setInitValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
-      this.localStatement.attributes.authoredDate = this.convertDate(this.localStatement.attributes.authoredDate)
-      this.localStatement.attributes.submitDate = this.convertDate(this.localStatement.attributes.submitDate)
+      this.localStatement.attributes.authoredDate = this.getFormattedDate(this.localStatement.attributes.authoredDate)
+      this.localStatement.attributes.submitDate = this.getFormattedDate(this.localStatement.attributes.submitDate)
     },
 
     syncAuthorAndSubmitter () {
