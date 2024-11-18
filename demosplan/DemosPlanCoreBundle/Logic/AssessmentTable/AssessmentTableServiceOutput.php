@@ -523,7 +523,7 @@ class AssessmentTableServiceOutput
      */
     public function replacePhase(array $statement): array
     {
-        $statement['phase'] = $this->statementService->getInternalOrExternalPhaseName($statement);
+        $statement['phase'] = $this->statementService->getProcedurePhaseNameFromArray($statement);
 
         return $statement;
     }
