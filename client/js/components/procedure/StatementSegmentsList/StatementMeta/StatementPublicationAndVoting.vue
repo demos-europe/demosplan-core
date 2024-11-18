@@ -230,6 +230,7 @@ export default {
         postcode: '',
         city: ''
       },
+      initialVotes: {},
       isLoading: false,
       translationKeys: {
         new: Translator.trans('statement.voter.add'),
@@ -246,7 +247,6 @@ export default {
 
   computed: {
     ...mapState('StatementVote', {
-      initialVotes: 'initial',
       votesState: 'items'
     }),
 
@@ -264,7 +264,7 @@ export default {
   watch: {
     statement: {
       handler() {
-        this.setInitValues();
+        this.setLocalValues()
       },
       deep: true
     }
@@ -333,8 +333,9 @@ export default {
     },
 
     reset () {
-      this.setInitValues()
+      this.votesToDelete = []
       this.resetStore()
+      this.setLocalValues()
     },
 
     resetForm () {
@@ -382,6 +383,7 @@ export default {
       Promise.any(promises)
         .then(() => {
           this.$emit('updatedVoters')
+          this.setInitVoters()
         })
         .catch(() => {
           dplan.notify.error(Translator.trans('error.api.generic'))
@@ -459,14 +461,20 @@ export default {
       return Promise.all(promises).then(results => results.some(result => result))
     },
 
-    setInitValues () {
-      this.localStatement = JSON.parse(JSON.stringify(this.statement))
-      this.localStatement.attributes.numberOfAnonymVotes = this.statement.attributes.numberOfAnonymVotes.toString()
+    setInitVoters () {
+      // Create a deep copy of the votes to compare later
+      this.initialVotes = JSON.parse(JSON.stringify(this.votes))
     },
+
+    setLocalValues () {
+      this.localStatement = JSON.parse(JSON.stringify(this.statement))
+      this.votes = Object.assign({}, this.votesState)
+    }
   },
 
   created() {
-    this.setInitValues()
+    this.setLocalValues()
+    this.setInitVoters()
   },
 
   mounted() {
@@ -483,8 +491,6 @@ export default {
         this.resetForm()
       }
     })
-
-    this.votes = Object.assign({}, this.votesState)
   }
 }
 </script>
