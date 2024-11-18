@@ -78,16 +78,13 @@ All rights reserved
           text: Translator.trans('statement.representation.assessment')
         }"
         :value="localStatement.attributes.represents" />
-<!--      // TO DO: DpCheckbox?-->
-      <dp-input
-        v-if="localStatement.attributes.represents"
+      <dp-checkbox
         id="representationCheck"
         v-model="localStatement.attributes.representationChecked"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('statement.representation.checked')
-        }"
-        type="checkbox" />
+        }" />
 
       <div class="o-form__group mb-2">
         <dp-input
@@ -151,6 +148,7 @@ All rights reserved
 <script>
 import {
   DpButtonRow,
+  DpCheckbox,
   DpInput,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
@@ -160,6 +158,7 @@ export default {
 
   components: {
     DpButtonRow,
+    DpCheckbox,
     DpInput,
     SimilarStatementSubmitters
   },
