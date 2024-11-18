@@ -913,10 +913,11 @@
                                         <dp-input
                                             id="r_pictogramCopyright"
                                             class="my-2"
+                                            data-cy="procedureInfo:pictogramCopyright"
+                                            name="r_pictogramCopyright"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.copyright')
                                             }"
-                                            name="r_pictogramCopyright"
                                             value="{{ proceduresettings.pictogramCopyright|default }}"
                                             required>
                                         </dp-input>
@@ -924,10 +925,11 @@
                                         <dp-input
                                             id="r_pictogramAltText"
                                             class="my-2"
+                                            data-cy="procedureInfo:pictogramAltText"
+                                            name="r_pictogramAltText"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.altText')
                                             }"
-                                            name="r_pictogramAltText"
                                             value="{{ proceduresettings.pictogramAltText|default }}"
                                             required>
                                         </dp-input>
