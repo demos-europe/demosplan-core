@@ -43,7 +43,6 @@ All rights reserved
       :has-permission-to-edit="editable && statement.attributes.isManual"
       :translation-keys="translationKeys"
       ref="listComponent"
-      @delete="handleDeleteVote"
       @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)">
       <template v-slot:list="{entry, index}">
         <span v-if="entry.attributes.name" class="voteEntry">{{ entry.attributes.name }}</span>
@@ -239,7 +238,8 @@ export default {
         noEntries: '',
         delete: Translator.trans('statement.voter.delete')
       },
-      votes: {}
+      votes: {},
+      votesToDelete: []
     }
   },
 
@@ -321,6 +321,10 @@ export default {
     },
 
     removeVote (id) {
+      // Only send delete request if the vote is not a new one
+      if (!id.includes('newItem')) {
+        this.votesToDelete.push(this.votes[id])
+      }
       // The Vuex-json-Api has a bug, where the store is not updated correctly,
       // so we have to remove the item from the store and the local data
       this.$delete(this.votes, id)
@@ -420,18 +424,17 @@ export default {
     },
 
     sendDeleteVote () {
-      const promises = Object.keys(this.initialVotes).map(voteId => {
-        if (!this.votes[voteId]) {
-          // TO DO: Must also be deleted from initial, or initial must be updated, works for update and create, but not for delete
-          this.deleteStatementVoteAction(voteId)
-          .then(() => {
-            return true
-          })
-          .catch(() => {
-            dplan.notify.error(Translator.trans('error.api.generic'))
-            return false
-          })
-        }
+      const promises = this.votesToDelete.map(vote => {
+        // TO DO: Must also be deleted from initial, or initial must be updated, works for update and create, but not for delete
+        this.deleteStatementVoteAction(vote.id)
+        .then(() => {
+          this.votesToDelete = this.votesToDelete.filter(v => v.id !== vote.id)
+          return true
+        })
+        .catch(() => {
+          dplan.notify.error(Translator.trans('error.api.generic'))
+          return false
+        })
       }).filter(Boolean) // Remove undefined values
 
       return Promise.all(promises).then(results => results.some(result => result))
