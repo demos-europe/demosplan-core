@@ -470,9 +470,9 @@ export default {
   },
 
   mounted() {
-    this.$on('showUpdateForm', (index) => {
+    this.$on('showUpdateForm', (id) => {
       for (const key in this.formFields) {
-        this.formFields[key] = Object.values(this.votes)[index]['attributes'][key]
+        this.formFields[key] = this.votes[id]['attributes'][key]
       }
     })
 
