@@ -52,7 +52,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
@@ -130,7 +129,7 @@ class DemosPlanStatementController extends BaseController
         NameGenerator $nameGenerator,
         TranslatorInterface $translator,
         $procedure,
-        $type
+        $type,
     ) {
         $itemsToExport = null;
         $draftStatementList = [];
@@ -179,7 +178,7 @@ class DemosPlanStatementController extends BaseController
         CurrentProcedureService $currentProcedureService,
         string $_route,
         string $procedure,
-        string $templateName
+        string $templateName,
     ) {
         $this->saveDraftListFiltersInSession($request, $procedure, $templateName);
         $requestPost = 0 === $request->request->count() ? $this->getDraftListFiltersFromSession($request) : $request->request;
@@ -321,7 +320,7 @@ class DemosPlanStatementController extends BaseController
                 [
                     $chosenDraftStatements,
                     $itemsToExport,
-                    $procedureObject
+                    $procedureObject,
                 ] = $this->submitPublicStatementPdfExportHandling($currentProcedureService, $procedureId,
                     $draftStatementHandler, $user, $requestPost);
 
@@ -492,7 +491,7 @@ class DemosPlanStatementController extends BaseController
         $submitted,
         string $templateName,
         string $title,
-        StatementHandler $statementHandler
+        StatementHandler $statementHandler,
     ) {
         $this->saveDraftListFiltersInSession($request, $procedure, $templateName);
         $userRole = $this->currentUser->getUser()->getDplanRolesString();
@@ -733,7 +732,7 @@ class DemosPlanStatementController extends BaseController
         StatementService $statementService,
         UserService $userService,
         string $procedure,
-        string $statementID
+        string $statementID,
     ) {
         // @improve T14613
         $procedureId = $procedure;
@@ -807,7 +806,7 @@ class DemosPlanStatementController extends BaseController
         Request $request,
         StatementService $statementService,
         $procedure,
-        $statementId
+        $statementId,
     ) {
         $response = $this->redirectToRoute('DemosPlan_procedure_public_detail', ['procedure' => $procedure]);
 
@@ -855,7 +854,7 @@ class DemosPlanStatementController extends BaseController
         StatementHandler $statementHandler,
         FileUploadService $fileUploadService,
         EventDispatcherInterface $eventDispatcher,
-        string $procedure
+        string $procedure,
     ) {
         try {
             if (!$this->permissions->hasPermissionsetWrite()) {
@@ -1012,7 +1011,7 @@ class DemosPlanStatementController extends BaseController
     #[Route(name: 'DemosPlan_statement_public_participation_published', path: '/verfahren/{procedure}/stellungnahme/{statementID}')]
     public function publicStatementDetailAction(
         StatementService $statementService,
-        string $statementID
+        string $statementID,
     ) {
         $templateVars = [];
         // Das Formular ausgeben und mit Werten befuellen
@@ -1050,7 +1049,7 @@ class DemosPlanStatementController extends BaseController
         MessageBagInterface $messageBag,
         Request $request,
         TranslatorInterface $translator,
-        string $procedure
+        string $procedure,
     ) {
         $urlFragment = '';
 
@@ -1258,7 +1257,7 @@ class DemosPlanStatementController extends BaseController
         Request $request,
         RouterInterface $router,
         string $procedure,
-        string $statementID
+        string $statementID,
     ) {
         $templateVars = [];
         $draftStatementId = $statementID; // actually ID of a DraftStatement
@@ -1310,7 +1309,7 @@ class DemosPlanStatementController extends BaseController
         TranslatorInterface $translator,
         MessageBagInterface $messageBag,
         $procedure,
-        $statementID
+        $statementID,
     ): RedirectResponse {
         $userRole = $this->currentUser->getUser()->getDplanRolesString();
 
@@ -1356,7 +1355,7 @@ class DemosPlanStatementController extends BaseController
         TranslatorInterface $translator,
         MessageBagInterface $messageBag,
         $procedure,
-        $statementID
+        $statementID,
     ) {
         $userRole = $this->currentUser->getUser()->getDplanRolesString();
 
@@ -1685,7 +1684,7 @@ class DemosPlanStatementController extends BaseController
         $draftStatementList,
         $type,
         Procedure $procedure,
-        $itemsToExport = null
+        $itemsToExport = null,
     ) {
         $file = $this->draftStatementService->generatePdf($draftStatementList, $type, $procedure->getId(), $itemsToExport);
 
@@ -1716,7 +1715,7 @@ class DemosPlanStatementController extends BaseController
     protected function exportStatementList(
         $requestPost,
         StatementListHandlerResult $outputResult,
-        $templateName, Procedure $procedure
+        $templateName, Procedure $procedure,
     ) {
         // wenn einzelne Stellungnahmen ausgewählt wurde, speicher sie in einem string
         $itemsToExport = $requestPost->get('item_check');
@@ -2311,41 +2310,6 @@ class DemosPlanStatementController extends BaseController
     }
 
     /**
-     * List all statements per procedure
-     * without any possibilities to edit.
-     *
-     * @throws ProcedureNotFoundException
-     * @throws Exception
-     *
-     * @DplanPermissions("area_admin_statement_list")
-     */
-    #[Route(name: 'dplan_procedure_statement_list', methods: ['GET'], path: '/verfahren/{procedureId}/einwendungen', options: ['expose' => true])]
-    public function readOnlyStatementListAction(
-        string $procedureId,
-        ProcedureCoupleTokenFetcher $tokenFetcher,
-        ProcedureService $procedureService
-    ): Response {
-        $procedure = $procedureService->getProcedure($procedureId);
-
-        if (null === $procedure) {
-            throw ProcedureNotFoundException::createFromId($procedureId);
-        }
-
-        $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
-
-        return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanStatement/list_statements.html.twig',
-            [
-                'procedure'    => $procedureId,
-                'title'        => 'statements',
-                'templateVars' => [
-                    'isSourceAndCoupledProcedure' => $isSourceAndCoupledProcedure,
-                ],
-            ]
-        );
-    }
-
-    /**
      * Imports Statements from a xlsx-file.
      *
      * @throws ProcedureNotFoundException
@@ -2360,7 +2324,7 @@ class DemosPlanStatementController extends BaseController
         XlsxStatementImporterFactory $importerFactory,
         ExcelImporter $excelImporter,
         string $procedureId,
-        Request $request
+        Request $request,
     ): Response {
         $requestPost = $request->request->all();
         $procedure = $procedureService->getProcedure($procedureId);
@@ -2378,9 +2342,21 @@ class DemosPlanStatementController extends BaseController
             $statementCount = 0;
             /** @var FileInfo $fileInfo */
             foreach ($files as $fileInfo) {
-                $this->importStatementsFromXls($fileInfo, $importer);
+                $localPath = $fileService->ensureLocalFile($fileInfo->getAbsolutePath());
+                $localFileInfo = new FileInfo(
+                    $fileInfo->getHash(),
+                    '',
+                    0,
+                    '',
+                    $localPath,
+                    $localPath,
+                    null
+                );
+                $this->importStatementsFromXls($localFileInfo, $importer);
                 $fileNames[] = $fileInfo->getFileName();
                 $statementCount += count($importer->getCreatedStatements());
+                $fileService->deleteFile($fileInfo->getHash());
+                $fileService->deleteLocalFile($localPath);
             }
             if ($importer->hasErrors()) {
                 return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
@@ -2414,7 +2390,7 @@ class DemosPlanStatementController extends BaseController
         XlsxStatementImporterFactory $importerFactory,
         StatementSpreadsheetImporterWithZipSupport $excelImporter,
         string $procedureId,
-        Request $request
+        Request $request,
     ): Response {
         $requestPost = $request->request->all();
         $procedure = $procedureService->getProcedure($procedureId);
@@ -2432,13 +2408,24 @@ class DemosPlanStatementController extends BaseController
             $statementsCount = 0;
             /** @var FileInfo $zipFileInfo */
             foreach ($files as $zipFileInfo) {
-                $this->importStatementsFromXls($zipFileInfo, $importer);
+                $localPath = $fileService->ensureLocalFile($zipFileInfo->getAbsolutePath());
+                $localFileInfo = new FileInfo(
+                    $zipFileInfo->getHash(),
+                    '',
+                    0,
+                    '',
+                    $localPath,
+                    $localPath,
+                    null
+                );
+                $this->importStatementsFromXls($localFileInfo, $importer);
 
                 $fileNames[] = $zipFileInfo->getFileName();
                 $statements = $importer->getCreatedStatements();
                 $statementsCount += count($statements);
 
                 $fileService->deleteFile($zipFileInfo->getHash());
+                $fileService->deleteLocalFile($localPath);
             }
             if ($importer->hasErrors()) {
                 return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
@@ -2460,17 +2447,15 @@ class DemosPlanStatementController extends BaseController
      */
     public function importStatementsFromXls(
         FileInfo $fileInfo,
-        XlsxStatementImport $importer
+        XlsxStatementImport $importer,
     ): void {
-        if ($fileInfo instanceof FileInfo) {
-            $fileInfo = new SplFileInfo(
-                $fileInfo->getAbsolutePath(),
-                '',
-                $fileInfo->getHash()
-            );
-        }
+        $splFileInfo = new SplFileInfo(
+            $fileInfo->getAbsolutePath(),
+            '',
+            $fileInfo->getHash()
+        );
         try {
-            $importer->importFromFile($fileInfo);
+            $importer->importFromFile($splFileInfo);
         } catch (RowAwareViolationsException $e) {
             $this->getMessageBag()->add(
                 'error',
@@ -2543,7 +2528,7 @@ class DemosPlanStatementController extends BaseController
     protected function createSuccessResponse(
         string $procedureId,
         int $numberOfCreatedStatements,
-        array $fileNames
+        array $fileNames,
     ) {
         $this->getMessageBag()->addChoice(
             'confirm',

@@ -52,9 +52,8 @@ class XlsxSegmentImport
         private readonly LoggerInterface $logger,
         private readonly SegmentRepository $segmentRepository,
         private readonly StatementRepository $statementRepository,
-        private readonly StatementService $statementService
-    )
-    {
+        private readonly StatementService $statementService,
+    ) {
     }
 
     /**
@@ -116,7 +115,6 @@ class XlsxSegmentImport
                     StatementCreatedViaExcelEventInterface::class
                 );
             }
-
 
             return $importResult;
         } catch (Exception $exception) {

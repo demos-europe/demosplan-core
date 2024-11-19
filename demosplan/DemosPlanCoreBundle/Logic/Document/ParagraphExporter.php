@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Twig\Environment;
@@ -61,10 +62,11 @@ class ParagraphExporter
         DocumentHandler $documentHandler,
         Environment $twig,
         FileService $fileService,
+        private readonly FilesystemOperator $defaultStorage,
         LoggerInterface $logger,
         ParagraphService $paragraphService,
         private readonly ProcedureService $procedureService,
-        ServiceImporter $serviceImporter
+        ServiceImporter $serviceImporter,
     ) {
         $this->documentHandler = $documentHandler;
         $this->fileService = $fileService;
@@ -92,19 +94,19 @@ class ParagraphExporter
 
         preg_match_all('/includegraphics(\[.*\])?\{(.*)\}/', $content, $imagematches);
         if (isset($imagematches[2])) {
-            $this->logger->info('Pdf: Gefundene Bilder: '.(is_countable($imagematches[2]) ? count($imagematches[2]) : 0));
+            $this->logger->info('Pdf: images found: '.(is_countable($imagematches[2]) ? count($imagematches[2]) : 0));
             foreach ($imagematches[2] as $match) {
                 try {
                     $file = $this->fileService->getFileInfo($match);
 
-                    if (is_file($file->getAbsolutePath())) {
+                    if ($this->defaultStorage->fileExists($file->getAbsolutePath())) {
                         $this->logger->info('Pdf: Bild auf der Platte gefunden');
-                        $fileContent = file_get_contents($file->getAbsolutePath());
+                        $fileContent = $this->defaultStorage->read($file->getAbsolutePath());
                         $pictures['picture'.$i] = $match.'###'.$file->getFileName().'###'.base64_encode($fileContent);
                         ++$i;
                     }
                 } catch (Exception) {
-                    $this->logger->warning('Could not find Picture referenced in conten', ['hash' => $match, 'content' => $content]);
+                    $this->logger->warning('Could not find Picture referenced in content', ['hash' => $match, 'content' => $content]);
                 }
             }
         }

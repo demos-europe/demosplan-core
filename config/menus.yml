@@ -333,7 +333,7 @@ submenu_procedures:
     analysis:
         label: 'analysis'
         path: ~
-        permission: 'area_admin_assessmenttable'
+        permission: 'area_admin_subheading_analysis'
         list_item_attributes:
             class: 'knp-sub-heading'
     considerationtable:

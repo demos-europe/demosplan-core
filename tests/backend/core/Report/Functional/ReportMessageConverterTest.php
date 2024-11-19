@@ -462,6 +462,7 @@ class ReportMessageConverterTest extends FunctionalTestCase
 
     private function loadTestJson(string $filename): string
     {
+        // uses local file, no need for flysystem
         $jsonString = file_get_contents("../Resources/$filename");
         if (false === $jsonString) {
             self::fail("failed to load test data from $filename");
