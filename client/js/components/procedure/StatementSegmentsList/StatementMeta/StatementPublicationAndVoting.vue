@@ -449,15 +449,20 @@ export default {
 
     sendUpdateVote () {
       const promises = Object.values(this.initialVotes).map(vote => {
-        if (this.votes[vote.id]) {
-          this.saveStatementVoteAction(vote.id)
-          .then(() => {
-            return true
-          })
-          .catch(() => {
-            dplan.notify.error(Translator.trans('error.api.generic'))
-            return false
-          })
+        const  { id, attributes } = vote
+        const currentVote = this.votes[id]
+        if (currentVote) {
+          const hasChanged = Object.keys(attributes).some(key => attributes[key] !== currentVote.attributes[key])
+          if (hasChanged) {
+            this.saveStatementVoteAction(vote.id)
+            .then(() => {
+              return true
+            })
+            .catch(() => {
+              dplan.notify.error(Translator.trans('error.api.generic'))
+              return false
+            })
+          }
         }
       }).filter(Boolean) // Remove undefined values
 
