@@ -14,7 +14,7 @@
     </div>
 
     <div class="space-y-4">
-      <template v-if="hasPermission('field_statement_polygon')">
+      <div v-if="hasPermission('field_statement_polygon')">
         <template v-if="statement.attributes.polygon">
           <dp-button
             :aria-label="Translator.trans('location.reference_view')"
@@ -29,7 +29,7 @@
         <template v-else>
           -
         </template>
-      </template>
+      </div>
 
       <!-- Document reference -->
       <div
