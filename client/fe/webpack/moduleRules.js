@@ -164,7 +164,6 @@ const moduleRules =
             additionalData: `$url-path-prefix: '${config.urlPathPrefix}';`,
             sassOptions: {
               includePaths: [
-                config.projectRoot + 'web/',
                 config.publicPath
               ]
             }

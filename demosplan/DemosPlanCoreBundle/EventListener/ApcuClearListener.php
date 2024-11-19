@@ -46,7 +46,7 @@ class ApcuClearListener
             return;
         }
 
-        $cacheScheduleFile = DemosPlanPath::getProjectPath(CacheClearCommand::APCU_CLEAR_SCHEDULE_FILE);
+        $cacheScheduleFile = DemosPlanPath::getPublicPath(CacheClearCommand::APCU_CLEAR_SCHEDULE_FILE);
 
         // uses local file, no need for flysystem
         if (file_exists($cacheScheduleFile)) {

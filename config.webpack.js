@@ -94,7 +94,7 @@ const bundlesConfig = merge(baseConfig, {
     }
   },
   output: {
-    path: config.projectRoot + '/web/js/bundles',
+    path: config.publicPath + '/js/bundles',
     publicPath: config.urlPathPrefix + '/js/bundles/'
   },
   devtool: (config.isProduction) ? false : 'eval',
@@ -124,7 +124,7 @@ const stylesConfig = merge(baseConfig, {
     }
   },
   output: {
-    path: config.projectRoot + '/web/js/bundles',
+    path: config.publicPath + '/js/bundles',
     publicPath: config.urlPathPrefix + '/js/bundles/',
     clean: {
       /*
@@ -156,7 +156,7 @@ const legacyBundlesConfig = {
   name: 'legacy-bundles',
   entry: resolveDir('client/js/legacy/legacy.js'),
   output: {
-    path: config.projectRoot + '/web/js/legacy',
+    path: config.publicPath + '/js/legacy',
     publicPath: config.urlPathPrefix + '/js/legacy/'
   },
   cache: true,
@@ -171,7 +171,7 @@ const legacyBundlesConfig = {
       patterns: [
         {
           from: resolveDir('client/js/legacy/'),
-          to: `${config.projectRoot}/web/js/legacy`
+          to: `${config.publicPath}/js/legacy`
         }
       ]
     })

@@ -60,6 +60,7 @@ class FrontendBuildinfoCommand extends CoreCommand
             'urlPrefix'   => $this->parameterBag->get('url_path_prefix'),
             'projectDir'  => $this->parameterBag->get('demosplan.project_dir'),
             'projectName' => $this->parameterBag->get('demosplan.project_name'),
+            'publicDir'   => $this->parameterBag->get('kernel.project_dir') . '/public',
         ];
     }
 
