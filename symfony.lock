@@ -1192,9 +1192,6 @@
     "wsdltophp/phpgenerator": {
         "version": "1.2.1"
     },
-    "yectep/phpspreadsheet-bundle": {
-        "version": "v0.2.0"
-    },
     "zenstruck/foundry": {
         "version": "1.33",
         "recipe": {
