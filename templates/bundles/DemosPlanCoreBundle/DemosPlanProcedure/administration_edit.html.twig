@@ -914,7 +914,7 @@
                                         <dp-input
                                             id="r_pictogramCopyright"
                                             class="my-2"
-                                            data-cy="procedureInfo:pictogramCopyright"
+                                            data-cy="procedure:pictogramCopyright"
                                             name="r_pictogramCopyright"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.copyright')
@@ -926,7 +926,7 @@
                                         <dp-input
                                             id="r_pictogramAltText"
                                             class="my-2"
-                                            data-cy="procedureInfo:pictogramAltText"
+                                            data-cy="procedure:pictogramAltText"
                                             name="r_pictogramAltText"
                                             :label="{
                                                 text: Translator.trans('procedure.pictogram.altText')
@@ -1313,7 +1313,7 @@
 
             {# form controls when not in wizard mode #}
             <div class="text-right space-inline-s">
-                {# A hidden input is used here to prevent the form from being submitted in wizard mode when the button is clicked #}
+                {# A hidden input is used here to prevent the form from being submitted in wizard mode when the next button is clicked #}
                 <input
                     type="submit"
                     class="hidden"
