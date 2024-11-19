@@ -8,9 +8,7 @@ All rights reserved
 </license>
 
 <template>
-  <fieldset
-    class="c-statement-meta-voting"
-    data-dp-validate="statementPublicationAndVotingData">
+  <fieldset data-dp-validate="statementPublicationAndVotingData">
     <legend
       id="publicationAndVoting"
       class="mb-3 color-text-muted font-normal">
@@ -41,6 +39,7 @@ All rights reserved
       <dp-loading v-if="isLoading" />
       <dp-editable-list
         v-else
+        class="o-list"
         :entries="votes"
         :has-permission-to-edit="editable && statement.attributes.isManual"
         :translation-keys="translationKeys"
@@ -48,12 +47,12 @@ All rights reserved
         @reset="resetForm()"
         @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)">
         <template v-slot:list="{entry, index}">
-          <span v-if="entry.attributes.name" class="voteEntry">{{ entry.attributes.name }}</span>
-          <span v-if="entry.attributes.organisationName" class="voteEntry">{{ entry.attributes.organisationName }}</span>
-          <span v-if="entry.attributes.departmentName" class="voteEntry">{{ entry.attributes.departmentName }}</span>
-          <span v-if="entry.attributes.postcode" class="voteEntry">{{ entry.attributes.postcode }}</span>
-          <span v-if="entry.attributes.city" class="voteEntry">{{ entry.attributes.city }}</span>
-          <span v-if="entry.attributes.email" class="voteEntry">{{ entry.attributes.email }}</span>
+          <span v-if="entry.attributes.name" class="o-list__item separated">{{ entry.attributes.name }}</span>
+          <span v-if="entry.attributes.organisationName" class="o-list__item separated">{{ entry.attributes.organisationName }}</span>
+          <span v-if="entry.attributes.departmentName" class="o-list__item separated">{{ entry.attributes.departmentName }}</span>
+          <span v-if="entry.attributes.postcode" class="o-list__item separated">{{ entry.attributes.postcode }}</span>
+          <span v-if="entry.attributes.city" class="o-list__item separated">{{ entry.attributes.city }}</span>
+          <span v-if="entry.attributes.email" class="o-list__item separated">{{ entry.attributes.email }}</span>
         </template>
         <template v-slot:form>
           <div

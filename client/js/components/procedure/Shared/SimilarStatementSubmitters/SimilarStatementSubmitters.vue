@@ -16,71 +16,70 @@
       <dp-contextual-help :text="Translator.trans('statement.similarStatementSubmitters.hint')" />
     </div>
     <dp-editable-list
+      ref="listComponent"
+      class="o-list"
       :entries="listEntries"
       :has-permission-to-edit="editable"
       :translation-keys="translationKeys"
       @reset="resetFormFields"
-      @saveEntry="index => dpValidateAction('similarStatementSubmitterForm', () => handleSaveEntry(index), false)"
-      ref="listComponent">
+      @saveEntry="index => dpValidateAction('similarStatementSubmitterForm', () => handleSaveEntry(index), false)">
       <template v-slot:list="{ entry, index }">
-        <ul class="o-list o-list--csv inline">
-          <template v-if="isRequestFormPost">
-            <input
-              type="hidden"
-              :name="'r_similarStatementSubmitters[' + index + '][fullName]'"
-              :value="entry.submitterName">
+        <template v-if="isRequestFormPost">
+          <input
+            type="hidden"
+            :name="'r_similarStatementSubmitters[' + index + '][fullName]'"
+            :value="entry.submitterName">
 
-            <input
-              type="hidden"
-              :name="'r_similarStatementSubmitters[' + index + '][city]'"
-              :value="entry.submitterCity">
+          <input
+            type="hidden"
+            :name="'r_similarStatementSubmitters[' + index + '][city]'"
+            :value="entry.submitterCity">
 
-            <input
-              type="hidden"
-              :name="'r_similarStatementSubmitters[' + index + '][streetName]'"
-              :value="entry.submitterAddress">
+          <input
+            type="hidden"
+            :name="'r_similarStatementSubmitters[' + index + '][streetName]'"
+            :value="entry.submitterAddress">
 
-            <input
-              type="hidden"
-              :name="'r_similarStatementSubmitters[' + index + '][streetNumber]'"
-              :value="entry.submitterHouseNumber">
+          <input
+            type="hidden"
+            :name="'r_similarStatementSubmitters[' + index + '][streetNumber]'"
+            :value="entry.submitterHouseNumber">
 
-            <input
-              type="hidden"
-              :name="'r_similarStatementSubmitters[' + index + '][postalCode]'"
-              :value="entry.submitterPostalCode">
+          <input
+            type="hidden"
+            :name="'r_similarStatementSubmitters[' + index + '][postalCode]'"
+            :value="entry.submitterPostalCode">
 
-            <input
-              type="hidden"
-              :name="'r_similarStatementSubmitters[' + index + '][emailAddress]'"
-              :value="entry.submitterEmailAddress">
-          </template>
+          <input
+            type="hidden"
+            :name="'r_similarStatementSubmitters[' + index + '][emailAddress]'"
+            :value="entry.submitterEmailAddress">
+        </template>
 
-          <li
-            v-if="entry.submitterName"
-            class="o-list__item"
-            v-text="entry.submitterName" />
-          <li
-            v-if="entry.submitterEmailAddress"
-            class="o-list__item"
-            v-text="entry.submitterEmailAddress" />
-          <li
-            v-if="entry.submitterAddress"
-            class="o-list__item"
-            v-text="entry.submitterAddress" />
-          <li
-            v-if="entry.submitterHouseNumber"
-            class="o-list__item"
-            v-text="entry.submitterHouseNumber" />
-          <li
-            v-if="entry.submitterPostalCode"
-            class="o-list__item"
-            v-text="entry.submitterPostalCode" />
-          <li
-            v-if="entry.submitterCity"
-            class="o-list__item"
-            v-text="entry.submitterCity" />
-        </ul>
+        <span
+          v-if="entry.submitterName"
+          class="o-list__item separated"
+          v-text="entry.submitterName" />
+        <span
+          v-if="entry.submitterEmailAddress"
+          class="o-list__item separated"
+          v-text="entry.submitterEmailAddress" />
+        <span
+          v-if="entry.submitterAddress"
+          class="o-list__item separated"
+          v-text="entry.submitterAddress" />
+        <span
+          v-if="entry.submitterHouseNumber"
+          class="o-list__item separated"
+          v-text="entry.submitterHouseNumber" />
+        <span
+          v-if="entry.submitterPostalCode"
+          class="o-list__item separated"
+          v-text="entry.submitterPostalCode" />
+        <span
+          v-if="entry.submitterCity"
+          class="o-list__item separated"
+          v-text="entry.submitterCity" />
       </template>
 
       <template v-slot:form>
@@ -110,17 +109,17 @@
           <div class="o-form__group mb-2">
             <dp-input
               id="statementSubmitterAddress"
-              data-cy="voterStreet"
               v-model="formFields.submitterAddress"
               class="o-form__group-item"
+              data-cy="voterStreet"
               :label="{
                 text: Translator.trans('street')
               }" />
             <dp-input
               id="statementSubmitterHouseNumber"
-              data-cy="voterHousenumber"
               v-model="formFields.submitterHouseNumber"
               class="o-form__group-item shrink"
+              data-cy="voterHousenumber"
               :label="{
                 text: Translator.trans('street.number.short')
               }"
@@ -130,9 +129,9 @@
           <div class="o-form__group mb-2">
             <dp-input
               id="statementSubmitterPostalCode"
-              data-cy="voterPostalCode"
               v-model="formFields.submitterPostalCode"
               class="o-form__group-item shrink"
+              data-cy="voterPostalCode"
               :label="{
                 text: Translator.trans('postalcode')
               }"
@@ -140,9 +139,9 @@
               :size="5" />
             <dp-input
               id="statementSubmitterCity"
-              data-cy="voterCity"
               v-model="formFields.submitterCity"
               class="o-form__group-item"
+              data-cy="voterCity"
               :label="{
                 text: Translator.trans('city')
               }" />
