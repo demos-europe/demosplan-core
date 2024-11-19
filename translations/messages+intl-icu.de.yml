@@ -579,6 +579,16 @@ confirm.statement.assignment.assigned: "Die Stellungnahme wurde Ihnen erfolgreic
 confirm.statement.assignment.changed: "Die Zuweisung der Stellungnahme wurde erfolgreich geändert."
 confirm.statements.assignment.changed: "Die Zuweisung der Stellungnahmen wurde erfolgreich geändert."
 confirm.statement.assignment.unassigned: "Die Stellungnahme wurde erfolgreich freigegeben."
+confirm.statement.attachment.created: |
+    {count, plural,
+        =1 {Der Anhang wurde gespeichert.}
+        other {Die Anhänge wurden gespeichert.}
+    }
+confirm.statement.attachment.deleted: |
+    {count, plural,
+        =1 {Der Anhang wurde gelöscht.}
+        other {Die Anhänge wurden gelöscht.}
+    }
 confirm.statement.cluster.added: "Die Stellungnahme {addedStatement} wurde der Gruppe {headStatement} hinzugefügt."
 confirm.statement.cluster.created: "Die Gruppe {clusterId} wurde erfolgreich erstellt"
 confirm.statement.cluster.merged: "Die Stellungnahmengruppen {sourceCluster} und {targetCluster} wurden zusammengeführt."
@@ -654,6 +664,8 @@ confirm.statement.rejected.reason: "Die Stellungnahme wurde von Ihrer Koordinati
 confirm.statement.rejected: "Die Stellungnahme wurde zurückgewiesen"
 confirm.statement.saved: "Die Stellungnahme wurde gespeichert."
 confirm.statement.saved.draft.notification: "Ihre Stellungnahme wurde in <a href=\"{link}\">Ihrem Entwurfsordner</a> mit der Vorgangsnummer {number} gespeichert."
+confirm.statement.source.attachment.created: "Die Stellungnahme als Anhang wurde gespeichert."
+confirm.statement.source.attachment.deleted: "Die Stellungnahme als Anhang wurde gelöscht."
 confirm.statement.status.update: "Der Status der Stellungnahme wurde erfolgreich verändert."
 confirm.statement.submitted.public.mailsent: "Haben Sie eine E-Mail-Adresse angegeben? Dann wurde Ihnen eine Kopie der Stellungnahme zugeschickt. <br />Bitte speichern Sie das PDF Ihrer Stellungnahme oder drucken Sie die Stellungnahme aus."
 confirm.statement.submitted.public: "Ihre Stellungnahme wurde erfolgreich eingereicht und mit der Vorgangsnummer {externId} gespeichert. Bitte notieren Sie sich die Vorgangsnummer, um zu einem späteren Zeitpunkt die Bewertung Ihrer Stellungnahme abzurufen."
@@ -1098,6 +1110,7 @@ end: "Ende"
 enabled: "freigeschaltet"
 entity.administration.select.on.page: "Alle {entities} auf dieser Seite markieren"
 entities.marked.delete: "{sum} markierte {entities} löschen"
+entry: "Eingang"
 entries.all.dative: "allen Einträgen"
 entries.checked: "Markiert"
 entries.per.page: "Einträge pro Seite:"
@@ -1281,6 +1294,8 @@ error.statement.already.segmented: "Diese Stellungnahme wurde bereits aufgeteilt
 error.statement.assignment.assigned: "Die Stellungnahme konnte nicht erfolgreich zugewiesen werden."
 error.statement.assignment.changed: "Die Zuweisung der Stellungnahme wurde nicht erfolgreich geändert."
 error.statement.assignment.unassigned: "Die Stellungnahme konnte nicht erfolgreich freigegeben werden."
+error.statement.attachment.create: "Der Anhang konnte nicht gespeichert werden. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut."
+error.statement.attachment.delete: "Der Anhang konnte nicht gelöscht werden. Bitte versuchen Sie es zu einem späteren Zeitpunkt erneut."
 error.statement.cluster.created: "Die Gruppe konnte nicht erstellt werden."
 error.statement.cluster.deleted: "Die Gruppe {clusterId} konnte nicht aufgelöst werden."
 error.statement.cluster.merge.missing.cluster: "Das Zusammenführen von Stellungnahmengruppen ist fehlgeschlagen: Es wurde keine Stellungnahmengruppe gefunden."
@@ -2088,7 +2103,9 @@ links: "Links"
 linkSH: "zum Schleswig-Holstein-Service"
 loading: "wird geladen"
 loading.data: "Daten werden geladen..."
+location.and.document.reference: "Orts- und Dokumentbezug"
 location.notassigned: "Es sind keine Verortungsinformationen zugewiesen."
+location.reference_view: "Ortsbezug ansehen"
 location.selected: "Ihr Ort wurde markiert"
 location: "Verortung"
 location.marked.yours: "Der von Ihnen markierte Ort"
@@ -2181,6 +2198,7 @@ map.allow.procedure.type.activate: "Karte für Verfahrenstyp aktivieren"
 map.scales.select.hint: "Achten Sie bei der Wahl der Maßstäbe auf die Differenzen zwischen einzelnen Maßstäben. Zu große Unterschiede können dazu führen, dass die Karte nicht mehr nutzbar ist."
 map.scales.select.error: "Wählen Sie die Maßstäbe so, daß zwischen zwei Maßstäben kein zu großer Abstand liegt."
 map.to: "Zur Karte..."
+map.view: "Kartenansicht"
 map.zoom.in: "In Karte hineinzoomen"
 map.zoom.reset: "Zoom der Karte zurücksetzen"
 map.zoom.out: "Aus Karte herauszoomen"
@@ -2295,6 +2313,7 @@ no: "Nein"
 none: "Keine"
 none.neutral: "kein"
 not.assigned: "Nicht zugewiesen"
+not.enabled: "Nicht freigeschaltet"
 not.public: "nicht öffentlich"
 not.specified: "Keine Angabe"
 notassigned: "nicht vergeben"
@@ -2853,6 +2872,7 @@ public.participation: "Öffentlichkeitsbeteiligung"
 publication: "Veröffentlichung"
 publication.and.likers: "Veröffentlichung und Unterstützende"
 publication.and.voters: "Veröffentlichung und Mitzeichnende"
+publication.and.voting: "Veröffentlichung und Mitzeichnung"
 publish.edit: "Editiert veröffentlichen"
 publish: "Veröffentlichen"
 publish.on.platform: "Im öffentlichen Bereich anzeigen"
@@ -3421,6 +3441,7 @@ statement.representation.creation: "Die Stellungnahme im Namen folgender Institu
 statement.save.altered: "Stellungnahme verändert speichern"
 statement.save.as.draft: "Stellungnahme als Entwurf speichern"
 statement.save.immediate: "Stellungnahme direkt einreichen"
+statement.save.quickSave: "Text zwischenspeichern"
 statement.save.text: "Sie haben Änderungen am Text der Stellungnahme vorgenommen. Wenn Sie fortfahren, werden diese ebenfalls gespeichert."
 statement.send.email: "Stellungnahme per E-Mail versenden"
 statement.send.email.label: "Sende unten stehende Stellungnahme an"
@@ -3461,7 +3482,7 @@ statement.voteStk.status.done: "Die Planungsbehörde <strong>{reviewer}</strong>
 statement.voteStk.status.none: "Zu dieser Stellungnahme wurde noch keine Abwägungsempfehlung abgegeben."
 statement.votePla: "Votum Planungsbehörde"
 statement.voter: "Mitzeichnende"
-statement.voter.add: "Mitzeichner*in hinzufügen"
+statement.voter.add: "Mitzeichnende hinzufügen"
 statement.voter.anonym: "anonyme Mitzeichnende"
 statement.voter.change: "Mitzeichner*in bearbeiten"
 statement.voter.delete: "Mitzeichner*in löschen"
@@ -3574,6 +3595,16 @@ statements.yours.list.description.short.gdpr_consent_may_revoke: "<a href=\"{hre
 statements.yours.list.description: "Hier können Sie alle Ihre eingereichten Stellungnahmen einsehen. Sobald ein Verfahren vom Verfahrensträger gelöscht wird, werden auch Ihre zugehörigen Stellungnahmen und personenbezogenen Daten gelöscht."
 statements.yours.list.description.short: "<a href=\"{href}\">Hier</a> können Sie alle Ihre eingereichten Stellungnahmen einsehen."
 statements: "Stellungnahmen"
+statement_vote.length: |
+  {count, plural,
+      =1 { # Person }
+      other { # Personen }
+  }
+statement_vote.delete_vote: |
+    {name, select,
+        false { Möchten Sie die mitzeichnende Person wirklich löschen? }
+        other { Möchten Sie die mitzeichnende Person "{name}" wirklich löschen? }
+    }
 statementtext: "Text der Stellungnahme"
 static.documents: "Unterlagen"
 statistics: "Statistik"
@@ -3978,6 +4009,8 @@ voted.by.persons: |
 voted: "Mitgezeichnet"
 voters: "Mitzeichnende"
 voting: "Mitzeichnung"
+voting.activated: "Mitzeichung: Aktiviert"
+voting.deactivated: "Mitzeichnung: Deaktiviert"
 warning.access.denied: "Der Zugriff auf diese Funktion wurde verweigert."
 warning.addressBookEntry.not.found: "Adressbucheintrag konnte nicht gefunden werden."
 warning.boilerplate.delete: "Der Textbaustein konnte nicht gelöscht werden."

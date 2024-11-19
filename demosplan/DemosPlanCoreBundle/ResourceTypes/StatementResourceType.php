@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
@@ -35,8 +36,10 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementProcedurePhaseResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
+use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
@@ -68,6 +71,7 @@ use Webmozart\Assert\Assert;
  * @property-read End $status
  * @property-read ValueObject $phaseStatement
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
+ * @property-read GenericStatementAttachmentResourceType $genericAttachments
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
@@ -86,6 +90,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly ElementHandler $elementHandler,
         private readonly ElementsService $elementsService,
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
+        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository, private readonly FileContainerRepository $fileContainerRepository,
     ) {
         parent::__construct($fileService, $htmlSanitizer, $statementService);
     }
@@ -297,6 +302,19 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
                     return [];
                 });
+            $configBuilder->document
+                ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?SingleDocumentInterface $singleDocument): array {
+                    if (null === $singleDocument) {
+                        $statement->setDocument(null);
+                    } else {
+                        $singleDocumentVersion = $this->singleDocumentVersionRepository->createVersion($singleDocument);
+                        Assert::notNull($singleDocumentVersion);
+                        $statement->setDocument($singleDocumentVersion);
+                    }
+
+                    return [];
+                });
+
             $configBuilder->paragraphTitle
                 ->readable(true)->aliasedPath(Paths::statement()->paragraph->title);
             $configBuilder->assignee->readable()->filterable();
@@ -310,7 +328,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->aliasedPath(Paths::statement()->polygon);
 
             $configBuilder->elements
-                ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryResourceType())
+                ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryDetailsResourceType())
                 ->updatable([$simpleStatementCondition], [], function (Statement $statement, ?Elements $planningDocumentCategory): array {
                     if (null === $planningDocumentCategory) {
                         // If the planningDocumentCategory is not sent in the request, we set the default planningDocumentCategory
@@ -328,6 +346,13 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
                 ->readable()
                 ->aliasedPath(Paths::statement()->paragraph);
+            $configBuilder->genericAttachments
+                ->setRelationshipType($this->resourceTypeStore->getGenericStatementAttachmentResourceType())
+                ->readable(false, function (Statement $statement): ?array {
+                    $fileContainers = $this->fileContainerRepository->getStatementFileContainers($statement->getId());
+
+                    return $fileContainers;
+                });
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {

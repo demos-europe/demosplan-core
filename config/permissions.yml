@@ -2795,6 +2795,7 @@ field_statement_phase:
     parent: field_statement
 field_statement_polygon:
     description: 'Enable drawing as a map reference for statement.'
+    expose: true
     label: 'statement location reference - drawing'
     loginRequired: true
     parent: field_statement

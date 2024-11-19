@@ -99,12 +99,10 @@ use EDT\PathBuilding\End;
  * @property-read End $isManual
  * @property-read End $manual
  * @property-read End $anonymous
- * @property-read FileResourceType $files @deprecated Use {@link StatementResourceType::$attachments} instead (needs implementation changes)
  * @property-read TagResourceType $tags
  * @property-read PlanningDocumentCategoryResourceType $elements
  * @property-read PlanningDocumentCategoryResourceType $element
  * @property-read CountyResourceType $counties
- * @property-read StatementAttachmentResourceType $attachments
  * @property-read ParagraphVersionResourceType $paragraph
  * @property-read ParagraphResourceType $paragraphOriginal
  * @property-read PriorityAreaResourceType $priorityAreas
@@ -229,14 +227,6 @@ abstract class AbstractStatementResourceType extends DplanResourceType
         // keep `isManual` optional, as it may be removed when the resource type is splitted
         $configBuilder->isManual->readable()->aliasedPath(Paths::statement()->manual);
         $configBuilder->numberOfAnonymVotes->filterable();
-        $configBuilder->files
-            ->setRelationshipType($this->resourceTypeStore->getFileResourceType())
-            // files need to be fetched via Filecontainer
-            ->readable(false, fn (Statement $statement): array => $this->fileService->getEntityFiles(
-                Statement::class,
-                $statement->getId(),
-                'file')
-            );
         $configBuilder->cluster
             ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
             ->filterable();
@@ -263,9 +253,9 @@ abstract class AbstractStatementResourceType extends DplanResourceType
         $configBuilder->counties
             ->setRelationshipType($this->resourceTypeStore->getCountyResourceType())
             ->readable();
-        $configBuilder->attachments
-            ->setRelationshipType($this->resourceTypeStore->getStatementAttachmentResourceType())
-            ->readable();
+        $configBuilder->sourceAttachment
+            ->setRelationshipType($this->resourceTypeStore->getSourceStatementAttachmentResourceType())
+            ->readable()->setAliasedPath(Paths::statement()->attachments);
         $configBuilder->paragraph
             ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
             ->readable();

@@ -323,6 +323,8 @@
         hidden-input="r_text"
         v-model="values.text" />
 
+      <slot />
+
       <!-- File upload fields -->
       <template v-if="allowFileUpload">
         <dp-label
@@ -473,6 +475,7 @@ export default {
       required: false,
       default: () => ({
         authoredDate: '',
+        quickSave: '',
         submittedDate: '',
         tags: [],
         text: '',
@@ -529,6 +532,7 @@ export default {
       values: {
         authoredDate: '',
         memo: '',
+        quickSave: '',
         submittedDate: '',
         tags: [],
         text: '',
@@ -578,6 +582,7 @@ export default {
   methods: {
     setInitialValues () {
       this.values = { ...this.initValues }
+
       // Set default values to ensure reactivity.
       if (typeof this.values.submitter !== 'undefined' && typeof this.values.submitter.institution === 'undefined') {
         // Since Data sends us the key toeb instead of institution, we need to transform this for now but keep all init values

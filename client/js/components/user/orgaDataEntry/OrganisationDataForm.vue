@@ -1,7 +1,25 @@
 <template>
-  <div>
-    <fieldset class="w-3/4">
-      <legend class="font-size-large weight--normal mb-3">
+  <form
+    :class="prefixClass('u-mt')"
+    :action="Routing.generate('DemosPlan_orga_edit_save', { orgaId: organisation.id })"
+    method="post"
+    data-dp-validate="orgadata">
+    <input
+      data-cy="editOrga:organisationId"
+      type="hidden"
+      name="organisation_ident"
+      :value="organisation.id">
+    <input
+      data-cy="editOrga:addressIdent"
+      type="hidden"
+      name="address_ident"
+      :value="organisation.addressId">
+    <input
+      type="hidden"
+      name="_token"
+      :value="csrfToken">
+    <fieldset :class="prefixClass('w-3/4')">
+      <legend :class="prefixClass('font-size-large weight--normal mb-3')">
         {{ Translator.trans('organisation.data') }}
       </legend>
 
@@ -9,7 +27,7 @@
         <dp-input
           id="orga_name"
           v-model="organisation.name"
-          class="mb-2"
+          :class="prefixClass('mb-2')"
           data-cy="organisationData:name"
           :name="`${organisation.id}:name`"
           :label="{
@@ -19,11 +37,11 @@
           required />
 
         <!-- Street -->
-        <div class="flex items-start gap-1 mb-2">
+        <div :class="prefixClass('flex items-start gap-1 mb-2')">
           <dp-input
             id="orga_address_street"
             v-model="organisation.street"
-            :class="{ 'w-4': !organisation.street.length }"
+            :class="!organisation.street.length ? prefixClass('w-4') : ''"
             data-cy="organisationData:address:street"
             :name="`${organisation.id}:address_street`"
             :label="{
@@ -46,14 +64,12 @@
         </div>
 
         <!-- Postal Code and City -->
-        <div
-          class="flex items-start gap-1 mb-2"
-          :class="showDetailedInfo ? 'flex-row' : 'flex-col'">
+        <div :class="[prefixClass(showDetailedInfo ? 'flex-row' : 'flex-col'), prefixClass('flex items-start gap-1 mb-2')]">
           <dp-input
             id="orga_address_postalcode"
             v-model="organisation.postalcode"
             data-cy="organisationData:address:postalcode"
-            class="shrink"
+            :class="prefixClass('shrink')"
             :name="`${organisation.id}:address_postalcode`"
             :label="{
               text: Translator.trans('postalcode')
@@ -77,7 +93,7 @@
         <dp-input
           v-if="hasPermission('field_organisation_phone')"
           id="orga_address_phone"
-          class="mb-2"
+          :class="prefixClass('mb-2')"
           v-model="organisation.phone"
           data-cy="organisationData:phone"
           :name="`${organisation.id}:address_phone`"
@@ -90,7 +106,7 @@
         <dp-select
           v-if="hasTypes"
           id="orga_type"
-          class="mb-2"
+          :class="prefixClass('mb-2')"
           data-cy="organisationData:type"
           :name="`${organisation.id}:type`"
           :options="orgaTypes"
@@ -105,15 +121,15 @@
         <div v-if="hasPermission('feature_orga_slug') && hasPermission('feature_orga_slug_edit')">
           <label
             for="orga_slug"
-            class="o-form__label">
+            :class="prefixClass('o-form__label')">
             {{ Translator.trans('organisation.procedurelist.slug') }}
           </label>
-          <small class="lbl_hint block">
+          <small :class="prefixClass('lbl_hint block')">
             {{ Translator.trans('organisation.procedurelist.slug.explanation') }}
           </small>
 
-          <div class="flex flex-row items-center">
-            <span class="color--grey">
+          <div :class="prefixClass('flex flex-row items-center')">
+            <span :class="prefixClass('color--grey')">
               {{ proceduresDirectlinkPrefix }}
             </span>
             <dp-input
@@ -127,7 +143,7 @@
           <div>
             <label
               :for="`${organisation.id}:urlPreview`"
-              class="o-form__label">
+              :class="prefixClass('o-form__label')">
               {{ Translator.trans('preview') }}
             </label>
             <p
@@ -142,24 +158,24 @@
       <template v-if="showDetailedInfo">
         <dl
           v-if="displaySlug || displayCustomer"
-          class="description-list space-stack-s">
+          :class="prefixClass('description-list space-stack-s')">
           <div v-if="displaySlug">
             <dt class="font-semibold">
               {{ Translator.trans('organisation.procedurelist.slug') }}
             </dt>
-            <dd class="color--grey">
+            <dd :class="prefixClass('color--grey')">
               {{ proceduresDirectlinkPrefix }}/{{ organisation.currentSlugName }}
             </dd>
           </div>
 
           <div v-if="displayCustomer">
-            <dt class="font-semibold">
+            <dt :class="prefixClass('font-semibold')">
               {{ Translator.trans('customer', { count: customers.length }) }}
             </dt>
             <dd
               v-for="(customer, index) in customers"
               :key="customer.id"
-              class="color--grey inline">
+              :class="prefixClass('color--grey inline')">
               {{ customer.name }}<span v-if="index < customers.length - 1">, </span>
             </dd>
           </div>
@@ -171,8 +187,8 @@
     <fieldset
       v-if="hasPermission('feature_change_submission_type')"
       id="submissionType"
-      class="w-3/4 mb-2">
-      <legend class="font-size-large weight--normal mb-3">
+      :class="prefixClass('w-3/4 mb-2')">
+      <legend :class="prefixClass('font-size-large weight--normal mb-3')">
         {{ Translator.trans('statement.submission.type') }}
       </legend>
       <input
@@ -207,23 +223,35 @@
       :organisation="organisation"
       :user="user"
       :will-receive-new-statement-notification="willReceiveNewStatementNotification"
-      :has-notification-section="hasNotificationSection">
-    </email-notification-settings>
+      :has-notification-section="hasNotificationSection" />
 
     <paper-copy-preferences
-      v-if="hasPaperCopySection"
-      :organisation="organisation">
-    </paper-copy-preferences>
+      v-if="hasPaperCopyPermission"
+      :organisation="organisation" />
 
     <organisation-branding-settings
       :organisation="organisation"
-      :project-name="projectName">
-    </organisation-branding-settings>
-  </div>
+      :project-name="projectName" />
+
+    <div
+      v-if="displayButtons"
+      :class="prefixClass('text-right space-inline-s')">
+      <dp-button
+        data-cy="organisationData:saveButton"
+        :text="Translator.trans('save')"
+        @click="handleSubmit" />
+
+      <dp-button
+        type="reset"
+        color="secondary"
+        data-cy="organisationData:abortButton"
+        :text="Translator.trans('reset')" />
+    </div>
+  </form>
 </template>
 
 <script>
-import { DpInput, DpRadio, DpSelect } from '@demos-europe/demosplan-ui'
+import { DpButton, DpInput, DpRadio, DpSelect, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import EmailNotificationSettings from '@DpJs/components/user/orgaDataEntry/EmailNotificationSettings'
 import OrganisationBrandingSettings from '@DpJs/components/user/orgaDataEntry/OrganisationBrandingSettings'
 import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyPreferences'
@@ -231,7 +259,10 @@ import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyP
 export default {
   name: 'OrganisationDataForm',
 
+  mixins: [prefixClassMixin],
+
   components: {
+    DpButton,
     DpInput,
     DpRadio,
     DpSelect,
@@ -241,6 +272,11 @@ export default {
   },
 
   props: {
+    csrfToken: {
+      type: String,
+      required: true
+    },
+
     customers: {
       type: Array,
       required: false,
@@ -259,12 +295,6 @@ export default {
     },
 
     hasNotificationSection: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
-
-    hasPaperCopySection: {
       type: Boolean,
       required: false,
       default: false
@@ -322,16 +352,49 @@ export default {
     }
   },
 
-  computed: {
-    displaySlug () {
-      return hasPermission('feature_orga_slug') &&
-        !hasPermission('feature_orga_slug_edit') &&
-        this.organisation.currentSlugName !== ''
-    },
-
-    displayCustomer () {
-      return hasPermission('feature_display_customer_names') && this.customers?.length
+  data () {
+    return {
+      displayCustomer: hasPermission('feature_display_customer_names') && this.customers?.length > 0,
+      displaySlug: hasPermission('feature_orga_slug')
+        && !hasPermission('feature_orga_slug_edit')
+        && this.organisation.currentSlugName !== '',
+      hasPaperCopyPermission: hasPermission('field_organisation_paper_copy') ||
+        hasPermission('field_organisation_paper_copy_spec') ||
+        hasPermission('field_organisation_competence')
     }
+  },
+
+  computed: {
+    displayButtons () {
+      return this.isOrgaDataEditable
+        || this.hasPaperCopyPermission
+        || this.hasNotificationSection
+        || this.showDetailedInfo
+        || hasPermission('feature_change_submission_type')
+    },
+  },
+  methods: {
+    handleSubmit () {
+      if (hasPermission('feature_change_submission_type')
+        && this.organisation.submissionType === this.submissionTypeShort
+        && !window.dpconfirm(Translator.trans('confirm.statement.orgaedit.change'))) {
+
+        this.$el.reset()
+        return false
+      }
+
+      this.$el.submit()
+    }
+  },
+
+  mounted () {
+    this.$el.querySelectorAll('input[type=text]').forEach((input) => {
+      input.defaultValue = input.value
+    })
+
+    this.$el.querySelectorAll('input[type=radio]').forEach((input) => {
+      input.defaultChecked = input.checked
+    })
   }
 }
 </script>

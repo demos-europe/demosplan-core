@@ -18,6 +18,7 @@
         ref="map"
         :layers="mapData.layers"
         :procedure-id="procedureId"
+        map-id="segmentLocationMap"
         :map-options="{
           procedureMaxExtent: mapData.mapExtent ?? []
         }"
