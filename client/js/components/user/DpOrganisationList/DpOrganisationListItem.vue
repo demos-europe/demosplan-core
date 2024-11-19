@@ -124,13 +124,13 @@ export default {
 
   data () {
     return {
-      addonPayload: {
+      addonPayload: { /** The payload required for addon requests. When a value is entered in the addon field, it emits data that must include the following fields */
         attributes: null,
         id: '',
         initValue: '',
         resourceType: '',
         url: '',
-        value: '',
+        value: ''
       },
       isOpen: false,
       isLoading: true,

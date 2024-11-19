@@ -134,13 +134,13 @@ export default {
 
   data () {
     return {
-      addonPayload: {
-        id: '',
-        resourceType: '',
+      addonPayload: { /** The payload required for addon requests. When a value is entered in the addon field, it emits data that must include the following fields */
         attributes: null,
+        id: '',
+        initValue: '',
+        resourceType: '',
         url: '',
-        value: '',
-        initValue: ''
+        value: ''
       },
       isLoadingPlisData: false,
       selectedAgencies: this.initAgencies,
@@ -222,7 +222,6 @@ export default {
       const addonExists = Boolean(window.dplan.loadedAddons['addon.additional.field'])
       const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
 
-      console.log('window.dplan.loadedAddons: ', Boolean(window.dplan.loadedAddons['addon.additional.field']))
       if (addonExists && addonHasValue) {
         this.handleAddonRequest().then(() => {
           this.submitConfigForm()
