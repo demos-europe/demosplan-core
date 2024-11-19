@@ -450,9 +450,10 @@ export default {
 
     sendUpdateVote () {
       const promises = Object.values(this.initialVotes).map(vote => {
-        if (this.votes[vote.id]) {
-          const currentVote = this.votes[vote.id]
-          const hasChanged = Object.keys(vote.attributes).some(key => vote.attributes[key] !== currentVote.attributes[key])
+        const  { id, attributes } = vote
+        const currentVote = this.votes[id]
+        if (currentVote) {
+          const hasChanged = Object.keys(attributes).some(key => attributes[key] !== currentVote.attributes[key])
           if (hasChanged) {
             this.saveStatementVoteAction(vote.id)
             .then(() => {
