@@ -85,74 +85,67 @@
 
       <template v-slot:form>
         <div
-          data-dp-validate="similarStatementSubmitterForm"
-          class="space-stack-s space-inset-s border">
-          <div :class="fieldsFullWidth ? 'space-stack-s' : 'layout'">
-            <div
-              :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
-              class="space-stack-s">
-              <dp-input
-                id="statementSubmitterName"
-                data-cy="voterUsername"
-                v-model="formFields.submitterName"
-                :label="{
-                  text: Translator.trans('name')
-                }"
-                required />
-              <dp-input
-                id="statementSubmitterEmail"
-                data-cy="voterEmail"
-                v-model="formFields.submitterEmailAddress"
-                :label="{
-                  text: Translator.trans('email')
-                }"
-                type="email" />
-            </div><!--
+          class="grid grid-cols-1 gap-x-4"
+          :class="fieldsFullWidth ? '' : 'md:grid-cols-2'"
+          data-dp-validate="similarStatementSubmitterForm">
+          <dp-input
+            id="statementSubmitterName"
+            v-model="formFields.submitterName"
+            class="mb-2"
+            data-cy="voterUsername"
+            :label="{
+              text: Translator.trans('name')
+            }"
+            required />
+          <dp-input
+            id="statementSubmitterEmail"
+            v-model="formFields.submitterEmailAddress"
+            class="mb-2"
+            data-cy="voterEmail"
+            :label="{
+              text: Translator.trans('email')
+            }"
+            type="email" />
 
-         --><div
-              :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
-              class="space-stack-s">
-              <div class="o-form__group">
-                <dp-input
-                  id="statementSubmitterAddress"
-                  data-cy="voterStreet"
-                  v-model="formFields.submitterAddress"
-                  class="o-form__group-item"
-                  :label="{
-                    text: Translator.trans('street')
-                  }" />
-                <dp-input
-                  id="statementSubmitterHouseNumber"
-                  data-cy="voterHousenumber"
-                  v-model="formFields.submitterHouseNumber"
-                  class="o-form__group-item shrink"
-                  :label="{
-                    text: Translator.trans('street.number.short')
-                  }"
-                  :size="3" />
-              </div>
+          <div class="o-form__group mb-2">
+            <dp-input
+              id="statementSubmitterAddress"
+              data-cy="voterStreet"
+              v-model="formFields.submitterAddress"
+              class="o-form__group-item"
+              :label="{
+                text: Translator.trans('street')
+              }" />
+            <dp-input
+              id="statementSubmitterHouseNumber"
+              data-cy="voterHousenumber"
+              v-model="formFields.submitterHouseNumber"
+              class="o-form__group-item shrink"
+              :label="{
+                text: Translator.trans('street.number.short')
+              }"
+              :size="3" />
+          </div>
 
-              <div class="o-form__group">
-                <dp-input
-                  id="statementSubmitterPostalCode"
-                  data-cy="voterPostalCode"
-                  v-model="formFields.submitterPostalCode"
-                  class="o-form__group-item shrink"
-                  :label="{
-                    text: Translator.trans('postalcode')
-                  }"
-                  pattern="^[0-9]{4,5}$"
-                  :size="5" />
-                <dp-input
-                  id="statementSubmitterCity"
-                  data-cy="voterCity"
-                  v-model="formFields.submitterCity"
-                  class="o-form__group-item"
-                  :label="{
-                    text: Translator.trans('city')
-                  }" />
-              </div>
-            </div>
+          <div class="o-form__group mb-2">
+            <dp-input
+              id="statementSubmitterPostalCode"
+              data-cy="voterPostalCode"
+              v-model="formFields.submitterPostalCode"
+              class="o-form__group-item shrink"
+              :label="{
+                text: Translator.trans('postalcode')
+              }"
+              pattern="^[0-9]{4,5}$"
+              :size="5" />
+            <dp-input
+              id="statementSubmitterCity"
+              data-cy="voterCity"
+              v-model="formFields.submitterCity"
+              class="o-form__group-item"
+              :label="{
+                text: Translator.trans('city')
+              }" />
           </div>
         </div>
       </template>
