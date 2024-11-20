@@ -47,7 +47,7 @@
           v-if="!localAttachments.originalAttachment.hash && !editable"
           v-text="Translator.trans('none')" />
 
-        <template  v-if="editable">
+        <template v-if="editable">
           <dp-upload
             v-if="!localAttachments.originalAttachment.hash"
             id="uploadSourceStatementAttachment"
@@ -146,13 +146,13 @@
 
 <script>
 import {
+  checkResponse,
   dpApi,
   DpButton,
   DpButtonRow,
   DpIcon,
   DpLabel,
-  DpUpload,
-  checkResponse
+  DpUpload
 } from '@demos-europe/demosplan-ui'
 import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink'
 
@@ -172,7 +172,7 @@ export default {
     initialAttachments: {
       type: Object,
       required: true,
-      validator(value) {
+      validator (value) {
         return value.hasOwnProperty('originalAttachment') && value.hasOwnProperty('additionalAttachments')
       }
     },
@@ -200,29 +200,29 @@ export default {
 
   data () {
     return {
-      // used for saving (creating) generic attachments
+      // Used for saving (creating) generic attachments
       fileIds: [],
-      // used for saving (creating) the source attachment
+      // Used for saving (creating) the source attachment
       fileIdSourceAttachment: '',
-      // used for deleting generic attachments
+      // Used for deleting generic attachments
       genericAttachmentsMarkedForDeletion: [],
       isProcessingGenericAttachments: false,
       isProcessingSourceAttachment: false,
       isSourceAttachmentMarkedForDeletion: false,
-      // used for displaying the source and generic attachments
+      // Used for displaying the source and generic attachments
       localAttachments: JSON.parse(JSON.stringify(this.initialAttachments)),
-      // used for resetting the attachments
+      // Used for resetting the attachments
       previousGenericAttachments: [],
-      // used for resetting the source attachment
+      // Used for resetting the source attachment
       previousSourceAttachment: {},
-      // used for deleting the source attachment
+      // Used for deleting the source attachment
       sourceAttachmentMarkedForDeletion: {}
     }
   },
 
   watch: {
     editable: {
-      handler(newVal) {
+      handler (newVal) {
         /**
          * Reset unsaved attachment changes (additon + deletion) when editable is changed to false by the user
          */
@@ -235,14 +235,14 @@ export default {
       }
     },
     'initialAttachments.additionalAttachments': {
-      handler(newVal) {
+      handler (newVal) {
         this.localAttachments.additionalAttachments = JSON.parse(JSON.stringify(newVal))
       },
       deep: true
     },
 
     'initialAttachments.originalAttachment': {
-      handler(newVal) {
+      handler (newVal) {
         this.localAttachments.originalAttachment = JSON.parse(JSON.stringify(newVal))
       },
       deep: true

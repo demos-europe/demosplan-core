@@ -116,10 +116,10 @@
                       v-if="isOpen && !isLoading">
                       <table v-if="time.displayChange">
                         <thead>
-                        <tr class="sr-only">
-                          <th>{{ Translator.trans('field') }}</th>
-                          <th>{{ Translator.trans('change') }}</th>
-                        </tr>
+                          <tr class="sr-only">
+                            <th>{{ Translator.trans('field') }}</th>
+                            <th>{{ Translator.trans('change') }}</th>
+                          </tr>
                         </thead>
 
                         <tbody>
@@ -155,19 +155,19 @@
                       <!-- if data is too old, don't show details since the data is incorrect -->
                       <table v-else>
                         <thead>
-                        <tr class="sr-only">
-                          <th>
-                            {{ Translator.trans('details') }}
-                          </th>
-                        </tr>
+                          <tr class="sr-only">
+                            <th>
+                              {{ Translator.trans('details') }}
+                            </th>
+                          </tr>
                         </thead>
 
                         <tbody>
-                        <tr class="u-pb-0_25">
-                          <td class="u-pt-0_5 u-ml-0_5 u-pb-0_5 color--grey inline-block">
-                            {{ Translator.trans('details.none') }}
-                          </td>
-                        </tr>
+                          <tr class="u-pb-0_25">
+                            <td class="u-pt-0_5 u-ml-0_5 u-pb-0_5 color--grey inline-block">
+                              {{ Translator.trans('details.none') }}
+                            </td>
+                          </tr>
                         </tbody>
                       </table>
                     </td>

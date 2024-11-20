@@ -88,7 +88,7 @@ const bundlesConfig = merge(baseConfig, {
     return {
       style: config.stylesEntryPoint,
       'style-public': config.publicStylesEntryPoint,
-      'preflight': './client/css/preflight.css',
+      preflight: './client/css/preflight.css',
       'demosplan-ui': './client/css/index.css',
       ...bundleEntryPoints(config.clientBundleGlob)
     }

@@ -20,7 +20,7 @@
       :class="prefixClass('mt-1')"
       :message="Translator.trans('statement.recheck')"
       type="warning"
-      />
+    />
 
     <dp-inline-notification
       v-if="statementFormHintRecheck !== ''"

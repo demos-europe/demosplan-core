@@ -202,8 +202,8 @@ export default {
       const paragraphIsChanged = this.selectedParagraphId !== this.initiallySelectedParagraphId
       const documentIsChanged = this.selectedDocumentId !== this.initiallySelectedDocumentId
 
-      return !elementIsChanged
-        || (elementIsChanged && ((this.paragraphOptions.length > 0 && !paragraphIsChanged) || (this.documentOptions.length > 0 && !documentIsChanged)))
+      return !elementIsChanged ||
+        (elementIsChanged && ((this.paragraphOptions.length > 0 && !paragraphIsChanged) || (this.documentOptions.length > 0 && !documentIsChanged)))
     },
 
     paragraphOptions () {
@@ -251,7 +251,7 @@ export default {
       const selectedElement = this.elements[this.selectedElementId]
 
       return selectedElement?.relationships?.paragraphs?.data.length > 0
-        ?  Object.values(selectedElement?.relationships?.paragraphs.list())
+        ? Object.values(selectedElement?.relationships?.paragraphs.list())
         : []
     },
 
@@ -302,8 +302,8 @@ export default {
     },
 
     /*
-      * Set id of initially selected element
-      * If no element is selected, set it to 'Gesamtstellungnahme'
+     * Set id of initially selected element
+     * If no element is selected, set it to 'Gesamtstellungnahme'
      */
     setInitiallySelectedElementId () {
       this.selectedElementId = this.initiallySelectedElementId
@@ -327,7 +327,7 @@ export default {
 
     unsetSelectedParagraphId () {
       this.selectedParagraphId = ''
-    },
+    }
   },
 
   created () {

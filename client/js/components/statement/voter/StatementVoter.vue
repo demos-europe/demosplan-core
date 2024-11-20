@@ -353,7 +353,7 @@ export default {
           this.$emit('updateVoter', this.formFields)
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         } else {
-          this.updateVoter({ index: index, newData: this.formFields })
+          this.updateVoter({ index, newData: this.formFields })
           this.$emit('updateVoter', this.formFields)
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         }

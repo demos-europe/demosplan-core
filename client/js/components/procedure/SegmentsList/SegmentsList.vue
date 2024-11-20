@@ -103,7 +103,7 @@
       <template v-if="items.length > 0">
         <image-modal
           ref="imageModal"
-          data-cy="segment:imgModal"/>
+          data-cy="segment:imgModal" />
         <dp-data-table
           ref="dataTable"
           class="overflow-x-auto pb-3 min-h-12"
@@ -515,7 +515,7 @@ export default {
           size: this.pagination.perPage
         },
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
-        filter: filter,
+        filter,
         fields: {
           File: [
             'hash'
@@ -584,7 +584,7 @@ export default {
 
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
-            filter: filter,
+            filter,
             search: payload.search
           })
         })

@@ -25,26 +25,25 @@
         <ul
           aria-label="Metadaten Menü"
           class="pr-5"
-          role="menu" >
+          role="menu">
           <li
             v-for="entry in menuEntries"
             :class="{
-                'bg-selected': activeItem === entry.id
-              }"
+              'bg-selected': activeItem === entry.id
+            }"
             class="p-1.5 rounded"
             role="presentation">
             <button
               class="text-left"
               role="menuitem"
-              v-text=Translator.trans(entry.transKey)
-              @click="setActiveItem(entry.id)"/>
+              v-text="Translator.trans(entry.transKey)"
+              @click="setActiveItem(entry.id)" />
           </li>
         </ul>
       </div>
       <form
         class="mt-2 pt-1.5 mr-5 basis-3/4 max-w-[80%]"
         data-dp-validate="statementMetaData">
-
         <statement-entry
           :editable="editable"
           :statement="statement"
@@ -62,7 +61,7 @@
           :editable="editable"
           :statement="statement"
           @save="(data) => save(data)"
-          @updatedVoters="() => $emit('updatedVoters')"/>
+          @updatedVoters="() => $emit('updatedVoters')" />
 
         <!-- need to add statement.attributes.counties and availableCounties in the BE (Array) -->
         <statement-meta-multiselect
@@ -305,7 +304,7 @@ export default {
       this.$emit('input', { fieldName, value })
     },
 
-    handleScroll() {
+    handleScroll () {
       if (this.isScrolling) return
 
       const sections = this.menuEntries.map(entry => document.querySelector(`#${entry.id}`))
@@ -339,7 +338,7 @@ export default {
         const onScrollEnd = () => {
           this.isScrolling = false
           window.removeEventListener('scrollend', onScrollEnd)
-        };
+        }
 
         window.addEventListener('scrollend', onScrollEnd)
 
@@ -377,11 +376,11 @@ export default {
     this.setInitValues()
   },
 
-  mounted() {
+  mounted () {
     window.addEventListener('scroll', this.handleScroll)
   },
 
-  beforeDestroy() {
+  beforeDestroy () {
     window.removeEventListener('scroll', this.handleScroll)
   }
 }

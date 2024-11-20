@@ -28,7 +28,6 @@ All rights reserved
       :submitter-email="statement.attributes.submitterEmailAddress"
       @update="val => localStatement.attributes.publicVerified = val" />
 
-
     <template v-if="hasPermission('feature_statements_vote')">
       <div class="font-semibold">
         {{ Translator.trans('statement.voter') }}
@@ -47,12 +46,24 @@ All rights reserved
         @reset="resetForm()"
         @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)">
         <template v-slot:list="{entry, index}">
-          <span v-if="entry.attributes.name" class="o-list__item separated">{{ entry.attributes.name }}</span>
-          <span v-if="entry.attributes.organisationName" class="o-list__item separated">{{ entry.attributes.organisationName }}</span>
-          <span v-if="entry.attributes.departmentName" class="o-list__item separated">{{ entry.attributes.departmentName }}</span>
-          <span v-if="entry.attributes.postcode" class="o-list__item separated">{{ entry.attributes.postcode }}</span>
-          <span v-if="entry.attributes.city" class="o-list__item separated">{{ entry.attributes.city }}</span>
-          <span v-if="entry.attributes.email" class="o-list__item separated">{{ entry.attributes.email }}</span>
+          <span
+            v-if="entry.attributes.name"
+            class="o-list__item separated">{{ entry.attributes.name }}</span>
+          <span
+            v-if="entry.attributes.organisationName"
+            class="o-list__item separated">{{ entry.attributes.organisationName }}</span>
+          <span
+            v-if="entry.attributes.departmentName"
+            class="o-list__item separated">{{ entry.attributes.departmentName }}</span>
+          <span
+            v-if="entry.attributes.postcode"
+            class="o-list__item separated">{{ entry.attributes.postcode }}</span>
+          <span
+            v-if="entry.attributes.city"
+            class="o-list__item separated">{{ entry.attributes.city }}</span>
+          <span
+            v-if="entry.attributes.email"
+            class="o-list__item separated">{{ entry.attributes.email }}</span>
         </template>
         <template v-slot:form>
           <div
@@ -182,8 +193,8 @@ All rights reserved
 import {
   DpButtonRow,
   DpEditableList,
-  DpLoading,
   DpInput,
+  DpLoading,
   DpRadio,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
@@ -260,12 +271,12 @@ export default {
       get () {
         return Object.keys(this.votes).length
       }
-    },
+    }
   },
 
   watch: {
     statement: {
-      handler() {
+      handler () {
         this.setLocalValues()
       },
       deep: true
@@ -301,7 +312,7 @@ export default {
           attributes: this.formFields
         }
 
-        // due to a reactivity bug in vuex json api, we have to update the store and hold the data locally
+        // Due to a reactivity bug in vuex json api, we have to update the store and hold the data locally
         this.votes[voteId] = vote
         this.setStatementVote(vote)
 
@@ -328,8 +339,10 @@ export default {
       if (!id.includes('newItem')) {
         this.votesToDelete.push(this.votes[id])
       }
-      // The Vuex-json-Api has a bug, where the store is not updated correctly,
-      // so we have to remove the item from the store and the local data
+      /*
+       * The Vuex-json-Api has a bug, where the store is not updated correctly,
+       * so we have to remove the item from the store and the local data
+       */
       this.$delete(this.votes, id)
       this.removeStatementVote(id)
     },
@@ -394,8 +407,10 @@ export default {
 
     sendCreateVote () {
       const votesToCreate = Object.values(this.votes).filter(vote => vote.id.includes('newItem'))
-      // We need a loading state here, because the added voter in store with fake id gets replaced with the real one after
-      // BE response, otherwise UI blinks
+      /*
+       * We need a loading state here, because the added voter in store with fake id gets replaced with the real one after
+       * BE response, otherwise UI blinks
+       */
       if (votesToCreate.length > 0) {
         this.isLoading = true
       }
@@ -434,14 +449,14 @@ export default {
       const promises = this.votesToDelete.map(vote => {
         // TO DO: Must also be deleted from initial, or initial must be updated, works for update and create, but not for delete
         this.deleteStatementVoteAction(vote.id)
-        .then(() => {
-          this.votesToDelete = this.votesToDelete.filter(v => v.id !== vote.id)
-          return true
-        })
-        .catch(() => {
-          dplan.notify.error(Translator.trans('error.api.generic'))
-          return false
-        })
+          .then(() => {
+            this.votesToDelete = this.votesToDelete.filter(v => v.id !== vote.id)
+            return true
+          })
+          .catch(() => {
+            dplan.notify.error(Translator.trans('error.api.generic'))
+            return false
+          })
       }).filter(Boolean) // Remove undefined values
 
       return Promise.all(promises).then(results => results.some(result => result))
@@ -449,19 +464,19 @@ export default {
 
     sendUpdateVote () {
       const promises = Object.values(this.initialVotes).map(vote => {
-        const  { id, attributes } = vote
+        const { id, attributes } = vote
         const currentVote = this.votes[id]
         if (currentVote) {
           const hasChanged = Object.keys(attributes).some(key => attributes[key] !== currentVote.attributes[key])
           if (hasChanged) {
             this.saveStatementVoteAction(vote.id)
-            .then(() => {
-              return true
-            })
-            .catch(() => {
-              dplan.notify.error(Translator.trans('error.api.generic'))
-              return false
-            })
+              .then(() => {
+                return true
+              })
+              .catch(() => {
+                dplan.notify.error(Translator.trans('error.api.generic'))
+                return false
+              })
           }
         }
       }).filter(Boolean) // Remove undefined values
@@ -480,21 +495,21 @@ export default {
     }
   },
 
-  created() {
+  created () {
     this.setLocalValues()
     this.setInitVoters()
   },
 
-  mounted() {
+  mounted () {
     this.$on('showUpdateForm', (id) => {
       for (const key in this.formFields) {
-        this.formFields[key] = this.votes[id]['attributes'][key]
+        this.formFields[key] = this.votes[id].attributes[key]
       }
     })
 
     this.$on('delete', (voteId) => {
       const name = this.votes[voteId]?.attributes?.name ? this.votes[voteId].attributes.name : false
-      if (dpconfirm(Translator.trans('statement_vote.delete_vote', { name: name }))) {
+      if (dpconfirm(Translator.trans('statement_vote.delete_vote', { name }))) {
         this.removeVote(voteId)
         this.resetForm()
       }

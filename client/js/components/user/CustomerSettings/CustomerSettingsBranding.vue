@@ -74,7 +74,7 @@
         data-cy="customerSettingsBranding:brandingStylingDetails">
         <span
           v-html="Translator.trans('branding.styling.details.description')"
-          data-cy="customerSettingsBranding:brandingStylingDetailsDescription"/>
+          data-cy="customerSettingsBranding:brandingStylingDetailsDescription" />
       </dp-details>
     </div>
     <dp-button-row
@@ -112,7 +112,7 @@ export default {
   data () {
     return {
       isBusy: false,
-      uploadedFileId: '',
+      uploadedFileId: ''
     }
   },
 
@@ -176,7 +176,7 @@ export default {
     },
 
     setFile (file) {
-      this.updateFile({ id: file.fileId, attributes: { hash: file.hash }})
+      this.updateFile({ id: file.fileId, attributes: { hash: file.hash } })
       this.uploadedFileId = file.fileId
     },
 
@@ -215,7 +215,7 @@ export default {
     },
 
     unsetFile () {
-      this.updateFile({ id: null, attributes: { hash: null }})
+      this.updateFile({ id: null, attributes: { hash: null } })
       this.uploadedFileId = null
     }
   }

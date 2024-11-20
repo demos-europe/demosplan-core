@@ -96,7 +96,7 @@ export default {
       return DpEditor
     },
     DpInlineNotification: async () => {
-      const { DpInlineNotification }  = await import('@demos-europe/demosplan-ui')
+      const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
     },
     VotingStatus

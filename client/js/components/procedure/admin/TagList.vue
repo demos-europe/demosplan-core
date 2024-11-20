@@ -279,11 +279,11 @@ export default {
       }
 
       this.updateInstitutionTag({
-        id: id,
+        id,
         type: this.institutionTags[id].type,
         attributes: {
           ...this.institutionTags[id].attributes,
-          label: label
+          label
         }
       })
 
