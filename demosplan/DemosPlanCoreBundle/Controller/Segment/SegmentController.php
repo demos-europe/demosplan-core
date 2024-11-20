@@ -91,17 +91,23 @@ class SegmentController extends BaseController
 
         $recommendationProcedureIds = $procedureService->getRecommendationProcedureIds($currentUser->getUser(), $procedureId);
         $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
+        $statementFormDefinition = $procedure->getStatementFormDefinition();
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_statement_segments_list.html.twig',
             [
-                'procedure'                  => $procedureId,
+                'procedure'                  => [
+                    'id'       => $procedureId,
+                    'name'     => $procedure->getName(),
+                    'orgaName' => $procedure->getOrgaName(),
+                ],
                 'recommendationProcedureIds' => $recommendationProcedureIds,
                 'statementId'                => $statementId,
                 'statementExternId'          => $statement->getExternId(),
                 'title'                      => 'segments.recommendations.create',
                 'templateVars'               => [
                     'isSourceAndCoupledProcedure' => $isSourceAndCoupledProcedure,
+                    'statementFormDefinition'     => $statementFormDefinition,
                 ],
             ]
         );
