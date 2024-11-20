@@ -12,8 +12,7 @@
           isTagAppliedToSegment(tag.id) ? 'bg-status-neutral': 'bg-status-complete',
           isLastTagWithEvenPosition(idx) ? 'w-fit' : ''
         ]"
-        v-tooltip="tag.tagName"
-      >
+        v-tooltip="tag.tagName">
         <span class="overflow-hidden text-ellipsis">
           {{ tag.tagName }}
         </span>

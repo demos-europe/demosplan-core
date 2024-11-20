@@ -91,7 +91,9 @@
                 <div class="overflow-x-scroll break-words max-h-13 max-w-14 w-max">
                   <span
                     v-if="originalAttachment.hash"
-                    class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
+                    class="block weight--bold">
+                    {{ Translator.trans('original.pdf') }}
+                  </span>
                   <statement-meta-attachments-link
                     v-if="originalAttachment.hash"
                     class="block whitespace-normal u-mr-0_75"
@@ -99,7 +101,9 @@
                     :procedure-id="procedure.id" />
                   <span
                     v-if="additionalAttachments.length > 0"
-                    class="block weight--bold">{{ Translator.trans('more.attachments') }}</span>
+                    class="block weight--bold">
+                    {{ Translator.trans('more.attachments') }}
+                  </span>
                   <statement-meta-attachments-link
                     v-for="attachment in additionalAttachments"
                     class="block whitespace-normal u-mr-0_75"

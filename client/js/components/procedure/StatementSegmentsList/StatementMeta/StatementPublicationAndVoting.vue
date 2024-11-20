@@ -48,22 +48,34 @@ All rights reserved
         <template v-slot:list="{entry, index}">
           <span
             v-if="entry.attributes.name"
-            class="o-list__item separated">{{ entry.attributes.name }}</span>
+            class="o-list__item separated">
+            {{ entry.attributes.name }}
+          </span>
           <span
             v-if="entry.attributes.organisationName"
-            class="o-list__item separated">{{ entry.attributes.organisationName }}</span>
+            class="o-list__item separated">
+            {{ entry.attributes.organisationName }}
+          </span>
           <span
             v-if="entry.attributes.departmentName"
-            class="o-list__item separated">{{ entry.attributes.departmentName }}</span>
+            class="o-list__item separated">
+            {{ entry.attributes.departmentName }}
+          </span>
           <span
             v-if="entry.attributes.postcode"
-            class="o-list__item separated">{{ entry.attributes.postcode }}</span>
+            class="o-list__item separated">
+            {{ entry.attributes.postcode }}
+          </span>
           <span
             v-if="entry.attributes.city"
-            class="o-list__item separated">{{ entry.attributes.city }}</span>
+            class="o-list__item separated">
+            {{ entry.attributes.city }}
+          </span>
           <span
             v-if="entry.attributes.email"
-            class="o-list__item separated">{{ entry.attributes.email }}</span>
+            class="o-list__item separated">
+            {{ entry.attributes.email }}
+          </span>
         </template>
         <template v-slot:form>
           <div

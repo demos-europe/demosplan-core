@@ -220,8 +220,7 @@
                   text: Translator.trans('statements')
                 }"
                 value="statementsOnly"
-                @change="() => handleDocxExportTypeChange('statementsOnly')"
-              />
+                @change="() => handleDocxExportTypeChange('statementsOnly')" />
               <dp-radio
                 id="docxExportTypeStatementsAndFragments"
                 :checked="exportChoice.docx.exportType === 'statementsAndFragments'"
