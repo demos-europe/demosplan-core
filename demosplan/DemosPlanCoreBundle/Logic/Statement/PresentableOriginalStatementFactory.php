@@ -52,7 +52,10 @@ class PresentableOriginalStatementFactory
         $externIdString = $this->assessmentTableServiceOutput->createExternIdStringFromObject($statement);
         $data->setExternId($this->createValuedLabel('nr', $externIdString));
         $data->setSubmitDate($this->createValuedLabel('date.submitted', $this->dateExtension->dateFilter($statement->getSubmit())));
-        $phase = $this->statementService->getInternalOrExternalPhaseNameFromObject($statement);
+        $phase = $this->statementService->getProcedurePhaseName(
+            $statement->getPhase(),
+            $statement->isSubmittedByCitizen()
+        );
         $data->setProcedurePublicPhase($this->createValuedLabel('procedure.public.phase', $phase));
 
         // There are no statements with the organisation-name but without the related organisation.

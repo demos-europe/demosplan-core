@@ -52,7 +52,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
@@ -2308,41 +2307,6 @@ class DemosPlanStatementController extends BaseController
         }
 
         return false;
-    }
-
-    /**
-     * List all statements per procedure
-     * without any possibilities to edit.
-     *
-     * @throws ProcedureNotFoundException
-     * @throws Exception
-     *
-     * @DplanPermissions("area_admin_statement_list")
-     */
-    #[Route(name: 'dplan_procedure_statement_list', methods: ['GET'], path: '/verfahren/{procedureId}/einwendungen', options: ['expose' => true])]
-    public function readOnlyStatementListAction(
-        string $procedureId,
-        ProcedureCoupleTokenFetcher $tokenFetcher,
-        ProcedureService $procedureService,
-    ): Response {
-        $procedure = $procedureService->getProcedure($procedureId);
-
-        if (null === $procedure) {
-            throw ProcedureNotFoundException::createFromId($procedureId);
-        }
-
-        $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
-
-        return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanStatement/list_statements.html.twig',
-            [
-                'procedure'    => $procedureId,
-                'title'        => 'statements',
-                'templateVars' => [
-                    'isSourceAndCoupledProcedure' => $isSourceAndCoupledProcedure,
-                ],
-            ]
-        );
     }
 
     /**

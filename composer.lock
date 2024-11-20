@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "473bbd3bb191c7083f7c290a2cd8a288",
+    "content-hash": "f4e3796363f9d6c6afa3e6c8d3c67861",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -10361,16 +10361,16 @@
         },
         {
             "name": "phpoffice/phpspreadsheet",
-            "version": "1.29.2",
+            "version": "3.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                "reference": "3a5a818d7d3e4b5bd2e56fb9de44dbded6eae07f"
+                "reference": "87ddd21eb0b6b7ad20a11d314348ef307475f547"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/3a5a818d7d3e4b5bd2e56fb9de44dbded6eae07f",
-                "reference": "3a5a818d7d3e4b5bd2e56fb9de44dbded6eae07f",
+                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/87ddd21eb0b6b7ad20a11d314348ef307475f547",
+                "reference": "87ddd21eb0b6b7ad20a11d314348ef307475f547",
                 "shasum": ""
             },
             "require": {
@@ -10387,25 +10387,24 @@
                 "ext-xmlwriter": "*",
                 "ext-zip": "*",
                 "ext-zlib": "*",
-                "ezyang/htmlpurifier": "^4.15",
                 "maennchen/zipstream-php": "^2.1 || ^3.0",
                 "markbaker/complex": "^3.0",
                 "markbaker/matrix": "^3.0",
-                "php": "^7.4 || ^8.0",
+                "php": "^8.1",
                 "psr/http-client": "^1.0",
                 "psr/http-factory": "^1.0",
                 "psr/simple-cache": "^1.0 || ^2.0 || ^3.0"
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "dev-main",
-                "dompdf/dompdf": "^1.0 || ^2.0",
+                "dompdf/dompdf": "^2.0 || ^3.0",
                 "friendsofphp/php-cs-fixer": "^3.2",
                 "mitoteam/jpgraph": "^10.3",
                 "mpdf/mpdf": "^8.1.1",
                 "phpcompatibility/php-compatibility": "^9.3",
                 "phpstan/phpstan": "^1.1",
                 "phpstan/phpstan-phpunit": "^1.0",
-                "phpunit/phpunit": "^8.5 || ^9.0",
+                "phpunit/phpunit": "^9.6 || ^10.5",
                 "squizlabs/php_codesniffer": "^3.7",
                 "tecnickcom/tcpdf": "^6.5"
             },
@@ -10460,9 +10459,9 @@
             ],
             "support": {
                 "issues": "https://github.com/PHPOffice/PhpSpreadsheet/issues",
-                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/1.29.2"
+                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/3.3.0"
             },
-            "time": "2024-09-29T07:04:47+00:00"
+            "time": "2024-09-29T07:04:07+00:00"
         },
         {
             "name": "phpoffice/phpword",
@@ -19800,48 +19799,6 @@
                 "source": "https://github.com/WsdlToPhp/WsdlHandler/tree/1.0.5"
             },
             "time": "2022-03-24T20:54:42+00:00"
-        },
-        {
-            "name": "yectep/phpspreadsheet-bundle",
-            "version": "v1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/eightyknots/phpspreadsheet-bundle.git",
-                "reference": "dd30dbbcbf955fad75fc732c0b77684eacb08084"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/eightyknots/phpspreadsheet-bundle/zipball/dd30dbbcbf955fad75fc732c0b77684eacb08084",
-                "reference": "dd30dbbcbf955fad75fc732c0b77684eacb08084",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.2",
-                "phpoffice/phpspreadsheet": "~1.16",
-                "symfony/framework-bundle": "^4.0|^5.0|^6.0|^7.0"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Yectep\\PhpSpreadsheetBundle\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Chester Li",
-                    "email": "yectep@gmail.com"
-                }
-            ],
-            "description": "A Symfony bundle to integrate with PHPOffice's PhpSpreadsheet library",
-            "support": {
-                "issues": "https://github.com/eightyknots/phpspreadsheet-bundle/issues",
-                "source": "https://github.com/eightyknots/phpspreadsheet-bundle/tree/v1.1.0"
-            },
-            "time": "2023-12-04T21:57:40+00:00"
         }
     ],
     "packages-dev": [
@@ -24308,5 +24265,5 @@
     "platform-overrides": {
         "php": "8.1.12"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }

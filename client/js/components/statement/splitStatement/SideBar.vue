@@ -333,6 +333,16 @@ export default {
     },
 
     save () {
+      if (this.availablePlaces.length < 1) {
+        dplan.notify.notify(
+          'error',
+          Translator.trans('error.split_statement.no_place'),
+          Routing.generate('DemosPlan_procedure_places_list', { procedureId: this.procedureId }),
+          Translator.trans('places.addPlace'))
+
+        return
+      }
+
       if (this.needsUpdate) {
         this.updateSegment()
       }
@@ -358,7 +368,7 @@ export default {
 
       if (this.placeNeedsUpdate) {
         // Place can't be empty
-        if (this.selectedPlace.id !== '') {
+        if (this.selectedPlace?.id) {
           segment.placeId = this.selectedPlace.id
           const place = this.availablePlaces.find(aPlace => aPlace.id === this.selectedPlace.id)
           segment.place = place ? { id: place.id, name: place.name } : { id: this.availablePlaces[0].id, name: this.availablePlaces[0].name }
