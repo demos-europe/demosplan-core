@@ -47,8 +47,10 @@ module.exports = {
   ],
   ignorePatterns: [
     '**/node_modules/**/*',
+    '**/vendor/**/*',
     'client/js/legacy/**/*.js',
-    'client/js/generated/*.js'
+    'client/js/generated/*.js',
+    'projects/*/web/**/*'
   ],
   // Required to lint *.vue files
   plugins: [
