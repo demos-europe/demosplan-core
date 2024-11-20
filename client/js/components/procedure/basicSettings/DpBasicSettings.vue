@@ -206,7 +206,15 @@ export default {
         }
       })
 
-      return addonRequest.then(checkResponse)
+      return addonRequest
+        .then(checkResponse)
+        .catch(error => {
+          /** the 'is-invalid' class would be added to the addon field in case of an error */
+          const input = document.getElementById('addonAdditionalField')
+          input.classList.add('is-invalid')
+
+          throw error
+        })
     },
 
     selectAllAuthUsers () {

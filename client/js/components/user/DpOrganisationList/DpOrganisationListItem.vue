@@ -235,7 +235,9 @@ export default {
 
     saveOrganisationAction (payload) {
       this.$store.dispatch(`Orga${this.moduleSubstring}/save`, payload)
+        .then(checkResponse)
         .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           /*
            * Reload organisations and pending organisations in case an organisation has to be moved to the other list, i.e.
            * a) the registrationStatuses of a pending organisation no longer contain a status of 'pending' or b) the registrationStatuses of an activated organisation now
