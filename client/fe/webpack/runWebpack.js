@@ -53,7 +53,7 @@ function configureBundleAnalysis (options, project, webpackConfig) {
     analyzerMode: (analysisType === 'html') ? 'static' : 'json',
     defaultSizes: 'gzip',
     openAnalyzer: true,
-    reportFilename: reportFilename,
+    reportFilename,
     logLevel: 'silent'
   })
 

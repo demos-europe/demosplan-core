@@ -6,7 +6,7 @@
 
     <dp-loading
       v-if="isLoading"
-      class="u-mt"/>
+      class="u-mt" />
 
     <template v-else>
       <dp-pager
@@ -39,9 +39,9 @@
           <div v-cleanhtml="getSubmitterName(id)" />
         </template>
         <template v-slot:submitDate="{ submitDate }">
-        <span>
-          {{ formatDate(submitDate) }}
-        </span>
+          <span>
+            {{ formatDate(submitDate) }}
+          </span>
         </template>
         <template v-slot:shortText="{ shortText }">
           <div
@@ -65,17 +65,17 @@
             </a>
           </dp-flyout>
         </template>
-        <template v-slot:expandedContent="{
-          authorName,
-          fullText,
-          id,
-          isSubmittedByCitizen,
-          polygon,
-          shortText,
-          textIsTruncated
-        }">
+        <template
+          v-slot:expandedContent="{
+            authorName,
+            fullText,
+            id,
+            isSubmittedByCitizen,
+            polygon,
+            shortText,
+            textIsTruncated
+          }">
           <div class="u-pt-0_5">
-
             <!-- Meta data -->
             <div>
               <!-- Submission meta data -->
@@ -98,7 +98,8 @@
                 <dd class="ml-0">
                   {{ getDepartmentName(id) }}
                 </dd><!--
-          --></dl>
+          -->
+              </dl>
               <!-- Document & location reference -->
               <dl class="inline-grid grid-cols-[25%_75%] w-[49%]">
                 <dt class="font-semibold">
@@ -192,7 +193,7 @@
                   -
                 </dd>
               </dl>
-              </div>
+            </div>
 
             <div class="c-styled-html">
               <strong>
@@ -218,7 +219,6 @@
                 </a>
               </template>
             </div>
-
           </div>
         </template>
       </dp-data-table>
@@ -233,6 +233,7 @@
 
 <script>
 import {
+  formatDate as _formatDate,
   CleanHtml,
   dpApi,
   DpButton,
@@ -241,7 +242,6 @@ import {
   DpInlineNotification,
   DpLoading,
   DpPager,
-  formatDate as _formatDate,
   hasAnyPermissions
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -316,7 +316,7 @@ export default {
 
   computed: {
     ...mapState('OriginalStatement', {
-        items: 'items'
+      items: 'items'
     }),
 
     originalStatements () {
@@ -335,7 +335,7 @@ export default {
 
   methods: {
     ...mapActions('OriginalStatement', {
-        fetchOriginalStatements: 'list'
+      fetchOriginalStatements: 'list'
     }),
 
     ...mapMutations('OriginalStatement', {
@@ -399,7 +399,7 @@ export default {
         id: originalStatementId,
         attributes: {
           ...originalStatement.attributes,
-          ...(fullText && { fullText: fullText }),
+          ...(fullText && { fullText }),
           isFulltextDisplayed: isFullTextDisplayed
         }
       })
@@ -415,7 +415,7 @@ export default {
     fetchFullTextById (originalStatementId) {
       return this.fetchOriginalStatementById(originalStatementId)
         .then(response => {
-          const  { fullText } = response.data.data.attributes
+          const { fullText } = response.data.data.attributes
           this.toggleIsFullTextDisplayed(originalStatementId, true, fullText)
         })
     },
@@ -463,10 +463,10 @@ export default {
 
             return file
               ? {
-                filename: file.attributes.filename,
-                hash: file.attributes.hash,
-                id: attachment.id
-              }
+                  filename: file.attributes.filename,
+                  hash: file.attributes.hash,
+                  id: attachment.id
+                }
               : null
           })
           .filter(file => file !== null)
@@ -528,7 +528,7 @@ export default {
         'authorName',
         'orgaDepartmentName',
         'orgaName'
-        ]
+      ]
 
       return {
         page: {
@@ -549,7 +549,7 @@ export default {
             'title'
           ].join(),
           SourceStatementAttachment: [
-            'file',
+            'file'
           ].join(),
           StatementMeta: statementMetaFields.join(),
           SingleDocument: [
@@ -564,7 +564,7 @@ export default {
           'meta',
           'paragraph',
           'sourceAttachment',
-          'sourceAttachment.file',
+          'sourceAttachment.file'
         ].join()
       }
     },

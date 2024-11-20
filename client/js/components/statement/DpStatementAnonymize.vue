@@ -91,12 +91,12 @@
           data-cy="statementAnonymize:backToOriginalStatements"
           :href="hasPermission('area_admin_original_statement_list')
             ? Routing.generate('dplan_procedure_original_statement_list', {
-                procedureId: procedureId
-              })
+              procedureId: procedureId
+            })
             : Routing.generate('dplan_assessmenttable_view_original_table', {
-                procedureId: procedureId,
-                filterHash: originalFilterHash
-              })"
+              procedureId: procedureId,
+              filterHash: originalFilterHash
+            })"
           :text="Translator.trans('back.to.statements.original')" />
 
         <dp-button
@@ -237,12 +237,12 @@
           data-cy="statementAnonymize:backToOriginalStatements"
           :href="hasPermission('area_admin_original_statement_list')
             ? Routing.generate('dplan_procedure_original_statement_list', {
-                procedureId: procedureId
-              })
+              procedureId: procedureId
+            })
             : Routing.generate('dplan_assessmenttable_view_original_table', {
-                procedureId: procedureId,
-                filterHash: originalFilterHash
-              })"
+              procedureId: procedureId,
+              filterHash: originalFilterHash
+            })"
           :text="Translator.trans('back.to.statements.original')" />
       </div>
     </template>

@@ -119,7 +119,7 @@ export default {
     DpButtonRow,
     DpOlMap,
     DpOlMapDrawFeature,
-    DpOlMapEditFeature,
+    DpOlMapEditFeature
   },
 
   props: {
@@ -244,7 +244,7 @@ export default {
           ...this.segment,
           relationships: {
             ...this.segment.relationships,
-            comments: comments
+            comments
           }
         }
         this.setItem({ ...segmentWithComments })
@@ -327,7 +327,7 @@ export default {
     }
   },
 
-  mounted() {
+  mounted () {
     this.$root.$on('segmentMap:show', () => {
       this.$nextTick(() => {
         this.initMap()

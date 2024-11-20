@@ -43,7 +43,7 @@
     "watch:robobsh": "cross-env ./fe watch robobsh",
     "watch:teilhabe": "cross-env ./fe watch teilhabe",
     "watch:wmmsh": "cross-env ./fe watch wmmsh",
-    "lint": "eslint -c eslintrc.js --ext .js,.vue",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint -c eslintrc.js --ext .js,.vue .",
     "lint:scss": "stylelint {demosplan/DemosPlanCoreBundle/Resources/client/scss,projects}/**/*.scss"
   },
   "dependencies": {
@@ -138,6 +138,7 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jest": "^28.6.0",
     "eslint-plugin-jquery": "^1.5.1",
+    "eslint-plugin-n": "^17.13.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^7.1.0",
     "eslint-plugin-standard": "^5.0.0",

@@ -226,7 +226,7 @@ const setupCellUpdate = (originalValue, id, field, isBoolToString) => (e) => {
 
     const payload = {
       oId: id,
-      field: field,
+      field,
       value: newValue
     }
 
@@ -494,7 +494,6 @@ export default {
 
       if (value === null || typeof value === 'undefined' || value === false) {
         return '-'
-
       }
 
       return value
@@ -566,7 +565,7 @@ export default {
 
       if (status === 'confirm') {
         const fieldName = this.fields.filter(el => el.field === Object.keys(updatedField)[0])[0].value
-        dplan.notify.notify(status, Translator.trans('confirm.field.changes.saved', { fieldName: fieldName }))
+        dplan.notify.notify(status, Translator.trans('confirm.field.changes.saved', { fieldName }))
       } else {
         dplan.notify.notify(status, Translator.trans('error.api.generic'))
       }

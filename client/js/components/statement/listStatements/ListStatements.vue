@@ -490,7 +490,7 @@ export default {
             assignee: this.getAssignee(statement),
             id: statement.id,
             segmentsCount: segmentsCount || '-',
-            originalPdf: originalPdf
+            originalPdf
           }
         })
     },
@@ -578,13 +578,13 @@ export default {
       }
 
       if (isStatementClaimedByCurrentUser) {
-        window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
+        window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId, procedureId: this.procedureId })
       }
 
       if (!isStatementClaimed || (isStatementClaimedByOtherUser && dpconfirm(Translator.trans('warning.statement.needLock.generic')))) {
         this.claimStatement(statementId)
           .then(() => {
-            window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
+            window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId, procedureId: this.procedureId })
           })
           .catch(err => {
             console.error(err)

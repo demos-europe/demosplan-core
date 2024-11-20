@@ -206,7 +206,7 @@ export default {
   },
 
   computed: {
-    isStatementManual() {
+    isStatementManual () {
       return this.localStatement.attributes.isManual
     },
 
@@ -264,7 +264,7 @@ export default {
         this.localStatement.attributes.submitterRole !== 'publicagency'
 
       return isSubmittedByCitizen ? Translator.trans('role.citizen') : Translator.trans('institution')
-    },
+    }
   },
 
   methods: {
@@ -284,11 +284,11 @@ export default {
 
     setInitValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
-    },
+    }
   },
 
-  created() {
+  created () {
     this.setInitValues()
-  },
+  }
 }
 </script>
