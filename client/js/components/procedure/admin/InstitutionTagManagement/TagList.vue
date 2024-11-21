@@ -53,16 +53,21 @@
       track-by="id"
       :items="tagCategories"
       class="u-mt-2">
-      <template v-slot:label="rowData">
-        <div
-          v-if="!rowData.edit"
-          v-text="rowData.name" />
-        <dp-input
-          v-else
-          id="editInstitutionTag"
-          maxlength="250"
-          required
-          v-model="rowData.name" />
+      <template v-slot:name="rowData">
+        <div class="grid grid-cols-[2%,98%] gap-2">
+          <dp-icon class="col-span-1 color-main" icon="folder" />
+          <div
+            v-if="!rowData.edit"
+            class="col-span-1"
+            v-text="rowData.name" />
+          <dp-input
+            v-else
+            class="col-span-1"
+            id="editInstitutionTag"
+            maxlength="250"
+            required
+            v-model="rowData.name" />
+        </div>
       </template>
       <template v-slot:action="rowData">
         <div class="float-right">
@@ -143,8 +148,8 @@ export default {
       editingTagId: null,
       headerFields: [
         {
-          field: 'label',
-          label: Translator.trans('tags'),
+          field: 'name',
+          label: Translator.trans('Kategorie / Schlagwort'),
           colClass: 'u-11-of-12'
         },
         {
