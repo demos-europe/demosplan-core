@@ -58,6 +58,7 @@
           submit-route-name="dplan_pdf_import_to_statement">
           <div class="flex justify-end mt-2">
             <dp-button
+              data-cy="quickSave:button"
               :text="Translator.trans('statement.save.quickSave')"
               @click="quickSaveText" />
           </div>
@@ -229,6 +230,17 @@ export default {
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'AnnotatedStatementPdf', resourceId: this.documentId }), {}, payload)
+        .then(response => {
+          if (response.ok) {
+            dplan.notify.confirm(Translator.trans('statement.save.quickSave.success'))
+          } else {
+            dplan.notify.error(Translator.trans('error.api.generic'))
+          }
+        })
+        .catch((err) => {
+          console.error(err)
+          dplan.notify.error(Translator.trans('error.api.generic'))
+        })
     },
 
     sortSelected (property) {

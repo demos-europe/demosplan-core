@@ -671,14 +671,14 @@ export default {
           new ImageLayer({
             source: new Static({
               url: this.imageUrl,
-              projection: projection,
+              projection,
               imageExtent: this.imageLayerExtent
             })
           }), this.boxLayer
         ],
         target: 'map',
         view: new View({
-          projection: projection,
+          projection,
           center: getCenter(this.imageLayerExtent),
           zoom: 2
         })

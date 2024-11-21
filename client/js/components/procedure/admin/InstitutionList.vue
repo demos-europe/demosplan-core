@@ -222,7 +222,7 @@ export default {
       })
 
       this.updateInvitableInstitution({
-        id: id,
+        id,
         type: 'InvitableInstitution',
         attributes: { ...this.invitableInstitutionList[id].attributes },
         relationships: {

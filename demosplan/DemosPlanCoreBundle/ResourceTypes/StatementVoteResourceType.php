@@ -77,7 +77,7 @@ final class StatementVoteResourceType extends DplanResourceType
                 $statementVote->setLastName($name);
 
                 return [];
-            }, OptionalField::NO)
+            }, OptionalField::YES)
             )
             /* See for more details @link \EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilder::initializable */
             ->addCreationBehavior(
