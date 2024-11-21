@@ -40,13 +40,11 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface
     protected $id;
 
     /**
-     *
      * @ORM\Column(type="string", length=255, nullable=false)
      */
     #[Assert\NotNull(message: 'institutionTag.label.not.null')]
     #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
     protected string $name;
-
 
     /**
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="customerCategories", cascade={"persist"})
@@ -56,7 +54,6 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface
     protected Customer $customer;
 
     /**
-     *
      * @Gedmo\Timestampable(on="create")
      *
      * @ORM\Column(type="datetime", nullable=false)
@@ -64,19 +61,16 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface
     private DateTime $creationDate;
 
     /**
-     *
      * @Gedmo\Timestampable(on="update")
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
     private DateTime $modificationDate;
 
-
     public function getId(): ?string
     {
         return $this->id;
     }
-
 
     public function getCreationDate(): DateTime
     {
@@ -87,7 +81,6 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface
     {
         return $this->modificationDate;
     }
-
 
     public function getName(): string
     {
