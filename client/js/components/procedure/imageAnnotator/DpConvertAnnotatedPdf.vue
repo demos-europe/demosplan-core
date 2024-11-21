@@ -237,6 +237,10 @@ export default {
             dplan.notify.error(Translator.trans('error.api.generic'))
           }
         })
+        .catch((err) => {
+          console.error(err)
+          dplan.notify.error(Translator.trans('error.api.generic'))
+        })
     },
 
     sortSelected (property) {
