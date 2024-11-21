@@ -16,8 +16,8 @@ import { initialize } from '@DpJs/InitVue'
 const components = { InstitutionTagManagement }
 
 const apiStores = [
-  'institutionTag',
-  'invitableInstitution'
+  'InstitutionTag',
+  'InvitableInstitution'
 ]
 
 initialize(components, {}, apiStores)
