@@ -1,0 +1,65 @@
+{
+  "tagId1": {
+    "attributes": {
+      "name": "Wasserwirtschaft"
+    },
+    "id": "tagId1",
+    "type": "InstitutionTag"
+  },
+  "tagId2": {
+    "attributes": {
+    "name": "Sporteinrichtungen"
+    },
+    "id": "tagId2",
+    "type": "InstitutionTag"
+  },
+  "tagId3": {
+    "attributes": {
+    "name": "Postwesen"
+    },
+    "id": "tagId3",
+    "type": "InstitutionTag"
+  },
+  "tagId4": {
+    "attributes": {
+    "name": "Verkehr"
+    },
+    "id": "tagId4",
+    "type": "InstitutionTag"
+  },
+  "tagId5": {
+    "attributes": {
+    "name": "HH-Mitte"
+    },
+    "id": "tagId5",
+    "type": "InstitutionTag"
+  },
+  "tagId6": {
+    "attributes": {
+    "name": "Altona"
+    },
+    "id": "tagId6",
+    "type": "InstitutionTag"
+  },
+  "tagId7": {
+    "attributes": {
+    "name": "Grobabstimmung"
+    },
+    "id": "tagId7",
+    "type": "InstitutionTag"
+  },
+  "tagId8": {
+    "attributes": {
+    "name": "Grobabstimmung / Frühzeitige Beteiligung TöB"
+    },
+    "id": "tagId8",
+    "type": "InstitutionTag"
+  },
+  "tagId9": {
+    "attributes": {
+    "name": "Frühzeitige Beteiligung TöB"
+    },
+    "id": "tagId9",
+    "type": "InstitutionTag"
+  }
+}

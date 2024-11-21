@@ -97,6 +97,8 @@ import {
   formatDate
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import institutions from './InvitableInstitutions.json'
+import tags from './InstitutionTags.json'
 
 export default {
   name: 'InstitutionList',
@@ -155,16 +157,40 @@ export default {
     },
 
     institutionList () {
-      return Object.values(this.invitableInstitutionList).map(tag => {
-        const { id, attributes, relationships } = tag
+      return Object.values(institutions).map(institution => {
+        const { attributes, id, type } = institution
+        const tagIds = institution.relationships.assignedTags.data.length ? institution.relationships.assignedTags.data.map(tag => tag.id) : []
+
         return {
-          id,
           edit: this.editingInstitutionId === id,
+          id,
           institution: attributes.name,
-          tags: relationships.assignedTags.data,
-          createdDate: attributes.createdDate.date
+          tags: Object.values(tags)
+            .filter(tag => tagIds.includes(tag.id))
+            .map(tag => {
+              const { id, attributes, type } = tag
+
+              return {
+                id,
+                name: attributes.name,
+                type
+              }
+            }),
+          createdDate: '',
+          type
         }
       })
+
+      // return Object.values(this.invitableInstitutionList).map(tag => {
+      //   const { id, attributes, relationships } = tag
+      //   return {
+      //     id,
+      //     edit: this.editingInstitutionId === id,
+      //     institution: attributes.name,
+      //     tags: relationships.assignedTags.data,
+      //     createdDate: attributes.createdDate.date
+      //   }
+      // })
     }
   },
 
@@ -261,12 +287,13 @@ export default {
 
     getTagById (tagId) {
       let tag = {}
-      this.tagList
+      Object.values(tags)
+      // this.tagList
         .filter(el => el.id === tagId)
         .map(el => {
           tag = {
             id: el.id,
-            label: el.label
+            name: el.attributes.name
           }
         })
 
@@ -274,10 +301,11 @@ export default {
     },
 
     getTagLabelById (tagId) {
-      return this.tagList
+      return Object.values(tags)
+      // return this.tagList
         .filter(el => el.id === tagId)
         .map(el => {
-          return el.label
+          return el.attributes.name
         })
     }
   },

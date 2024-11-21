@@ -51,18 +51,18 @@
       has-flyout
       :header-fields="headerFields"
       track-by="id"
-      :items="tags"
+      :items="tagCategories"
       class="u-mt-2">
       <template v-slot:label="rowData">
         <div
           v-if="!rowData.edit"
-          v-text="rowData.label" />
+          v-text="rowData.name" />
         <dp-input
           v-else
           id="editInstitutionTag"
           maxlength="250"
           required
-          v-model="rowData.label" />
+          v-model="rowData.name" />
       </template>
       <template v-slot:action="rowData">
         <div class="float-right">
@@ -88,7 +88,7 @@
             <button
               :aria-label="Translator.trans('save')"
               class="btn--blank o-link--default u-mr-0_25"
-              @click="dpValidateAction('tagsTable', () => updateTag(rowData.id, rowData.label), false)">
+              @click="dpValidateAction('tagsTable', () => updateTag(rowData.id, rowData.name), false)">
               <dp-icon
                 icon="check"
                 aria-hidden="true" />
@@ -119,6 +119,8 @@ import {
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import tagCategories from './InstitutionTagCategories.json'
+import tags from './InstitutionTags.json'
 
 export default {
   name: 'TagList',
@@ -158,9 +160,44 @@ export default {
   },
 
   computed: {
+    // ...mapState('InstitutionTagCategories', {
+    //   institutionTagCategories: 'items'
+    // }),
+
     ...mapState('InstitutionTag', {
       institutionTags: 'items'
     }),
+
+    tagCategories () {
+      return Object.values(tagCategories).map(category => {
+        const { attributes, id, type } = category
+
+        return {
+          id,
+          name: attributes.name,
+          tags: Object.values(tags).map(tag => {
+            const { id, attributes, type } = tag
+            return {
+              id,
+              name: attributes.name,
+              type
+            }
+          }),
+          type
+        }
+      })
+      // return Object.values(this.institutionTagCategories).map(category => {
+      //   const { attributes, id, type } = category
+      //   const tags = category.relationships.tags.data.length > 0 ? category.relationships.tags.data.list() : []
+      //
+      //   return {
+      //     id,
+      //     name: attributes.name,
+      //     tags,
+      //     type
+      //   }
+      // })
+    },
 
     tags () {
       return Object.values(this.institutionTags).map(tag => {
@@ -175,6 +212,10 @@ export default {
   },
 
   methods: {
+    // ...mapActions('InstitutionTagCategory', {
+    //   listInstitutionTagCategories: 'list'
+    // }),
+
     ...mapActions('InstitutionTag', {
       createInstitutionTag: 'create',
       deleteInstitutionTag: 'delete',
@@ -211,6 +252,18 @@ export default {
       this.addNewTag = false
       this.editingTagId = id
       this.newTag.label = null
+    },
+
+    getInstitutionTagCategories () {
+      // this.listInstitutionTagCategories({
+      //   fields: {
+      //     InstitutionTagCategory: [
+      //       'name',
+      //       'tags'
+      //     ].join()
+      //   },
+      //   include: ['tags'].join()
+      // })
     },
 
     getInstitutionTags () {
@@ -300,6 +353,7 @@ export default {
   },
 
   mounted () {
+    // this.getInstitutionTagCategories()
     this.getInstitutionTags()
   }
 }

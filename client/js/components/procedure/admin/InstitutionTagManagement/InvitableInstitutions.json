@@ -1,0 +1,69 @@
+{
+  "invitableInstitution1": {
+    "attributes": {
+      "name": "Amt Nordwest"
+    },
+    "id": "invitableInstitution1",
+    "relationships": {
+      "assignedTags": {
+        "data": [
+          {
+            "id": "tagId1",
+            "type": "InstitutionTag"
+          },
+          {
+            "id": "tagId4",
+            "type": "InstitutionTag"
+          }
+        ]
+      }
+    },
+    "type": "InvitableInstitution"
+  },
+  "invitableInstitution2": {
+    "attributes": {
+      "name": "Bezirksamt Altona"
+    },
+    "id": "invitableInstitution2",
+    "relationships": {
+      "assignedTags": {
+        "data": [
+          {
+            "id": "tagId6",
+            "type": "InstitutionTag"
+          }
+        ]
+      }
+    },
+    "type": "InvitableInstitution"
+  },
+  "invitableInstitution3": {
+    "attributes": {
+      "name": "Bezirksamt HH-Mitte"
+    },
+    "id": "invitableInstitution3",
+    "relationships": {
+      "assignedTags": {
+        "data": [
+          {
+            "id": "tagId5",
+            "type": "InstitutionTag"
+          }
+        ]
+      }
+    },
+    "type": "InvitableInstitution"
+  },
+  "invitableInstitution4": {
+    "attributes": {
+      "name": "Bundesnetzagentur Standort Heide"
+    },
+    "id": "invitableInstitution4",
+    "relationships": {
+      "assignedTags": {
+        "data": []
+      }
+    },
+    "type": "InvitableInstitution"
+  }
+}
