@@ -14,7 +14,9 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseInstitutionTagResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -33,12 +35,17 @@ use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class InstitutionTagCategoryResourceType extends DplanResourceType
 {
+
+    public function __construct(private readonly InstitutionTagRepository $institutionTagRepository)
+    {
+    }
 
     public static function getName(): string
     {
@@ -53,8 +60,21 @@ class InstitutionTagCategoryResourceType extends DplanResourceType
     protected function getProperties(): ResourceConfigBuilderInterface
     {
         $configBuilder = $this->getConfig(InstitutionTagCategoryResourceConfigBuilder::class);
-        $configBuilder->id->setReadableByPath();
-        $configBuilder->name->setReadableByPath();
+        $configBuilder->id
+            ->setReadableByPath();
+        $configBuilder->name
+            ->setReadableByPath()
+            ->addPathCreationBehavior();
+
+        $configBuilder->customer
+            ->setRelationshipType($this->resourceTypeStore->getCustomerResourceType());
+
+        $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (InstitutionTagCategory $institutionTagCategory, EntityDataInterface $entityData): array {
+            $institutionTagCategory->setCustomer($this->currentCustomerService->getCurrentCustomer());
+            $this->institutionTagRepository->persistEntities([$institutionTagCategory]);
+
+            return [];
+        }));
 
         return $configBuilder;
     }

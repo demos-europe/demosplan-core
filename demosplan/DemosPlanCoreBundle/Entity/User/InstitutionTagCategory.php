@@ -71,11 +71,6 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface
      */
     private DateTime $modificationDate;
 
-    public function __construct(string $name, Customer $customer)
-    {
-        $this->name = $name;
-        $this->customer = $customer;
-    }
 
     public function getId(): ?string
     {
@@ -102,5 +97,10 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function setCustomer(Customer $customer): void
+    {
+        $this->customer = $customer;
     }
 }
