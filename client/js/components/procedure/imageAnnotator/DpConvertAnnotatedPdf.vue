@@ -229,6 +229,13 @@ export default {
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'AnnotatedStatementPdf', resourceId: this.documentId }), {}, payload)
+        .then(response => {
+          if (response.ok) {
+            dplan.notify.confirm(Translator.trans('statement.save.quickSave.success'))
+          } else {
+            dplan.notify.error(Translator.trans('error.api.generic'))
+          }
+        })
     },
 
     sortSelected (property) {
