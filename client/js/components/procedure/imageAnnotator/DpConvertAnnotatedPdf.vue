@@ -58,6 +58,7 @@
           submit-route-name="dplan_pdf_import_to_statement">
           <div class="flex justify-end mt-2">
             <dp-button
+              data-cy="quickSave:button"
               :text="Translator.trans('statement.save.quickSave')"
               @click="quickSaveText" />
           </div>
