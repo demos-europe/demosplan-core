@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Exception\TagTopicNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -148,6 +149,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         FileUploadService $fileUploadService,
         Request $request,
         StatementHandler $statementHandler,
+        TagService $tagservivce,
         string $procedure
     ): Response {
         $anchor = '';
@@ -209,6 +211,20 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                 $anchor = $result->getId();
             } else {
                 $this->getMessageBag()->add('warning', 'warning.topic.renamed');
+            }
+        }
+
+        if (array_key_exists('r_topicalTag', $requestPost)
+            && array_key_exists($requestPost['r_topicalTag'], $requestPost)
+            && array_key_exists('r_tag_changeTopicalTag', $requestPost[$requestPost['r_topicalTag']])
+        ) {
+            $tagname = $requestPost[$requestPost['r_tag_changeTopicalTag']]['r_topicalTag'] ?? '';
+            $result = $tagservivce->updateTagTopicalTag($requestPost['r_topicalTag'], $requestPost[$requestPost['r_tag_changeTopicalTag']]['r_topicalTag']);
+            if ($result instanceof Tag) {
+                $this->getMessageBag()->add('confirm', 'confirm.tag.topicalTag.update', ['title' => $tagname]);
+                $anchor = $result->getId();
+            } else {
+                $this->getMessageBag()->add('warning', 'warning.tag.topicalTag.update', ['title' => $tagname]);
             }
         }
 
