@@ -21,7 +21,7 @@ class Version20241122110226 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T: ';
+        return 'refs DPLAN-12914: Add category_id column to institution_tag table. Remove owning_organisation_id column from institution_tag table';
     }
 
     /**
@@ -30,9 +30,17 @@ class Version20241122110226 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        // Add Category ID to Institution Tag
+
+        // Temporarily disable foreign key checks
+        $this->addSql('SET foreign_key_checks = 0;');
+
         $this->addSql('ALTER TABLE institution_tag ADD category_id CHAR(36) NOT NULL');
         $this->addSql('ALTER TABLE institution_tag ADD CONSTRAINT FK_6C96B95C12469DE2 FOREIGN KEY (category_id) REFERENCES institution_tag_category (id)');
+        $this->addSql('CREATE INDEX IDX_6C96B95C12469DE2 ON institution_tag (category_id)');
+        // Enable foreign key checks
+        $this->addSql('SET foreign_key_checks = 1;');
+
+
     }
 
     /**
