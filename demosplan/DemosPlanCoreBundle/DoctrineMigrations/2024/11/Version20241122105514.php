@@ -33,7 +33,6 @@ class Version20241122105514 extends AbstractMigration
         $this->abortIfNotMysql();
 
         $this->addSql('ALTER TABLE _tag ADD topical_tag TINYINT(1) DEFAULT 0 NOT NULL');
-
     }
 
     /**
@@ -44,7 +43,6 @@ class Version20241122105514 extends AbstractMigration
         $this->abortIfNotMysql();
 
         $this->addSql('ALTER TABLE _tag DROP topical_tag');
-
     }
 
     /**
