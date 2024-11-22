@@ -216,6 +216,14 @@ class TagService extends CoreService
         return $this->tagRepository->updateObject($tag);
     }
 
+    public function updateTagTopicalTag($id, $topicalTag)
+    {
+        $tag = $this->getTag($id);
+        $tag->setTopicalTag($topicalTag);
+
+        return $this->tagRepository->updateObject($tag);
+    }
+
     /**
      * Deletes a Tag.
      *
