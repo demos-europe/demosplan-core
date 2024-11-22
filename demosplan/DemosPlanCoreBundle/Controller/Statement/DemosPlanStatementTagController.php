@@ -28,10 +28,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function array_key_exists;
+use function is_array;
 use function strlen;
 use function trim;
-use function is_array;
 
 class DemosPlanStatementTagController extends DemosPlanStatementController
 {
@@ -231,7 +232,6 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                 $this->logger->error('An error occurred trying to update a isTopical checkbox for a Tag', [$e]);
             }
         }
-
 
         if (array_key_exists('r_topicalTag', $requestPost)
             && array_key_exists($requestPost['r_topicalTag'], $requestPost)
