@@ -220,7 +220,7 @@ class TagService extends CoreService
     /**
      * @throws InvalidArgumentException
      */
-    public function updateTagTopicalTag(string $id, bool $isTopicalTag) : Tag
+    public function updateTagTopicalTag(string $id, bool $isTopicalTag): Tag
     {
         $tag = $this->getTag($id);
         Assert::notNull($tag);
