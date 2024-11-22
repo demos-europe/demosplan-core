@@ -28,6 +28,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use function array_key_exists;
+use function strlen;
+use function trim;
+use function is_array;
 
 class DemosPlanStatementTagController extends DemosPlanStatementController
 {
@@ -55,23 +59,23 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         $data = [];
 
         $data['action'] = null;
-        if (\array_key_exists('r_attachmode', $requestPost)) {
+        if (array_key_exists('r_attachmode', $requestPost)) {
             $data['action'] = $requestPost['r_attachmode'];
         }
         $data['tagTitle'] = null;
-        if (\array_key_exists('r_tagTitle', $requestPost)) {
+        if (array_key_exists('r_tagTitle', $requestPost)) {
             $data['tagTitle'] = $requestPost['r_tagTitle'];
         }
         $data['boilerplateTitle'] = null;
-        if (\array_key_exists('r_boilerplateTitle', $requestPost)) {
+        if (array_key_exists('r_boilerplateTitle', $requestPost)) {
             $data['boilerplateTitle'] = $requestPost['r_boilerplateTitle'];
         }
         $data['boilerplateText'] = null;
-        if (\array_key_exists('r_boilerplateText', $requestPost)) {
+        if (array_key_exists('r_boilerplateText', $requestPost)) {
             $data['boilerplateText'] = $requestPost['r_boilerplateText'];
         }
         $data['boilerplateId'] = null;
-        if (\array_key_exists('r_boilerplateId', $requestPost)) {
+        if (array_key_exists('r_boilerplateId', $requestPost)) {
             $data['boilerplateId'] = $requestPost['r_boilerplateId'];
         }
         $statementHandler->handleTagBoilerplate($tag, $data, $procedure);
@@ -157,10 +161,10 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         $requestPost['r_importCsv'] = $fileUploadService->prepareFilesUpload($request, 'r_importCsv');
 
         // Check if we triggered creating a new Topic
-        if (\array_key_exists('r_create', $requestPost)
-            && \array_key_exists('r_newTopic', $requestPost)
+        if (array_key_exists('r_create', $requestPost)
+            && array_key_exists('r_newTopic', $requestPost)
         ) {
-            if (0 < \strlen(\trim((string) $requestPost['r_newTopic']))) {
+            if (0 < strlen(trim((string) $requestPost['r_newTopic']))) {
                 try {
                     $result = $statementHandler->createTopic($requestPost['r_newTopic'], $procedure);
                     $this->getMessageBag()->add('confirm', 'confirm.topic.created');
@@ -174,12 +178,12 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         }
 
         // Check if we need to create some Tags
-        if (\array_key_exists('r_createtags', $requestPost)
-            && \array_key_exists($requestPost['r_createtags'], $requestPost)
-            && \array_key_exists('r_newtags', $requestPost[$requestPost['r_createtags']])
+        if (array_key_exists('r_createtags', $requestPost)
+            && array_key_exists($requestPost['r_createtags'], $requestPost)
+            && array_key_exists('r_newtags', $requestPost[$requestPost['r_createtags']])
         ) {
             $newTag = $requestPost[$requestPost['r_createtags']]['r_newtags'];
-            if (0 < \strlen(\trim((string) $newTag))) {
+            if (0 < strlen(trim((string) $newTag))) {
                 try {
                     $result = $statementHandler->createTagFromTopicId($requestPost['r_createtags'], $newTag, $procedure);
                     $this->getMessageBag()->add('confirm', 'confirm.tag.created');
@@ -199,9 +203,9 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         }
 
         // Check if we triggered a rename-action
-        if (\array_key_exists('r_renametopic', $requestPost)
-            && \array_key_exists($requestPost['r_renametopic'], $requestPost)
-            && \array_key_exists('r_rename', $requestPost[$requestPost['r_renametopic']])) {
+        if (array_key_exists('r_renametopic', $requestPost)
+            && array_key_exists($requestPost['r_renametopic'], $requestPost)
+            && array_key_exists('r_rename', $requestPost[$requestPost['r_renametopic']])) {
             $result = $statementHandler->renameTopic(
                 $requestPost['r_renametopic'],
                 $requestPost[$requestPost['r_renametopic']]['r_rename']
@@ -213,6 +217,21 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                 $this->getMessageBag()->add('warning', 'warning.topic.renamed');
             }
         }
+
+        // Check if the checkbox for the topicalTag has been checked
+        $tagToCheck = $requestPost[$requestPost['r_topicalTag']] ?? null;
+        if (null !== $tagToCheck) {
+            $isTopicalTag = (bool) ($tagToCheck['r_tag_changeTopicalTag'] ?? false);
+            $tagId = $requestPost['r_topicalTag'];
+            try {
+                $tagservivce->updateTagTopicalTag($tagId, $isTopicalTag);
+                $this->getMessageBag()->add('confirm', 'Checkbox erfolgreich aktualisiert');
+            } catch (InvalidArgumentException $e) {
+                $this->getMessageBag()->add('warning', 'Fehler beim updaten der Checkbox');
+                $this->logger->error('An error occurred trying to update a isTopical checkbox for a Tag', [$e]);
+            }
+        }
+
 
         if (array_key_exists('r_topicalTag', $requestPost)
             && array_key_exists($requestPost['r_topicalTag'], $requestPost)
@@ -229,10 +248,10 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         }
 
         // Check if we triggered a rename-tag-action
-        if (\array_key_exists('r_renametag', $requestPost)
-            && \array_key_exists($requestPost['r_renametag'], $requestPost)
-            && \array_key_exists('r_tag_newname', $requestPost[$requestPost['r_renametag']])
-            && 0 < \strlen(\trim((string) $requestPost[$requestPost['r_renametag']]['r_tag_newname']))
+        if (array_key_exists('r_renametag', $requestPost)
+            && array_key_exists($requestPost['r_renametag'], $requestPost)
+            && array_key_exists('r_tag_newname', $requestPost[$requestPost['r_renametag']])
+            && 0 < strlen(trim((string) $requestPost[$requestPost['r_renametag']]['r_tag_newname']))
         ) {
             $result = $statementHandler->renameTag($requestPost['r_renametag'], $requestPost[$requestPost['r_renametag']]['r_tag_newname']);
             if ($result instanceof Tag) {
@@ -244,8 +263,8 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         }
 
         // Check if a delete-action has been triggered
-        if (\array_key_exists('r_deletetag', $requestPost)
-            && \array_key_exists($requestPost['r_deletetag'], $requestPost)) {
+        if (array_key_exists('r_deletetag', $requestPost)
+            && array_key_exists($requestPost['r_deletetag'], $requestPost)) {
             $result = false;
             $tagname = $requestPost[$requestPost['r_deletetag']]['r_tag_newname'] ?? '';
 
@@ -266,13 +285,13 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
             }
         }
         // delete Tags by checkbox
-        if (\array_key_exists('r_delete', $requestPost)) {
+        if (array_key_exists('r_delete', $requestPost)) {
             $success = true;
             $selected = 0;
             foreach ($requestPost as $key => $val) {
-                if (\is_array($val) && \array_key_exists('r_selected', $val)) {
+                if (is_array($val) && array_key_exists('r_selected', $val)) {
                     $result = false;
-                    if (\array_key_exists('r_itemtype', $val) && 'tag' === $val['r_itemtype']) {
+                    if (array_key_exists('r_itemtype', $val) && 'tag' === $val['r_itemtype']) {
                         try {
                             if ($statementHandler->isTagInUse($key)) {
                                 $this->getMessageBag()->add('warning', 'warning.tag.in.use', ['tagname' => $val['r_tag_newname']]);
@@ -287,7 +306,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                             $success = false;
                             continue;
                         }
-                    } elseif (\array_key_exists('r_itemtype', $val) && 'topic' === $val['r_itemtype']) {
+                    } elseif (array_key_exists('r_itemtype', $val) && 'topic' === $val['r_itemtype']) {
                         try {
                             if ($statementHandler->isTopicInUse($key)) {
                                 $this->getMessageBag()->add('warning', 'warning.topic.in.use', ['topicname' => $val['r_rename']]);
@@ -316,9 +335,9 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         }
 
         // Check if a move-action has been triggered
-        if (\array_key_exists('r_move', $requestPost)
-            && \array_key_exists($requestPost['r_move'], $requestPost)
-            && \array_key_exists('r_moveto', $requestPost[$requestPost['r_move']])) {
+        if (array_key_exists('r_move', $requestPost)
+            && array_key_exists($requestPost['r_move'], $requestPost)
+            && array_key_exists('r_moveto', $requestPost[$requestPost['r_move']])) {
             $result = $statementHandler->moveTagToTopic($requestPost[$requestPost['r_move']]['r_moveto'], $requestPost['r_move']);
             if (true === $result) {
                 $this->getMessageBag()->add('confirm', 'confirm.tag.moved');
@@ -328,7 +347,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         }
 
         // Check if we need to delete a topic
-        if (\array_key_exists('r_deletetopic', $requestPost) && \array_key_exists($requestPost['r_deletetopic'], $requestPost)) {
+        if (array_key_exists('r_deletetopic', $requestPost) && array_key_exists($requestPost['r_deletetopic'], $requestPost)) {
             $topicname = $requestPost[$requestPost['r_deletetopic']]['r_rename'];
             $result = $statementHandler->deleteTopic($requestPost['r_deletetopic']);
             if (true === $result) {
@@ -339,8 +358,8 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         }
 
         // Check if we need to import tags
-        if (\array_key_exists('r_import', $requestPost)) {
-            if (\array_key_exists('r_importCsv', $requestPost) && '' != $requestPost['r_importCsv']) {
+        if (array_key_exists('r_import', $requestPost)) {
+            if (array_key_exists('r_importCsv', $requestPost) && '' != $requestPost['r_importCsv']) {
                 try {
                     $statementHandler->importTags($procedure, $requestPost['r_importCsv']);
                     $this->getMessageBag()->add('confirm', 'explanation.import.topicsAndTags');
@@ -355,8 +374,11 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
             }
         }
 
-        return $this->redirect($this->generateUrl('DemosPlan_statement_administration_tags',
-            ['procedure' => $procedure]
-        ).'#'.$anchor);
+        return $this->redirect(
+            $this->generateUrl(
+                'DemosPlan_statement_administration_tags',
+                ['procedure' => $procedure]
+            ).'#'.$anchor
+        );
     }
 }

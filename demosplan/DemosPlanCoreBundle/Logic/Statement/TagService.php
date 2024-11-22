@@ -26,6 +26,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
+use Webmozart\Assert\Assert;
 
 class TagService extends CoreService
 {
@@ -216,12 +217,17 @@ class TagService extends CoreService
         return $this->tagRepository->updateObject($tag);
     }
 
-    public function updateTagTopicalTag($id, $topicalTag)
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function updateTagTopicalTag(string $id, bool $isTopicalTag) : void
     {
         $tag = $this->getTag($id);
-        $tag->setTopicalTag($topicalTag);
+        Assert::notNull($tag);
+        $tag->setTopicalTag($isTopicalTag);
 
-        return $this->tagRepository->updateObject($tag);
+        $updatedTag = $this->tagRepository->updateObject($tag);
+        Assert::isInstanceOf($updatedTag, Tag::class);
     }
 
     /**
