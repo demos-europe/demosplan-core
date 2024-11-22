@@ -20,11 +20,12 @@ class Version20241122120756 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-
+        $this->addSql('SET foreign_key_checks = 0;');
         $this->addSql('ALTER TABLE institution_tag DROP FOREIGN KEY FK_6C96B95C56E11002');
         $this->addSql('DROP INDEX IDX_6C96B95C56E11002 ON institution_tag');
         $this->addSql('ALTER TABLE institution_tag DROP INDEX unique_label_for_orga');
         $this->addSql('ALTER TABLE institution_tag DROP COLUMN owning_organisation_id');
+        $this->addSql('SET foreign_key_checks = 1;');
     }
 
     /**
