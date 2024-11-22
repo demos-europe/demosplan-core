@@ -12,11 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseInstitutionTagResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
@@ -25,11 +23,7 @@ use Doctrine\Common\Collections\Collection;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
-use EDT\Wrapping\CreationDataInterface;
-use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
-use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
-use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -83,7 +77,6 @@ class InstitutionTagResourceType extends DplanResourceType
 
                 return [];
             });
-
         }
 
         return $configBuilder;
@@ -100,7 +93,9 @@ class InstitutionTagResourceType extends DplanResourceType
     }
 
     public function isAvailable(): bool
-    { return true;
+    {
+        return true;
+
         return $this->currentUser->hasAnyPermissions(
             'feature_institution_tag_create',
             'feature_institution_tag_read',
@@ -112,6 +107,7 @@ class InstitutionTagResourceType extends DplanResourceType
     public function isUpdateAllowed(): bool
     {
         return true;
+
         return $this->currentUser->hasPermission('feature_institution_tag_update');
     }
 
@@ -129,8 +125,8 @@ class InstitutionTagResourceType extends DplanResourceType
 
     public function isCreateAllowed(): bool
     {
-
         return true;
+
         return $this->currentUser->hasPermission('feature_institution_tag_create');
     }
 
@@ -163,7 +159,9 @@ class InstitutionTagResourceType extends DplanResourceType
     }
 
     public function isDeleteAllowed(): bool
-    { return true;
+    {
+        return true;
+
         return $this->currentUser->hasPermission('feature_institution_tag_delete');
     }
 
