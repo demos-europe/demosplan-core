@@ -107,7 +107,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     /**
      * @var bool
      *
-     * @ORM\Column(name="topicalTag", type="boolean", nullable=false, options={"default":false})
+     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
      */
     protected $topicalTag = false;
 
