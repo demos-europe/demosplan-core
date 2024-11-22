@@ -24,7 +24,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_label_for_orga", columns={"owning_organisation_id", "label"})})
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository")
  */
@@ -61,16 +60,6 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      */
     protected $taggedInstitutions;
 
-    /**
-     * Institution, which has created the tag and therefore is allowed to use, read, edit and delete it.
-     *
-     * @var Orga
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="ownInstitutionTags", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(referencedColumnName="_o_id", nullable=false)
-     */
-    protected $owningOrganisation;
 
     /**
      * Category to which this tag belongs.
@@ -114,7 +103,8 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
 
     public function getOwningOrganisation(): Orga
     {
-        return $this->owningOrganisation;
+        //@todo remove: adjust InstitutionTagInterface
+        return $this->getTaggedInstitutions()->get(0);
     }
 
     /**

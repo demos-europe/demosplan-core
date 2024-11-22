@@ -350,16 +350,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      * )
      */
     protected $assignedTags;
-    /**
-     * @var Collection<int,InstitutionTag>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", mappedBy="owningOrganisation")
-     *
-     * @ORM\JoinColumn(referencedColumnName="id")
-     *
-     * @ORM\OrderBy({"label" = "ASC"})
-     */
-    protected $ownInstitutionTags;
 
     public function __construct()
     {
