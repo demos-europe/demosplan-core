@@ -34,7 +34,9 @@ WORKDIR /srv/www
 RUN mkdir -p /opt/uploads && \
     mkdir /opt/config && \
     mkdir /srv/www/vendor && \
+    mkdir -p /srv/www/client/js/generated && \
     chown -R www-data:www-data /opt/uploads && \
+    chown -R www-data:www-data /srv/www/client/js/generated && \
     chown -R www-data:www-data /opt/config && \
     chown -R www-data:www-data /srv/www && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/app/config && \
@@ -51,6 +53,7 @@ COPY composer.json composer.lock ./
 RUN --mount=type=cache,target=/var/composer composer install -o --prefer-dist --no-dev --no-scripts --no-progress
 
 COPY package.json yarn.lock .yarnrc.yml ./
+
 RUN yarn install --immutable && \
     yarn cache clean && \
     rm -rf /srv/www/.cache/*
