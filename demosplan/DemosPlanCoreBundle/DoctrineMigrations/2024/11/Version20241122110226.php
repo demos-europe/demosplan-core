@@ -39,8 +39,6 @@ class Version20241122110226 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_6C96B95C12469DE2 ON institution_tag (category_id)');
         // Enable foreign key checks
         $this->addSql('SET foreign_key_checks = 1;');
-
-
     }
 
     /**
