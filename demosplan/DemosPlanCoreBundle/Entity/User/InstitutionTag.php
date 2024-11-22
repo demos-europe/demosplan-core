@@ -24,7 +24,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository")
  */
 class InstitutionTag extends CoreEntity implements UuidEntityInterface, InstitutionTagInterface
@@ -59,7 +58,6 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="assignedTags")
      */
     protected $taggedInstitutions;
-
 
     /**
      * Category to which this tag belongs.
@@ -103,7 +101,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
 
     public function getOwningOrganisation(): Orga
     {
-        //@todo remove: adjust InstitutionTagInterface
+        // @todo remove: adjust InstitutionTagInterface
         return $this->getTaggedInstitutions()->get(0);
     }
 

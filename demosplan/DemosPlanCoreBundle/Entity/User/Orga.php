@@ -1143,7 +1143,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     public function addCustomerAndOrgaType(
         CustomerInterface $customer,
         OrgaTypeInterface $orgaType,
-        string $status = OrgaStatusInCustomer::STATUS_ACCEPTED
+        string $status = OrgaStatusInCustomer::STATUS_ACCEPTED,
     ): self {
         // create new
         $relation = new OrgaStatusInCustomer();
