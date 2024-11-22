@@ -13,8 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -52,6 +54,14 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface
      * @ORM\JoinColumn(referencedColumnName="_c_id", nullable=false)
      */
     protected Customer $customer;
+
+
+    /**
+     * @var Collection<int, InstitutionTag>
+     *
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", mappedBy="category")
+     */
+    protected $tags;
 
     /**
      * @Gedmo\Timestampable(on="create")
