@@ -220,7 +220,7 @@ class TagService extends CoreService
     /**
      * @throws InvalidArgumentException
      */
-    public function updateTagTopicalTag(string $id, bool $isTopicalTag) : void
+    public function updateTagTopicalTag(string $id, bool $isTopicalTag) : Tag
     {
         $tag = $this->getTag($id);
         Assert::notNull($tag);
@@ -228,6 +228,8 @@ class TagService extends CoreService
 
         $updatedTag = $this->tagRepository->updateObject($tag);
         Assert::isInstanceOf($updatedTag, Tag::class);
+
+        return $updatedTag;
     }
 
     /**

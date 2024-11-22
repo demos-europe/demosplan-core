@@ -224,8 +224,13 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
             $isTopicalTag = (bool) ($tagToCheck['r_tag_changeTopicalTag'] ?? false);
             $tagId = $requestPost['r_topicalTag'];
             try {
-                $tagservivce->updateTagTopicalTag($tagId, $isTopicalTag);
-                $this->getMessageBag()->add('confirm', 'Checkbox erfolgreich aktualisiert');
+                $updatedTag = $tagservivce->updateTagTopicalTag($tagId, $isTopicalTag);
+                $this->getMessageBag()->add(
+                    'confirm',
+                    'confirm.tag.topicalTag.update',
+                    ['title' => $updatedTag->getTitle()]
+                );
+                $anchor = $updatedTag->getId();
             } catch (InvalidArgumentException $e) {
                 $this->getMessageBag()->add('warning', 'Fehler beim updaten der Checkbox');
                 $this->logger->error('An error occurred trying to update a isTopical checkbox for a Tag', [$e]);
