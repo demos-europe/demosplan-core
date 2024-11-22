@@ -72,6 +72,18 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      */
     protected $owningOrganisation;
 
+
+    /**
+     * Category to which this tag belongs.
+     *
+     * @var InstitutionTagCategory
+     *
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory", inversedBy="tags", cascade={"persist"})
+     *
+     * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
+     */
+    protected $category;
+
     /**
      * @var DateTime
      *
@@ -90,11 +102,9 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      */
     private $modificationDate;
 
-    public function __construct(string $label, Orga $owningOrganisation)
+    public function __construct(string $label)
     {
         $this->label = $label;
-        $this->owningOrganisation = $owningOrganisation;
-        $owningOrganisation->addOwnInstitutionTag($this);
         $this->taggedInstitutions = new ArrayCollection();
     }
 
