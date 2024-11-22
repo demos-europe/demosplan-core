@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
@@ -38,7 +39,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @property-read End                     $label
  * @property-read OrgaResourceType        $taggedInstitutions
- * @property-read OrgaResourceType        $owningOrganisation
  */
 class InstitutionTagResourceType extends DplanResourceType
 {
@@ -48,7 +48,7 @@ class InstitutionTagResourceType extends DplanResourceType
     ) {
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): ResourceConfigBuilderInterface
     {
         $configBuilder = $this->getConfig(BaseInstitutionTagResourceConfigBuilder::class);
         $configBuilder->id->readable()->filterable();
@@ -83,27 +83,7 @@ class InstitutionTagResourceType extends DplanResourceType
 
                 return [];
             });
-            $configBuilder->addConstructorBehavior(
-                new FixedConstructorBehavior(
-                    Paths::institutionTag()->owningOrganisation->getAsNamesInDotNotation(),
-                    function (CreationDataInterface $entityData): array {
-                        $owner = $this->currentUser->getUser()->getOrga();
-                        if (null === $owner) {
-                            throw new InvalidArgumentException('No organisation found for current user.');
-                        }
 
-                        return [$owner, []];
-                    }
-                )
-            );
-            $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (InstitutionTag $institutionTag, EntityDataInterface $entityData): array {
-                $owner = $institutionTag->getOwningOrganisation();
-                $owner->addOwnInstitutionTag($institutionTag);
-                $this->resourceTypeService->validateObject($owner);
-                $this->institutionTagRepository->persistEntities([$institutionTag]);
-
-                return [];
-            }));
         }
 
         return $configBuilder;
@@ -120,7 +100,7 @@ class InstitutionTagResourceType extends DplanResourceType
     }
 
     public function isAvailable(): bool
-    {
+    { return true;
         return $this->currentUser->hasAnyPermissions(
             'feature_institution_tag_create',
             'feature_institution_tag_read',
@@ -131,25 +111,26 @@ class InstitutionTagResourceType extends DplanResourceType
 
     public function isUpdateAllowed(): bool
     {
+        return true;
         return $this->currentUser->hasPermission('feature_institution_tag_update');
     }
 
     protected function getAccessConditions(): array
     {
+        return [$this->conditionFactory->true()];
         $userOrga = $this->currentUser->getUser()->getOrga();
 
         if (null === $userOrga) {
             return [$this->conditionFactory->false()];
         }
 
-        return [$this->conditionFactory->propertyHasValue(
-            $userOrga->getId(),
-            $this->owningOrganisation->id
-        )];
+        return [$this->conditionFactory->true()];
     }
 
     public function isCreateAllowed(): bool
     {
+
+        return true;
         return $this->currentUser->hasPermission('feature_institution_tag_create');
     }
 
@@ -182,7 +163,7 @@ class InstitutionTagResourceType extends DplanResourceType
     }
 
     public function isDeleteAllowed(): bool
-    {
+    { return true;
         return $this->currentUser->hasPermission('feature_institution_tag_delete');
     }
 

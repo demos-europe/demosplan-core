@@ -48,6 +48,10 @@ class InstitutionTagCategoryResourceType extends DplanResourceType
         $configBuilder->customer
             ->setRelationshipType($this->resourceTypeStore->getCustomerResourceType());
 
+        $configBuilder->tags
+            ->setRelationshipType($this->getTypes()->getInstitutionTagResourceType())
+            ->setReadableByPath();
+
         $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (InstitutionTagCategory $institutionTagCategory, EntityDataInterface $entityData): array {
             $institutionTagCategory->setCustomer($this->currentCustomerService->getCurrentCustomer());
             $this->institutionTagRepository->persistEntities([$institutionTagCategory]);
