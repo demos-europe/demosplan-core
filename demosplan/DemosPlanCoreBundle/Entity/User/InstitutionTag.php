@@ -72,7 +72,6 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      */
     protected $owningOrganisation;
 
-
     /**
      * Category to which this tag belongs.
      *
