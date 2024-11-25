@@ -17,7 +17,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -87,8 +86,6 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $modificationDate;
-
-
 
     public function getId(): ?string
     {

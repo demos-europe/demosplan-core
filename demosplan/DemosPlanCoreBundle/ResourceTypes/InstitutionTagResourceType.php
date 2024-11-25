@@ -12,9 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseInstitutionTagResourceConfigBuilder;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -57,13 +54,14 @@ class InstitutionTagResourceType extends DplanResourceType
             ->setReadableByPath()
             ->updatable()
             ->addPathCreationBehavior();
-            //->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
+        // ->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
         $configBuilder->category
             ->setReadableByPath()
             ->setRelationshipType($this->getTypes()->getInstitutionTagCategoryResourceType())
             ->addCreationBehavior(
                 CallbackToOneRelationshipSetBehavior::createFactory(static function (InstitutionTag $tag, InstitutionTagCategory $category): array {
                     $tag->setCategory($category);
+
                     return [];
                 }, [], OptionalField::NO, [])
             );
