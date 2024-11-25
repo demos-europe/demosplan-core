@@ -10,42 +10,21 @@
 <template>
   <div class="u-mt-0_5">
     <div
-      v-if="!addNewTag"
+      v-if="!addNewTag && !addNewCategory"
       class="text-right">
       <dp-button
         :text="Translator.trans('tag.new')"
         @click="handleAddNewTagForm()" />
+      <dp-button
+        :text="Translator.trans('category.new')"
+        @click="handleAddNewCategoryForm()" />
     </div>
-    <div
-      v-else
-      data-dp-validate="addNewTagForm">
-      <dp-loading
-        v-if="isLoading"
-        overlay />
-      <div class="border rounded space-stack-m space-inset-m">
-        <div class="relative u-pb-0_5 font-size-large">
-          {{ Translator.trans('tag.new') }}
-          <button
-            class="btn--blank o-link--default float-right"
-            @click="closeNewTagForm()">
-            <dp-icon icon="close" />
-          </button>
-        </div>
-        <dp-input
-          id="createTag"
-          v-model="newTag.label"
-          :label="{
-            text: Translator.trans('name')
-          }" />
-        <dp-button-row
-          :busy="isLoading"
-          align="left"
-          primary
-          secondary
-          @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(newTag), false)"
-          @secondary-action="closeNewTagForm()" />
-      </div>
-    </div>
+    <new-tag-form
+      v-if="addNewTag"
+      :is-loading="isLoading"
+      @closeNewTagForm="closeNewTagForm()"
+      @saveNewTagForm="(newTagData) => saveNewTag(newTagData)"/>
+
     <dp-data-table
       data-dp-validate="tagsTable"
       has-flyout
@@ -124,6 +103,7 @@ import {
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import NewTagForm from "./NewTagForm"
 import tagCategories from './InstitutionTagCategories.json'
 import tags from './InstitutionTags.json'
 
@@ -136,15 +116,18 @@ export default {
     DpDataTable,
     DpIcon,
     DpInput,
-    DpLoading
+    DpLoading,
+    NewTagForm
   },
 
   mixins: [dpValidateMixin],
 
   data () {
     return {
+      addNewCategory: false,
       addNewTag: false,
       edit: false,
+      editingCategoryId: null,
       editingTagId: null,
       headerFields: [
         {
@@ -159,8 +142,7 @@ export default {
         }
       ],
       initialRowData: {},
-      isLoading: false,
-      newTag: {}
+      isLoading: false
     }
   },
 
@@ -239,7 +221,6 @@ export default {
 
     closeNewTagForm () {
       this.addNewTag = false
-      this.newTag.label = null
     },
 
     deleteTag (id) {
@@ -256,7 +237,7 @@ export default {
     editTag (id) {
       this.addNewTag = false
       this.editingTagId = id
-      this.newTag.label = null
+      // this.newTag.label = null
     },
 
     getInstitutionTagCategories () {
@@ -277,6 +258,11 @@ export default {
           InstitutionTag: ['label', 'id'].join()
         }
       })
+    },
+
+    handleAddNewCategoryForm () {
+      this.addNewCategory = true
+      this.editingCategoryId = null
     },
 
     handleAddNewTagForm () {
@@ -304,8 +290,8 @@ export default {
       this.addNewTag = false
     },
 
-    saveNewTag () {
-      if (!this.isUniqueTagName(this.newTag.label, true)) {
+    saveNewTag (newTag) {
+      if (!this.isUniqueTagName(newTag.label, true)) {
         return dplan.notify.error(Translator.trans('workflow.tag.error.duplication'))
       }
       this.isLoading = true
@@ -314,7 +300,7 @@ export default {
       const payload = {
         type: 'InstitutionTag',
         attributes: {
-          label: this.newTag.label
+          label: newTag.label
         }
       }
       this.createInstitutionTag(payload)
