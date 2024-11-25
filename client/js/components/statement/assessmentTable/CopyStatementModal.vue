@@ -8,84 +8,82 @@
 </license>
 
 <template>
-  <portal to="vueModals">
-    <dp-modal
-      ref="copyStatementModal"
-      content-classes="u-1-of-2"
-      @modal:toggled="handleModalToggled">
-      <!-- Modal header -->
-      <template v-slot:header>
-        {{ Translator.trans('statement.copy.to.procedure') }}
-      </template>
+  <dp-modal
+    ref="copyStatementModal"
+    content-classes="u-1-of-2"
+    @modal:toggled="handleModalToggled">
+    <!-- Modal header -->
+    <template v-slot:header>
+      {{ Translator.trans('statement.copy.to.procedure') }}
+    </template>
 
-      <!-- Modal content -->
-      <div>
-        <dp-loading
-          v-if="isLoading"
-          class="u-pv-0_5" />
-        <template v-else>
-          <!-- Display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
-          <div
-            class="flash flash-warning flow-root"
-            v-if="(userIsAssigneeOfAllFragments && fragmentsAreNotAssignedToDepartments) === false">
-            <i class="fa fa-exclamation-triangle u-mt-0_125 float-left" />
-            <div class="u-ml">
-              <p
-                class="u-mb-0"
-                :inner-html.prop="Translator.trans('statement.copy.to.procedure.fragments.not.claimed.warning')" />
-            </div>
+    <!-- Modal content -->
+    <div>
+      <dp-loading
+        v-if="isLoading"
+        class="u-pv-0_5" />
+      <template v-else>
+        <!-- Display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
+        <div
+          class="flash flash-warning flow-root"
+          v-if="(userIsAssigneeOfAllFragments && fragmentsAreNotAssignedToDepartments) === false">
+          <i class="fa fa-exclamation-triangle u-mt-0_125 float-left" />
+          <div class="u-ml">
+            <p
+              class="u-mb-0"
+              :inner-html="Translator.trans('statement.copy.to.procedure.fragments.not.claimed.warning')" />
           </div>
+        </div>
 
-          <!-- When both permissions are available, the user is prompted to choose which type of procedure she wants to move the statement to -->
-          <template v-if="hasPermission('feature_statement_copy_to_foreign_procedure')">
-            <label class="u-mb-0_5 inline-block">
-              <input
-                type="radio"
-                name="procedure_permissions"
-                v-model="procedurePermissions"
-                @change="resetSelectedProcedureId"
-                value="accessibleProcedures"
-                required> {{ Translator.trans('procedure.accessible') }}
-            </label>
-            <label class="u-mb-0_5 u-ml inline-block">
-              <input
-                type="radio"
-                name="procedure_permissions"
-                v-model="procedurePermissions"
-                value="inaccessibleProcedures"> {{ Translator.trans('procedure.inaccessible') }}
-            </label>
-          </template>
-
-          <label
-            class="u-mb-0_5"
-            for="r_target_procedure">{{ Translator.trans('target.procedure') }}</label>
-          <select
-            id="r_target_procedure"
-            name="r_target_procedure"
-            class="w-full u-mb"
-            v-model="selectedProcedureId">
-            <option value="">
-              -
-            </option>
-            <option
-              v-for="procedure in availableProcedures"
-              :key="procedure.id"
-              :value="procedure.id">
-              {{ procedure.name }}
-            </option>
-          </select>
-          <!-- The button disabled-attribute is set to true when the user is not the assignee of all fragments or if any fragments are assigned to departments -->
-          <button
-            type="button"
-            class="btn btn--primary float-right"
-            @click.prevent.stop="copyStatement"
-            :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments">
-            {{ Translator.trans('statement.copy.to.procedure.action') }}
-          </button>
+        <!-- When both permissions are available, the user is prompted to choose which type of procedure she wants to move the statement to -->
+        <template v-if="hasPermission('feature_statement_copy_to_foreign_procedure')">
+          <label class="u-mb-0_5 inline-block">
+            <input
+              type="radio"
+              name="procedure_permissions"
+              v-model="procedurePermissions"
+              @change="resetSelectedProcedureId"
+              value="accessibleProcedures"
+              required> {{ Translator.trans('procedure.accessible') }}
+          </label>
+          <label class="u-mb-0_5 u-ml inline-block">
+            <input
+              type="radio"
+              name="procedure_permissions"
+              v-model="procedurePermissions"
+              value="inaccessibleProcedures"> {{ Translator.trans('procedure.inaccessible') }}
+          </label>
         </template>
-      </div>
-    </dp-modal>
-  </portal>
+
+        <label
+          class="u-mb-0_5"
+          for="r_target_procedure">{{ Translator.trans('target.procedure') }}</label>
+        <select
+          id="r_target_procedure"
+          name="r_target_procedure"
+          class="w-full u-mb"
+          v-model="selectedProcedureId">
+          <option value="">
+            -
+          </option>
+          <option
+            v-for="procedure in availableProcedures"
+            :key="procedure.id"
+            :value="procedure.id">
+            {{ procedure.name }}
+          </option>
+        </select>
+        <!-- The button disabled-attribute is set to true when the user is not the assignee of all fragments or if any fragments are assigned to departments -->
+        <button
+          type="button"
+          class="btn btn--primary float-right"
+          @click.prevent.stop="copyStatement"
+          :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments">
+          {{ Translator.trans('statement.copy.to.procedure.action') }}
+        </button>
+      </template>
+    </div>
+  </dp-modal>
 </template>
 
 <script>
@@ -118,6 +116,10 @@ export default {
       default: () => ({})
     }
   },
+
+  emits: [
+    'statement:copyToProcedure'
+  ],
 
   data () {
     return {

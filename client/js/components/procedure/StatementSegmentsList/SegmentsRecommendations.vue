@@ -46,10 +46,10 @@
       <!--Segments, if there are any-->
       <div v-else>
         <statement-segment
-          v-for="segment in segments"
+          v-for="(segment, idx) in segments"
           :key="'segment_' + segment.id"
           :segment="segment"
-          ref="segment"
+          :ref="`segment${idx}`"
           :statement-id="statementId"
           :current-user-id="currentUser.id"
           :current-user-first-name="currentUser.firstname"
@@ -242,7 +242,16 @@ export default {
             const segmentId = queryParams.get('segment') || ''
             if (segmentId) {
               scrollTo('#segment_' + segmentId, { offset: -110 })
-              const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
+              let segmentComponent = null
+
+              for (let i = 0; i <= this.segments.length; i++) {
+                if (this.segments[i].id === segmentId) {
+                  segmentComponent = this.$refs['segment' + i]
+
+                  break
+                }
+              }
+
               if (segmentComponent) {
                 segmentComponent.isCollapsed = false
               }
@@ -257,8 +266,8 @@ export default {
 
     toggleAll () {
       this.isAllCollapsed = this.isAllCollapsed === false
-      this.$refs.segment.forEach(segment => {
-        segment.isCollapsed = this.isAllCollapsed
+      this.segments.forEach((_segment, idx) => {
+        this.$refs['segment' + idx].isCollapsed = this.isAllCollapsed
       })
     }
   },

@@ -210,14 +210,14 @@
                       <br>{{ Translator.trans('position') }}: {{ statement.userPosition }}
                     </template>
                   </template>
-                  <template v-else>
+                  <template v-if="!hasOwnProp(statement, 'initialOrganisationName')">
                     {{ Translator.trans('notspecified') }}
                   </template>
                 </v-popover>
               </div>
             </div>
             <div
-              v-else-if="true === statement.isCluster && statement.clusterName !== ''"
+              v-if="statement.isCluster && statement.clusterName !== ''"
               class="u-1-of-1 u-pb-0_25">
               <div class="o-hellip--nowrap u-1-of-1">
                 {{ Translator.trans('statement.cluster.name') }}: {{ statement.clusterName }}

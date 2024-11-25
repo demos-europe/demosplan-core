@@ -693,6 +693,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
+import { defineAsyncComponent } from 'vue'
 import StatementModalRecheck from './StatementModalRecheck'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
@@ -729,24 +730,24 @@ export default {
     DpModal,
     DpMultistepNav,
     DpRadio,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
+    }),
     DpUploadFiles,
-    FormGroupCitizenOrInstitution: () => import('./formGroups/FormGroupCitizenOrInstitution'),
-    FormGroupCountyReference: () => import('./formGroups/FormGroupCountyReference'),
-    FormGroupEmailAddress: () => import('./formGroups/FormGroupEmailAddress'),
-    FormGroupEvaluationMailViaEmail: () => import('./formGroups/FormGroupEvaluationMailViaEmail'),
-    FormGroupEvaluationMailViaSnailMailOrEmail: () => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail'),
-    FormGroupMapReference: () => import('./formGroups/FormGroupMapReference'),
-    FormGroupName: () => import('./formGroups/FormGroupName'),
-    FormGroupPhoneNumber: () => import('./formGroups/FormGroupPhoneNumber'),
-    FormGroupPhoneOrEmail: () => import('./formGroups/FormGroupPhoneOrEmail'),
-    FormGroupPostalAndCity: () => import('./formGroups/FormGroupPostalAndCity'),
-    FormGroupStateAndGroupAndOrgaNameAndPosition: () => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition'),
-    FormGroupStreet: () => import('./formGroups/FormGroupStreet'),
-    FormGroupStreetAndHouseNumber: () => import('./formGroups/FormGroupStreetAndHouseNumber'),
+    FormGroupCitizenOrInstitution: defineAsyncComponent(() => import('./formGroups/FormGroupCitizenOrInstitution')),
+    FormGroupCountyReference: defineAsyncComponent(() => import('./formGroups/FormGroupCountyReference')),
+    FormGroupEmailAddress: defineAsyncComponent(() => import('./formGroups/FormGroupEmailAddress')),
+    FormGroupEvaluationMailViaEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaEmail')),
+    FormGroupEvaluationMailViaSnailMailOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail')),
+    FormGroupMapReference: defineAsyncComponent(() => import('./formGroups/FormGroupMapReference')),
+    FormGroupName: defineAsyncComponent(() => import('./formGroups/FormGroupName')),
+    FormGroupPhoneNumber: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneNumber')),
+    FormGroupPhoneOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneOrEmail')),
+    FormGroupPostalAndCity: defineAsyncComponent(() => import('./formGroups/FormGroupPostalAndCity')),
+    FormGroupStateAndGroupAndOrgaNameAndPosition: defineAsyncComponent(() => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition')),
+    FormGroupStreet: defineAsyncComponent(() => import('./formGroups/FormGroupStreet')),
+    FormGroupStreetAndHouseNumber: defineAsyncComponent(() => import('./formGroups/FormGroupStreetAndHouseNumber')),
     StatementModalRecheck
   },
 
@@ -1253,15 +1254,17 @@ export default {
       this.setStatementData({ immediate_submit: immediateSubmit })
       this.setStatementData({ r_loadtime: dayjs().unix() })
 
+      const dataToSend = { ...this.formData }
+
       /*
        * If we have no map/county-reference enabled we can't set it as default, because then this would be preselected
        * which we don't want
        */
-      if (this.formData.location_is_set === '') {
+      if (dataToSend.location_is_set === '') {
         this.setStatementData({ location_is_set: 'notLocated' })
       }
 
-      if (this.formData.r_location !== 'county') {
+      if (dataToSend.r_location !== 'county') {
         this.setStatementData({ r_county: '' })
       }
 
@@ -1269,11 +1272,11 @@ export default {
        * If no submitter type is selected we assume its a citizen.
        * it can't be preset to prevent the radio options from being preselected
        */
-      if (this.formData.r_submitter_role === '') {
+      if (dataToSend.r_submitter_role === '') {
         this.setStatementData({ r_submitter_role: 'citizen' })
       }
 
-      if (this.formData.r_location !== 'point') {
+      if (dataToSend.r_location !== 'point') {
         this.setStatementData({
           r_location_point: '',
           r_location_priority_area_key: '',
@@ -1287,27 +1290,27 @@ export default {
        * thats neccessary because the BE checks for their existance to decide what do show (e.g. in exports)
        *
        */
-      if (this.formData.r_getFeedback === 'off') {
-        delete this.formData.r_getFeedback
+      if (dataToSend.r_getFeedback === 'off') {
+        delete dataToSend.r_getFeedback
       }
-      if (this.formData.r_houseNumber === '') {
-        delete this.formData.r_houseNumber
+      if (dataToSend.r_houseNumber === '') {
+        delete dataToSend.r_houseNumber
       }
-      if (this.formData.r_postalCode === '') {
-        delete this.formData.r_postalCode
+      if (dataToSend.r_postalCode === '') {
+        delete dataToSend.r_postalCode
       }
-      if (this.formData.r_city === '') {
-        delete this.formData.r_city
+      if (dataToSend.r_city === '') {
+        delete dataToSend.r_city
       }
       if (hasPermission('feature_statements_feedback_check_email') === false) {
-        delete this.formData.r_email2
+        delete dataToSend.r_email2
       }
       /*
        * Tweak e-mail values so they fit to the update request
        * due to the dynamic handling there can be inconsistencies
        */
-      if ((hasOwnProp(this.formData, 'r_getFeedback') === false || this.formData.r_getEvaluation !== 'email') && this.formData.r_email === '') {
-        delete this.formData.r_email
+      if ((hasOwnProp(dataToSend, 'r_getFeedback') === false || dataToSend.r_getEvaluation !== 'email') && dataToSend.r_email === '') {
+        delete dataToSend.r_email
       }
 
       let route = Routing.generate('DemosPlan_statement_public_participation_new_ajax', { procedure: this.procedureId }) + (immediateSubmit ? '?immediate_submit=true' : '')
@@ -1320,7 +1323,7 @@ export default {
         this.setStatementData({ action: 'statementpublicnew' })
       }
 
-      return makeFormPost(this.formData, route)
+      return makeFormPost(dataToSend, route)
         .then(response => {
           if (response.status === 429) {
             dplan.notify.notify('error', Translator.trans('error.statement.not.saved.throttle'))
@@ -1530,6 +1533,10 @@ export default {
           this.updateHighlighted({ key: 'location', val: false })
         }, 2000)
       }
+    })
+
+    this.$root.$on('statement-modal:goto-tab', tabname => {
+      this.gotoTab(tabname)
     })
 
     // Set draft statement Id from href

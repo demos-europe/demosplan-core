@@ -95,6 +95,7 @@ import {
   getFileIdsByHash
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'CustomerSettingsSignLanguageVideo',
@@ -104,10 +105,10 @@ export default {
     DpInput,
     DpTextArea,
     DpUploadFiles,
-    DpVideoPlayer: async () => {
+    DpVideoPlayer: defineAsyncComponent(async () => {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
       return DpVideoPlayer
-    }
+    })
   },
 
   mixins: [dpValidateMixin],
@@ -138,6 +139,11 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'created',
+    'deleted'
+  ],
 
   data () {
     return {

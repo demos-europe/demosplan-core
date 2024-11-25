@@ -36,6 +36,10 @@ export default {
     }
   },
 
+  emits: [
+    'click'
+  ],
+
   methods: {
     showStatement () {
       this.$emit('click')
