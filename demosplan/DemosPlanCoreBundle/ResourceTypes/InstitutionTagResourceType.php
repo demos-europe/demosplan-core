@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -49,59 +50,57 @@ class InstitutionTagResourceType extends DplanResourceType
     protected function getProperties(): ResourceConfigBuilderInterface
     {
         $configBuilder = $this->getConfig(InstitutionTagResourceConfigBuilder::class);
-        $configBuilder->id->readable()->filterable();
-        $configBuilder->label
+        $configBuilder->id
             ->setReadableByPath()
-            ->updatable()
-            ->addPathCreationBehavior();
-        // ->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
+            ->setFilterable();
+        $configBuilder->name
+            ->setAliasedPath(Paths::institutionTag()->label)
+            ->addPathUpdateBehavior([]);
+
         $configBuilder->category
-            ->setReadableByPath()
-            ->setRelationshipType($this->getTypes()->getInstitutionTagCategoryResourceType())
-            ->addCreationBehavior(
-                CallbackToOneRelationshipSetBehavior::createFactory(static function (InstitutionTag $tag, InstitutionTagCategory $category): array {
-                    $tag->setCategory($category);
+            ->setRelationshipType($this->getTypes()->getInstitutionTagCategoryResourceType());
 
-                    return [];
-                }, [], OptionalField::NO, [])
-            );
         $configBuilder->taggedInstitutions
-            ->setRelationshipType($this->getTypes()->getOrgaResourceType())
-            ->updatable([], [],
-                function (InstitutionTag $tag, array $taggedInstitutions): array {
-                    $taggingViolations = $this->updateTaggedInstitutions(new ArrayCollection($taggedInstitutions), $tag);
-                    if (0 !== $taggingViolations->count()) {
-                        throw ViolationsException::fromConstraintViolationList($taggingViolations);
-                    }
+            ->setRelationshipType($this->getTypes()->getOrgaResourceType());
 
-                    return [];
-                }
-            );
         if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
-            $configBuilder->label->readable()->filterable()->sortable();
-            $configBuilder->taggedInstitutions->readable()->filterable()->sortable();
-            $configBuilder->category->readable()->filterable()->sortable();
+            $configBuilder->name
+                ->setReadableByPath()
+                ->setFilterable()
+                ->setSortable();
+            $configBuilder->taggedInstitutions
+                ->setReadableByPath()
+                ->setFilterable()
+                ->setSortable();
+            $configBuilder->category
+                ->setReadableByPath()
+                ->setFilterable()
+                ->setSortable();
         }
 
         if ($this->currentUser->hasPermission('feature_institution_tag_create')) {
-            /* $configBuilder->label->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
-             $configBuilder->category->addCreationBehavior(
-                 CallbackToOneRelationshipSetBehavior::createFactory(static function (InstitutionTag $tag, InstitutionTagCategory $category): array {
-                     $tag->setCategory($category);
-                     return [];
-                 }, [], OptionalField::NO, [])
-             );
-             $configBuilder->taggedInstitutions->initializable(true, function (InstitutionTag $tag, array $institutions): array {
-                 $institutionsCollection = new ArrayCollection($institutions);
-                 $tag->setTaggedInstitutions($institutionsCollection);
-                 $institutionsCollection->map(function (Orga $institutionToBeTagged) use ($tag): void {
-                     $institutionToBeTagged->addAssignedTag($tag);
+            $configBuilder->name
+                ->addPathCreationBehavior();
+            $configBuilder->category
+                ->addCreationBehavior(
+                    CallbackToOneRelationshipSetBehavior::createFactory(static function (InstitutionTag $tag, InstitutionTagCategory $category): array {
+                        $tag->setCategory($category);
 
-                     $this->resourceTypeService->validateObject($institutionToBeTagged);
-                 });
+                        return [];
+                    }, [], OptionalField::NO, [])
+                );
 
-                 return [];
-             });*/
+            $configBuilder->taggedInstitutions
+                ->updatable([], [],
+                    function (InstitutionTag $tag, array $taggedInstitutions): array {
+                        $taggingViolations = $this->updateTaggedInstitutions(new ArrayCollection($taggedInstitutions), $tag);
+                        if (0 !== $taggingViolations->count()) {
+                            throw ViolationsException::fromConstraintViolationList($taggingViolations);
+                        }
+
+                        return [];
+                    }
+                );
         }
 
         $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (InstitutionTag $tag, EntityDataInterface $entityData): array {
@@ -152,8 +151,6 @@ class InstitutionTagResourceType extends DplanResourceType
 
     public function isCreateAllowed(): bool
     {
-        return true;
-
         return $this->currentUser->hasPermission('feature_institution_tag_create');
     }
 
