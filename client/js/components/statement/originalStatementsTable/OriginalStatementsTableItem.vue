@@ -66,15 +66,15 @@
             <td>
               {{ submitter }}
             </td>
-            <td v-cleanhtml="element">
-              {{ element }}
-            </td>
+            <td v-cleanhtml="element" />
             <td>
               {{ statement.phase }}
             </td>
             <td class="text-right">
               <dp-flyout v-if="hasPermission('area_statement_anonymize')">
-                <a :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: statement.id })">
+                <a
+                  class="u-pt-0"
+                  :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: statement.id })">
                   {{ Translator.trans('statement.anonymize', { externId: statement.externId }) }}
                 </a>
               </dp-flyout>
@@ -157,7 +157,7 @@
             <span> {{ Translator.trans('personal.data.usage.allowed') }} </span>
           </div>
           <div
-            v-else-if="statement.consetRevoked"
+            v-else-if="statement.consentRevoked"
             class="border--top">
             <span> {{ Translator.trans('personal.data.usage.revoked') }} </span>
             <span> {{ Translator.trans('personal.data.usage.revoked.statement') }} </span>
@@ -293,10 +293,6 @@ export default {
         name += (this.statement.authorName !== '')
           ? this.statement.authorName
           : `${Translator.trans('role.citizen')} (${Translator.trans('anonymous')})`
-
-        if (this.statement.votesNum > 0) {
-          name += `<br>${Translator.trans('voters')}: ${this.statement.votesNum}`
-        }
 
         if (hasPermission('feature_statements_like') && this.statement.publicAllowed) {
           name += `<br>${Translator.trans('liked.by')}: ${this.statement.likesNum}`

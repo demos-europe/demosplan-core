@@ -154,7 +154,7 @@ export default {
 
     loadComponents (hookName) {
       const params = {
-        hookName: hookName
+        hookName
       }
 
       return dpRpc('addons.assets.load', params)

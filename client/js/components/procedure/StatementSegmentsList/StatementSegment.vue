@@ -90,7 +90,7 @@
     <div class="segment-list-col--l overflow-word-break">
       <image-modal
         ref="imageModal"
-        data-cy="recommendation:imgModal"/>
+        data-cy="recommendation:imgModal" />
       <div
         v-if="isAssignedToMe === false"
         ref="recommendationContainer"
@@ -175,14 +175,16 @@
             <button
               v-if="hasPermission('area_admin_boilerplates')"
               :class="prefixClass('menubar__button')"
+              data-cy="segmentEditor:boilerplate"
               type="button"
               v-tooltip="Translator.trans('boilerplate.insert')"
               @click.stop="openBoilerPlate">
               <i :class="prefixClass('fa fa-puzzle-piece')" />
             </button>
             <button
-              v-if="asyncComponents"
+              v-if="asyncComponents.length > 0"
               :class="prefixClass('menubar__button')"
+              data-cy="segmentEditor:similarRecommendation"
               type="button"
               v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
               @click.stop="toggleRecommendationModal">
@@ -503,7 +505,7 @@ export default {
         const name = `${assignee.attributes.firstname} ${assignee.attributes.lastname}`
         const orga = assignee ? assignee.rel('orga') : ''
 
-        return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
+        return { id: this.segment.relationships.assignee.data.id, name, orgaName: orga ? orga.attributes.name : '' }
       } else {
         return { id: '', name: '', orgaName: '' }
       }
@@ -671,7 +673,7 @@ export default {
           ...this.segment,
           relationships: {
             ...this.segment.relationships,
-            comments: comments
+            comments
           }
         }
         this.setSegment({ ...segmentWithComments, id: this.segment.id })
@@ -885,7 +887,7 @@ export default {
           })
         }
       },
-      immediate: true // this ensures the handler is executed immediately after the component is created
+      immediate: true // This ensures the handler is executed immediately after the component is created
     }
   },
 

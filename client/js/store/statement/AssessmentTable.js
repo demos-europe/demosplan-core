@@ -161,7 +161,7 @@ const AssessmentTable = {
     async applyBaseData ({ commit, state }, procedureId) {
       const data = await dpApi({
         method: 'GET',
-        url: Routing.generate('DemosPlan_assessment_base_ajax', { procedureId: procedureId })
+        url: Routing.generate('DemosPlan_assessment_base_ajax', { procedureId })
       })
         .then(this.api.checkResponse)
         .then(response => response.data)

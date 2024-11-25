@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Twig\Environment;
@@ -40,11 +41,12 @@ class ServiceOutput
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         Environment $twig,
+        private readonly FilesystemOperator $defaultStorage,
         FileService $serviceFiles,
         private readonly GlobalNewsHandler $globalNewsHandler,
         private readonly LoggerInterface $logger,
         private readonly ProcedureNewsService $procedureNewsService,
-        ServiceImporter $serviceImporter
+        ServiceImporter $serviceImporter,
     ) {
         $this->fileService = $serviceFiles;
         $this->serviceImporter = $serviceImporter;
@@ -126,8 +128,8 @@ class ServiceOutput
         foreach ($outputResult as $singleNews) {
             if (0 < strlen((string) $singleNews['picture'])) {
                 $fileInfo = $this->fileService->getFileInfoFromFileString($singleNews['picture']);
-                if (is_file($fileInfo->getAbsolutePath())) {
-                    $fileContent = file_get_contents($fileInfo->getAbsolutePath());
+                if ($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+                    $fileContent = $this->defaultStorage->read($fileInfo->getAbsolutePath());
                     $pictures['picture'.$i] = $fileInfo->getHash().'###'.$fileInfo->getFileName().'###'.base64_encode($fileContent);
                     ++$i;
                 }

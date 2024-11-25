@@ -31,7 +31,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use LogicException;
 use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as EmailTwoFactorInterface;
 use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
 use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
@@ -1825,11 +1824,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
 
     public function getEmailAuthCode(): string
     {
-        if (null === $this->authCode) {
-            throw new LogicException('The email authentication code was not set');
-        }
-
-        return $this->authCode;
+        return $this->authCode ?? '';
     }
 
     public function setEmailAuthCode(string $authCode): void

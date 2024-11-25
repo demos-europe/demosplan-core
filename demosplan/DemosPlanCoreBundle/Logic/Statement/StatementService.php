@@ -55,6 +55,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NoTargetsException;
+use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -111,6 +112,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditV
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\MovedStatementData;
 use demosplan\DemosPlanCoreBundle\ValueObject\PercentageDistribution;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementViewed;
 use demosplan\DemosPlanCoreBundle\ValueObject\StatementMovement;
 use demosplan\DemosPlanCoreBundle\ValueObject\StatementMovementCollection;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
@@ -281,6 +283,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         private readonly UserRepository $userRepository,
         UserService $userService,
         private readonly StatementDeleter $statementDeleter,
+        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
     ) {
         $this->assignService = $assignService;
         $this->entityContentChangeService = $entityContentChangeService;
@@ -859,16 +862,18 @@ class StatementService extends CoreService implements StatementServiceInterface
     public function logStatementViewed($procedureId, $statements): void
     {
         try {
+            $entries = [];
             $accessMap = $this->generateAccessMap();
             if (0 !== count($accessMap) && 0 < sizeof($statements)) {
                 foreach ($statements as $statement) {
                     $publicStatement = $statement instanceof Statement ? $statement->getPublicStatement() : $statement['publicStatement'];
                     $statementId = $statement instanceof Statement ? $statement->getId() : $statement['id'];
                     if (0 < count($accessMap) && 0 === \strcmp((string) $publicStatement, (string) Statement::EXTERNAL)) {
-                        $this->addStatementViewedReport($procedureId, $accessMap, $statementId);
+                        $entries[] = new StatementViewed($procedureId, $accessMap, $statementId);
                     }
                 }
             }
+            $this->addStatementViewedReport($entries);
         } catch (Exception $e) {
             $this->logger->warning('protocol not saved: ', [$e]);
         }
@@ -1508,35 +1513,40 @@ class StatementService extends CoreService implements StatementServiceInterface
     /**
      * Add a report entry to the DB.
      *
-     * @param string $procedureId
-     * @param array  $accessMap
-     * @param string $statementId
+     * @var StatementViewed[]
      *
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws ReflectionException
      */
-    private function addStatementViewedReport($procedureId, $accessMap, $statementId): void
+    private function addStatementViewedReport(array $viewsToLog): void
     {
-        // only log if user is known
-        if (!\array_key_exists('user', $accessMap)) {
-            return;
+        $entries = [];
+        foreach ($viewsToLog as $viewedEntry) {
+            $procedureId = $viewedEntry->getProcedureId();
+            $accessMap = $viewedEntry->getAccessMap();
+            $statementId = $viewedEntry->getStatementId();
+
+            // only log if user is known
+            if (!\array_key_exists('user', $accessMap)) {
+                return;
+            }
+            $alreadyLogged = $this->reportService
+                ->statementViewLogged($procedureId, $accessMap['user'], $statementId);
+
+            // logging access once is enough
+            if ($alreadyLogged) {
+                return;
+            }
+
+            $entries[] = $this->statementReportEntryFactory->createViewedEntry(
+                $statementId,
+                $procedureId,
+                $accessMap
+            );
         }
-        $alreadyLogged = $this->reportService
-            ->statementViewLogged($procedureId, $accessMap['user'], $statementId);
 
-        // logging access once is enough
-        if ($alreadyLogged) {
-            return;
-        }
-
-        $entry = $this->statementReportEntryFactory->createViewedEntry(
-            $statementId,
-            $procedureId,
-            $accessMap
-        );
-
-        $this->reportService->persistAndFlushReportEntries($entry);
+        $this->reportService->persistAndFlushReportEntries(...$entries);
     }
 
     /**
@@ -1615,7 +1625,7 @@ class StatementService extends CoreService implements StatementServiceInterface
         try {
             if (0 < count($accessMap) && 0 === \strcmp($statement->getPublicStatement(), (string) Statement::EXTERNAL)) {
                 try {
-                    $this->addStatementViewedReport($statement->getPId(), $accessMap, $statement->getId());
+                    $this->addStatementViewedReport([new StatementViewed($statement->getPId(), $accessMap, $statement->getId())]);
                 } catch (Exception $e) {
                     $this->logger->warning('Add Report in getStatementByIdent() failed Message: ', [$e]);
                 }
@@ -1650,7 +1660,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $accessMap = $this->generateAccessMap();
                 if (0 < count($accessMap) && 0 === \strcmp($statement->getPublicStatement(), (string) Statement::EXTERNAL)) {
                     try {
-                        $this->addStatementViewedReport($statement->getPId(), $accessMap, $statement->getId());
+                        $this->addStatementViewedReport([new StatementViewed($statement->getPId(), $accessMap, $statement->getId())]);
                     } catch (Exception $e) {
                         $this->logger->warning('Add Report in getStatement() failed Message: ', [$e]);
                     }
@@ -2740,29 +2750,33 @@ class StatementService extends CoreService implements StatementServiceInterface
      *
      * @return string the internal or external phase of the given statement
      *
-     * @deprecated use {@link getInternalOrExternalPhaseNameFromObject} instead
+     * @deprecated use {@link getProcedurePhaseName} instead
      */
-    public function getInternalOrExternalPhaseName(array $statement): string
+    public function getProcedurePhaseNameFromArray(array $statement): string
     {
-        return $this->getPhaseNameFromStatementsPublicState(
-            $statement['publicStatement'],
-            $statement['phase']
+        $statementObject = $this->getStatement($statement['id']);
+
+        return $this->getProcedurePhaseName(
+            $statement['phase'],
+            $statementObject->isSubmittedByCitizen()
         );
     }
 
-    public function getInternalOrExternalPhaseNameFromObject(Statement $statement): string
+    public function getProcedurePhaseName(string $phaseKey, bool $isSubmittedByCitizen): string
     {
-        return $this->getPhaseNameFromStatementsPublicState(
-            $statement->getPublicStatement(),
-            $statement->getPhase()
-        );
-    }
+        $phaseName = '';
+        try {
+            $phaseVO = $this->statementProcedurePhaseResolver->getProcedurePhaseVO($phaseKey, $isSubmittedByCitizen);
+            $phaseName = $phaseVO->getName();
 
-    protected function getPhaseNameFromStatementsPublicState(string $publicStatementValue, string $phase): string
-    {
-        return Statement::INTERNAL === $publicStatementValue
-            ? $this->globalConfig->getPhaseNameWithPriorityInternal($phase)
-            : $this->globalConfig->getPhaseNameWithPriorityExternal($phase);
+            if ('' === $phaseName) {
+                throw new UndefinedPhaseException($phaseKey);
+            }
+        } catch (UndefinedPhaseException $e) {
+            $this->logger->error($e->getMessage());
+        }
+
+        return $phaseName;
     }
 
     /**

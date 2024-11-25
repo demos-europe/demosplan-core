@@ -214,9 +214,9 @@ export default {
       const url = Routing.generate(
         'DemosPlan_statement_fragment_delete_ajax',
         {
-          procedureId: procedureId,
-          statementId: statementId,
-          fragmentId: fragmentId
+          procedureId,
+          statementId,
+          fragmentId
         }
       )
 
@@ -301,7 +301,7 @@ export default {
           data: {
             type: 'user',
             id: assigneeId,
-            ignoreLastClaimed: ignoreLastClaimed,
+            ignoreLastClaimed,
             ...((ignoreLastClaimed === false && typeof lastClaimed !== 'undefined') && { relationships: { lastClaimed: { data: { id: lastClaimed, type: 'user' } } } })
           }
         },

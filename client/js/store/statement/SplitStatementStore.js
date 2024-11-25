@@ -26,7 +26,7 @@ const SplitStatementStore = {
     // Segment currently being edited
     editingSegment: null,
     initialData: null,
-    initialSegments: null,
+    initialSegments: [],
     initText: '',
     // Loading state for save+finish button
     isBusy: false,

@@ -138,7 +138,7 @@ class DemosPlanOrgaController extends BaseController
      *
      * @throws MessageBagException
      */
-    #[Route(name: 'DemosPlan_orga_edit_save', path: '/organisation/edit/{orgaId}', methods: ['POST'])]
+    #[Route(name: 'DemosPlan_orga_edit_save', path: '/organisation/edit/{orgaId}', methods: ['POST'], options: ['expose' => true])]
     public function editOrgaSaveAction(
         CurrentUserService $currentUser,
         EventDispatcherPostInterface $eventDispatcherPost,

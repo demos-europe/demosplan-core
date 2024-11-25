@@ -323,6 +323,8 @@
         hidden-input="r_text"
         v-model="values.text" />
 
+      <slot />
+
       <!-- File upload fields -->
       <template v-if="allowFileUpload">
         <dp-label
@@ -474,6 +476,7 @@ export default {
       required: false,
       default: () => ({
         authoredDate: '',
+        quickSave: '',
         submittedDate: '',
         tags: [],
         text: '',
@@ -530,6 +533,7 @@ export default {
       values: {
         authoredDate: '',
         memo: '',
+        quickSave: '',
         submittedDate: '',
         tags: [],
         text: '',

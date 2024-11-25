@@ -138,7 +138,7 @@ export default {
 
       const visible = isVisible || this.isVisible
       this.$root.$emit('layer:toggleChildCategories', { categories: this.group.relationships.categories.data, isVisible: visible })
-      this.$root.$emit('layer:toggleChildLayer', { layer: this.group.relationships.gisLayers.data, isVisible: visible, visibilityGroupId: visibilityGroupId })
+      this.$root.$emit('layer:toggleChildLayer', { layer: this.group.relationships.gisLayers.data, isVisible: visible, visibilityGroupId })
     },
 
     // Toggle self and children

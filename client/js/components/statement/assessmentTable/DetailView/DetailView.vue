@@ -26,7 +26,7 @@ import { defineAsyncComponent } from 'vue'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
-import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
+import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
 import saveAndReturn from '@DpJs/directives/saveAndReturn'
 
 export default {
@@ -40,7 +40,7 @@ export default {
     DpDatepicker,
     DpMapModal,
     DpMultiselect,
-    DpStatementPublish,
+    StatementPublish,
     DpAccordion,
     DpUploadFiles,
 

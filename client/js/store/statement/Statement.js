@@ -508,7 +508,7 @@ export default {
         fields.County = 'name'
       }
 
-      if (hasAnyPermissions(['field_statement_municipality', 'area_admin_assessmenttable'])) {
+      if (hasPermission('field_statement_municipality')) {
         includes.push('municipalities')
         statementFields.push('municipalities')
         fields.Municipality = 'name'
@@ -732,7 +732,7 @@ export default {
     setAssigneeAction ({ commit }, { statementId, assigneeId }) {
       return dpApi({
         method: 'PATCH',
-        url: Routing.generate('dplan_claim_statements_api', { statementId: statementId }),
+        url: Routing.generate('dplan_claim_statements_api', { statementId }),
         data: {
           data: {
             type: 'user',
@@ -863,7 +863,6 @@ export default {
             'elements',
             'files',
             'fragmentsElements',
-            'municipalities',
             'paragraph',
             'priorityAreas',
             'tags'

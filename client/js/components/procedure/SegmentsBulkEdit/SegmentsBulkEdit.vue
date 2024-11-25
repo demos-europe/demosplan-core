@@ -526,10 +526,8 @@ export default {
           this.assignableUsers.push({
             name: Translator.trans('not.assigned'),
             id: null
-          });
-
+          })
         })
-
     },
 
     fetchPlaces () {

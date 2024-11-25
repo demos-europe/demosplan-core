@@ -26,7 +26,7 @@
       :is-active="activeTabId === 'tagList'"
       :label="Translator.trans('tag.administrate')">
       <slot>
-        <TagList v-on:tagIsRemoved="institutionListReset" />
+        <TagList @tagIsRemoved="institutionListReset" />
       </slot>
     </dp-tab>
   </dp-tabs>
@@ -65,7 +65,7 @@ export default {
 
   methods: {
     ...mapActions('InvitableInstitution', {
-      listInvitableInstitution: 'list',
+      listInvitableInstitution: 'list'
     }),
 
     getInstitutionsByPage (page) {
@@ -80,8 +80,8 @@ export default {
         }
       })
         .then(() => {
-        this.needToReset = false
-      })
+          this.needToReset = false
+        })
     },
 
     setActiveTabId (id) {
@@ -100,6 +100,3 @@ export default {
   }
 }
 </script>
-
-
-

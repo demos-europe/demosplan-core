@@ -24,7 +24,7 @@ import {
 import { mapActions, mapGetters } from 'vuex'
 import DpAutofillSubmitterData from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
 import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'
-import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
+import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
 import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
 
 export default {
@@ -40,7 +40,7 @@ export default {
     DpMultiselect,
     DpSelect,
     DpSelectStatementCluster,
-    DpStatementPublish,
+    StatementPublish,
     DpEditor,
     DpUploadFiles,
     StatementVoter
@@ -176,7 +176,7 @@ export default {
     ]),
 
     phases () {
-      if (this.institutionSelected && hasPermission('field_show_internal_procedure_phases_in_dropdown')) {
+      if (this.institutionSelected) {
         return this.procedurePhases({
           internal: true,
           external: false
@@ -240,7 +240,7 @@ export default {
      * internal phase applies to institutions.
      */
     setDefaultPhase (isInstitution) {
-      if (isInstitution && hasPermission('field_show_internal_procedure_phases_in_dropdown')) {
+      if (isInstitution) {
         this.values.phase = Object.values(this.internalPhases).find(el => el.key === this.currentInternalPhase) || Object.values(this.internalPhases)[0]
       } else {
         this.values.phase = Object.values(this.externalPhases).find(el => el.key === this.currentExternalPhase) || Object.values(this.externalPhases)[0]

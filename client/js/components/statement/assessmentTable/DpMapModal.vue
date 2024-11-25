@@ -8,26 +8,29 @@
 </license>
 
 <template>
-  <dp-modal
-    ref="mapModal"
-    content-classes="u-1-of-2 u-pb"
-    @modal:toggled="(open) => {isModalOpen = open}">
-    <dp-ol-map
-      :class="prefixClass('u-mv-0_5')"
-      v-if="isModalOpen"
-      :procedure-id="procedureId"
-      :map-options-route="mapOptionsRoute"
-      ref="map"
-      :options="{
-        autoSuggest: false,
-        scaleSelect: false,
-        procedureExtent: false,
-      }">
-      <dp-ol-map-layer-vector
-        zoom-to-drawing
-        :features="drawing" />
-    </dp-ol-map>
-  </dp-modal>
+  <portal to="vueModals">
+    <dp-modal
+      ref="mapModal"
+      content-classes="u-1-of-2 u-pb"
+      @modal:toggled="(open) => {isModalOpen = open}">
+      <dp-ol-map
+        v-if="isModalOpen"
+        ref="map"
+        :class="prefixClass('u-mv-0_5')"
+        map-id="mapModal"
+        :map-options-route="mapOptionsRoute"
+        :options="{
+          autoSuggest: false,
+          scaleSelect: false,
+          procedureExtent: true
+        }"
+        :procedure-id="procedureId">
+        <dp-ol-map-layer-vector
+          zoom-to-drawing
+          :features="drawing" />
+      </dp-ol-map>
+    </dp-modal>
+  </portal>
 </template>
 
 <script>

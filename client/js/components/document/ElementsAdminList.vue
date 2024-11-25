@@ -48,7 +48,7 @@
     <dp-loading v-if="isLoading" />
     <p
       v-else-if="treeData.length < 1"
-      v-text="Translator.trans('plandocuments.no_elements')"/>
+      v-text="Translator.trans('plandocuments.no_elements')" />
     <dp-tree-list
       v-else
       ref="treeList"

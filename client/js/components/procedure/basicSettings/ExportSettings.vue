@@ -322,7 +322,7 @@ export default {
           group: 'submitterData'
         }
       ],
-      singleCheckedFieldId: '',
+      singleCheckedFieldId: ''
     }
   },
 

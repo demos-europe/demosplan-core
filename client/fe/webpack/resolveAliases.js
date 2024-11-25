@@ -15,7 +15,7 @@ function resolveAliases () {
   const aliases = {
     '@DpJs': config.absoluteRoot + 'client/js',
     vue: config.absoluteRoot + 'node_modules/@vue/compat/dist/vue.esm-bundler',
-    './olcs/olcsMap.js':  config.absoluteRoot + 'node_modules/@masterportal/masterportalapi/src/maps/olcs/olcsMap.js',
+    './olcs/olcsMap.js': config.absoluteRoot + 'node_modules/@masterportal/masterportalapi/src/maps/olcs/olcsMap.js',
     './olcs': config.absoluteRoot + 'node_modules/olcs/lib/olcs',
     'olcs/lib': config.absoluteRoot + 'node_modules/olcs/lib',
     'olcs/core': config.absoluteRoot + 'node_modules/olcs/lib/olcs/core',
@@ -24,8 +24,7 @@ function resolveAliases () {
     './print/computeRectangle': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/computeRectangle.js',
     './print/rawCesiumMask': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/rawCesiumMask.js',
     './print/takeCesiumScreenshot': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/takeCesiumScreenshot.js',
-    './print/drawCesiumMask': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/drawCesiumMask.js',
-
+    './print/drawCesiumMask': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/drawCesiumMask.js'
   }
 
   glob.sync(config.oldBundlesPath + 'Demos*Bundle').forEach(dir => {

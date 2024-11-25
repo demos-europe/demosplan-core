@@ -386,7 +386,7 @@ export default {
     loadUserFilterSet () {
       const filterHash = this.userFilterSetFilterHash(this.selectedUserFilterSet)
       // Reload with userFilterSet
-      document.location.href = Routing.generate(this.route, { procedureId: this.procedureId, filterHash: filterHash })
+      document.location.href = Routing.generate(this.route, { procedureId: this.procedureId, filterHash })
     },
 
     nameFromAttributes (option) {
@@ -487,7 +487,7 @@ export default {
       window.updateFilterHash(this.procedureId, this.allSelectedFilterOptionsWithFilterName)
         .then((filterHash) => {
           // Get updated options for selected filters
-          this.getFilterOptionsAction({ filterHash: filterHash })
+          this.getFilterOptionsAction({ filterHash })
             .then((filterHash) => {
               this.$root.$emit('selected-updated', filterHash)
               this.disabledInteractions = false

@@ -270,9 +270,11 @@ export default {
     },
 
     save () {
-      /** transformedText contains the text with the obscure tag applied.
+      /**
+       * TransformedText contains the text with the obscure tag applied.
        * To avoid the cursor jumping to the end, we update the fullText with transformedText only when the save action is triggered.
-       * */
+       *
+       */
       if (this.transformedText && this.transformedText !== this.fullText) {
         this.fullText = this.transformedText
       }

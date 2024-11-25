@@ -291,7 +291,7 @@ export default {
     toggleAllCheckboxes () {
       const status = this.allCheckboxesToggled
       const statements = JSON.parse(JSON.stringify(this.statements))
-      const payload = { status: status, statements: statements }
+      const payload = { status, statements }
 
       if (status) {
         for (const statementId in statements) {
