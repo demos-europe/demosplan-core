@@ -88,11 +88,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      */
     private $modificationDate;
 
-    public function __construct(string $label)
-    {
-        $this->label = $label;
-        $this->taggedInstitutions = new ArrayCollection();
-    }
+
 
     public function getId(): ?string
     {
@@ -154,5 +150,10 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
     public function setLabel(string $label): void
     {
         $this->label = $label;
+    }
+
+    public function setCategory(InstitutionTagCategory $category): void
+    {
+        $this->category = $category;
     }
 }

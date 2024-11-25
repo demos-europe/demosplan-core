@@ -13,17 +13,24 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseInstitutionTagResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
+use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\InstitutionTagResourceConfigBuilder;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -44,11 +51,24 @@ class InstitutionTagResourceType extends DplanResourceType
 
     protected function getProperties(): ResourceConfigBuilderInterface
     {
-        $configBuilder = $this->getConfig(BaseInstitutionTagResourceConfigBuilder::class);
+        $configBuilder = $this->getConfig(InstitutionTagResourceConfigBuilder::class);
         $configBuilder->id->readable()->filterable();
-        $configBuilder->label->updatable();
+        $configBuilder->label
+            ->setReadableByPath()
+            ->updatable()
+            ->addPathCreationBehavior();
+            //->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
+        $configBuilder->category
+            ->setReadableByPath()
+            ->setRelationshipType($this->getTypes()->getInstitutionTagCategoryResourceType())
+            ->addCreationBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(static function (InstitutionTag $tag, InstitutionTagCategory $category): array {
+                    $tag->setCategory($category);
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
         $configBuilder->taggedInstitutions
-            ->setRelationshipType($this->resourceTypeStore->getOrgaResourceType())
+            ->setRelationshipType($this->getTypes()->getOrgaResourceType())
             ->updatable([], [],
                 function (InstitutionTag $tag, array $taggedInstitutions): array {
                     $taggingViolations = $this->updateTaggedInstitutions(new ArrayCollection($taggedInstitutions), $tag);
@@ -62,22 +82,35 @@ class InstitutionTagResourceType extends DplanResourceType
         if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
             $configBuilder->label->readable()->filterable()->sortable();
             $configBuilder->taggedInstitutions->readable()->filterable()->sortable();
+            $configBuilder->category->readable()->filterable()->sortable();
         }
 
         if ($this->currentUser->hasPermission('feature_institution_tag_create')) {
-            $configBuilder->label->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
-            $configBuilder->taggedInstitutions->initializable(true, function (InstitutionTag $tag, array $institutions): array {
-                $institutionsCollection = new ArrayCollection($institutions);
-                $tag->setTaggedInstitutions($institutionsCollection);
-                $institutionsCollection->map(function (Orga $institutionToBeTagged) use ($tag): void {
-                    $institutionToBeTagged->addAssignedTag($tag);
+            /* $configBuilder->label->addConstructorBehavior(AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null));
+             $configBuilder->category->addCreationBehavior(
+                 CallbackToOneRelationshipSetBehavior::createFactory(static function (InstitutionTag $tag, InstitutionTagCategory $category): array {
+                     $tag->setCategory($category);
+                     return [];
+                 }, [], OptionalField::NO, [])
+             );
+             $configBuilder->taggedInstitutions->initializable(true, function (InstitutionTag $tag, array $institutions): array {
+                 $institutionsCollection = new ArrayCollection($institutions);
+                 $tag->setTaggedInstitutions($institutionsCollection);
+                 $institutionsCollection->map(function (Orga $institutionToBeTagged) use ($tag): void {
+                     $institutionToBeTagged->addAssignedTag($tag);
 
-                    $this->resourceTypeService->validateObject($institutionToBeTagged);
-                });
+                     $this->resourceTypeService->validateObject($institutionToBeTagged);
+                 });
 
-                return [];
-            });
+                 return [];
+             });*/
         }
+
+        $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (InstitutionTag $tag, EntityDataInterface $entityData): array {
+            $this->institutionTagRepository->persistEntities([$tag]);
+
+            return [];
+        }));
 
         return $configBuilder;
     }
@@ -94,8 +127,6 @@ class InstitutionTagResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return true;
-
         return $this->currentUser->hasAnyPermissions(
             'feature_institution_tag_create',
             'feature_institution_tag_read',
@@ -106,8 +137,6 @@ class InstitutionTagResourceType extends DplanResourceType
 
     public function isUpdateAllowed(): bool
     {
-        return true;
-
         return $this->currentUser->hasPermission('feature_institution_tag_update');
     }
 
@@ -160,8 +189,6 @@ class InstitutionTagResourceType extends DplanResourceType
 
     public function isDeleteAllowed(): bool
     {
-        return true;
-
         return $this->currentUser->hasPermission('feature_institution_tag_delete');
     }
 
