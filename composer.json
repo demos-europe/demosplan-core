@@ -53,6 +53,7 @@
         "enqueue/fs": "^0.10",
         "erusev/parsedown": "^1.7",
         "exercise/htmlpurifier-bundle": "^4.1",
+        "fakerphp/faker": "^1.24",
         "friendsofsymfony/elastica-bundle": "^6",
         "friendsofsymfony/jsrouting-bundle": "^3.5",
         "geocoder-php/nominatim-provider": "^5.5",
