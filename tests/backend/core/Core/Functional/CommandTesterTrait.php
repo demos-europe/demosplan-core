@@ -13,14 +13,13 @@ declare(strict_types=1);
 namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 trait CommandTesterTrait
 {
     private function getCommandTesterByName($kernel, string $commandName): CommandTester
     {
-        $application = new ConsoleApplication($kernel, false);
+        $application = new ConsoleApplication($kernel);
 
         $command = $application->find($commandName);
 

@@ -130,7 +130,7 @@ class AddonAutoinstallCommandTest extends FunctionalTestCase
     private function executeCommand(): CommandTester
     {
         $kernel = self::bootKernel();
-        $application = new ConsoleApplication($kernel, false);
+        $application = new ConsoleApplication($kernel);
 
         $application->add(new AddonAutoinstallCommand(
             $this->addonInstallCommand,

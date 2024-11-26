@@ -25,7 +25,7 @@ use Zenstruck\Foundry\Proxy;
 
 class DeleteProcedureCommandTest extends FunctionalTestCase
 {
-    private null|Procedure|Proxy $testProcedure;
+    private Procedure|Proxy|null $testProcedure;
 
     /** @var SqlQueriesService */
     protected $queriesService;
@@ -69,7 +69,7 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
     private function executeCommand(string $procedureIds): CommandTester
     {
         $kernel = self::bootKernel();
-        $application = new ConsoleApplication($kernel, false);
+        $application = new ConsoleApplication($kernel);
 
         $procedureDeleter = $this->getMock(ProcedureDeleter::class);
         $procedureDeleter->method('deleteProcedures')->willReturnCallback(function ($param): void {});
@@ -91,7 +91,7 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
     private function executeCommandWithoutArgument(): CommandTester
     {
         $kernel = self::bootKernel();
-        $application = new ConsoleApplication($kernel, false);
+        $application = new ConsoleApplication($kernel);
 
         $procedureDeleter = $this->getMock(ProcedureDeleter::class);
         $procedureDeleter->method('deleteProcedures')->willReturnCallback(function ($param): void {});

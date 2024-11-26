@@ -12,15 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
+use Closure;
 use demosplan\DemosPlanCoreBundle\Addon\AddonAutoloading;
-use demosplan\DemosPlanCoreBundle\Logic\HttpCache;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use Exception;
-use LogicException;
-use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\ErrorHandler\Debug;
-use Symfony\Component\HttpFoundation\Request;
 
 use function set_time_limit;
 
@@ -51,94 +46,32 @@ final class FrontController
         AddonAutoloading::register();
     }
 
-    /**
-     * This is the code typically living in `bin/console` in classic Symfony applications.
-     *
-     * @throws Exception
-     */
-    public static function bootstrapConsole(): ArgvInput
+    public static function console(): Closure
     {
-        if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
-            echo 'Warning: The console should be invoked via the CLI version of PHP, not the '.PHP_SAPI.' SAPI'.PHP_EOL;
-        }
-
         set_time_limit(0);
 
-        require DemosPlanPath::getRootPath('vendor/autoload.php');
+        self::bootstrap();
 
-        if (!class_exists(ConsoleApplication::class) || !class_exists(Dotenv::class)) {
-            throw new LogicException('You need to add "symfony/framework-bundle" and "symfony/dotenv" as Composer dependencies.');
-        }
+        return static function (array $context): ConsoleApplication {
+            $kernel = new DemosPlanKernel($context['ACTIVE_PROJECT'], $context['APP_ENV'], (bool) $context['APP_DEBUG']);
 
-        (new Dotenv())->bootEnv(DemosPlanPath::getRootPath('.env'));
-
-        // explicitly set the environment if provided in command
-        $input = new ArgvInput();
-        if (null !== $env = $input->getParameterOption(['--env', '-e'], null, true)) {
-            putenv('APP_ENV='.$_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $env);
-        }
-
-        if ($input->hasParameterOption('--no-debug', true)) {
-            putenv('APP_DEBUG='.$_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0');
-        }
-
-        if ($_SERVER['APP_DEBUG']) {
-            umask(0000);
-
-            if (class_exists(Debug::class)) {
-                Debug::enable();
-            }
-        }
-
-        return $input;
+            // returning an "Application" makes the Runtime run a Console
+            // application instead of the HTTP Kernel
+            return new ConsoleApplication($kernel);
+        };
     }
 
-    public static function console(string $activeProject, bool $deprecatedFrontcontroller = false): void
-    {
-        $input = self::bootstrapConsole();
-
-        // Add the Addon autoloader to the spl autoload stack
-        AddonAutoloading::register();
-
-        $kernel = new DemosPlanKernel($activeProject, $_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
-        $application = new ConsoleApplication($kernel, $deprecatedFrontcontroller);
-
-        $application->run($input);
-    }
-
-    /**
-     * Matches `web/app{_dev}.php.
-     *
-     * @throws Exception
-     */
-    public static function web(string $activeProject, bool $debug = false): void
+    public static function web(): Closure
     {
         self::bootstrap();
 
-        $environment = 'prod';
-        if ($debug) {
-            umask(0000);
-            $environment = 'dev';
-            Debug::enable();
-        }
+        return static function (array $context): DemosPlanKernel {
+            return new DemosPlanKernel($context['ACTIVE_PROJECT'], $context['APP_ENV'], (bool) $context['APP_DEBUG']);
+        };
+    }
 
-        /** @var DemosPlanKernel|HttpCache $kernel */
-        $kernel = new DemosPlanKernel($activeProject, $environment, $debug);
-        $kernel = new HttpCache($kernel);
-
-        // When using the HttpCache, you need to call the
-        // method in your front controller instead of relying
-        // on the configuration parameter `Request::enableHttpMethodParameterOverride()`;
-        $request = Request::createFromGlobals();
-
-        // local and Dataport proxy
-        Request::setTrustedProxies(
-            ['172.24.116.3', '10.61.16.6'],
-            Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_HOST | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO
-        );
-
-        $response = $kernel->handle($request);
-        $response->send();
-        $kernel->terminate($request, $response);
+    public static function deprecated(): void
+    {
+        echo '<h1>Front controller has moved</h1><p>Please configure the webserver to call public/index.php as document root</p>';
     }
 }

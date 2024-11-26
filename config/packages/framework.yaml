@@ -8,6 +8,8 @@ framework:
     enabled_locales: ['de']
     validation: { enable_annotations: true }
     trusted_hosts: ~
+    trusted_proxies: '[%proxy_dsn%]'
+    trusted_headers: [ 'x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-prefix' ]
     #csrf_protection: true
 
     # Enables session support. Note that the session will ONLY be started if you read or write from it.
@@ -31,6 +33,10 @@ framework:
     request:
         formats:
             jsonapi: [ 'application/vnd.api+json' ]
+
+when@prod:
+    framework:
+        http_cache: true
 
 when@test:
     framework:

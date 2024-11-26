@@ -23,7 +23,7 @@ use Zenstruck\Foundry\Proxy;
 
 class DeleteOrgaCommandTest extends FunctionalTestCase
 {
-    private null|Orga|Proxy $testOrga;
+    private Orga|Proxy|null $testOrga;
 
     /** @var SqlQueriesService */
     protected $queriesService;
@@ -67,7 +67,7 @@ class DeleteOrgaCommandTest extends FunctionalTestCase
     private function executeCommand(string $OrgaIds): CommandTester
     {
         $kernel = self::bootKernel();
-        $application = new ConsoleApplication($kernel, false);
+        $application = new ConsoleApplication($kernel);
 
         $orgaDeleter = $this->getMock(OrgaDeleter::class);
         $orgaDeleter->method('deleteOrganisations')->willReturnCallback(function ($param): void {});
@@ -89,7 +89,7 @@ class DeleteOrgaCommandTest extends FunctionalTestCase
     private function executeCommandWithoutArgument(): CommandTester
     {
         $kernel = self::bootKernel();
-        $application = new ConsoleApplication($kernel, false);
+        $application = new ConsoleApplication($kernel);
 
         $orgaDeleter = $this->getMock(OrgaDeleter::class);
         $orgaDeleter->method('deleteOrganisations')->willReturnCallback(function ($param): void {});

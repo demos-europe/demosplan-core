@@ -121,7 +121,7 @@ class deleteCustomerCommandTest extends FunctionalTestCase
     private function executeCommand(array $additionalParameters): CommandTester
     {
         $kernel = self::bootKernel();
-        $application = new ConsoleApplication($kernel, false);
+        $application = new ConsoleApplication($kernel);
         $application->add(
             new DeleteCustomerCommand(
                 $this->parameterBagInterfaceMock,

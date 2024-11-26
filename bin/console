@@ -11,19 +11,14 @@
 
 use demosplan\DemosPlanCoreBundle\Application\FrontController;
 
-$activeProject = null;
-if (isset($_SERVER['ACTIVE_PROJECT'])) {
-    $activeProject = $_SERVER['ACTIVE_PROJECT'];
-}
+require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
 if (isset($_ENV['ACTIVE_PROJECT'])) {
-    $activeProject = $_ENV['ACTIVE_PROJECT'];
+    $_SERVER['ACTIVE_PROJECT'] = $_ENV['ACTIVE_PROJECT'];
 }
 
-if (null === $activeProject) {
-    $activeProject = 'core';
+if (!array_key_exists('ACTIVE_PROJECT', $_SERVER)) {
+    $_SERVER['ACTIVE_PROJECT'] = 'core';
 }
 
-require __DIR__.'/../vendor/autoload.php';
-
-FrontController::console($activeProject);
+return FrontController::console();
