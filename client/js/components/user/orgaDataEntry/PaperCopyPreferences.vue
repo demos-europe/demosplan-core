@@ -20,8 +20,7 @@
           hint: Translator.trans('explanation.organisation.copies.paper')
         }"
         :selected="organisation.paperCopy"
-        :options="paperCopyCountOptions()">
-      </dp-select>
+        :options="paperCopyCountOptions()" />
     </div>
 
     <div
@@ -80,7 +79,7 @@ export default {
     paperCopyCountOptions () {
       return Array.from({ length: 11 }, (_, i) => ({
         label: i.toString(),
-        value: i,
+        value: i
       }))
     }
   }

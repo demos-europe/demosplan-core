@@ -42,7 +42,7 @@ export default {
     fetchProcedureMapSettings ({ commit }, { procedureId, isMaster = false }) {
       try {
         const resourceType = isMaster ? 'ProcedureTemplate' : 'Procedure'
-        const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType: resourceType })
+        const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType })
         const procedureMapSettingFields = ['availableScales',
           'boundingBox',
           'defaultBoundingBox',
@@ -96,8 +96,8 @@ export default {
                 availableScales: data.availableScales.map(scale => ({ label: `1:${scale.toLocaleString('de-DE')}`, value: scale })) ?? [],
                 coordinate: convertExtentToFlatArray(data.coordinate) ?? '',
                 copyright: data.copyright ?? '',
-                defaultBoundingBox: defaultBoundingBox,
-                defaultMapExtent: defaultMapExtent,
+                defaultBoundingBox,
+                defaultMapExtent,
                 useGlobalInformationUrl: data.useGlobalInformationUrl ?? false,
                 informationUrl: data.informationUrl ?? '',
                 showOnlyOverlayCategory: data.showOnlyOverlayCategory ?? false,
