@@ -99,9 +99,9 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
         $commandTester = new CommandTester($command);
 
         $commandTester->execute(
-            ['command' => $command->getName(),
+            ['command'                 => $command->getName(),
                 '--without-repopulate' => true,
-                '--dry-run' => true
+                '--dry-run'            => true,
             ]
         );
     }
@@ -126,5 +126,4 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
 
         return $application->find(DeleteProcedureCommand::getDefaultName());
     }
-
 }
