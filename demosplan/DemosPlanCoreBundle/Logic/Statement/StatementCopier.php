@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -356,9 +357,15 @@ class StatementCopier extends CoreService
         // create a physical copy of files as the increased complexity of having
         // multiple references to one file does count more than hdd space
         foreach ($statementToCopy->getFiles() as $fileString) {
-            // filestring is written into $fileService on copy
             try {
-                $this->fileService->copyByFileString($fileString, $targetProcedureId);
+                $file = $this->fileService->copyByFileString($fileString, $targetProcedureId);
+                if ($file instanceof File) {
+                    $this->fileService->addStatementFileContainer(
+                        $copiedStatement->getId(),
+                        $file->getHash(),
+                        $file->getFileString()
+                    );
+                }
             } catch (FileNotFoundException) {
                 $this->messageBag->add(
                     'error',
@@ -367,11 +374,6 @@ class StatementCopier extends CoreService
                 );
                 $this->getLogger()->error('Fail to copy Files of Statement', [$statementToCopy->getId()]);
             }
-            $this->fileService->addStatementFileContainer(
-                $copiedStatement->getId(),
-                $this->fileService->getInfoFromFileString($this->fileService->getFileString(), 'hash'),
-                $this->fileService->getFileString()
-            );
         }
 
         // copy

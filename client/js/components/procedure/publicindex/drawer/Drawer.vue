@@ -102,7 +102,7 @@ export default {
 
     toggleList () {
       const val = this.currentView !== 'DpList' ? 'DpList' : ''
-      this.setProperty({ prop: 'currentView', val: val })
+      this.setProperty({ prop: 'currentView', val })
     }
   },
 

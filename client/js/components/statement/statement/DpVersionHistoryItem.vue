@@ -18,145 +18,165 @@
     data-cy="versionHistoryItem">
     <td colspan="4">
       <table>
-        <tr class="sr-only">
-          <th>{{ Translator.trans('time') }}</th>
-          <th v-if="time.userName !== null">
-            {{ Translator.trans('user') }}
-          </th>
-          <th v-else>
-            -
-          </th>
-          <th>{{ Translator.trans('fields') }}</th>
-          <th>{{ Translator.trans('aria.toggle') }}</th>
-        </tr>
-        <tr
-          @click="getContent"
-          class="o-sortablelist__item cursor-pointer">
-          <!-- time -->
-          <td
-            class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
-            style="width: 15%;"
-            data-cy="historyTime">
-            {{ timeCreated }} {{ Translator.trans('clock') }}
-          </td>
+        <thead>
+          <tr class="sr-only">
+            <th>{{ Translator.trans('time') }}</th>
+            <th v-if="time.userName !== null">
+              {{ Translator.trans('user') }}
+            </th>
+            <th v-else>
+              -
+            </th>
+            <th>{{ Translator.trans('fields') }}</th>
+            <th>{{ Translator.trans('aria.toggle') }}</th>
+          </tr>
+        </thead>
 
-          <!-- user name -->
-          <td
-            v-if="time.userName !== null"
-            class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
-            style="width: 40%;"
-            data-cy="historyUserName">
-            {{ time.userName }}
-          </td>
-          <td
-            v-else
-            class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
-            style="width: 40%;">
-            -
-          </td>
+        <tbody>
+          <tr
+            @click="getContent"
+            class="o-sortablelist__item cursor-pointer">
+            <!-- time -->
+            <td
+              class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
+              style="width: 15%;"
+              data-cy="historyTime">
+              {{ timeCreated }} {{ Translator.trans('clock') }}
+            </td>
 
-          <!-- fields -->
-          <td
-            class="line-height--1_6 u-pv-0_5"
-            style="width: 40%;">
-            <ul class="o-list o-list--csv">
-              <li
-                v-for="field in time.fieldNames"
-                class="o-list__item"
-                :key="field"
-                data-cy="historyField">
-                {{ Translator.trans(field) }}
-              </li>
-            </ul>
-          </td>
+            <!-- user name -->
+            <td
+              v-if="time.userName !== null"
+              class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
+              style="width: 40%;"
+              data-cy="historyUserName">
+              {{ time.userName }}
+            </td>
+            <td
+              v-else
+              class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
+              style="width: 40%;">
+              -
+            </td>
 
-          <td
-            class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5 text-right cursor-pointer"
-            style="width: 5%">
-            <i
-              class="btn-icns fa cursor-pointer"
-              :class="{'fa-angle-down': !isOpen, 'fa-angle-up': isOpen}"
-              data-cy="toggleIcon" />
-          </td>
-        </tr>
+            <!-- fields -->
+            <td
+              class="line-height--1_6 u-pv-0_5"
+              style="width: 40%;">
+              <ul class="o-list o-list--csv">
+                <li
+                  v-for="field in time.fieldNames"
+                  class="o-list__item"
+                  :key="field"
+                  data-cy="historyField">
+                  {{ Translator.trans(field) }}
+                </li>
+              </ul>
+            </td>
 
-        <tr>
-          <td colspan="4">
-            <table>
-              <tr class="sr-only">
-                <th
-                  colspan="4"
-                  v-if="isOpen && isLoading">
-                  {{ Translator.trans('loading') }}
-                </th>
-                <th
-                  colspan="4"
-                  v-if="isOpen && !isLoading">
-                  {{ Translator.trans('dropdown.open') }}
-                </th>
-              </tr>
-              <tr>
-                <td
-                  v-if="isOpen && isLoading"
-                  class="u-ml u-mb u-mt inline-block"
-                  colspan="4">
-                  <dp-loading />
-                </td>
+            <td
+              class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5 text-right cursor-pointer"
+              style="width: 5%">
+              <i
+                class="btn-icns fa cursor-pointer"
+                :class="{'fa-angle-down': !isOpen, 'fa-angle-up': isOpen}"
+                data-cy="toggleIcon" />
+            </td>
+          </tr>
 
-                <td
-                  colspan="4"
-                  v-if="isOpen && !isLoading">
-                  <table v-if="time.displayChange">
-                    <tr class="sr-only">
-                      <th>{{ Translator.trans('field') }}</th>
-                      <th>{{ Translator.trans('change') }}</th>
-                    </tr>
-                    <tr
-                      v-for="(content, fieldName) in history.attributes"
-                      :key="fieldName + 'content'"
-                      class="u-pb-0_25"
-                      data-cy="historyItemElement">
-                      <td
-                        :id="'fieldName' + time.anyEntityContentChangeIdOfThisChangeInstance"
-                        class="u-pt-0_5 u-pl-0_5 u-mr u-pr align-top u-1-of-6 inline-block"
-                        data-cy="fieldName">
-                        <strong>
-                          {{ Translator.trans(fieldName) }}
-                        </strong>
-                      </td>
-                      <td
-                        v-if="content !== null && content !== ''"
-                        style="width: 79%;"
-                        class="u-pt-0_5 u-pb-0_5 u-ml-0_5 break-words inline-block"
-                        data-cy="contentChange"
-                        v-cleanhtml="content" />
-                      <td
-                        v-else-if="content === null"
-                        style="width: 82%;"
-                        class="u-pt-0_5 u-pb-0_5 u-ml-0_5 color--grey inline-block">
-                        {{ Translator.trans('formatting.change') }}
-                      </td>
-                    </tr>
-                  </table>
+          <tr>
+            <td colspan="4">
+              <table>
+                <thead>
+                  <tr class="sr-only">
+                    <th
+                      colspan="4"
+                      v-if="isOpen && isLoading">
+                      {{ Translator.trans('loading') }}
+                    </th>
+                    <th
+                      colspan="4"
+                      v-if="isOpen && !isLoading">
+                      {{ Translator.trans('dropdown.open') }}
+                    </th>
+                  </tr>
+                </thead>
 
-                  <!-- if data is too old, don't show details since the data is incorrect -->
-                  <table v-else>
-                    <tr class="sr-only">
-                      <th>
-                        {{ Translator.trans('details') }}
-                      </th>
-                    </tr>
-                    <tr class="u-pb-0_25">
-                      <td class="u-pt-0_5 u-ml-0_5 u-pb-0_5 color--grey inline-block">
-                        {{ Translator.trans('details.none') }}
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
+                <tbody>
+                  <tr>
+                    <td
+                      v-if="isOpen && isLoading"
+                      class="u-ml u-mb u-mt inline-block"
+                      colspan="4">
+                      <dp-loading />
+                    </td>
+
+                    <td
+                      colspan="4"
+                      v-if="isOpen && !isLoading">
+                      <table v-if="time.displayChange">
+                        <thead>
+                          <tr class="sr-only">
+                            <th>{{ Translator.trans('field') }}</th>
+                            <th>{{ Translator.trans('change') }}</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          <tr
+                            v-for="(content, fieldName) in history.attributes"
+                            :key="fieldName + 'content'"
+                            class="u-pb-0_25"
+                            data-cy="historyItemElement">
+                            <td
+                              :id="'fieldName' + time.anyEntityContentChangeIdOfThisChangeInstance"
+                              class="u-pt-0_5 u-pl-0_5 u-mr u-pr align-top u-1-of-6 inline-block"
+                              data-cy="fieldName">
+                              <strong>
+                                {{ Translator.trans(fieldName) }}
+                              </strong>
+                            </td>
+                            <td
+                              v-if="content !== null && content !== ''"
+                              style="width: 79%;"
+                              class="u-pt-0_5 u-pb-0_5 u-ml-0_5 break-words inline-block"
+                              data-cy="contentChange"
+                              v-cleanhtml="content" />
+                            <td
+                              v-else-if="content === null"
+                              style="width: 82%;"
+                              class="u-pt-0_5 u-pb-0_5 u-ml-0_5 color--grey inline-block">
+                              {{ Translator.trans('formatting.change') }}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+
+                      <!-- if data is too old, don't show details since the data is incorrect -->
+                      <table v-else>
+                        <thead>
+                          <tr class="sr-only">
+                            <th>
+                              {{ Translator.trans('details') }}
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          <tr class="u-pb-0_25">
+                            <td class="u-pt-0_5 u-ml-0_5 u-pb-0_5 color--grey inline-block">
+                              {{ Translator.trans('details.none') }}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </td>
   </tr>

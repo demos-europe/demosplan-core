@@ -61,18 +61,20 @@
       v-if="hasPermission('feature_customer_branding_edit')">
       <dp-text-area
         :hint="Translator.trans('branding.styling.hint')"
-        id="r_cssvars"
-        name="r_cssvars"
+        id="r_styling"
+        name="r_styling"
         data-cy="customerSettingsBranding:brandingStylingInput"
         :label="Translator.trans('branding.styling.input')"
         reduced-height
-        :value="branding.cssvars" />
+        :value="branding.styling"
+        @input="branding = { key: 'styling', value: $event }"
+      />
       <dp-details
         :summary="Translator.trans('branding.styling.details')"
         data-cy="customerSettingsBranding:brandingStylingDetails">
         <span
           v-html="Translator.trans('branding.styling.details.description')"
-          data-cy="customerSettingsBranding:brandingStylingDetailsDescription"/>
+          data-cy="customerSettingsBranding:brandingStylingDetailsDescription" />
       </dp-details>
     </div>
     <dp-button-row
@@ -101,11 +103,6 @@ export default {
   },
 
   props: {
-    branding: {
-      required: true,
-      type: Object
-    },
-
     brandingId: {
       required: true,
       type: String
@@ -115,14 +112,29 @@ export default {
   data () {
     return {
       isBusy: false,
-      uploadedFileId: '',
+      uploadedFileId: ''
     }
   },
 
   computed: {
     ...mapState('Branding', {
       brandingList: 'items'
-    })
+    }),
+
+    branding: {
+      get () {
+        return this.brandingList[this.brandingId].attributes || { styling: '', logoHash: null }
+      },
+      set ({ key, value }) {
+        this.updateBranding({
+          ...this.brandingList[this.brandingId],
+          attributes: {
+            ...this.brandingList[this.brandingId].attributes,
+            [key]: value
+          }
+        })
+      }
+    }
   },
 
   methods: {
@@ -148,7 +160,8 @@ export default {
         id: this.brandingId,
         type: 'Branding',
         attributes: {
-          ...this.brandingList[this.brandingId].attributes
+          ...this.branding,
+          logoHash: null
         },
         relationships: {
           logo: {
@@ -159,18 +172,18 @@ export default {
       this.updateBranding(payload)
       this.saveBranding(this.brandingId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        this.branding.logoHash = null
       })
     },
 
     setFile (file) {
-      this.updateFile({ id: file.fileId, attributes: { hash: file.hash }})
+      this.updateFile({ id: file.fileId, attributes: { hash: file.hash } })
       this.uploadedFileId = file.fileId
     },
 
     saveBrandingSettings () {
-      if (!this.uploadedFileId) {
+      if (!this.uploadedFileId && !hasPermission('feature_customer_branding_edit')) {
         this.isBusy = false
+
         return
       }
 
@@ -180,8 +193,11 @@ export default {
         type: 'Branding',
         attributes: {
           ...this.brandingList[this.brandingId].attributes
-        },
-        relationships: {
+        }
+      }
+
+      if (this.uploadedFileId) {
+        payload.relationships = {
           logo: {
             data: { id: this.uploadedFileId, type: 'File' }
           }
@@ -191,15 +207,15 @@ export default {
       this.updateBranding(payload)
       this.saveBranding(this.brandingId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+
         this.isBusy = false
-        this.branding.logoHash = this.brandingList[this.brandingId].relationships?.logo?.data.id
         this.unsetFile()
         this.$refs.logoUpload.clearFilesList()
       })
     },
 
     unsetFile () {
-      this.updateFile({ id: null, attributes: { hash: null }})
+      this.updateFile({ id: null, attributes: { hash: null } })
       this.uploadedFileId = null
     }
   }

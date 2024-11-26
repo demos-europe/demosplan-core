@@ -68,6 +68,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
         // Lädt das Rollenmapping
         $this->roles = collect(
             $yaml->parse(
+                // uses local file, no need for flysystem
                 file_get_contents(DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Logic/User').'/UserMapperDataportGatewayHH.yml')
             )
         );
