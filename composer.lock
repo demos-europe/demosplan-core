@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "900318d08680c0a68c459e4861aaebfa",
+    "content-hash": "f4a0582927155b25c4f6a3866cbaaeb1",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -11958,39 +11958,39 @@
         },
         {
             "name": "scheb/2fa-bundle",
-            "version": "v5.13.2",
+            "version": "v6.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/scheb/2fa-bundle.git",
-                "reference": "dc575cc7bc94fa3a52b547698086f2ef015d2e81"
+                "reference": "6e51477c53070f27ac3e3d36be1a991870db415a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/scheb/2fa-bundle/zipball/dc575cc7bc94fa3a52b547698086f2ef015d2e81",
-                "reference": "dc575cc7bc94fa3a52b547698086f2ef015d2e81",
+                "url": "https://api.github.com/repos/scheb/2fa-bundle/zipball/6e51477c53070f27ac3e3d36be1a991870db415a",
+                "reference": "6e51477c53070f27ac3e3d36be1a991870db415a",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": ">=7.2.5",
-                "symfony/config": "^4.4|^5.0",
-                "symfony/dependency-injection": "^4.4|^5.0",
-                "symfony/event-dispatcher": "^4.4|^5.0",
-                "symfony/framework-bundle": "^4.4|^5.0",
-                "symfony/http-foundation": "^4.4|^5.0",
-                "symfony/http-kernel": "^4.4|^5.0",
-                "symfony/property-access": "^4.4|^5.0",
-                "symfony/security-bundle": "^4.4.1|^5.0",
-                "symfony/twig-bundle": "^4.4|^5.0"
+                "php": "~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0",
+                "symfony/config": "^5.4 || ^6.0",
+                "symfony/dependency-injection": "^5.4 || ^6.0",
+                "symfony/event-dispatcher": "^5.4 || ^6.0",
+                "symfony/framework-bundle": "^5.4 || ^6.0",
+                "symfony/http-foundation": "^5.4 || ^6.0",
+                "symfony/http-kernel": "^5.4 || ^6.0",
+                "symfony/property-access": "^5.4 || ^6.0",
+                "symfony/security-bundle": "^5.4 || ^6.0",
+                "symfony/twig-bundle": "^5.4 || ^6.0"
             },
             "conflict": {
-                "scheb/two-factor-bundle": "*"
+                "scheb/two-factor-bundle": "*",
+                "symfony/security-core": "^7"
             },
             "suggest": {
                 "scheb/2fa-backup-code": "Emergency codes when you have no access to other methods",
                 "scheb/2fa-email": "Send codes by email",
                 "scheb/2fa-google-authenticator": "Google Authenticator support",
-                "scheb/2fa-qr-code": "Generate QR codes for Google Authenticator / TOTP",
                 "scheb/2fa-totp": "Temporary one-time password (TOTP) support (Google Authenticator compatible)",
                 "scheb/2fa-trusted-device": "Trusted devices support"
             },
@@ -12020,25 +12020,26 @@
                 "two-step"
             ],
             "support": {
-                "source": "https://github.com/scheb/2fa-bundle/tree/v5.13.2"
+                "source": "https://github.com/scheb/2fa-bundle/tree/v6.12.0"
             },
-            "time": "2022-04-16T10:18:34+00:00"
+            "time": "2023-12-03T16:02:15+00:00"
         },
         {
             "name": "scheb/2fa-email",
-            "version": "v5.13.2",
+            "version": "v6.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/scheb/2fa-email.git",
-                "reference": "a1359b763cd1c1d4bea314ca630cc062cdbdbc17"
+                "reference": "c01162091d7c8ce4553112de70d8c4e1d758166f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/scheb/2fa-email/zipball/a1359b763cd1c1d4bea314ca630cc062cdbdbc17",
-                "reference": "a1359b763cd1c1d4bea314ca630cc062cdbdbc17",
+                "url": "https://api.github.com/repos/scheb/2fa-email/zipball/c01162091d7c8ce4553112de70d8c4e1d758166f",
+                "reference": "c01162091d7c8ce4553112de70d8c4e1d758166f",
                 "shasum": ""
             },
             "require": {
+                "php": "~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0",
                 "scheb/2fa-bundle": "self.version"
             },
             "type": "library",
@@ -12068,28 +12069,29 @@
                 "two-step"
             ],
             "support": {
-                "source": "https://github.com/scheb/2fa-email/tree/v5.13.2"
+                "source": "https://github.com/scheb/2fa-email/tree/v6.12.0"
             },
-            "time": "2022-01-03T10:21:24+00:00"
+            "time": "2023-12-03T15:44:26+00:00"
         },
         {
             "name": "scheb/2fa-totp",
-            "version": "v5.13.2",
+            "version": "v6.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/scheb/2fa-totp.git",
-                "reference": "6b03afbfeedd3e6fab491690a9702410e2770244"
+                "reference": "a233f4638b75941e97f089c4c917f6101f2983e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/scheb/2fa-totp/zipball/6b03afbfeedd3e6fab491690a9702410e2770244",
-                "reference": "6b03afbfeedd3e6fab491690a9702410e2770244",
+                "url": "https://api.github.com/repos/scheb/2fa-totp/zipball/a233f4638b75941e97f089c4c917f6101f2983e3",
+                "reference": "a233f4638b75941e97f089c4c917f6101f2983e3",
                 "shasum": ""
             },
             "require": {
-                "paragonie/constant_time_encoding": "^2.2",
+                "paragonie/constant_time_encoding": "^2.4",
+                "php": "~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0",
                 "scheb/2fa-bundle": "self.version",
-                "spomky-labs/otphp": "^9.1|^10.0"
+                "spomky-labs/otphp": "^10.0 || ^11.0"
             },
             "type": "library",
             "autoload": {
@@ -12118,9 +12120,9 @@
                 "two-step"
             ],
             "support": {
-                "source": "https://github.com/scheb/2fa-totp/tree/v5.13.2"
+                "source": "https://github.com/scheb/2fa-totp/tree/v6.12.0"
             },
-            "time": "2022-01-03T10:21:24+00:00"
+            "time": "2023-12-03T15:44:26+00:00"
         },
         {
             "name": "seld/jsonlint",
@@ -24191,5 +24193,5 @@
     "platform-overrides": {
         "php": "8.1.12"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }
