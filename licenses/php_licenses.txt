@@ -58,6 +58,7 @@ patchwork/utf8: (Apache-2.0 or GPL-2.0)
 php-amqplib/rabbitmq-bundle: MIT
 php-parallel-lint/php-console-highlighter: MIT
 phpdocumentor/reflection-docblock: MIT
+phpoffice/phpspreadsheet: MIT
 phpoffice/phpword: LGPL-3.0
 phpspec/prophecy: MIT
 phpspec/prophecy-phpunit: MIT
@@ -131,7 +132,6 @@ willdurand/geocoder-bundle: MIT
 willdurand/js-translation-bundle: MIT
 wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
-yectep/phpspreadsheet-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 11.11.2024 07:02
+As of 26.11.2024 07:03

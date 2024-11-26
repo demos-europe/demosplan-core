@@ -6,3 +6,4 @@ config/config_dev_container.yml
 /var/log
 /projects/**/cache
 /projects/**/log
+/client/js/generated
