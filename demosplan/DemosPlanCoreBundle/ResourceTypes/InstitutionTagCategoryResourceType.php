@@ -38,28 +38,32 @@ class InstitutionTagCategoryResourceType extends DplanResourceType
 
     protected function getProperties(): ResourceConfigBuilderInterface
     {
-        $configBuilder = $this->getConfig(InstitutionTagCategoryResourceConfigBuilder::class);
-        $configBuilder->id
+        $institutionTagCategoryConfig = $this->getConfig(InstitutionTagCategoryResourceConfigBuilder::class);
+        $institutionTagCategoryConfig->id
             ->setReadableByPath();
-        $configBuilder->name
+        $institutionTagCategoryConfig->name
             ->setReadableByPath()
             ->addPathCreationBehavior();
 
-        $configBuilder->customer
+        $institutionTagCategoryConfig->customer
             ->setRelationshipType($this->resourceTypeStore->getCustomerResourceType());
 
-        $configBuilder->tags
+        $institutionTagCategoryConfig->tags
             ->setRelationshipType($this->getTypes()->getInstitutionTagResourceType())
             ->setReadableByPath();
 
-        $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (InstitutionTagCategory $institutionTagCategory, EntityDataInterface $entityData): array {
-            $institutionTagCategory->setCustomer($this->currentCustomerService->getCurrentCustomer());
-            $this->institutionTagRepository->persistEntities([$institutionTagCategory]);
+        $institutionTagCategoryConfig->addPostConstructorBehavior(
+            new FixedSetBehavior(
+                function (InstitutionTagCategory $institutionTagCategory, EntityDataInterface $entityData): array {
+                $institutionTagCategory->setCustomer($this->currentCustomerService->getCurrentCustomer());
+                $this->institutionTagRepository->persistEntities([$institutionTagCategory]);
 
-            return [];
-        }));
+                return [];
+                }
+            )
+        );
 
-        return $configBuilder;
+        return $institutionTagCategoryConfig;
     }
 
     public function isAvailable(): bool
