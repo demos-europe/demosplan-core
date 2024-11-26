@@ -55,10 +55,10 @@ class InstitutionTagCategoryResourceType extends DplanResourceType
         $institutionTagCategoryConfig->addPostConstructorBehavior(
             new FixedSetBehavior(
                 function (InstitutionTagCategory $institutionTagCategory, EntityDataInterface $entityData): array {
-                $institutionTagCategory->setCustomer($this->currentCustomerService->getCurrentCustomer());
-                $this->institutionTagRepository->persistEntities([$institutionTagCategory]);
+                    $institutionTagCategory->setCustomer($this->currentCustomerService->getCurrentCustomer());
+                    $this->institutionTagRepository->persistEntities([$institutionTagCategory]);
 
-                return [];
+                    return [];
                 }
             )
         );
