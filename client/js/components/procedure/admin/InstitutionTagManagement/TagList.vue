@@ -14,85 +14,44 @@
       class="text-right">
       <dp-button
         :text="Translator.trans('tag.new')"
-        @click="handleAddNewTagForm()" />
+        @click="handleAddNewTagForm" />
       <dp-button
         color="secondary"
         :text="Translator.trans('tag.category.new')"
-        @click="handleAddNewCategoryForm()" />
+        @click="handleAddNewCategoryForm" />
     </div>
     <new-tag-form
       v-if="addNewTag"
-      @newTag:created="getInstitutionTags()"
-      @newTagForm:close="closeNewTagForm()" />
+      @newTag:created="getInstitutionTags"
+      @newTagForm:close="closeNewTagForm" />
 
     <new-category-form
       v-if="addNewCategory"
-      @newCategoryForm:close="closeNewCategoryForm()"/>
+      @newCategoryForm:close="closeNewCategoryForm" />
 
-    <dp-data-table
-      data-dp-validate="tagsTable"
-      has-flyout
-      :header-fields="headerFields"
-      track-by="id"
-      :items="tagCategories"
-      class="u-mt-2">
-      <template v-slot:name="rowData">
-        <div class="grid grid-cols-[2%,98%] gap-2">
-          <dp-icon class="col-span-1 color-main" icon="folder" />
-          <div
-            v-if="!rowData.edit"
-            class="col-span-1"
-            v-text="rowData.name" />
-          <dp-input
-            v-else
-            class="col-span-1"
-            id="editInstitutionTag"
-            maxlength="250"
-            required
-            v-model="rowData.name" />
-        </div>
-      </template>
-      <template v-slot:action="rowData">
-        <div class="float-right">
-          <template v-if="!rowData.edit">
-            <button
-              :aria-label="Translator.trans('item.edit')"
-              class="btn--blank o-link--default"
-              @click="editTag(rowData.id)">
-              <i
-                class="fa fa-pencil"
-                aria-hidden="true" />
-            </button>
-            <button
-              :aria-label="Translator.trans('item.delete')"
-              class="btn--blank o-link--default"
-              @click="deleteTag(rowData.id)">
-              <i
-                class="fa fa-trash"
-                aria-hidden="true" />
-            </button>
-          </template>
-          <template v-else>
-            <button
-              :aria-label="Translator.trans('save')"
-              class="btn--blank o-link--default u-mr-0_25"
-              @click="dpValidateAction('tagsTable', () => updateTag(rowData.id, rowData.name), false)">
-              <dp-icon
-                icon="check"
-                aria-hidden="true" />
-            </button>
-            <button
-              class="btn--blank o-link--default"
-              :aria-label="Translator.trans('abort')"
-              @click="abortEdit()">
-              <dp-icon
-                icon="xmark"
-                aria-hidden="true" />
-            </button>
-          </template>
-        </div>
-      </template>
-    </dp-data-table>
+
+    <div class="mt-4">
+      <dp-tree-list
+        align-toggle="center"
+        :branch-identifier="isBranch"
+        :tree-data="tagCategories">
+        <template v-slot:header="">
+          <div>
+            {{ Translator.trans('category_or_tag') }}
+          </div>
+        </template>
+        <template v-slot:branch="{ nodeElement }">
+          <tag-list-item
+            :item="nodeElement"
+            @delete="deleteItem" />
+        </template>
+        <template v-slot:leaf="{ nodeElement }">
+          <tag-list-item
+            :item="nodeElement"
+            @delete="deleteItem" />
+        </template>
+      </dp-tree-list>
+    </div>
   </div>
 </template>
 
@@ -104,12 +63,14 @@ import {
   DpIcon,
   DpInput,
   DpLoading,
-  dpValidateMixin
+  dpValidateMixin,
+  DpTreeList
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import NewCategoryForm from './NewCategoryForm'
 import NewTagForm from './NewTagForm'
 import tagCategories from './InstitutionTagCategories.json'
+import TagListItem from './TagListItem'
 import tags from './InstitutionTags.json'
 
 export default {
@@ -122,8 +83,10 @@ export default {
     DpIcon,
     DpInput,
     DpLoading,
+    DpTreeList,
     NewCategoryForm,
-    NewTagForm
+    NewTagForm,
+    TagListItem
   },
 
   mixins: [dpValidateMixin],
@@ -162,13 +125,17 @@ export default {
 
     tagCategories () {
       return Object.values(tagCategories).map(category => {
-        const { attributes, id, type } = category
+        const { attributes, id, relationships, type } = category
+        const tagIds= relationships.tags.data.length > 0 ? relationships.tags.data.map(tag => tag.id) : []
 
         return {
           id,
           name: attributes.name,
-          tags: Object.values(tags).map(tag => {
+          children: Object.values(tags)
+            .filter(tag => tagIds.includes(tag.id))
+            .map(tag => {
             const { id, attributes, type } = tag
+
             return {
               id,
               name: attributes.name,
@@ -205,6 +172,7 @@ export default {
 
   methods: {
     // ...mapActions('InstitutionTagCategory', {
+    //   deleteInstitutionTagCategory: 'delete',
     //   listInstitutionTagCategories: 'list'
     // }),
 
@@ -219,10 +187,6 @@ export default {
       updateInstitutionTag: 'setItem'
     }),
 
-    abortEdit () {
-      this.editingTagId = null
-    },
-
     closeNewCategoryForm () {
       this.addNewCategory = false
     },
@@ -231,8 +195,81 @@ export default {
       this.addNewTag = false
     },
 
+    confirmAndDeleteCategory (id) {
+      if (dpconfirm(Translator.trans('Sind Sie sicher, dass Sie die Kategorie löschen möchten?'))) {
+        this.deleteTagCategory(id)
+      }
+    },
+
+    confirmAndDeleteCategoryWithTags (id, children) {
+      const tagsAreUsed = true // @todo implement
+
+      if (tagsAreUsed) {
+        if (dpconfirm(Translator.trans('Sind Sie sicher, dass Sie die Kategorie und alle Schlagworte darin löschen möchten? Die folgenden Schlagworte sind an Institutionen vergeben: ' +
+          'Wenn Sie die Kategorie und die Schlagworte löschen, werden die Schlagworte von den Institutionen entfernt.'))) {
+          this.deleteCategoryAndTags(id, children)
+        }
+      } else if (!tagsAreUsed) {
+        if (dpconfirm(Translator.trans('Sind Sie sicher, dass Sie die Kategorie und alle Schlagworte darin löschen möchten? ' +
+          'Die Schlagworte sind nicht an Institutionen vergeben.'))) {
+          this.deleteCategoryAndTags(id, children)
+        }
+      }
+    },
+
+    confirmAndDeleteTag (id, tagIsUsed) {
+      if (tagIsUsed) {
+        if (dpconfirm(Translator.trans('Sind Sie sicher, dass Sie das Schlagwort löschen möchten? Es ist aktuell an folgende Institutionen vergeben: ' +
+          'Wenn Sie das Schlagwort löschen, wird es von den Institutionen entfernt.'))) {
+          this.deleteTag(id)
+        }
+      } else if (!tagIsUsed) {
+        if (dpconfirm(Translator.trans('Sind Sie sicher, dass Sie das Schlagwort löschen möchten?'))) {
+          this.deleteTag(id)
+        }
+      }
+    },
+
+    deleteCategoryAndTags (id, tags) {
+      const promises = [
+        this.deleteTagCategory(id),
+        ...tags.map(tag => this.deleteTag(tag.id))
+      ]
+
+      Promise.allSettled(promises)
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.deleted'))
+        })
+        .catch(err => {
+          console.error(err)
+        })
+    },
+
+    deleteTagCategory (id) {
+      // return this.deleteInstitutionTagCategory(id)
+      //   .then(() => {
+      //     dplan.notify.confirm(Translator.trans('confirm.deleted'))
+      //   })
+      //   .catch(err => {
+      //     console.error(err)
+      //   })
+    },
+
+    deleteItem (item) {
+      const { id } = item
+      const isCategory = item.type === 'InstitutionTagCategory'
+      const isTag = item.type === 'InstitutionTag'
+      const hasTags = item.children?.length > 0
+
+      if (isCategory) {
+        this.handleCategoryDeletion(id, hasTags, item.children)
+      } else if (isTag) {
+        this.handleTagDeletion(id)
+      }
+    },
+
     deleteTag (id) {
-      this.deleteInstitutionTag(id)
+      return this.deleteInstitutionTag(id)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.deleted'))
           this.$emit('tagIsRemoved')
@@ -240,12 +277,6 @@ export default {
         .catch(err => {
           console.error(err)
         })
-    },
-
-    editTag (id) {
-      this.addNewTag = false
-      this.editingTagId = id
-      // this.newTag.label = null
     },
 
     getInstitutionTagCategories () {
@@ -276,6 +307,27 @@ export default {
     handleAddNewTagForm () {
       this.addNewTag = true
       this.editingTagId = null
+    },
+
+    handleCategoryDeletion (id, hasTags, children) {
+      if (!hasTags) {
+        this.confirmAndDeleteCategory(id)
+      } else {
+        this.confirmAndDeleteCategoryWithTags(id, children)
+      }
+    },
+
+    handleTagDeletion (id) {
+      const tagIsUsed = true; // @todo implement
+      if (tagIsUsed) {
+        this.confirmAndDeleteTag(id, true)
+      } else {
+        this.confirmAndDeleteTag(id, false)
+      }
+    },
+
+    isBranch ({ node }) {
+      return node.type === 'InstitutionTagCategory'
     },
 
     /**
