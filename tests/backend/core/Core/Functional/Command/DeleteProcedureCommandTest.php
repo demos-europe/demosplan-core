@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFacto
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
@@ -77,24 +78,9 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
 
     private function executeCommand(string $procedureIds): CommandTester
     {
-        $kernel = self::bootKernel();
-        $application = new ConsoleApplication($kernel, false);
-
-        $procedureDeleter = $this->getMock(ProcedureDeleter::class);
-        $procedureDeleter->method('deleteProcedures')->willReturnCallback(function ($param): void {
-        });
-
-        $application->add(
-            new DeleteProcedureCommand(
-                $this->createMock(ParameterBagInterface::class),
-                $procedureDeleter,
-                $this->queriesService,
-                null
-            )
-        );
-
-        $command = $application->find(DeleteProcedureCommand::getDefaultName());
+        $command = $this->createCommandTester();
         $commandTester = new CommandTester($command);
+
         $commandTester->execute(
             [
                 'command'              => $command->getName(),
@@ -108,6 +94,19 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
     }
 
     private function executeCommandWithoutArgument(): void
+    {
+        $command = $this->createCommandTester();
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute(
+            ['command' => $command->getName(),
+                '--without-repopulate' => true,
+                '--dry-run' => true
+            ]
+        );
+    }
+
+    private function createCommandTester(): Command
     {
         $kernel = self::bootKernel();
         $application = new ConsoleApplication($kernel, false);
@@ -125,10 +124,7 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
             )
         );
 
-        $command = $application->find(DeleteProcedureCommand::getDefaultName());
-        $commandTester = new CommandTester($command);
-        $commandTester->execute(
-            ['command' => $command->getName(), '--without-repopulate' => true, '--dry-run' => true]
-        );
+        return $application->find(DeleteProcedureCommand::getDefaultName());
     }
+
 }
