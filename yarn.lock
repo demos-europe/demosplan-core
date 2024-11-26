@@ -157,15 +157,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/eslint-plugin@npm:^7.24.7":
-  version: 7.24.7
-  resolution: "@babel/eslint-plugin@npm:7.24.7"
+"@babel/eslint-plugin@npm:^7.25.9":
+  version: 7.25.9
+  resolution: "@babel/eslint-plugin@npm:7.25.9"
   dependencies:
     eslint-rule-composer: "npm:^0.3.0"
   peerDependencies:
     "@babel/eslint-parser": ^7.11.0
     eslint: ^7.5.0 || ^8.0.0 || ^9.0.0
-  checksum: 10c0/5b4bc7843a49c6dea4fc9ecd115ef4a7cc69059ab036db1e6afe992afa28241b65af7fc8d32c3c1bae3e95a5834e3900ce0f8cbf72234fb5a82a3eb436c00b4d
+  checksum: 10c0/839a014cdb7f5173dbe1986db3a354dd766684b4f0d16a18884015f336bfefcab8e301be4e616bf5c25c641aca9704114531418f44a55160e961ebb326da7d57
   languageName: node
   linkType: hard
 
@@ -2618,11 +2618,11 @@ __metadata:
   linkType: hard
 
 "@eslint/plugin-kit@npm:^0.2.0":
-  version: 0.2.2
-  resolution: "@eslint/plugin-kit@npm:0.2.2"
+  version: 0.2.3
+  resolution: "@eslint/plugin-kit@npm:0.2.3"
   dependencies:
     levn: "npm:^0.4.1"
-  checksum: 10c0/ec533ccc99f2ab003d6f64495cff853730fb7d8bc0eaf031ffccc68de7c34c74a2eda50dfa759cacfb409f014c98d306714c995348d5383c9d3140f9f80a5895
+  checksum: 10c0/89a8035976bb1780e3fa8ffe682df013bd25f7d102d991cecd3b7c297f4ce8c1a1b6805e76dd16465b5353455b670b545eff2b4ec3133e0eab81a5f9e99bd90f
   languageName: node
   linkType: hard
 
@@ -7449,9 +7449,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-vue@npm:^9.30.0":
-  version: 9.30.0
-  resolution: "eslint-plugin-vue@npm:9.30.0"
+"eslint-plugin-vue@npm:^9.31.0":
+  version: 9.31.0
+  resolution: "eslint-plugin-vue@npm:9.31.0"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.4.0"
     globals: "npm:^13.24.0"
@@ -7463,20 +7463,20 @@ __metadata:
     xml-name-validator: "npm:^4.0.0"
   peerDependencies:
     eslint: ^6.2.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
-  checksum: 10c0/417486dd6c96d45cd60eb9f7a2e3d316bf50fdccc6c65ea2104fc24ed3ce503188da582851866e1a564ce4b4d9390129cad57637d65594202803ee51d890975a
+  checksum: 10c0/c87ab4d59bc431be6c2235501139b257c906b86fdeb1a64a5ff7d560a5c9439e7f1a78341d78c80e81ed5fe43dd2df8f0daf403581f62c4443cc0c6f7af2c997
   languageName: node
   linkType: hard
 
-"eslint-plugin-vuejs-accessibility@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "eslint-plugin-vuejs-accessibility@npm:2.3.0"
+"eslint-plugin-vuejs-accessibility@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "eslint-plugin-vuejs-accessibility@npm:2.4.1"
   dependencies:
     aria-query: "npm:^5.3.0"
     emoji-regex: "npm:^10.0.0"
     vue-eslint-parser: "npm:^9.0.1"
   peerDependencies:
     eslint: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
-  checksum: 10c0/5038c1d50f8572fb3c485c093780c487707d15dd07d26f465fb4af799e678b7c7498a75e41b0311cf3c554a7fcd84026e39f9defc6d644b6ebf8d9847899d9e7
+  checksum: 10c0/70c121ab0871bf3facaab96b98611d0276dcf68cc535946b1871d7a2b68f49a7bcd3791a690f4964fefae1d7782b5f64416f2db02c085f15c40ca1e71768dd55
   languageName: node
   linkType: hard
 
@@ -13086,7 +13086,7 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.26.0"
     "@babel/eslint-parser": "npm:^7.25.9"
-    "@babel/eslint-plugin": "npm:^7.24.7"
+    "@babel/eslint-plugin": "npm:^7.25.9"
     "@babel/plugin-proposal-object-rest-spread": "npm:^7.20.7"
     "@babel/plugin-syntax-dynamic-import": "npm:^7.8.3"
     "@babel/plugin-transform-modules-commonjs": "npm:^7.25.9"
@@ -13142,8 +13142,8 @@ __metadata:
     eslint-plugin-node: "npm:^11.1.0"
     eslint-plugin-promise: "npm:^7.1.0"
     eslint-plugin-standard: "npm:^5.0.0"
-    eslint-plugin-vue: "npm:^9.30.0"
-    eslint-plugin-vuejs-accessibility: "npm:^2.3.0"
+    eslint-plugin-vue: "npm:^9.31.0"
+    eslint-plugin-vuejs-accessibility: "npm:^2.4.1"
     eslint-webpack-plugin: "npm:^4.2.0"
     font-awesome: "npm:^4.7.0"
     fs: "npm:0.0.1-security"

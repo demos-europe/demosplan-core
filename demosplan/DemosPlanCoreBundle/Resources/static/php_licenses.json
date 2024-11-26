@@ -300,6 +300,11 @@
         "website": "https://github.com/phpDocumentor/ReflectionDocBlock"
     },
     {
+        "license": "MIT",
+        "package": "phpoffice/phpspreadsheet",
+        "website": "https://github.com/PHPOffice/PhpSpreadsheet"
+    },
+    {
         "license": "LGPL-3.0",
         "package": "phpoffice/phpword",
         "website": "https://github.com/PHPOffice/PHPWord"
@@ -663,11 +668,6 @@
         "license": "MIT",
         "package": "wsdltophp/packagegenerator",
         "website": "https://github.com/WsdlToPhp/PackageGenerator"
-    },
-    {
-        "license": "MIT",
-        "package": "yectep/phpspreadsheet-bundle",
-        "website": "https://github.com/eightyknots/phpspreadsheet-bundle"
     },
     {
         "license": "MIT",
