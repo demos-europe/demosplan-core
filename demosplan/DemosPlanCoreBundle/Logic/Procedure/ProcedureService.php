@@ -895,17 +895,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Mark a procedure as deleted to be purged by maintenancetask.
      *
-     * @param string|array $procedureIds
+     * @param array<string> $procedureIds
      *
      * @throws Exception
      */
     public function deleteProcedure($procedureIds): void
     {
+        $deletionCount = 0;
         try {
-            if (!\is_array($procedureIds)) {
-                $procedureIds = [$procedureIds];
-            }
-
             foreach ($procedureIds as $procedureId) {
                 $data = [
                     'ident'    => $procedureId,
@@ -913,13 +910,29 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     'deleted'  => true,
                 ];
 
+                $procedure = $this->getProcedure($procedureId);
+                if (null === $procedure) {
+                    throw ProcedureNotFoundException::createFromId($procedureId);
+                }
+                if ($procedure->isCustomerMasterBlueprint()) {
+                    $this->messageBag->add(
+                        'warning',
+                        'warning.customer.procedure.template.can.not.be.deleted'
+                    );
+                    continue;
+                }
+
                 try {
                     $this->updateProcedureWithoutReport($data);
                     $this->getLogger()->info('Procedure marked as deleted: '.\var_export($procedureId, true));
+                    ++$deletionCount;
                 } catch (Exception $e) {
                     $this->getLogger()->warning("Mark Procedure '$procedureId' as deleted failed Message: ", [$e]);
                     throw $e;
                 }
+            }
+            if ($deletionCount > 0) {
+                $this->messageBag->add('confirm', 'confirm.entries.marked.deleted');
             }
         } catch (Exception $e) {
             $this->getLogger()->warning('Mark Procedure as deleted failed Message: ', [$e]);

@@ -124,9 +124,9 @@ export default class ProcedureCharts {
 
       return new SankeyDiagram({
         target: elementId,
-        data: data,
+        data,
         dimensions: diagramDimensions,
-        colors: colors
+        colors
       })
     }
   }

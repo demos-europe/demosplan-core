@@ -88,7 +88,8 @@
       </span>
     </div><!--
             Show this Stuff (Visibility-group / show initially on load) only for layer, not for Categories
- --><template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')"><!--
+ --><template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')">
+<!--
     --><div class="inline-block w-1/12 text-right">
         <a
           v-if="layer.attributes.isBaseLayer === false && isChildOfCategoryThatAppearsAsLayer === false"
@@ -100,7 +101,7 @@
           @mouseout="unsetIconHoverState">
           <i
             :aria-label="Translator.trans('gislayer.visibilitygroup.toggle')"
-            :class="[iconClass,showGroupableIcon]"/>
+            :class="[iconClass,showGroupableIcon]" />
         </a>
       </div><!--
    --><div class="inline-block w-1/12 text-right">
@@ -112,9 +113,11 @@
           :checked="hasDefaultVisibility"
           :class="[iconClass, 'o-sortablelist__checkbox']">
       </div><!--
-  --></template><!--
+  -->
+</template><!--
           Show this Stuff for 'special category that looks like an Layer and hides all his children'
- --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)"><!--
+ --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)">
+<!--
    --><div class="inline-block w-2/12 text-right">
         <input
           type="checkbox"

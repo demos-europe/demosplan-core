@@ -1,5 +1,5 @@
 # due to BSI SYS.1.6.A6 we need to use excplicit versions
-FROM debian:testing-20241016-slim AS fpm
+FROM debian:testing-20241111-slim AS fpm
 
 ARG PROJECT_NAME
 # ENV vars needs to be set to build the assets
@@ -34,7 +34,9 @@ WORKDIR /srv/www
 RUN mkdir -p /opt/uploads && \
     mkdir /opt/config && \
     mkdir /srv/www/vendor && \
+    mkdir -p /srv/www/client/js/generated && \
     chown -R www-data:www-data /opt/uploads && \
+    chown -R www-data:www-data /srv/www/client/js/generated && \
     chown -R www-data:www-data /opt/config && \
     chown -R www-data:www-data /srv/www && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/app/config && \
@@ -51,6 +53,7 @@ COPY composer.json composer.lock ./
 RUN --mount=type=cache,target=/var/composer composer install -o --prefer-dist --no-dev --no-scripts --no-progress
 
 COPY package.json yarn.lock .yarnrc.yml ./
+
 RUN yarn install --immutable && \
     yarn cache clean && \
     rm -rf /srv/www/.cache/*
@@ -71,6 +74,7 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
 # define doctrine in memory database for the asset build
     mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
 COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
+COPY parameters_build.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
 
 USER www-data
 RUN ./fe build $PROJECT_NAME --prod && \

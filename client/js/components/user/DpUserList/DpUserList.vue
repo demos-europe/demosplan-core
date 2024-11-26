@@ -238,7 +238,7 @@ export default {
           condition: {
             path: 'firstname',
             operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-            value: value,
+            value,
             memberOf: 'name'
           }
         }
@@ -246,7 +246,7 @@ export default {
           condition: {
             path: 'lastname',
             operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-            value: value,
+            value,
             memberOf: 'name'
           }
         }
