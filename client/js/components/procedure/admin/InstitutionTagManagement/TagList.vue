@@ -16,14 +16,18 @@
         :text="Translator.trans('tag.new')"
         @click="handleAddNewTagForm()" />
       <dp-button
-        :text="Translator.trans('category.new')"
+        color="secondary"
+        :text="Translator.trans('tag.category.new')"
         @click="handleAddNewCategoryForm()" />
     </div>
     <new-tag-form
       v-if="addNewTag"
-      :is-loading="isLoading"
-      @closeNewTagForm="closeNewTagForm()"
-      @saveNewTagForm="(newTagData) => saveNewTag(newTagData)"/>
+      @newTag:created="getInstitutionTags()"
+      @newTagForm:close="closeNewTagForm()" />
+
+    <new-category-form
+      v-if="addNewCategory"
+      @newCategoryForm:close="closeNewCategoryForm()"/>
 
     <dp-data-table
       data-dp-validate="tagsTable"
@@ -103,7 +107,8 @@ import {
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import NewTagForm from "./NewTagForm"
+import NewCategoryForm from './NewCategoryForm'
+import NewTagForm from './NewTagForm'
 import tagCategories from './InstitutionTagCategories.json'
 import tags from './InstitutionTags.json'
 
@@ -117,6 +122,7 @@ export default {
     DpIcon,
     DpInput,
     DpLoading,
+    NewCategoryForm,
     NewTagForm
   },
 
@@ -141,8 +147,7 @@ export default {
           colClass: 'u-1-of-10'
         }
       ],
-      initialRowData: {},
-      isLoading: false
+      initialRowData: {}
     }
   },
 
@@ -204,7 +209,6 @@ export default {
     // }),
 
     ...mapActions('InstitutionTag', {
-      createInstitutionTag: 'create',
       deleteInstitutionTag: 'delete',
       listInstitutionTags: 'list',
       restoreTagFromInitial: 'restoreFromInitial',
@@ -217,6 +221,10 @@ export default {
 
     abortEdit () {
       this.editingTagId = null
+    },
+
+    closeNewCategoryForm () {
+      this.addNewCategory = false
     },
 
     closeNewTagForm () {
@@ -283,38 +291,6 @@ export default {
     isUniqueTagName (tagLabel, isNewTagLabel = false) {
       const foundSimilarLabel = this.tags.filter(el => el.label === tagLabel)
       return isNewTagLabel ? foundSimilarLabel.length === 0 : foundSimilarLabel.length === 1
-    },
-
-    resetNewTagForm () {
-      this.newTag = {}
-      this.addNewTag = false
-    },
-
-    saveNewTag (newTag) {
-      if (!this.isUniqueTagName(newTag.label, true)) {
-        return dplan.notify.error(Translator.trans('workflow.tag.error.duplication'))
-      }
-      this.isLoading = true
-
-      // Persist changes in database
-      const payload = {
-        type: 'InstitutionTag',
-        attributes: {
-          label: newTag.label
-        }
-      }
-      this.createInstitutionTag(payload)
-        .then(() => {
-          this.getInstitutionTags()
-          dplan.notify.confirm(Translator.trans('confirm.saved'))
-        })
-        .catch(err => {
-          console.error(err)
-        })
-        .finally(() => {
-          this.isLoading = false
-          this.resetNewTagForm()
-        })
     },
 
     updateTag (id, label) {

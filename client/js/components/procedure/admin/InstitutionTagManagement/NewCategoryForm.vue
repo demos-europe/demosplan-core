@@ -8,13 +8,13 @@ All rights reserved
 </license>
 
 <template>
-  <div data-dp-validate="addNewTagForm">
+  <div data-dp-validate="addNewCategoryForm">
     <dp-loading
       v-if="isLoading"
       overlay />
     <div class="border rounded space-stack-m space-inset-m">
       <div class="relative u-pb-0_5 font-size-large">
-        {{ Translator.trans('tag.new.create') }}
+        {{ Translator.trans('tag.category.new.create') }}
         <button
           class="btn--blank o-link--default float-right"
           @click="handleCloseForm()">
@@ -22,27 +22,19 @@ All rights reserved
         </button>
       </div>
       <dp-input
-        id="createTag"
-        v-model="newTag.label"
-        data-cy="newTagForm:tag"
+        id="createCategory"
+        v-model="newCategory.label"
+        data-cy="newCategoryForm:category"
         :label="{
           text: Translator.trans('name')
         }"
-        required />
-      <dp-select
-        v-model="newTag.category"
-        data-cy="newTagForm:category"
-        :label="{
-          text: Translator.trans('category')
-        }"
-        :options="[{value: 'Kategorie1', label: 'Kategorie1'}]"
         required />
       <dp-button-row
         alignment="left"
         :busy="isLoading"
         primary
         secondary
-        @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(), false)"
+        @primary-action="dpValidateAction('addNewCategoryForm', () => saveNewCategory(), false)"
         @secondary-action="handleCloseForm()" />
     </div>
   </div>
@@ -50,26 +42,23 @@ All rights reserved
 
 <script>
 import {
-  checkResponse,
   DpButton,
   DpButtonRow,
   DpIcon,
   DpInput,
   DpLoading,
-  DpSelect,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
-import { mapActions } from 'vuex'
+import {mapActions} from "vuex";
 export default {
-  name: 'NewTagForm',
+  name: 'NewCategoryForm',
 
   components: {
     DpButton,
     DpButtonRow,
     DpIcon,
     DpInput,
-    DpLoading,
-    DpSelect
+    DpLoading
   },
 
   mixins: [dpValidateMixin],
@@ -77,42 +66,39 @@ export default {
   data () {
     return {
       isLoading: false,
-      newTag: {}
+      newCategory: {}
     }
   },
 
   methods: {
-    ...mapActions('InstitutionTag', {
-      createInstitutionTag: 'create'
+    ...mapActions('InstitutionCategory', {
+      createInstitutionCategory: 'create'
     }),
 
-    handleCloseForm () {
-      this.$emit('newTagForm:close')
-      this.newTag = {}
+    handleCloseForm() {
+      this.$emit('newCategoryForm:close')
+      this.newCategory.label = null
     },
 
-    resetNewTagForm () {
-      this.newTag = {}
-      this.$emit('newTagForm:close')
+    resetNewCategoryForm () {
+      this.newCategory = {}
+      this.$emit('newCategoryForm:close')
     },
 
-    saveNewTag () {
-      // TO DO: Do we need this in FE? Only unique per category?
-      // if (!this.isUniqueTagName(this.newTag.label, true)) {
-      //   return dplan.notify.error(Translator.trans('workflow.tag.error.duplication'))
-      // }
+    saveNewCategory () {
+      // TO DO: Do we need to check for unique in FE?
       this.isLoading = true
 
       // Persist changes in database
       const payload = {
-        type: 'InstitutionTag',
+        type: 'InstitutionCategory',
         attributes: {
-          label: this.newTag.label
+          label: this.newCategory.label
         }
       }
-      this.createInstitutionTag(payload)
+      this.createInstitutionCategory(payload)
         .then(() => {
-          this.$emit('newTag:created')
+          this.$emit('newCategory:created')
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(err => {
@@ -120,7 +106,7 @@ export default {
         })
         .finally(() => {
           this.isLoading = false
-          this.resetNewTagForm()
+          this.resetNewCategoryForm()
         })
     },
   }
