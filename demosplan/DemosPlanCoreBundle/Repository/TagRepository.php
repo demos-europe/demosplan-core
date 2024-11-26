@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\Query\Expr\Join;
 use Exception;
 use Webmozart\Assert\Assert;
@@ -146,6 +147,30 @@ class TagRepository extends CoreRepository implements ObjectInterface
     public function findByIds(array $ids): array
     {
         return $this->findBy(['id' => $ids]);
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     */
+    public function getByTitle(string $title, string $procedureId): ?Tag
+    {
+        $query = $this->getEntityManager()->createQueryBuilder()
+            ->select('tag')
+            ->from(Tag::class, 'tag')
+            ->leftJoin(
+                TagTopic::class,
+                'topic',
+                Join::WITH,
+                'tag.topic = topic.id'
+            )
+            ->where('topic.procedure = :procedure')
+            ->andWhere('tag.title = :title')
+            ->setParameter('procedure', $procedureId)
+            ->setParameter('title', $title)
+            ->setMaxResults(1)
+            ->getQuery();
+
+        return $query->getOneOrNullResult();
     }
 
     public function isTagTitleFree(string $procedureId, string $title): bool

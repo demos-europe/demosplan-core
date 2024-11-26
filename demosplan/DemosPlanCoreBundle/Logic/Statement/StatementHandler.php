@@ -2318,8 +2318,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $newTagData = [
                 'topic'          => $dataset[0] ?? '',
                 'tag'            => $dataset[1] ?? '',
-                'useBoilerplate' => isset($dataset[2]) ? 'ja' === $dataset[2] : false,
-                'boilerplate'    => $dataset[3] ?? '',
+                'isTopicalTag'   => isset($dataset[2]) ? 'ja' === $dataset[2] : false,
+                'useBoilerplate' => isset($dataset[3]) ? 'ja' === $dataset[3] : false,
+                'boilerplate'    => $dataset[4] ?? '',
             ];
             $newTags[] = $newTagData;
         }
@@ -2335,22 +2336,30 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $currentTopicTitle = $tagData['topic'];
             $currentTagTitle = $tagData['tag'];
             // Create topic if not already present
-            if ($currentTopicTitle != $lastTopic) {
+            if ($currentTopicTitle !== $lastTopic) {
                 try {
                     $topics[$currentTopicTitle] = $this->createTopic($currentTopicTitle, $procedureId);
-                    $lastTopic = $currentTopicTitle;
                 } catch (DuplicatedTagTopicTitleException) {
-                    // better do not try to heal import as it may have unforeseen
-                    // consequences?
-                    $this->getMessageBag()->add('warning', 'topic.create.duplicated.title');
-                    continue;
+                    // fetch existing topic of this procedure
+                    $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+                    $topics = $this->tagService->getTagTopicsByTitle($procedure, $currentTopicTitle);
+                    $topic = array_pop($topics);
+                    $this->getMessageBag()->add(
+                        'warning',
+                        'tag.import.for.previously.existing.topic',
+                        ['topic' => $currentTopicTitle]
+                    );
+                    $topics[$currentTopicTitle] = $topic;
                 }
+                $lastTopic = $currentTopicTitle;
             }
 
             // Create the tag
-            $tag = $this->tagService->createTag(
+            $tag = $this->tagService->createTagOrUpdateExisting(
                 $currentTagTitle,
-                $topics[$currentTopicTitle]
+                $topics[$currentTopicTitle],
+                true,
+                $tagData['isTopicalTag']
             );
 
             // Create and attach a boilerplate object if required
@@ -2359,11 +2368,15 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     'title' => $currentTagTitle,
                     'text'  => $tagData['boilerplate'],
                 ];
-                $boilerplate = $this->procedureService->addBoilerplate(
-                    $procedureId,
-                    $boilerplateData
-                );
-                $this->tagService->attachBoilerplateToTag($tag, $boilerplate);
+                // todo check if boilerplate should be skiped if the tag already exists.
+                // todo maybee we want to update the boilerplate text with the import info.
+                if (null === $tag->getBoilerplate()) {
+                    $boilerplate = $this->procedureService->addBoilerplate(
+                        $procedureId,
+                        $boilerplateData
+                    );
+                    $this->tagService->attachBoilerplateToTag($tag, $boilerplate);
+                }
             }
         }
     }

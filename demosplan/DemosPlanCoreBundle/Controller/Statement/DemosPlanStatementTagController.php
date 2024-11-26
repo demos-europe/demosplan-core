@@ -220,7 +220,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         }
 
         // Check if the checkbox for the topicalTag has been checked
-        $tagToCheck = $requestPost[$requestPost['r_topicalTag']] ?? null;
+        $tagToCheck = $requestPost[$requestPost['r_topicalTag'] ?? null] ?? null;
         if (null !== $tagToCheck) {
             $isTopicalTag = (bool) ($tagToCheck['r_tag_changeTopicalTag'] ?? false);
             $tagId = $requestPost['r_topicalTag'];
@@ -234,23 +234,26 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                 $anchor = $updatedTag->getId();
             } catch (InvalidArgumentException $e) {
                 $this->getMessageBag()->add('warning', 'Fehler beim updaten der Checkbox');
-                $this->logger->error('An error occurred trying to update a isTopical checkbox for a Tag', [$e]);
+                $this->logger->error(
+                    'An error occurred trying to update a isTopical checkbox for a Tag',
+                    ['tagId' => $tagId, 'tagData' => $tagToCheck, 'exception' => $e]
+                );
             }
         }
 
-        if (array_key_exists('r_topicalTag', $requestPost)
-            && array_key_exists($requestPost['r_topicalTag'], $requestPost)
-            && array_key_exists('r_tag_changeTopicalTag', $requestPost[$requestPost['r_topicalTag']])
-        ) {
-            $tagname = $requestPost[$requestPost['r_tag_changeTopicalTag']]['r_topicalTag'] ?? '';
-            $result = $tagservivce->updateTagTopicalTag($requestPost['r_topicalTag'], $requestPost[$requestPost['r_tag_changeTopicalTag']]['r_topicalTag']);
-            if ($result instanceof Tag) {
-                $this->getMessageBag()->add('confirm', 'confirm.tag.topicalTag.update', ['title' => $tagname]);
-                $anchor = $result->getId();
-            } else {
-                $this->getMessageBag()->add('warning', 'warning.tag.topicalTag.update', ['title' => $tagname]);
-            }
-        }
+//        if (array_key_exists('r_topicalTag', $requestPost)
+//            && array_key_exists($requestPost['r_topicalTag'], $requestPost)
+//            && array_key_exists('r_tag_changeTopicalTag', $requestPost[$requestPost['r_topicalTag']])
+//        ) {
+//            $tagname = $requestPost[$requestPost['r_tag_changeTopicalTag']]['r_topicalTag'] ?? '';
+//            $result = $tagservivce->updateTagTopicalTag($requestPost['r_topicalTag'], $requestPost[$requestPost['r_tag_changeTopicalTag']]['r_topicalTag']);
+//            if ($result instanceof Tag) {
+//                $this->getMessageBag()->add('confirm', 'confirm.tag.topicalTag.update', ['title' => $tagname]);
+//                $anchor = $result->getId();
+//            } else {
+//                $this->getMessageBag()->add('warning', 'warning.tag.topicalTag.update', ['title' => $tagname]);
+//            }
+//        }
 
         // Check if we triggered a rename-tag-action
         if (array_key_exists('r_renametag', $requestPost)

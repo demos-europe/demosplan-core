@@ -101,6 +101,45 @@ class TagService extends CoreService
     }
 
     /**
+     * Creates a new Tag with the given title.
+     *
+     * @throws DuplicatedTagTitleException
+     */
+    public function createTagOrUpdateExisting(string $title, TagTopic $topic, bool $persistAndFlush = true, bool $isTopicalTag = false): Tag
+    {
+        $procedureId = $topic->getProcedure()->getId();
+        if ('' === $title) {
+            throw new InvalidArgumentException('Tag title may not be empty.');
+        }
+
+        try {
+            if (null !== $existingTag = $this->tagRepository->getByTitle($title, $procedureId)) {
+                $existingTag->setTopicalTag($isTopicalTag);
+                if ($persistAndFlush) {
+                    $this->tagRepository->updateObject($existingTag);
+                }
+
+                return $existingTag;
+            }
+        } catch (NonUniqueResultException $e) {
+            $this->logger->error(
+                'Get Tag by title failed as there are multiple tags for the same procedure and same title present',
+                [$e]
+            );
+            throw DuplicatedTagTitleException::createFromTitleAndProcedureId($topic, $title);
+        }
+
+        $toCreate = new Tag($title, $topic);
+        $toCreate->setTopicalTag($isTopicalTag);
+
+        if ($persistAndFlush) {
+            $this->tagRepository->addObject($toCreate);
+        }
+
+        return $toCreate;
+    }
+
+    /**
      * Creates a new TagTopic with the given title.
      *
      * @param string $title - Title of the new topic

@@ -405,10 +405,10 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segment->setCreated(new DateTime());
         $segment->setOrderInProcedure($counter);
 
-        // Handle Tags
-        if ('' !== $segmentData['Schlagworte'] && null !== $segmentData['Schlagworte']) {
+        // Handle miscellaneous Tags
+        if ('' !== $segmentData['organisatorische Schlagworte'] && null !== $segmentData['organisatorische Schlagworte']) {
             $procedureId = $statement->getProcedure()->getId();
-            $tagTitlesString = $segmentData['Schlagworte'];
+            $tagTitlesString = $segmentData['organisatorische Schlagworte'];
             if (is_numeric($tagTitlesString)) {
                 $tagTitlesString = (string) $tagTitlesString;
             }
@@ -435,6 +435,9 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 }
             }
         }
+
+        // todo handle topical tags
+
 
         return $segment;
     }
