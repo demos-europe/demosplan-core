@@ -1930,9 +1930,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:0.3.27":
-  version: 0.3.27
-  resolution: "@demos-europe/demosplan-ui@npm:0.3.27"
+"@demos-europe/demosplan-ui@npm:0.3.39":
+  version: 0.3.39
+  resolution: "@demos-europe/demosplan-ui@npm:0.3.39"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.4.5"
@@ -1955,6 +1955,7 @@ __metadata:
     "@tiptap/extension-table-header": "npm:^2.0.3"
     "@tiptap/extension-table-row": "npm:^2.0.3"
     "@tiptap/extension-text": "npm:^2.0.3"
+    "@tiptap/extension-text-style": "npm:^2.8.0"
     "@tiptap/extension-underline": "npm:^2.0.3"
     "@tiptap/pm": "npm:^2.0.3"
     "@tiptap/suggestion": "npm:^2.0.3"
@@ -1963,7 +1964,7 @@ __metadata:
     "@uppy/drag-drop": "npm:^3.0.0"
     "@uppy/progress-bar": "npm:^3.0.0"
     "@uppy/tus": "npm:^3.0.1"
-    a11y-datepicker: "npm: ^0.9.0"
+    a11y-datepicker: "npm:^0.9.0"
     dayjs: "npm:^1.11.5"
     dompurify: "npm:^3.0.0"
     fscreen: "npm:^1.2.0"
@@ -1989,7 +1990,6 @@ __metadata:
     prosemirror-tables: ^1.3.0
     prosemirror-utils: ^1.2.0
     prosemirror-view: ^1.28.2
-    vue: ^2.7.15
   peerDependenciesMeta:
     prosemirror-history:
       optional: true
@@ -2007,7 +2007,7 @@ __metadata:
       optional: true
     prosemirror-view:
       optional: true
-  checksum: 10c0/329cd24a0cb444b8f3c2e8306e8740ae12ee533b2b7f1d61c696be208e843ae14f33e0592c5c44f0b3bf990e559d4e2113ade77941f71789abb6c01c907d0daf
+  checksum: 10c0/a8d1bec061bd038389fcd820d3b8c0235a131b7371bdd42bdbcba617c14db861cbac33afb93d6ad992487576a5af9cbefcf1ab25e84f2fbfcc0ecb7ba38744ef
   languageName: node
   linkType: hard
 
@@ -3023,6 +3023,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tiptap/extension-text-style@npm:^2.8.0":
+  version: 2.10.2
+  resolution: "@tiptap/extension-text-style@npm:2.10.2"
+  peerDependencies:
+    "@tiptap/core": ^2.7.0
+  checksum: 10c0/2c688ed2b53afeba0bd97cea34fa4441c6aea942cfdc2ba6c012e60135e2bf609bc6bf87a6f63fae37eb2a5cb24f421107e45fe773e98b3ad250bd18fa43d6ac
+  languageName: node
+  linkType: hard
+
 "@tiptap/extension-text@npm:^2.0.3":
   version: 2.4.0
   resolution: "@tiptap/extension-text@npm:2.4.0"
@@ -3692,7 +3701,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"a11y-datepicker@npm: ^0.9.0":
+"a11y-datepicker@npm: ^0.9.0, a11y-datepicker@npm:^0.9.0":
   version: 0.9.0
   resolution: "a11y-datepicker@npm:0.9.0"
   checksum: 10c0/33e531790a52154ef21503b4f54003bd7ad8168623bfa1513337a7e8f3e18b09519edf2c563a34fa36b084b1c2c2077c6068a8eb5edf8e96bb06ab2cb1f37e25
@@ -11696,7 +11705,7 @@ __metadata:
     "@babel/plugin-transform-runtime": "npm:^7.24.3"
     "@babel/preset-env": "npm:^7.24.8"
     "@babel/runtime": "npm:^7.24.8"
-    "@demos-europe/demosplan-ui": "npm:0.3.27"
+    "@demos-europe/demosplan-ui": "npm:0.3.39"
     "@demos-europe/dp-consent": "npm:^1.1.2"
     "@efrane/vuex-json-api": "github:eFrane/vuex-json-api#4b16e60c2d4992f46cebf7818b482891dbb37876"
     "@fullhuman/postcss-purgecss": "npm:^6.0.0"
