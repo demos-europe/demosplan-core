@@ -438,7 +438,6 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         // todo handle topical tags
 
-
         return $segment;
     }
 

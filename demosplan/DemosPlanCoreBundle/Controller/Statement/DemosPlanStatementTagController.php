@@ -241,19 +241,19 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
             }
         }
 
-//        if (array_key_exists('r_topicalTag', $requestPost)
-//            && array_key_exists($requestPost['r_topicalTag'], $requestPost)
-//            && array_key_exists('r_tag_changeTopicalTag', $requestPost[$requestPost['r_topicalTag']])
-//        ) {
-//            $tagname = $requestPost[$requestPost['r_tag_changeTopicalTag']]['r_topicalTag'] ?? '';
-//            $result = $tagservivce->updateTagTopicalTag($requestPost['r_topicalTag'], $requestPost[$requestPost['r_tag_changeTopicalTag']]['r_topicalTag']);
-//            if ($result instanceof Tag) {
-//                $this->getMessageBag()->add('confirm', 'confirm.tag.topicalTag.update', ['title' => $tagname]);
-//                $anchor = $result->getId();
-//            } else {
-//                $this->getMessageBag()->add('warning', 'warning.tag.topicalTag.update', ['title' => $tagname]);
-//            }
-//        }
+        //        if (array_key_exists('r_topicalTag', $requestPost)
+        //            && array_key_exists($requestPost['r_topicalTag'], $requestPost)
+        //            && array_key_exists('r_tag_changeTopicalTag', $requestPost[$requestPost['r_topicalTag']])
+        //        ) {
+        //            $tagname = $requestPost[$requestPost['r_tag_changeTopicalTag']]['r_topicalTag'] ?? '';
+        //            $result = $tagservivce->updateTagTopicalTag($requestPost['r_topicalTag'], $requestPost[$requestPost['r_tag_changeTopicalTag']]['r_topicalTag']);
+        //            if ($result instanceof Tag) {
+        //                $this->getMessageBag()->add('confirm', 'confirm.tag.topicalTag.update', ['title' => $tagname]);
+        //                $anchor = $result->getId();
+        //            } else {
+        //                $this->getMessageBag()->add('warning', 'warning.tag.topicalTag.update', ['title' => $tagname]);
+        //            }
+        //        }
 
         // Check if we triggered a rename-tag-action
         if (array_key_exists('r_renametag', $requestPost)
