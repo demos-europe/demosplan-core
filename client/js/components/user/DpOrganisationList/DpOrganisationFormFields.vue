@@ -186,6 +186,7 @@
           isValueRemovable: true
         }"
         class="w-1/2"
+        @selected="updateAddonPayload"
         @blur="updateAddonPayload" />
 
       <div class="layout__item u-1-of-1 u-mt">
@@ -988,6 +989,7 @@ export default {
     },
 
     updateAddonPayload (payload) {
+      console.log(payload)
       this.$emit('addon-update', payload)
     },
   },
