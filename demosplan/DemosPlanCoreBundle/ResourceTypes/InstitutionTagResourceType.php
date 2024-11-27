@@ -57,8 +57,7 @@ class InstitutionTagResourceType extends DplanResourceType
             ->addPathUpdateBehavior([]);
 
         $configBuilder->isUsed
-            ->setReadableByCallable(static fn (InstitutionTag $tag):
-                bool => !$tag->getTaggedInstitutions()->isEmpty()
+            ->setReadableByCallable(static fn (InstitutionTag $tag): bool => !$tag->getTaggedInstitutions()->isEmpty()
             );
 
         $configBuilder->category
