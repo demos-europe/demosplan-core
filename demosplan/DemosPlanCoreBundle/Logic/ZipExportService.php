@@ -18,12 +18,12 @@ use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
-use Patchwork\Utf8;
 use PhpOffice\PhpWord\Writer\PDF;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\String\UnicodeString;
 use ZipStream\CompressionMethod;
 use ZipStream\Exception\FileNotFoundException;
 use ZipStream\Exception\FileNotReadableException;
@@ -96,7 +96,7 @@ class ZipExportService
         ZipStream $zip,
         string $fileNamePrefix,
     ): void {
-        $path = Utf8::toAscii($folderPath.$fileNamePrefix.$fileInfo->getFileName());
+        $path = (new UnicodeString($folderPath.$fileNamePrefix.$fileInfo->getFileName()))->ascii()->toString();
         $pathHash = md5((string) $path);
         if (in_array($pathHash, $this->filesAdded, true)) {
             $this->logger->warning('File already present in Zip', ['path' => $path]);
@@ -121,7 +121,7 @@ class ZipExportService
     {
         try {
             $fileInfo = $this->fileService->getFileInfoFromFileString($filePath);
-            $path = Utf8::toAscii($zipPath.'/'.$fileInfo->getFileName());
+            $path = (new UnicodeString($zipPath.'/'.$fileInfo->getFileName()))->ascii()->toString();
             $this->addFileToZipStream($fileInfo->getAbsolutePath(), $path, $zip);
             $this->logger->info(
                 'Added File to Zip.',
@@ -147,7 +147,7 @@ class ZipExportService
         $streamRead = fopen('php://temp', 'rwb');
         fwrite($streamRead, $string);
         rewind($streamRead);
-        $zip->addFileFromStream(Utf8::toAscii($filename), $streamRead);
+        $zip->addFileFromStream((new UnicodeString($filename))->ascii()->toString(), $streamRead);
         fclose($streamRead);
     }
 
