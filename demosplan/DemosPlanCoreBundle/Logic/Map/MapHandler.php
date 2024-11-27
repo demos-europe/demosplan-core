@@ -236,7 +236,6 @@ class MapHandler extends CoreHandler
      * while they are in a visibilityGroup. (change entire defaultVisibility).
      *
      * @param string $visibilityGroupId
-     * @param bool   $visibility
      *
      * @return bool
      *
