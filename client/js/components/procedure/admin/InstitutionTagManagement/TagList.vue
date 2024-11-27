@@ -22,6 +22,7 @@
     </div>
     <new-tag-form
       v-if="addNewTag"
+      :tag-categories="tagCategories"
       @newTag:created="getInstitutionTags"
       @newTagForm:close="closeNewTagForm" />
 

@@ -8,7 +8,7 @@ All rights reserved
 </license>
 
 <template>
-  <div data-dp-validate="addNewTagForm">
+  <form data-dp-validate="addNewTagForm">
     <dp-loading
       v-if="isLoading"
       overlay />
@@ -23,7 +23,7 @@ All rights reserved
       </div>
       <dp-input
         id="createTag"
-        v-model="newTag.label"
+        v-model="newTag.name"
         data-cy="newTagForm:tag"
         :label="{
           text: Translator.trans('name')
@@ -35,7 +35,7 @@ All rights reserved
         :label="{
           text: Translator.trans('category')
         }"
-        :options="[{value: 'Kategorie1', label: 'Kategorie1'}]"
+        :options="tagCategoryOptions"
         required />
       <dp-button-row
         alignment="left"
@@ -45,7 +45,7 @@ All rights reserved
         @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(), false)"
         @secondary-action="handleCloseForm()" />
     </div>
-  </div>
+  </form>
 </template>
 
 <script>
@@ -74,10 +74,26 @@ export default {
 
   mixins: [dpValidateMixin],
 
+  props: {
+    tagCategories: {
+      type: Object,
+      required: true
+    }
+  },
+
   data () {
     return {
       isLoading: false,
       newTag: {}
+    }
+  },
+
+  computed: {
+    tagCategoryOptions () {
+      return this.tagCategories.map(category => ({
+        value: category.id,
+        label: category.name
+      }))
     }
   },
 
@@ -107,7 +123,7 @@ export default {
       const payload = {
         type: 'InstitutionTag',
         attributes: {
-          label: this.newTag.label
+          name: this.newTag.name
         }
       }
       this.createInstitutionTag(payload)

@@ -8,7 +8,7 @@ All rights reserved
 </license>
 
 <template>
-  <div data-dp-validate="addNewCategoryForm">
+  <form data-dp-validate="addNewCategoryForm">
     <dp-loading
       v-if="isLoading"
       overlay />
@@ -23,7 +23,7 @@ All rights reserved
       </div>
       <dp-input
         id="createCategory"
-        v-model="newCategory.label"
+        v-model="newCategory.name"
         data-cy="newCategoryForm:category"
         :label="{
           text: Translator.trans('name')
@@ -37,7 +37,7 @@ All rights reserved
         @primary-action="dpValidateAction('addNewCategoryForm', () => saveNewCategory(), false)"
         @secondary-action="handleCloseForm()" />
     </div>
-  </div>
+  </form>
 </template>
 
 <script>
@@ -71,8 +71,8 @@ export default {
   },
 
   methods: {
-    ...mapActions('InstitutionCategory', {
-      createInstitutionCategory: 'create'
+    ...mapActions('InstitutionTagCategory', {
+      createInstitutionTagCategory: 'create'
     }),
 
     handleCloseForm() {
@@ -91,12 +91,12 @@ export default {
 
       // Persist changes in database
       const payload = {
-        type: 'InstitutionCategory',
+        type: 'InstitutionTagCategory',
         attributes: {
-          label: this.newCategory.label
+          name: this.newCategory.name
         }
       }
-      this.createInstitutionCategory(payload)
+      this.createInstitutionTagCategory(payload)
         .then(() => {
           this.$emit('newCategory:created')
           dplan.notify.confirm(Translator.trans('confirm.saved'))
