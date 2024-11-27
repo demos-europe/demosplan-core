@@ -141,20 +141,18 @@ export default {
     },
 
     confirmAndDeleteCategoryWithTags () {
-      const { id, children } = this.item
+      const { children, name } = this.item
       const tagsInUse = children
         .filter(tag => tag.isUsed)
         .map(tag => tag.name)
 
       if (tagsInUse.length > 0) {
-        if (dpconfirm(Translator.trans('Sind Sie sicher, dass Sie die Kategorie und alle Schlagworte darin löschen möchten? Die folgenden Schlagworte sind an Institutionen vergeben: ' +
-          'Wenn Sie die Kategorie und die Schlagworte löschen, werden die Schlagworte von den Institutionen entfernt.'))) {
+        if (dpconfirm(Translator.trans('check.category_with_tags_in_use.delete', { category: name, count: tagsInUse.length, tags: tagsInUse.join(', ') }))) {
           this.deleteCategoryAndTags()
         }
       } else if (tagsInUse.length === 0) {
-        if (dpconfirm(Translator.trans('Sind Sie sicher, dass Sie die Kategorie und alle Schlagworte darin löschen möchten? ' +
-          'Die Schlagworte sind nicht an Institutionen vergeben.'))) {
-          this.deleteCategoryAndTags(id, children)
+        if (dpconfirm(Translator.trans('check.category_with_tags_not_in_use.delete', { category: name }))) {
+          this.deleteCategoryAndTags()
         }
       }
     },
@@ -163,8 +161,7 @@ export default {
       const { id, isUsed, name } = this.item
 
       if (isUsed) {
-        if (dpconfirm(Translator.trans('Sind Sie sicher, dass Sie das Schlagwort löschen möchten? Es ist aktuell an folgende Institutionen vergeben: ' +
-          'Wenn Sie das Schlagwort löschen, wird es von den Institutionen entfernt.'))) {
+        if (dpconfirm(Translator.trans('check.tag_is_used.delete'))) {
           this.deleteTag(id)
         }
       } else if (!isUsed) {
