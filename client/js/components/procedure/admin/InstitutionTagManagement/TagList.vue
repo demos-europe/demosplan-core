@@ -48,12 +48,14 @@
         <template v-slot:branch="{ nodeElement }">
           <tag-list-item
             :item="nodeElement"
-            @delete="deleteItem" />
+            @delete="deleteItem"
+            @save="saveCategory" />
         </template>
         <template v-slot:leaf="{ nodeElement }">
           <tag-list-item
             :item="nodeElement"
-            @delete="deleteItem" />
+            @delete="deleteItem"
+            @save="saveTag" />
         </template>
       </dp-tree-list>
     </div>
@@ -152,7 +154,9 @@ export default {
   methods: {
     ...mapActions('InstitutionTagCategory', {
       deleteInstitutionTagCategory: 'delete',
-      listInstitutionTagCategories: 'list'
+      listInstitutionTagCategories: 'list',
+      restoreTagCategoryFromInitial: 'restoreFromInitial',
+      saveInstitutionTagCategory: 'save'
     }),
 
     ...mapActions('InstitutionTag', {
@@ -160,6 +164,10 @@ export default {
       listInstitutionTags: 'list',
       restoreTagFromInitial: 'restoreFromInitial',
       saveInstitutionTag: 'save'
+    }),
+
+    ...mapMutations('InstitutionTagCategory', {
+      updateInstitutionTagCategory: 'setItem'
     }),
 
     ...mapMutations('InstitutionTag', {
@@ -329,11 +337,26 @@ export default {
       return isNewTagLabel ? foundSimilarLabel.length === 0 : foundSimilarLabel.length === 1
     },
 
-    updateTag (id, label) {
-      if (!this.isUniqueTagName(label)) {
-        return dplan.notify.error(Translator.trans('workflow.tag.error.duplication'))
-      }
+    saveCategory (category) {
+      this.updateInstitutionTagCategory({
+        id: category.id,
+        type: category.type,
+        attributes: {
+          ...this.institutionTagCategories[category.id].attributes,
+          name: category.name
+        }
+      })
+      this.saveInstitutionTagCategory(category.id)
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.category.updated'))
+        })
+        .catch(error => {
+          console.error(error)
+          this.restoreTagCategoryFromInitial(category.id)
+        })
+    },
 
+    saveTag (id, label) {
       this.updateInstitutionTag({
         id,
         type: this.institutionTags[id].type,
@@ -344,7 +367,7 @@ export default {
       })
 
       this.saveInstitutionTag(id)
-        .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
+        .then(dplan.notify.confirm(Translator.trans('confirm.tag.edited')))
         .catch(err => {
           this.restoreTagFromInitial(id)
           console.error(err)

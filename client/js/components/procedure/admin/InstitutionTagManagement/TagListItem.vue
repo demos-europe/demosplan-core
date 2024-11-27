@@ -10,9 +10,10 @@
         v-text="item.name" />
       <dp-input
         v-else
+        id="tagName"
         maxlength="250"
         required
-        v-model="item.name" />
+        v-model="name" />
     </div>
     <div class="flex">
       <template v-if="!isEditing">
@@ -81,13 +82,15 @@ export default {
 
   data () {
     return {
-      isEditing: false
+      isEditing: false,
+      name: this.item.name
     }
   },
 
   methods: {
     abort () {
       this.isEditing = false
+      this.name = this.item.name
     },
 
     edit () {
@@ -96,6 +99,10 @@ export default {
 
     save () {
       this.isEditing = false
+      this.$emit('save', {
+        ...this.item,
+        name: this.name
+      })
     }
   }
 }
