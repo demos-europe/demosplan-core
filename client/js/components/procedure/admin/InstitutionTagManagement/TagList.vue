@@ -27,7 +27,7 @@
       v-if="addNewTag"
       :tag-categories="tagCategories"
       @newTagForm:close="closeNewTagForm"
-      @newTag:created="getInstitutionTags()" />
+      @newTag:created="getInstitutionTagCategories()" />
 
     <new-category-form
       v-if="addNewCategory"
