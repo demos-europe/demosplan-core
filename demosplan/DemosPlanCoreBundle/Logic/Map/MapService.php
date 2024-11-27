@@ -717,9 +717,9 @@ class MapService extends CoreService
      *
      * @throws Exception
      */
-    public function getVisibilityGroup($visibilityGroupId)
+    public function getVisibilityGroup($visibilityGroupId, $procedureId)
     {
-        return $this->mapRepository->getByVisibilityGroupId($visibilityGroupId);
+        return $this->mapRepository->getByVisibilityGroupId($visibilityGroupId, $procedureId);
     }
 
     /**
