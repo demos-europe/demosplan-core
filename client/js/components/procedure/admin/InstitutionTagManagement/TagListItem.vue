@@ -10,6 +10,7 @@
         v-text="item.name" />
       <dp-input
         v-else
+        data-cy="tagListItem:tagName"
         id="tagName"
         maxlength="250"
         required
@@ -19,6 +20,7 @@
       <template v-if="!isEditing">
         <dp-button
           color="secondary"
+          data-cy="tagListItem:delete"
           hide-text
           icon="delete"
           :text="Translator.trans('delete')"
@@ -27,6 +29,7 @@
         <dp-button
           class="u-pl-0"
           color="secondary"
+          data-cy="tagListItem:edit"
           hide-text
           icon="edit"
           :text="Translator.trans('edit')"
@@ -36,6 +39,7 @@
       <template v-else>
         <dp-button
           color="primary"
+          data-cy="tagListItem:save"
           hide-text
           icon="check"
           :text="Translator.trans('save')"
@@ -44,6 +48,7 @@
         <dp-button
           class="u-pl-0"
           color="primary"
+          data-cy="tagListItem:abort"
           hide-text
           icon="xmark"
           :text="Translator.trans('abort')"

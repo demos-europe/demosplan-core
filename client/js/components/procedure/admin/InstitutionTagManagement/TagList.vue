@@ -36,11 +36,15 @@
 
 
     <div class="mt-4">
+      <dp-loading
+        v-if="isLoading"
+        class="min-h-[32px]" />
       <dp-tree-list
+        v-else
         align-toggle="center"
         :branch-identifier="isBranch"
         :tree-data="tagCategories">
-        <template v-slot:header="">
+        <template v-slot:header>
           <div>
             {{ Translator.trans('category_or_tag') }}
           </div>
@@ -115,7 +119,8 @@ export default {
           colClass: 'u-1-of-10'
         }
       ],
-      initialRowData: {}
+      initialRowData: {},
+      isLoading: false
     }
   },
 
@@ -266,6 +271,8 @@ export default {
     },
 
     getInstitutionTagCategories () {
+      this.isLoading = true
+
       this.listInstitutionTagCategories({
         fields: {
           InstitutionTagCategory: [
@@ -280,6 +287,13 @@ export default {
           'tags'
         ].join()
       })
+        .then(() => {
+          this.isLoading = false
+        })
+        .catch(err => {
+          console.error(err)
+          this.isLoading = false
+        })
     },
 
     handleAddNewCategoryForm () {
@@ -337,6 +351,7 @@ export default {
           name: category.name
         }
       })
+
       this.saveInstitutionTagCategory(category.id)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.category.updated'))
