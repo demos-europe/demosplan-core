@@ -34,7 +34,6 @@
       @newCategoryForm:close="closeNewCategoryForm"
       @newCategory:created="getInstitutionTagCategories()" />
 
-
     <div class="mt-4">
       <dp-loading
         v-if="isLoading"
@@ -188,7 +187,7 @@ export default {
 
     confirmAndDeleteCategory (id) {
       if (dpconfirm(Translator.trans('check.category.delete', { categoryTitle: this.institutionTagCategories[id].attributes.name }))) {
-        this.deleteTagCategory(id)
+        this.deleteCategory(id)
       }
     },
 
@@ -223,27 +222,27 @@ export default {
 
     deleteCategoryAndTags (id, tags) {
       const promises = [
-        this.deleteTagCategory(id),
+        this.deleteCategory(id),
         ...tags.map(tag => this.deleteTag(tag.id))
       ]
 
       Promise.allSettled(promises)
         .then(() => {
-          dplan.notify.confirm(Translator.trans('confirm.deleted'))
+          dplan.notify.confirm(Translator.trans('confim.category_and_tags.deleted', { category: this.institutionTagCategories[id].attributes.name }))
         })
         .catch(err => {
           console.error(err)
         })
     },
 
-    deleteTagCategory (id) {
-      // return this.deleteInstitutionTagCategory(id)
-      //   .then(() => {
-      //     dplan.notify.confirm(Translator.trans('confirm.deleted'))
-      //   })
-      //   .catch(err => {
-      //     console.error(err)
-      //   })
+    deleteCategory (id) {
+      return this.deleteInstitutionTagCategory(id)
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.category.deleted', { category: this.institutionTagCategories[id].attributes.name }))
+        })
+        .catch(err => {
+          console.error(err)
+        })
     },
 
     deleteItem (item) {
@@ -262,7 +261,7 @@ export default {
     deleteTag (id) {
       return this.deleteInstitutionTag(id)
         .then(() => {
-          dplan.notify.confirm(Translator.trans('confirm.deleted'))
+          dplan.notify.confirm(Translator.trans('confirm.tag.deleted', { tag: this.institutionTags[id].attributes.name }))
           this.$emit('tagIsRemoved')
         })
         .catch(err => {
