@@ -19,7 +19,6 @@ use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
 use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
-use GoetasWebservices\XML\XSDReader\Schema\CustomAttributeContainerInterface;
 
 /**
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, InstitutionTag> $name
