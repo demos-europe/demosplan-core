@@ -287,7 +287,7 @@ export default {
           description: Translator.trans('search.special.characters.description')
         }
       ],
-      availableFilterFields: availableFilterFields
+      availableFilterFields
     }
   },
 

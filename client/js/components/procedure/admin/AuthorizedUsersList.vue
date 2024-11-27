@@ -402,13 +402,13 @@ export default {
       this.isSaving = true
       const { note, submitterName, submitterEmailAddress, submitterStreet, submitterHouseNumber, submitterPostalCode, submitterCity } = this.newUser
       const params = {
-        note: note,
-        submitterName: submitterName,
-        submitterEmailAddress: submitterEmailAddress,
-        submitterStreet: submitterStreet,
-        submitterHouseNumber: submitterHouseNumber,
-        submitterPostalCode: submitterPostalCode,
-        submitterCity: submitterCity
+        note,
+        submitterName,
+        submitterEmailAddress,
+        submitterStreet,
+        submitterHouseNumber,
+        submitterPostalCode,
+        submitterCity
       }
 
       return dpRpc('consultationToken.manual.create', params)

@@ -7,9 +7,15 @@
       @reset="resetForm"
       @saveEntry="id => dpValidateAction('contactData', () => createOrUpdateContact(id), false)">
       <template v-slot:list="contact">
-        <h3 class="break-words" v-text="contact.attributes.title" />
-        <p class="break-words" v-text="contact.attributes.phoneNumber" />
-        <p class="break-words" v-text="contact.attributes.eMailAddress" />
+        <h3
+          class="break-words"
+          v-text="contact.attributes.title" />
+        <p
+          class="break-words"
+          v-text="contact.attributes.phoneNumber" />
+        <p
+          class="break-words"
+          v-text="contact.attributes.eMailAddress" />
         <template v-html="contact.attributes.text" />
         <dp-badge
           class="color--white rounded-full whitespace--nowrap bg-color--grey u-mt-0_125"
@@ -211,7 +217,7 @@ export default {
         eMailAddress: currentData.eMailAddress ?? '',
         text: currentData.text ?? '',
         visible: currentData.visible,
-        id: id
+        id
       }
     }
   },
