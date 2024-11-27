@@ -63,6 +63,13 @@ export default {
 
   mixins: [dpValidateMixin],
 
+  props: {
+    tagCategories: {
+      type: Array,
+      required: true
+    }
+  },
+
   data () {
     return {
       isLoading: false,
@@ -80,13 +87,22 @@ export default {
       this.newCategory.label = null
     },
 
+    isCategoryNameUnique (name) {
+      return !this.tagCategories.some(category => category.name === name)
+    },
+
     resetNewCategoryForm () {
       this.newCategory = {}
       this.$emit('newCategoryForm:close')
     },
 
     saveNewCategory () {
-      // TO DO: Do we need to check for unique in FE?
+      if (!this.isCategoryNameUnique(this.newCategory.name)) {
+        dplan.notify.error(Translator.trans('tag.category.name.unique.error'))
+
+        return
+      }
+
       this.isLoading = true
 
       // Persist changes in database

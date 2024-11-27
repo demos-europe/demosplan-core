@@ -31,6 +31,7 @@
 
     <new-category-form
       v-if="addNewCategory"
+      :tag-categories="tagCategories"
       @newCategoryForm:close="closeNewCategoryForm"
       @newCategory:created="getInstitutionTagCategories()" />
 

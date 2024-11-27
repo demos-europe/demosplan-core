@@ -107,16 +107,25 @@ export default {
       this.newTag = {}
     },
 
+    isTagNameUnique (name, categoryId) {
+      return !this.tagCategories.some(category =>
+        category.id === categoryId &&
+        category.children.some(tag => tag.name === name)
+      )
+    },
+
     resetNewTagForm () {
       this.newTag = {}
       this.$emit('newTagForm:close')
     },
 
     saveNewTag () {
-      // TO DO: Do we need this in FE? Only unique per category?
-      // if (!this.isUniqueTagName(this.newTag.label, true)) {
-      //   return dplan.notify.error(Translator.trans('workflow.tag.error.duplication'))
-      // }
+      if (!this.isTagNameUnique(this.newTag.name, this.newTag.category)) {
+        dplan.notify.error(Translator.trans('tag.name.unique.error'))
+
+        return
+      }
+
       this.isLoading = true
 
       // Persist changes in database
