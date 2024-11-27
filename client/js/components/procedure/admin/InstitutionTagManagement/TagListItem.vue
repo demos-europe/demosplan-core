@@ -1,5 +1,7 @@
 <template>
-  <div class="grid grid-cols-[1fr,auto,auto] items-center gap-1">
+  <form
+    class="grid grid-cols-[1fr,auto,auto] items-center gap-1"
+    data-dp-validate="editTagOrCategoryForm">
     <div class="flex space-x-1">
       <dp-icon
         v-if="item.type === 'InstitutionTag'"
@@ -44,7 +46,7 @@
           icon="check"
           :text="Translator.trans('save')"
           variant="subtle"
-          @click="save" />
+          @click="dpValidateAction('editTagOrCategoryForm', save, false)" />
         <dp-button
           class="u-pl-0"
           color="primary"
@@ -56,15 +58,17 @@
           @click="abort" />
       </template>
     </div>
-  </div>
+  </form>
 </template>
 
 <script>
 import {
   DpButton,
   DpIcon,
-  DpInput
+  DpInput,
+  dpValidateMixin
 } from '@demos-europe/demosplan-ui'
+import { mapActions, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'TagListItem',
@@ -74,6 +78,8 @@ export default {
     DpIcon,
     DpInput
   },
+
+  mixins: [dpValidateMixin],
 
   props: {
     item: {
@@ -92,10 +98,38 @@ export default {
     }
   },
 
+  computed: {
+    ...mapState('InstitutionTagCategory', {
+      institutionTagCategories: 'items'
+    }),
+
+    ...mapState('InstitutionTag', {
+      institutionTags: 'items'
+    })
+  },
+
   methods: {
+    ...mapActions('InstitutionTagCategory', {
+      restoreTagCategoryFromInitial: 'restoreFromInitial',
+      saveInstitutionTagCategory: 'save'
+    }),
+
+    ...mapActions('InstitutionTag', {
+      restoreTagFromInitial: 'restoreFromInitial',
+      saveInstitutionTag: 'save'
+    }),
+
+    ...mapMutations('InstitutionTagCategory', {
+      updateInstitutionTagCategory: 'setItem'
+    }),
+
+    ...mapMutations('InstitutionTag', {
+      updateInstitutionTag: 'setItem'
+    }),
+
     abort () {
-      this.isEditing = false
       this.name = this.item.name
+      this.isEditing = false
     },
 
     edit () {
@@ -103,11 +137,64 @@ export default {
     },
 
     save () {
-      this.isEditing = false
-      this.$emit('save', {
-        ...this.item,
-        name: this.name
+      if (this.item.name === this.name) {
+        this.isEditing = false
+        return
+      }
+
+      if (this.item.type === 'InstitutionTagCategory') {
+        this.saveCategory()
+      }
+
+      if (this.item.type === 'InstitutionTag') {
+        this.saveTag()
+      }
+    },
+
+    saveCategory () {
+      const { id, type } = this.item
+
+      this.updateInstitutionTagCategory({
+        id,
+        type,
+        attributes: {
+          ...this.institutionTagCategories[id].attributes,
+          name: this.name
+        }
       })
+
+      this.saveInstitutionTagCategory(this.item.id)
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.category.updated'))
+          this.isEditing = false
+        })
+        .catch(() => {
+          dplan.notify.error(Translator.trans('error.api.generic'))
+          this.restoreTagCategoryFromInitial(id)
+        })
+    },
+
+    saveTag () {
+      const { id, type } = this.item
+
+      this.updateInstitutionTag({
+        id,
+        type,
+        attributes: {
+          ...this.institutionTags[id].attributes,
+          name: this.name
+        }
+      })
+
+      this.saveInstitutionTag(id)
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.tag.edited'))
+          this.isEditing = false
+        })
+        .catch(() => {
+          this.restoreTagFromInitial(id)
+          dplan.notify.error(Translator.trans('error.api.generic'))
+        })
     }
   }
 }

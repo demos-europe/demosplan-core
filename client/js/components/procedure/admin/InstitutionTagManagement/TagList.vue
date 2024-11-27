@@ -52,14 +52,12 @@
         <template v-slot:branch="{ nodeElement }">
           <tag-list-item
             :item="nodeElement"
-            @delete="deleteItem"
-            @save="saveCategory" />
+            @delete="deleteItem" />
         </template>
         <template v-slot:leaf="{ nodeElement }">
           <tag-list-item
             :item="nodeElement"
-            @delete="deleteItem"
-            @save="saveTag" />
+            @delete="deleteItem" />
         </template>
       </dp-tree-list>
     </div>
@@ -69,15 +67,10 @@
 <script>
 import {
   DpButton,
-  DpButtonRow,
-  DpDataTable,
-  DpIcon,
-  DpInput,
   DpLoading,
-  dpValidateMixin,
   DpTreeList
 } from '@demos-europe/demosplan-ui'
-import { mapActions, mapMutations, mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import NewCategoryForm from './NewCategoryForm'
 import NewTagForm from './NewTagForm'
 import TagListItem from './TagListItem'
@@ -87,18 +80,12 @@ export default {
 
   components: {
     DpButton,
-    DpButtonRow,
-    DpDataTable,
-    DpIcon,
-    DpInput,
     DpLoading,
     DpTreeList,
     NewCategoryForm,
     NewTagForm,
     TagListItem
   },
-
-  mixins: [dpValidateMixin],
 
   data () {
     return {
@@ -159,23 +146,11 @@ export default {
   methods: {
     ...mapActions('InstitutionTagCategory', {
       deleteInstitutionTagCategory: 'delete',
-      listInstitutionTagCategories: 'list',
-      restoreTagCategoryFromInitial: 'restoreFromInitial',
-      saveInstitutionTagCategory: 'save'
+      listInstitutionTagCategories: 'list'
     }),
 
     ...mapActions('InstitutionTag', {
-      deleteInstitutionTag: 'delete',
-      restoreTagFromInitial: 'restoreFromInitial',
-      saveInstitutionTag: 'save'
-    }),
-
-    ...mapMutations('InstitutionTagCategory', {
-      updateInstitutionTagCategory: 'setItem'
-    }),
-
-    ...mapMutations('InstitutionTag', {
-      updateInstitutionTag: 'setItem'
+      deleteInstitutionTag: 'delete'
     }),
 
     closeNewCategoryForm () {
@@ -193,7 +168,7 @@ export default {
     },
 
     confirmAndDeleteCategoryWithTags (id, children) {
-      const tagsAreUsed = true // @todo implement
+      const tagsAreUsed = true // @todo Implement
 
       if (tagsAreUsed) {
         if (dpconfirm(Translator.trans('Sind Sie sicher, dass Sie die Kategorie und alle Schlagworte darin löschen möchten? Die folgenden Schlagworte sind an Institutionen vergeben: ' +
@@ -315,7 +290,7 @@ export default {
     },
 
     handleTagDeletion (id) {
-      const tagIsUsed = true; // @todo implement
+      const tagIsUsed = true // @todo Implement
       if (tagIsUsed) {
         this.confirmAndDeleteTag(id, true)
       } else {
@@ -340,47 +315,6 @@ export default {
     isUniqueTagName (tagLabel, isNewTagLabel = false) {
       const foundSimilarLabel = this.tags.filter(el => el.label === tagLabel)
       return isNewTagLabel ? foundSimilarLabel.length === 0 : foundSimilarLabel.length === 1
-    },
-
-    saveCategory (category) {
-      this.updateInstitutionTagCategory({
-        id: category.id,
-        type: category.type,
-        attributes: {
-          ...this.institutionTagCategories[category.id].attributes,
-          name: category.name
-        }
-      })
-
-      this.saveInstitutionTagCategory(category.id)
-        .then(() => {
-          dplan.notify.confirm(Translator.trans('confirm.category.updated'))
-        })
-        .catch(error => {
-          console.error(error)
-          this.restoreTagCategoryFromInitial(category.id)
-        })
-    },
-
-    saveTag (id, label) {
-      this.updateInstitutionTag({
-        id,
-        type: this.institutionTags[id].type,
-        attributes: {
-          ...this.institutionTags[id].attributes,
-          label
-        }
-      })
-
-      this.saveInstitutionTag(id)
-        .then(dplan.notify.confirm(Translator.trans('confirm.tag.edited')))
-        .catch(err => {
-          this.restoreTagFromInitial(id)
-          console.error(err)
-        })
-        .finally(() => {
-          this.editingTagId = null
-        })
     }
   },
 
