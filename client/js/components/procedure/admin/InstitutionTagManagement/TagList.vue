@@ -175,7 +175,7 @@ export default {
     },
 
     confirmAndDeleteCategory (id) {
-      if (dpconfirm(Translator.trans('Sind Sie sicher, dass Sie die Kategorie löschen möchten?'))) {
+      if (dpconfirm(Translator.trans('check.category.delete', { categoryTitle: this.institutionTagCategories[id].attributes.name }))) {
         this.deleteTagCategory(id)
       }
     },
@@ -203,7 +203,7 @@ export default {
           this.deleteTag(id)
         }
       } else if (!tagIsUsed) {
-        if (dpconfirm(Translator.trans('Sind Sie sicher, dass Sie das Schlagwort löschen möchten?'))) {
+        if (dpconfirm(Translator.trans('check.tag.delete', { tag: this.institutionTags[id].attributes.name }))) {
           this.deleteTag(id)
         }
       }
