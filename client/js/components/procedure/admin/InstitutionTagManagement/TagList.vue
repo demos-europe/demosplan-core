@@ -127,27 +127,6 @@ export default {
     }),
 
     tagCategories () {
-      // return Object.values(tagCategories).map(category => {
-      //   const { attributes, id, relationships, type } = category
-      //   const tagIds= relationships.tags.data.length > 0 ? relationships.tags.data.map(tag => tag.id) : []
-      //
-      //   return {
-      //     id,
-      //     name: attributes.name,
-      //     children: Object.values(tags)
-      //       .filter(tag => tagIds.includes(tag.id))
-      //       .map(tag => {
-      //       const { id, attributes, type } = tag
-      //
-      //       return {
-      //         id,
-      //         name: attributes.name,
-      //         type
-      //       }
-      //     }),
-      //     type
-      //   }
-      // })
       return Object.values(this.institutionTagCategories).map(category => {
         const { attributes, id, type } = category
         const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
