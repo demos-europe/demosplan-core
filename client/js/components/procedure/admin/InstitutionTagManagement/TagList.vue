@@ -99,11 +99,6 @@ export default {
           field: 'name',
           label: Translator.trans('Kategorie / Schlagwort'),
           colClass: 'u-11-of-12'
-        },
-        {
-          field: 'action',
-          label: Translator.trans('actions'),
-          colClass: 'u-1-of-10'
         }
       ],
       initialRowData: {},
