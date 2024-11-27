@@ -161,7 +161,6 @@ export default {
 
     ...mapActions('InstitutionTag', {
       deleteInstitutionTag: 'delete',
-      listInstitutionTags: 'list',
       restoreTagFromInitial: 'restoreFromInitial',
       saveInstitutionTag: 'save'
     }),
@@ -283,14 +282,6 @@ export default {
       })
     },
 
-    getInstitutionTags () {
-      this.listInstitutionTags({
-        fields: {
-          InstitutionTag: ['name', 'id'].join()
-        }
-      })
-    },
-
     handleAddNewCategoryForm () {
       this.addNewCategory = true
       this.editingCategoryId = null
@@ -380,7 +371,6 @@ export default {
 
   mounted () {
     this.getInstitutionTagCategories()
-    this.getInstitutionTags()
   }
 }
 </script>
