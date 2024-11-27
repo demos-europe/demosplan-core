@@ -116,47 +116,47 @@ export default {
   },
 
   computed: {
-    // ...mapState('InstitutionTagCategories', {
-    //   institutionTagCategories: 'items'
-    // }),
+    ...mapState('InstitutionTagCategory', {
+      institutionTagCategories: 'items'
+    }),
 
     ...mapState('InstitutionTag', {
       institutionTags: 'items'
     }),
 
     tagCategories () {
-      return Object.values(tagCategories).map(category => {
-        const { attributes, id, relationships, type } = category
-        const tagIds= relationships.tags.data.length > 0 ? relationships.tags.data.map(tag => tag.id) : []
-
-        return {
-          id,
-          name: attributes.name,
-          children: Object.values(tags)
-            .filter(tag => tagIds.includes(tag.id))
-            .map(tag => {
-            const { id, attributes, type } = tag
-
-            return {
-              id,
-              name: attributes.name,
-              type
-            }
-          }),
-          type
-        }
-      })
-      // return Object.values(this.institutionTagCategories).map(category => {
-      //   const { attributes, id, type } = category
-      //   const tags = category.relationships.tags.data.length > 0 ? category.relationships.tags.data.list() : []
+      // return Object.values(tagCategories).map(category => {
+      //   const { attributes, id, relationships, type } = category
+      //   const tagIds= relationships.tags.data.length > 0 ? relationships.tags.data.map(tag => tag.id) : []
       //
       //   return {
       //     id,
       //     name: attributes.name,
-      //     tags,
+      //     children: Object.values(tags)
+      //       .filter(tag => tagIds.includes(tag.id))
+      //       .map(tag => {
+      //       const { id, attributes, type } = tag
+      //
+      //       return {
+      //         id,
+      //         name: attributes.name,
+      //         type
+      //       }
+      //     }),
       //     type
       //   }
       // })
+      return Object.values(this.institutionTagCategories).map(category => {
+        const { attributes, id, type } = category
+        const tags = category.relationships.tags.data.length > 0 ? category.relationships.tags.data : []
+
+        return {
+          id,
+          name: attributes.name,
+          tags,
+          type
+        }
+      })
     },
 
     tags () {
@@ -172,10 +172,10 @@ export default {
   },
 
   methods: {
-    // ...mapActions('InstitutionTagCategory', {
-    //   deleteInstitutionTagCategory: 'delete',
-    //   listInstitutionTagCategories: 'list'
-    // }),
+    ...mapActions('InstitutionTagCategory', {
+      deleteInstitutionTagCategory: 'delete',
+      listInstitutionTagCategories: 'list'
+    }),
 
     ...mapActions('InstitutionTag', {
       deleteInstitutionTag: 'delete',
@@ -281,21 +281,21 @@ export default {
     },
 
     getInstitutionTagCategories () {
-      // this.listInstitutionTagCategories({
-      //   fields: {
-      //     InstitutionTagCategory: [
-      //       'name',
-      //       'tags'
-      //     ].join()
-      //   },
-      //   include: ['tags'].join()
-      // })
+      this.listInstitutionTagCategories({
+        fields: {
+          InstitutionTagCategory: [
+            'name',
+            'tags'
+          ].join()
+        },
+        include: ['tags'].join()
+      })
     },
 
     getInstitutionTags () {
       this.listInstitutionTags({
         fields: {
-          InstitutionTag: ['label', 'id'].join()
+          InstitutionTag: ['name', 'id'].join()
         }
       })
     },
@@ -373,7 +373,7 @@ export default {
   },
 
   mounted () {
-    // this.getInstitutionTagCategories()
+    this.getInstitutionTagCategories()
     this.getInstitutionTags()
   }
 }

@@ -76,7 +76,7 @@ export default {
 
   props: {
     tagCategories: {
-      type: Object,
+      type: Array,
       required: true
     }
   },
@@ -123,7 +123,15 @@ export default {
       const payload = {
         type: 'InstitutionTag',
         attributes: {
-          name: this.newTag.name
+          name: this.newTag.name,
+        },
+        relationships: {
+          category: {
+            data: {
+              type: 'InstitutionTagCategory',
+              id: this.newTag.category
+            }
+          }
         }
       }
       this.createInstitutionTag(payload)
