@@ -26,12 +26,13 @@
     <new-tag-form
       v-if="addNewTag"
       :tag-categories="tagCategories"
-      @newTag:created="getInstitutionTags"
-      @newTagForm:close="closeNewTagForm" />
+      @newTagForm:close="closeNewTagForm"
+      @newTag:created="getInstitutionTags()" />
 
     <new-category-form
       v-if="addNewCategory"
-      @newCategoryForm:close="closeNewCategoryForm" />
+      @newCategoryForm:close="closeNewCategoryForm"
+      @newCategory:created="getInstitutionTagCategories()" />
 
 
     <div class="mt-4">
