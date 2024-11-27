@@ -43,7 +43,8 @@ class InstitutionTagCategoryResourceType extends DplanResourceType
             ->setReadableByPath();
         $institutionTagCategoryConfig->name
             ->setReadableByPath()
-            ->addPathCreationBehavior();
+            ->addPathCreationBehavior()
+            ->addPathUpdateBehavior();
 
         $institutionTagCategoryConfig->customer
             ->setRelationshipType($this->resourceTypeStore->getCustomerResourceType());
