@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f4a0582927155b25c4f6a3866cbaaeb1",
+    "content-hash": "7a14b2c6c8132714d4ec74aaab0f44f3",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1704,16 +1704,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.43",
+            "version": "dev-f_DPLAN-12914_institution_tags_and_categories",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "4328e44cf7db6e853e90271416f8f47916671b9c"
+                "reference": "ea87ccc9f74c4080a555a5d179ff3936c90f5868"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/4328e44cf7db6e853e90271416f8f47916671b9c",
-                "reference": "4328e44cf7db6e853e90271416f8f47916671b9c",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/ea87ccc9f74c4080a555a5d179ff3936c90f5868",
+                "reference": "ea87ccc9f74c4080a555a5d179ff3936c90f5868",
                 "shasum": ""
             },
             "require": {
@@ -1778,9 +1778,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.43"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/f_DPLAN-12914_institution_tags_and_categories"
             },
-            "time": "2024-11-04T11:21:49+00:00"
+            "time": "2024-11-25T09:34:42+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -24160,8 +24160,10 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
-    "stability-flags": [],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "demos-europe/demosplan-addon": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

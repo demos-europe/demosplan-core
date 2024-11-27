@@ -162,9 +162,7 @@ class InstitutionTagResourceType extends DplanResourceType
         $this->getTransactionService()->executeAndFlushInTransaction(
             function () use ($entityIdentifier): void {
                 $tag = $this->getEntity($entityIdentifier);
-                $owningOrganisation = $tag->getOwningOrganisation();
-                $owningOrganisation->removeOwnInstitutionTag($tag);
-                $violations = $this->validator->validate($owningOrganisation);
+                $violations = new ConstraintViolationList();
 
                 $tag->getTaggedInstitutions()->forAll(
                     function (int $key, Orga $taggedInstitution) use ($tag, $violations): bool {

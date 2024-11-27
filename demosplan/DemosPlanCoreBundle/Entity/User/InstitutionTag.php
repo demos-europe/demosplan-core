@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -94,12 +95,6 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
         return $this->id;
     }
 
-    public function getOwningOrganisation(): Orga
-    {
-        // @todo remove: adjust InstitutionTagInterface
-        return $this->getTaggedInstitutions()->get(0);
-    }
-
     /**
      * @return Collection<int, Orga>
      */
@@ -151,7 +146,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
         $this->label = $label;
     }
 
-    public function setCategory(InstitutionTagCategory $category): void
+    public function setCategory(InstitutionTagCategoryInterface $category): void
     {
         $this->category = $category;
     }
