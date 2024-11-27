@@ -15,6 +15,7 @@ namespace Tests\Core\Core\Functional;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
+use Exception;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\JsonApiTest;
@@ -22,6 +23,7 @@ use Tests\Base\JsonApiTest;
 class RatelimitRequestSubscriberTest extends JsonApiTest
 {
     private ?string $jwtToken = '';
+
     public function testAnyValidRequest(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_GUEST);
@@ -36,9 +38,9 @@ class RatelimitRequestSubscriberTest extends JsonApiTest
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_GUEST);
         $this->enablePermissions(['area_documents']);
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         // call the same request 10 times, this should work
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 10; ++$i) {
             $this->executeListRequest(
                 PlanningDocumentCategoryResourceType::getName(),
                 $user
@@ -66,5 +68,4 @@ class RatelimitRequestSubscriberTest extends JsonApiTest
 
         return $this->jwtToken;
     }
-
 }

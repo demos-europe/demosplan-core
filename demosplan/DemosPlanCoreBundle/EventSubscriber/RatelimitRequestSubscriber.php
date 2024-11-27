@@ -18,12 +18,12 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 class RatelimitRequestSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly RateLimiterFactory $jwtTokenLimiter) {
+    public function __construct(private readonly RateLimiterFactory $jwtTokenLimiter)
+    {
     }
 
     public function onKernelRequest(RequestEvent $event): void
     {
-
         if ($event->getRequest()->headers->has('X-JWT-Authorization')) {
             $limiter = $this->jwtTokenLimiter->create(md5($event->getRequest()->headers->get('X-JWT-Authorization')));
 
@@ -32,7 +32,6 @@ class RatelimitRequestSubscriber implements EventSubscriberInterface
             if (false === $limiter->consume(1)->isAccepted()) {
                 throw new TooManyRequestsHttpException();
             }
-
         }
     }
 
