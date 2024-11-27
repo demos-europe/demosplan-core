@@ -56,6 +56,8 @@ class InstitutionTagResourceType extends DplanResourceType
             ->setAliasedPath(Paths::institutionTag()->label)
             ->addPathUpdateBehavior([]);
 
+        $configBuilder->isUsed->setReadableByCallable(static fn (InstitutionTag $tag): bool => false);
+
         $configBuilder->category
             ->setRelationshipType($this->getTypes()->getInstitutionTagCategoryResourceType());
 
