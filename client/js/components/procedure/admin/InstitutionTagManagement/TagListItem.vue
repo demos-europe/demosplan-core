@@ -27,7 +27,7 @@
           icon="delete"
           :text="Translator.trans('delete')"
           variant="subtle"
-          @click="$emit('delete', item)" />
+          @click="deleteItem" />
         <dp-button
           class="u-pl-0"
           color="secondary"
@@ -110,11 +110,13 @@ export default {
 
   methods: {
     ...mapActions('InstitutionTagCategory', {
+      deleteInstitutionTagCategory: 'delete',
       restoreTagCategoryFromInitial: 'restoreFromInitial',
       saveInstitutionTagCategory: 'save'
     }),
 
     ...mapActions('InstitutionTag', {
+      deleteInstitutionTag: 'delete',
       restoreTagFromInitial: 'restoreFromInitial',
       saveInstitutionTag: 'save'
     }),
@@ -132,21 +134,129 @@ export default {
       this.isEditing = false
     },
 
+    confirmAndDeleteCategory () {
+      if (dpconfirm(Translator.trans('check.category.delete', { categoryTitle: this.item.name }))) {
+        this.deleteCategory()
+      }
+    },
+
+    confirmAndDeleteCategoryWithTags () {
+      const { id, children } = this.item
+      const tagsInUse = children
+        .filter(tag => tag.isUsed)
+        .map(tag => tag.name)
+
+      if (tagsInUse.length > 0) {
+        if (dpconfirm(Translator.trans('Sind Sie sicher, dass Sie die Kategorie und alle Schlagworte darin löschen möchten? Die folgenden Schlagworte sind an Institutionen vergeben: ' +
+          'Wenn Sie die Kategorie und die Schlagworte löschen, werden die Schlagworte von den Institutionen entfernt.'))) {
+          this.deleteCategoryAndTags()
+        }
+      } else if (tagsInUse.length === 0) {
+        if (dpconfirm(Translator.trans('Sind Sie sicher, dass Sie die Kategorie und alle Schlagworte darin löschen möchten? ' +
+          'Die Schlagworte sind nicht an Institutionen vergeben.'))) {
+          this.deleteCategoryAndTags(id, children)
+        }
+      }
+    },
+
+    confirmAndDeleteTag () {
+      const { id, isUsed, name } = this.item
+
+      if (isUsed) {
+        if (dpconfirm(Translator.trans('Sind Sie sicher, dass Sie das Schlagwort löschen möchten? Es ist aktuell an folgende Institutionen vergeben: ' +
+          'Wenn Sie das Schlagwort löschen, wird es von den Institutionen entfernt.'))) {
+          this.deleteTag(id)
+        }
+      } else if (!isUsed) {
+        if (dpconfirm(Translator.trans('check.tag.delete', { tag: name }))) {
+          this.deleteTag(id)
+        }
+      }
+    },
+
+    deleteCategoryAndTags () {
+      const { id, children, name } = this.item
+      const promises = [
+        this.deleteCategory(id),
+        ...children.map(tag => this.deleteTag(tag.id))
+      ]
+
+      Promise.allSettled(promises)
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confim.category_and_tags.deleted', { category: name }))
+        })
+        .catch(error => {
+          console.error(error)
+        })
+    },
+
+    deleteCategory () {
+      const { id, name } = this.item
+
+      return this.deleteInstitutionTagCategory(id)
+        .then(response => {
+          if (response.ok) {
+            dplan.notify.confirm(Translator.trans('confirm.category.deleted', { category: name }))
+          } else {
+            dplan.notify.error(Translator.trans('error.api.generic'))
+          }
+        })
+        .catch(error => {
+          console.error(error)
+        })
+    },
+
+    deleteItem () {
+      const { type } = this.item
+      const isCategory = type === 'InstitutionTagCategory'
+      const isTag = type === 'InstitutionTag'
+
+      if (isCategory) {
+        this.handleCategoryDeletion()
+      } else if (isTag) {
+        this.confirmAndDeleteTag()
+      }
+    },
+
+    deleteTag (id) {
+      return this.deleteInstitutionTag(id)
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.tag.deleted', { tag: this.institutionTags[id].attributes.name }))
+          this.$emit('tagIsRemoved')
+        })
+        .catch(error => {
+          console.error(error)
+        })
+    },
+
     edit () {
       this.isEditing = true
     },
 
+    handleCategoryDeletion () {
+      const { children } = this.item
+      const hasTags = children.length > 0
+
+      if (!hasTags) {
+        this.confirmAndDeleteCategory()
+      } else {
+        this.confirmAndDeleteCategoryWithTags()
+      }
+    },
+
     save () {
-      if (this.item.name === this.name) {
+      const { name, type } = this.item
+
+      if (name === this.name) {
         this.isEditing = false
         return
       }
 
-      if (this.item.type === 'InstitutionTagCategory') {
+      if (type === 'InstitutionTagCategory') {
         this.saveCategory()
       }
 
-      if (this.item.type === 'InstitutionTag') {
+      if (type === 'InstitutionTag') {
         this.saveTag()
       }
     },
@@ -163,7 +273,7 @@ export default {
         }
       })
 
-      this.saveInstitutionTagCategory(this.item.id)
+      this.saveInstitutionTagCategory(id)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.category.updated'))
           this.isEditing = false
