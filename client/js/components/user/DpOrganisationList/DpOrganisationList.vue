@@ -207,8 +207,7 @@ const orgaFields = {
     'state',
     'street',
     'submissionType',
-    'types',
-    'meinBerlinOrganisationId'
+    'types'
   ].join()
 }
 
