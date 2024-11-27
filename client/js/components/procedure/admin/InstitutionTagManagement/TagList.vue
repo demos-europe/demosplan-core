@@ -70,9 +70,7 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import NewCategoryForm from './NewCategoryForm'
 import NewTagForm from './NewTagForm'
-import tagCategories from './InstitutionTagCategories.json'
 import TagListItem from './TagListItem'
-import tags from './InstitutionTags.json'
 
 export default {
   name: 'TagList',
@@ -148,24 +146,21 @@ export default {
       // })
       return Object.values(this.institutionTagCategories).map(category => {
         const { attributes, id, type } = category
-        const tags = category.relationships.tags.data.length > 0 ? category.relationships.tags.data : []
+        const tags = category.relationships.tags.data.length > 0 ? category.relationships.tags.list() : []
 
         return {
           id,
           name: attributes.name,
-          tags,
-          type
-        }
-      })
-    },
+          children: Object.values(tags).map(tag => {
+            const { id, attributes, type } = tag
 
-    tags () {
-      return Object.values(this.institutionTags).map(tag => {
-        const { id, attributes } = tag
-        return {
-          id,
-          edit: this.editingTagId === id,
-          label: attributes.label
+            return {
+              id,
+              name: attributes.name,
+              type
+            }
+          }),
+          type
         }
       })
     }
@@ -286,9 +281,14 @@ export default {
           InstitutionTagCategory: [
             'name',
             'tags'
+          ].join(),
+          InstitutionTag: [
+            'name'
           ].join()
         },
-        include: ['tags'].join()
+        include: [
+          'tags'
+        ].join()
       })
     },
 
