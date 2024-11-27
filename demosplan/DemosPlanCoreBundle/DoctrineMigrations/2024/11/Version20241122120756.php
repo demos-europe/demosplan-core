@@ -21,7 +21,7 @@ class Version20241122120756 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T: ';
+        return 'refs DPLAN-12914: Remove owning_organisation_id from institution_tag table.';
     }
 
     /**

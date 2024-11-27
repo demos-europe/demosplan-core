@@ -21,7 +21,7 @@ class Version20241122110226 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs DPLAN-12914: Add category_id column to institution_tag table. Remove owning_organisation_id column from institution_tag table';
+        return 'refs DPLAN-12914: Add category_id column to institution_tag table.';
     }
 
     /**
