@@ -17,7 +17,7 @@ const components = { InstitutionTagManagement }
 
 const apiStores = [
   'InstitutionTag',
-  // 'InstitutionTagCategory',
+  'InstitutionTagCategory',
   'InvitableInstitution'
 ]
 
