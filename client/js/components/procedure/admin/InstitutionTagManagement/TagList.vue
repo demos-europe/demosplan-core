@@ -13,10 +13,13 @@
       v-if="!addNewTag && !addNewCategory"
       class="text-right">
       <dp-button
+        data-cy="tagList:newTag"
+        :disabled="tagCategories.length === 0"
         :text="Translator.trans('tag.new')"
         @click="handleAddNewTagForm" />
       <dp-button
-        color="secondary"
+        :color="tagCategories.length === 0 ? 'primary' : 'secondary'"
+        data-cy="tagList:newCategory"
         :text="Translator.trans('tag.category.new')"
         @click="handleAddNewCategoryForm" />
     </div>
