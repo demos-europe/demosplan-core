@@ -150,7 +150,7 @@ export default {
       // })
       return Object.values(this.institutionTagCategories).map(category => {
         const { attributes, id, type } = category
-        const tags = category.relationships.tags.data.length > 0 ? category.relationships.tags.list() : []
+        const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
 
         return {
           id,
