@@ -191,12 +191,8 @@ export default {
       const { id, name } = this.item
 
       return this.deleteInstitutionTagCategory(id)
-        .then(response => {
-          if (response.ok) {
-            dplan.notify.confirm(Translator.trans('confirm.category.deleted', { category: name }))
-          } else {
-            dplan.notify.error(Translator.trans('error.api.generic'))
-          }
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.category.deleted', { category: name }))
         })
         .catch(error => {
           console.error(error)
