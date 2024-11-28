@@ -105,7 +105,7 @@ export default {
       editingCategoryId: null,
       editingTagId: null,
       isLoading: false,
-      tagCategoriesWithTags:[]
+      tagCategoriesWithTags: []
     }
   },
 
@@ -171,9 +171,9 @@ export default {
     },
 
     /**
-     * if item is tag, remove it from its category
-     * if item is category, remove the category
-     * @param item
+     * Remove item from the list
+     * @param item { object } With properties id, name, type; if it's a category, also children;
+     * if it's a tag, also categoryId and isUsed
      */
     handleItemDeleted (item) {
       const isTag = !!item.categoryId
@@ -236,7 +236,6 @@ export default {
 
   mounted () {
     this.getInstitutionTagCategories()
-
   }
 }
 </script>
