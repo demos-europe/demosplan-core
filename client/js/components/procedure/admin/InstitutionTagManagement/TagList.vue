@@ -100,13 +100,6 @@ export default {
       edit: false,
       editingCategoryId: null,
       editingTagId: null,
-      headerFields: [
-        {
-          field: 'name',
-          label: Translator.trans('Kategorie / Schlagwort'),
-          colClass: 'u-11-of-12'
-        }
-      ],
       initialRowData: {},
       isLoading: false
     }
