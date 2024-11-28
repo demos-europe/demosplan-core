@@ -3,7 +3,7 @@
     "description": "demosplan is a web application for public participation in planning processes",
     "type": "project",
     "license": "EUPL-1.2",
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "php": "^8.1 || ^8.2",
         "ext-ctype": "*",
@@ -34,7 +34,7 @@
         "cebe/php-openapi": "^1.5",
         "cocur/slugify": "^4.0",
         "composer/package-versions-deprecated": "1.11.99.5",
-        "demos-europe/demosplan-addon": "dev-f_DPLAN-12914_institution_tags_and_categories",
+        "demos-europe/demosplan-addon": "0.44",
         "doctrine/annotations": "^2.0",
         "doctrine/common": "^3.2",
         "doctrine/doctrine-bundle": "^2",
