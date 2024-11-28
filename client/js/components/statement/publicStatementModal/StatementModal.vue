@@ -1067,36 +1067,12 @@ export default {
       })
         .then(checkResponse)
         .then(data => {
-          const priorityAreaKey = data.draftStatement.statementAttributes.priorityAreaKey || ''
-          const priorityAreaType = data.draftStatement.statementAttributes.priorityAreaType || ''
-          const statementFiles = data.draftStatement.files ? JSON.stringify(data.draftStatement.files) : ''
-          const draft = {
-            r_text: data.draftStatement.text,
-            r_files_initial: statementFiles || [],
-            r_ident: this.draftStatementId,
-            r_isNegativeReport: data.draftStatement.negativ ? '1' : '0',
-            r_element_id: data.draftStatement.elementId || '',
-            r_element_title: data.draftStatement.element?.title ?? '',
-            r_paragraph_id: data.draftStatement.paragraphId ?? '',
-            r_paragraph_title: data.draftStatement.paragraph?.title ?? '',
-            r_document_id: data.draftStatement.document?.id ?? '',
-            r_document_title: data.draftStatement.document?.title ?? '',
-            r_represents: data.draftStatement.represents ?? '',
-            r_location: Object.keys(data.draftStatement.statementAttributes)[0] ?? 'mapLocation',
-            r_location_geometry: data.draftStatement.polygon,
-            r_location_priority_area_key: priorityAreaKey,
-            r_location_priority_area_type: priorityAreaType,
-            r_location_point: '',
-            location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
-            r_county: data.draftStatement.statementAttributes.county ?? '',
-            r_makePublic: !!data.draftStatement.publicAllowed
-          }
-
           this.hasPlanningDocuments = data.hasPlanningDocuments || this.initHasPlanningDocuments
-          if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
-          if (draft.r_location === 'mapLocation' && data.draftStatement.polygon) draft.r_location = 'point'
 
           if (draftExists === false) {
+            const priorityAreaKey = data.draftStatement.statementAttributes.priorityAreaKey || ''
+            const priorityAreaType = data.draftStatement.statementAttributes.priorityAreaType || ''
+            const draft = this.setDraftData(data, priorityAreaKey, priorityAreaType)
             /*
              * If it is a draft, we set the data from local storage (see above).
              */
@@ -1425,6 +1401,35 @@ export default {
         .then(() => {
           this.isLoading = false
         })
+    },
+
+    setDraftData (data, priorityAreaKey, priorityAreaType) {
+      const draft = {
+        r_text: data.draftStatement.text,
+        r_files_initial: data.draftStatement.files ? JSON.stringify(data.draftStatement.files) : [],
+        r_ident: this.draftStatementId,
+        r_isNegativeReport: data.draftStatement.negativ ? '1' : '0',
+        r_element_id: data.draftStatement.elementId || '',
+        r_element_title: data.draftStatement.element?.title ?? '',
+        r_paragraph_id: data.draftStatement.paragraphId ?? '',
+        r_paragraph_title: data.draftStatement.paragraph?.title ?? '',
+        r_document_id: data.draftStatement.document?.id ?? '',
+        r_document_title: data.draftStatement.document?.title ?? '',
+        r_represents: data.draftStatement.represents ?? '',
+        r_location: Object.keys(data.draftStatement.statementAttributes)[0] ?? 'mapLocation',
+        r_location_geometry: data.draftStatement.polygon,
+        r_location_priority_area_key: priorityAreaKey,
+        r_location_priority_area_type: priorityAreaType,
+        r_location_point: '',
+        location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
+        r_county: data.draftStatement.statementAttributes.county ?? '',
+        r_makePublic: !!data.draftStatement.publicAllowed
+      }
+
+      if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
+      if (draft.r_location === 'mapLocation' && data.draftStatement.polygon) draft.r_location = 'point'
+
+      return draft
     },
 
     setPrivacyPreference (data) {
