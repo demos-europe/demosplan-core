@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -101,7 +102,7 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface, 
         $this->name = $name;
     }
 
-    public function setCustomer(Customer $customer): void
+    public function setCustomer(CustomerInterface $customer): void
     {
         $this->customer = $customer;
     }
