@@ -215,7 +215,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
             $gis->setDefaultVisibility($data['default']);
 
             // set default of all group member
-            if (null !== $gis->getVisibilityGroupId() && "" !== $gis->getVisibilityGroupId()) {
+            if (null !== $gis->getVisibilityGroupId() && '' !== $gis->getVisibilityGroupId()) {
                 $gisLayers = $this->getByVisibilityGroupId($gis->getVisibilityGroupId(), $gis->getProcedureId());
                 foreach ($gisLayers as $gisLayer) {
                     $gisLayer->setDefaultVisibility($gis->hasDefaultVisibility());
@@ -228,7 +228,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
             $gis->setDefaultVisibility($data['defaultVisibility']);
 
             // set default of all group member
-            if (null !== $gis->getVisibilityGroupId() && "" !== $gis->getVisibilityGroupId()) {
+            if (null !== $gis->getVisibilityGroupId() && '' !== $gis->getVisibilityGroupId()) {
                 $gisLayers = $this->getByVisibilityGroupId($gis->getVisibilityGroupId(), $gis->getProcedureId());
                 foreach ($gisLayers as $gisLayer) {
                     $gisLayer->setDefaultVisibility($gis->hasDefaultVisibility());
@@ -589,7 +589,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
         if (array_key_exists('enabled', $data)) {
             $gisLayer->setEnabled($data['enabled']);
 
-            if (null !== $gisLayer->getVisibilityGroupId() && "" !== $gisLayer->getVisibilityGroupId()) {
+            if (null !== $gisLayer->getVisibilityGroupId() && '' !== $gisLayer->getVisibilityGroupId()) {
                 $gisLayers = $this->getByVisibilityGroupId($gisLayer->getVisibilityGroupId(), $gisLayer->getProcedureId());
                 foreach ($gisLayers as $gisLayerOfGroup) {
                     $gisLayerOfGroup->setEnabled($gisLayer->getVisible());
@@ -668,7 +668,6 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     }
 
     /**
-     *
      * @return GisLayer[]
      */
     public function getByVisibilityGroupId(string $visibilityGroupId, string $procedureId)
