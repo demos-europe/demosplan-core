@@ -59,7 +59,7 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface, 
     /**
      * @var Collection<int, InstitutionTag>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", mappedBy="category")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", mappedBy="category", cascade={"remove"})
      */
     protected $tags;
 
