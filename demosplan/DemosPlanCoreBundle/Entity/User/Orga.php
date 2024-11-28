@@ -364,7 +364,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         $this->users = new ArrayCollection();
         $this->administratableProcedures = new ArrayCollection();
         $this->assignedTags = new ArrayCollection();
-        $this->ownInstitutionTags = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -1352,26 +1351,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         if ($this->assignedTags->contains($tag)) {
             $this->assignedTags->removeElement($tag);
             $tag->getTaggedInstitutions()->removeElement($this);
-        }
-    }
-
-    public function addOwnInstitutionTag(InstitutionTagInterface $tag): void
-    {
-        $this->ownInstitutionTags->add($tag);
-    }
-
-    /**
-     * @return Collection<int, InstitutionTag>
-     */
-    public function getOwnInstitutionTags(): Collection
-    {
-        return $this->ownInstitutionTags;
-    }
-
-    public function removeOwnInstitutionTag(InstitutionTagInterface $tag): void
-    {
-        if ($this->ownInstitutionTags->contains($tag)) {
-            $this->ownInstitutionTags->removeElement($tag);
         }
     }
 }
