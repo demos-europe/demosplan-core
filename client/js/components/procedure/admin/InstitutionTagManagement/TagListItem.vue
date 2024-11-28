@@ -82,6 +82,10 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    /**
+     * If item is a category, it also has the property 'children'
+     * If item is a tag, it also has the properties 'categoryId' and 'isUsed'
+     */
     item: {
       type: Object,
       required: true,
@@ -137,6 +141,9 @@ export default {
     confirmAndDeleteCategory () {
       if (dpconfirm(Translator.trans('check.category.delete', { categoryTitle: this.item.name }))) {
         this.deleteCategory()
+          .then(() => {
+            this.$emit('item:deleted', this.item)
+          })
       }
     },
 
@@ -162,11 +169,11 @@ export default {
 
       if (isUsed) {
         if (dpconfirm(Translator.trans('check.tag_is_used.delete'))) {
-          this.deleteTag(id)
+          this.deleteTag()
         }
       } else if (!isUsed) {
         if (dpconfirm(Translator.trans('check.tag.delete', { tag: name }))) {
-          this.deleteTag(id)
+          this.deleteTag()
         }
       }
     },
@@ -175,12 +182,13 @@ export default {
       const { id, children, name } = this.item
       const promises = [
         this.deleteCategory(id),
-        ...children.map(tag => this.deleteTag(tag.id))
+        ...children.map(tag => this.deleteTag(tag))
       ]
 
       Promise.allSettled(promises)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confim.category_and_tags.deleted', { category: name }))
+          this.$emit('item:deleted', id)
         })
         .catch(error => {
           console.error(error)
@@ -211,11 +219,12 @@ export default {
       }
     },
 
-    deleteTag (id) {
-      return this.deleteInstitutionTag(id)
+    deleteTag (tag = this.item) {
+      return this.deleteInstitutionTag(tag.id)
         .then(() => {
-          dplan.notify.confirm(Translator.trans('confirm.tag.deleted', { tag: this.institutionTags[id].attributes.name }))
+          dplan.notify.confirm(Translator.trans('confirm.tag.deleted', { title: tag.name }))
           this.$emit('tagIsRemoved')
+          this.$emit('item:deleted', tag)
         })
         .catch(error => {
           console.error(error)

@@ -14,26 +14,26 @@
       class="text-right">
       <dp-button
         data-cy="tagList:newTag"
-        :disabled="tagCategories.length === 0"
+        :disabled="tagCategoriesWithTags.length === 0"
         :text="Translator.trans('tag.new')"
         @click="handleAddNewTagForm" />
       <dp-button
-        :color="tagCategories.length === 0 ? 'primary' : 'secondary'"
+        :color="tagCategoriesWithTags.length === 0 ? 'primary' : 'secondary'"
         data-cy="tagList:newCategory"
         :text="Translator.trans('tag.category.new')"
         @click="handleAddNewCategoryForm" />
     </div>
     <new-tag-form
       v-if="addNewTag"
-      :tag-categories="tagCategories"
+      :tag-categories="tagCategoriesWithTags"
       @newTagForm:close="closeNewTagForm"
-      @newTag:created="getInstitutionTagCategories()" />
+      @newTag:created="getInstitutionTagCategories" />
 
     <new-category-form
       v-if="addNewCategory"
-      :tag-categories="tagCategories"
+      :tag-categories="tagCategoriesWithTags"
       @newCategoryForm:close="closeNewCategoryForm"
-      @newCategory:created="getInstitutionTagCategories()" />
+      @newCategory:created="getInstitutionTagCategories" />
 
     <div class="mt-4">
       <dp-loading
@@ -41,7 +41,7 @@
         class="min-h-[32px]" />
       <template v-else>
         <dp-inline-notification
-          v-if="tagCategories.length === 0"
+          v-if="tagCategoriesWithTags.length === 0"
           type="info"
           class="u-mt-1_5 u-mb"
           :message="Translator.trans('explanation.noentries')" />
@@ -50,17 +50,21 @@
           v-else
           align-toggle="center"
           :branch-identifier="isBranch"
-          :tree-data="tagCategories">
+          :tree-data="tagCategoriesWithTags">
           <template v-slot:header>
             <div>
               {{ Translator.trans('category_or_tag') }}
             </div>
           </template>
           <template v-slot:branch="{ nodeElement }">
-            <tag-list-item :item="nodeElement" />
+            <tag-list-item
+              :item="nodeElement"
+              @item:deleted="handleItemDeleted" />
           </template>
           <template v-slot:leaf="{ nodeElement }">
-            <tag-list-item :item="nodeElement" />
+            <tag-list-item
+              :item="nodeElement"
+              @item:deleted="handleItemDeleted" />
           </template>
         </dp-tree-list>
       </template>
@@ -100,8 +104,8 @@ export default {
       edit: false,
       editingCategoryId: null,
       editingTagId: null,
-      initialRowData: {},
-      isLoading: false
+      isLoading: false,
+      tagCategoriesWithTags:[]
     }
   },
 
@@ -112,30 +116,7 @@ export default {
 
     ...mapState('InstitutionTag', {
       institutionTags: 'items'
-    }),
-
-    tagCategories () {
-      return Object.values(this.institutionTagCategories).map(category => {
-        const { attributes, id, type } = category
-        const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
-
-        return {
-          id,
-          name: attributes.name,
-          children: Object.values(tags).map(tag => {
-            const { id, attributes, type } = tag
-
-            return {
-              id,
-              isUsed: attributes.isUsed,
-              name: attributes.name,
-              type
-            }
-          }),
-          type
-        }
-      })
-    }
+    })
   },
 
   methods: {
@@ -171,6 +152,7 @@ export default {
       })
         .then(() => {
           this.isLoading = false
+          this.tagCategoriesWithTags = this.transformTagsAndCategories()
         })
         .catch(err => {
           console.error(err)
@@ -186,6 +168,26 @@ export default {
     handleAddNewTagForm () {
       this.addNewTag = true
       this.editingTagId = null
+    },
+
+    /**
+     * if item is tag, remove it from its category
+     * if item is category, remove the category
+     * @param item
+     */
+    handleItemDeleted (item) {
+      const isTag = !!item.categoryId
+      const isCategory = !item.categoryId
+
+      if (isTag) {
+        const category = this.tagCategoriesWithTags.find(category => category.id === item.categoryId)
+
+        category.children = category.children.filter(tag => tag.id !== item.id)
+      }
+
+      if (isCategory) {
+        this.tagCategoriesWithTags = this.tagCategoriesWithTags.filter(category => category.id !== item.id)
+      }
     },
 
     isBranch ({ node }) {
@@ -205,11 +207,36 @@ export default {
     isUniqueTagName (tagLabel, isNewTagLabel = false) {
       const foundSimilarLabel = this.tags.filter(el => el.label === tagLabel)
       return isNewTagLabel ? foundSimilarLabel.length === 0 : foundSimilarLabel.length === 1
+    },
+
+    transformTagsAndCategories () {
+      return Object.values(this.institutionTagCategories).map(category => {
+        const { attributes, id, type } = category
+        const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
+
+        return {
+          id,
+          name: attributes.name,
+          children: Object.values(tags).map(tag => {
+            const { id, attributes, type } = tag
+
+            return {
+              id,
+              categoryId: category.id,
+              isUsed: attributes.isUsed,
+              name: attributes.name,
+              type
+            }
+          }),
+          type
+        }
+      })
     }
   },
 
   mounted () {
     this.getInstitutionTagCategories()
+
   }
 }
 </script>

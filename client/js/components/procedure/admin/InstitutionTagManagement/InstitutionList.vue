@@ -271,19 +271,14 @@ export default {
     getTagById (tagId) {
       const tag = this.tagList.find(el => el.id === tagId)
 
-      return tag
-        ? {
-            id: tag.id,
-            name: tag.attributes.name
-          }
-        : null
+      return tag || null
     },
 
     getTagNameById (tagId) {
       return this.tagList
         .filter(el => el.id === tagId)
         .map(el => {
-          return el.attributes.name
+          return el.name
         })
     }
   },
