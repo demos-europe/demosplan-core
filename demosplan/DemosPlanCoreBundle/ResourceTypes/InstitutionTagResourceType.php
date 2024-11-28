@@ -106,7 +106,7 @@ class InstitutionTagResourceType extends DplanResourceType
                 );
         }
 
-        $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (InstitutionTag $tag, EntityDataInterface $entityData): array {
+        $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (InstitutionTag $tag): array {
             $this->institutionTagRepository->persistEntities([$tag]);
 
             return [];
