@@ -208,7 +208,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
     /**
      * @var Collection<int, InstitutionTagCategory>
      *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory", mappedBy="customer")
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory", mappedBy="customer", cascade={"remove"})
      */
     #[Assert\Valid]
     protected Collection $customerCategories;
