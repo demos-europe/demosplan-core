@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\Common\Collections\Collection;
@@ -25,7 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\InstitutionTagCategoryRepository")
  */
-class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface
+class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface, InstitutionTagCategoryInterface
 {
     /**
      * @var string|null
