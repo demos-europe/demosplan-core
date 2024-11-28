@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\InstitutionTagCategoryResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\Querying\Contracts\PathException;
-use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 
 class InstitutionTagCategoryResourceType extends DplanResourceType
@@ -95,9 +94,10 @@ class InstitutionTagCategoryResourceType extends DplanResourceType
             'feature_institution_tag_read',
         )) {
             $currentCustomerId = $this->currentCustomerService->getCurrentCustomer()->getId();
+
             return [$this->conditionFactory->propertyHasValue(
                 $currentCustomerId,
-                Paths::institutionTagCategory()->customer->id)
+                Paths::institutionTagCategory()->customer->id),
             ];
         }
 
