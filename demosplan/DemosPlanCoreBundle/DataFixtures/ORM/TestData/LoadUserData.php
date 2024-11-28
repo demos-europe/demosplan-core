@@ -108,6 +108,8 @@ class LoadUserData extends TestFixture
 
     final public const TEST_USER_CONTENT_EDITOR = 'testUserContentEditor';
 
+    final public const TEST_USER_CUSTOMER_MASTER = 'testUserCustomerMaster';
+
     final public const TEST_DEPARTMENT = 'testDepartment';
     final public const TEST_ORGA_PUBLIC_AGENCY = 'testOrgaInvitableInstitution';
 
@@ -819,6 +821,26 @@ class LoadUserData extends TestFixture
 
         $manager->persist($userContentEditor);
 
+
+//        CUSTOMER_MASTER_USER
+        $custerMasterUser = new User();
+        $custerMasterUser->setLogin('customer_master_user');
+        $custerMasterUser->setPassword(md5('customer_master_user_12345'));
+        $custerMasterUser->setAlternativeLoginPassword(md5('customer_master_user_12345'));
+        $custerMasterUser->setLastname('Lastname Customer Master User');
+        $custerMasterUser->setFirstname('Firstname Customer Master User');
+        $custerMasterUser->setNewsletter(false);
+        $custerMasterUser->setNoPiwik(true);
+        $custerMasterUser->setNewUser(false);
+        $custerMasterUser->setProfileCompleted(true);
+        $custerMasterUser->setAccessConfirmed(true);
+        $custerMasterUser->setForumNotification(false);
+        $custerMasterUser->setDplanroles([$role14], $customer);
+        $custerMasterUser->setCurrentCustomer($customer);
+
+        $manager->persist($custerMasterUser);
+
+
         $manager->flush();
 
         $this->setReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY, $user);
@@ -848,6 +870,7 @@ class LoadUserData extends TestFixture
         $this->setReference(self::TEST_USER_UNFINISHED_REGISTRATION, $user12);
         $this->setReference(self::TEST_USER_XBAULEITPLANUNG, $user13);
         $this->setReference(self::TEST_USER_CONTENT_EDITOR, $userContentEditor);
+        $this->setReference(self::TEST_USER_CUSTOMER_MASTER, $custerMasterUser);
 
         $manager->flush();
 
