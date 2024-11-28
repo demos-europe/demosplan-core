@@ -40,7 +40,7 @@
           v-else
           v-model="editingInstitutionTags"
           :options="tagList"
-          label="label"
+          label="name"
           track-by="id"
           multiple />
       </template>
@@ -97,8 +97,6 @@ import {
   formatDate
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import institutions from './InvitableInstitutions.json'
-import tags from './InstitutionTags.json'
 
 export default {
   name: 'InstitutionList',
@@ -151,46 +149,23 @@ export default {
         const { id, attributes } = tag
         return {
           id,
-          label: attributes.label
+          name: attributes.name
         }
       })
     },
 
     institutionList () {
-      return Object.values(institutions).map(institution => {
-        const { attributes, id, type } = institution
-        const tagIds = institution.relationships.assignedTags.data.length ? institution.relationships.assignedTags.data.map(tag => tag.id) : []
+      return Object.values(this.invitableInstitutionList).map(tag => {
+        const { id, attributes, relationships } = tag
 
         return {
+          createdDate: attributes.createdDate.date,
           edit: this.editingInstitutionId === id,
           id,
           institution: attributes.name,
-          tags: Object.values(tags)
-            .filter(tag => tagIds.includes(tag.id))
-            .map(tag => {
-              const { id, attributes, type } = tag
-
-              return {
-                id,
-                name: attributes.name,
-                type
-              }
-            }),
-          createdDate: '',
-          type
+          tags: relationships.assignedTags.data
         }
       })
-
-      // return Object.values(this.invitableInstitutionList).map(tag => {
-      //   const { id, attributes, relationships } = tag
-      //   return {
-      //     id,
-      //     edit: this.editingInstitutionId === id,
-      //     institution: attributes.name,
-      //     tags: relationships.assignedTags.data,
-      //     createdDate: attributes.createdDate.date
-      //   }
-      // })
     }
   },
 
@@ -214,10 +189,18 @@ export default {
         sort: '-createdDate',
         fields: {
           InstitutionTag: [
-            'label',
-            'id'
+            'id',
+            'name'
+          ].join(),
+          InvitableInstitution: [
+            'name',
+            'createdDate',
+            'assignedTags'
           ].join()
-        }
+        },
+        include: [
+          'assignedTags'
+        ].join()
       })
     },
 
@@ -225,7 +208,7 @@ export default {
       this.editingInstitutionTags = []
       this.editingInstitutionId = id
       this.editingInstitution = this.invitableInstitutionList[id]
-      this.editingInstitution.relationships.assignedTags.data.map(el => {
+      this.editingInstitution.relationships.assignedTags.data.forEach(el => {
         const tag = this.getTagById(el.id)
         this.editingInstitutionTags.push(tag)
       })
@@ -239,7 +222,6 @@ export default {
     addTagsToInstitution (id) {
       const institutionTagsString = JSON.stringify(this.editingInstitutionTags)
       const institutionTagsArray = JSON.parse(institutionTagsString)
-
       const payload = institutionTagsArray.map(el => {
         return {
           id: el.id,
@@ -277,32 +259,28 @@ export default {
     separateByCommas (institutionTags) {
       const tagsLabels = []
 
-      institutionTags.map(el => {
-        const label = this.getTagLabelById(el.id)
-        tagsLabels.push(label)
+      institutionTags.forEach(el => {
+        const name = this.getTagNameById(el.id)
+
+        tagsLabels.push(name)
       })
 
       return tagsLabels.join(', ')
     },
 
     getTagById (tagId) {
-      let tag = {}
-      Object.values(tags)
-      // this.tagList
-        .filter(el => el.id === tagId)
-        .map(el => {
-          tag = {
-            id: el.id,
-            name: el.attributes.name
-          }
-        })
+      const tag = this.tagList.find(el => el.id === tagId)
 
       return tag
+        ? {
+            id: tag.id,
+            name: tag.attributes.name
+          }
+        : null
     },
 
-    getTagLabelById (tagId) {
-      return Object.values(tags)
-      // return this.tagList
+    getTagNameById (tagId) {
+      return this.tagList
         .filter(el => el.id === tagId)
         .map(el => {
           return el.attributes.name
