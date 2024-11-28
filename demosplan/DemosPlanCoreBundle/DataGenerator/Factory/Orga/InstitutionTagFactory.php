@@ -1,10 +1,17 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
-use Doctrine\ORM\EntityRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
@@ -38,9 +45,9 @@ final class InstitutionTagFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'category' => InstitutionTagCategoryFactory::new(),
-            'creationDate' => self::faker()->dateTime(),
-            'label' => self::faker()->text(255),
+            'category'         => InstitutionTagCategoryFactory::new(),
+            'creationDate'     => self::faker()->dateTime(),
+            'label'            => self::faker()->text(255),
             'modificationDate' => self::faker()->dateTime(),
         ];
     }

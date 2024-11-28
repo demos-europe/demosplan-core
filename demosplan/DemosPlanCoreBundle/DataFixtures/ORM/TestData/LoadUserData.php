@@ -821,8 +821,7 @@ class LoadUserData extends TestFixture
 
         $manager->persist($userContentEditor);
 
-
-//        CUSTOMER_MASTER_USER
+        //        CUSTOMER_MASTER_USER
         $custerMasterUser = new User();
         $custerMasterUser->setLogin('customer_master_user');
         $custerMasterUser->setPassword(md5('customer_master_user_12345'));
@@ -839,7 +838,6 @@ class LoadUserData extends TestFixture
         $custerMasterUser->setCurrentCustomer($customer);
 
         $manager->persist($custerMasterUser);
-
 
         $manager->flush();
 
