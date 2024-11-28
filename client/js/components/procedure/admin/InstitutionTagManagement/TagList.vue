@@ -39,23 +39,31 @@
       <dp-loading
         v-if="isLoading"
         class="min-h-[32px]" />
-      <dp-tree-list
-        v-else
-        align-toggle="center"
-        :branch-identifier="isBranch"
-        :tree-data="tagCategories">
-        <template v-slot:header>
-          <div>
-            {{ Translator.trans('category_or_tag') }}
-          </div>
-        </template>
-        <template v-slot:branch="{ nodeElement }">
-          <tag-list-item :item="nodeElement" />
-        </template>
-        <template v-slot:leaf="{ nodeElement }">
-          <tag-list-item :item="nodeElement" />
-        </template>
-      </dp-tree-list>
+      <template v-else>
+        <dp-inline-notification
+          v-if="tagCategories.length === 0"
+          type="info"
+          class="u-mt-1_5 u-mb"
+          :message="Translator.trans('explanation.noentries')" />
+
+        <dp-tree-list
+          v-else
+          align-toggle="center"
+          :branch-identifier="isBranch"
+          :tree-data="tagCategories">
+          <template v-slot:header>
+            <div>
+              {{ Translator.trans('category_or_tag') }}
+            </div>
+          </template>
+          <template v-slot:branch="{ nodeElement }">
+            <tag-list-item :item="nodeElement" />
+          </template>
+          <template v-slot:leaf="{ nodeElement }">
+            <tag-list-item :item="nodeElement" />
+          </template>
+        </dp-tree-list>
+      </template>
     </div>
   </div>
 </template>
@@ -63,6 +71,7 @@
 <script>
 import {
   DpButton,
+  DpInlineNotification,
   DpLoading,
   DpTreeList
 } from '@demos-europe/demosplan-ui'
@@ -76,6 +85,7 @@ export default {
 
   components: {
     DpButton,
+    DpInlineNotification,
     DpLoading,
     DpTreeList,
     NewCategoryForm,
