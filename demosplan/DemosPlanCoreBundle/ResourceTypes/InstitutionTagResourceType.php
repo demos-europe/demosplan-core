@@ -142,14 +142,13 @@ class InstitutionTagResourceType extends DplanResourceType
 
     protected function getAccessConditions(): array
     {
-        return [$this->conditionFactory->true()];
-        $userOrga = $this->currentUser->getUser()->getOrga();
-
-        if (null === $userOrga) {
-            return [$this->conditionFactory->false()];
+        if ($this->currentUser->hasPermission(
+            'feature_institution_tag_read',
+        )) {
+            return [$this->conditionFactory->true()];
         }
 
-        return [$this->conditionFactory->true()];
+        return [$this->conditionFactory->false()];
     }
 
     public function isCreateAllowed(): bool

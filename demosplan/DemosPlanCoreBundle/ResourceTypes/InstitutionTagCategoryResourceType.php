@@ -12,11 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\InstitutionTagCategoryResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
+use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 
@@ -55,7 +58,7 @@ class InstitutionTagCategoryResourceType extends DplanResourceType
 
         $institutionTagCategoryConfig->addPostConstructorBehavior(
             new FixedSetBehavior(
-                function (InstitutionTagCategory $institutionTagCategory, EntityDataInterface $entityData): array {
+                function (InstitutionTagCategory $institutionTagCategory): array {
                     $institutionTagCategory->setCustomer($this->currentCustomerService->getCurrentCustomer());
                     $this->institutionTagRepository->persistEntities([$institutionTagCategory]);
 
@@ -69,31 +72,50 @@ class InstitutionTagCategoryResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return true;
+        return $this->currentUser->hasAnyPermissions(
+            'feature_institution_tag_create',
+            'feature_institution_tag_read',
+            'feature_institution_tag_update',
+            'feature_institution_tag_delete',
+        );
     }
 
     public function isUpdateAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('feature_institution_tag_update');
     }
 
+    /**
+     * @throws CustomerNotFoundException
+     * @throws PathException
+     */
     protected function getAccessConditions(): array
     {
-        return [$this->conditionFactory->true()];
+        if ($this->currentUser->hasPermission(
+            'feature_institution_tag_read',
+        )) {
+            $currentCustomerId = $this->currentCustomerService->getCurrentCustomer()->getId();
+            return [$this->conditionFactory->propertyHasValue(
+                $currentCustomerId,
+                Paths::institutionTagCategory()->customer->id)
+            ];
+        }
+
+        return [$this->conditionFactory->false()];
     }
 
     public function isCreateAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('feature_institution_tag_create');
     }
 
     public function isDeleteAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('feature_institution_tag_delete');
     }
 
     public function isGetAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('feature_institution_tag_read');
     }
 }
