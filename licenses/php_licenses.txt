@@ -54,7 +54,6 @@ myclabs/php-enum: MIT
 nelmio/security-bundle: MIT
 nesbot/carbon: MIT
 openlss/lib-array2xml: Apache-2.0
-patchwork/utf8: (Apache-2.0 or GPL-2.0)
 php-amqplib/rabbitmq-bundle: MIT
 php-parallel-lint/php-console-highlighter: MIT
 phpdocumentor/reflection-docblock: MIT
@@ -134,4 +133,4 @@ wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
 zenstruck/foundry: MIT
 
-As of 26.11.2024 07:03
+As of 28.11.2024 07:02
