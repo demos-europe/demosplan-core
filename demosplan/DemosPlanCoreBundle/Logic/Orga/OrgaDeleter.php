@@ -54,7 +54,7 @@ class OrgaDeleter extends CoreService
         // delete organisation user doctrine
         $this->deleteOrgaUserDoctrine($orgaIds, $isDryRun);
 
-        // delete institution tag and orga institution tag
+        // delete orga institution tag
         $this->deleteOrgaInstitutionTag($orgaIds, $isDryRun);
 
         // delete progression userstory votes
@@ -221,7 +221,6 @@ class OrgaDeleter extends CoreService
      */
     private function deleteOrgaInstitutionTag(array $orgaIds, bool $isDryRun): void
     {
-        $this->queriesService->deleteFromTableByIdentifierArray('institution_tag', 'owning_organisation_id', $orgaIds, $isDryRun);
         $this->queriesService->deleteFromTableByIdentifierArray('orga_institution_tag', 'orga__o_id', $orgaIds, $isDryRun);
     }
 
