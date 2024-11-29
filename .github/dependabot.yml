@@ -82,7 +82,6 @@ updates:
           - "symfony/deprecation-contracts"
           - "symfony/event-dispatcher-contracts"
           - "symfony/flex"
-          - "symfony/http-client"
           - "symfony/http-client-contracts"
           - "symfony/maker-bundle"
           - "symfony/monolog-bundle"
