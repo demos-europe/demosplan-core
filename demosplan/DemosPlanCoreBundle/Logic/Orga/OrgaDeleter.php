@@ -23,7 +23,7 @@ class OrgaDeleter extends CoreService
     public function __construct(
         private readonly SqlQueriesService $queriesService,
         private readonly ProcedureRepository $procedureRepository,
-        private readonly ProcedureDeleter $procedureDeleter
+        private readonly ProcedureDeleter $procedureDeleter,
     ) {
     }
 
