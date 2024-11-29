@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f4a0582927155b25c4f6a3866cbaaeb1",
+    "content-hash": "0f21a7b8c524ce004e996de9c8d314d2",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1704,16 +1704,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.43",
+            "version": "v0.44",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "4328e44cf7db6e853e90271416f8f47916671b9c"
+                "reference": "5826224fb429a27645cdfc85e561030ba97d505e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/4328e44cf7db6e853e90271416f8f47916671b9c",
-                "reference": "4328e44cf7db6e853e90271416f8f47916671b9c",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/5826224fb429a27645cdfc85e561030ba97d505e",
+                "reference": "5826224fb429a27645cdfc85e561030ba97d505e",
                 "shasum": ""
             },
             "require": {
@@ -1778,9 +1778,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.43"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.44"
             },
-            "time": "2024-11-04T11:21:49+00:00"
+            "time": "2024-11-28T14:38:01+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -6092,16 +6092,16 @@
         },
         {
             "name": "illuminate/collections",
-            "version": "v10.48.22",
+            "version": "v10.48.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/collections.git",
-                "reference": "37c863cffb345869dd134eff8e646bc82a19cc96"
+                "reference": "48de3d6bc6aa779112ddcb608a3a96fc975d89d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/collections/zipball/37c863cffb345869dd134eff8e646bc82a19cc96",
-                "reference": "37c863cffb345869dd134eff8e646bc82a19cc96",
+                "url": "https://api.github.com/repos/illuminate/collections/zipball/48de3d6bc6aa779112ddcb608a3a96fc975d89d8",
+                "reference": "48de3d6bc6aa779112ddcb608a3a96fc975d89d8",
                 "shasum": ""
             },
             "require": {
@@ -6143,20 +6143,20 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2024-06-19T14:25:05+00:00"
+            "time": "2024-11-21T14:02:44+00:00"
         },
         {
             "name": "illuminate/conditionable",
-            "version": "v10.48.22",
+            "version": "v10.48.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/conditionable.git",
-                "reference": "d0958e4741fc9d6f516a552060fd1b829a85e009"
+                "reference": "3ee34ac306fafc2a6f19cd7cd68c9af389e432a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/conditionable/zipball/d0958e4741fc9d6f516a552060fd1b829a85e009",
-                "reference": "d0958e4741fc9d6f516a552060fd1b829a85e009",
+                "url": "https://api.github.com/repos/illuminate/conditionable/zipball/3ee34ac306fafc2a6f19cd7cd68c9af389e432a5",
+                "reference": "3ee34ac306fafc2a6f19cd7cd68c9af389e432a5",
                 "shasum": ""
             },
             "require": {
@@ -6189,20 +6189,20 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2023-02-03T08:06:17+00:00"
+            "time": "2024-11-21T14:02:44+00:00"
         },
         {
             "name": "illuminate/contracts",
-            "version": "v10.48.22",
+            "version": "v10.48.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
-                "reference": "8d7152c4a1f5d9cf7da3e8b71f23e4556f6138ac"
+                "reference": "f90663a69f926105a70b78060a31f3c64e2d1c74"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/contracts/zipball/8d7152c4a1f5d9cf7da3e8b71f23e4556f6138ac",
-                "reference": "8d7152c4a1f5d9cf7da3e8b71f23e4556f6138ac",
+                "url": "https://api.github.com/repos/illuminate/contracts/zipball/f90663a69f926105a70b78060a31f3c64e2d1c74",
+                "reference": "f90663a69f926105a70b78060a31f3c64e2d1c74",
                 "shasum": ""
             },
             "require": {
@@ -6237,11 +6237,11 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2024-01-15T18:52:32+00:00"
+            "time": "2024-11-21T14:02:44+00:00"
         },
         {
             "name": "illuminate/macroable",
-            "version": "v10.48.22",
+            "version": "v10.48.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/macroable.git",
@@ -9032,16 +9032,16 @@
         },
         {
             "name": "nette/php-generator",
-            "version": "v4.1.6",
+            "version": "v4.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/php-generator.git",
-                "reference": "c90961e782ae86e517fe5ed732eb2b512945565b"
+                "reference": "d201c9bc217e0969d1b678d286be49302972fb56"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/php-generator/zipball/c90961e782ae86e517fe5ed732eb2b512945565b",
-                "reference": "c90961e782ae86e517fe5ed732eb2b512945565b",
+                "url": "https://api.github.com/repos/nette/php-generator/zipball/d201c9bc217e0969d1b678d286be49302972fb56",
+                "reference": "d201c9bc217e0969d1b678d286be49302972fb56",
                 "shasum": ""
             },
             "require": {
@@ -9085,7 +9085,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🐘 Nette PHP Generator: generates neat PHP code for you. Supports new PHP 8.3 features.",
+            "description": "🐘 Nette PHP Generator: generates neat PHP code for you. Supports new PHP 8.4 features.",
             "homepage": "https://nette.org",
             "keywords": [
                 "code",
@@ -9095,9 +9095,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/php-generator/issues",
-                "source": "https://github.com/nette/php-generator/tree/v4.1.6"
+                "source": "https://github.com/nette/php-generator/tree/v4.1.7"
             },
-            "time": "2024-09-10T09:31:55+00:00"
+            "time": "2024-11-29T01:41:18+00:00"
         },
         {
             "name": "nette/utils",
@@ -17087,16 +17087,16 @@
         },
         {
             "name": "symfony/security-core",
-            "version": "v5.4.45",
+            "version": "v5.4.48",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/security-core.git",
-                "reference": "2d324971f4a241cf538502e14f15ad32f2b16b9b"
+                "reference": "cca947b1a74bdbc21c4d6288a4abb938d9a7eaba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/security-core/zipball/2d324971f4a241cf538502e14f15ad32f2b16b9b",
-                "reference": "2d324971f4a241cf538502e14f15ad32f2b16b9b",
+                "url": "https://api.github.com/repos/symfony/security-core/zipball/cca947b1a74bdbc21c4d6288a4abb938d9a7eaba",
+                "reference": "cca947b1a74bdbc21c4d6288a4abb938d9a7eaba",
                 "shasum": ""
             },
             "require": {
@@ -17161,7 +17161,7 @@
             "description": "Symfony Security Component - Core Library",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/security-core/tree/v5.4.45"
+                "source": "https://github.com/symfony/security-core/tree/v5.4.48"
             },
             "funding": [
                 {
@@ -17177,7 +17177,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-10-23T08:30:13+00:00"
+            "time": "2024-11-27T08:58:20+00:00"
         },
         {
             "name": "symfony/security-csrf",
