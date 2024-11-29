@@ -109,7 +109,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         private readonly TagValidator $tagValidator,
         TranslatorInterface $translator,
         ValidatorInterface $validator,
-        StatementCopier $statementCopier
+        StatementCopier $statementCopier,
     ) {
         parent::__construct(
             $currentProcedureService,
@@ -192,6 +192,12 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         unset($segmentsWorksheet);
 
+        // hier wird vermutlich das event dispatched, wir haben hier in $segment alle statements mit externe id mit ihre
+        // segements und schlagworte. Verfahren Id is ei STück vorher verfügbar, wir mussen die weiterpassen zu processSegments
+        // weil die wird gebraucht in der event
+
+        // hier bekommen wir die datas von demospipes via das gleiche event und der core sprichert ganz normal die tags
+
         $miscTopic = $this->findOrCreateMiscTagTopic();
 
         $columnNamesMeta = $this->getFirstRowOfWorksheet($metaDataWorksheet);
@@ -265,6 +271,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             unset($segments[$statementId]);
         }
 
+        // hier können wir das posttagsPersistevent dispatchen, so kann demospipes die schlagwrote die er schon gemerket
+        // hat fetchen und alles speichern
         return $result;
     }
 
@@ -385,7 +393,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         int $counter,
         int $line,
         string $worksheetTitle,
-        TagTopic $miscTopic
+        TagTopic $miscTopic,
     ): Segment {
         if (!$this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
             throw new AccessDeniedException('Current user is not permitted to create or edit segments.');
@@ -634,7 +642,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     protected function getValidatedStatementText(
         string $statementText,
         int $line,
-        string $currentWorksheetTitle
+        string $currentWorksheetTitle,
     ): string {
         $violations = $this->validator->validate($statementText, $this->getStatementTextConstraint());
         if (0 !== $violations->count()) {
