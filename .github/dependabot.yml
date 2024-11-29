@@ -59,7 +59,7 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-      time: "09:00"
+      time: "09:01"
       timezone: Europe/Berlin
     open-pull-requests-limit: 10
     labels:
