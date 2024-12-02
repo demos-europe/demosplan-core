@@ -225,16 +225,22 @@ export default {
   },
 
   watch: {
-    selectedCurrentPhase () {
-      this.setSelectedPhase()
+    selectedCurrentPhase: {
+      handler () {
+        this.setSelectedPhase()
 
-      if (hasPermission('feature_auto_switch_to_procedure_end_phase')) {
-        this.autoSwitchPhase = this.isParticipationPhaseSelected
-      }
+        if (hasPermission('feature_auto_switch_to_procedure_end_phase')) {
+          this.autoSwitchPhase = this.isParticipationPhaseSelected
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
 
-    switchDate (newVal) {
-      this.startDate = formatDate(newVal)
+    switchDate: {
+      handler (newVal) {
+        this.startDate = formatDate(newVal)
+      },
+      deep: true
     }
   },
 

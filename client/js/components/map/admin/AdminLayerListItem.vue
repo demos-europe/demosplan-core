@@ -671,11 +671,17 @@ export default {
   },
 
   watch: {
-    index () {
-      this.setOrderPosition()
+    index: {
+      handler () {
+        this.setOrderPosition()
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
-    parentOrderPosition () {
-      this.setOrderPosition()
+    parentOrderPosition: {
+      handler () {
+        this.setOrderPosition()
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

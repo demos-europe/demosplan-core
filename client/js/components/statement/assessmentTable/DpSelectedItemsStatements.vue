@@ -202,8 +202,11 @@ export default {
   },
 
   watch: {
-    selectedElements () {
-      this.fetchRelatedFragments()
+    selectedElements: {
+      handler () {
+        this.fetchRelatedFragments()
+      },
+      deep: true
     }
   },
 

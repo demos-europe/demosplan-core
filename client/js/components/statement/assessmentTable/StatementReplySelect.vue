@@ -78,10 +78,13 @@ export default {
   },
 
   watch: {
-    checked () {
-      if (!this.checked) {
-        this.setEmptyValue()
-      }
+    checked: {
+      handler (val) {
+        if (!val) {
+          this.setEmptyValue()
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
