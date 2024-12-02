@@ -792,7 +792,7 @@ class MapHandlerTest extends FunctionalTestCase
             $visibilityGroupId,
             [
                 'defaultVisibility' => $gisLayer1->hasDefaultVisibility(),
-                'procedureId' => $gisLayer2->getProcedureId()
+                'procedureId'       => $gisLayer2->getProcedureId(),
             ]
         );
         static::assertTrue($successful);
