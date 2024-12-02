@@ -116,11 +116,10 @@
           }"
           name="r_customerMasterBlueprint" />
 
-        <p
+        <dp-inline-notification
           v-if="isCustomerMasterBlueprintExisting && hasPermission('feature_admin_customer_master_procedure_template')"
-          class="flash-warning lbl__hint p-1 ml-4 mb-4 mt-1">
-          {{ Translator.trans('explanation.customer.masterblueprint.uncheck.existing') }}
-        </p>
+          :message="Translator.trans('explanation.customer.masterblueprint.uncheck.existing')"
+          type="warning" />
 
         <div class="text-right space-inline-s">
           <input
