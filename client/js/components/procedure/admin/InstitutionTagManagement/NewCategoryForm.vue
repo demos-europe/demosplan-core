@@ -49,7 +49,7 @@ import {
   DpLoading,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
-import {mapActions} from "vuex";
+import {mapActions} from 'vuex'
 export default {
   name: 'NewCategoryForm',
 
