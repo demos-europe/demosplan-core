@@ -15,8 +15,6 @@ class Config {
       Config.instance = this
       this.init(mode, project)
     }
-
-    return Config.instance
   }
 
   init (mode, project) {
