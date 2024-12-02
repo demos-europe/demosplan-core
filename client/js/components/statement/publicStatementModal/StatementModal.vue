@@ -620,7 +620,6 @@
             :class="prefixClass('color-highlight')"
             id="statementModalTitle"
             data-title="confirmation"
-            tabindex="0"
             aria-describedby="successConfirmation">
             <i
               :class="prefixClass('fa fa-comment')"
@@ -1068,39 +1067,12 @@ export default {
       })
         .then(checkResponse)
         .then(data => {
-          const priorityAreaKey = data.draftStatement.statementAttributes.priorityAreaKey || ''
-          const priorityAreaType = data.draftStatement.statementAttributes.priorityAreaType || ''
-          const statementFiles = data.draftStatement.files ? JSON.stringify(data.draftStatement.files) : ''
-
-          const draft = {
-            r_text: data.draftStatement.text,
-            r_files_initial: statementFiles || [],
-            r_ident: this.draftStatementId,
-            r_isNegativeReport: data.draftStatement.negativ ? '1' : '0',
-            r_element_id: data.draftStatement.elementId || '',
-            r_element_title: !!data.draftStatement.element && !!data.draftStatement.element.title ? data.draftStatement.element.title : '',
-            r_paragraph_id: data.draftStatement.paragraphId || '',
-            r_paragraph_title: !!data.draftStatement.paragraph && !!data.draftStatement.paragraph.title ? data.draftStatement.paragraph.title : '',
-            r_document_id: !!data.draftStatement.document && !!data.draftStatement.document.id ? data.draftStatement.document.id : '',
-            r_document_title: !!data.draftStatement.document && !!data.draftStatement.document.title ? data.draftStatement.document.title : '',
-            r_represents: data.draftStatement.represents !== null ? data.draftStatement.represents : '',
-            r_location: Object.keys(data.draftStatement.statementAttributes).reduce((acc, key) => {
-              acc = key
-              return acc
-            }, 'mapLocation'),
-            r_location_geometry: data.draftStatement.polygon,
-            r_location_priority_area_key: priorityAreaKey,
-            r_location_priority_area_type: priorityAreaType,
-            r_location_point: '',
-            location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
-            r_county: data.draftStatement.statementAttributes.county ? data.draftStatement.statementAttributes.county : '',
-            r_makePublic: !!data.draftStatement.publicAllowed
-          }
           this.hasPlanningDocuments = data.hasPlanningDocuments || this.initHasPlanningDocuments
-          if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
-          if (draft.r_location === 'mapLocation' && data.draftStatement.polygon) draft.r_location = 'point'
 
           if (draftExists === false) {
+            const priorityAreaKey = data.draftStatement.statementAttributes.priorityAreaKey || ''
+            const priorityAreaType = data.draftStatement.statementAttributes.priorityAreaType || ''
+            const draft = this.setDraftData(data, priorityAreaKey, priorityAreaType)
             /*
              * If it is a draft, we set the data from local storage (see above).
              */
@@ -1218,54 +1190,27 @@ export default {
       }
     },
 
-    removeDocumentRelation () {
-      const elementFields = {
-        r_element_id: '',
-        r_element_title: '',
-        r_document_id: '',
-        r_document_title: '',
-        r_paragraph_id: '',
-        r_paragraph_title: ''
-      }
-      this.setStatementData(elementFields)
-    },
-
-    removeNotificationsFromStore () {
-      this.messages.forEach(message => {
-        this.remove(message)
-      })
-    },
-
-    removeUnsavedFile (file) {
-      const indexToRemove = this.unsavedFiles.findIndex(el => el.hash === file.hash)
-      this.unsavedFiles.splice(indexToRemove, 1)
-      this.setStatementData({ uploadedFiles: this.unsavedFiles.map(el => el.hash).join(',') })
-    },
-
-    sendStatement (e, immediateSubmit = false, keepModalOpen = false) {
-      e.preventDefault()
-
-      if (this.validateStatementStep() === false || this.validateRecheckStep() === false) {
-        return
-      }
-
-      this.isLoading = true
-
-      this.setStatementData({ immediate_submit: immediateSubmit })
-      this.setStatementData({ r_loadtime: dayjs().unix() })
-
-      const dataToSend = { ...this.formData }
+    /**
+     * Prepare the data to be sent to the backend
+     * We have to copy the store state because deleting entries is not reactive atm.
+     *
+     * @param formData
+     *
+     * @return {*}
+     */
+    prepareDataToSend (formData) {
+      const dataToSend = { ...formData }
 
       /*
        * If we have no map/county-reference enabled we can't set it as default, because then this would be preselected
        * which we don't want
        */
       if (dataToSend.location_is_set === '') {
-        this.setStatementData({ location_is_set: 'notLocated' })
+        dataToSend.location_is_set = 'notLocated'
       }
 
       if (dataToSend.r_location !== 'county') {
-        this.setStatementData({ r_county: '' })
+        dataToSend.r_county = ''
       }
 
       /*
@@ -1273,16 +1218,14 @@ export default {
        * it can't be preset to prevent the radio options from being preselected
        */
       if (dataToSend.r_submitter_role === '') {
-        this.setStatementData({ r_submitter_role: 'citizen' })
+        dataToSend.r_submitter_role = 'citizen'
       }
 
       if (dataToSend.r_location !== 'point') {
-        this.setStatementData({
-          r_location_point: '',
-          r_location_priority_area_key: '',
-          r_location_priority_area_type: '',
-          r_location_geometry: ''
-        })
+        dataToSend.r_location_point = ''
+        dataToSend.r_location_priority_area_key = ''
+        dataToSend.r_location_priority_area_type = ''
+        dataToSend.r_location_geometry = ''
       }
 
       /*
@@ -1313,14 +1256,60 @@ export default {
         delete dataToSend.r_email
       }
 
+      return dataToSend
+    },
+
+    removeDocumentRelation () {
+      const elementFields = {
+        r_element_id: '',
+        r_element_title: '',
+        r_document_id: '',
+        r_document_title: '',
+        r_paragraph_id: '',
+        r_paragraph_title: ''
+      }
+
+      this.setStatementData(elementFields)
+    },
+
+    removeNotificationsFromStore () {
+      this.messages.forEach(message => {
+        this.remove(message)
+      })
+    },
+
+    removeUnsavedFile (file) {
+      const indexToRemove = this.unsavedFiles.findIndex(el => el.hash === file.hash)
+
+      this.unsavedFiles.splice(indexToRemove, 1)
+      this.setStatementData({
+        uploadedFiles: this.unsavedFiles
+          .map(el => el.hash)
+          .join(',')
+      })
+    },
+
+    sendStatement (e, immediateSubmit = false, keepModalOpen = false) {
+      e.preventDefault()
+
+      if (this.validateStatementStep() === false || this.validateRecheckStep() === false) {
+        return
+      }
+
+      this.isLoading = true
+      this.setStatementData({ immediate_submit: immediateSubmit })
+      this.setStatementData({ r_loadtime: dayjs().unix() })
+
+      const dataToSend = this.prepareDataToSend(this.formData)
+
       let route = Routing.generate('DemosPlan_statement_public_participation_new_ajax', { procedure: this.procedureId }) + (immediateSubmit ? '?immediate_submit=true' : '')
 
       // Draft statements
       if (this.draftStatementId !== '') {
-        this.setStatementData({ action: 'statementedit' })
+        dataToSend.action = 'statementedit'
         route = Routing.generate('DemosPlan_statement_edit', { statementID: this.draftStatementId, procedure: this.procedureId })
       } else {
-        this.setStatementData({ action: 'statementpublicnew' })
+        dataToSend.action = 'statementpublicnew'
       }
 
       return makeFormPost(dataToSend, route)
@@ -1337,7 +1326,7 @@ export default {
           }
           /*
            * Handling for successful responses
-           * if its not an HTML-Response like after creating a new one
+           * if it's not an HTML-Response like after creating a new one
            */
           if (response.status === 200) {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.saved'))
@@ -1414,6 +1403,35 @@ export default {
         })
     },
 
+    setDraftData (data, priorityAreaKey, priorityAreaType) {
+      const draft = {
+        r_text: data.draftStatement.text,
+        r_files_initial: data.draftStatement.files ? JSON.stringify(data.draftStatement.files) : [],
+        r_ident: this.draftStatementId,
+        r_isNegativeReport: data.draftStatement.negativ ? '1' : '0',
+        r_element_id: data.draftStatement.elementId || '',
+        r_element_title: data.draftStatement.element?.title ?? '',
+        r_paragraph_id: data.draftStatement.paragraphId ?? '',
+        r_paragraph_title: data.draftStatement.paragraph?.title ?? '',
+        r_document_id: data.draftStatement.document?.id ?? '',
+        r_document_title: data.draftStatement.document?.title ?? '',
+        r_represents: data.draftStatement.represents ?? '',
+        r_location: Object.keys(data.draftStatement.statementAttributes).pop() ?? 'mapLocation',
+        r_location_geometry: data.draftStatement.polygon,
+        r_location_priority_area_key: priorityAreaKey,
+        r_location_priority_area_type: priorityAreaType,
+        r_location_point: '',
+        location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
+        r_county: data.draftStatement.statementAttributes.county ?? '',
+        r_makePublic: !!data.draftStatement.publicAllowed
+      }
+
+      if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
+      if (draft.r_location === 'mapLocation' && data.draftStatement.polygon) draft.r_location = 'point'
+
+      return draft
+    },
+
     setPrivacyPreference (data) {
       this.setStatementData(data)
       this.removeNotificationsFromStore()
@@ -1433,7 +1451,7 @@ export default {
       this.updateStatement({ r_ident: this.draftStatementId, ...data })
     },
 
-    toggleModal (resetOnClose = true, data) {
+    toggleModal (resetOnClose = true, data = null) {
       // Check if browser is in fullscreen mode
       if (isActiveFullScreen()) {
         toggleFullscreen()
@@ -1549,8 +1567,7 @@ export default {
       const sessionStorageBegunStatement = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:new`)
       const sessionStorageBegunStatementParsed = JSON.parse(sessionStorageBegunStatement)
       if (sessionStorageBegunStatement && sessionStorageBegunStatement !== this.initFormDataJSON && sessionStorageBegunStatementParsed.r_ident === '') {
-        const existingData = sessionStorageBegunStatementParsed
-        this.setStatementData(existingData)
+        this.setStatementData(sessionStorageBegunStatementParsed)
       } else {
         this.setStatementData({ r_county: this.counties.find(el => el.selected) ? this.counties.find(el => el.selected).value : '' })
       }
