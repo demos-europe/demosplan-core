@@ -12,10 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Permission\AccessControl\AccessControlRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use Exception;
 
-class AccessControlRepository extends CoreRepository
+class AccessControlRepository extends CoreRepository implements AccessControlRepositoryInterface
 {
     /**
      * Add Entity to database.
@@ -34,5 +38,32 @@ class AccessControlRepository extends CoreRepository
             $this->logger->warning('Permission could not be added. ', [$e]);
             throw $e;
         }
+    }
+
+    /**
+     * Add permission manually.
+     *
+     * @throws Exception
+     */
+    public function addManually(
+        OrgaInterface $orga,
+        CustomerInterface $customer,
+        string $roleCode,
+        string $permissionName,
+    ): void {
+        $role = $this->getEntityManager()->getRepository(Role::class)->findOneBy(['code' => $roleCode]);
+
+        if ($this->findOneBy(['orga' => $orga, 'role' => $role, 'customer' => $customer, 'permissionName' => $permissionName])) {
+            // do not add the same permission twice
+            return;
+        }
+
+        $permission = new AccessControl();
+        $permission->setOrga($orga);
+        $permission->setRole($role);
+        $permission->setCustomer($customer);
+        $permission->setPermissionName($permissionName);
+
+        $this->add($permission);
     }
 }
