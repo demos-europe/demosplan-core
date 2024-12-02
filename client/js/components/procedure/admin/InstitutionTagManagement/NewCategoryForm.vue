@@ -84,7 +84,7 @@ export default {
 
     handleCloseForm() {
       this.$emit('newCategoryForm:close')
-      this.newCategory.label = null
+      this.newCategory.name = null
     },
 
     isCategoryNameUnique (name) {
