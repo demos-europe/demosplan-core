@@ -151,11 +151,12 @@ export default {
         ].join()
       })
         .then(() => {
-          this.isLoading = false
           this.tagCategoriesWithTags = this.transformTagsAndCategories()
         })
         .catch(err => {
           console.error(err)
+        })
+        .finally(() => {
           this.isLoading = false
         })
     },
