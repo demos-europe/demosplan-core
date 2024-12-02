@@ -1416,7 +1416,7 @@ export default {
         r_document_id: data.draftStatement.document?.id ?? '',
         r_document_title: data.draftStatement.document?.title ?? '',
         r_represents: data.draftStatement.represents ?? '',
-        r_location: Object.keys(data.draftStatement.statementAttributes)[0] ?? 'mapLocation',
+        r_location: Object.keys(data.draftStatement.statementAttributes).pop() ?? 'mapLocation',
         r_location_geometry: data.draftStatement.polygon,
         r_location_priority_area_key: priorityAreaKey,
         r_location_priority_area_type: priorityAreaType,
