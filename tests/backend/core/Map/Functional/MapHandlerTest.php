@@ -778,20 +778,28 @@ class MapHandlerTest extends FunctionalTestCase
         $gisLayer1 = $this->fixtures->getReference('invisibleGisLayer1');
         /** @var GisLayer $gisLayer2 */
         $gisLayer2 = $this->fixtures->getReference('invisibleGisLayer2');
-        /** @var GisLayer $gisLayer2 */
+
+        // set default visibility of gisLayer1 to true
+        $gisLayer1->setDefaultVisibility(true);
         $visibilityGroupId = $gisLayer1->getVisibilityGroupId();
 
         static::assertEquals($visibilityGroupId, $gisLayer1->getVisibilityGroupId());
         static::assertEquals($visibilityGroupId, $gisLayer2->getVisibilityGroupId());
-        static::assertFalse($gisLayer1->hasDefaultVisibility());
+        static::assertTrue($gisLayer1->hasDefaultVisibility());
         static::assertFalse($gisLayer2->hasDefaultVisibility());
 
-        $successful = $this->sut->setVisibilityOfVisibilityGroup($visibilityGroupId, true);
+        $successful = $this->sut->setVisibilityOfVisibilityGroup(
+            $visibilityGroupId,
+            [
+                'defaultVisibility' => $gisLayer1->hasDefaultVisibility(),
+                'procedureId' => $gisLayer2->getProcedureId()
+            ]
+        );
         static::assertTrue($successful);
 
-        $gisLayer1 = $this->sut->getGisLayer($gisLayer1->getId());
         $gisLayer2 = $this->sut->getGisLayer($gisLayer2->getId());
-        static::assertTrue($gisLayer1->hasDefaultVisibility());
+
+        // default visibility of gisLayer2 was updated via visibilityGroup und has to be true
         static::assertTrue($gisLayer2->hasDefaultVisibility());
     }
 
