@@ -231,8 +231,8 @@ export default {
     },
 
     submit () {
-      const addonExists = Boolean(window.dplan.loadedAddons['addon.additional.field'])
-      const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
+      const addonExists = !!window.dplan.loadedAddons['addon.additional.field']
+      const addonHasValue = !!this.addonPayload.value || !!this.addonPayload.initValue
 
       if (addonExists && addonHasValue) {
         this.handleAddonRequest().then(() => {
