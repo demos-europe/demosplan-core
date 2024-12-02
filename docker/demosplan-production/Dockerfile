@@ -27,7 +27,7 @@ RUN npm install --ignore-scripts -g corepack && \
     npm i --ignore-scripts -g n && \
     rm -rf /root/.npm && \
 # Install specific node version
-    n 18.20.1
+    n 20.18.1
 
 WORKDIR /srv/www
 

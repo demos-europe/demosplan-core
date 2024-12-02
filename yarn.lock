@@ -3918,6 +3918,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/trusted-types@npm:^2.0.7":
+  version: 2.0.7
+  resolution: "@types/trusted-types@npm:2.0.7"
+  checksum: 10c0/4c4855f10de7c6c135e0d32ce462419d8abbbc33713b31d294596c0cc34ae1fa6112a2f9da729c8f7a20707782b0d69da3b1f8df6645b0366d08825ca1522e0c
+  languageName: node
+  linkType: hard
+
 "@types/yargs-parser@npm:*":
   version: 21.0.3
   resolution: "@types/yargs-parser@npm:21.0.3"
@@ -5382,10 +5389,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.30001663, caniuse-lite@npm:^1.0.30001667":
+"caniuse-lite@npm:^1.0.30001663":
   version: 1.0.30001667
   resolution: "caniuse-lite@npm:1.0.30001667"
   checksum: 10c0/6bc8555a47603e1e76eaef9b185d6fdeeca7d9c20a283f7c32c971eb1b52ea3a80e6ec086920f088f06abe619240f1023a2d3a08b5b1f2f11df1475695e9f71c
+  languageName: node
+  linkType: hard
+
+"caniuse-lite@npm:^1.0.30001685":
+  version: 1.0.30001685
+  resolution: "caniuse-lite@npm:1.0.30001685"
+  checksum: 10c0/cd0dcc5080dd0f3502d68938fbbe15383ae9176cc9b87016587f4abd1099298df04324818c126cda16cd7082bc3b8f91d15fa1918f8484fb964147f4c69efa28
   languageName: node
   linkType: hard
 
@@ -6833,10 +6847,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "dompurify@npm:3.2.0"
-  checksum: 10c0/c06af011b14b415439acb5ea5d32c1971e3f1888983e1430e8aeb1ae3871709aab3dc510cfe5ceccfc459e839f66e37e40836eda0673feb696b84d8b285e69f3
+"dompurify@npm:^3.2.2":
+  version: 3.2.2
+  resolution: "dompurify@npm:3.2.2"
+  dependencies:
+    "@types/trusted-types": "npm:^2.0.7"
+  dependenciesMeta:
+    "@types/trusted-types":
+      optional: true
+  checksum: 10c0/04fa1509a75c6c1dfc1f00c579253bd4781e291836176578927f5cb683dc904175c4fb71f9c40438b0b4b13fc306f79922d220200f3bd01eabe12727588afd1f
   languageName: node
   linkType: hard
 
@@ -12345,13 +12364,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"proj4@npm:^2.11.0":
-  version: 2.11.0
-  resolution: "proj4@npm:2.11.0"
+"proj4@npm:^2.15.0":
+  version: 2.15.0
+  resolution: "proj4@npm:2.15.0"
   dependencies:
     mgrs: "npm:1.0.0"
-    wkt-parser: "npm:^1.3.3"
-  checksum: 10c0/d3856090b99b5c8f45d78e0f0ba4ef85025e53b4b3bc1b0279ffa70990af6ae856c8330957879d553069e408412d93521f27440dd1d1f72d272ae030cc664774
+    wkt-parser: "npm:^1.4.0"
+  checksum: 10c0/01c0ef831247e08f4e0fce3193033913ca07be0301522bdefddabe1bb783b947bf731425f0aa6b14a01ee546f90cd6301a3eefed859afad3345884d1d01ec8f4
   languageName: node
   linkType: hard
 
@@ -13129,7 +13148,7 @@ __metadata:
     babel-loader: "npm:^9.2.1"
     babel-plugin-dynamic-import-node: "npm:^2.3.3"
     babel-plugin-dynamic-import-webpack: "npm:^1.1.0"
-    caniuse-lite: "npm:^1.0.30001667"
+    caniuse-lite: "npm:^1.0.30001685"
     chalk: "npm:4.1.2"
     cli-progress: "npm:^3.12.0"
     commander: "npm:^12.1.0"
@@ -13142,7 +13161,7 @@ __metadata:
     d3-sankey-diagram: "npm:^0.7.3"
     dayjs: "npm:^1.11.13"
     deep-object-diff: "npm:^1.1.9"
-    dompurify: "npm:^3.2.0"
+    dompurify: "npm:^3.2.2"
     eslint: "npm:^9.14.0"
     eslint-config-standard: "npm:^17.1.0"
     eslint-friendly-formatter: "npm:^4.0.1"
@@ -13185,7 +13204,7 @@ __metadata:
     postcss-loader: "npm:^8.1.1"
     postcss-prefix-selector: "npm:^2.1.0"
     postcss-preset-env: "npm:^9.6.0"
-    proj4: "npm:^2.11.0"
+    proj4: "npm:^2.15.0"
     purgecss-webpack-plugin: "npm:^6.0.0"
     qs: "npm:^6.13.0"
     raf: "npm:^3.4.1"
@@ -15683,6 +15702,13 @@ __metadata:
   version: 1.3.3
   resolution: "wkt-parser@npm:1.3.3"
   checksum: 10c0/900fcdaea02828407742c4ea370b46a04c48ed95f63cde3db8e5b90c5a1b80da9827b43eb58940dd8cf790a971f9b8c42022b1548bce29a11153e699eef5bcb4
+  languageName: node
+  linkType: hard
+
+"wkt-parser@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "wkt-parser@npm:1.4.0"
+  checksum: 10c0/4046fd355ddc626e6ea71f5a05e670bd3d6dc65dc0f8b10f2e9381ea6bd61cb90379389b0fb52337de9330788405dd0590b57e01b2c85f6f471acc794713243b
   languageName: node
   linkType: hard
 
