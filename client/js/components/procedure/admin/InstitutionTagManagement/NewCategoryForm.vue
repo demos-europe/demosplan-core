@@ -17,7 +17,7 @@ All rights reserved
         {{ Translator.trans('tag.category.new.create') }}
         <button
           class="btn--blank o-link--default float-right"
-          @click="handleCloseForm()">
+          @click="resetNewCategoryForm">
           <dp-icon icon="close" />
         </button>
       </div>
@@ -34,8 +34,8 @@ All rights reserved
         :busy="isLoading"
         primary
         secondary
-        @primary-action="dpValidateAction('addNewCategoryForm', () => saveNewCategory(), false)"
-        @secondary-action="handleCloseForm()" />
+        @primary-action="dpValidateAction('addNewCategoryForm', () => saveNewCategory, false)"
+        @secondary-action="resetNewCategoryForm" />
     </div>
   </form>
 </template>
@@ -82,11 +82,6 @@ export default {
       createInstitutionTagCategory: 'create'
     }),
 
-    handleCloseForm() {
-      this.$emit('newCategoryForm:close')
-      this.newCategory.name = null
-    },
-
     isCategoryNameUnique (name) {
       return !this.tagCategories.some(category => category.name === name)
     },
@@ -112,6 +107,7 @@ export default {
           name: this.newCategory.name
         }
       }
+
       this.createInstitutionTagCategory(payload)
         .then(() => {
           this.$emit('newCategory:created')
