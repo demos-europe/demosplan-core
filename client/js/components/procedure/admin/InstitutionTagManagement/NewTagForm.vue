@@ -145,13 +145,13 @@ export default {
         .then(() => {
           this.$emit('newTag:created')
           dplan.notify.confirm(Translator.trans('confirm.saved'))
+          this.resetNewTagForm()
         })
         .catch(err => {
           console.error(err)
         })
         .finally(() => {
           this.isLoading = false
-          this.resetNewTagForm()
         })
     }
   }
