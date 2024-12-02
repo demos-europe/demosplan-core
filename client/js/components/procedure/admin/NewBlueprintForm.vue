@@ -36,7 +36,6 @@
         class="sr-only"
         v-text="Translator.trans('blueprint.data')" />
       <dp-input
-        class="mb-0.5"
         id="r_name"
         data-cy="newMasterName"
         :label="{
@@ -67,7 +66,6 @@
 
         <dp-text-area
           id="r_desc"
-          class="mb-0.5"
           data-cy="NewBlueprintForm:internalNote"
           :label="Translator.trans('internalnote')"
           name="r_desc"
@@ -87,7 +85,7 @@
           v-model="mainEmail" />
 
         <dp-label
-          class="mt-4 mb-2"
+          class="mt-4"
           for="emailList"
           :text="Translator.trans('email.address.more')"
           :hint="Translator.trans('email.address.more.explanation')"
@@ -95,7 +93,7 @@
         <dp-email-list
           id="emailList"
           allow-updates-from-outside
-          :class="`${mainEmail === '' ? 'opacity-70 pointer-events-none' : '' } u-mt-0_25`"
+          :class="`${mainEmail === '' ? 'opacity-70 pointer-events-none' : '' } mt-2`"
           :init-emails="emailAddresses" />
 
         <dp-text-area
