@@ -86,9 +86,9 @@
         "proj4php/proj4php": "^2.0",
         "ramsey/uuid": "^4",
         "rollerworks/password-strength-bundle": "^2.2",
-        "scheb/2fa-bundle": "^5.13",
-        "scheb/2fa-email": "^5.13",
-        "scheb/2fa-totp": "^5.13",
+        "scheb/2fa-bundle": "^6.0",
+        "scheb/2fa-email": "^6.0",
+        "scheb/2fa-totp": "^6.0",
         "sentry/sentry-symfony": "^5.0",
         "stevenmaguire/oauth2-keycloak": "^5.0",
         "stof/doctrine-extensions-bundle": "^1.2",
@@ -183,6 +183,9 @@
         }
     },
     "extra": {
+      "aws/aws-sdk-php": [
+        "S3"
+      ],
       "bamarni-bin": {
         "bin-links": false,
         "target-directory": "."
@@ -193,6 +196,9 @@
             "allow-contrib": true,
             "require": "5.*.*"
         }
+    },
+    "scripts": {
+      "pre-autoload-dump": "Aws\\Script\\Composer\\Composer::removeUnusedServices"
     },
     "config": {
         "process-timeout": 600,

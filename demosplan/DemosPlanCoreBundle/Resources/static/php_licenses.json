@@ -280,11 +280,6 @@
         "website": "https://github.com/nullivex/lib-array2xml"
     },
     {
-        "license": "(Apache-2.0 or GPL-2.0)",
-        "package": "patchwork/utf8",
-        "website": "https://github.com/tchwork/utf8"
-    },
-    {
         "license": "MIT",
         "package": "php-amqplib/rabbitmq-bundle",
         "website": "https://github.com/php-amqplib/RabbitMqBundle"
