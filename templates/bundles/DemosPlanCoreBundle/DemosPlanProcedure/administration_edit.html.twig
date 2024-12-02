@@ -729,9 +729,9 @@
                                 class="mb-4"
                                 hook-name="addon.additional.field"
                                 :addon-props="{
-                                    'relationshipId': '{{ proceduresettings.id }}',
-                                    'relationshipKey': 'procedure',
-                                    'isInput': true
+                                    relationshipId: '{{ proceduresettings.id }}',
+                                    relationshipKey: 'procedure',
+                                    isInput: true
                                 }"
                                 @blur="updateAddonPayload">
                             </addon-wrapper>
