@@ -164,10 +164,11 @@ export default {
 
   methods: {
     createAddonPayload () {
+      const { attributes, id, resourceType, url } = this.addonPayload
       return {
-        type: this.addonPayload.resourceType,
-        attributes: this.addonPayload.attributes,
-        relationships: this.addonPayload.url === 'api_resource_update' ? undefined : {
+        type: resourceType,
+        attributes,
+        relationships: url === 'api_resource_update' ? undefined : {
           procedure: {
             data: {
               type: 'Procedure',
@@ -175,7 +176,7 @@ export default {
             }
           }
         },
-        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {}),
+        ...(url === 'api_resource_update' ? { id } : {}),
       }
     },
 
