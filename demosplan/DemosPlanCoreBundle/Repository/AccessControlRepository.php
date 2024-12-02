@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Permission\AccessControl\AccessControlRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use Exception;
@@ -52,6 +53,10 @@ class AccessControlRepository extends CoreRepository implements AccessControlRep
     ): void {
         $role = $this->getEntityManager()->getRepository(Role::class)->findOneBy(['code' => $roleCode]);
 
+        if ($this->findOneBy(['orga' => $orga, 'role' => $role, 'customer' => $customer, 'permissionName' => $permissionName])) {
+            // do not add the same permission twice
+            return;
+        }
 
         $permission = new AccessControl();
         $permission->setOrga($orga);
