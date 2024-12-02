@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f4a0582927155b25c4f6a3866cbaaeb1",
+    "content-hash": "ee022533a3ffee10ab1a68e161278e59",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -14433,16 +14433,16 @@
         },
         {
             "name": "symfony/http-client",
-            "version": "v5.4.48",
+            "version": "v5.4.49",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-client.git",
-                "reference": "63a12783b8b367100a24e447cb3badf60ed4fc22"
+                "reference": "d77d8e212cde7b5c4a64142bf431522f19487c28"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-client/zipball/63a12783b8b367100a24e447cb3badf60ed4fc22",
-                "reference": "63a12783b8b367100a24e447cb3badf60ed4fc22",
+                "url": "https://api.github.com/repos/symfony/http-client/zipball/d77d8e212cde7b5c4a64142bf431522f19487c28",
+                "reference": "d77d8e212cde7b5c4a64142bf431522f19487c28",
                 "shasum": ""
             },
             "require": {
@@ -14504,7 +14504,7 @@
                 "http"
             ],
             "support": {
-                "source": "https://github.com/symfony/http-client/tree/v5.4.48"
+                "source": "https://github.com/symfony/http-client/tree/v5.4.49"
             },
             "funding": [
                 {
@@ -14520,7 +14520,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-11-27T11:19:14+00:00"
+            "time": "2024-11-28T08:37:04+00:00"
         },
         {
             "name": "symfony/http-client-contracts",
