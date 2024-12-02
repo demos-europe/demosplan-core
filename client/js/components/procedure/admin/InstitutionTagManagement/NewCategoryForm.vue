@@ -34,7 +34,7 @@ All rights reserved
         :busy="isLoading"
         primary
         secondary
-        @primary-action="dpValidateAction('addNewCategoryForm', () => saveNewCategory, false)"
+        @primary-action="dpValidateAction('addNewCategoryForm', () => saveNewCategory(), false)"
         @secondary-action="resetNewCategoryForm" />
     </div>
   </form>

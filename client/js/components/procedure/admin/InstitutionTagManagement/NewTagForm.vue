@@ -42,7 +42,7 @@ All rights reserved
         :busy="isLoading"
         primary
         secondary
-        @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag, false)"
+        @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(), false)"
         @secondary-action="handleCloseForm" />
     </div>
   </form>
