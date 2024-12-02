@@ -221,7 +221,6 @@ class OrgaDeleter extends CoreService
      */
     private function deleteOrgaInstitutionTag(array $orgaIds, bool $isDryRun): void
     {
-        // table institution tag is still existing, therefore it sould be handled?!
         $this->queriesService->deleteFromTableByIdentifierArray('orga_institution_tag', 'orga__o_id', $orgaIds, $isDryRun);
     }
 
