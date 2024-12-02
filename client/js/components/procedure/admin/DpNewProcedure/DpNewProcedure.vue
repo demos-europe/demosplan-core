@@ -53,10 +53,11 @@
         v-text="Translator.trans('procedure.data')" />
 
       <addon-wrapper hook-name="procedure.fields" />
+
       <template v-if="hasPermission('feature_use_plis')">
         <dp-select
           id="r_plisId"
-          class="mb-4"
+          class="mb-3"
           :label="{ text: Translator.trans('name'), hint: Translator.trans('explanation.plis.procedurename') }"
           name="r_plisId"
           :options="plisNameOptions" />
