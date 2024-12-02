@@ -116,7 +116,7 @@
     "@vue/vue2-jest": "^29.2.6",
     "acorn": "^8.14.0",
     "assets-webpack-plugin": "^7.1.1",
-    "autoprefixer": "^10.4.17",
+    "autoprefixer": "^10.4.20",
     "babel-core": "^7.0.0-bridge.0",
     "babel-helper-vue-jsx-merge-props": "^2.0.3",
     "babel-jest": "^29.7.0",
