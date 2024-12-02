@@ -269,17 +269,13 @@ export default {
     },
 
     getTagById (tagId) {
-      const tag = this.tagList.find(el => el.id === tagId)
-
-      return tag || null
+      return this.tagList.find(el => el.id === tagId) ?? null
     },
 
     getTagNameById (tagId) {
       return this.tagList
         .filter(el => el.id === tagId)
-        .map(el => {
-          return el.name
-        })
+        .map(el => el.name)
     }
   },
 

@@ -17,7 +17,7 @@ All rights reserved
         {{ Translator.trans('tag.new.create') }}
         <button
           class="btn--blank o-link--default float-right"
-          @click="handleCloseForm()">
+          @click="handleCloseForm">
           <dp-icon icon="close" />
         </button>
       </div>
@@ -43,15 +43,13 @@ All rights reserved
         primary
         secondary
         @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(), false)"
-        @secondary-action="handleCloseForm()" />
+        @secondary-action="handleCloseForm" />
     </div>
   </form>
 </template>
 
 <script>
 import {
-  checkResponse,
-  DpButton,
   DpButtonRow,
   DpIcon,
   DpInput,
@@ -60,11 +58,11 @@ import {
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions } from 'vuex'
+
 export default {
   name: 'NewTagForm',
 
   components: {
-    DpButton,
     DpButtonRow,
     DpIcon,
     DpInput,
@@ -132,7 +130,7 @@ export default {
       const payload = {
         type: 'InstitutionTag',
         attributes: {
-          name: this.newTag.name,
+          name: this.newTag.name
         },
         relationships: {
           category: {
@@ -147,15 +145,15 @@ export default {
         .then(() => {
           this.$emit('newTag:created')
           dplan.notify.confirm(Translator.trans('confirm.saved'))
+          this.resetNewTagForm()
         })
         .catch(err => {
           console.error(err)
         })
         .finally(() => {
           this.isLoading = false
-          this.resetNewTagForm()
         })
-    },
+    }
   }
 }
 </script>

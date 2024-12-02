@@ -17,7 +17,7 @@ All rights reserved
         {{ Translator.trans('tag.category.new.create') }}
         <button
           class="btn--blank o-link--default float-right"
-          @click="handleCloseForm()">
+          @click="resetNewCategoryForm">
           <dp-icon icon="close" />
         </button>
       </div>
@@ -35,26 +35,25 @@ All rights reserved
         primary
         secondary
         @primary-action="dpValidateAction('addNewCategoryForm', () => saveNewCategory(), false)"
-        @secondary-action="handleCloseForm()" />
+        @secondary-action="resetNewCategoryForm" />
     </div>
   </form>
 </template>
 
 <script>
 import {
-  DpButton,
   DpButtonRow,
   DpIcon,
   DpInput,
   DpLoading,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
-import {mapActions} from "vuex";
+import { mapActions } from 'vuex'
+
 export default {
   name: 'NewCategoryForm',
 
   components: {
-    DpButton,
     DpButtonRow,
     DpIcon,
     DpInput,
@@ -82,11 +81,6 @@ export default {
       createInstitutionTagCategory: 'create'
     }),
 
-    handleCloseForm() {
-      this.$emit('newCategoryForm:close')
-      this.newCategory.label = null
-    },
-
     isCategoryNameUnique (name) {
       return !this.tagCategories.some(category => category.name === name)
     },
@@ -112,6 +106,7 @@ export default {
           name: this.newCategory.name
         }
       }
+
       this.createInstitutionTagCategory(payload)
         .then(() => {
           this.$emit('newCategory:created')
@@ -124,7 +119,7 @@ export default {
           this.isLoading = false
           this.resetNewCategoryForm()
         })
-    },
+    }
   }
 }
 </script>

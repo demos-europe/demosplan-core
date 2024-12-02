@@ -166,15 +166,12 @@ export default {
 
     confirmAndDeleteTag () {
       const { isUsed, name } = this.item
+      const message = isUsed
+        ? Translator.trans('check.tag_is_used.delete')
+        : Translator.trans('check.tag.delete', { tag: name })
 
-      if (isUsed) {
-        if (dpconfirm(Translator.trans('check.tag_is_used.delete'))) {
-          this.deleteTag()
-        }
-      } else if (!isUsed) {
-        if (dpconfirm(Translator.trans('check.tag.delete', { tag: name }))) {
-          this.deleteTag()
-        }
+      if (dpconfirm(message)) {
+        this.deleteTag()
       }
     },
 

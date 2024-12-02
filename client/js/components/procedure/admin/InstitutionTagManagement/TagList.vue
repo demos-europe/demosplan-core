@@ -151,11 +151,12 @@ export default {
         ].join()
       })
         .then(() => {
-          this.isLoading = false
           this.tagCategoriesWithTags = this.transformTagsAndCategories()
         })
         .catch(err => {
           console.error(err)
+        })
+        .finally(() => {
           this.isLoading = false
         })
     },
@@ -192,21 +193,6 @@ export default {
 
     isBranch ({ node }) {
       return node.type === 'InstitutionTagCategory'
-    },
-
-    /**
-     * When saving a new tag the comparison of `foundSimilarLabel.length === 0` needs to be executed
-     * When updating a new tag the comparison of `foundSimilarLabel.length === 1` needs to be executed instead
-     * should always be possible.
-     *
-     * @param tagLabel { string }
-     * @param isNewTagLabel { boolean }
-     * @returns { boolean }
-     */
-
-    isUniqueTagName (tagLabel, isNewTagLabel = false) {
-      const foundSimilarLabel = this.tags.filter(el => el.label === tagLabel)
-      return isNewTagLabel ? foundSimilarLabel.length === 0 : foundSimilarLabel.length === 1
     },
 
     transformTagsAndCategories () {
