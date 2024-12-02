@@ -174,7 +174,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService
 
-DemosEurope\DemosplanAddon\Permission\AccessControl\AccessControlRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository'
+    DemosEurope\DemosplanAddon\Permission\AccessControl\AccessControlRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository'
 
     DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\User\UserService'
