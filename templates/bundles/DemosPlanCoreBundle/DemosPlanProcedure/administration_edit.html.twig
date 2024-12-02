@@ -109,7 +109,7 @@
         init-procedure-phase-internal="{{ proceduresettings.phase }}"
         init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
         :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
-        procedure-id="{{ proceduresettings.id|default() }}">
+        procedure-id="{{ proceduresettings.id|default }}">
         <form
             ref="configForm"
             name="configForm"
