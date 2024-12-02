@@ -989,7 +989,6 @@ export default {
     },
 
     updateAddonPayload (payload) {
-      console.log(payload)
       this.$emit('addon-update', payload)
     },
   },
