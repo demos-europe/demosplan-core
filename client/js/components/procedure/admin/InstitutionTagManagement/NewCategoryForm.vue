@@ -42,19 +42,18 @@ All rights reserved
 
 <script>
 import {
-  DpButton,
   DpButtonRow,
   DpIcon,
   DpInput,
   DpLoading,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
-import {mapActions} from 'vuex'
+import { mapActions } from 'vuex'
+
 export default {
   name: 'NewCategoryForm',
 
   components: {
-    DpButton,
     DpButtonRow,
     DpIcon,
     DpInput,
@@ -120,7 +119,7 @@ export default {
           this.isLoading = false
           this.resetNewCategoryForm()
         })
-    },
+    }
   }
 }
 </script>
