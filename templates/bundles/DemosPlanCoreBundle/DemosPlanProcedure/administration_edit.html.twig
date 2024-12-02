@@ -108,8 +108,10 @@
         :init-procedure-categories="JSON.parse('{{ selectedProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
         init-procedure-phase-internal="{{ proceduresettings.phase }}"
         init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
-        :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')">
+        :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
+        procedure-id="{{ proceduresettings.id|default }}">
         <form
+            ref="configForm"
             name="configForm"
             enctype="multipart/form-data"
             data-procedure="{{ proceduresettings.ident }}"
@@ -723,6 +725,17 @@
                                 </div>
                             {% endif %}
 
+                            <addon-wrapper
+                                class="mb-4"
+                                hook-name="addon.additional.field"
+                                :addon-props="{
+                                    'relationshipId': '{{ proceduresettings.id }}',
+                                    'relationshipKey': 'procedure',
+                                    'isInput': true
+                                }"
+                                @blur="updateAddonPayload">
+                            </addon-wrapper>
+
                             {% if hasPermission('feature_short_url') %}
                                 <div>
                                     <label class="inline-block u-mb-0" for="r_shortUrl">
@@ -898,6 +911,31 @@
                                             )
                                             }}
                                         {% endif %}
+
+                                        <dp-input
+                                            id="r_pictogramCopyright"
+                                            class="my-2"
+                                            data-cy="procedure:pictogramCopyright"
+                                            name="r_pictogramCopyright"
+                                            :label="{
+                                                text: Translator.trans('procedure.pictogram.copyright')
+                                            }"
+                                            value="{{ proceduresettings.pictogramCopyright|default }}"
+                                            required>
+                                        </dp-input>
+
+                                        <dp-input
+                                            id="r_pictogramAltText"
+                                            class="my-2"
+                                            data-cy="procedure:pictogramAltText"
+                                            name="r_pictogramAltText"
+                                            :label="{
+                                                text: Translator.trans('procedure.pictogram.altText'),
+                                                tooltip: Translator.trans('procedure.pictogram.altText.toolTipp')
+                                            }"
+                                            value="{{ proceduresettings.pictogramAltText|default }}"
+                                            required>
+                                        </dp-input>
                                     </div>
                                 {% endif %}
 
@@ -1279,13 +1317,20 @@
 
             {# form controls when not in wizard mode #}
             <div class="text-right space-inline-s">
+                {# A hidden input is used here to prevent the form from being submitted in wizard mode when the next button is clicked #}
                 <input
+                    type="submit"
+                    class="hidden"
+                    value="{{ "save"|trans }}">
+                <button
                     class="btn btn--primary"
                     id="saveConfig"
                     name="saveConfig"
                     data-cy="saveConfig"
-                    type="submit"
-                    value="{{ "save"|trans }}">
+                    type="button"
+                    @click="submit">
+                    {{ "save"|trans }}
+                </button>
                 <a
                     class="btn btn--secondary"
                     data-cy="abortConfig"
