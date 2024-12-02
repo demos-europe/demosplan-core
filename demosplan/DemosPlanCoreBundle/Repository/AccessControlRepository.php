@@ -52,7 +52,6 @@ class AccessControlRepository extends CoreRepository implements AccessControlRep
     ): void {
         $role = $this->getEntityManager()->getRepository(Role::class)->findOneBy(['code' => $roleCode]);
 
-
         $permission = new AccessControl();
         $permission->setOrga($orga);
         $permission->setRole($role);
