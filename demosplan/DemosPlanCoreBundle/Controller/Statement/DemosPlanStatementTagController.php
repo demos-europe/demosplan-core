@@ -49,7 +49,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
         string $procedure,
-        string $tag
+        string $tag,
     ): Response {
         $requestPost = $request->request->all();
         $data = [];
@@ -116,7 +116,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     public function tagListAction(
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
-        string $procedure
+        string $procedure,
     ): Response {
         $templateVars = [];
         $topics = $statementHandler->getTopicsByProcedure($procedure);
@@ -150,7 +150,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         FileUploadService $fileUploadService,
         Request $request,
         StatementHandler $statementHandler,
-        string $procedure
+        string $procedure,
     ): Response {
         $anchor = '';
         $requestPost = $this->transformRequestVariables($request->request->all());

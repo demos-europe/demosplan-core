@@ -107,7 +107,6 @@ use Illuminate\Support\Collection;
 use League\Csv\Reader;
 use ReflectionException;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
-use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
@@ -2270,6 +2269,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * entities associated to the given procedure.
      *
      * @param resource $fileResource
+     *
      * @throws Exception
      */
     public function importTags(string $procedureId, $fileResource): void

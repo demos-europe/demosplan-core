@@ -2062,7 +2062,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Deletes the given institutionMail Entries.
      *
-     * @param institutionMail[] $institutionMails - list of institutionMail entries to delete
+     * @param InstitutionMail[] $institutionMails - list of institutionMail entries to delete
      *
      * @throws Exception
      */

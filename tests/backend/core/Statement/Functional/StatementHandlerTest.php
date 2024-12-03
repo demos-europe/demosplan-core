@@ -417,7 +417,6 @@ class StatementHandlerTest extends FunctionalTestCase
 
     public function testImportTags(): void
     {
-
         $statementService = $this->getMockBuilder(
             StatementService::class
         )
@@ -2169,10 +2168,10 @@ class StatementHandlerTest extends FunctionalTestCase
         $mock->expects($this->any())
             ->method('getFileInfo')
             ->willReturn($fileInfo);
+
         return $mock->expects($this->any())
             ->method('getFileContentStream')
             ->willReturn(fopen($fileInfo->getAbsolutePath(), 'rb'));
-
     }
 
     /**
@@ -3009,8 +3008,8 @@ class StatementHandlerTest extends FunctionalTestCase
             fileName: 'tagTopics.csv',
             fileSize: 12345,
             contentType: 'any/thing',
-            path: __DIR__ . '/res/tagTopics.csv',
-            absolutePath: __DIR__ . '/res/tagTopics.csv',
+            path: __DIR__.'/res/tagTopics.csv',
+            absolutePath: __DIR__.'/res/tagTopics.csv',
             procedure: null
         );
     }

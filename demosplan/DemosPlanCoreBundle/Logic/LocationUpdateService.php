@@ -71,7 +71,7 @@ class LocationUpdateService
         $writer->save($csvFile);
 
         $reader = Reader::createFromPath($csvFile, 'r');
-        $reader->setEscape(''); //required in PHP8.4+
+        $reader->setEscape(''); // required in PHP8.4+
         $reader->setDelimiter(';');
         $reader->setEnclosure('"');
         $this->logger->info('Parse csv file');
@@ -90,14 +90,14 @@ class LocationUpdateService
                         ->setName($row[7]);
                     $locations[] = $location;
                     break;
-                // gemeindeverband
+                    // gemeindeverband
                 case '50':
                     $location = new Location();
                     $location->setArs($row[2].$row[3].$row[4].$row[5])
                         ->setName($row[7]);
                     $locations[] = $location;
                     break;
-                // gemeinde
+                    // gemeinde
                 case '60':
                     $location = new Location();
                     $location->setArs($row[2].$row[3].$row[4].$row[5].$row[6])
