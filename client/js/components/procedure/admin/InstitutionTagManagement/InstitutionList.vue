@@ -13,10 +13,19 @@
       dismissible
       :message="Translator.trans('explanation.invitable_institution.group.tags')"
       type="info" />
+
+    <dp-column-selector
+      data-cy="institutionList:selectableColumns"
+      :initial-selection="currentSelection"
+      local-storage-key="institutionList"
+      :selectable-columns="selectableColumns"
+      use-local-storage
+      @selection-changed="setCurrentSelection" />
+
     <dp-data-table
       data-dp-validate="tagsTable"
       has-flyout
-      :header-fields="headerFields"
+      :header-fields="headerFieldsAvailable"
       track-by="id"
       :items="institutionList"
       class="u-mt-2">
@@ -77,9 +86,10 @@
         </div>
       </template>
     </dp-data-table>
+
     <dp-sliding-pagination
-      class="u-mr-0_25 u-ml-0_5 u-mt-0_5"
       v-if="totalPages > 1"
+      class="u-mr-0_25 u-ml-0_5 u-mt-0_5"
       :current="currentPage"
       :total="totalPages"
       :non-sliding-size="50"
@@ -89,6 +99,7 @@
 
 <script>
 import {
+  DpColumnSelector,
   DpDataTable,
   DpIcon,
   DpInlineNotification,
@@ -102,6 +113,7 @@ export default {
   name: 'InstitutionList',
 
   components: {
+    DpColumnSelector,
     DpDataTable,
     DpMultiselect,
     DpIcon,
@@ -111,23 +123,15 @@ export default {
 
   data () {
     return {
+      currentSelection: [],
       editingInstitutionId: null,
       editingInstitution: null,
       editingInstitutionTags: [],
-      headerFields: [
+      headerFieldsAvailable: [
         {
           field: 'institution',
           label: Translator.trans('institution'),
           colClass: 'u-2-of-12'
-        },
-        {
-          field: 'tags',
-          label: Translator.trans('tags'),
-          colClass: 'u-9-of-12'
-        },
-        {
-          field: 'action',
-          colClass: 'u-1-of-12'
         }
       ]
     }
@@ -138,21 +142,15 @@ export default {
       institutionTagList: 'items'
     }),
 
+    ...mapState('InstitutionTagCategory', {
+      institutionTagCategories: 'items'
+    }),
+
     ...mapState('InvitableInstitution', {
       invitableInstitutionList: 'items',
       currentPage: 'currentPage',
       totalPages: 'totalPages'
     }),
-
-    tagList () {
-      return Object.values(this.institutionTagList).map(tag => {
-        const { id, attributes } = tag
-        return {
-          id,
-          name: attributes.name
-        }
-      })
-    },
 
     institutionList () {
       return Object.values(this.invitableInstitutionList).map(tag => {
@@ -166,10 +164,28 @@ export default {
           tags: relationships.assignedTags.data
         }
       })
+    },
+
+    selectableColumns () {
+      return this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+    },
+
+    tagList () {
+      return Object.values(this.institutionTagList).map(tag => {
+        const { id, attributes } = tag
+        return {
+          id,
+          name: attributes.name
+        }
+      })
     }
   },
 
   methods: {
+    ...mapActions('InstitutionTagCategory', {
+      listInstitutionTagCategories: 'list'
+    }),
+
     ...mapActions('InvitableInstitution', {
       listInvitableInstitution: 'list',
       saveInvitableInstitution: 'save',
@@ -179,40 +195,6 @@ export default {
     ...mapMutations('InvitableInstitution', {
       updateInvitableInstitution: 'setItem'
     }),
-
-    getInstitutionsByPage (page) {
-      this.listInvitableInstitution({
-        page: {
-          number: page,
-          size: 50
-        },
-        sort: '-createdDate',
-        fields: {
-          InstitutionTag: [
-            'id',
-            'name'
-          ].join(),
-          InvitableInstitution: [
-            'name',
-            'createdDate',
-            'assignedTags'
-          ].join()
-        },
-        include: [
-          'assignedTags'
-        ].join()
-      })
-    },
-
-    editInstitution (id) {
-      this.editingInstitutionTags = []
-      this.editingInstitutionId = id
-      this.editingInstitution = this.invitableInstitutionList[id]
-      this.editingInstitution.relationships.assignedTags.data.forEach(el => {
-        const tag = this.getTagById(el.id)
-        this.editingInstitutionTags.push(tag)
-      })
-    },
 
     abortEdit () {
       this.editingInstitutionId = null
@@ -243,7 +225,6 @@ export default {
       this.saveInvitableInstitution(id)
         .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
         .catch(err => {
-          // Restore statement in store in case request failed
           this.restoreInstitutionFromInitial(id)
           console.error(err)
         })
@@ -254,6 +235,74 @@ export default {
 
     date (d) {
       return formatDate(d)
+    },
+
+    editInstitution (id) {
+      this.editingInstitutionTags = []
+      this.editingInstitutionId = id
+      this.editingInstitution = this.invitableInstitutionList[id]
+      this.editingInstitution.relationships.assignedTags.data.forEach(el => {
+        const tag = this.getTagById(el.id)
+        this.editingInstitutionTags.push(tag)
+      })
+    },
+
+    getInstitutionsByPage (page) {
+      this.listInvitableInstitution({
+        page: {
+          number: page,
+          size: 50
+        },
+        sort: '-createdDate',
+        fields: {
+          InstitutionTag: [
+            'id',
+            'name'
+          ].join(),
+          InvitableInstitution: [
+            'name',
+            'createdDate',
+            'assignedTags'
+          ].join()
+        },
+        include: [
+          'assignedTags'
+        ].join()
+      })
+    },
+
+    getInstitutionTagCategories () {
+      this.listInstitutionTagCategories({
+        fields: {
+          InstitutionTagCategory: [
+            'name',
+            'tags'
+          ].join(),
+          InstitutionTag: [
+            'isUsed',
+            'name'
+          ].join()
+        },
+        include: [
+          'tags'
+        ].join()
+      })
+        .then(() => {
+          // @todo add categories to availableHeaderFields
+        })
+        .catch(err => {
+          console.error(err)
+        })
+    },
+
+    getTagById (tagId) {
+      return this.tagList.find(el => el.id === tagId) ?? null
+    },
+
+    getTagNameById (tagId) {
+      return this.tagList
+        .filter(el => el.id === tagId)
+        .map(el => el.name)
     },
 
     separateByCommas (institutionTags) {
@@ -268,19 +317,14 @@ export default {
       return tagsLabels.join(', ')
     },
 
-    getTagById (tagId) {
-      return this.tagList.find(el => el.id === tagId) ?? null
-    },
-
-    getTagNameById (tagId) {
-      return this.tagList
-        .filter(el => el.id === tagId)
-        .map(el => el.name)
+    setCurrentSelection (selection) {
+      this.currentSelection = selection
     }
   },
 
   mounted () {
     this.getInstitutionsByPage(1)
+    this.getInstitutionTagCategories()
   }
 }
 </script>
