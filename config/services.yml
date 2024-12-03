@@ -412,6 +412,7 @@ services:
                 Procedures: "@fos_elastica.index.procedures"
                 StatementSegment: "@fos_elastica.index.statementSegments"
                 AdministratableUser: "@fos_elastica.index.users"
+                InvitableInstitution: "@fos_elastica.index.orgas"
 
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider:
         lazy: true
@@ -538,6 +539,9 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser:
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryOrga:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer:

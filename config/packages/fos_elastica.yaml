@@ -949,3 +949,22 @@ fos_elastica:
                 provider: ~
                 listener: ~
                 finder: ~
+        orgas:
+            index_name: '%project_prefix%_orgas'
+            settings:
+                number_of_shards: "%elasticsearch_number_of_shards%"
+                number_of_replicas: "%elasticsearch_number_of_replicas%"
+            properties:
+                id: { type: keyword, index: true }
+                name: {type: keyword, index: true}
+                deleted: { type: boolean }
+            # define callback to check whether entity should be indexed
+            indexable_callback: 'shouldBeIndexed'
+            persistence:
+                driver: orm
+                model: demosplan\DemosPlanCoreBundle\Entity\User\Orga
+                model_to_elastica_transformer:
+                    service: path_based_model_to_elastica_transformer
+                provider: ~
+                listener: ~
+                finder: ~

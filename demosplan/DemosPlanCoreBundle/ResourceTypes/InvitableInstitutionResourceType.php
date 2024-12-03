@@ -17,9 +17,16 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
+use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryOrga;
+use demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment;
 use Doctrine\Common\Collections\ArrayCollection;
 use EDT\PathBuilding\End;
+use Elastica\Index;
 
 /**
  * @template-extends DplanResourceType<Orga>
@@ -31,8 +38,20 @@ use EDT\PathBuilding\End;
  * @property-read UserResourceType                 $users
  * @property-read OrgaStatusInCustomerResourceType $statusInCustomers
  */
-final class InvitableInstitutionResourceType extends DplanResourceType
+final class InvitableInstitutionResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
 {
+    /**
+     * @var Index
+     */
+    private $esType;
+
+    public function __construct(
+        private readonly QueryOrga $esQuery,
+        JsonApiEsService $jsonApiEsService,
+    ) {
+        $this->esType = $jsonApiEsService->getElasticaTypeForTypeName(self::getName());
+    }
+
     public static function getName(): string
     {
         return 'InvitableInstitution';
@@ -56,6 +75,7 @@ final class InvitableInstitutionResourceType extends DplanResourceType
 
     public function isListAllowed(): bool
     {
+        return true;
         return $this->currentUser->hasPermission('feature_institution_tag_assign')
             || $this->currentUser->hasPermission('feature_institution_tag_read');
     }
@@ -67,6 +87,7 @@ final class InvitableInstitutionResourceType extends DplanResourceType
 
     protected function getAccessConditions(): array
     {
+        return [$this->conditionFactory->true()];
         $customer = $this->currentCustomerService->getCurrentCustomer();
 
         return [
@@ -136,5 +157,25 @@ final class InvitableInstitutionResourceType extends DplanResourceType
         }
 
         return $allowedProperties;
+    }
+
+    public function getQuery(): AbstractQuery
+    {
+        return $this->esQuery;
+    }
+
+    public function getScopes(): array
+    {
+        return [AbstractQuery::SCOPE_ALL];
+    }
+
+    public function getSearchType(): Index
+    {
+        return $this->esType;
+    }
+
+    public function getFacetDefinitions(): array
+    {
+        return [];
     }
 }

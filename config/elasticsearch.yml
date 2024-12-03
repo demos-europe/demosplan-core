@@ -429,3 +429,13 @@ parameters:
                     "parentStatement.internId":
                         field: "parentStatement.internId"
                         titleKey: "internId"
+        orga:
+            filter:
+                all: []
+            sort_default:
+                all: []
+            sort:
+                all: []
+            search:
+                all:
+                    name:
