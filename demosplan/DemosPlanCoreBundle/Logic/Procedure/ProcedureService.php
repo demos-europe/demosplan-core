@@ -1571,8 +1571,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             return $this->boilerplateRepository->add($data, $addToCategories);
-        } catch (Exception) {
-            $this->logger->warning('Post boilerplate failed');
+        } catch (Exception $e) {
+            $this->logger->warning('Post boilerplate failed', [$e]);
         }
 
         return false;
@@ -2062,7 +2062,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Deletes the given institutionMail Entries.
      *
-     * @param institutionMail[] $institutionMails - list of institutionMail entries to delete
+     * @param InstitutionMail[] $institutionMails - list of institutionMail entries to delete
      *
      * @throws Exception
      */
