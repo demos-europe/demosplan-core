@@ -22,6 +22,15 @@
 \usepackage{{ '{' }}fancyhdr{{ '}' }}
 \usepackage{{ '{' }}longtable{{ '}' }}
 \usepackage{{ '{' }}tabularx{{ '}' }}
+\usepackage{{ '{' }}makecell{{ '}' }}
+\usepackage{{ '{' }}array{{ '}' }}
+\usepackage{{ '{' }}ragged2e{{ '}' }}
+\usepackage{{ '{' }}needspace{{ '}' }}
+\usepackage{{ '{' }}etoolbox{{ '}' }}
+\usepackage{{ '{' }}ifthen{{ '}' }}
+\usepackage{{ '{' }}calc{{ '}' }}
+\usepackage{{ '{' }}xurl{{ '}' }}
+\usepackage{{ '{' }}hyphenat{{ '}' }}
 \usepackage{{ '{' }}enumitem{{ '}' }}
 \usepackage{{ '{' }}textcomp{{ '}' }}
 \usepackage{{ '{' }}pifont{{ '}' }}
@@ -33,6 +42,11 @@
 \DeclareUnicodeCharacter{308}{}
 \usepackage[a4paper,inner=15mm,outer=15mm,top=20mm,bottom=10mm,includefoot]{{ '{' }}geometry{{ '}' }}
 \usepackage[normalem]{{ '{' }}ulem{{ '}' }}
+% Patch \newline to force break hyphenated words
+\makeatletter
+\patchcmd{\LT@makecap}{\hb@xt@ \linewidth}{\hb@xt@ \linewidth}{}{}
+\patchcmd{\LT@makehline}{\hb@xt@ \linewidth}{\hb@xt@ \linewidth}{}{}
+\makeatother
 \addtokomafont{{ '{' }}descriptionlabel{{ '}' }}{{ '{' }}\normalfont{{ '}' }}
 \renewcommand{{ '{' }}\familydefault{{ '}' }}{{ '{' }}\sfdefault{{ '}' }}
 \definecolor{{ '{' }}DPlightgrey}{HTML{{ '}' }}{d3d3d3{{ '}' }}

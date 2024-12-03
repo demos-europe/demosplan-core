@@ -248,9 +248,9 @@ class LatexExtension extends ExtensionBase
 
             $postlatex = [
                 '',
-                '\\\\', // "\\\\\n",
-                '\\\\', // "\\\\\n",
-                '\\\\', // "\\\\\n"
+                '\\newline ', // "\n",
+                '\\newline ', // "\n",
+                '\\newline ', // "\n"
             ];
 
             // Kill situations in which a end{itemize} is directly followed by a latex paragraph feed
