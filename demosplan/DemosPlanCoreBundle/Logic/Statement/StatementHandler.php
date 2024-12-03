@@ -2282,10 +2282,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // Acquire data
         $newTags = [];
         foreach ($records as $dataset) {
-            // ensure utf8 encoding
-            $dataset = array_map(static function($item) {
-                return (new UnicodeString(utf8_encode($item)))->toString();
-            }, $dataset);
             // Do not use line if all fields are empty
             if (array_reduce($dataset, static fn ($carry, $item) => $carry && ('' == $item), true)) {
                 continue;
