@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Tools;
 
 use DOMDocument;
+use Symfony\Component\Filesystem\Filesystem;
 use ZipArchive;
 
 class OdtImporter
@@ -17,11 +18,18 @@ class OdtImporter
             // save path as property to be used later
             $this->odtFilePath = $odtFilePath;
             $contentXml = $zip->getFromName('content.xml');
+            //extract all pictures to a temporary folder
+            $zip->extractTo(dirname($odtFilePath) . '/tmp');
             $zip->close();
 
+            $html = '';
             if ($contentXml !== false) {
-                return $this->transformToHtml($contentXml);
+                $html = $this->transformToHtml($contentXml);
             }
+            $fs = new Filesystem();
+            $fs->remove(dirname($odtFilePath) . '/tmp');
+
+            return $html;
         }
 
         throw new \Exception('Unable to open ODT file.');
@@ -80,7 +88,7 @@ class OdtImporter
     {
         $xlinkHref = $node->getAttribute('xlink:href');
         if ($xlinkHref) {
-            $imagePath = dirname($this->odtFilePath) . '/' . $xlinkHref;
+            $imagePath = dirname($this->odtFilePath) . '/tmp/' . $xlinkHref;
             if (file_exists($imagePath)) {
                 $imageData = base64_encode(file_get_contents($imagePath));
                 $imageType = pathinfo($imagePath, PATHINFO_EXTENSION);
