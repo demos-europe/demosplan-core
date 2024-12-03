@@ -64,6 +64,8 @@ class FileService extends CoreService implements FileServiceInterface
      */
     final public const VIRUSCHECK_NONE = 'none';
 
+    final public const ENTITY_FIELD_FILE = 'file';
+
     /**
      * @var string
      */
@@ -483,7 +485,7 @@ class FileService extends CoreService implements FileServiceInterface
             $fileContainer = new FileContainer();
             $fileContainer->setEntityClass($entityClass);
             $fileContainer->setEntityId($entityId);
-            $fileContainer->setEntityField('file');
+            $fileContainer->setEntityField(self::ENTITY_FIELD_FILE);
             $file = $this->getDoctrine()->getManager()->getReference(File::class, $fileId);
             $fileContainer->setFile($file);
             $fileContainer->setFileString($fileString);

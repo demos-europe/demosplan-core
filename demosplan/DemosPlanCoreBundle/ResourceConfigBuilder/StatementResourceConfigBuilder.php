@@ -12,12 +12,15 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceConfigBuilder;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseStatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
-use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
+use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\GenericStatementAttachmentResourceType;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
@@ -60,7 +63,6 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $fullText
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isSubmittedByCitizen
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isManual
- * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, File> $files @deprecated Use {@link StatementResourceType::$attachments} instead (needs implementation changes)
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Segment> $segments
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Elements> $elements
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Elements> $paragraphOriginal
@@ -88,6 +90,17 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  *
  * Ordinary statement properties
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $segmentDraftList
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $availableInternalPhases
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $availableExternalPhases
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $location
+ * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, ParagraphVersion> $paragraphVersion
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $procedurePhase
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $availableProcedurePhases
+ *
+ * Statement Attachments properties
+ * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,StatementInterface,GenericStatementAttachmentResourceType> $genericAttachments
+ * An Statement has only one source attachment, that is why the property is named singular even though it is a to-many relationship
+ * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,StatementInterface,StatementAttachment> $sourceAttachment
  */
 class StatementResourceConfigBuilder extends BaseStatementResourceConfigBuilder
 {

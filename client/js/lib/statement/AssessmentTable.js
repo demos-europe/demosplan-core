@@ -67,7 +67,7 @@ export default function AssessmentTable () {
     const procedureId = $('form[name=bpform]').data('statement-admin-container')
 
     if (filterHash) {
-      // there are cases were the filterHash has not to be updated, but take the current one
+      // There are cases were the filterHash has not to be updated, but take the current one
       document.bpform.action = Routing.generate('dplan_assessmenttable_view_table', { procedureId, filterHash })
       handleFormSubmission(task)
     } else {
@@ -115,7 +115,7 @@ export default function AssessmentTable () {
     }
 
     /*
-     * if we want to submit the form, don't reset those values,
+     * If we want to submit the form, don't reset those values,
      * otherwise, it might happen too quickly, causing incorrect data to be sent
      */
     if (formsend === false) {

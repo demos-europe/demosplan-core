@@ -481,9 +481,6 @@
     "paragonie/random_compat": {
         "version": "v9.99.100"
     },
-    "patchwork/utf8": {
-        "version": "v1.3.3"
-    },
     "phar-io/manifest": {
         "version": "1.0.3"
     },
@@ -1185,9 +1182,6 @@
     },
     "wsdltophp/phpgenerator": {
         "version": "1.2.1"
-    },
-    "yectep/phpspreadsheet-bundle": {
-        "version": "v0.2.0"
     },
     "zenstruck/foundry": {
         "version": "1.33",

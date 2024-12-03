@@ -130,6 +130,12 @@ class Router implements RouterInterface, WarmableInterface
      */
     private function convertProcedureIdParameter(array $parameters): array
     {
+        if (array_key_exists('procedure', $parameters) && is_array($parameters['procedure']) && array_key_exists('id', $parameters['procedure']) && null !== $parameters['procedure']['id']) {
+            $parameters['procedure'] = $this->slugifyProcedureIdParam($parameters['procedure']['id']);
+
+            return $parameters;
+        }
+
         if (array_key_exists('procedure', $parameters) && null !== $parameters['procedure']) {
             $parameters['procedure'] = $this->slugifyProcedureIdParam($parameters['procedure']);
         }
