@@ -72,7 +72,7 @@ class GenericApiController extends APIController
     )]
     public function listAction(
         SearchCapableListRequest $listRequest,
-        string $resourceType
+        string $resourceType,
     ): APIResponse {
         // fetch resource type instance
         $type = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);
@@ -120,9 +120,8 @@ class GenericApiController extends APIController
         ValidatorInterface $validator,
         RequestConstraintFactory $requestConstraintFactory,
         string $resourceType,
-        string $resourceId
+        string $resourceId,
     ): Response {
-
         // Dependency Injection of UpdateRequest does not work in tests,
         // content of the Request is not passed to the UpdateRequest
         $updateRequest = new UpdateRequest(
@@ -222,7 +221,7 @@ class GenericApiController extends APIController
     public function deleteAction(
         DeletionRequest $deletionRequest,
         string $resourceType,
-        string $resourceId
+        string $resourceId,
     ): Response {
         // fetch resource type instance
         $type = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);
@@ -266,7 +265,7 @@ class GenericApiController extends APIController
     public function getAction(
         GetRequest $getRequest,
         string $resourceType,
-        string $resourceId
+        string $resourceId,
     ): Response {
         // fetch resource type instance
         $type = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);
