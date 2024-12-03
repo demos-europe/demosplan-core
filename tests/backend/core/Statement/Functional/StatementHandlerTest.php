@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -40,7 +41,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Illuminate\Support\Collection;
-use League\Flysystem\FilesystemOperator;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -415,31 +415,29 @@ class StatementHandlerTest extends FunctionalTestCase
         $this->sut->savePublicStatement('someId');
     }
 
-    public function testImportTags()
+    public function testImportTags(): void
     {
-        //self::markSkippedForCIIntervention();
-
-        //$this->setMocks();
 
         $statementService = $this->getMockBuilder(
             StatementService::class
         )
             ->disableOriginalConstructor()
             ->getMock();
-/*
-        $statementService->expects($this->any())
-            ->method('attachBoilerplateToTag')
-            ->willReturn(true);
-*/
+
+        $tagsBefore = $this->countEntries(Tag::class);
+        $tagTopicsBefore = $this->countEntries(TagTopic::class);
         $this->sut->setRequestValues([
             'r_import'    => '',
             'r_importCsv' => 'asdfasdfasdf',
         ]);
 
-        // wie ist das korrekte Format? mit , oder ;
         /* @var StatementService $statementService */
         $this->sut->setStatementService($statementService);
         $this->sut->importTags($this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE)->getId(), fopen($this->getFileInfoTagImport()->getAbsolutePath(), 'rb'));
+        $tagsAfter = $this->countEntries(Tag::class);
+        $tagTopicsAfter = $this->countEntries(TagTopic::class);
+        self::assertEquals($tagsBefore + 101, $tagsAfter);
+        self::assertEquals($tagTopicsBefore + 16, $tagTopicsAfter);
     }
 
     /**
@@ -3008,11 +3006,11 @@ class StatementHandlerTest extends FunctionalTestCase
     {
         return new FileInfo(
             hash: 'someHash',
-            fileName: 'final.csv',
+            fileName: 'tagTopics.csv',
             fileSize: 12345,
             contentType: 'any/thing',
-            path: __DIR__ . '/res/final.csv',
-            absolutePath: __DIR__ . '/res/final.csv',
+            path: __DIR__ . '/res/tagTopics.csv',
+            absolutePath: __DIR__ . '/res/tagTopics.csv',
             procedure: null
         );
     }
