@@ -194,9 +194,6 @@ export default {
       const payload = this.createAddonPayload()
 
       const addonRequest = dpApi({
-        headers: {
-          ...(dplan.csrfToken && { 'x-csrf-token': dplan.csrfToken }) // TODO: should be adjusted in UI: api2defaultHeaders
-        },
         method: this.addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST',
         url: Routing.generate(this.addonPayload.url, {
           resourceType: this.addonPayload.resourceType,
