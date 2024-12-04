@@ -14,6 +14,7 @@ const VueLoader = require('vue-loader')
 const webpack = require('webpack') // Is webpack is webpack
 
 const { config } = require('../config/config')
+const eslintConfig = require('../../../eslint.config.js')
 
 const { resolveDir } = require('../webpack/util')
 
@@ -22,14 +23,14 @@ const webpackProdOnlyPlugins = []
 
 const webpackDefaultPlugins = [
   new ESLintWebpackPlugin({
-    baseConfig: require('../../../eslintrc'),
-    cache: true,
-    emitError: false,
-    extensions: ['js', 'vue'],
-    failOnError: false,
+    baseConfig: eslintConfig,
+    cache: false,
+    emitError: true,
+    extensions: ['js', 'vue', 'ts'],
+    failOnError: true,
     files: ['demosplan'],
-    quiet: true,
-    useEslintrc: false
+    quiet: false,
+    configType: 'flat'
   }),
   // Global project variable consumed by application code
   new webpack.DefinePlugin({
