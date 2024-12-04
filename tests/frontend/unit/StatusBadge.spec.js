@@ -1,5 +1,5 @@
-import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
+import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
 describe('StatusBadge.vue', () => {
   it('renders correctly for each status', () => {
     const statuses = ['new', 'processing', 'completed']
