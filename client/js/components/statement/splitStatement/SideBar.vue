@@ -169,10 +169,8 @@
 import {
   DpButtonRow,
   DpContextualHelp,
-  DpIcon,
   DpLabel,
   DpMultiselect,
-  DpSelect,
   hasOwnProp,
   Tooltip
 } from '@demos-europe/demosplan-ui'
@@ -191,10 +189,8 @@ export default {
     DpButtonRow,
     DpCreateTag,
     DpContextualHelp,
-    DpIcon,
     DpLabel,
     DpMultiselect,
-    DpSelect,
     FloatingContextButton,
     SearchSelect,
     TagSelect

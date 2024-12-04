@@ -8,7 +8,7 @@
  */
 
 import { createLocalVue } from '@vue/test-utils'
-import Statement from '.@DpJs/store/statement/Statement'
+import Statement from '@DpJs/store/statement/Statement'
 import Vuex from 'vuex'
 
 const localVue = createLocalVue()
