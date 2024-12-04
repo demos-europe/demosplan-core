@@ -38,6 +38,7 @@ module.exports = [
   ...pluginVueA11y.configs['flat/recommended'],
   // See below pluginImportExtensions.flatConfigs['recommended'],
   {
+    name: 'app/custom/rules',
     rules: {
       /**
        * Do not allow file extensions when importing .js and .vue files,
@@ -92,7 +93,12 @@ module.exports = [
         'atComponent': 'longform',
         'default': 'longform',
         'named': 'longform'
-      }],
+      }]
+    },
+  },
+  {
+    name: 'app/custom/ally/rules',
+    rules: {
       'vuejs-accessibility/alt-text': 'warn',
       'vuejs-accessibility/anchor-has-content': 'warn',
       'vuejs-accessibility/aria-props': 'warn',
