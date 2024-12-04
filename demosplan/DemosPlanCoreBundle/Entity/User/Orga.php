@@ -1353,5 +1353,4 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
             $tag->getTaggedInstitutions()->removeElement($this);
         }
     }
-
 }
