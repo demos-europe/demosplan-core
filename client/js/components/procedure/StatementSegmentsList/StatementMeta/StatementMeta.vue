@@ -58,7 +58,7 @@
           @save="(data) => save(data)" />
 
         <statement-publication-and-voting
-          v-if="hasPermission('feature_statements_vote')"
+          v-if="hasPermission('feature_statements_vote') || hasPermission('feature_statements_publication')"
           :editable="editable"
           :statement="statement"
           @save="(data) => save(data)"
