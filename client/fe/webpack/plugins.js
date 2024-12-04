@@ -6,15 +6,12 @@
  *
  * All rights reserved
  */
-
-const ESLintWebpackPlugin = require('eslint-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const VueLoader = require('vue-loader')
 const webpack = require('webpack') // Is webpack is webpack
 
 const { config } = require('../config/config')
-const eslintConfig = require('../../../eslint.config.js')
 
 const { resolveDir } = require('../webpack/util')
 
@@ -22,16 +19,6 @@ const webpackDevOnlyPlugins = []
 const webpackProdOnlyPlugins = []
 
 const webpackDefaultPlugins = [
-  new ESLintWebpackPlugin({
-    baseConfig: eslintConfig,
-    cache: false,
-    emitError: true,
-    extensions: ['js', 'vue', 'ts'],
-    failOnError: true,
-    files: ['demosplan'],
-    quiet: false,
-    configType: 'flat'
-  }),
   // Global project variable consumed by application code
   new webpack.DefinePlugin({
     PROJECT: JSON.stringify(config.project)
