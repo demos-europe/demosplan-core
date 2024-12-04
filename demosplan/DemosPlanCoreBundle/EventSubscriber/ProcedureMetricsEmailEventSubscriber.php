@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
@@ -22,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Doctrine\Common\Collections\Criteria;
 use Exception;
 
@@ -37,7 +37,7 @@ class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
         private readonly CustomerService $customerService,
         private readonly CurrentUserService $currentUser,
         private readonly MailService $mailService,
-        private readonly GlobalConfig $globalConfig,
+        private readonly GlobalConfigInterface $globalConfig,
         private readonly ProcedureRepository $procedureRepository,
         private array $mailVars = ['mailsubject' => '', 'mailbody' => ''],
     ) {
