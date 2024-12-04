@@ -38,19 +38,8 @@ use Elastica\Index;
  * @property-read UserResourceType                 $users
  * @property-read OrgaStatusInCustomerResourceType $statusInCustomers
  */
-final class InvitableInstitutionResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
+final class InvitableInstitutionResourceType extends DplanResourceType
 {
-    /**
-     * @var Index
-     */
-    private $esType;
-
-    public function __construct(
-        private readonly QueryOrga $esQuery,
-        JsonApiEsService $jsonApiEsService,
-    ) {
-        $this->esType = $jsonApiEsService->getElasticaTypeForTypeName(self::getName());
-    }
 
     public static function getName(): string
     {
@@ -75,7 +64,6 @@ final class InvitableInstitutionResourceType extends DplanResourceType implement
 
     public function isListAllowed(): bool
     {
-        return true;
         return $this->currentUser->hasPermission('feature_institution_tag_assign')
             || $this->currentUser->hasPermission('feature_institution_tag_read');
     }
@@ -87,7 +75,6 @@ final class InvitableInstitutionResourceType extends DplanResourceType implement
 
     protected function getAccessConditions(): array
     {
-        return [$this->conditionFactory->true()];
         $customer = $this->currentCustomerService->getCurrentCustomer();
 
         return [
@@ -151,7 +138,7 @@ final class InvitableInstitutionResourceType extends DplanResourceType implement
         if ($this->currentUser->hasPermission('feature_institution_tag_assign')
             || $this->currentUser->hasPermission('feature_institution_tag_read')
         ) {
-            $allowedProperties[] = $this->createAttribute($this->name)->readable(true);
+            $allowedProperties[] = $this->createAttribute($this->name)->readable(true)->setFilterable();
             $allowedProperties[] = $this->createAttribute($this->createdDate)->readable(true)->sortable();
             $assignedTags->readable(true)->filterable();
         }
@@ -159,23 +146,4 @@ final class InvitableInstitutionResourceType extends DplanResourceType implement
         return $allowedProperties;
     }
 
-    public function getQuery(): AbstractQuery
-    {
-        return $this->esQuery;
-    }
-
-    public function getScopes(): array
-    {
-        return [AbstractQuery::SCOPE_ALL];
-    }
-
-    public function getSearchType(): Index
-    {
-        return $this->esType;
-    }
-
-    public function getFacetDefinitions(): array
-    {
-        return [];
-    }
 }
