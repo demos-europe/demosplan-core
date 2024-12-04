@@ -48,9 +48,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
     baseUrl = '/app_dev.php' + baseUrl
   }
 
-  // eslint-disable-next-line no-undef
   if (URL_PATH_PREFIX) {
-    // eslint-disable-next-line no-undef
     baseUrl = URL_PATH_PREFIX + baseUrl
   }
 
