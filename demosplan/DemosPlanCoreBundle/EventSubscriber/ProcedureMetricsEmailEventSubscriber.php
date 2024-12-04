@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
@@ -23,13 +22,13 @@ use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Doctrine\Common\Collections\Criteria;
 use Exception;
 
 class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
 {
     private const USED_TEMPLATE = 'dm_schlussmitteilung';
-    private const RECEIVER_MAIL_ADDRESS = 'support@demos-deutschland.de';
     private const LOKALE = 'de_DE';
     private const MAIL_SCOPE = 'extern';
     private const DATE_FORMAT = 'Y-m-d H:i:s';
@@ -38,7 +37,7 @@ class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
         private readonly CustomerService $customerService,
         private readonly CurrentUserService $currentUser,
         private readonly MailService $mailService,
-        private readonly GlobalConfigInterface $globalConfig,
+        private readonly GlobalConfig $globalConfig,
         private readonly ProcedureRepository $procedureRepository,
         private array $mailVars = ['mailsubject' => '', 'mailbody' => ''],
     ) {
@@ -67,6 +66,11 @@ class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
         $procedure = $event->getProcedure();
 
         $from = $this->globalConfig->getEmailSystem();
+        $to = $this->globalConfig->getProcedureMetricsReceiver();
+        if ('' === $to) {
+
+            return;
+        }
         try {
             $allProceduresOfOrgaInCustomer = $this->getAllProceduresOfOrgaInCustomer();
             $this->mailVars['mailsubject'] = $this->getSubject($allProceduresOfOrgaInCustomer);
@@ -82,7 +86,7 @@ class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
             $this->mailService->sendMail(
                 self::USED_TEMPLATE,
                 self::LOKALE,
-                self::RECEIVER_MAIL_ADDRESS,
+                $to,
                 $from,
                 '',
                 '',
