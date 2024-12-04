@@ -68,7 +68,6 @@ class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
         $from = $this->globalConfig->getEmailSystem();
         $to = $this->globalConfig->getProcedureMetricsReceiver();
         if ('' === $to) {
-
             return;
         }
         try {
