@@ -3597,6 +3597,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tiptap/extension-text-style@npm:^2.8.0":
+  version: 2.10.2
+  resolution: "@tiptap/extension-text-style@npm:2.10.2"
+  peerDependencies:
+    "@tiptap/core": ^2.7.0
+  checksum: 10c0/2c688ed2b53afeba0bd97cea34fa4441c6aea942cfdc2ba6c012e60135e2bf609bc6bf87a6f63fae37eb2a5cb24f421107e45fe773e98b3ad250bd18fa43d6ac
+  languageName: node
+  linkType: hard
+
 "@tiptap/extension-text@npm:^2.0.3":
   version: 2.7.2
   resolution: "@tiptap/extension-text@npm:2.7.2"
