@@ -1,6 +1,6 @@
 const pluginVue = require('eslint-plugin-vue')
-// const pluginVueA11y = require('eslint-plugin-vuejs-accessibility')
-// const pluginImportExtensions = require('eslint-plugin-import')
+const pluginVueA11y = require('eslint-plugin-vuejs-accessibility')
+// Commented Out until the issue below is solved: const pluginImportExtensions = require('eslint-plugin-import')
 
 module.exports = [
   {
@@ -29,23 +29,26 @@ module.exports = [
           map: [
             ['@DpJs', './client/js']
           ],
-          extensions: ['.js', '.ts', '.vue']
+          extensions: ['.js', '.ts', '.vue', '.json']
         }
       }
     }
   },
-  // ...pluginVue.configs['flat/vue2-essential'],
-  // ...pluginVueA11y.configs['flat/recommended'],
-  /*
-   * Do not allow file extensions when importing .js and .vue files,
-   * enforce extension on json files.
-   */
-  // Not working by now https://github.com/Kenneth-Sills/eslint-config-airbnb-typescript/issues/15
-  // {
-  //   'import/extensions': ['error', 'never', { json: 'always' }]
-  // },
+  ...pluginVue.configs['flat/vue2-essential'],
+  ...pluginVueA11y.configs['flat/recommended'],
+  // See below pluginImportExtensions.flatConfigs['recommended'],
   {
     rules: {
+      /**
+       * Do not allow file extensions when importing .js and .vue files,
+       * enforce extension on json files.
+       *
+       * Not working by now https://github.com/Kenneth-Sills/eslint-config-airbnb-typescript/issues/15
+       *
+       * 'import/extensions': ['error', 'never', {
+       *   json: 'always', js: 'never', vue: 'never'
+       * }],
+       */
       'capitalized-comments': ['error', 'always', {
         'ignoreConsecutiveComments': true,
         'ignoreInlineComments': true
