@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services\Elasticsearch;
 
-use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
-
 class QueryOrga extends AbstractQuery
 {
     public function getEntity(): string

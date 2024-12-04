@@ -1358,5 +1358,4 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     {
         return !$this->deleted;
     }
-
 }

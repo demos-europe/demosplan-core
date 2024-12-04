@@ -17,16 +17,9 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
-use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
-use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
-use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryOrga;
-use demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment;
 use Doctrine\Common\Collections\ArrayCollection;
 use EDT\PathBuilding\End;
-use Elastica\Index;
 
 /**
  * @template-extends DplanResourceType<Orga>
@@ -40,7 +33,6 @@ use Elastica\Index;
  */
 final class InvitableInstitutionResourceType extends DplanResourceType
 {
-
     public static function getName(): string
     {
         return 'InvitableInstitution';
@@ -145,5 +137,4 @@ final class InvitableInstitutionResourceType extends DplanResourceType
 
         return $allowedProperties;
     }
-
 }
