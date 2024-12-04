@@ -1354,9 +1354,4 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         }
     }
 
-    public function shouldBeIndexed(): bool
-    {
-        return !$this->deleted;
-    }
-
 }
