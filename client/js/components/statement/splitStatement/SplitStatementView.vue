@@ -53,7 +53,8 @@
           class: 'u-mb',
           processingTime: processingTime,
           statementId: statementId,
-          status: segmentationStatus
+          status: segmentationStatus,
+          websocketUrl: websocketUrl
         }"
         hook-name="split.statement.preprocessor"
         @addons:loaded="fetchSegments"
@@ -256,6 +257,11 @@ export default {
       type: Array,
       required: false,
       default: () => []
+    },
+
+    websocketUrl: {
+      type: String,
+      required: true
     }
   },
 
@@ -410,31 +416,6 @@ export default {
       return segmentSpans.length
         ? segmentIsAtTop || segmentIsAtBottom
         : false
-    },
-
-    determineIfStatementReady (counter = 0) {
-      if (this.segmentationStatus === 'aiSegmented' || this.segmentationStatus === 'inUserSegmentation') {
-        return
-      }
-      const time = counter < 3 ? 5000 : 2000
-      setTimeout(() => {
-        this.fetchStatementSegmentDraftList(this.statementId)
-          .then(({ data }) => {
-            /**
-             * Here, we only want to check if the segmentDraftList was filled by the pipeline.
-             * We don't check for the existence of segments because the pipeline might just not find any segments,
-             * which would leave the user in an endless loop.
-             */
-            if (data.data.attributes.segmentDraftList !== null) {
-              this.fetchInitialData().then(() => {
-                this.segmentationStatus = 'aiSegmented'
-              })
-              return
-            }
-            counter++
-            this.determineIfStatementReady(counter)
-          })
-      }, time)
     },
 
     disableEditMode (resetState = true) {

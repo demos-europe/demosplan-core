@@ -11,7 +11,8 @@
         procedure-id="{{ procedure }}"
         procedure-name="{{ procedureName }}"
         statement-extern-id="{{ statementExternId }}"
-        statement-id="{{ statementId }}">
+        statement-id="{{ statementId }}"
+        websocket-url="{{ mercure('https://replace/with/url/to/segementation/status')|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG'))|raw }}">
     </split-statement-view>
 {% endblock %}
 
