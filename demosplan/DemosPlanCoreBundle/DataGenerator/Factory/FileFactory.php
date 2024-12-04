@@ -92,8 +92,6 @@ final class FileFactory extends PersistentProxyObjectFactory
      */
     protected function initialize(): static
     {
-        return $this
-            // ->afterInstantiate(function(File $file): void {})
-        ;
+        return $this;
     }
 }
