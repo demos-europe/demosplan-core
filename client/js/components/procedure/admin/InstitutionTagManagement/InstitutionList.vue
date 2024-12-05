@@ -14,78 +14,92 @@
       :message="Translator.trans('explanation.invitable_institution.group.tags')"
       type="info" />
 
-    <dp-column-selector
-      data-cy="institutionList:selectableColumns"
-      :initial-selection="currentSelection"
-      local-storage-key="institutionList"
-      :selectable-columns="selectableColumns"
-      use-local-storage
-      @selection-changed="setCurrentSelection" />
+    <dp-loading
+      class="u-mt"
+      v-if="isLoading" />
+    <template v-else>
+      <dp-column-selector
+        data-cy="institutionList:selectableColumns"
+        :initial-selection="currentSelection"
+        local-storage-key="institutionList"
+        :selectable-columns="selectableColumns"
+        use-local-storage
+        @selection-changed="setCurrentSelection" />
 
-    <dp-data-table
-      data-dp-validate="tagsTable"
-      has-flyout
-      :header-fields="headerFieldsAvailable"
-      track-by="id"
-      :items="institutionList"
-      class="u-mt-2">
-      <template v-slot:institution="rowData">
-        <ul class="o-list max-w-12">
-          <li>
-            {{ rowData.institution }}
-          </li>
-          <li class="o-list__item o-hellip--nowrap">
-            {{ date(rowData.createdDate) }}
-          </li>
-        </ul>
-      </template>
-      <template v-slot:tags="rowData">
-        <div v-if="!rowData.edit">
+      <dp-data-table
+        ref="dataTable"
+        class="u-mt-2 overflow-x-auto scrollbar-none"
+        data-dp-validate="tagsTable"
+        has-flyout
+        :header-fields="headerFields"
+        is-resizable
+        :items="institutionList"
+        track-by="id">
+        <template v-slot:institution="rowData">
+          <ul class="o-list max-w-12">
+            <li>
+              {{ rowData.institution }}
+            </li>
+            <li class="o-list__item o-hellip--nowrap">
+              {{ date(rowData.createdDate) }}
+            </li>
+          </ul>
+        </template>
+        <template v-slot:tags="rowData">
+          <div v-if="!rowData.edit">
           <span>
             {{ separateByCommas(rowData.tags) }}
           </span>
-        </div>
-        <dp-multiselect
-          v-else
-          v-model="editingInstitutionTags"
-          :options="tagList"
-          label="name"
-          track-by="id"
-          multiple />
-      </template>
-      <template v-slot:action="rowData">
-        <div class="float-right">
-          <template v-if="!rowData.edit">
-            <button
-              :aria-label="Translator.trans('item.edit')"
-              class="btn--blank o-link--default"
-              @click="editInstitution(rowData.id)">
-              <i
-                class="fa fa-pencil"
-                aria-hidden="true" />
-            </button>
-          </template>
-          <template v-else>
-            <button
-              :aria-label="Translator.trans('save')"
-              class="btn--blank o-link--default u-mr-0_25"
-              @click="addTagsToInstitution(rowData.id)">
-              <dp-icon
-                icon="check"
-                aria-hidden="true" />
-            </button>
-            <button
-              class="btn--blank o-link--default"
-              :aria-label="Translator.trans('abort')"
-              @click="abortEdit()">
-              <dp-icon
-                icon="xmark"
-                aria-hidden="true" />
-            </button>
-          </template>
-        </div>
-      </template>
-    </dp-data-table>
+          </div>
+          <dp-multiselect
+            v-else
+            v-model="editingInstitutionTags"
+            :options="tagList"
+            label="name"
+            track-by="id"
+            multiple />
+        </template>
+        <template v-slot:action="rowData">
+          <div class="float-right">
+            <template v-if="!rowData.edit">
+              <button
+                :aria-label="Translator.trans('item.edit')"
+                class="btn--blank o-link--default"
+                @click="editInstitution(rowData.id)">
+                <i
+                  class="fa fa-pencil"
+                  aria-hidden="true" />
+              </button>
+            </template>
+            <template v-else>
+              <button
+                :aria-label="Translator.trans('save')"
+                class="btn--blank o-link--default u-mr-0_25"
+                @click="addTagsToInstitution(rowData.id)">
+                <dp-icon
+                  icon="check"
+                  aria-hidden="true" />
+              </button>
+              <button
+                class="btn--blank o-link--default"
+                :aria-label="Translator.trans('abort')"
+                @click="abortEdit()">
+                <dp-icon
+                  icon="xmark"
+                  aria-hidden="true" />
+              </button>
+            </template>
+          </div>
+        </template>
+      </dp-data-table>
+
+      <div
+        ref="scrollBar"
+        class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden">
+        <div />
+      </div>
+    </template>
+
 
     <dp-sliding-pagination
       v-if="totalPages > 1"
@@ -103,11 +117,14 @@ import {
   DpDataTable,
   DpIcon,
   DpInlineNotification,
+  DpLoading,
   DpMultiselect,
   DpSlidingPagination,
+  DpStickyElement,
   formatDate
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 
 export default {
   name: 'InstitutionList',
@@ -118,8 +135,12 @@ export default {
     DpMultiselect,
     DpIcon,
     DpInlineNotification,
-    DpSlidingPagination
+    DpLoading,
+    DpSlidingPagination,
+    DpStickyElement
   },
+
+  mixins: [tableScrollbarMixin],
 
   data () {
     return {
@@ -127,13 +148,7 @@ export default {
       editingInstitutionId: null,
       editingInstitution: null,
       editingInstitutionTags: [],
-      headerFieldsAvailable: [
-        {
-          field: 'institution',
-          label: Translator.trans('institution'),
-          colClass: 'u-2-of-12'
-        }
-      ]
+      isLoading: true,
     }
   },
 
@@ -152,6 +167,24 @@ export default {
       totalPages: 'totalPages'
     }),
 
+    categoryFieldsAvailable() {
+      return Object.values(this.institutionTagCategories).map(category => ({
+        field: category.attributes.name,
+        label: category.attributes.name
+      }))
+    },
+
+    headerFields () {
+      const institutionField = {
+        field: 'institution',
+        label: Translator.trans('institution')
+      }
+
+      const categoryFields = this.categoryFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
+
+      return [institutionField, ...categoryFields]
+    },
+
     institutionList () {
       return Object.values(this.invitableInstitutionList).map(tag => {
         const { id, attributes, relationships } = tag
@@ -167,7 +200,7 @@ export default {
     },
 
     selectableColumns () {
-      return this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+      return this.categoryFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
     },
 
     tagList () {
@@ -272,6 +305,7 @@ export default {
     },
 
     getInstitutionTagCategories () {
+      this.isLoading = true
       this.listInstitutionTagCategories({
         fields: {
           InstitutionTagCategory: [
@@ -287,12 +321,15 @@ export default {
           'tags'
         ].join()
       })
-        .then(() => {
-          // @todo add categories to availableHeaderFields
-        })
-        .catch(err => {
-          console.error(err)
-        })
+      .then(() => {
+        this.setInitialSelection()
+      })
+      .finally(() => {
+        this.isLoading = false
+      })
+      .catch(err => {
+        console.error(err)
+      })
     },
 
     getTagById (tagId) {
@@ -319,6 +356,10 @@ export default {
 
     setCurrentSelection (selection) {
       this.currentSelection = selection
+    },
+
+    setInitialSelection () {
+      this.currentSelection = Object.values(this.institutionTagCategories).slice(0, 7).map(category => category.attributes.name)
     }
   },
 
