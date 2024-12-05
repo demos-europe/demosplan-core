@@ -328,9 +328,13 @@ export default {
   },
 
   watch: {
-    noFilterSelected: function () {
-      // If no filter is selected, uncheck the filter.saveFilterSet checkbox
-      this.saveFilterSet = false
+    noFilterSelected: {
+      handler () {
+        // If no filter is selected, uncheck the filter.saveFilterSet checkbox
+        this.saveFilterSet = false
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
+
     },
 
     selectedOptionsInStore: {

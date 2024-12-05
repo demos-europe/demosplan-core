@@ -403,24 +403,30 @@ export default {
   },
 
   watch: {
-    currentRole: function () {
-      //  Reset Multiselect + fields upon selection of `r_roles`-radio
-      this.submitter = {}
-      this.submitterData = emptySubmitterData
+    currentRole: {
+      handler () {
+        //  Reset Multiselect + fields upon selection of `r_roles`-radio
+        this.submitter = {}
+        this.submitterData = emptySubmitterData
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
 
-    submitter: function (submitterSelected) {
-      //  When `submitter` changes via the `currentRole` watcher, lets not trigger an update
-      if (
-        typeof submitterSelected === 'undefined' ||
-        (
-          hasOwnProp(submitterSelected, 'entityId') || hasOwnProp(submitterSelected, 'entityType')
-        ) === false
-      ) {
-        return
-      }
+    submitter: {
+      handler (submitterSelected) {
+        //  When `submitter` changes via the `currentRole` watcher, lets not trigger an update
+        if (
+          typeof submitterSelected === 'undefined' ||
+          (
+            hasOwnProp(submitterSelected, 'entityId') || hasOwnProp(submitterSelected, 'entityType')
+          ) === false
+        ) {
+          return
+        }
 
-      this.submitterData = this.submitter.submitter
+        this.submitterData = this.submitter.submitter
+      },
+      deep: true
     }
   },
 

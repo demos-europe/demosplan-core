@@ -326,20 +326,26 @@ export default {
   },
 
   watch: {
-    editModeActive (newVal) {
-      if (newVal) {
-        window.addEventListener('scroll', this.handleScroll, false)
-      } else {
-        window.removeEventListener('scroll', this.handleScroll, false)
-        this.displayScrollButton = false
-      }
+    editModeActive: {
+      handler (newVal) {
+        if (newVal) {
+          window.addEventListener('scroll', this.handleScroll, false)
+        } else {
+          window.removeEventListener('scroll', this.handleScroll, false)
+          this.displayScrollButton = false
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
 
-    initialData (newVal) {
-      this.calculateProcessingTime()
-      if (newVal) {
-        this.isLoading = false
-      }
+    initialData: {
+      handler (newVal) {
+        this.calculateProcessingTime()
+        if (newVal) {
+          this.isLoading = false
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

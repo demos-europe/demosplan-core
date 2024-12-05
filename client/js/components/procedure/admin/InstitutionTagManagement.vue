@@ -56,10 +56,13 @@ export default {
   },
 
   watch: {
-    needToReset (newValue) {
-      if (newValue === true) {
-        this.getInstitutionsByPage(1)
-      }
+    needToReset: {
+      handler (newValue) {
+        if (newValue) {
+          this.getInstitutionsByPage(1)
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
