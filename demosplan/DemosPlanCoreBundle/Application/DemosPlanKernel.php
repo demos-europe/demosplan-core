@@ -10,8 +10,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
+use DemosEurope\DemosplanAddon\Utilities\AddonPath;
 use demosplan\DemosPlanCoreBundle\Addon\AddonBundleGenerator;
 use demosplan\DemosPlanCoreBundle\Addon\AddonDoctrineMigrationsPass;
+use demosplan\DemosPlanCoreBundle\Addon\AddonManifestCollection;
 use demosplan\DemosPlanCoreBundle\Addon\AddonResolveTargetEntity;
 use demosplan\DemosPlanCoreBundle\Addon\LoadAddonInfoCompilerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;
@@ -344,6 +346,23 @@ class DemosPlanKernel extends Kernel
         ];
 
         // uses local file, no need for flysystem
+        if (file_exists(DemosPlanPath::getRootPath('deploy'))) {
+            // deployment services, these are a little extra
+            // as they are not shipped and MUST thus not always be included
+            $bundleGlobs[] = "{$coreConfigPath}/services_deployment";
+        }
+
+        $addons = AddonManifestCollection::load();
+
+        if (!empty($addons)) {
+            foreach ($addons as $config) {
+                // check if the addon has a DoctrineMigrations directory
+                $servicesPath = AddonPath::getRootPath($config['install_path'].'/config');
+
+                $bundleGlobs[] = "{$servicesPath}/services";
+            }
+        }
+
         if (file_exists(DemosPlanPath::getRootPath('deploy'))) {
             // deployment services, these are a little extra
             // as they are not shipped and MUST thus not always be included

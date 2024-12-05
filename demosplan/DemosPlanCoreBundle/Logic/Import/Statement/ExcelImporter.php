@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\SegmentExcelImportDataGetterInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
@@ -109,7 +110,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         private readonly TagValidator $tagValidator,
         TranslatorInterface $translator,
         ValidatorInterface $validator,
-        StatementCopier $statementCopier
+        StatementCopier $statementCopier,
+        private readonly SegmentExcelImportDataGetterInterface $segmentExcelImportDataGetter
     ) {
         parent::__construct(
             $currentProcedureService,
@@ -297,7 +299,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 continue;
             }
 
-            $segmentData = \array_combine($columnNamesSegments, $segmentData);
+            $segmentData = $this->segmentExcelImportDataGetter->getSegmentData($columnNamesSegments, $segmentData);
             if (!\is_array($segmentData)) {
                 continue;
             }
