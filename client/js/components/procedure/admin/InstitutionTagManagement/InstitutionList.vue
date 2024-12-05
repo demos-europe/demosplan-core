@@ -45,11 +45,11 @@
             </li>
           </ul>
         </template>
-        <template v-slot:tags="rowData">
+        <template v-for="category in institutionTagCategories" v-slot:[category.attributes.name]="rowData">
           <div v-if="!rowData.edit">
-          <span>
-            {{ separateByCommas(rowData.tags) }}
-          </span>
+            <span>
+              {{ separateByCommas(rowData.tags) }}
+            </span>
           </div>
           <dp-multiselect
             v-else
@@ -182,7 +182,11 @@ export default {
 
       const categoryFields = this.categoryFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
 
-      return [institutionField, ...categoryFields]
+      const actionField = {
+        field: 'action'
+      }
+
+      return [institutionField, ...categoryFields, actionField]
     },
 
     institutionList () {
