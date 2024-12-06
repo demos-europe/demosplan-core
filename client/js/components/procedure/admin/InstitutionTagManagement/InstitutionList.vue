@@ -35,37 +35,39 @@
         is-resizable
         :items="institutionList"
         track-by="id">
-        <template v-slot:institution="rowData">
+        <template v-slot:name="institution">
           <ul class="o-list max-w-12">
             <li>
-              {{ rowData.institution }}
+              {{ institution.name }}
             </li>
             <li class="o-list__item o-hellip--nowrap">
-              {{ date(rowData.createdDate) }}
+              {{ date(institution.createdDate) }}
             </li>
           </ul>
         </template>
-        <template v-for="category in institutionTagCategories" v-slot:[category.attributes.name]="rowData">
-          <div v-if="!rowData.edit">
+        <template
+          v-for="category in institutionTagCategories"
+          v-slot:[category.attributes.name]="institution">
+          <div v-if="!institution.edit">
             <span>
-              {{ separateByCommas(rowData.tags) }}
+              {{ separateByCommas(institution.tags) }}
             </span>
           </div>
           <dp-multiselect
             v-else
             v-model="editingInstitutionTags"
-            :options="tagList"
+            :options="getCategoryTags(category.id)"
             label="name"
             track-by="id"
             multiple />
         </template>
-        <template v-slot:action="rowData">
+        <template v-slot:action="institution">
           <div class="float-right">
-            <template v-if="!rowData.edit">
+            <template v-if="!institution.edit">
               <button
                 :aria-label="Translator.trans('item.edit')"
                 class="btn--blank o-link--default"
-                @click="editInstitution(rowData.id)">
+                @click="editInstitution(institution.id)">
                 <i
                   class="fa fa-pencil"
                   aria-hidden="true" />
@@ -75,7 +77,7 @@
               <button
                 :aria-label="Translator.trans('save')"
                 class="btn--blank o-link--default u-mr-0_25"
-                @click="addTagsToInstitution(rowData.id)">
+                @click="addTagsToInstitution(institution.id)">
                 <dp-icon
                   icon="check"
                   aria-hidden="true" />
@@ -99,7 +101,6 @@
         <div />
       </div>
     </template>
-
 
     <dp-sliding-pagination
       v-if="totalPages > 1"
@@ -176,7 +177,7 @@ export default {
 
     headerFields () {
       const institutionField = {
-        field: 'institution',
+        field: 'name',
         label: Translator.trans('institution')
       }
 
@@ -197,7 +198,7 @@ export default {
           createdDate: attributes.createdDate.date,
           edit: this.editingInstitutionId === id,
           id,
-          institution: attributes.name,
+          name: attributes.name,
           tags: relationships.assignedTags.data
         }
       })
@@ -281,6 +282,17 @@ export default {
       this.editingInstitution.relationships.assignedTags.data.forEach(el => {
         const tag = this.getTagById(el.id)
         this.editingInstitutionTags.push(tag)
+      })
+    },
+
+    getCategoryTags (categoryId) {
+      const tags = this.institutionTagCategories[categoryId].relationships.tags?.data.length > 0 ? this.institutionTagCategories[categoryId].relationships.tags.list() : []
+
+      return Object.values(tags).map(tag => {
+        return {
+          id: tag.id,
+          name: tag.attributes.name
+        }
       })
     },
 
