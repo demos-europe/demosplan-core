@@ -79,7 +79,7 @@
     "plyr": "^3.7.8",
     "portal-vue": "^2.1.7",
     "proj4": "^2.15.0",
-    "qs": "^6.13.0",
+    "qs": "^6.13.1",
     "raf": "^3.4.1",
     "regenerator-runtime": "^0.14.1",
     "source-sans-pro": "^3.6.0",
