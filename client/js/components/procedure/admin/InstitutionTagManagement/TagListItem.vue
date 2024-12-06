@@ -176,16 +176,13 @@ export default {
     },
 
     deleteCategoryAndTags () {
-      const { id, children, name } = this.item
-      const promises = [
-        this.deleteCategory(id),
-        ...children.map(tag => this.deleteTag(tag))
-      ]
+      const { id, name } = this.item
 
-      Promise.allSettled(promises)
+      // Tags are deleted in BE along with category
+      this.deleteInstitutionTagCategory(id)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confim.category_and_tags.deleted', { category: name }))
-          this.$emit('item:deleted', id)
+          this.$emit('item:deleted', this.item)
         })
         .catch(error => {
           console.error(error)
@@ -277,7 +274,6 @@ export default {
           dplan.notify.confirm(Translator.trans('confirm.category.updated'))
           this.isEditing = false
           this.$emit('item:saved', { ...this.item, name: this.name })
-
         })
         .catch(() => {
           dplan.notify.error(Translator.trans('error.api.generic'))
