@@ -2301,7 +2301,7 @@ feature_statements_like_may_like:
     parent: feature_statement
 feature_statements_location_and_document_refrence:
     expose: true
-    label: 'Feature Stellungnahme mit Orts- und Dokumentbezug'
+    label: 'Feature Statement with area und document reference'
     loginRequired: true
     parent: feature_statement
 feature_statements_manualsort:
