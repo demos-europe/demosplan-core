@@ -2299,6 +2299,11 @@ feature_statements_like_may_like:
     label: 'Stellungnahme als anonymer Nutzer liken (Aktion ausführen)'
     loginRequired: false
     parent: feature_statement
+feature_statements_location_and_document_refrence:
+    expose: true
+    label: 'Feature Statement with area und document reference'
+    loginRequired: true
+    parent: feature_statement
 feature_statements_manualsort:
     label: 'Manuelle Reihenfolge speichern'
     loginRequired: true
