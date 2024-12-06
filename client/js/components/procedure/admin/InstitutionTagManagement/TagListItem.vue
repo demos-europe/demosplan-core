@@ -182,7 +182,7 @@ export default {
       this.deleteInstitutionTagCategory(id)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confim.category_and_tags.deleted', { category: name }))
-          this.$emit('item:deleted', id)
+          this.$emit('item:deleted', this.item)
         })
         .catch(error => {
           console.error(error)
