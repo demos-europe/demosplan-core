@@ -31,7 +31,7 @@ rsync --exclude-from=rsyncExcludeProject.txt -az ../projects/$projectname $conte
 cp -r $folder/* $context
 cp -r $folder/.dockerignore $context
 # use --progress=plain to see all build output
-DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname -t $imagename:$version -f $folder/Dockerfile --target fpm $context
+DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname --secret id=envlocal,src=../.env.local -t $imagename:$version -f $folder/Dockerfile --target fpm $context
 DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname -t $imagename/nginx:$version -f $folder/Dockerfile --target nginx $context
 # / is not always allowed in image names
 DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname -t $imagename-nginx:$version -f $folder/Dockerfile --target nginx $context
