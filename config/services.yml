@@ -21,6 +21,10 @@ services:
         arguments:
             $objectPersister: '@fos_elastica.object_persister.procedures'
 
+    demosplan\DemosPlanCoreBundle\Logic\Import\Statement\SegmentExcelImportDataGetter:
+
+    DemosEurope\DemosplanAddon\Contracts\SegmentExcelImportDataGetterInterface: '@demosplan\DemosPlanCoreBundle\Logic\Import\Statement\SegmentExcelImportDataGetter'
+
     DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService'
 
     DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
