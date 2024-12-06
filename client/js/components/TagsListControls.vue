@@ -1,6 +1,7 @@
 <template>
   <div>
     <a
+      v-if="tagType !== 'topic'"
       href="#"
       data-cy="moveTag"
       class="o-toggle__trigger u-mr-0_5 js__toggleAnything"
@@ -9,7 +10,18 @@
       data-toggle-prevent-default
       :title="Translator.trans('tag.move')">
       <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-    </a>TESTAS
+    </a>
+    <a
+      v-else
+      href="#"
+      data-cy="addNewTag"
+      class="o-toggle__trigger u-mr-0_5 js__toggleAnything"
+      data-toggle-container="form"
+      :data-toggle="`#insert-${tag.id}`"
+      data-toggle-prevent-default
+      :title="Translator.trans('topic.insertTag')">
+    <i class="fa fa-plus" aria-hidden="true"></i>
+    </a>
     <a
       href="#"
       data-cy="renameTagField"
@@ -26,6 +38,7 @@
       data-cy="deleteTagField"
       name="r_deletetag"
       :value="tag.id"
+      :data-form-actions-confirm="Translator.trans('check.tag.delete', { tag: tag.name })"
       data-form-actions-confirm-simple
       :title="Translator.trans('tag.delete')">
       <i class="fa fa-trash"/>
@@ -41,6 +54,15 @@ export default {
     tag: {
       type: Object,
       required: true
+    },
+
+    tagType: {
+      type: String,
+      required: false,
+      default: 'topic',
+      validator: (value) => {
+        return ['topic', 'tag'].indexOf(value) !== -1
+      }
     }
   }
 }
