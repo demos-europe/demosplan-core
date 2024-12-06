@@ -274,7 +274,6 @@ export default {
           dplan.notify.confirm(Translator.trans('confirm.category.updated'))
           this.isEditing = false
           this.$emit('item:saved', { ...this.item, name: this.name })
-
         })
         .catch(() => {
           dplan.notify.error(Translator.trans('error.api.generic'))
