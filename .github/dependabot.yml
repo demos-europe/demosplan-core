@@ -59,7 +59,7 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-      time: "09:00"
+      time: "09:01"
       timezone: Europe/Berlin
     open-pull-requests-limit: 10
     labels:
@@ -82,7 +82,6 @@ updates:
           - "symfony/deprecation-contracts"
           - "symfony/event-dispatcher-contracts"
           - "symfony/flex"
-          - "symfony/http-client"
           - "symfony/http-client-contracts"
           - "symfony/maker-bundle"
           - "symfony/monolog-bundle"
