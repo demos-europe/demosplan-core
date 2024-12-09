@@ -1175,7 +1175,12 @@
                                         showPlainHint: true
                                     } %}
                                     <div class="layout__item u-pl-0">
-                                        <input id="sendMailsToCounties" type="checkbox" name="r_sendMailsToCounties" {% if proceduresettings.settings.sendMailsToCounties|default == true %}checked{% endif %}>
+                                        <input
+                                            data-cy="sendMailsToCounties"
+                                            id="sendMailsToCounties"
+                                            type="checkbox"
+                                            name="r_sendMailsToCounties"
+                                            {% if proceduresettings.settings.sendMailsToCounties|default == true %}checked{% endif %}>
                                         <label for="sendMailsToCounties" class="u-mb-0 inline-block weight--normal">
                                             {{ "text.procedure.edit.additional.notifyCounty"|trans }}
                                         </label>
