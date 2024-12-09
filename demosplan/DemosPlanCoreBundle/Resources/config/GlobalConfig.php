@@ -35,7 +35,6 @@ use function is_dir;
 use function min;
 use function realpath;
 use function strncasecmp;
-use function strpos;
 use function substr;
 use function trim;
 
@@ -113,6 +112,8 @@ class GlobalConfig implements GlobalConfigInterface
 
     /** @var string */
     protected $emailFromDomainValidRegex;
+
+    protected string $procedureMetricsReceiver = '';
     /**
      * @var string
      */
@@ -612,6 +613,7 @@ class GlobalConfig implements GlobalConfigInterface
         $this->emailSubjectPrefix = $parameterBag->get('email_subject_prefix');
         $this->emailUseSystemMailAsSender = $parameterBag->get('email_use_system_mail_as_sender');
         $this->emailFromDomainValidRegex = $parameterBag->get('email_from_domain_valid_regex');
+        $this->procedureMetricsReceiver = $parameterBag->get('procedure_metrics_receiver');
         $this->emailUseDataportBounceSystem = $parameterBag->get('email_use_bounce_dataport_system');
 
         // @todo this might be wrong (and is also deprecated)
@@ -1027,6 +1029,11 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->emailFromDomainValidRegex;
     }
 
+    public function getProcedureMetricsReceiver(): string
+    {
+        return $this->procedureMetricsReceiver;
+    }
+
     /**
      * Get maximum Boundingbox.
      */
@@ -1273,9 +1280,6 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->mapPublicExtent;
     }
 
-    /**
-     * @return mixed
-     */
     public function getMapPublicAvailableScales()
     {
         return $this->mapPublicAvailableScales;
@@ -1312,9 +1316,9 @@ class GlobalConfig implements GlobalConfigInterface
 
         return array_filter($phases, static function ($phase) use ($permissionsets, $includePreviewed) {
             $ignorePermissionset =
-                $includePreviewed &&
-                array_key_exists('previewed', $phase) &&
-                true === $phase['previewed'];
+                $includePreviewed
+                && array_key_exists('previewed', $phase)
+                && true === $phase['previewed'];
 
             return $ignorePermissionset || in_array($phase['permissionset'], $permissionsets, true);
         });
@@ -1517,9 +1521,6 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->allowedMimeTypes;
     }
 
-    /**
-     * @return mixed
-     */
     public function getProcedureEntrypointRoute()
     {
         return $this->procedureEntrypointRoute;
