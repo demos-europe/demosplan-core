@@ -59,12 +59,14 @@
           <template v-slot:branch="{ nodeElement }">
             <tag-list-item
               :item="nodeElement"
-              @item:deleted="handleItemDeleted" />
+              @item:deleted="handleItemDeleted"
+              @item:saved="handleItemSaved" />
           </template>
           <template v-slot:leaf="{ nodeElement }">
             <tag-list-item
               :item="nodeElement"
-              @item:deleted="handleItemDeleted" />
+              @item:deleted="handleItemDeleted"
+              @item:saved="handleItemSaved" />
           </template>
         </dp-tree-list>
       </template>
@@ -188,6 +190,28 @@ export default {
 
       if (isCategory) {
         this.tagCategoriesWithTags = this.tagCategoriesWithTags.filter(category => category.id !== item.id)
+      }
+    },
+
+    handleItemSaved (item) {
+      const isTag = !!item.categoryId
+      const isCategory = !item.categoryId
+
+      if (isTag) {
+        const category = this.tagCategoriesWithTags.find(category => category.id === item.categoryId)
+
+        if (category) {
+          const tag = category.children.find(tag => tag.id === item.id)
+          tag.name = item.name
+        }
+      }
+
+      if (isCategory) {
+        const category = this.tagCategoriesWithTags.find(category => category.id === item.id)
+
+        if (category) {
+          category.name = item.name
+        }
       }
     },
 

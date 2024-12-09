@@ -2331,6 +2331,11 @@ feature_statements_public_statement_recommendation_visible:
     expose: true
     label: 'Enables statement recommendations to be published in the public area.'
     loginRequired: false
+feature_statements_publication:
+    expose: true
+    label: 'Stellungnahme veroeffentlichen bereich'
+    loginRequired: true
+    parent: feature_statement
 feature_statements_publication_request_approval_or_rejection_notification_email:
     description: |-
         If citizens decided that one of their statements should be public, this still has to be verified by a planner,
