@@ -39,7 +39,7 @@
         <td class="weight--bold">
           {{topic.name }}
 
-          <div class="overflow-hidden">
+          <div class="overflow-hidden o-toggle">
             <div class="o-toggle__target u-mv-0_25 flex space-inline-s" :data-toggle-id="`insert-${topic.id}`">
               <input
                 :data-form-actions-submit-target="`#topicInsertBtn-${topic.id}`"
@@ -61,7 +61,7 @@
             </div>
           </div>
 
-          <div class="overflow-hidden">
+          <div class="overflow-hidden o-toggle">
             <div class="o-toggle__target u-mv-0_25 flex space-inline-s" :data-toggle-id="`rename-{topic.id}`">
               <input
                 data-cy="renameTopicField"
