@@ -29,9 +29,15 @@ class GetResourceTypeTest extends JsonApiTest
     use ResetDatabase;
     protected $institutionTagCategory;
 
+    protected $customer;
+
     protected function setUp(): void
     {
         $this->institutionTagCategory = InstitutionTagCategoryFactory::createOne()->_enableAutoRefresh();
+        $this->customer = CustomerFactory::createOne();
+        $this->institutionTagCategory->setCustomer($this->customer->_real());
+        $this->institutionTagCategory->_save();
+
         $this->setUpHttpClient();
     }
 
@@ -55,8 +61,9 @@ class GetResourceTypeTest extends JsonApiTest
 
         $user->setDplanroles([$role->_real()]);
         $user->_save();
-        $customer = CustomerFactory::createOne();
-        $user->setCurrentCustomer($customer->_real());
+
+        $user->setCurrentCustomer($this->customer->_real());
+
         $this->tokenStorage = $this->getContainer()->get('security.token_storage');
         $this->logIn($user->_real());
 
