@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\RoleFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagResourceType;
 use Tests\Base\JsonApiTest;
@@ -63,6 +64,10 @@ class GetResourceTypeTest extends JsonApiTest
         $user->_save();
 
         $user->setCurrentCustomer($this->customer->_real());
+
+
+        $globalConfig = $this->getContainer()->get( GlobalConfig::class);
+        $globalConfig->setSubdomain($this->customer->getSubdomain());
 
         $this->tokenStorage = $this->getContainer()->get('security.token_storage');
         $this->logIn($user->_real());
