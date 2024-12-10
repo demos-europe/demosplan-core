@@ -69,9 +69,8 @@ abstract class AbstractApiTest extends FunctionalTestCase
         $this->tokenStorage->setToken($userToken);
         $currentUserService = $this->getContainer()->get(CurrentUserService::class);
         $currentUserService->setUser($user);
-        //token = $this->getToken($user);
+        // token = $this->getToken($user);
         $this->client->setServerParameter('USER_ID', $user->getId());
-
 
         return $token;
     }
@@ -81,10 +80,9 @@ abstract class AbstractApiTest extends FunctionalTestCase
      */
     protected function getToken(UserInterface $user, $body = []): string
     {
-
         $response = $this->client->request('POST', '/user/login', ['json' => $body ?: [
             'r_useremail	' => $user->getEmail(),
-            'password' => $user->getPassword(),
+            'password'     => $user->getPassword(),
         ]]);
 
         $data = $response->toArray();
