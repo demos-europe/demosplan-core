@@ -16,11 +16,13 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EventListener\SetHttpTestPermissionsListener;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 abstract class AbstractApiTest extends FunctionalTestCase
 {
@@ -65,8 +67,29 @@ abstract class AbstractApiTest extends FunctionalTestCase
         $token = $this->tokenManager->create($user);
         $userToken = new JWTUserToken($user->getDplanRolesArray(), $user, $token);
         $this->tokenStorage->setToken($userToken);
+        $currentUserService = $this->getContainer()->get(CurrentUserService::class);
+        $currentUserService->setUser($user);
+        //token = $this->getToken($user);
+        $this->client->setServerParameter('USER_ID', $user->getId());
+
 
         return $token;
+    }
+
+    /**
+     * Use other credentials if needed.
+     */
+    protected function getToken(UserInterface $user, $body = []): string
+    {
+
+        $response = $this->client->request('POST', '/user/login', ['json' => $body ?: [
+            'r_useremail	' => $user->getEmail(),
+            'password' => $user->getPassword(),
+        ]]);
+
+        $data = $response->toArray();
+
+        return $data['token'];
     }
 
     protected function sendRequest(string $urlPath, string $method, User $user, ?Procedure $procedure, array $requestBody = []): Response
