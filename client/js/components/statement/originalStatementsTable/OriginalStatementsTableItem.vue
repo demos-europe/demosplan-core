@@ -257,7 +257,9 @@ export default {
 
         if (elementParagraphs && this.statement.elementId) {
           const paragraph = elementParagraphs.find((el) => el.elementId === this.statement.elementId)
-          elementTitle += `<br>${paragraph.title}`
+          if (paragraph?.title) {
+            elementTitle += `<br>${paragraph.title}`
+          }
         }
       }
 
