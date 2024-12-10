@@ -65,8 +65,7 @@ class GetResourceTypeTest extends JsonApiTest
 
         $user->setCurrentCustomer($this->customer->_real());
 
-
-        $globalConfig = $this->getContainer()->get( GlobalConfig::class);
+        $globalConfig = $this->getContainer()->get(GlobalConfig::class);
         $globalConfig->setSubdomain($this->customer->getSubdomain());
 
         $this->tokenStorage = $this->getContainer()->get('security.token_storage');
