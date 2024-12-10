@@ -336,7 +336,7 @@ export default {
     },
 
     selectedElementParagraph () {
-      return this.statement.elementId && this.paragraph && this.paragraph[this.statement.elementId] ? this.paragraph[this.statement.elementId] : []
+      return this.statement.elementId && this.paragraph[this.statement.elementId] ? this.paragraph[this.statement.elementId] : []
     },
 
     toggleModal () {
