@@ -128,7 +128,7 @@ class JsonApiTest extends AbstractApiTest
         array $urlParameters = [],
         int $expectedStatus = Response::HTTP_OK
     ): array {
-        self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
+        //self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
         // prepare and issue request
         $urlParameters['resourceType'] = $resourceTypeName;
         $urlParameters['resourceId'] = $resourceId;
