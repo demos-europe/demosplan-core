@@ -64,25 +64,6 @@ class GetResourceTypeTest extends JsonApiTest
         $this->logIn($user->_real());
 
 
-
-
-
-
-
-        /*
-         *
-         *         $role14 = new Role();
-        $role14->setName(Role::CUSTOMER_MASTER_USER)
-            ->setCode(Role::CUSTOMER_MASTER_USER)
-            ->setGroupCode(Role::CUSTOMERMASTERUSERGROUP)
-            ->setGroupName(Role::CUSTOMERMASTERUSERGROUP);
-
-        $manager->persist($role14);
-         *
-         * */
-        //$this->tokenStorage = $this->getContainer()->get('security.token_storage');
-
-        // $user = $this->getUserReference(LoadUserData::TEST_USER_CUSTOMER_MASTER);
         $this->triggerGetRequest(
             InstitutionTagCategoryResourceType::getName(),
             $permissionsToEnableArray,

@@ -69,27 +69,10 @@ abstract class AbstractApiTest extends FunctionalTestCase
         $this->tokenStorage->setToken($userToken);
         $currentUserService = $this->getContainer()->get(CurrentUserService::class);
         $currentUserService->setUser($user);
-        //token = $this->getToken($user);
         $this->client->setServerParameter('USER_ID', $user->getId());
 
 
         return $token;
-    }
-
-    /**
-     * Use other credentials if needed.
-     */
-    protected function getToken(UserInterface $user, $body = []): string
-    {
-
-        $response = $this->client->request('POST', '/user/login', ['json' => $body ?: [
-            'r_useremail	' => $user->getEmail(),
-            'password' => $user->getPassword(),
-        ]]);
-
-        $data = $response->toArray();
-
-        return $data['token'];
     }
 
     protected function sendRequest(string $urlPath, string $method, User $user, ?Procedure $procedure, array $requestBody = []): Response
