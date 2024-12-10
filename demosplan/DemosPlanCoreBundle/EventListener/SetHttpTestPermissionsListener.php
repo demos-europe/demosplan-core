@@ -28,32 +28,30 @@ class SetHttpTestPermissionsListener
     public const X_DPLAN_TEST_PERMISSIONS = 'x-dplan-test-permissions';
 
     public function __construct(
-        private readonly KernelInterface      $kernel,
+        private readonly KernelInterface $kernel,
         private readonly PermissionsInterface $permissions, private readonly CurrentUserInterface $currentUser, private readonly UserService $userService, private readonly SecurityUserProvider $securityUserProvider, private readonly TokenStorageInterface $tokenStorage,
     ) {
     }
 
     public function onKernelController(ControllerEvent $controllerEvent): void
     {
-        if ($this->kernel->getEnvironment() !== 'test') {
+        if ('test' !== $this->kernel->getEnvironment()) {
             return;
         }
 
         $request = $controllerEvent->getRequest();
 
+        if ($request->server->has('USER_ID')) {
+            $user = $this->userService->getSingleUser($request->server->get('USER_ID'));
+            $this->currentUser->setUser($user);
 
-        if ($request->server->has('USER_ID')){
-        $user = $this->userService->getSingleUser($request->server->get('USER_ID'));
-        $this->currentUser->setUser($user);
+            $existingToken = $this->tokenStorage->getToken();
+            $securityUser = new SecurityUser($user);
 
-        $existingToken = $this->tokenStorage->getToken();
-        $securityUser =  new SecurityUser ($user);
+            $existingToken->setUser($securityUser);
 
-        $existingToken->setUser($securityUser);
-
-        $this->permissions->initPermissions($user);
+            $this->permissions->initPermissions($user);
         }
-
 
         if ($request->server->has(self::X_DPLAN_TEST_PERMISSIONS)) {
             $permissions = $request->server->get(self::X_DPLAN_TEST_PERMISSIONS);

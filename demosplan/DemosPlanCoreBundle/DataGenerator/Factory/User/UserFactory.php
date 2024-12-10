@@ -70,7 +70,7 @@ final class UserFactory extends PersistentProxyObjectFactory
             'firstname'                  => self::faker()->firstName(),
             'lastname'                   => self::faker()->lastName(),
             'email'                      => self::faker()->email(),
-            //'login'                      => self::faker()->email(),
+            // 'login'                      => self::faker()->email(),
             'password'                   => self::faker()->password(),
             'modifiedDate'               => self::faker()->dateTime(),
             'providedByIdentityProvider' => self::faker()->boolean(),
