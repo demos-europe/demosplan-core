@@ -28,12 +28,14 @@ A list of all related tasks that need to be done before this can be merged.
 -->
 
 ### PR Checklist
-<!-- Reminders for handling PRs -->
+<!-- Reminders for handling PRs 
 
-Delete the checkbox if it doesn't apply/isn't necessary.
+Delete the checkbox if it doesn't apply/isn't necessary. -->
 
-- [ ] Tests updated/created
+- [ ] Create/Update tests
 - [ ] Update documentation
+- [ ] Add/Update data-cy attributes ([conventions](https://dplan-documentation.demos-europe.eu/development/guidelines-conventions/coding-styleguides/twig_html.html#guideline-for-naming-cypress-hooks))
+- [ ] Run `yarn lint`
+- [ ] Run `yarn test`
 - [ ] Link all relevant tickets
 - [ ] Move the tickets on the board accordingly
-- [ ] Data-Cy attributes added/updated ([conventions](https://dplan-documentation.demos-europe.eu/development/guidelines-conventions/coding-styleguides/twig_html.html#guideline-for-naming-cypress-hooks))

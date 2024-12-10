@@ -160,7 +160,7 @@ export default {
   },
 
   computed: {
-    ...mapState('User', {
+    ...mapState('AdministratableUser', {
       items: 'items',
       currentPage: 'currentPage',
       totalPages: 'totalPages'
@@ -196,7 +196,7 @@ export default {
     ...mapActions('Role', {
       roleList: 'list'
     }),
-    ...mapActions('User', {
+    ...mapActions('AdministratableUser', {
       userList: 'list',
       deleteUser: 'delete'
     }),
