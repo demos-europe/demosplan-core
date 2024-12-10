@@ -3072,9 +3072,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         foreach ($paragraphDocumentList['result'] as $value) {
             $ptitle = $value['title'];
             $templateVars['paragraph'][$value['elementId']][] = [
-                'ident' => $value['ident'],
-                'id'    => $value['id'],
-                'title' => $ptitle,
+                'ident'     => $value['ident'],
+                'id'        => $value['id'],
+                'title'     => $ptitle,
                 'elementId' => $value['elementId'],
             ];
         }
