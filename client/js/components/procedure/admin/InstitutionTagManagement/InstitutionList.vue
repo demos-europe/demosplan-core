@@ -50,12 +50,12 @@
           v-slot:[category.attributes.name]="institution">
           <div v-if="!institution.edit">
             <span>
-              {{ separateByCommas(institution.tags) }}
+              {{ separateByCommas(institution.tags.filter(tag => tag.category.id === category.id)) }}
             </span>
           </div>
           <dp-multiselect
             v-else
-            v-model="editingInstitutionTags"
+            v-model="editingInstitutionTags[category.id]"
             :options="getCategoryTags(category.id)"
             label="name"
             track-by="id"
@@ -148,7 +148,7 @@ export default {
       currentSelection: [],
       editingInstitutionId: null,
       editingInstitution: null,
-      editingInstitutionTags: [],
+      editingInstitutionTags: {},
       isLoading: true,
     }
   },
@@ -199,7 +199,15 @@ export default {
           edit: this.editingInstitutionId === id,
           id,
           name: attributes.name,
-          tags: relationships.assignedTags.data
+          tags: relationships.assignedTags.data.map(tag => {
+            const tagDetails = this.getTagById(tag.id)
+            return {
+              id: tag.id,
+              type: tag.type,
+              name: tagDetails.name,
+              category: tagDetails.category
+            }
+          })
         }
       })
     },
@@ -210,10 +218,11 @@ export default {
 
     tagList () {
       return Object.values(this.institutionTagList).map(tag => {
-        const { id, attributes } = tag
+        const { id, attributes, relationships } = tag
         return {
           id,
-          name: attributes.name
+          name: attributes.name,
+          category: relationships?.category?.data
         }
       })
     }
@@ -236,12 +245,11 @@ export default {
 
     abortEdit () {
       this.editingInstitutionId = null
-      this.editingInstitutionTags = []
+      this.editingInstitutionTags = {}
     },
 
     addTagsToInstitution (id) {
-      const institutionTagsString = JSON.stringify(this.editingInstitutionTags)
-      const institutionTagsArray = JSON.parse(institutionTagsString)
+      const institutionTagsArray = Object.values(this.editingInstitutionTags).flatMap(category => Object.values(category))
       const payload = institutionTagsArray.map(el => {
         return {
           id: el.id,
@@ -276,17 +284,24 @@ export default {
     },
 
     editInstitution (id) {
-      this.editingInstitutionTags = []
+      this.editingInstitutionTags = {}
       this.editingInstitutionId = id
       this.editingInstitution = this.invitableInstitutionList[id]
+
+      // Initialize editingInstitutionTags with categoryId
+      Object.values(this.institutionTagCategories).forEach(category => {
+        if (!this.editingInstitutionTags[category.id]) {
+          this.$set(this.editingInstitutionTags, category.id, [])
+        }
+      })
       this.editingInstitution.relationships.assignedTags.data.forEach(el => {
         const tag = this.getTagById(el.id)
-        this.editingInstitutionTags.push(tag)
+        this.editingInstitutionTags[tag.category.id].push(tag)
       })
     },
 
     getCategoryTags (categoryId) {
-      const tags = this.institutionTagCategories[categoryId].relationships.tags?.data.length > 0 ? this.institutionTagCategories[categoryId].relationships.tags.list() : []
+      const tags = this.institutionTagCategories[categoryId].relationships?.tags?.data.length > 0 ? this.institutionTagCategories[categoryId].relationships.tags.list() : []
 
       return Object.values(tags).map(tag => {
         return {
@@ -304,18 +319,23 @@ export default {
         },
         sort: '-createdDate',
         fields: {
-          InstitutionTag: [
-            'id',
-            'name'
-          ].join(),
           InvitableInstitution: [
             'name',
             'createdDate',
             'assignedTags'
+          ].join(),
+          InstitutionTag: [
+            'category',
+            'name'
+          ].join(),
+          InstitutionTagCategory: [
+            'name'
           ].join()
         },
         include: [
-          'assignedTags'
+          'assignedTags',
+          'assignedTags.category',
+          'category'
         ].join()
       })
     },
@@ -330,11 +350,13 @@ export default {
           ].join(),
           InstitutionTag: [
             'isUsed',
-            'name'
+            'name',
+            'category'
           ].join()
         },
         include: [
-          'tags'
+          'tags',
+          'tags.category'
         ].join()
       })
       .then(() => {
