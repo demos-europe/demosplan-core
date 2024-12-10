@@ -26,6 +26,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 class SetHttpTestPermissionsListener
 {
     public const X_DPLAN_TEST_PERMISSIONS = 'x-dplan-test-permissions';
+    public const X_DPLAN_TEST_USER_ID = 'x-dplan-test-user-id';
 
     public function __construct(
         private readonly KernelInterface $kernel,
@@ -41,15 +42,13 @@ class SetHttpTestPermissionsListener
 
         $request = $controllerEvent->getRequest();
 
-        if ($request->server->has('USER_ID')) {
-            $user = $this->userService->getSingleUser($request->server->get('USER_ID'));
+        if ($request->server->has(self::X_DPLAN_TEST_PERMISSIONS)) {
+            $user = $this->userService->getSingleUser($request->server->get(self::X_DPLAN_TEST_USER_ID));
             $this->currentUser->setUser($user);
 
             $existingToken = $this->tokenStorage->getToken();
             $securityUser = new SecurityUser($user);
-
             $existingToken->setUser($securityUser);
-
             $this->permissions->initPermissions($user);
         }
 

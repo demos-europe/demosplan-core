@@ -68,7 +68,7 @@ abstract class AbstractApiTest extends FunctionalTestCase
         $this->tokenStorage->setToken($userToken);
         $currentUserService = $this->getContainer()->get(CurrentUserService::class);
         $currentUserService->setUser($user);
-        $this->client->setServerParameter('USER_ID', $user->getId());
+        $this->client->setServerParameter(SetHttpTestPermissionsListener::X_DPLAN_TEST_USER_ID, $user->getId());
 
         return $token;
     }
