@@ -32,20 +32,8 @@ class GetResourceTypeTest extends JsonApiTest
 
     protected function setUp(): void
     {
-        parent::setUp();
-
-        // $this->entityManager = self::$container->get(EntityManagerInterface::class);
-        $customer = CustomerFactory::createOne();
         $this->institutionTagCategory = InstitutionTagCategoryFactory::createOne()->_enableAutoRefresh();
-
-        static::ensureKernelShutdown();
-        // the createClient() method cannot be used when kernel is booted
-        $this->client = static::createClient();
-        $serverParameters = $this->getServerParameters();
-        $this->client->setServerParameters($serverParameters);
-
-        $this->router = $this->getContainer()->get(RouterInterface::class);
-        $this->tokenManager = $this->getContainer()->get(JWTTokenManagerInterface::class);
+        $this->setUpHttpClient();
     }
 
     public function testGetForAllResourceTypes(): void

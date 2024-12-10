@@ -39,6 +39,25 @@ abstract class AbstractApiTest extends FunctionalTestCase
      */
     protected $tokenManager;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->setUpHttpClient();
+
+    }
+
+    protected function setUpHttpClient() {
+        static::ensureKernelShutdown();
+        // the createClient() method cannot be used when kernel is booted
+        $this->client = static::createClient();
+        $serverParameters = $this->getServerParameters();
+        $this->client->setServerParameters($serverParameters);
+
+        $this->router = $this->getContainer()->get(RouterInterface::class);
+        $this->tokenManager = $this->getContainer()->get(JWTTokenManagerInterface::class);
+    }
+
+
     /**
      * @return string the JWT token to authenticate in API requests as the given user
      */
