@@ -181,7 +181,7 @@ const AssessmentTable = {
         commit('addBase', data)
         commit('setProperty', { prop: 'currentTableView', val: data.defaultToggleView })
         const emptyOptions = ['adviceValues', 'priorities', 'paragraph', 'agencies']
-        emptyOptions.forEach(field => commit('addOptionToProperty', { prop: field, value: { key: '', title: '-', name: '-', id: '' } }))
+        emptyOptions.forEach(field => commit('addOptionToProperty', { prop: field, value: { key: '', title: '-', name: '-', id: '', elementId: '' } }))
 
         return resolve(true)
       })

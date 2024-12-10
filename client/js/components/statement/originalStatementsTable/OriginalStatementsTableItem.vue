@@ -255,8 +255,8 @@ export default {
       if (hasOwnProp(this.statement, 'paragraph')) {
         const elementParagraphs = this.selectedElementParagraph()
 
-        if (elementParagraphs && this.statement.paragraphParentId) {
-          const paragraph = elementParagraphs.find((el) => el.id === this.statement.paragraphParentId)
+        if (elementParagraphs && this.statement.paragraphParentId && this.statement.elementId) {
+          const paragraph = elementParagraphs.find((el) => el.elementId === this.statement.elementId)
           elementTitle += `<br>${paragraph.title}`
         }
       }
@@ -336,7 +336,7 @@ export default {
     },
 
     selectedElementParagraph () {
-      return this.statement.elementId && this.paragraph[this.statement.elementId] ? this.paragraph[this.statement.elementId] : []
+      return this.statement.elementId && this.paragraph && this.paragraph[this.statement.elementId] ? this.paragraph[this.statement.elementId] : []
     },
 
     toggleModal () {

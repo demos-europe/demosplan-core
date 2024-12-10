@@ -3075,6 +3075,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 'ident' => $value['ident'],
                 'id'    => $value['id'],
                 'title' => $ptitle,
+                'elementId' => $value['elementId'],
             ];
         }
         foreach ($singleDocumentList['result'] as $value) {
