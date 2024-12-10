@@ -66,8 +66,6 @@ abstract class AbstractApiTest extends FunctionalTestCase
         $token = $this->tokenManager->create($user);
         $userToken = new JWTUserToken($user->getDplanRolesArray(), $user, $token);
         $this->tokenStorage->setToken($userToken);
-        $currentUserService = $this->getContainer()->get(CurrentUserService::class);
-        $currentUserService->setUser($user);
         $this->client->setServerParameter(SetHttpTestPermissionsListener::X_DPLAN_TEST_USER_ID, $user->getId());
 
         return $token;
