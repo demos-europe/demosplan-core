@@ -145,22 +145,24 @@ export default {
           ].join(),
           InstitutionTag: [
             'isUsed',
-            'name'
+            'name',
+            'category'
           ].join()
         },
         include: [
-          'tags'
+          'tags',
+          'tags.category'
         ].join()
       })
-        .then(() => {
-          this.tagCategoriesWithTags = this.transformTagsAndCategories()
-        })
-        .catch(err => {
-          console.error(err)
-        })
-        .finally(() => {
-          this.isLoading = false
-        })
+      .then(() => {
+        this.tagCategoriesWithTags = this.transformTagsAndCategories()
+      })
+      .catch(err => {
+        console.error(err)
+      })
+      .finally(() => {
+        this.isLoading = false
+      })
     },
 
     handleAddNewCategoryForm () {
