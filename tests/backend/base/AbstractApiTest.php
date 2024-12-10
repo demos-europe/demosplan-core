@@ -39,7 +39,6 @@ abstract class AbstractApiTest extends FunctionalTestCase
      */
     protected $tokenManager;
 
-
     /**
      * @return string the JWT token to authenticate in API requests as the given user
      */

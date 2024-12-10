@@ -13,8 +13,6 @@ namespace Tests\Base;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\InstitutionTagCategoryFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -48,7 +46,6 @@ use Doctrine\ORM\NoResultException;
 use Liip\FunctionalTestBundle\Test\WebTestCase;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
-use Liip\TestFixturesBundle\Services\FixturesLoaderFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
 use ReflectionException;
@@ -99,12 +96,12 @@ class FunctionalTestCase extends WebTestCase
 
         self::bootKernel(['environment' => 'test', 'debug' => false]);
 
-         //$this->currentUserService = self::$container->get(CurrentUserService::class);
-        //$this->entityManager = self::$container->get(EntityManagerInterface::class);
-        //$this->databaseTool = self::$container->get(DatabaseToolCollection::class)->get();
-        //$this->tokenStorage = self::$container->get('security.token_storage');
-        //$this->fixtures = $this->databaseTool->loadAllFixtures()->getReferenceRepository();
-        //$this->databaseTool->loadFixtures()
+        // $this->currentUserService = self::$container->get(CurrentUserService::class);
+        // $this->entityManager = self::$container->get(EntityManagerInterface::class);
+        // $this->databaseTool = self::$container->get(DatabaseToolCollection::class)->get();
+        // $this->tokenStorage = self::$container->get('security.token_storage');
+        // $this->fixtures = $this->databaseTool->loadAllFixtures()->getReferenceRepository();
+        // $this->databaseTool->loadFixtures()
     }
 
     protected function tearDown(): void
@@ -459,7 +456,7 @@ class FunctionalTestCase extends WebTestCase
     protected function checkIfArrayHasEqualDataToObject(
         array $objectAsArray,
         CoreEntity $object,
-        array $attributesToSkip = []
+        array $attributesToSkip = [],
     ): void {
         $class = get_class($object);
 
