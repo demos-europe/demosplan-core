@@ -15,13 +15,9 @@ namespace Tests\Core\JsonApi\Functional;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\InstitutionTagCategoryFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagResourceType;
-use Doctrine\ORM\EntityManagerInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Symfony\Component\Routing\RouterInterface;
 use Tests\Base\JsonApiTest;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
