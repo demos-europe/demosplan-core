@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\TagResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseTagResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -33,7 +34,7 @@ use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructo
  * @property-read TagTopicResourceType $topic
  * @property-read End $title
  */
-final class TagResourceType extends DplanResourceType
+final class TagResourceType extends DplanResourceType implements TagResourceTypeInterface
 {
     public function __construct(
         private readonly TagService $tagService,
