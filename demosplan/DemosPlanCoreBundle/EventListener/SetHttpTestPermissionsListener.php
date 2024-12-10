@@ -42,7 +42,7 @@ class SetHttpTestPermissionsListener
 
         $request = $controllerEvent->getRequest();
 
-        if ($request->server->has(self::X_DPLAN_TEST_PERMISSIONS)) {
+        if ($request->server->has(self::X_DPLAN_TEST_USER_ID)) {
             $user = $this->userService->getSingleUser($request->server->get(self::X_DPLAN_TEST_USER_ID));
             $this->currentUser->setUser($user);
 
