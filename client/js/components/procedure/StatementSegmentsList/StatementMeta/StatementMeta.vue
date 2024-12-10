@@ -28,6 +28,7 @@
           role="menu">
           <li
             v-for="entry in menuEntries"
+            v-if="entry.condition !== undefined ? entry.condition : true"
             :class="{
               'bg-selected': activeItem === entry.id
             }"
@@ -232,8 +233,8 @@ export default {
       menuEntries: [
         { id: 'entry', transKey: 'entry' },
         { id: 'submitter', transKey: 'submitted.author' },
-        { id: 'publicationAndVoting', transKey: 'publication.and.voting' },
-        { id: 'locationAndDocuments', transKey: 'location.and.document.reference' },
+        { id: 'publicationAndVoting', transKey: 'publication.and.voting', condition: hasPermission('feature_statements_vote') || hasPermission('feature_statements_publication') },
+        { id: 'locationAndDocuments', transKey: 'location.and.document.reference', condition: hasPermission('feature_statements_location_and_document_refrence') },
         { id: 'attachments', transKey: 'attachments' }
       ]
     }
