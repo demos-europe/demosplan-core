@@ -57,7 +57,8 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
         return $this->currentUser->hasAnyPermissions(
             'feature_json_api_tag',
             'area_statement_segmentation',
-            'feature_statements_tag'
+            'feature_statements_tag',
+            'area_admin_statements_tag'
         );
     }
 
@@ -77,7 +78,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
 
     public function isCreateAllowed(): bool
     {
-        return $this->currentUser->hasPermission('feature_json_api_tag_create');
+        return $this->currentUser->hasAnyPermissions('area_admin_statements_tag', 'feature_json_api_tag_create');
     }
 
     protected function getProperties(): BaseTagResourceConfigBuilder
