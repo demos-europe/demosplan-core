@@ -255,7 +255,7 @@ export default {
       if (hasOwnProp(this.statement, 'paragraph')) {
         const elementParagraphs = this.selectedElementParagraph()
 
-        if (elementParagraphs && this.statement.paragraphParentId && this.statement.elementId) {
+        if (elementParagraphs && this.statement.elementId) {
           const paragraph = elementParagraphs.find((el) => el.elementId === this.statement.elementId)
           elementTitle += `<br>${paragraph.title}`
         }
