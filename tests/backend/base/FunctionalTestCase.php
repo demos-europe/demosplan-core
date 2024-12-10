@@ -96,12 +96,11 @@ class FunctionalTestCase extends WebTestCase
 
         self::bootKernel(['environment' => 'test', 'debug' => false]);
 
-        // $this->currentUserService = self::$container->get(CurrentUserService::class);
-        // $this->entityManager = self::$container->get(EntityManagerInterface::class);
-        // $this->databaseTool = self::$container->get(DatabaseToolCollection::class)->get();
-        // $this->tokenStorage = self::$container->get('security.token_storage');
-        // $this->fixtures = $this->databaseTool->loadAllFixtures()->getReferenceRepository();
-        // $this->databaseTool->loadFixtures()
+        $this->currentUserService = self::$container->get(CurrentUserService::class);
+        $this->entityManager = self::$container->get(EntityManagerInterface::class);
+        $this->databaseTool = self::$container->get(DatabaseToolCollection::class)->get();
+        $this->tokenStorage = self::$container->get('security.token_storage');
+        $this->fixtures = $this->databaseTool->loadAllFixtures(['TestData'])->getReferenceRepository();
     }
 
     protected function tearDown(): void
