@@ -13,13 +13,11 @@ declare(strict_types=1);
 namespace Tests\Core\JsonApi\Functional;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\InstitutionTagCategoryFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\RoleFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagResourceType;
@@ -43,15 +41,14 @@ class GetResourceTypeTest extends JsonApiTest
             InstitutionTagCategoryResourceType::getName() => 'name',
         ]];
 
-
         $urlParameters['resourceType'] = InstitutionTagCategoryResourceType::getName();
         $urlParameters['resourceId'] = $this->institutionTagCategory->getId();
         $expectedOutcome = [];
         $permissionsToEnableArray = ['feature_institution_tag_read', 'feature_json_api_get'];
         $user = UserFactory::createOne();
         $role = RoleFactory::createOne([
-            'name' => Role::CUSTOMER_MASTER_USER,
-            'code' => Role::CUSTOMER_MASTER_USER,
+            'name'      => Role::CUSTOMER_MASTER_USER,
+            'code'      => Role::CUSTOMER_MASTER_USER,
             'groupCode' => Role::CUSTOMERMASTERUSERGROUP,
             'groupName' => Role::CUSTOMERMASTERUSERGROUP,
         ]);
@@ -62,7 +59,6 @@ class GetResourceTypeTest extends JsonApiTest
         $user->setCurrentCustomer($customer->_real());
         $this->tokenStorage = $this->getContainer()->get('security.token_storage');
         $this->logIn($user->_real());
-
 
         $this->triggerGetRequest(
             InstitutionTagCategoryResourceType::getName(),

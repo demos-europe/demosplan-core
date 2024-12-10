@@ -22,7 +22,6 @@ use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 abstract class AbstractApiTest extends FunctionalTestCase
 {
@@ -70,7 +69,6 @@ abstract class AbstractApiTest extends FunctionalTestCase
         $currentUserService = $this->getContainer()->get(CurrentUserService::class);
         $currentUserService->setUser($user);
         $this->client->setServerParameter('USER_ID', $user->getId());
-
 
         return $token;
     }
