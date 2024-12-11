@@ -59,7 +59,7 @@ class GetResourceTypeTest extends JsonApiTest
                 $this->resourceType::getName() => 'name',
             ],
             'resourceType' => $this->resourceType::getName(),
-            'resourceId' => $this->resource->getId(),
+            'resourceId'   => $this->resource->getId(),
         ];
 
         $expectedOutcome = [];
