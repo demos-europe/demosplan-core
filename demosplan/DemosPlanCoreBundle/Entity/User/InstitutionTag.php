@@ -18,16 +18,15 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_label_for_orga", columns={"owning_organisation_id", "label"})})
- *
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository")
+ *
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_label_for_category", columns={"category_id", "label"})})
  */
 class InstitutionTag extends CoreEntity implements UuidEntityInterface, InstitutionTagInterface
 {
@@ -63,15 +62,15 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
     protected $taggedInstitutions;
 
     /**
-     * Institution, which has created the tag and therefore is allowed to use, read, edit and delete it.
+     * Category to which this tag belongs.
      *
-     * @var Orga
+     * @var InstitutionTagCategory
      *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", inversedBy="ownInstitutionTags", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory", inversedBy="tags", cascade={"persist"})
      *
-     * @ORM\JoinColumn(referencedColumnName="_o_id", nullable=false)
+     * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
      */
-    protected $owningOrganisation;
+    protected $category;
 
     /**
      * @var DateTime
@@ -91,22 +90,9 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      */
     private $modificationDate;
 
-    public function __construct(string $label, Orga $owningOrganisation)
-    {
-        $this->label = $label;
-        $this->owningOrganisation = $owningOrganisation;
-        $owningOrganisation->addOwnInstitutionTag($this);
-        $this->taggedInstitutions = new ArrayCollection();
-    }
-
     public function getId(): ?string
     {
         return $this->id;
-    }
-
-    public function getOwningOrganisation(): Orga
-    {
-        return $this->owningOrganisation;
     }
 
     /**
@@ -159,8 +145,9 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
     {
         $this->label = $label;
     }
+
     public function setCategory(InstitutionTagCategoryInterface $category): void
     {
-        // do nothing
+        $this->category = $category;
     }
 }

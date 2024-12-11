@@ -14,10 +14,12 @@
 import { DpContextualHelp, DpUploadFiles } from '@demos-europe/demosplan-ui'
 import AnimateById from '@DpJs/lib/shared/AnimateById'
 import { initialize } from '@DpJs/InitVue'
+import TagsList from '@DpJs/components/TagsList'
 
 const components = {
   DpContextualHelp,
-  DpUploadFiles
+  DpUploadFiles,
+  TagsList
 }
 
 initialize(components).then(() => {

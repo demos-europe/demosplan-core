@@ -40,7 +40,7 @@
           v-else
           v-model="editingInstitutionTags"
           :options="tagList"
-          label="label"
+          label="name"
           track-by="id"
           multiple />
       </template>
@@ -149,7 +149,7 @@ export default {
         const { id, attributes } = tag
         return {
           id,
-          label: attributes.label
+          name: attributes.name
         }
       })
     },
@@ -157,12 +157,13 @@ export default {
     institutionList () {
       return Object.values(this.invitableInstitutionList).map(tag => {
         const { id, attributes, relationships } = tag
+
         return {
-          id,
+          createdDate: attributes.createdDate.date,
           edit: this.editingInstitutionId === id,
+          id,
           institution: attributes.name,
-          tags: relationships.assignedTags.data,
-          createdDate: attributes.createdDate.date
+          tags: relationships.assignedTags.data
         }
       })
     }
@@ -188,10 +189,18 @@ export default {
         sort: '-createdDate',
         fields: {
           InstitutionTag: [
-            'label',
-            'id'
+            'id',
+            'name'
+          ].join(),
+          InvitableInstitution: [
+            'name',
+            'createdDate',
+            'assignedTags'
           ].join()
-        }
+        },
+        include: [
+          'assignedTags'
+        ].join()
       })
     },
 
@@ -199,7 +208,7 @@ export default {
       this.editingInstitutionTags = []
       this.editingInstitutionId = id
       this.editingInstitution = this.invitableInstitutionList[id]
-      this.editingInstitution.relationships.assignedTags.data.map(el => {
+      this.editingInstitution.relationships.assignedTags.data.forEach(el => {
         const tag = this.getTagById(el.id)
         this.editingInstitutionTags.push(tag)
       })
@@ -213,7 +222,6 @@ export default {
     addTagsToInstitution (id) {
       const institutionTagsString = JSON.stringify(this.editingInstitutionTags)
       const institutionTagsArray = JSON.parse(institutionTagsString)
-
       const payload = institutionTagsArray.map(el => {
         return {
           id: el.id,
@@ -251,34 +259,23 @@ export default {
     separateByCommas (institutionTags) {
       const tagsLabels = []
 
-      institutionTags.map(el => {
-        const label = this.getTagLabelById(el.id)
-        tagsLabels.push(label)
+      institutionTags.forEach(el => {
+        const name = this.getTagNameById(el.id)
+
+        tagsLabels.push(name)
       })
 
       return tagsLabels.join(', ')
     },
 
     getTagById (tagId) {
-      let tag = {}
-      this.tagList
-        .filter(el => el.id === tagId)
-        .map(el => {
-          tag = {
-            id: el.id,
-            label: el.label
-          }
-        })
-
-      return tag
+      return this.tagList.find(el => el.id === tagId) ?? null
     },
 
-    getTagLabelById (tagId) {
+    getTagNameById (tagId) {
       return this.tagList
         .filter(el => el.id === tagId)
-        .map(el => {
-          return el.label
-        })
+        .map(el => el.name)
     }
   },
 
