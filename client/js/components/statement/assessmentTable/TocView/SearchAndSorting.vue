@@ -86,16 +86,22 @@ export default {
   },
 
   watch: {
-    showFilterModal (val) {
-      if (val) {
-        this.$refs.filterModal.openModal()
-      }
+    showFilterModal: {
+      handler (val) {
+        if (val) {
+          this.$refs.filterModal.openModal()
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
 
-    showSearchModal (val) {
-      if (val) {
-        this.$refs.searchModal.toggleModal()
-      }
+    showSearchModal: {
+      handler (val) {
+        if (val) {
+          this.$refs.searchModal.toggleModal()
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

@@ -197,9 +197,12 @@ export default {
   },
 
   watch: {
-    procedurePermissions () {
-      //  Reset selection when radio list changes
-      this.selectedProcedureId = ''
+    procedurePermissions: {
+      handler () {
+        //  Reset selection when radio list changes
+        this.selectedProcedureId = ''
+      },
+      deep: true
     }
   },
 

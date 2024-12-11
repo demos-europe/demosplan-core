@@ -95,8 +95,11 @@ export default {
   },
 
   watch: {
-    defaultAttributions () {
-      this.source.setAttributions(this.defaultAttributions)
+    defaultAttributions: {
+      handler (newVal) {
+        this.source.setAttributions(newVal)
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

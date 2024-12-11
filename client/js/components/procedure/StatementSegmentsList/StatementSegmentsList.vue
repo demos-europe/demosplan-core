@@ -455,8 +455,11 @@ export default {
   },
 
   watch: {
-    currentAction () {
-      this.showInfobox = this.currentAction === 'editText'
+    currentAction: {
+      handler () {
+        this.showInfobox = this.currentAction === 'editText'
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

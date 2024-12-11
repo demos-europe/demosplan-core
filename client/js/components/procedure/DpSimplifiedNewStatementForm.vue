@@ -575,8 +575,11 @@ export default {
 
   watch: {
     // We have to watch it because the values are loaded from the async request response
-    initValues () {
-      this.setInitialValues()
+    initValues: {
+      handler () {
+        this.setInitialValues()
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

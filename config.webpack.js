@@ -13,7 +13,6 @@ const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
 
 const { config } = require('./client/fe/config/config') // All our configuration
 
-const resolveAliases = require('./client/fe/webpack/resolveAliases').resolveAliases // To manage the @bundlePath Syntax
 const resolveDir = require('./client/fe/webpack/util').resolveDir
 const moduleRules = require('./client/fe/webpack/moduleRules').moduleRules
 const bundleEntryPoints = require('./client/fe/webpack/bundleEntryPoints').bundleEntryPoints
@@ -101,7 +100,21 @@ const bundlesConfig = merge(baseConfig, {
   resolve: {
     fullySpecified: false,
     extensions: ['...', '.js', '.vue', '.json', '.ts', '.tsx'],
-    alias: resolveAliases()
+    alias: {
+      '@DpJs': config.absoluteRoot + 'client/js',
+      vue: config.absoluteRoot + 'node_modules/@vue/compat/dist/vue.esm-bundler',
+      // To Fix masterportal issues, we have to resolve olcs manually
+      './olcs/olcsMap.js': config.absoluteRoot + 'node_modules/@masterportal/masterportalapi/src/maps/olcs/olcsMap.js',
+      './olcs': config.absoluteRoot + 'node_modules/olcs/lib/olcs',
+      'olcs/lib': config.absoluteRoot + 'node_modules/olcs/lib',
+      'olcs/core': config.absoluteRoot + 'node_modules/olcs/lib/olcs/core',
+      'olcs/print': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print',
+      './olcs/print': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print',
+      './print/computeRectangle': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/computeRectangle.js',
+      './print/rawCesiumMask': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/rawCesiumMask.js',
+      './print/takeCesiumScreenshot': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/takeCesiumScreenshot.js',
+      './print/drawCesiumMask': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/drawCesiumMask.js'
+    }
   },
   optimization: optimization(),
   plugins: [
