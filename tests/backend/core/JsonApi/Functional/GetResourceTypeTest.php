@@ -40,11 +40,64 @@ class GetResourceTypeTest extends JsonApiTest
 
     protected $resourceFactory;
 
+    //Keep setup empty so that setup Parents are not executed
     protected function setUp(): void
     {
-        $this->initializeResourceType(InstitutionTagCategoryResourceType::class, InstitutionTagCategoryFactory::class);
+
+    }
+
+
+    /**
+     * @dataProvider resourceTypeDataProvider
+     */
+    public function testGetForAllResourceTypes(string $resourceTypeClass, string $resourceFactoryClass, array $permissions): void
+    {
+
+        $this->initializeResourceType($resourceTypeClass, $resourceFactoryClass);
         $this->setUpHttpClient();
         $this->initializeUserAndRole();
+
+        $urlParameters = [
+            'fields' => [
+                $this->resourceType::getName() => 'name',
+            ],
+            'resourceType' => $this->resourceType::getName(),
+            'resourceId'   => $this->resource->getId(),
+        ];
+
+        $expectedOutcome = [];
+
+        $this->triggerGetRequest(
+            $this->resourceType::getName(),
+            $permissions,
+            $urlParameters,
+            $this->user->_real(),
+            null,
+            $expectedOutcome);
+    }
+
+    private function triggerGetRequest(
+        string $resourceTypeName,
+        array $permissionsToEnableArray,
+        array $urlParameters,
+        $user,
+        $procedure,
+        $expectedOutcome): void
+    {
+        $this->enablePermissions($permissionsToEnableArray);
+        $responseBody = $this->executeGetRequest(
+            $resourceTypeName,
+            $urlParameters['resourceId'],
+            $user,
+            $procedure,
+            urlParameters: $urlParameters,
+        );
+
+        $this->assertEquals($this->resourceType::getName(), $responseBody['data']['type']);
+        $this->assertEquals($this->resource->getId(), $responseBody['data']['id']);
+        $this->assertEquals($this->resource->getName(), $responseBody['data']['attributes']['name']);
+
+        // compare if outcome valid to $expectedOutcome
     }
 
     protected function initializeResourceType(string $resourceTypeClass, string $resourceFactoryClass): void
@@ -77,53 +130,8 @@ class GetResourceTypeTest extends JsonApiTest
         $this->logIn($this->user->_real());
     }
 
-    public function testGetForAllResourceTypes(): void
-    {
-        $urlParameters = [
-            'fields' => [
-                $this->resourceType::getName() => 'name',
-            ],
-            'resourceType' => $this->resourceType::getName(),
-            'resourceId'   => $this->resource->getId(),
-        ];
 
-        $expectedOutcome = [];
-        $permissionsToEnableArray = ['feature_institution_tag_read', 'feature_json_api_get'];
-
-        $this->triggerGetRequest(
-            $this->resourceType::getName(),
-            $permissionsToEnableArray,
-            $urlParameters,
-            $this->user->_real(),
-            null,
-            $expectedOutcome);
-    }
-
-    private function triggerGetRequest(
-        string $resourceTypeName,
-        array $permissionsToEnableArray,
-        array $urlParameters,
-        $user,
-        $procedure,
-        $expectedOutcome): void
-    {
-        $this->enablePermissions($permissionsToEnableArray);
-        $responseBody = $this->executeGetRequest(
-            $resourceTypeName,
-            $urlParameters['resourceId'],
-            $user,
-            $procedure,
-            urlParameters: $urlParameters,
-        );
-
-        $this->assertEquals($this->resourceType::getName(), $responseBody['data']['type']);
-        $this->assertEquals($this->resource->getId(), $responseBody['data']['id']);
-        $this->assertEquals($this->resource->getName(), $responseBody['data']['attributes']['name']);
-
-        // compare if outcome valid to $expectedOutcome
-    }
-
-    public function getResourceTypeData(): array
+    public function resourceTypeDataProvider(): array
     {
         // to do data provider per project
         // and the run the test of main from the project using the data provider of the project
@@ -132,10 +140,7 @@ class GetResourceTypeTest extends JsonApiTest
         $requestDataDefinedInMain = [];
 
         return [
-            [InstitutionTagResourceType::getName(),
-                $this->loadPermissionsPerProjectAndPerRole(RoleInterface::PLANNING_AGENCY_ADMIN, 'PROJECT_KEY'),
-                $requestDataDefinedInMain,
-                $this->loadExpectedOutcomePerProjectAndRole(RoleInterface::PLANNING_AGENCY_ADMIN, 'PROJECT_KEY')],
+            [InstitutionTagCategoryResourceType::class, InstitutionTagCategoryFactory::class, ['feature_institution_tag_read', 'feature_json_api_get']],
         ];
     }
 
