@@ -97,7 +97,10 @@ class GetResourceTypeTest extends JsonApiTest
             $procedure,
             urlParameters: $urlParameters,
         );
-        $bla = 'bla';
+
+        $this->assertEquals(InstitutionTagCategoryResourceType::getName(), $responseBody['data']['type']);
+        $this->assertEquals($this->institutionTagCategory->getId(), $responseBody['data']['id']);
+        $this->assertEquals($this->institutionTagCategory->getName(), $responseBody['data']['attributes']['name']);
 
         // compare if outcome valid to $expectedOutcome
     }
