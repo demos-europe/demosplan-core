@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\RoleFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagCategoryResourceType;
@@ -28,16 +29,24 @@ use Zenstruck\Foundry\Test\ResetDatabase;
 class GetResourceTypeTest extends JsonApiTest
 {
     use ResetDatabase;
-    protected $institutionTagCategory;
 
     protected $customer;
 
+    protected $resourceType;
+
+    protected $resource;
+
+    protected $resourceFactory;
+
     protected function setUp(): void
     {
-        $this->institutionTagCategory = InstitutionTagCategoryFactory::createOne()->_enableAutoRefresh();
+        $this->resourceType = InstitutionTagCategoryResourceType::class;
+        $this->resourceFactory = InstitutionTagCategoryFactory::class;
+        $this->resource = $this->resourceFactory::createOne()->_enableAutoRefresh();
+
         $this->customer = CustomerFactory::createOne()->_enableAutoRefresh();
-        $this->institutionTagCategory->setCustomer($this->customer->_real());
-        $this->institutionTagCategory->_save();
+        $this->resource->setCustomer($this->customer->_real());
+        $this->resource->_save();
 
         $this->setUpHttpClient();
     }
@@ -45,11 +54,11 @@ class GetResourceTypeTest extends JsonApiTest
     public function testGetForAllResourceTypes(): void
     {
         $urlParameters = ['fields' => [
-            InstitutionTagCategoryResourceType::getName() => 'name',
+            $this->resourceType::getName() => 'name',
         ]];
 
-        $urlParameters['resourceType'] = InstitutionTagCategoryResourceType::getName();
-        $urlParameters['resourceId'] = $this->institutionTagCategory->getId();
+        $urlParameters['resourceType'] = $this->resourceType::getName();
+        $urlParameters['resourceId'] = $this->resource->getId();
         $expectedOutcome = [];
         $permissionsToEnableArray = ['feature_institution_tag_read', 'feature_json_api_get'];
         $user = UserFactory::createOne();
@@ -65,14 +74,13 @@ class GetResourceTypeTest extends JsonApiTest
 
         $user->setCurrentCustomer($this->customer->_real());
         $user->_save();
-        // $globalConfig = $this->getContainer()->get(GlobalConfig::class);
-        // $globalConfig->setSubdomain($this->customer->getSubdomain());
+
 
         $this->tokenStorage = $this->getContainer()->get('security.token_storage');
         $this->logIn($user->_real());
 
         $this->triggerGetRequest(
-            InstitutionTagCategoryResourceType::getName(),
+            $this->resourceType::getName(),
             $permissionsToEnableArray,
             $urlParameters,
             $user->_real(),
@@ -97,9 +105,9 @@ class GetResourceTypeTest extends JsonApiTest
             urlParameters: $urlParameters,
         );
 
-        $this->assertEquals(InstitutionTagCategoryResourceType::getName(), $responseBody['data']['type']);
-        $this->assertEquals($this->institutionTagCategory->getId(), $responseBody['data']['id']);
-        $this->assertEquals($this->institutionTagCategory->getName(), $responseBody['data']['attributes']['name']);
+        $this->assertEquals($this->resourceType::getName(), $responseBody['data']['type']);
+        $this->assertEquals($this->resource->getId(), $responseBody['data']['id']);
+        $this->assertEquals($this->resource->getName(), $responseBody['data']['attributes']['name']);
 
         // compare if outcome valid to $expectedOutcome
     }
