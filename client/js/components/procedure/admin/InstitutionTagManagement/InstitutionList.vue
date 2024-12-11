@@ -30,6 +30,7 @@
         ref="dataTable"
         class="u-mt-2 overflow-x-auto scrollbar-none"
         data-dp-validate="tagsTable"
+        data-cy="institutionList:dataTable"
         :header-fields="headerFields"
         is-resizable
         :items="institutionList"
@@ -55,10 +56,11 @@
           <dp-multiselect
             v-else
             v-model="editingInstitutionTags[category.id]"
-            :options="getCategoryTags(category.id)"
+            :data-cy="`institutionList:tags${category.attributes.name}`"
             label="name"
-            track-by="id"
-            multiple />
+            multiple
+            :options="getCategoryTags(category.id)"
+            track-by="id" />
         </template>
         <template v-slot:action="institution">
           <div class="float-right">
@@ -66,6 +68,7 @@
               <button
                 :aria-label="Translator.trans('item.edit')"
                 class="btn--blank o-link--default"
+                data-cy="institutionList:editTag"
                 @click="editInstitution(institution.id)">
                 <i
                   class="fa fa-pencil"
@@ -76,14 +79,16 @@
               <button
                 :aria-label="Translator.trans('save')"
                 class="btn--blank o-link--default u-mr-0_25"
+                data-cy="institutionList:saveTag"
                 @click="addTagsToInstitution(institution.id)">
                 <dp-icon
                   icon="check"
                   aria-hidden="true" />
               </button>
               <button
-                class="btn--blank o-link--default"
                 :aria-label="Translator.trans('abort')"
+                class="btn--blank o-link--default"
+                data-cy="institutionList:abortTag"
                 @click="abortEdit()">
                 <dp-icon
                   icon="xmark"
