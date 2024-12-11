@@ -352,23 +352,6 @@ class DemosPlanKernel extends Kernel
             $bundleGlobs[] = "{$coreConfigPath}/services_deployment";
         }
 
-        $addons = AddonManifestCollection::load();
-
-        if (!empty($addons)) {
-            foreach ($addons as $config) {
-                // check if the addon has a DoctrineMigrations directory
-                $servicesPath = AddonPath::getRootPath($config['install_path'].'/config');
-
-                $bundleGlobs[] = "{$servicesPath}/services";
-            }
-        }
-
-        if (file_exists(DemosPlanPath::getRootPath('deploy'))) {
-            // deployment services, these are a little extra
-            // as they are not shipped and MUST thus not always be included
-            $bundleGlobs[] = "{$coreConfigPath}/services_deployment";
-        }
-
         return $bundleGlobs;
     }
 
