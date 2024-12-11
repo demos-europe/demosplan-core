@@ -143,7 +143,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_statement_administration_tags_edit', path: '/verfahren/{procedure}/schlagworte/edit', defaults: ['master' => false])]
+    #[Route(name: 'DemosPlan_statement_administration_tags_edit', path: '/verfahren/{procedure}/schlagworte/edit', defaults: ['master' => false], options: ['expose' => true])]
     public function tagListEditAction(
         FileUploadService $fileUploadService,
         Request $request,
