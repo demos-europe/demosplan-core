@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagCategoryResourceType;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use ReflectionClass;
 use Tests\Base\JsonApiTest;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -107,13 +106,11 @@ class GetResourceTypeTest extends JsonApiTest
         $entityClassName = $this->resourceFactory::class();
         $reflectionClass = new ReflectionClass($entityClassName);
 
-        //Check if the current class has a customer attribute, then set the current one
+        // Check if the current class has a customer attribute, then set the current one
         if ($reflectionClass->hasMethod('setCustomer')) {
             $this->resource->setCustomer($this->customer->_real());
             $this->resource->_save();
         }
-
-
     }
 
     protected function initializeUserAndRole(): void
