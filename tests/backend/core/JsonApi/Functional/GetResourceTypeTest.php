@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\JsonApi\Functional;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\InstitutionTagCategoryFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\RoleFactory;
@@ -20,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagCategoryResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagResourceType;
 use Tests\Base\JsonApiTest;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -40,19 +38,16 @@ class GetResourceTypeTest extends JsonApiTest
 
     protected $resourceFactory;
 
-    //Keep setup empty so that setup Parents are not executed
+    // Keep setup empty so that setup Parents are not executed
     protected function setUp(): void
     {
-
     }
-
 
     /**
      * @dataProvider resourceTypeDataProvider
      */
     public function testGetForAllResourceTypes(string $resourceTypeClass, string $resourceFactoryClass, array $permissions): void
     {
-
         $this->initializeResourceType($resourceTypeClass, $resourceFactoryClass);
         $this->setUpHttpClient();
         $this->initializeUserAndRole();
@@ -129,7 +124,6 @@ class GetResourceTypeTest extends JsonApiTest
         $this->tokenStorage = $this->getContainer()->get('security.token_storage');
         $this->logIn($this->user->_real());
     }
-
 
     public function resourceTypeDataProvider(): array
     {
