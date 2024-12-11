@@ -16,12 +16,12 @@ use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Traits\IsProfilableTrait;
 use Monolog\Logger;
-use Patchwork\Utf8;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\FileBag;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Stopwatch\Stopwatch;
+use Symfony\Component\String\UnicodeString;
 use Symfony\Contracts\Service\Attribute\Required;
 
 /**
@@ -120,7 +120,7 @@ class CoreHandler
      */
     public function normalizeString($string)
     {
-        return Utf8::toAscii($string);
+        return (new UnicodeString($string))->ascii()->toString();
     }
 
     /**
@@ -135,8 +135,6 @@ class CoreHandler
 
     /**
      * Definition der incoming Data.
-     *
-     * @return mixed
      */
     protected function incomingDataDefinition()
     {

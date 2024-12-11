@@ -27,7 +27,7 @@ RUN npm install --ignore-scripts -g corepack && \
     npm i --ignore-scripts -g n && \
     rm -rf /root/.npm && \
 # Install specific node version
-    n 18.20.1
+    n 20.18.1
 
 WORKDIR /srv/www
 
@@ -40,9 +40,6 @@ RUN mkdir -p /opt/uploads && \
     chown -R www-data:www-data /opt/config && \
     chown -R www-data:www-data /srv/www && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/app/config && \
-    # set permissions for yarn cache \
-    mkdir -p /var/www/.cache /var/www/.yarn && \
-    chown -R www-data:www-data /var/www/.cache /var/www/.yarn && \
 # asset build only needs the parameters.yml without content
     echo "parameters:" > /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
 
@@ -54,9 +51,7 @@ RUN --mount=type=cache,target=/var/composer composer install -o --prefer-dist --
 
 COPY package.json yarn.lock .yarnrc.yml ./
 
-RUN yarn install --immutable && \
-    yarn cache clean && \
-    rm -rf /srv/www/.cache/*
+RUN --mount=type=cache,target=/var/www,uid=33,gid=33 yarn install --immutable
 
 USER root
 COPY . /srv/www

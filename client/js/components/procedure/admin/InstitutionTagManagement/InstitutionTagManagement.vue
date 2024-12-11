@@ -33,7 +33,10 @@
 </template>
 
 <script>
-import { DpTab, DpTabs } from '@demos-europe/demosplan-ui'
+import {
+  DpTab,
+  DpTabs
+} from '@demos-europe/demosplan-ui'
 import InstitutionList from './InstitutionList'
 import { mapActions } from 'vuex'
 import TagList from './TagList'

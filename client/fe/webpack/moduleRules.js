@@ -144,10 +144,11 @@ const moduleRules =
         {
           loader: 'sass-loader',
           options: {
-            implementation: require('sass-embedded'),
-            additionalData: `$url-path-prefix: '${config.urlPathPrefix}';`,
+            api: 'modern-compiler',
             sassOptions: {
-              includePaths: [
+              implementation: require('sass-embedded'),
+              additionalData: `$url-path-prefix: '${config.urlPathPrefix}';`,
+              loadPaths: [
                 config.projectRoot + 'web/',
                 config.publicPath
               ]

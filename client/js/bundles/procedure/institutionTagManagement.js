@@ -16,8 +16,9 @@ import InstitutionTagManagement from '@DpJs/components/procedure/admin/Instituti
 const components = { InstitutionTagManagement }
 
 const apiStores = [
-  'institutionTag',
-  'invitableInstitution'
+  'InstitutionTag',
+  'InstitutionTagCategory',
+  'InvitableInstitution'
 ]
 
 initialize(components, {}, apiStores)

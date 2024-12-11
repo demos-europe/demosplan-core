@@ -166,7 +166,7 @@ export default {
   },
 
   computed: {
-    ...mapState('User', {
+    ...mapState('AdministratableUser', {
       initialUser (state) {
         return state.initial[this.user.id]
       }
