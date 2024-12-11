@@ -297,7 +297,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
                 continue;
             }
 
-            $segmentData =  \array_combine($columnNamesSegments, $segmentData);
+            $segmentData = \array_combine($columnNamesSegments, $segmentData);
             if (!\is_array($segmentData)) {
                 continue;
             }

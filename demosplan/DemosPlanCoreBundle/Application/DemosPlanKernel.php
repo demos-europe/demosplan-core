@@ -10,10 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
-use DemosEurope\DemosplanAddon\Utilities\AddonPath;
 use demosplan\DemosPlanCoreBundle\Addon\AddonBundleGenerator;
 use demosplan\DemosPlanCoreBundle\Addon\AddonDoctrineMigrationsPass;
-use demosplan\DemosPlanCoreBundle\Addon\AddonManifestCollection;
 use demosplan\DemosPlanCoreBundle\Addon\AddonResolveTargetEntity;
 use demosplan\DemosPlanCoreBundle\Addon\LoadAddonInfoCompilerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;

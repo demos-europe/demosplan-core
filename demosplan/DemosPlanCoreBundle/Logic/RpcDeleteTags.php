@@ -34,18 +34,18 @@ class RpcDeleteTags implements RpcMethodSolverInterface
     private const HANDLED_ITEM_TYPES = [self::TAG_TYPE, self::TAG_TOPIC_TYPE];
 
     public function __construct(
-        private readonly MessageBagInterface        $messageBag,
-        private readonly LoggerInterface            $logger,
+        private readonly MessageBagInterface $messageBag,
+        private readonly LoggerInterface $logger,
         private readonly RpcErrorGeneratorInterface $rpcErrorGenerator,
-        private readonly StatementHandler           $statementHandler,
-        private readonly TransactionService         $transactionService,
-        private readonly CurrentUserInterface       $currentUser,
+        private readonly StatementHandler $statementHandler,
+        private readonly TransactionService $transactionService,
+        private readonly CurrentUserInterface $currentUser,
     ) {
     }
 
     public function supports(string $method): bool
     {
-        return $method === self::DELETE_TAGS_METHOD;
+        return self::DELETE_TAGS_METHOD === $method;
     }
 
     /**
@@ -56,7 +56,7 @@ class RpcDeleteTags implements RpcMethodSolverInterface
     {
         try {
             return $this->transactionService->executeAndFlushInTransaction(
-                fn(EntityManager $entityManager): array => $this->handleExecute($procedure, $rpcRequests)
+                fn (EntityManager $entityManager): array => $this->handleExecute($procedure, $rpcRequests)
             );
         } catch (Exception $e) {
             $this->logger->error(
@@ -67,7 +67,6 @@ class RpcDeleteTags implements RpcMethodSolverInterface
 
             return [$this->rpcErrorGenerator->internalError($rpcRequests)];
         }
-
     }
 
     private function handleExecute(?ProcedureInterface $procedure, $rpcRequests): array
@@ -88,13 +87,11 @@ class RpcDeleteTags implements RpcMethodSolverInterface
                     Assert::inArray(
                         $itemType,
                         self::HANDLED_ITEM_TYPES,
-                        'itemType is expected to be one of: ' . implode(', ', self::HANDLED_ITEM_TYPES)
+                        'itemType is expected to be one of: '.implode(', ', self::HANDLED_ITEM_TYPES)
                     );
                     if (self::TAG_TYPE === $itemType) {
                         if ($this->statementHandler->isTagInUse($itemId)) {
-                            throw new TagInUseException(
-                                "$itemType with id: $itemId is in use and can not be deleted"
-                            );
+                            throw new TagInUseException("$itemType with id: $itemId is in use and can not be deleted");
                         }
                         if (false === $this->statementHandler->deleteTag($itemId)) {
                             throw new TagNotFoundException("Tag with id: $itemId not deleted - was not found");
@@ -102,14 +99,10 @@ class RpcDeleteTags implements RpcMethodSolverInterface
                     }
                     if (self::TAG_TOPIC_TYPE === $itemType) {
                         if ($this->statementHandler->isTopicInUse($itemId)) {
-                            throw new TagInUseException(
-                                "$itemType with id: $itemId is in use and can not be deleted"
-                            );
+                            throw new TagInUseException("$itemType with id: $itemId is in use and can not be deleted");
                         }
                         if (false === $this->statementHandler->deleteTopic($itemId)) {
-                            throw new TagNotFoundException(
-                                "Topic with id: $itemId and its topics could not be deleted."
-                            );
+                            throw new TagNotFoundException("Topic with id: $itemId and its topics could not be deleted.");
                         }
                     }
                 }
