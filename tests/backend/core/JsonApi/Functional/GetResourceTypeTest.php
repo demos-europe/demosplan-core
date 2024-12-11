@@ -54,12 +54,14 @@ class GetResourceTypeTest extends JsonApiTest
 
     public function testGetForAllResourceTypes(): void
     {
-        $urlParameters = ['fields' => [
-            $this->resourceType::getName() => 'name',
-        ]];
+        $urlParameters = [
+            'fields' => [
+                $this->resourceType::getName() => 'name',
+            ],
+            'resourceType' => $this->resourceType::getName(),
+            'resourceId' => $this->resource->getId(),
+        ];
 
-        $urlParameters['resourceType'] = $this->resourceType::getName();
-        $urlParameters['resourceId'] = $this->resource->getId();
         $expectedOutcome = [];
         $permissionsToEnableArray = ['feature_institution_tag_read', 'feature_json_api_get'];
         $user = UserFactory::createOne();
