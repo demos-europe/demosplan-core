@@ -38,15 +38,18 @@ class GetResourceTypeTest extends JsonApiTest
 
     protected function setUp(): void
     {
-        $this->resourceType = InstitutionTagCategoryResourceType::class;
-        $this->resourceFactory = InstitutionTagCategoryFactory::class;
-        $this->resource = $this->resourceFactory::createOne()->_enableAutoRefresh();
+        $this->initializeResourceType(InstitutionTagCategoryResourceType::class, InstitutionTagCategoryFactory::class);
+        $this->setUpHttpClient();
+    }
 
+    protected function initializeResourceType(string $resourceTypeClass, string $resourceFactoryClass): void
+    {
+        $this->resourceType = $resourceTypeClass;
+        $this->resourceFactory = $resourceFactoryClass;
+        $this->resource = $this->resourceFactory::createOne()->_enableAutoRefresh();
         $this->customer = CustomerFactory::createOne()->_enableAutoRefresh();
         $this->resource->setCustomer($this->customer->_real());
         $this->resource->_save();
-
-        $this->setUpHttpClient();
     }
 
     public function testGetForAllResourceTypes(): void
