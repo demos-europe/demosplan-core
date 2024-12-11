@@ -17,7 +17,6 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
-use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\SecurityUserProvider;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -31,7 +30,7 @@ class SetHttpTestPermissionsListener
     public const X_DPLAN_TEST_USER_ID = 'x-dplan-test-user-id';
 
     public function __construct(
-        private readonly KernelInterface      $kernel,
+        private readonly KernelInterface $kernel,
         private readonly PermissionsInterface $permissions, private readonly CurrentUserInterface $currentUser, private readonly UserService $userService, private readonly SecurityUserProvider $securityUserProvider, private readonly TokenStorageInterface $tokenStorage, private readonly GlobalConfigInterface $globalConfig,
     ) {
     }
@@ -48,10 +47,7 @@ class SetHttpTestPermissionsListener
             $user = $this->userService->getSingleUser($request->server->get(self::X_DPLAN_TEST_USER_ID));
             $this->currentUser->setUser($user);
 
-
-
-             $this->globalConfig->setSubdomain($user->getCurrentCustomer()->getSubdomain());
-
+            $this->globalConfig->setSubdomain($user->getCurrentCustomer()->getSubdomain());
 
             $existingToken = $this->tokenStorage->getToken();
             $securityUser = new SecurityUser($user);
