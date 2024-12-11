@@ -30,6 +30,10 @@ class GetResourceTypeTest extends JsonApiTest
 
     protected $customer;
 
+    protected $user;
+
+    protected $role;
+
     protected $resourceType;
 
     protected $resource;
@@ -40,6 +44,7 @@ class GetResourceTypeTest extends JsonApiTest
     {
         $this->initializeResourceType(InstitutionTagCategoryResourceType::class, InstitutionTagCategoryFactory::class);
         $this->setUpHttpClient();
+        $this->initializeUserAndRole();
     }
 
     protected function initializeResourceType(string $resourceTypeClass, string $resourceFactoryClass): void
@@ -50,6 +55,26 @@ class GetResourceTypeTest extends JsonApiTest
         $this->customer = CustomerFactory::createOne()->_enableAutoRefresh();
         $this->resource->setCustomer($this->customer->_real());
         $this->resource->_save();
+    }
+
+    protected function initializeUserAndRole(): void
+    {
+        $this->user = UserFactory::createOne();
+        $this->role = RoleFactory::createOne([
+            'name'      => Role::CUSTOMER_MASTER_USER,
+            'code'      => Role::CUSTOMER_MASTER_USER,
+            'groupCode' => Role::CUSTOMERMASTERUSERGROUP,
+            'groupName' => Role::CUSTOMERMASTERUSERGROUP,
+        ]);
+
+        $this->user->setDplanroles([$this->role->_real()]);
+        $this->user->_save();
+
+        $this->user->setCurrentCustomer($this->customer->_real());
+        $this->user->_save();
+
+        $this->tokenStorage = $this->getContainer()->get('security.token_storage');
+        $this->logIn($this->user->_real());
     }
 
     public function testGetForAllResourceTypes(): void
@@ -64,28 +89,12 @@ class GetResourceTypeTest extends JsonApiTest
 
         $expectedOutcome = [];
         $permissionsToEnableArray = ['feature_institution_tag_read', 'feature_json_api_get'];
-        $user = UserFactory::createOne();
-        $role = RoleFactory::createOne([
-            'name'      => Role::CUSTOMER_MASTER_USER,
-            'code'      => Role::CUSTOMER_MASTER_USER,
-            'groupCode' => Role::CUSTOMERMASTERUSERGROUP,
-            'groupName' => Role::CUSTOMERMASTERUSERGROUP,
-        ]);
-
-        $user->setDplanroles([$role->_real()]);
-        $user->_save();
-
-        $user->setCurrentCustomer($this->customer->_real());
-        $user->_save();
-
-        $this->tokenStorage = $this->getContainer()->get('security.token_storage');
-        $this->logIn($user->_real());
 
         $this->triggerGetRequest(
             $this->resourceType::getName(),
             $permissionsToEnableArray,
             $urlParameters,
-            $user->_real(),
+            $this->user->_real(),
             null,
             $expectedOutcome);
     }
