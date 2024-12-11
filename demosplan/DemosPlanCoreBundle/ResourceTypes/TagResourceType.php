@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\TagResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseTagResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -33,7 +34,7 @@ use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructo
  * @property-read TagTopicResourceType $topic
  * @property-read End $title
  */
-final class TagResourceType extends DplanResourceType
+final class TagResourceType extends DplanResourceType implements TagResourceTypeInterface
 {
     public function __construct(
         private readonly TagService $tagService,
@@ -56,7 +57,8 @@ final class TagResourceType extends DplanResourceType
         return $this->currentUser->hasAnyPermissions(
             'feature_json_api_tag',
             'area_statement_segmentation',
-            'feature_statements_tag'
+            'feature_statements_tag',
+            'area_admin_statements_tag'
         );
     }
 
@@ -76,7 +78,7 @@ final class TagResourceType extends DplanResourceType
 
     public function isCreateAllowed(): bool
     {
-        return $this->currentUser->hasPermission('feature_json_api_tag_create');
+        return $this->currentUser->hasAnyPermissions('area_admin_statements_tag', 'feature_json_api_tag_create');
     }
 
     protected function getProperties(): BaseTagResourceConfigBuilder

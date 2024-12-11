@@ -874,7 +874,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             /** @var PostNewProcedureCreatedEvent $postNewProcedureCreatedEvent */
             $postNewProcedureCreatedEvent = $this->eventDispatcher->dispatch(
-                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']),
+                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken'], $blueprintId),
                 PostNewProcedureCreatedEventInterface::class
             );
 
@@ -2062,7 +2062,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Deletes the given institutionMail Entries.
      *
-     * @param institutionMail[] $institutionMails - list of institutionMail entries to delete
+     * @param InstitutionMail[] $institutionMails - list of institutionMail entries to delete
      *
      * @throws Exception
      */
