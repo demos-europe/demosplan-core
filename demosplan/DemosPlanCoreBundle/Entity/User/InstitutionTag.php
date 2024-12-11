@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -157,5 +158,9 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
     public function setLabel(string $label): void
     {
         $this->label = $label;
+    }
+    public function setCategory(InstitutionTagCategoryInterface $category): void
+    {
+        // do nothing
     }
 }
