@@ -30,7 +30,6 @@
         ref="dataTable"
         class="u-mt-2 overflow-x-auto scrollbar-none"
         data-dp-validate="tagsTable"
-        has-flyout
         :header-fields="headerFields"
         is-resizable
         :items="institutionList"
