@@ -3046,7 +3046,7 @@ class StatementService extends CoreService implements StatementServiceInterface
                 $limit = $defaultLimits[0];
             }
 
-            $paginator->setMaxPerPage($limit);
+            $paginator->setMaxPerPage((int)$limit);
             // try to paginate Result, check for validity
             try {
                 $paginator->setCurrentPage($page);
