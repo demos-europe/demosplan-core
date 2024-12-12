@@ -97,6 +97,10 @@ class GetResourceTypeTest extends JsonApiTest
         $this->assertEquals($this->resource->getId(), $responseBody['data']['id']);
         //$this->assertEquals($this->resource->getName(), $responseBody['data']['attributes']['name']);
 
+        foreach ($expectedOutcome['data']['attributes'] as $attribute => $method) {
+            $this->assertEquals($this->resource->_real()->$method(), $responseBody['data']['attributes'][$attribute]);
+        }
+
         // compare if outcome valid to $expectedOutcome
     }
 
