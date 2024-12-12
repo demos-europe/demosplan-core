@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\InstitutionTagFacto
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\RoleFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagCategoryResourceType;
@@ -90,12 +89,9 @@ class GetResourceTypeTest extends JsonApiTest
             urlParameters: $urlParameters,
         );
 
-
-
-
         $this->assertEquals($this->resourceType::getName(), $responseBody['data']['type']);
         $this->assertEquals($this->resource->getId(), $responseBody['data']['id']);
-        //$this->assertEquals($this->resource->getName(), $responseBody['data']['attributes']['name']);
+        // $this->assertEquals($this->resource->getName(), $responseBody['data']['attributes']['name']);
 
         // compare if outcome valid to $expectedOutcome
     }
@@ -144,8 +140,8 @@ class GetResourceTypeTest extends JsonApiTest
         // per PATch we cna send each field, and then check if they are updatable
         // CREATE -> not solved yet
         $requestDataDefinedInMain = [];
-       return [
 
+        return [
             [InstitutionTagCategoryResourceType::class, InstitutionTagCategoryFactory::class, ['feature_institution_tag_read', 'feature_json_api_get'], $this->generateExpectedTagCategoryOutcome()],
             [InstitutionTagResourceType::class, InstitutionTagFactory::class, ['feature_institution_tag_read', 'feature_json_api_get'], $this->generateExpectedTagOutcome()],
         ];
@@ -172,7 +168,6 @@ class GetResourceTypeTest extends JsonApiTest
             ],
         ];
     }
-
 
     public function loadPermissionsPerProjectAndPerRole($project, $role): array
     {
