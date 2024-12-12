@@ -39,9 +39,10 @@ export default {
         .then(response => checkResponse(response))
     },
 
-    fetchProcedureMapSettings ({ commit }, procedureId) {
+    fetchProcedureMapSettings ({ commit }, { procedureId, isMaster = false }) {
       try {
-        const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType: 'Procedure' })
+        const resourceType = isMaster ? 'ProcedureTemplate' : 'Procedure'
+        const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType })
         const procedureMapSettingFields = ['availableScales',
           'boundingBox',
           'defaultBoundingBox',
@@ -58,7 +59,7 @@ export default {
 
         if (hasPermission('feature_map_feature_info')) {
           procedureMapSettingFields.push('informationUrl')
-          procedureMapSettingFields.push('featureInfoUrl')
+          procedureMapSettingFields.push('useGlobalInformationUrl')
         }
 
         if (hasPermission('feature_map_attribution')) {
@@ -75,7 +76,7 @@ export default {
 
         const params = {
           fields: {
-            Procedure: [
+            [resourceType]: [
               'mapSetting'
             ].join(),
             ProcedureMapSetting: procedureMapSettingFields.join()
@@ -95,9 +96,9 @@ export default {
                 availableScales: data.availableScales.map(scale => ({ label: `1:${scale.toLocaleString('de-DE')}`, value: scale })) ?? [],
                 coordinate: convertExtentToFlatArray(data.coordinate) ?? '',
                 copyright: data.copyright ?? '',
-                defaultBoundingBox: defaultBoundingBox,
-                defaultMapExtent: defaultMapExtent,
-                featureInfoUrl: data.featureInfoUrl ?? { global: false },
+                defaultBoundingBox,
+                defaultMapExtent,
+                useGlobalInformationUrl: data.useGlobalInformationUrl ?? false,
                 informationUrl: data.informationUrl ?? '',
                 showOnlyOverlayCategory: data.showOnlyOverlayCategory ?? false,
                 mapExtent: convertExtentToFlatArray(data.mapExtent) ?? defaultMapExtent, // Maximum extent of the map

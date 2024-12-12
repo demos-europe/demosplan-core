@@ -37,6 +37,7 @@ class LoadGlobalContentData extends TestFixture implements DependentFixtureInter
         $globalContent1->setDeleteDate(new DateTime());
         $globalContent1->setRoles([$this->getReference('testRoleGuest')]);
         $globalContent1->setCategories([$this->getReference('testCategoryFaq')]);
+        $globalContent1->setCustomer($this->getReference('testCustomer'));
 
         $manager->persist($globalContent1);
 
@@ -55,6 +56,7 @@ class LoadGlobalContentData extends TestFixture implements DependentFixtureInter
         $globalContent2->setDeleteDate(new DateTime());
         $globalContent2->setRoles([$this->getReference('testRoleGuest')]);
         $globalContent2->setCategories([$this->getReference('testCategoryFaq2')]);
+        $globalContent2->setCustomer($this->getReference('testCustomer'));
 
         $manager->persist($globalContent2);
 
@@ -74,6 +76,7 @@ class LoadGlobalContentData extends TestFixture implements DependentFixtureInter
         $globalContent3->setDeleteDate(new DateTime());
         $globalContent3->setRoles([$this->getReference('testRoleGuest'), $this->getReference('testRolePublicAgencyCoordination'), $this->getReference('testRoleFP')]);
         $globalContent3->setCategories([$this->getReference('testCategoryNews')]);
+        $globalContent3->setCustomer($this->getReference('testCustomer'));
 
         $manager->persist($globalContent3);
 
@@ -93,6 +96,7 @@ class LoadGlobalContentData extends TestFixture implements DependentFixtureInter
         $globalContent4->setDeleteDate(new DateTime());
         $globalContent4->setRoles([$this->getReference('testRolePublicAgencyCoordination'), $this->getReference('testRoleFP')]);
         $globalContent4->setCategories([$this->getReference('testCategoryNews')]);
+        $globalContent4->setCustomer($this->getReference('testCustomer'));
 
         $manager->persist($globalContent4);
 
@@ -111,6 +115,7 @@ class LoadGlobalContentData extends TestFixture implements DependentFixtureInter
         $globalContent5->setDeleteDate(new DateTime());
         $globalContent5->setRoles([$this->getReference('testRoleFP')]);
         $globalContent5->setCategories([$this->getReference('testCategoryFaq')]);
+        $globalContent5->setCustomer($this->getReference('testCustomer'));
 
         $manager->persist($globalContent5);
 

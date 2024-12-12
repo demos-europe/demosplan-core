@@ -211,6 +211,21 @@
     },
     {
         "license": "MIT",
+        "package": "league/flysystem-aws-s3-v3",
+        "website": "https://github.com/thephpleague/flysystem-aws-s3-v3"
+    },
+    {
+        "license": "MIT",
+        "package": "league/flysystem-bundle",
+        "website": "https://github.com/thephpleague/flysystem-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "league/flysystem-memory",
+        "website": "https://github.com/thephpleague/flysystem-memory"
+    },
+    {
+        "license": "MIT",
         "package": "league/fractal",
         "website": "https://github.com/thephpleague/fractal"
     },
@@ -265,11 +280,6 @@
         "website": "https://github.com/nullivex/lib-array2xml"
     },
     {
-        "license": "(Apache-2.0 or GPL-2.0)",
-        "package": "patchwork/utf8",
-        "website": "https://github.com/tchwork/utf8"
-    },
-    {
         "license": "MIT",
         "package": "php-amqplib/rabbitmq-bundle",
         "website": "https://github.com/php-amqplib/RabbitMqBundle"
@@ -283,6 +293,11 @@
         "license": "MIT",
         "package": "phpdocumentor/reflection-docblock",
         "website": "https://github.com/phpDocumentor/ReflectionDocBlock"
+    },
+    {
+        "license": "MIT",
+        "package": "phpoffice/phpspreadsheet",
+        "website": "https://github.com/PHPOffice/PhpSpreadsheet"
     },
     {
         "license": "LGPL-3.0",
@@ -456,13 +471,13 @@
     },
     {
         "license": "MIT",
-        "package": "symfony/inflector",
-        "website": "https://github.com/symfony/inflector"
+        "package": "symfony/intl",
+        "website": "https://github.com/symfony/intl"
     },
     {
         "license": "MIT",
-        "package": "symfony/intl",
-        "website": "https://github.com/symfony/intl"
+        "package": "symfony/lock",
+        "website": "https://github.com/symfony/lock"
     },
     {
         "license": "MIT",
@@ -648,11 +663,6 @@
         "license": "MIT",
         "package": "wsdltophp/packagegenerator",
         "website": "https://github.com/WsdlToPhp/PackageGenerator"
-    },
-    {
-        "license": "MIT",
-        "package": "yectep/phpspreadsheet-bundle",
-        "website": "https://github.com/eightyknots/phpspreadsheet-bundle"
     },
     {
         "license": "MIT",

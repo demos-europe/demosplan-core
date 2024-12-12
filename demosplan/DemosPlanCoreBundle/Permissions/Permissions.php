@@ -124,7 +124,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         ProcedureAccessEvaluator $procedureAccessEvaluator,
         private ProcedureRepository $procedureRepository,
         private readonly ValidatorInterface $validator,
-        private readonly AccessControlService $accessControlPermission
+        private readonly AccessControlService $accessControlPermission,
     ) {
         $this->addonPermissionInitializers = $addonRegistry->getPermissionInitializers();
         $this->globalConfig = $globalConfig;
@@ -238,7 +238,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'field_statement_meta_orga_name',
             'field_statement_meta_postal_code',
             'field_statement_meta_submit_name',
-            'field_statement_phase',
             'field_statement_priority',
             'field_statement_status',
             'field_statement_submit_type',
@@ -355,7 +354,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'area_manage_orgadata',  // Daten der Organisation
                 'area_mydata_organisation',  // Daten der Organisation
                 'feature_admin_export_procedure',  // Verfahren exportieren
-                'feature_statements_vote_may_vote',
             ]);
         }
 
@@ -530,7 +528,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
             $this->enablePermissions([
                 'area_admin',  // Verwalten
-                'area_admin_assessmenttable',  // Verwalten Abwaegungstabelle
                 'area_admin_dashboard',  // Übersichtsseite
                 'area_admin_map',  // Verwalten Planzeichnung
                 'area_admin_map_description',  // Verwalten Planzeichenerklärung

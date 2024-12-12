@@ -76,7 +76,7 @@ class AssessmentHandler extends CoreHandler
         StatementFragmentService $statementFragmentService,
         StatementService $statementService,
         TranslatorInterface $translator,
-        UserFilterSetService $userFilterSetService
+        UserFilterSetService $userFilterSetService,
     ) {
         parent::__construct($messageBag);
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
@@ -210,7 +210,7 @@ class AssessmentHandler extends CoreHandler
         array $requestPost,
         array $exportChoice,
         string $viewMode,
-        bool $original = false
+        bool $original = false,
     ): DocxExportResult {
         $outputResult = $this->prepareOutputResult($procedureId, $original, $requestPost);
         try {
@@ -250,6 +250,7 @@ class AssessmentHandler extends CoreHandler
                 $outputResult,
                 $exportChoice['template'],
                 $exportChoice['anonymous'],
+                $exportChoice['numberStatements'],
                 $exportChoice['exportType'],
                 $viewOrientation,
                 $requestPost,
@@ -264,8 +265,9 @@ class AssessmentHandler extends CoreHandler
         return new DocxExportResult(
             sprintf(
                 $this->translator->trans('considerationtable').'-%s.docx',
-                Carbon::now()->format('d-m-Y-H:i')
-            ), $objWriter
+                Carbon::now('Europe/Berlin')->format('d-m-Y-H:i')
+            ),
+            $objWriter
         );
     }
 
@@ -324,7 +326,7 @@ class AssessmentHandler extends CoreHandler
         // TODO: this seems to do nothing as the statement changed seems to be just a copy, please verify and delete code or falsify and explain with comment
         foreach ($statements as $statement) {
             // Ersetze die Phase, in der die SN eingegangen ist
-            $statement['phase'] = $this->statementService->getInternalOrExternalPhaseName($statement);
+            $statement['phase'] = $this->statementService->getProcedurePhaseNameFromArray($statement);
         }
 
         return StatementHandlingResult::createCopyWithDifferentStatements($outputResult, $statements);

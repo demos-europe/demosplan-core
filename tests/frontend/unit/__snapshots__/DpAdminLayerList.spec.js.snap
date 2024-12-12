@@ -1,74 +1,75 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`AdminLayerList should render a empty admin layer list 1`] = `
-"<fieldset id=\\"gisLayers\\">
-  <div class=\\"flex\\">
-    <legend class=\\"w-1/4\\">
+"<div id="gisLayers">
+  <div class="flex">
+    <h2 class="w-1/4">
       gislayer
-    </legend>
-    <div class=\\"w-3/4 text-right\\">
-      <dp-split-button-stub><a data-cy=\\"createNewGisLayer\\" href=\\"DemosPlan_map_administration_gislayer_new\\" class=\\"btn btn--primary has-dropdown\\">
+    </h2>
+    <div class="w-3/4 text-right">
+      <dp-split-button-stub><a data-cy="createNewGisLayer" href="DemosPlan_map_administration_gislayer_new" class="btn btn--primary has-dropdown">
           gislayer.create
         </a></dp-split-button-stub>
     </div>
   </div>
-  <div class=\\"relative\\">
-    <div class=\\"u-mt flex\\">
-      <h3 class=\\"flex-1 w-1/3\\">
+  <div class="relative">
+    <div class="mt-4 flex">
+      <h3 class="flex-1 w-1/3">
         map.overlays
       </h3>
-      <div class=\\"flex-1 w-2/3 text-right\\"><button class=\\"btn--blank o-link--default\\">
+      <div class="flex-1 w-2/3 text-right"><button class="btn--blank o-link--default">
           map.set.order.tree
-        </button> <button class=\\"btn--blank o-link--default u-ml\\">
+        </button> <button class="btn--blank o-link--default ml-4">
           map.set.order.map
         </button></div>
     </div>
-    <div class=\\"color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5\\">
-      <div class=\\"c-at-item__row-icon u-pl-0\\"></div>
-      <div class=\\"flex u-pl-0_5\\">
-        <div class=\\"flex-1\\">
+    <div class="color--grey mb-1 mt-2 mr-2">
+      <div class="c-at-item__row-icon pl-0"></div>
+      <div class="flex pl-2">
+        <div class="flex-1">
           description
         </div>
-        <div class=\\"w-1/12 text-right\\"><i class=\\"fa fa-link u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
-        <div class=\\"w-1/12 text-right\\"><i class=\\"fa fa-eye u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
-        <div class=\\"w-1/12 text-right\\">
+        <div class="w-1/12 text-right"><i class="fa fa-link mr-2 has-tooltip" data-original-title="null"></i></div>
+        <div class="w-1/12 text-right"><i class="fa fa-eye mr-2 has-tooltip" data-original-title="null"></i></div>
+        <div class="w-1/12 text-right">
           edit
         </div>
       </div>
     </div>
     <!---->
-    <dp-loading-stub class=\\"list__item u-pv-0_5 border--top\\"></dp-loading-stub>
+    <dp-loading-stub class="list__item py-2 border--top"></dp-loading-stub>
     <!---->
-    <h3 class=\\"u-mt\\">
+    <h3 class="mt-4">
       map.bases
     </h3>
-    <div class=\\"color--grey u-mb-0_25 u-mt-0_5 u-mr-0_5\\">
-      <div class=\\"c-at-item__row-icon u-pl-0\\"></div>
-      <div class=\\"flex c-at-item__row\\">
-        <div class=\\"flex-1 u-pl-0_5\\">
+    <div class="color--grey mb-1 mt-2 mr-2">
+      <div class="c-at-item__row-icon pl-0"></div>
+      <div class="flex">
+        <div class="flex-1 pl-2">
           description
         </div>
-        <div class=\\"w-1/12 text-right\\"><i class=\\"fa fa-eye u-mr-0_5 has-tooltip\\" data-original-title=\\"null\\"></i></div>
-        <div class=\\"w-1/12 text-right\\">
+        <div class="w-1/12 text-right"><i class="fa fa-eye mr-2 has-tooltip" data-original-title="null"></i></div>
+        <div class="w-1/12 text-right">
           edit
         </div>
       </div>
     </div>
     <!---->
-    <div class=\\"flex u-mt u-mb\\">
-      <h3 class=\\"w-1/3\\">
+    <div class="my-4">
+      <h3>
         map.base.minimap
       </h3>
-      <div class=\\"w-2/3\\"><select data-cy=\\"adminLayerList:currentMinimapLayer\\" class=\\"o-form__control-select\\">
-          <option value=\\"[object Object]\\">
+      <div>
+        <p class="font-size-small">
+          map.base.minimap.hint
+        </p> <select data-cy="adminLayerList:currentMinimapLayer" class="o-form__control-select w-1/2">
+          <option value="[object Object]">
             selection.no
           </option>
-        </select></div>
-      <p class=\\"font-size-small\\">
-        map.base.minimap.hint
-      </p>
+        </select>
+      </div>
     </div>
     <!---->
   </div>
-</fieldset>"
+</div>"
 `;

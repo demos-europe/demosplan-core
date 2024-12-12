@@ -242,7 +242,7 @@ export default {
               const topicId = response.data.data.id
               // Add id to tagTopic in store
               this.updateProperty({ prop: 'tagTopics', obj: { attributes: { title: response.data.data.attributes.title }, id: topicId, type: 'TagTopic' } })
-              this.createTagAction({ tag: this.tag, topicId: topicId })
+              this.createTagAction({ tag: this.tag, topicId })
                 .then((response) => {
                   const tagResource = response.data.data
                   tagResource.relationships = {

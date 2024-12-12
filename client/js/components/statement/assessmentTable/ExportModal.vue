@@ -161,6 +161,16 @@
                 class="sr-only"
                 v-text="Translator.trans('export.type')" />
               <dp-checkbox
+                id="docxNumberStatements"
+                class="mb-1"
+                data-cy="exportModal:docxNumberStatements"
+                :label="{
+                  bold: true,
+                  text: Translator.trans('export.numbered_statements'),
+                  hint: Translator.trans('explanation.export.numbered_statements')
+                }"
+                v-model="exportChoice.docx.numberStatements" />
+              <dp-checkbox
                 id="docxAnonymous"
                 v-model="exportChoice.docx.anonymous"
                 data-cy="exportModal:docxObscure"
@@ -210,8 +220,7 @@
                   text: Translator.trans('statements')
                 }"
                 value="statementsOnly"
-                @change="() => handleDocxExportTypeChange('statementsOnly')"
-                />
+                @change="() => handleDocxExportTypeChange('statementsOnly')" />
               <dp-radio
                 id="docxExportTypeStatementsAndFragments"
                 :checked="exportChoice.docx.exportType === 'statementsAndFragments'"
@@ -457,8 +466,8 @@ export default {
     const options = this.options
     const data = {}
     let optGroupKey // 'docx', 'pdf', etc.
-    let optGroup // all the options defined for an optGroupKey
-    let optKey // key of a single option, e.g. 'exportType', 'sortType'
+    let optGroup // All the options defined for an optGroupKey
+    let optKey // Key of a single option, e.g. 'exportType', 'sortType'
 
     for (optGroupKey in options) {
       optGroup = options[optGroupKey]
@@ -573,7 +582,7 @@ export default {
 
     zipTemplateOptions () {
       return this.getTemplateOptions(this.options.zip)
-    },
+    }
   },
 
   methods: {

@@ -19,12 +19,13 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
-use EDT\Wrapping\PropertyBehavior\Attribute\Factory\AttributeConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
-use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\Factory\ToOneRelationshipConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructorBehavior;
 
 /**
  * @template-extends DplanResourceType<Tag>
@@ -36,7 +37,7 @@ final class TagResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly TagService $tagService,
-        private readonly TagRepository $tagRepository
+        private readonly TagRepository $tagRepository,
     ) {
     }
 
@@ -83,14 +84,16 @@ final class TagResourceType extends DplanResourceType
         $configBuilder = $this->getConfig(BaseTagResourceConfigBuilder::class);
         $configBuilder->id->readable()->sortable()->filterable();
         $configBuilder->title->readable(true)->sortable()->filterable()
-            ->addConstructorBehavior(new AttributeConstructorBehaviorFactory(null, null));
+            ->addConstructorBehavior(
+                AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null)
+            );
         $configBuilder->topic
             ->setRelationshipType($this->resourceTypeStore->getTagTopicResourceType())
             ->readable(true, null, true)
             ->sortable()
             ->filterable()
             ->addConstructorBehavior(
-                new ToOneRelationshipConstructorBehaviorFactory(null, [], function (CreationDataInterface $entityData): array {
+                ToOneRelationshipConstructorBehavior::createFactory(null, [], function (CreationDataInterface $entityData): array {
                     $tagTopic = $this->getTagTopic();
                     $createTagTopic = null === $tagTopic;
                     $procedure = $this->currentProcedureService->getProcedureWithCertainty();
@@ -100,8 +103,9 @@ final class TagResourceType extends DplanResourceType
                     }
 
                     return [$tagTopic, [Paths::tag()->topic->getAsNamesInDotNotation()]];
-                })
+                }, OptionalField::NO)
             );
+
         $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (Tag $tag, EntityDataInterface $entityData): array {
             $this->tagRepository->persistEntities([$tag]);
 

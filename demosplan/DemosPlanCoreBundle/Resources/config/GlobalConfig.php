@@ -113,6 +113,8 @@ class GlobalConfig implements GlobalConfigInterface
 
     /** @var string */
     protected $emailFromDomainValidRegex;
+
+    protected string $procedureMetricsReceiver = '';
     /**
      * @var string
      */
@@ -572,7 +574,7 @@ class GlobalConfig implements GlobalConfigInterface
     public function __construct(
         ParameterBagInterface $params,
         TranslatorInterface $translator,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
         $this->setParams($params, $translator);
     }
@@ -612,6 +614,7 @@ class GlobalConfig implements GlobalConfigInterface
         $this->emailSubjectPrefix = $parameterBag->get('email_subject_prefix');
         $this->emailUseSystemMailAsSender = $parameterBag->get('email_use_system_mail_as_sender');
         $this->emailFromDomainValidRegex = $parameterBag->get('email_from_domain_valid_regex');
+        $this->procedureMetricsReceiver = $parameterBag->get('procedure_metrics_receiver');
         $this->emailUseDataportBounceSystem = $parameterBag->get('email_use_bounce_dataport_system');
 
         // @todo this might be wrong (and is also deprecated)
@@ -818,11 +821,7 @@ class GlobalConfig implements GlobalConfigInterface
 
         $this->advancedSupport = $parameterBag->get('advanced_support');
 
-        $externalLinks = $parameterBag->get('external_links');
-        if (is_array($externalLinks)) {
-            $externalLinks = array_map($this->addCustomerToUrl(...), $externalLinks);
-        }
-        $this->externalLinks = $this->getValidatedExternalLinks($externalLinks);
+        $this->externalLinks = $parameterBag->get('external_links');
     }
 
     /**
@@ -1029,6 +1028,11 @@ class GlobalConfig implements GlobalConfigInterface
     public function getEmailFromDomainValidRegex(): string
     {
         return $this->emailFromDomainValidRegex;
+    }
+
+    public function getProcedureMetricsReceiver(): string
+    {
+        return $this->procedureMetricsReceiver;
     }
 
     /**
@@ -1750,6 +1754,12 @@ class GlobalConfig implements GlobalConfigInterface
     public function getExternalLinks(): array
     {
         return $this->externalLinks;
+    }
+
+    public function addCurrentCustomerToUrl(): void
+    {
+        $externalLinks = array_map($this->addCustomerToUrl(...), $this->externalLinks);
+        $this->externalLinks = $this->getValidatedExternalLinks($externalLinks);
     }
 
     /**

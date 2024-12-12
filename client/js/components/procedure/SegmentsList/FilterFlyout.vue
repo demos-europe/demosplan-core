@@ -249,11 +249,20 @@ export default {
     filter () {
       const filter = {}
       this.currentQuery.forEach(id => {
-        filter[id] = {
-          condition: {
-            path: this.path,
-            value: id,
-            operator: id === 'unassigned' ? 'IS NULL' : this.operator
+        if (id === 'unassigned') {
+          filter[id] = {
+            condition: {
+              path: this.path,
+              operator: 'IS NULL'
+            }
+          }
+        } else {
+          filter[id] = {
+            condition: {
+              path: this.path,
+              value: id,
+              operator: this.operator
+            }
           }
         }
       })
@@ -407,7 +416,7 @@ export default {
             })
 
             // If the current filter is assignee, display amount of Segments that have assignee as null. That is given by the field missingResourcesSum
-             if (result.data[0].attributes.path === 'assignee') {
+            if (result.data[0].attributes.path === 'assignee') {
               this.$set(this.itemsObject, 'unassigned', {
                 attributes: {
                   count: result.data[0].attributes.missingResourcesSum,

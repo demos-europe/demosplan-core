@@ -14,7 +14,6 @@ use demosplan\DemosPlanCoreBundle\Addon\AddonBundleGenerator;
 use demosplan\DemosPlanCoreBundle\Addon\AddonDoctrineMigrationsPass;
 use demosplan\DemosPlanCoreBundle\Addon\AddonResolveTargetEntity;
 use demosplan\DemosPlanCoreBundle\Addon\LoadAddonInfoCompilerPass;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpYmlContainerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\MenusLoaderPass;
@@ -274,7 +273,6 @@ class DemosPlanKernel extends Kernel
             );
         }
 
-        $container->addCompilerPass(new DeploymentStrategyLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new RpcMethodSolverPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new MenusLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new RepositoryLoaderPass());
@@ -345,6 +343,7 @@ class DemosPlanKernel extends Kernel
             "{$projectConfigPath}/config_{$this->environment}",
         ];
 
+        // uses local file, no need for flysystem
         if (file_exists(DemosPlanPath::getRootPath('deploy'))) {
             // deployment services, these are a little extra
             // as they are not shipped and MUST thus not always be included

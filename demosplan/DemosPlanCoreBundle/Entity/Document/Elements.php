@@ -81,7 +81,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     /**
      * @var string
      *
-     * @ORM\Column(name="_e_category", type="string", length=36, options={"fixed":true}, nullable=false)
+     * @ORM\Column(name="_e_category", type="string", length=255, options={"fixed":true}, nullable=false)
      */
     protected $category = '';
 
@@ -185,6 +185,15 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
      * @ORM\OrderBy({"order" = "ASC"})
      */
     protected $children;
+
+    /**
+     * @var Collection<int,Paragraph>
+     *
+     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph", mappedBy="element")
+     *
+     * @ORM\OrderBy({"order" = "ASC"})
+     */
+    protected $paragraphs;
 
     /**
      * @var Collection<int,Orga>|Orga[]
