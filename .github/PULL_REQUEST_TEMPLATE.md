@@ -39,3 +39,4 @@ Delete the checkbox if it doesn't apply/isn't necessary. -->
 - [ ] Run `yarn test`
 - [ ] Link all relevant tickets
 - [ ] Move the tickets on the board accordingly
+- [ ] Update changelog 
