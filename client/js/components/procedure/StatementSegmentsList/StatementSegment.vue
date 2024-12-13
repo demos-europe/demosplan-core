@@ -157,6 +157,7 @@
                   v-for="(component, idx) in asyncComponents"
                   :key="idx"
                   :id="component.options.id"
+                  :is-active="activeId === component.options.id"
                   :label="Translator.trans(component.options.title)">
                   <slot>
                     <component
@@ -379,6 +380,7 @@ import {
   VPopover
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
@@ -400,10 +402,10 @@ export default {
     DpLabel,
     DpModal,
     DpMultiselect,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
+    }),
     DpTab,
     DpTabs,
     ImageModal,
@@ -546,6 +548,22 @@ export default {
     visibleSegmentText () {
       const shortText = this.segment.attributes.text.length > 40 ? this.segment.attributes.text.slice(0, 40) + '...' : this.segment.attributes.text
       return this.isCollapsed ? shortText : this.segment.attributes.text
+    }
+  },
+
+  watch: {
+    isCollapsed: {
+      handler (newVal) {
+        if (!newVal) {
+          this.$nextTick(() => {
+            if (this.$refs.recommendationContainer) {
+              this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+            }
+          })
+        }
+      },
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+      immediate: true // This ensures the handler is executed immediately after the component is created
     }
   },
 
@@ -871,21 +889,6 @@ export default {
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
       this.setSegment({ ...updated, id: this.segment.id })
-    }
-  },
-
-  watch: {
-    isCollapsed: {
-      handler: function (newVal, oldVal) {
-        if (!newVal) {
-          this.$nextTick(() => {
-            if (this.$refs.recommendationContainer) {
-              this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
-            }
-          })
-        }
-      },
-      immediate: true // This ensures the handler is executed immediately after the component is created
     }
   },
 

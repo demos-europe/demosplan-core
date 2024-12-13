@@ -16,6 +16,7 @@
       :entries="voters"
       :has-permission-to-edit="!!(readonly !== '1' && isManual)"
       :translation-keys="translationKeys"
+      @delete="handleDelete"
       @reset="resetForm"
       @saveEntry="index => dpValidateAction('newVoterForm', () => addElement(index), false)"
       ref="listComponent">
@@ -366,14 +367,31 @@ export default {
 
     checkIfEmpty () {
       let isEmpty = true
-      const fieldsToCheck = ['organisationName', 'departmentName', 'userName', 'userMail', 'userPostcode', 'userCity']
+      const fieldsToCheck = [
+        'organisationName',
+        'departmentName',
+        'userName',
+        'userMail',
+        'userPostcode',
+        'userCity'
+      ]
 
       for (let i = 0; i < fieldsToCheck.length; i++) {
         if (this.formFields[fieldsToCheck[i]] !== '' && typeof this.formFields[fieldsToCheck[i]] !== 'undefined') {
           isEmpty = false
+
+          return isEmpty
         }
       }
+
       return isEmpty
+    },
+
+    handleDelete (index) {
+      this.removeVoter(index)
+      this.resetForm()
+
+      dplan.notify.notify('confirm', Translator.trans('confirm.deleted'))
     },
 
     resetForm () {
@@ -389,13 +407,23 @@ export default {
         manual: true,
         active: true
       }
+
       this.updating = false
+    },
+
+    showUpdateForm (index) {
+      for (const key in this.formFields) {
+        this.formFields[key] = this.getVoters[index][key]
+      }
+
+      this.updating = true
     }
   },
 
   mounted () {
     // Make an object from the array of initial voters, that was passed in twig
     const objVoters = {}
+
     this.initVoters.forEach((elem, index) => {
       // Set the role of the voter, as it is not defined in BE response
       if (elem.role === '' || typeof elem.role === 'undefined') {
@@ -412,19 +440,6 @@ export default {
     this.setVoters(objVoters)
     this.voters = this.getVoters
 
-    // Event handlers for emitted events
-    this.$on('delete', (index) => {
-      this.removeVoter(index)
-      this.resetForm()
-      dplan.notify.notify('confirm', Translator.trans('confirm.deleted'))
-    })
-
-    this.$on('showUpdateForm', (index) => {
-      for (const key in this.formFields) {
-        this.formFields[key] = this.getVoters[index][key]
-      }
-      this.updating = true
-    })
     // Add event listener to statement voter div to prevent form submit on enter
     if (document.getElementById('statementVoterDiv')) {
       document.getElementById('statementVoterDiv').addEventListener('keydown', preventSend)
@@ -435,7 +450,7 @@ export default {
     this.anonymVotes = parseInt(this.anonymVotesString)
   },
 
-  beforeDestroy () {
+  unmounted () {
     // Remove event listener from statement voter div
     if (document.getElementById('statementVoterDiv')) {
       document.getElementById('statementVoterDiv').removeEventListener('keydown', preventSend, false)

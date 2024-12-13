@@ -51,6 +51,10 @@ export default {
     DpMultiselect
   },
 
+  emits: [
+    'change'
+  ],
+
   props: {
     availableScales: {
       type: Array,
@@ -73,8 +77,11 @@ export default {
   },
 
   watch: {
-    selectedScales (newVal) {
-      this.scales = newVal
+    selectedScales: {
+      handler (newVal) {
+        this.scales = newVal
+      },
+      deep: true
     }
   },
 

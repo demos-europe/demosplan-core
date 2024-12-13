@@ -516,7 +516,7 @@ export default {
     this.registerFullscreenChangeHandler()
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.map instanceof Map) {
       /*
        *  Reset stuff - But. Is this really needed? Since every instance of DpOlMap has its own ol.Map instance.

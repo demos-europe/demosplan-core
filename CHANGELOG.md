@@ -5,3 +5,5 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+- Migrate to Vue 3
