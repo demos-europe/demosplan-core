@@ -37,6 +37,7 @@
     </a>
 
     <button
+      v-if="tagType === 'tag'"
       class="btn--blank o-link--default align-top"
       data-cy="deleteTagField"
       name="r_deletetag"
@@ -44,6 +45,18 @@
       :data-form-actions-confirm="Translator.trans('check.tag.delete', { tag: tag.name })"
       data-form-actions-confirm-simple
       :title="Translator.trans('tag.delete')">
+      <i class="fa fa-trash"/>
+    </button>
+
+    <button
+      v-else
+      class="btn--blank o-link--default align-top"
+      data-cy="deleteTagField"
+      name="r_deletetopic"
+      :value="tag.id"
+      :data-form-actions-confirm="Translator.trans('check.tag.delete', { tag: tag.title })"
+      data-form-actions-confirm-simple
+      :title="Translator.trans('topic.delete')">
       <i class="fa fa-trash"/>
     </button>
   </div>
