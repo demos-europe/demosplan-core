@@ -34,7 +34,7 @@
               class="btn btn--primary"
               data-cy="moveTagSubmitBtn"
               name="r_move"
-              :value="`${selectedTopicId}`">
+              :value="`${tag.id}`">
               {{  Translator.trans('tag.move.toTopic') }}
             </button>
           </div>
