@@ -9,7 +9,7 @@
       :data-toggle="`#move-tag-${tag.id}`"
       data-toggle-prevent-default
       :title="Translator.trans('tag.move')"
-      @click="$emit('toggleInput', {type: 'tag', action: 'move'})">
+      @click="$emit('toggleInputs', {type: 'tag', action: 'move'})">
       <i class="fa fa-angle-double-right" aria-hidden="true"></i>
     </a>
     <a

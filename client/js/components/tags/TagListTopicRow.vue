@@ -96,7 +96,7 @@ export default {
   methods: {
     handleControlEvent (event) {
       console.log(event)
-      if (event.type === 'topic' && event.action === 'insert') {
+      if (event.type === 'tag') {
         this.isVisible.insert = true
         this.isVisible.rename = false
       } else if (event.action === 'rename') {
