@@ -45,20 +45,20 @@
         <div class="overflow-hidden">
           <div class="o-toggle__target u-mv-0_25 flex space-inline-s" :data-toggle-id="`rename-${tag.id}`">
             <input
-              data-cy="renameTopicField"
+              data-cy="renameNewNameTag"
               v-if="isVisible.rename"
               :data-form-actions-submit-target="`#topicRenameBtn-${tag.id}`"
               class="o-form__control-input u-2-of-5"
               type="text"
               :value="tag.title"
-              :name="`${tag.id}:r_rename`">
+              :name="`${tag.id}:r_tag_newname`">
 
             <button
               class="btn btn--primary"
-              name="r_renametopic"
-              data-cy="renameTopicSave"
+              name="r_renametag"
+              data-cy="renameNewNameTag"
               :value="tag.id"
-              :id="`topicRenameBtn-${tag.id}`">
+              :id="`tagRenameBtn-${tag.id}`">
               {{ Translator.trans('tag.rename') }}
             </button>
           </div>
