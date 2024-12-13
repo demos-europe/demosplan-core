@@ -13,13 +13,13 @@
     </td>
 
     <td>
-      <a class="u-1-of-1 block o-hellip">{{ tag.title }}</a>
+      <a class="w-full block o-hellip">{{ tag.title }}</a>
       <template v-if="isMoveVisible">
         <div class="overflow-hidden">
-          <div class="o-toggle__target u-mv-0_25 flex space-inline-s" :data-toggle-id="`move-tag-${tag.id}`">
+          <div class="my-2 flex space-inline-s" :data-toggle-id="`move-tag-${tag.id}`">
             <select
               data-cy="moveTagSelect"
-              class="o-form__control-select u-2-of-5"
+              class="o-form__control-select w-2/5"
               :name="`${tag.id}:r_moveto`">
               <template v-for="topic in topics">
                 <option
@@ -43,12 +43,12 @@
 
       <template v-if="isRenameVisible">
         <div class="overflow-hidden">
-          <div class="o-toggle__target u-mv-0_25 flex space-inline-s" :data-toggle-id="`rename-${tag.id}`">
+          <div class="flex space-inline-s my-2 " :data-toggle-id="`rename-${tag.id}`">
             <input
               data-cy="renameNewNameTag"
               v-if="isVisible.rename"
               :data-form-actions-submit-target="`#topicRenameBtn-${tag.id}`"
-              class="o-form__control-input u-2-of-5"
+              class="o-form__control-input w-2/5"
               type="text"
               :value="tag.title"
               :name="`${tag.id}:r_tag_newname`">
@@ -137,9 +137,7 @@ export default {
     },
 
     handleSelect (id) {
-      console.log('clicked')
       this.selectedTopicId = id
-      console.log('selected')
     }
   },
 

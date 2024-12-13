@@ -17,11 +17,11 @@
       <fieldset class="flow-root pb-1 mt-2">
 
         <div class="layout mb-1">
-          <label class="inline-block m-1 align-top border-box w-4/5 pl-4">
+          <label class="layout__item w-2/3">
             {{ Translator.trans('topic.create') }}
             <input
               data-form-actions-submit-target="#createNewTopic"
-              class="inline-block m-1 align-top border-box o-form__control-input"
+              class="layout__item  o-form__control-input"
               type="text"
               name="r_newTopic"
               data-cy="nameNewTopic"
@@ -29,7 +29,7 @@
           </label><!--
              --><div class="layout__item u-1-of-3">
           <button
-            class="btn btn--primary mt w-full"
+            class="btn btn--primary u-mt w-full"
             id="createNewTopic"
             name="r_create"
             data-cy="addNewTopic">
@@ -49,8 +49,7 @@
           name="r_importCsv"
           :tus-endpoint="dplan.paths.tusEndpoint"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.csv', { browse: '{browse}', maxUploadSize: '10GB' }) }"
-          :max-number-of-files="1"
-        />
+          :max-number-of-files="1" />
 
         <button
           data-cy="listTags:tagsImport"
