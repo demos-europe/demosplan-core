@@ -8,7 +8,8 @@
       data-toggle-container="form"
       :data-toggle="`#move-tag-${tag.id}`"
       data-toggle-prevent-default
-      :title="Translator.trans('tag.move')">
+      :title="Translator.trans('tag.move')"
+      @click="$emit('toggleInput', {type: 'tag', action: 'move'})">
       <i class="fa fa-angle-double-right" aria-hidden="true"></i>
     </a>
     <a
@@ -19,7 +20,8 @@
       data-toggle-container="form"
       :data-toggle="`#insert-${tag.id}`"
       data-toggle-prevent-default
-      :title="Translator.trans('topic.insertTag')">
+      :title="Translator.trans('topic.insertTag')"
+      @click="$emit('toggleInputs', {type: 'topic', action: 'insert'})">
     <i class="fa fa-plus" aria-hidden="true"></i>
     </a>
     <a
@@ -29,7 +31,8 @@
       data-toggle-container="form"
       :data-toggle="`#rename-tag-${tag.id}`"
       data-toggle-prevent-default
-      :title="Translator.trans('tag.rename')">
+      :title="Translator.trans('tag.rename')"
+      @click="$emit('toggleInputs', {type: 'any', action: 'rename'})">
       <i class="fa fa-pencil" aria-hidden="true" />
     </a>
 
