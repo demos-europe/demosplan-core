@@ -2,7 +2,7 @@
   <div class="mb">
     <label class="mb mr-[18px] inline-block">
       <input
-        class="u-mr-0"
+        class="mr-0"
         type="checkbox"
         data-form-actions-check-all
         data-cy="checkAllItems"
