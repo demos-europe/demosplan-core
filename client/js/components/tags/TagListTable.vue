@@ -8,23 +8,23 @@
     <col class="w-6">
 
     <thead>
-    <tr class="border-b">
-      <th class="checkbox text-left">
-        <i class="fa fa-check-square-o"></i>
-      </th>
-      <th class="text-left">
-        {{ Translator.trans('topic.or.tag') }}
-      </th>
-      <th class="text-center -mr-2">
-        {{ Translator.trans('boilerplate') }}
-      </th>
-      <th class="text-right">
-        {{ Translator.trans('actions') }}
-      </th>
-      <th>
-        AI
-      </th>
-    </tr>
+      <tr class="border-b">
+        <th class="checkbox text-left">
+          <i class="fa fa-check-square-o"></i>
+        </th>
+        <th class="text-left">
+          {{ Translator.trans('topic.or.tag') }}
+        </th>
+        <th class="text-center -mr-2">
+          {{ Translator.trans('boilerplate') }}
+        </th>
+        <th class="text-right">
+          {{ Translator.trans('actions') }}
+        </th>
+        <th>
+          AI
+        </th>
+      </tr>
     </thead>
 
     <tbody>
