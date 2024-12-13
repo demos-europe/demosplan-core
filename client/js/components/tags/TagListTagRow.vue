@@ -71,11 +71,11 @@ export default {
     handleControlEvent (event) {
       console.log(event)
       if (event.type === 'tag' && event.action === 'move') {
-        this.isVisible.move = true
+        this.isVisible.move = !this.isVisible.move
         this.isVisible.rename = false
       } else if (event.action === 'rename') {
         this.isVisible.move = false
-        this.isVisible.rename = true
+        this.isVisible.rename = !this.isVisible.rename
       }
     }
   },

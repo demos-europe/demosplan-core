@@ -96,12 +96,12 @@ export default {
   methods: {
     handleControlEvent (event) {
       console.log(event)
-      if (event.type === 'tag') {
-        this.isVisible.insert = true
+      if (event.type === 'topic' && event.action === 'insert') {
+        this.isVisible.insert = !this.isVisible.insert
         this.isVisible.rename = false
       } else if (event.action === 'rename') {
         this.isVisible.insert = false
-        this.isVisible.rename = true
+        this.isVisible.rename = !this.isVisible.rename
       }
     }
   },
