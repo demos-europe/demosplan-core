@@ -10,6 +10,14 @@
           data-cy="listTags:selectTopic"
           data-checkable-item>
       </label>
+
+      <div v-if="isMoveVisible" class="overflow-hidden">
+        <h1>1</h1>
+      </div>
+
+      <div v-if="isRenameVisible" class="overflow-hidden">
+        <h1>2</h1>
+      </div>
     </td>
     <td><a class="u-1-of-1 block o-hellip">{{ tag.title }}</a></td>
     <td class="text-center relative">
@@ -71,5 +79,14 @@ export default {
       }
     }
   },
+
+  computed: {
+    isMoveVisible () {
+      return this.isVisible?.move ?? false
+    },
+    isRenameVisible () {
+      return this.isVisible?.rename ?? false
+    }
+  }
 }
 </script>
