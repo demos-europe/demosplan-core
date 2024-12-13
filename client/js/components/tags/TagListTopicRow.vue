@@ -66,6 +66,13 @@
         tag-type="topic"
         @toggleInputs="evt => handleControlEvent(evt)" />
     </td>
+    <td>
+      <span class="w-full h-full flex justify-center items-center">
+        <input
+          id="addonCheckbox"
+          type="checkbox">
+      </span>
+    </td>
   </tr>
 </template>
 <script>

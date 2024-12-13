@@ -2,8 +2,10 @@
   <table>
     <col class="w-6">
     <col class="">
-    <col class="w-9">
-    <col class="w-9">
+    <col class="w-6">
+    <col class="w-6">
+
+    <col class="w-6">
 
     <thead>
     <tr class="border-b">
@@ -18,6 +20,9 @@
       </th>
       <th class="text-right">
         {{ Translator.trans('actions') }}
+      </th>
+      <th>
+        AI
       </th>
     </tr>
     </thead>
