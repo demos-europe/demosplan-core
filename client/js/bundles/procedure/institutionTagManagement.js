@@ -11,7 +11,7 @@
  * This is the entrypoint for institution_tag_management.html.twig
  */
 import { initialize } from '@DpJs/InitVue'
-import InstitutionTagManagement from '@DpJs/components/procedure/admin/InstitutionTagManagement'
+import InstitutionTagManagement from '@DpJs/components/procedure/admin/InstitutionTagManagement/InstitutionTagManagement'
 
 const components = { InstitutionTagManagement }
 
