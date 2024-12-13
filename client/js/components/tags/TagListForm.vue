@@ -11,7 +11,6 @@
         type="hidden"
         :value="dplan.csrfToken">
 
-      <slot name="tag-list-content-Headline" />
       <slot name="tag-list-bulk-controls" />
       <slot name="tag-list-table" />
 

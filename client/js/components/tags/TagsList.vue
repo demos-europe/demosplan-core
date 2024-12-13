@@ -2,9 +2,6 @@
   <div v-if="topics">
     <tag-list-header />
     <tag-list-form>
-      <template #tag-list-content-Headline>
-        <h2 class="my-4 underline text-2xl font-bold">Inhaltliche Schlagworte</h2>
-      </template>
       <template #tag-list-bulk-controls>
         <tag-list-bulk-controls />
       </template>

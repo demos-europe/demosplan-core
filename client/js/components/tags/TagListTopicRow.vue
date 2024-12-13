@@ -1,5 +1,5 @@
 <template>
-  <tr class="border-b">
+  <tr class="border-b pt-12">
     <td class="checkbox text-left">
       <input
         type="hidden"

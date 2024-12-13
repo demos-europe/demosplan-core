@@ -30,7 +30,14 @@
     <tbody>
     <template v-for="topic in topics">
       <tag-list-topic-row :topic="topic" />
+      <h2 class="text-sm mt-2 font-bold">thematisch</h2>
       <template v-for="tag in topic.tags">
+        <tag-list-tag-row
+          :tag="tag"
+          :topics="topics" />
+      </template>
+      <h2 v-if="topic.tags.filter(el => el.isAi === true).length >= 1" class="text-sm mt-2 font-bold">inhaltlich</h2>
+      <template v-for="tag in topic.tags.filter(el => el.isAi === true)">
         <tag-list-tag-row
           :tag="tag"
           :topics="topics" />
