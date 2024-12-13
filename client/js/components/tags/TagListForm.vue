@@ -5,6 +5,9 @@
       method="POST"
       name="tag_edit">
 
+      <!-- Add csrf token -->
+      <input name="_token" type="hidden" :value="dplan.csrfToken">
+
       <slot name="tag-list-bulk-controls" />
       <slot name="tag-list-table" />
 

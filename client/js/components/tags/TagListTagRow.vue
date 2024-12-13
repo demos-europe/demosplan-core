@@ -120,7 +120,6 @@ export default {
 
   methods: {
     handleControlEvent (event) {
-      console.log(event)
       if (event.action === 'move') {
         this.isVisible.move = !this.isVisible.move
         this.isVisible.rename = false
