@@ -10,16 +10,62 @@
           data-cy="listTags:selectTopic"
           data-checkable-item>
       </label>
-
-      <div v-if="isMoveVisible" class="overflow-hidden">
-        <h1>1</h1>
-      </div>
-
-      <div v-if="isRenameVisible" class="overflow-hidden">
-        <h1>2</h1>
-      </div>
     </td>
-    <td><a class="u-1-of-1 block o-hellip">{{ tag.title }}</a></td>
+
+    <td>
+      <a class="u-1-of-1 block o-hellip">{{ tag.title }}</a>
+      <template v-if="isMoveVisible">
+        <div class="overflow-hidden">
+          <div class="o-toggle__target u-mv-0_25 flex space-inline-s" :data-toggle-id="`move-tag-${tag.id}`">
+            <select
+              data-cy="moveTagSelect"
+              class="o-form__control-select u-2-of-5"
+              :name="`${tag.id}:r_moveto`">
+              <template>
+
+              </template>
+              <option
+                data-cy="moveTagOption"
+                :value="`${topic.id}`">
+                  {{ tag.title }}
+              </option>
+            </select>
+
+            <button
+              class="btn btn--primary"
+              data-cy="moveTagSubmitBtn"
+              name="r_move"
+              :value="`${tag.id}`">
+              {{  Translator.trans('tag.move.toTopic') }}
+            </button>
+          </div>
+        </div>
+      </template>
+
+      <template v-if="isRenameVisible">
+        <div class="overflow-hidden">
+          <div class="o-toggle__target u-mv-0_25 flex space-inline-s" :data-toggle-id="`rename-${tag.id}`">
+            <input
+              data-cy="renameTopicField"
+              v-if="isVisible.rename"
+              :data-form-actions-submit-target="`#topicRenameBtn-${tag.id}`"
+              class="o-form__control-input u-2-of-5"
+              type="text"
+              :value="tag.title"
+              :name="`${tag.id}:r_rename`">
+
+            <button
+              class="btn btn--primary"
+              name="r_renametopic"
+              data-cy="renameTopicSave"
+              :value="tag.id"
+              :id="`topicRenameBtn-${tag.id}`">
+              {{ Translator.trans('tag.rename') }}
+            </button>
+          </div>
+        </div>
+      </template>
+    </td>
     <td class="text-center relative">
       <div class="relative">
         <dp-contextual-help
@@ -30,7 +76,6 @@
         </dp-contextual-help>
       </div>
     </td>
-
     <td class="text-right">
       <tags-list-controls
         :tag="tag"
