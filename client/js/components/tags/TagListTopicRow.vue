@@ -1,7 +1,10 @@
 <template>
   <tr class="border-b">
-    <td class="checkbox u-ph-0 u-pb-0_25 u-pt-0_5 text-left">
-      <input type="hidden" :name="`${topic.id}:r_itemtype`" value="topic">
+    <td class="checkbox text-left">
+      <input
+        type="hidden"
+        :name="`${topic.id}:r_itemtype`"
+        value="topic">
 
       <label class="u-m-0">
         <input
@@ -12,8 +15,8 @@
       </label>
     </td>
 
-    <td class="weight--bold">
-      {{topic.name }}
+    <td class="weight--bold py-2">
+      <span class="w-full h-full">{{topic.name }}</span>
 
       <div class="overflow-hidden">
         <div v-if="isInsertVisible" class="o-toggle__target u-mv-0_25 flex space-inline-s" :data-toggle-id="`insert-${topic.id}`">
@@ -102,7 +105,6 @@ export default {
 
   methods: {
     handleControlEvent (event) {
-      console.log(event)
       if (event.type === 'topic' && event.action === 'insert') {
         this.isVisible.insert = !this.isVisible.insert
         this.isVisible.rename = false

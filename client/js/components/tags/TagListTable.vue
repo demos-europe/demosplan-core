@@ -1,7 +1,7 @@
 <template>
   <table>
     <col class="w-6">
-    <col class="">
+    <col class="w-12">
     <col class="w-6">
     <col class="w-6">
 
@@ -15,7 +15,7 @@
       <th class="text-left">
         {{ Translator.trans('topic.or.tag') }}
       </th>
-      <th class="text-left -mr-2">
+      <th class="text-center -mr-2">
         {{ Translator.trans('boilerplate') }}
       </th>
       <th class="text-right">

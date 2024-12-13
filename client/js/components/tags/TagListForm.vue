@@ -5,20 +5,23 @@
       method="POST"
       name="tag_edit">
 
-      <!-- Add csrf token -->
-      <input name="_token" type="hidden" :value="dplan.csrfToken">
+      <!-- csrf token -->
+      <input
+        name="_token"
+        type="hidden"
+        :value="dplan.csrfToken">
 
       <slot name="tag-list-bulk-controls" />
       <slot name="tag-list-table" />
 
-      <fieldset class="flow-root u-pb-0 u-mt-2">
+      <fieldset class="flow-root pb-1 mt-2">
 
-        <div class="layout u-mb">
-          <label class="layout__item u-2-of-3">
+        <div class="layout mb-1">
+          <label class="inline-block m-1 align-top border-box w-4/5 pl-4">
             {{ Translator.trans('topic.create') }}
             <input
               data-form-actions-submit-target="#createNewTopic"
-              class="layout__item o-form__control-input"
+              class="inline-block m-1 align-top border-box o-form__control-input"
               type="text"
               name="r_newTopic"
               data-cy="nameNewTopic"
@@ -26,7 +29,7 @@
           </label><!--
              --><div class="layout__item u-1-of-3">
           <button
-            class="btn btn--primary u-mt w-full"
+            class="btn btn--primary mt w-full"
             id="createNewTopic"
             name="r_create"
             data-cy="addNewTopic">
@@ -52,7 +55,7 @@
         <button
           data-cy="listTags:tagsImport"
           name="r_import"
-          class="btn btn--primary float-right u-mb-2">
+          class="btn btn--primary float-right mb-1">
           {{ Translator.trans('tags.import') }}
         </button>
 
