@@ -21,21 +21,20 @@
               data-cy="moveTagSelect"
               class="o-form__control-select u-2-of-5"
               :name="`${tag.id}:r_moveto`">
-              <template>
-
+              <template v-for="topic in topics">
+                <option
+                  :value="topic.id"
+                  :selected="tag.topic_id === topic.id"
+                  @click="handleSelect(topic.id)">
+                  {{ topic.title }}
+                </option>
               </template>
-              <option
-                data-cy="moveTagOption"
-                :value="`${tag.id}`">
-                  {{ tag.title }}
-              </option>
             </select>
-
             <button
               class="btn btn--primary"
               data-cy="moveTagSubmitBtn"
               name="r_move"
-              :value="`${tag.id}`">
+              :value="`${selectedTopicId}`">
               {{  Translator.trans('tag.move.toTopic') }}
             </button>
           </div>
@@ -100,6 +99,12 @@ export default {
     tag: {
       type: Object,
       required: true
+    },
+
+    topics: {
+      type: Array,
+      required: false,
+      default: () => []
     }
   },
 
@@ -108,20 +113,27 @@ export default {
       isVisible: {
         move: false,
         rename: false
-      }
+      },
+      selectedTopicId: ''
     }
   },
 
   methods: {
     handleControlEvent (event) {
       console.log(event)
-      if (event.type === 'tag' && event.action === 'move') {
+      if (event.action === 'move') {
         this.isVisible.move = !this.isVisible.move
         this.isVisible.rename = false
       } else if (event.action === 'rename') {
         this.isVisible.move = false
         this.isVisible.rename = !this.isVisible.rename
       }
+    },
+
+    handleSelect (id) {
+      console.log('clicked')
+      this.selectedTopicId = id
+      console.log('selected')
     }
   },
 

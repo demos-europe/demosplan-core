@@ -26,7 +26,9 @@
     <template v-for="topic in topics">
       <tag-list-topic-row :topic="topic" />
       <template v-for="tag in topic.tags">
-        <tag-list-tag-row :tag="tag" />
+        <tag-list-tag-row
+          :tag="tag"
+          :topics="topics" />
       </template>
     </template>
     </tbody>
