@@ -26,7 +26,7 @@
               </template>
               <option
                 data-cy="moveTagOption"
-                :value="`${topic.id}`">
+                :value="`${tag.id}`">
                   {{ tag.title }}
               </option>
             </select>
