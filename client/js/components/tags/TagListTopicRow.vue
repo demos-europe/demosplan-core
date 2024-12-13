@@ -71,19 +71,22 @@
     </td>
     <td>
       <span class="w-full h-full flex justify-center items-center">
-        <input
-          id="addonCheckbox"
-          type="checkbox">
+        <!-- The tag addon will be added here -->
+        <dp-toggle
+          id="mapStatus"
+          v-model="isAiActive" />
       </span>
     </td>
   </tr>
 </template>
 <script>
+import { DpToggle } from '@demos-europe/demosplan-ui'
 import TagsListControls from './TagsListControls'
 
 export default {
   name: 'TagListTopicRow',
   components: {
+    DpToggle,
     TagsListControls
   },
 
@@ -99,7 +102,8 @@ export default {
       isVisible: {
         insert: false,
         rename: false
-      }
+      },
+      isAiActive: false
     }
   },
 
