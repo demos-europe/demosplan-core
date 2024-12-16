@@ -376,7 +376,8 @@
         :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
         primary
         secondary
-        @primary-action="submit" />
+        @primary-action="submit"
+        @secondary-action="abort" />
     </form>
   </div>
 </template>
@@ -580,6 +581,11 @@ export default {
   },
 
   methods: {
+    abort () {
+      const href = `${Routing.generate('DemosPlan_procedure_import', { procedureId: this.procedureId })}/#import#StatementPdfImport`
+      window.location.replace(href)
+    },
+
     setInitialValues () {
       this.values = { ...this.initValues }
 

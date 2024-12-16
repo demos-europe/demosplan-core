@@ -1,8 +1,0 @@
-intriro_csv:
-    importers:
-        tags:
-            delimiter: ";"
-            enclosure: '"'
-            escape: "\\"
-            from_charset: ISO-8859-1
-            to_charset: UTF-8
