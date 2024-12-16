@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b532a98a8721abc2c3e3d136179ba68f",
+    "content-hash": "d258b6eba6f9e9304fd3b7011dbf5cae",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1019,16 +1019,16 @@
         },
         {
             "name": "composer/class-map-generator",
-            "version": "1.3.4",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/class-map-generator.git",
-                "reference": "b1b3fd0b4eaf3ddf3ee230bc340bf3fff454a1a3"
+                "reference": "98bbf6780e56e0fd2404fe4b82eb665a0f93b783"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/class-map-generator/zipball/b1b3fd0b4eaf3ddf3ee230bc340bf3fff454a1a3",
-                "reference": "b1b3fd0b4eaf3ddf3ee230bc340bf3fff454a1a3",
+                "url": "https://api.github.com/repos/composer/class-map-generator/zipball/98bbf6780e56e0fd2404fe4b82eb665a0f93b783",
+                "reference": "98bbf6780e56e0fd2404fe4b82eb665a0f93b783",
                 "shasum": ""
             },
             "require": {
@@ -1041,8 +1041,8 @@
                 "phpstan/phpstan-deprecation-rules": "^1",
                 "phpstan/phpstan-phpunit": "^1",
                 "phpstan/phpstan-strict-rules": "^1.1",
-                "symfony/filesystem": "^5.4 || ^6",
-                "symfony/phpunit-bridge": "^5"
+                "phpunit/phpunit": "^8",
+                "symfony/filesystem": "^5.4 || ^6"
             },
             "type": "library",
             "extra": {
@@ -1072,7 +1072,7 @@
             ],
             "support": {
                 "issues": "https://github.com/composer/class-map-generator/issues",
-                "source": "https://github.com/composer/class-map-generator/tree/1.3.4"
+                "source": "https://github.com/composer/class-map-generator/tree/1.4.0"
             },
             "funding": [
                 {
@@ -1088,52 +1088,52 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-06-12T14:13:04+00:00"
+            "time": "2024-10-03T18:14:00+00:00"
         },
         {
             "name": "composer/composer",
-            "version": "2.7.7",
+            "version": "2.8.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/composer.git",
-                "reference": "291942978f39435cf904d33739f98d7d4eca7b23"
+                "reference": "2a7c71266b2545a3bed9f4860734081963f6e688"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/291942978f39435cf904d33739f98d7d4eca7b23",
-                "reference": "291942978f39435cf904d33739f98d7d4eca7b23",
+                "url": "https://api.github.com/repos/composer/composer/zipball/2a7c71266b2545a3bed9f4860734081963f6e688",
+                "reference": "2a7c71266b2545a3bed9f4860734081963f6e688",
                 "shasum": ""
             },
             "require": {
-                "composer/ca-bundle": "^1.0",
-                "composer/class-map-generator": "^1.3.3",
+                "composer/ca-bundle": "^1.5",
+                "composer/class-map-generator": "^1.4.0",
                 "composer/metadata-minifier": "^1.0",
-                "composer/pcre": "^2.1 || ^3.1",
+                "composer/pcre": "^2.2 || ^3.2",
                 "composer/semver": "^3.3",
                 "composer/spdx-licenses": "^1.5.7",
                 "composer/xdebug-handler": "^2.0.2 || ^3.0.3",
-                "justinrainbow/json-schema": "^5.2.11",
+                "justinrainbow/json-schema": "^5.3",
                 "php": "^7.2.5 || ^8.0",
                 "psr/log": "^1.0 || ^2.0 || ^3.0",
-                "react/promise": "^2.8 || ^3",
+                "react/promise": "^2.11 || ^3.2",
                 "seld/jsonlint": "^1.4",
                 "seld/phar-utils": "^1.2",
                 "seld/signal-handler": "^2.0",
-                "symfony/console": "^5.4.11 || ^6.0.11 || ^7",
-                "symfony/filesystem": "^5.4 || ^6.0 || ^7",
-                "symfony/finder": "^5.4 || ^6.0 || ^7",
+                "symfony/console": "^5.4.35 || ^6.3.12 || ^7.0.3",
+                "symfony/filesystem": "^5.4.35 || ^6.3.12 || ^7.0.3",
+                "symfony/finder": "^5.4.35 || ^6.3.12 || ^7.0.3",
                 "symfony/polyfill-php73": "^1.24",
                 "symfony/polyfill-php80": "^1.24",
                 "symfony/polyfill-php81": "^1.24",
-                "symfony/process": "^5.4 || ^6.0 || ^7"
+                "symfony/process": "^5.4.35 || ^6.3.12 || ^7.0.3"
             },
             "require-dev": {
-                "phpstan/phpstan": "^1.11.0",
+                "phpstan/phpstan": "^1.11.8",
                 "phpstan/phpstan-deprecation-rules": "^1.2.0",
                 "phpstan/phpstan-phpunit": "^1.4.0",
                 "phpstan/phpstan-strict-rules": "^1.6.0",
                 "phpstan/phpstan-symfony": "^1.4.0",
-                "symfony/phpunit-bridge": "^6.4.1 || ^7.0.1"
+                "symfony/phpunit-bridge": "^6.4.3 || ^7.0.1"
             },
             "suggest": {
                 "ext-openssl": "Enabling the openssl extension allows you to access https URLs for repositories and packages",
@@ -1151,7 +1151,7 @@
                     ]
                 },
                 "branch-alias": {
-                    "dev-main": "2.7-dev"
+                    "dev-main": "2.8-dev"
                 }
             },
             "autoload": {
@@ -1186,7 +1186,7 @@
                 "irc": "ircs://irc.libera.chat:6697/composer",
                 "issues": "https://github.com/composer/composer/issues",
                 "security": "https://github.com/composer/composer/security/policy",
-                "source": "https://github.com/composer/composer/tree/2.7.7"
+                "source": "https://github.com/composer/composer/tree/2.8.3"
             },
             "funding": [
                 {
@@ -1202,7 +1202,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-06-10T20:11:12+00:00"
+            "time": "2024-11-17T12:13:04+00:00"
         },
         {
             "name": "composer/metadata-minifier",
@@ -10651,64 +10651,6 @@
             "time": "2024-10-13T11:25:22+00:00"
         },
         {
-            "name": "phpstan/phpstan",
-            "version": "1.12.9",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "ceb937fb39a92deabc02d20709cf14b2c452502c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/ceb937fb39a92deabc02d20709cf14b2c452502c",
-                "reference": "ceb937fb39a92deabc02d20709cf14b2c452502c",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.2|^8.0"
-            },
-            "conflict": {
-                "phpstan/phpstan-shim": "*"
-            },
-            "bin": [
-                "phpstan",
-                "phpstan.phar"
-            ],
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "bootstrap.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "PHPStan - PHP Static Analysis Tool",
-            "keywords": [
-                "dev",
-                "static analysis"
-            ],
-            "support": {
-                "docs": "https://phpstan.org/user-guide/getting-started",
-                "forum": "https://github.com/phpstan/phpstan/discussions",
-                "issues": "https://github.com/phpstan/phpstan/issues",
-                "security": "https://github.com/phpstan/phpstan/security/policy",
-                "source": "https://github.com/phpstan/phpstan-src"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/ondrejmirtes",
-                    "type": "github"
-                },
-                {
-                    "url": "https://github.com/phpstan",
-                    "type": "github"
-                }
-            ],
-            "time": "2024-11-10T17:10:04+00:00"
-        },
-        {
             "name": "predis/predis",
             "version": "v2.2.2",
             "source": {
@@ -15445,8 +15387,8 @@
             "type": "library",
             "extra": {
                 "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
                 }
             },
             "autoload": {
@@ -15601,8 +15543,8 @@
             "type": "library",
             "extra": {
                 "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
                 }
             },
             "autoload": {
@@ -15846,8 +15788,8 @@
             "type": "library",
             "extra": {
                 "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
                 }
             },
             "autoload": {
@@ -19296,431 +19238,6 @@
                 "source": "https://github.com/mac-cain13/daemonizable-command/tree/3.1.0"
             },
             "time": "2021-03-09T12:04:58+00:00"
-        },
-        {
-            "name": "wsdltophp/domhandler",
-            "version": "2.0.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/WsdlToPhp/DomHandler.git",
-                "reference": "21eb8c020484508268a57a5393ed93ab938b7786"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/WsdlToPhp/DomHandler/zipball/21eb8c020484508268a57a5393ed93ab938b7786",
-                "reference": "21eb8c020484508268a57a5393ed93ab938b7786",
-                "shasum": ""
-            },
-            "require": {
-                "ext-dom": "*",
-                "php": ">=7.4"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "~3.0",
-                "phpstan/phpstan": "^1.4",
-                "phpunit/phpunit": "^9"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "WsdlToPhp\\DomHandler\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mikaël DELSOL",
-                    "email": "contact@wsdltophp.com",
-                    "homepage": "https://www.wsdltophp.com",
-                    "role": "Owner"
-                },
-                {
-                    "name": "phordijk",
-                    "role": "Contributor"
-                }
-            ],
-            "description": "Decorative design pattern to ease DOM handling",
-            "homepage": "https://github.com/WsdlToPhp/DomHandler",
-            "keywords": [
-                "Xpath",
-                "dom",
-                "php",
-                "xml"
-            ],
-            "support": {
-                "email": "contact@wsdltophp.com",
-                "issues": "https://github.com/WsdlToPhp/DomHandler/issues",
-                "source": "https://github.com/WsdlToPhp/DomHandler/tree/2.0.6"
-            },
-            "time": "2022-03-24T20:28:45+00:00"
-        },
-        {
-            "name": "wsdltophp/packagebase",
-            "version": "5.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/WsdlToPhp/PackageBase.git",
-                "reference": "d2ac19eec63714da3ef8b8eecd529922cb44e26d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/WsdlToPhp/PackageBase/zipball/d2ac19eec63714da3ef8b8eecd529922cb44e26d",
-                "reference": "d2ac19eec63714da3ef8b8eecd529922cb44e26d",
-                "shasum": ""
-            },
-            "require": {
-                "ext-dom": "*",
-                "ext-json": "*",
-                "ext-soap": "*",
-                "php": ">=7.4"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "~3.0",
-                "phpstan/phpstan": "^1.4",
-                "phpunit/phpunit": "^9"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "WsdlToPhp\\PackageBase\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mikaël DELSOL",
-                    "email": "contact@wsdltophp.com",
-                    "role": "Owner"
-                },
-                {
-                    "name": "Luke Rodgers",
-                    "email": "lukerodgers90@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Arthur Moore",
-                    "email": "github@cd-net.net",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Necati Yared Ozal",
-                    "email": "mail@necatiozal.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Gemorroj",
-                    "email": "wapinet@mail.ru",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "hordijk",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Jacob Dreesen",
-                    "email": "jacob.dreesen@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Karl Pierce",
-                    "email": "kpierce@ratespecial.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "maurobn",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Christo Yovev",
-                    "role": "Contributor"
-                }
-            ],
-            "description": "Contains the base classes to be used by classes generated by wsdltophp/packagegenerator",
-            "homepage": "https://github.com/WsdlToPhp/PackageBase",
-            "keywords": [
-                "models",
-                "php"
-            ],
-            "support": {
-                "email": "contact@wsdltophp.com",
-                "issues": "https://github.com/WsdlToPhp/PackageBase/issues",
-                "source": "https://github.com/WsdlToPhp/PackageBase/tree/5.0.4"
-            },
-            "time": "2024-02-05T22:04:31+00:00"
-        },
-        {
-            "name": "wsdltophp/packagegenerator",
-            "version": "4.1.13",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/WsdlToPhp/PackageGenerator.git",
-                "reference": "fb5b00700be31694fb210b4b51fb9e9f9b7de137"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/WsdlToPhp/PackageGenerator/zipball/fb5b00700be31694fb210b4b51fb9e9f9b7de137",
-                "reference": "fb5b00700be31694fb210b4b51fb9e9f9b7de137",
-                "shasum": ""
-            },
-            "require": {
-                "composer/composer": "^2.0",
-                "ext-dom": "*",
-                "ext-json": "*",
-                "ext-libxml": "*",
-                "ext-mbstring": "*",
-                "ext-soap": "*",
-                "php": ">=7.4",
-                "symfony/console": "^4.0|^5.0|^6.0|^7.0",
-                "symfony/yaml": "^4.0|^5.0|^6.0|^7.0",
-                "wsdltophp/packagebase": "^5.0",
-                "wsdltophp/phpgenerator": "^4.0",
-                "wsdltophp/wsdlhandler": "^1.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.0",
-                "phpstan/phpstan": "^1.3",
-                "phpunit/phpunit": "^9",
-                "rector/rector": "^0.15.17"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "WsdlToPhp\\PackageGenerator\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mikaël DELSOL",
-                    "email": "contact@wsdltophp.com",
-                    "homepage": "https://www.wsdltophp.com",
-                    "role": "Owner"
-                },
-                {
-                    "name": "Gemorroj",
-                    "email": "wapinet@mail.ru",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "ceeram",
-                    "email": "c33ram@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "GroxExMachine",
-                    "email": "grox@mail.ru",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Jan Zaeske",
-                    "email": "mail@jzaeske.de",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Tom Mottram",
-                    "email": "tom@pay4later.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Catirau Mihail",
-                    "email": "ustmaestro@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Alexander M. Turek",
-                    "email": "me@derrabus.de",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Valérian Girard",
-                    "email": "waldo2188@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "hordijk",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Andreas Möller",
-                    "email": "am@localheinz.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Andreas Kintzinger",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Hendrik Luup",
-                    "email": "hendrik@luup.info",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Jacob Dreesen",
-                    "email": "jacob.dreesen@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Clifford Vickrey",
-                    "email": "clifforddavidvickrey@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Arnaud POINTET",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "dypa",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "gugglegum",
-                    "email": "gugglegum@gmail.com",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "tbreuss",
-                    "email": "thomasbreuss@gmx.ch",
-                    "role": "Contributor"
-                },
-                {
-                    "name": "Alex Krátký",
-                    "role": "Contributor"
-                }
-            ],
-            "description": "Generate hierarchical PHP classes based on a WSDL",
-            "homepage": "https://github.com/WsdlToPhp/PackageGenerator",
-            "keywords": [
-                "generator",
-                "php",
-                "soap",
-                "wsdl"
-            ],
-            "support": {
-                "email": "contact@wsdltophp.com",
-                "issues": "https://github.com/WsdlToPhp/PackageGenerator/issues",
-                "source": "https://github.com/WsdlToPhp/PackageGenerator/tree/4.1.13"
-            },
-            "time": "2024-06-21T04:10:25+00:00"
-        },
-        {
-            "name": "wsdltophp/phpgenerator",
-            "version": "4.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/WsdlToPhp/PhpGenerator.git",
-                "reference": "8dfdc4746590f10d9569ec3d4ec23b01955f1e91"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/WsdlToPhp/PhpGenerator/zipball/8dfdc4746590f10d9569ec3d4ec23b01955f1e91",
-                "reference": "8dfdc4746590f10d9569ec3d4ec23b01955f1e91",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.4",
-                "phpstan/phpstan": "^1.5"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.0",
-                "phpunit/phpunit": "^9"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "WsdlToPhp\\PhpGenerator\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mikaël DELSOL",
-                    "email": "contact@wsdltophp.com",
-                    "role": "Owner"
-                }
-            ],
-            "description": "Generate php source file",
-            "homepage": "https://github.com/WsdlToPhp/PhpGenerator",
-            "keywords": [
-                "generator",
-                "php"
-            ],
-            "support": {
-                "email": "contact@wsdltophp.com",
-                "issues": "https://github.com/WsdlToPhp/PhpGenerator/issues",
-                "source": "https://github.com/WsdlToPhp/PhpGenerator/tree/4.1.1"
-            },
-            "time": "2022-03-24T21:22:21+00:00"
-        },
-        {
-            "name": "wsdltophp/wsdlhandler",
-            "version": "1.0.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/WsdlToPhp/WsdlHandler.git",
-                "reference": "ffa23619cc9d947cdfdc9a44cef6023231816b52"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/WsdlToPhp/WsdlHandler/zipball/ffa23619cc9d947cdfdc9a44cef6023231816b52",
-                "reference": "ffa23619cc9d947cdfdc9a44cef6023231816b52",
-                "shasum": ""
-            },
-            "require": {
-                "ext-dom": "*",
-                "php": ">=7.4",
-                "wsdltophp/domhandler": "~2.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "~3.0",
-                "phpstan/phpstan": "^1.4",
-                "phpunit/phpunit": "^9"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "WsdlToPhp\\WsdlHandler\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mikaël DELSOL",
-                    "email": "contact@wsdltophp.com",
-                    "homepage": "https://www.wsdltophp.com",
-                    "role": "Owner"
-                }
-            ],
-            "description": "Decorative design pattern to ease WSDL handling",
-            "homepage": "https://github.com/WsdlToPhp/WsdlHandler",
-            "keywords": [
-                "Xpath",
-                "dom",
-                "php",
-                "wsdl",
-                "xml",
-                "xsd"
-            ],
-            "support": {
-                "email": "contact@wsdltophp.com",
-                "issues": "https://github.com/WsdlToPhp/WsdlHandler/issues",
-                "source": "https://github.com/WsdlToPhp/WsdlHandler/tree/1.0.5"
-            },
-            "time": "2022-03-24T20:54:42+00:00"
         }
     ],
     "packages-dev": [
@@ -21136,6 +20653,64 @@
                 "source": "https://github.com/phpspec/prophecy-phpunit/tree/v2.3.0"
             },
             "time": "2024-11-19T13:24:17+00:00"
+        },
+        {
+            "name": "phpstan/phpstan",
+            "version": "1.12.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpstan/phpstan.git",
+                "reference": "ceb937fb39a92deabc02d20709cf14b2c452502c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/ceb937fb39a92deabc02d20709cf14b2c452502c",
+                "reference": "ceb937fb39a92deabc02d20709cf14b2c452502c",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2|^8.0"
+            },
+            "conflict": {
+                "phpstan/phpstan-shim": "*"
+            },
+            "bin": [
+                "phpstan",
+                "phpstan.phar"
+            ],
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PHPStan - PHP Static Analysis Tool",
+            "keywords": [
+                "dev",
+                "static analysis"
+            ],
+            "support": {
+                "docs": "https://phpstan.org/user-guide/getting-started",
+                "forum": "https://github.com/phpstan/phpstan/discussions",
+                "issues": "https://github.com/phpstan/phpstan/issues",
+                "security": "https://github.com/phpstan/phpstan/security/policy",
+                "source": "https://github.com/phpstan/phpstan-src"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/ondrejmirtes",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/phpstan",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-11-10T17:10:04+00:00"
         },
         {
             "name": "phpstan/phpstan-symfony",
@@ -23948,6 +23523,431 @@
             "time": "2023-07-15T05:44:30+00:00"
         },
         {
+            "name": "wsdltophp/domhandler",
+            "version": "2.0.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/WsdlToPhp/DomHandler.git",
+                "reference": "21eb8c020484508268a57a5393ed93ab938b7786"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/WsdlToPhp/DomHandler/zipball/21eb8c020484508268a57a5393ed93ab938b7786",
+                "reference": "21eb8c020484508268a57a5393ed93ab938b7786",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "~3.0",
+                "phpstan/phpstan": "^1.4",
+                "phpunit/phpunit": "^9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "WsdlToPhp\\DomHandler\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mikaël DELSOL",
+                    "email": "contact@wsdltophp.com",
+                    "homepage": "https://www.wsdltophp.com",
+                    "role": "Owner"
+                },
+                {
+                    "name": "phordijk",
+                    "role": "Contributor"
+                }
+            ],
+            "description": "Decorative design pattern to ease DOM handling",
+            "homepage": "https://github.com/WsdlToPhp/DomHandler",
+            "keywords": [
+                "Xpath",
+                "dom",
+                "php",
+                "xml"
+            ],
+            "support": {
+                "email": "contact@wsdltophp.com",
+                "issues": "https://github.com/WsdlToPhp/DomHandler/issues",
+                "source": "https://github.com/WsdlToPhp/DomHandler/tree/2.0.6"
+            },
+            "time": "2022-03-24T20:28:45+00:00"
+        },
+        {
+            "name": "wsdltophp/packagebase",
+            "version": "5.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/WsdlToPhp/PackageBase.git",
+                "reference": "d2ac19eec63714da3ef8b8eecd529922cb44e26d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/WsdlToPhp/PackageBase/zipball/d2ac19eec63714da3ef8b8eecd529922cb44e26d",
+                "reference": "d2ac19eec63714da3ef8b8eecd529922cb44e26d",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-json": "*",
+                "ext-soap": "*",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "~3.0",
+                "phpstan/phpstan": "^1.4",
+                "phpunit/phpunit": "^9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "WsdlToPhp\\PackageBase\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mikaël DELSOL",
+                    "email": "contact@wsdltophp.com",
+                    "role": "Owner"
+                },
+                {
+                    "name": "Luke Rodgers",
+                    "email": "lukerodgers90@gmail.com",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Arthur Moore",
+                    "email": "github@cd-net.net",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Necati Yared Ozal",
+                    "email": "mail@necatiozal.com",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Gemorroj",
+                    "email": "wapinet@mail.ru",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "hordijk",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Jacob Dreesen",
+                    "email": "jacob.dreesen@gmail.com",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Karl Pierce",
+                    "email": "kpierce@ratespecial.com",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "maurobn",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Christo Yovev",
+                    "role": "Contributor"
+                }
+            ],
+            "description": "Contains the base classes to be used by classes generated by wsdltophp/packagegenerator",
+            "homepage": "https://github.com/WsdlToPhp/PackageBase",
+            "keywords": [
+                "models",
+                "php"
+            ],
+            "support": {
+                "email": "contact@wsdltophp.com",
+                "issues": "https://github.com/WsdlToPhp/PackageBase/issues",
+                "source": "https://github.com/WsdlToPhp/PackageBase/tree/5.0.4"
+            },
+            "time": "2024-02-05T22:04:31+00:00"
+        },
+        {
+            "name": "wsdltophp/packagegenerator",
+            "version": "4.1.13",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/WsdlToPhp/PackageGenerator.git",
+                "reference": "fb5b00700be31694fb210b4b51fb9e9f9b7de137"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/WsdlToPhp/PackageGenerator/zipball/fb5b00700be31694fb210b4b51fb9e9f9b7de137",
+                "reference": "fb5b00700be31694fb210b4b51fb9e9f9b7de137",
+                "shasum": ""
+            },
+            "require": {
+                "composer/composer": "^2.0",
+                "ext-dom": "*",
+                "ext-json": "*",
+                "ext-libxml": "*",
+                "ext-mbstring": "*",
+                "ext-soap": "*",
+                "php": ">=7.4",
+                "symfony/console": "^4.0|^5.0|^6.0|^7.0",
+                "symfony/yaml": "^4.0|^5.0|^6.0|^7.0",
+                "wsdltophp/packagebase": "^5.0",
+                "wsdltophp/phpgenerator": "^4.0",
+                "wsdltophp/wsdlhandler": "^1.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "phpstan/phpstan": "^1.3",
+                "phpunit/phpunit": "^9",
+                "rector/rector": "^0.15.17"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "WsdlToPhp\\PackageGenerator\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mikaël DELSOL",
+                    "email": "contact@wsdltophp.com",
+                    "homepage": "https://www.wsdltophp.com",
+                    "role": "Owner"
+                },
+                {
+                    "name": "Gemorroj",
+                    "email": "wapinet@mail.ru",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "ceeram",
+                    "email": "c33ram@gmail.com",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "GroxExMachine",
+                    "email": "grox@mail.ru",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Jan Zaeske",
+                    "email": "mail@jzaeske.de",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Tom Mottram",
+                    "email": "tom@pay4later.com",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Catirau Mihail",
+                    "email": "ustmaestro@gmail.com",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Alexander M. Turek",
+                    "email": "me@derrabus.de",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Valérian Girard",
+                    "email": "waldo2188@gmail.com",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "hordijk",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Andreas Möller",
+                    "email": "am@localheinz.com",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Andreas Kintzinger",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Hendrik Luup",
+                    "email": "hendrik@luup.info",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Jacob Dreesen",
+                    "email": "jacob.dreesen@gmail.com",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Clifford Vickrey",
+                    "email": "clifforddavidvickrey@gmail.com",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Arnaud POINTET",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "dypa",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "gugglegum",
+                    "email": "gugglegum@gmail.com",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "tbreuss",
+                    "email": "thomasbreuss@gmx.ch",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "Alex Krátký",
+                    "role": "Contributor"
+                }
+            ],
+            "description": "Generate hierarchical PHP classes based on a WSDL",
+            "homepage": "https://github.com/WsdlToPhp/PackageGenerator",
+            "keywords": [
+                "generator",
+                "php",
+                "soap",
+                "wsdl"
+            ],
+            "support": {
+                "email": "contact@wsdltophp.com",
+                "issues": "https://github.com/WsdlToPhp/PackageGenerator/issues",
+                "source": "https://github.com/WsdlToPhp/PackageGenerator/tree/4.1.13"
+            },
+            "time": "2024-06-21T04:10:25+00:00"
+        },
+        {
+            "name": "wsdltophp/phpgenerator",
+            "version": "4.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/WsdlToPhp/PhpGenerator.git",
+                "reference": "8dfdc4746590f10d9569ec3d4ec23b01955f1e91"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/WsdlToPhp/PhpGenerator/zipball/8dfdc4746590f10d9569ec3d4ec23b01955f1e91",
+                "reference": "8dfdc4746590f10d9569ec3d4ec23b01955f1e91",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4",
+                "phpstan/phpstan": "^1.5"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "phpunit/phpunit": "^9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "WsdlToPhp\\PhpGenerator\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mikaël DELSOL",
+                    "email": "contact@wsdltophp.com",
+                    "role": "Owner"
+                }
+            ],
+            "description": "Generate php source file",
+            "homepage": "https://github.com/WsdlToPhp/PhpGenerator",
+            "keywords": [
+                "generator",
+                "php"
+            ],
+            "support": {
+                "email": "contact@wsdltophp.com",
+                "issues": "https://github.com/WsdlToPhp/PhpGenerator/issues",
+                "source": "https://github.com/WsdlToPhp/PhpGenerator/tree/4.1.1"
+            },
+            "time": "2022-03-24T21:22:21+00:00"
+        },
+        {
+            "name": "wsdltophp/wsdlhandler",
+            "version": "1.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/WsdlToPhp/WsdlHandler.git",
+                "reference": "ffa23619cc9d947cdfdc9a44cef6023231816b52"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/WsdlToPhp/WsdlHandler/zipball/ffa23619cc9d947cdfdc9a44cef6023231816b52",
+                "reference": "ffa23619cc9d947cdfdc9a44cef6023231816b52",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "php": ">=7.4",
+                "wsdltophp/domhandler": "~2.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "~3.0",
+                "phpstan/phpstan": "^1.4",
+                "phpunit/phpunit": "^9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "WsdlToPhp\\WsdlHandler\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mikaël DELSOL",
+                    "email": "contact@wsdltophp.com",
+                    "homepage": "https://www.wsdltophp.com",
+                    "role": "Owner"
+                }
+            ],
+            "description": "Decorative design pattern to ease WSDL handling",
+            "homepage": "https://github.com/WsdlToPhp/WsdlHandler",
+            "keywords": [
+                "Xpath",
+                "dom",
+                "php",
+                "wsdl",
+                "xml",
+                "xsd"
+            ],
+            "support": {
+                "email": "contact@wsdltophp.com",
+                "issues": "https://github.com/WsdlToPhp/WsdlHandler/issues",
+                "source": "https://github.com/WsdlToPhp/WsdlHandler/tree/1.0.5"
+            },
+            "time": "2022-03-24T20:54:42+00:00"
+        },
+        {
             "name": "zenstruck/assert",
             "version": "v1.5.0",
             "source": {
@@ -24191,5 +24191,5 @@
     "platform-overrides": {
         "php": "8.1.12"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }

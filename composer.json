@@ -33,6 +33,7 @@
         "beberlei/doctrineextensions": "^1.0",
         "cebe/php-openapi": "^1.5",
         "cocur/slugify": "^4.0",
+        "composer/composer": "^2.8",
         "composer/package-versions-deprecated": "1.11.99.5",
         "demos-europe/demosplan-addon": "0.44",
         "doctrine/annotations": "^2.0",
@@ -52,7 +53,7 @@
         "enqueue/fs": "^0.10",
         "erusev/parsedown": "^1.7",
         "exercise/htmlpurifier-bundle": "^4.1",
-        "fakerphp/faker": "^1.16",
+        "fakerphp/faker": "^1.24",
         "friendsofsymfony/elastica-bundle": "^6",
         "friendsofsymfony/jsrouting-bundle": "^3.5",
         "geocoder-php/nominatim-provider": "^5.5",
@@ -138,8 +139,7 @@
         "wgirhad/geophp": "^3.0",
         "willdurand/geocoder-bundle": "^5.16",
         "willdurand/js-translation-bundle": "~6.0",
-        "wrep/daemonizable-command": "^3.0",
-        "wsdltophp/packagegenerator": "^4.1"
+        "wrep/daemonizable-command": "^3.0"
     },
     "require-dev": {
         "escapestudios/symfony2-coding-standard": "^3.4",
@@ -164,6 +164,7 @@
         "timeweb/phpstan-enum": "^3.1",
         "vimeo/psalm": "^5",
         "weirdan/doctrine-psalm-plugin": "^2",
+        "wsdltophp/packagegenerator": "^4.1",
         "zenstruck/foundry": "^1.33"
     },
     "autoload": {
