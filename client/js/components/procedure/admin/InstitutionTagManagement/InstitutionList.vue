@@ -205,6 +205,7 @@ export default {
           name: attributes.name,
           tags: relationships.assignedTags.data.map(tag => {
             const tagDetails = this.getTagById(tag.id)
+
             return {
               id: tag.id,
               type: tag.type,
