@@ -75,7 +75,6 @@ export default {
         }
       })
 
-      // eslint-disable-next-line prefer-const
       drawInteraction = new Draw({
         source: layerToDrawInto.getSource(),
         type: 'Point',

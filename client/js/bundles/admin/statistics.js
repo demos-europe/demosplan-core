@@ -16,6 +16,5 @@ import { initialize } from '@DpJs/InitVue'
 import StatisticsCharts from '@DpJs/components/admin/StatisticsCharts'
 
 initialize({ DpDataTableExtended }).then(() => {
-  // eslint-disable-next-line no-new
   new StatisticsCharts()
 })
