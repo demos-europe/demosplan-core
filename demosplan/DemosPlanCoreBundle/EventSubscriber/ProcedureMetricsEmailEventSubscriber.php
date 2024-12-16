@@ -67,6 +67,10 @@ class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
         $procedure = $event->getProcedure();
 
         $from = $this->globalConfig->getEmailSystem();
+        $to = $this->globalConfig->getProcedureMetricsReceiver();
+        if ('' === $to) {
+            return;
+        }
         try {
             $allProceduresOfOrgaInCustomer = $this->getAllProceduresOfOrgaInCustomer();
             $this->mailVars['mailsubject'] = $this->getSubject($allProceduresOfOrgaInCustomer);
@@ -82,7 +86,7 @@ class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
             $this->mailService->sendMail(
                 self::USED_TEMPLATE,
                 self::LOKALE,
-                self::RECEIVER_MAIL_ADDRESS,
+                $to,
                 $from,
                 '',
                 '',

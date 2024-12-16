@@ -43,6 +43,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\GlobalNewsResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HashedQueryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HeadStatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionLocationContactResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitableInstitutionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
@@ -162,6 +163,7 @@ class ResourceTypeStore
 
     protected InstitutionLocationContactResourceType $institutionLocationContactResourceType;
 
+    protected InstitutionTagCategoryResourceType $institutionTagCategoryResourceType;
     protected InstitutionTagResourceType $institutionTagResourceType;
 
     protected InvitableInstitutionResourceType $invitableInstitutionResourceType;
@@ -294,6 +296,7 @@ class ResourceTypeStore
         HashedQueryResourceType $hashedQueryResourceType,
         HeadStatementResourceType $headStatementResourceType,
         InstitutionLocationContactResourceType $institutionLocationContactResourceType,
+        InstitutionTagCategoryResourceType $institutionTagCategoryResourceType,
         InstitutionTagResourceType $institutionTagResourceType,
         InvitableInstitutionResourceType $invitableInstitutionResourceType,
         InvitablePublicAgencyResourceType $invitablePublicAgencyResourceType,
@@ -376,6 +379,7 @@ class ResourceTypeStore
         $this->hashedQueryResourceType = $hashedQueryResourceType;
         $this->headStatementResourceType = $headStatementResourceType;
         $this->institutionLocationContactResourceType = $institutionLocationContactResourceType;
+        $this->institutionTagCategoryResourceType = $institutionTagCategoryResourceType;
         $this->institutionTagResourceType = $institutionTagResourceType;
         $this->invitableInstitutionResourceType = $invitableInstitutionResourceType;
         $this->invitablePublicAgencyResourceType = $invitablePublicAgencyResourceType;
@@ -581,6 +585,11 @@ class ResourceTypeStore
     public function getInstitutionLocationContactResourceType(): InstitutionLocationContactResourceType
     {
         return $this->institutionLocationContactResourceType;
+    }
+
+    public function getInstitutionTagCategoryResourceType(): InstitutionTagCategoryResourceType
+    {
+        return $this->institutionTagCategoryResourceType;
     }
 
     public function getInstitutionTagResourceType(): InstitutionTagResourceType
