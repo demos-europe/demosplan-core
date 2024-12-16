@@ -48,34 +48,21 @@
         <template
           v-for="category in institutionTagCategories"
           v-slot:[category.attributes.name]="institution">
-          <div v-if="!institution.edit">
-            <span>
-              {{ separateByCommas(institution.tags.filter(tag => tag.category.id === category.id)) }}
-            </span>
-          </div>
           <dp-multiselect
-            v-else
+            v-if="institution.edit"
             v-model="editingInstitutionTags[category.id]"
             :data-cy="`institutionList:tags${category.attributes.name}`"
             label="name"
             multiple
             :options="getCategoryTags(category.id)"
             track-by="id" />
+          <div
+            v-else
+            v-text="separateByCommas(institution.tags.filter(tag => tag.category.id === category.id))" />
         </template>
         <template v-slot:action="institution">
           <div class="float-right">
-            <template v-if="!institution.edit">
-              <button
-                :aria-label="Translator.trans('item.edit')"
-                class="btn--blank o-link--default"
-                data-cy="institutionList:editTag"
-                @click="editInstitution(institution.id)">
-                <dp-icon
-                  icon="edit"
-                  aria-hidden />
-              </button>
-            </template>
-            <template v-else>
+            <template v-if="institution.edit">
               <button
                 :aria-label="Translator.trans('save')"
                 class="btn--blank o-link--default u-mr-0_25"
@@ -95,6 +82,16 @@
                   aria-hidden />
               </button>
             </template>
+            <button
+              v-else
+              :aria-label="Translator.trans('item.edit')"
+              class="btn--blank o-link--default"
+              data-cy="institutionList:editTag"
+              @click="editInstitution(institution.id)">
+              <dp-icon
+                icon="edit"
+                aria-hidden />
+            </button>
           </div>
         </template>
       </dp-data-table>
