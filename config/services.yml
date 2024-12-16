@@ -893,7 +893,6 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
         calls:
-            - [ 'setTagImportService', [ '@intriro_csv.importer.tags' ] ]
             - [ 'setElasticsearchIndexManager', ['@fos_elastica.index_manager'] ]
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler:
