@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "439c7418616102dad4b2fd3c40649eef",
+    "content-hash": "d258b6eba6f9e9304fd3b7011dbf5cae",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1151,7 +1151,7 @@
                     ]
                 },
                 "branch-alias": {
-                    "dev-main": "2.7-dev"
+                    "dev-main": "2.8-dev"
                 }
             },
             "autoload": {
@@ -15387,8 +15387,8 @@
             "type": "library",
             "extra": {
                 "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
                 }
             },
             "autoload": {
@@ -15543,8 +15543,8 @@
             "type": "library",
             "extra": {
                 "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
                 }
             },
             "autoload": {
@@ -15788,8 +15788,8 @@
             "type": "library",
             "extra": {
                 "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
                 }
             },
             "autoload": {
