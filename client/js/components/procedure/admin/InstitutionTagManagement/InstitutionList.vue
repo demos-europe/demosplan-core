@@ -173,7 +173,7 @@ export default {
     }),
 
     categoryFieldsAvailable() {
-      return Object.values(this.institutionTagCategories).map(category => ({
+      return this.institutionTagCategoriesValues.map(category => ({
         field: category.attributes.name,
         label: category.attributes.name
       }))
@@ -215,6 +215,10 @@ export default {
           })
         }
       })
+    },
+
+    institutionTagCategoriesValues() {
+      return Object.values(this.institutionTagCategories)
     },
 
     selectableColumns () {
@@ -295,7 +299,7 @@ export default {
       this.editingInstitution = this.invitableInstitutionList[id]
 
       // Initialize editingInstitutionTags with categoryId
-      Object.values(this.institutionTagCategories).forEach(category => {
+      this.institutionTagCategoriesValues.forEach(category => {
         if (!this.editingInstitutionTags[category.id]) {
           this.$set(this.editingInstitutionTags, category.id, [])
         }
@@ -403,7 +407,7 @@ export default {
     },
 
     setInitialSelection () {
-      this.currentSelection = Object.values(this.institutionTagCategories).slice(0, 7).map(category => category.attributes.name)
+      this.currentSelection = this.institutionTagCategoriesValues.slice(0, 7).map(category => category.attributes.name)
     }
   },
 
