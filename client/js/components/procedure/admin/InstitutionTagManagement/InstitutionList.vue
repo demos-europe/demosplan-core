@@ -92,7 +92,7 @@
                 @click="abortEdit()">
                 <dp-icon
                   icon="xmark"
-                  aria-hidden="true" />
+                  aria-hidden />
               </button>
             </template>
           </div>
