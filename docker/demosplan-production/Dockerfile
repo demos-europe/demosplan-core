@@ -78,7 +78,7 @@ USER www-data
 # during addon install the cache is deleted and the command "fails" because it does not find the cache
 # the command is executed with "|| true" to prevent the build from failing
 RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
-    bin/$PROJECT_NAME dplan:addon:autoinstall -e prod --no-debug || true && \
+    ACTIVE_PROJECT=$PROJECT_NAME bin/console dplan:addon:autoinstall -e prod --no-debug || true && \
      ./fe build $PROJECT_NAME --prod && \
     rm -rf /srv/www/node_modules && \
     rm -rf /srv/www/addons/cache/*/node_modules && \
