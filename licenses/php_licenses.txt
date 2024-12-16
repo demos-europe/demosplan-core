@@ -40,6 +40,9 @@ jms/serializer-bundle: MIT
 khanamiryan/qrcode-detector-decoder: MIT
 knplabs/knp-menu-bundle: MIT
 knpuniversity/oauth2-client-bundle: MIT
+league/flysystem-aws-s3-v3: MIT
+league/flysystem-bundle: MIT
+league/flysystem-memory: MIT
 league/fractal: MIT
 league/html-to-markdown: MIT
 lexik/jwt-authentication-bundle: MIT
@@ -51,10 +54,10 @@ myclabs/php-enum: MIT
 nelmio/security-bundle: MIT
 nesbot/carbon: MIT
 openlss/lib-array2xml: Apache-2.0
-patchwork/utf8: (Apache-2.0 or GPL-2.0)
 php-amqplib/rabbitmq-bundle: MIT
 php-parallel-lint/php-console-highlighter: MIT
 phpdocumentor/reflection-docblock: MIT
+phpoffice/phpspreadsheet: MIT
 phpoffice/phpword: LGPL-3.0
 phpspec/prophecy: MIT
 phpspec/prophecy-phpunit: MIT
@@ -89,8 +92,8 @@ symfony/flex: MIT
 symfony/form: MIT
 symfony/http-client: MIT
 symfony/http-foundation: MIT
-symfony/inflector: MIT
 symfony/intl: MIT
+symfony/lock: MIT
 symfony/mailer: MIT
 symfony/maker-bundle: MIT
 symfony/mime: MIT
@@ -128,7 +131,6 @@ willdurand/geocoder-bundle: MIT
 willdurand/js-translation-bundle: MIT
 wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
-yectep/phpspreadsheet-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 17.10.2024 07:02
+As of 02.12.2024 07:02

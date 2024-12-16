@@ -19,8 +19,7 @@
     <dp-inline-notification
       :class="prefixClass('mt-1')"
       :message="Translator.trans('statement.recheck')"
-      type="warning"
-      />
+      type="warning" />
 
     <dp-inline-notification
       v-if="statementFormHintRecheck !== ''"

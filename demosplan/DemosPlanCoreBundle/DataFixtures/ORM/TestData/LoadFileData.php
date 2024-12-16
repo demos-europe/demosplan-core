@@ -52,6 +52,7 @@ class LoadFileData extends TestFixture implements DependentFixtureInterface
         $this->setReference(self::PDF_TEST_FILE, $file1);
 
         // write File to test existance
+        // local file only, no need for flysystem
         $fs = new Filesystem();
 
         // without try catch, should throw exception if not successful

@@ -333,7 +333,7 @@ submenu_procedures:
     analysis:
         label: 'analysis'
         path: ~
-        permission: 'area_admin_assessmenttable'
+        permission: 'area_admin_subheading_analysis'
         list_item_attributes:
             class: 'knp-sub-heading'
     considerationtable:
@@ -361,7 +361,7 @@ submenu_procedures:
         path_params: ['procedureId']
         permission: 'area_admin_statement_list'
         link_attributes:
-            data-cy: 'assessmenttable'
+            data-cy: 'statementslist'
             data-extern-dataport: 'statementslist'
     segments:
         label: 'segments'

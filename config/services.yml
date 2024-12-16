@@ -116,6 +116,10 @@ services:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType
         public: true
 
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\OrgaResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType
+        public: true
+
     DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType
         public: true
@@ -191,6 +195,9 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface:
         class: demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure
+
+    DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface:
+        class: demosplan\DemosPlanCoreBundle\Entity\User\Orga
 
     DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface:
         class: demosplan\DemosPlanCoreBundle\Entity\Statement\Segment
@@ -459,9 +466,6 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\SessionHandler:
         tags:
             - { name: monolog.logger, channel: session }
-
-    demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService:
-        arguments: ['@phpoffice.spreadsheet']
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementAnonymizeHandler:
         lazy: true
@@ -889,7 +893,6 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
         calls:
-            - [ 'setTagImportService', [ '@intriro_csv.importer.tags' ] ]
             - [ 'setElasticsearchIndexManager', ['@fos_elastica.index_manager'] ]
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler:

@@ -46,10 +46,11 @@ use Doctrine\Common\Collections\Collection;
 use Exception;
 use Faker\Provider\Uuid;
 use Monolog\Logger;
-use Patchwork\Utf8;
 use PhpOffice\PhpWord\Settings;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\String\UnicodeString;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use ZipStream\ZipStream;
 
@@ -156,7 +157,7 @@ class ExportService
 
         // Obtain translation strings
         foreach ($dictionary as $key => $transKey) {
-            $this->literals[$key] = Utf8::toAscii($this->getTranslator()->trans($transKey));
+            $this->literals[$key] = (new UnicodeString($this->getTranslator()->trans($transKey)))->ascii()->toString();
         }
     }
 
@@ -543,7 +544,7 @@ class ExportService
                         }
                         $agreement = $this->paragraphExporter->generatePdf($procedureId, $elementTitle, $procedureElement->getId());
                         if (null !== $agreement) {
-                            $this->zipExportService->addStringToZipStream($procedureName.'/'.$this->literals['elements'].'/'.Utf8::toAscii($elementTitle).'.pdf', $agreement, $zip);
+                            $this->zipExportService->addStringToZipStream($procedureName.'/'.$this->literals['elements'].'/'.(new UnicodeString($elementTitle))->ascii()->toString().'.pdf', $agreement, $zip);
                             $this->logger->info('ParagraphElement created',
                                 ['elementTitle' => $elementTitle, 'id' => $procedureId, 'name' => $procedureName]);
                         } else {
@@ -779,7 +780,7 @@ class ExportService
 
         $procedureName = mb_substr($actualProcedureName, 0, self::MAX_PROCEDURE_NAME_LENGTH);
         $procedureName = "{$procedureName}_{$procedureIdHash}";
-        $procedureName = Utf8::toAscii($procedureName);
+        $procedureName = (new UnicodeString($procedureName))->ascii()->toString();
 
         return $slugger->slugify($procedureName);
     }
@@ -841,6 +842,9 @@ class ExportService
         $filepath = DemosPlanPath::getTemporaryPath($internalFilename);
         $writer->save($filepath);
         $this->zipExportService->addFileToZipStream($filepath, $filename, $zip);
+        // uses local file, no need for flysystem
+        $fs = new Filesystem();
+        $fs->remove($filepath);
     }
 
     /**

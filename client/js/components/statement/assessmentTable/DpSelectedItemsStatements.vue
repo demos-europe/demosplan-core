@@ -155,7 +155,7 @@ export default {
 
     ...mapState('Statement', [
       'filterHash',
-      'statements',
+      'statements'
     ]),
 
     ...mapState('Fragment', [
@@ -255,7 +255,7 @@ export default {
             assignee: {
               id: assignee.id,
               name: assignee.attributes.name,
-              orgaName: orgaName,
+              orgaName,
               uId: assignee.id
             },
             currentUserId: this.currentUserId

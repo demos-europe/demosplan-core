@@ -103,9 +103,8 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
 use Exception;
-use Goodby\CSV\Import\Standard\Interpreter;
-use Goodby\CSV\Import\Standard\Lexer;
 use Illuminate\Support\Collection;
+use League\Csv\Reader;
 use ReflectionException;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints\Email;
@@ -172,9 +171,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     /** @var ServiceOutput */
     protected $procedureOutput;
 
-    /** @var array */
-    protected $csvImportDatasets = [];
-
     /** @var UserService */
     protected $userService;
 
@@ -183,9 +179,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
     /** @var Environment */
     protected $twig;
-
-    /** @var Lexer */
-    protected $tagImportService;
 
     /** @var QueryFragment */
     protected $esQueryFragment;
@@ -1938,22 +1931,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     }
 
     /**
-     * @return Lexer
-     */
-    protected function getTagImportService()
-    {
-        return $this->tagImportService;
-    }
-
-    /**
-     * @param Lexer $tagImportService
-     */
-    public function setTagImportService($tagImportService)
-    {
-        $this->tagImportService = $tagImportService;
-    }
-
-    /**
      * Definition der incoming Data.
      */
     protected function incomingDataDefinition()
@@ -2291,30 +2268,24 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * Import a CSV-file with tags in it and create the according tag- and topic-
      * entities associated to the given procedure.
      *
-     * @param string $file
+     * @param resource $fileResource
      *
      * @throws Exception
      */
-    public function importTags(string $procedureId, $file)
+    public function importTags(string $procedureId, $fileResource): void
     {
-        $hash = explode(':', $file)[1];
-        $fileInfo = $this->fileService->getFileInfo($hash);
-
-        $lexer = $this->getTagImportService();
-        $this->csvImportDatasets = [];
-        $interpreter = new Interpreter();
-        $interpreter->addObserver(function (array $row) {
-            // Do not use line if all fields are empty
-            if (array_reduce($row, fn ($carry, $item) => $carry && ('' == $item), true)) {
-                return;
-            }
-            $this->csvImportDatasets[] = $row;
-        });
-        $lexer->parse($fileInfo->getAbsolutePath(), $interpreter);
-
+        $reader = Reader::createFromStream($fileResource);
+        $reader->setEscape('');
+        $reader->setDelimiter(';');
+        $reader->setEnclosure('"');
+        $records = $reader->getRecords();
         // Acquire data
         $newTags = [];
-        foreach ($this->csvImportDatasets as $dataset) {
+        foreach ($records as $dataset) {
+            // Do not use line if all fields are empty
+            if (array_reduce($dataset, static fn ($carry, $item) => $carry && ('' == $item), true)) {
+                continue;
+            }
             $newTagData = [
                 'topic'          => $dataset[0] ?? '',
                 'tag'            => $dataset[1] ?? '',
