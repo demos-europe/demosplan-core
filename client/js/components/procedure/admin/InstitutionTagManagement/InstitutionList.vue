@@ -70,9 +70,9 @@
                 class="btn--blank o-link--default"
                 data-cy="institutionList:editTag"
                 @click="editInstitution(institution.id)">
-                <i
-                  class="fa fa-pencil"
-                  aria-hidden="true" />
+                <dp-icon
+                  icon="edit"
+                  aria-hidden />
               </button>
             </template>
             <template v-else>
