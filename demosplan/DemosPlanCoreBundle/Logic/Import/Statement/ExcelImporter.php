@@ -14,7 +14,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use Carbon\Carbon;
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleSegmentsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistSegmentsEventInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
@@ -26,6 +29,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
+use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterHandleSegmentsEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterPrePersistSegmentsEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -48,6 +53,7 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraint;
@@ -110,6 +116,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         TranslatorInterface $translator,
         ValidatorInterface $validator,
         StatementCopier $statementCopier,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CurrentContextProviderInterface $currentContextProvider,
     ) {
         parent::__construct(
             $currentProcedureService,
@@ -192,7 +200,15 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         unset($segmentsWorksheet);
 
+        // FIXME: This event has to be distaptched only when the field 'Schlagworte' does not exist. Have to check
+        // FIXME: that to make sure the event will be disptached only when it have to be.
 
+        $event = $this->dispatcher->dispatch(
+            new ExcelImporterHandleSegmentsEvent($segments, $this->currentContextProvider->getCurrentProcedure()->getId()),
+            ExcelImporterHandleSegmentsEventInterface::class
+        );
+
+        $segments = $event->getSegments();
 
         $miscTopic = $this->findOrCreateMiscTagTopic();
 
@@ -266,6 +282,11 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
             unset($segments[$statementId]);
         }
+
+        $this->dispatcher->dispatch(
+            new ExcelImporterPrePersistSegmentsEvent($result->getSegments()),
+            ExcelImporterPrePersistSegmentsEventInterface::class
+        );
 
         return $result;
     }
