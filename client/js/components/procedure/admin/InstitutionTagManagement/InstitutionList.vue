@@ -236,11 +236,11 @@ export default {
 
   methods: {
     ...mapActions('InstitutionTagCategory', {
-      listInstitutionTagCategories: 'list'
+      fetchInstitutionTagCategories: 'list'
     }),
 
     ...mapActions('InvitableInstitution', {
-      listInvitableInstitution: 'list',
+      fetchInvitableInstitution: 'list',
       saveInvitableInstitution: 'save',
       restoreInstitutionFromInitial: 'restoreFromInitial'
     }),
@@ -318,7 +318,7 @@ export default {
     },
 
     getInstitutionsByPage (page) {
-      this.listInvitableInstitution({
+      this.fetchInvitableInstitution({
         page: {
           number: page,
           size: 50
@@ -348,7 +348,7 @@ export default {
 
     getInstitutionTagCategories () {
       this.isLoading = true
-      this.listInstitutionTagCategories({
+      this.fetchInstitutionTagCategories({
         fields: {
           InstitutionTagCategory: [
             'name',
