@@ -83,7 +83,7 @@
                 @click="addTagsToInstitution(institution.id)">
                 <dp-icon
                   icon="check"
-                  aria-hidden="true" />
+                  aria-hidden />
               </button>
               <button
                 :aria-label="Translator.trans('abort')"
