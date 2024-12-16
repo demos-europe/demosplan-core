@@ -1,18 +1,20 @@
 # due to BSI SYS.1.6.A6 we need to use excplicit versions
-FROM debian:testing-20241111-slim AS fpm
+FROM debian:testing-20241111-slim AS build
 
 ARG PROJECT_NAME
 # ENV vars needs to be set to build the assets
 ENV PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
-    EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de
-
-ENV TZ=Europe/Berlin
-RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
+    EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de \
+    TZ=Europe/Berlin
 
 # install default-mysql-client to be able to dump database
-RUN apt update -y && \
-    apt --no-install-recommends install acl bind9-host composer curl gettext-base default-mysql-client npm php8.2 php8.2-apcu php8.2-bcmath php8.2-bz2 php8.2-cli php8.2-common php8.2-curl php8.2-fpm php8.2-gd php8.2-intl php8.2-mbstring php8.2-mysqli php8.2-soap php8.2-sqlite3 php8.2-xdebug php8.2-xml php8.2-zip unzip vim zsh -y && \
+RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone && \
+    apt update -y && \
+    apt --no-install-recommends install acl bind9-host composer curl gettext-base  \
+    npm php8.2 php8.2-apcu php8.2-bcmath php8.2-bz2 php8.2-cli  \
+    php8.2-common php8.2-curl php8.2-fpm php8.2-gd php8.2-intl php8.2-mbstring php8.2-mysqli  \
+    php8.2-soap php8.2-sqlite3 php8.2-xml php8.2-zip unzip -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
@@ -46,12 +48,12 @@ RUN mkdir -p /opt/uploads && \
 USER www-data
 WORKDIR /srv/www
 # Install composer and yarn before copying the project files to make use of the docker cache
-COPY composer.json composer.lock ./
-RUN --mount=type=cache,target=/var/composer composer install -o --prefer-dist --no-dev --no-scripts --no-progress
-
-COPY package.json yarn.lock .yarnrc.yml ./
-
-RUN --mount=type=cache,target=/var/www,uid=33,gid=33 yarn install --immutable
+COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
+# do not use --no-scripts, as we do not need all the aws stuff
+RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,uid=33,gid=33 composer install -o --prefer-dist --no-dev --no-progress && \
+    yarn install --immutable && \
+    yarn cache clean && \
+    rm -rf /srv/www/.cache/*
 
 USER root
 COPY . /srv/www
@@ -72,8 +74,15 @@ COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
 COPY parameters_build.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml
 
 USER www-data
-RUN ./fe build $PROJECT_NAME --prod && \
+# mount .env.local as a secret to ensure that addons can be installed while keeping the layer clean.
+# during addon install the cache is deleted and the command "fails" because it does not find the cache
+# the command is executed with "|| true" to prevent the build from failing
+RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
+    bin/$PROJECT_NAME dplan:addon:autoinstall -e prod --no-debug || true && \
+     ./fe build $PROJECT_NAME --prod && \
     rm -rf /srv/www/node_modules && \
+    rm -rf /srv/www/addons/cache/*/node_modules && \
+    rm -rf /srv/www/addonZips && \
     rm -rf /srv/www/.cache
 
 USER root
@@ -88,11 +97,40 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     chown -R root:root /srv/www/projects/$PROJECT_NAME/web && \
     chown -R www-data /opt/uploads && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
-    ## set facls for /tmp (trick the system) still needed?
-    setfacl -dRm u:www-data:rwx /tmp && \
     touch /var/log/php8.2-fpm.log && chown www-data:www-data /var/log/php8.2-fpm.log
 
-EXPOSE 9000
+FROM debian:testing-20241111-slim AS fpm
+
+ARG PROJECT_NAME
+ENV PROJECT_PREFIX=$PROJECT_NAME \
+    EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
+    EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de
+
+ENV TZ=Europe/Berlin
+RUN apt update -y && \
+    apt --no-install-recommends install acl bind9-host curl gettext-base  \
+    default-mysql-client php8.2 php8.2-apcu php8.2-bcmath php8.2-bz2 php8.2-cli  \
+    php8.2-common php8.2-curl php8.2-fpm php8.2-gd php8.2-intl php8.2-mbstring php8.2-mysqli  \
+    php8.2-soap php8.2-sqlite3 php8.2-xml php8.2-zip unzip -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY zzz-dplan.ini /etc/php/8.2/fpm/conf.d/zzz-dplan.ini
+COPY zzz-dplan-cli.ini /etc/php/8.2/cli/conf.d/zzz-dplan-cli.ini
+COPY php-fpm_www.conf /etc/php/8.2/fpm/pool.d/zzz-www.conf
+COPY php-fpm.conf /etc/php/8.2/fpm/php-fpm.conf
+
+WORKDIR /srv/www
+
+COPY --from=build /srv/www /srv/www
+# delte the cache and log files
+RUN rm -rf /srv/www/var/cache/* && \
+    rm -rf /srv/www/var/log/* && \
+    rm -rf /srv/www/projects/$PROJECT_NAME/{files,fonts,images,js,video,img,pdf}
+
 # run as rootless container
 USER www-data
 CMD ["/usr/sbin/php-fpm8.2", "-F"]
@@ -106,4 +144,4 @@ COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 WORKDIR /srv/www
 # only webfolder with frontcontroller and static files is needed for nginx
-COPY --from=fpm /srv/www/projects/$PROJECT_NAME/web /srv/www/projects/$PROJECT_NAME/web
+COPY --from=build /srv/www/projects/$PROJECT_NAME/web /srv/www/projects/$PROJECT_NAME/web

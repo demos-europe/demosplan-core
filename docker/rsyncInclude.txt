@@ -1,4 +1,3 @@
-addons
 bin/console
 client
 config
