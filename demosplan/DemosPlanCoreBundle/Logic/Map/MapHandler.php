@@ -200,7 +200,7 @@ class MapHandler extends CoreHandler
         // in case of GisLayer is member of visibilityGroup, set incoming defaultVisibility
         // to all member of visibilityGroup
         if (array_key_exists('defaultVisibility', $gisLayerData) && $isMemberOfVisibilityGroup) {
-            $this->setVisibilityOfVisibilityGroup($visibilityGroupId, $gisLayerData['defaultVisibility']);
+            $this->setVisibilityOfVisibilityGroup($visibilityGroupId, $gisLayerData);
         }
 
         // in case of GisLayer is member of visibilityGroup, do not allow to unset userToggleVisibility
@@ -236,16 +236,17 @@ class MapHandler extends CoreHandler
      * while they are in a visibilityGroup. (change entire defaultVisibility).
      *
      * @param string $visibilityGroupId
-     * @param bool   $visibility
      *
      * @return bool
      *
      * @throws Exception
      */
-    public function setVisibilityOfVisibilityGroup($visibilityGroupId, $visibility)
+    public function setVisibilityOfVisibilityGroup($visibilityGroupId, $gisLayerData)
     {
+        $visibility = $gisLayerData['defaultVisibility'];
+        $procedureId = $gisLayerData['procedureId'];
         try {
-            $visibilityGroup = $this->getVisibilityGroup($visibilityGroupId);
+            $visibilityGroup = $this->getVisibilityGroup($visibilityGroupId, $procedureId);
             $doctrineConnection = $this->entityManager->getConnection();
             $doctrineConnection->beginTransaction();
 
@@ -344,9 +345,9 @@ class MapHandler extends CoreHandler
      *
      * @throws Exception
      */
-    public function getVisibilityGroup($visibilityGroupId)
+    public function getVisibilityGroup($visibilityGroupId, $procedureId)
     {
-        return $this->mapService->getVisibilityGroup($visibilityGroupId);
+        return $this->mapService->getVisibilityGroup($visibilityGroupId, $procedureId);
     }
 
     /**

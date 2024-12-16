@@ -71,7 +71,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
         NotifyContainer,
         RegisterFlyout
       },
-      store: store,
+      store,
       mounted () {
         window.dplan.notify = new NotificationStoreAdapter(this.$store)
         loadLibs()

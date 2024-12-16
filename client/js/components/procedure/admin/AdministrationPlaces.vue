@@ -386,7 +386,7 @@ export default {
           attributes: {
             name: this.newRowData.name,
             description: this.newRowData.description,
-            solved: this.newRowData.solved,
+            solved: this.newRowData.solved
           }
         }
       }

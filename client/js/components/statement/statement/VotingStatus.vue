@@ -21,7 +21,7 @@ export default {
     publicVerified: {
       type: String,
       default: ''
-    },
+    }
   },
 
   computed: {

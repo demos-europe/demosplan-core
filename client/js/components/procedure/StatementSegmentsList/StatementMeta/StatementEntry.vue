@@ -101,7 +101,7 @@ All rights reserved
           :label="{
             text: Translator.trans('procedure.public.phase')
           }"
-          :options="availableProcedurePhases"/>
+          :options="availableProcedurePhases" />
       </template>
     </div>
     <dp-text-area
@@ -173,7 +173,7 @@ export default {
     }
   },
 
-  computed : {
+  computed: {
     availableProcedurePhases () {
       const phases = this.statement.attributes?.availableProcedurePhases || []
 
@@ -193,7 +193,7 @@ export default {
       return today
     },
 
-    isStatementManual() {
+    isStatementManual () {
       return this.localStatement.attributes.isManual
     }
   },
@@ -238,11 +238,11 @@ export default {
 
     syncAuthorAndSubmitter () {
       this.localStatement.attributes.submitName = this.localStatement.attributes.authorName
-    },
+    }
   },
 
-  created() {
+  created () {
     this.setInitValues()
-  },
+  }
 }
 </script>

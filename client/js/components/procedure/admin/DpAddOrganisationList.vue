@@ -191,10 +191,12 @@ export default {
             {
               id: item.id,
               ...item.attributes,
-              locationContacts: locationContact ? {
-                id: locationContact.id,
-                ...locationContact.attributes
-              } : null,
+              locationContacts: locationContact
+                ? {
+                    id: locationContact.id,
+                    ...locationContact.attributes
+                  }
+                : null,
               hasNoEmail
             }
           ]
@@ -222,7 +224,7 @@ export default {
           data: publicAgenciesIds.map(id => {
             return {
               type: 'publicAffairsAgent',
-              id: id
+              id
             }
           })
         }
