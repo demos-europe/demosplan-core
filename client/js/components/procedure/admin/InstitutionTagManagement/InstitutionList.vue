@@ -224,6 +224,7 @@ export default {
     tagList () {
       return Object.values(this.institutionTagList).map(tag => {
         const { id, attributes, relationships } = tag
+
         return {
           id,
           name: attributes.name,
