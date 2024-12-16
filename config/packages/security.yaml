@@ -31,6 +31,15 @@ security:
             id: demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\AiApiUserProvider
         api_provider:
             id: demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\ApiUserProvider
+        dplan_ldap:
+            ldap:
+                service: Symfony\Component\Ldap\Ldap
+                base_dn: '%env(LDAP_BASE_DN)%'
+                search_dn: '%env(LDAP_SEARCH_DN)%'
+                search_password: '%env(LDAP_SEARCH_PASSWORD)%'
+                default_roles: ROLE_USER
+                uid_key: '%env(LDAP_UID_KEY)%'
+                #extra_fields: [ 'email' ]
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/

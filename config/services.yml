@@ -504,6 +504,8 @@ services:
     demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig: ~
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator: ~
+    demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LdapAuthenticator:
+        $authenticator: '@demosplan\DemosPlanCoreBundle\Logic\User\UserMapper'
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator:
         $authenticator: '@demosplan\DemosPlanCoreBundle\Logic\User\UserMapper'
@@ -1384,6 +1386,19 @@ services:
         arguments: [[], "@event_dispatcher"]
         calls:
             - [ 'setPropertyAccessor', ['@demosplan\DemosPlanCoreBundle\Logic\NullablePropertyAccessor'] ]
+
+    Symfony\Component\Ldap\Ldap:
+        arguments: ['@Symfony\Component\Ldap\Adapter\ExtLdap\Adapter']
+        tags:
+            - ldap
+    Symfony\Component\Ldap\Adapter\ExtLdap\Adapter:
+        arguments:
+            -   host: '%env(LDAP_HOST)%'
+                port: '%env(int:LDAP_PORT)%'
+                encryption: '%env(int:LDAP_PORT)%'
+                options:
+                    protocol_version: '%env(int:LDAP_PROTOCOL_VERSION)%'
+                    referrals: '%env(bool:LDAP_REFERRALS)%'
 
     # HEY YOU, YES YOU! STOP! Please follow the alphabetical order and
     # do NOT just add new code to the end of this file.

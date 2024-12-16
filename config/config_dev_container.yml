@@ -52,6 +52,7 @@ parameters:
     pipeline.ai.link.pattern: '/(http:\/\/dpp_endpoint_pdfimporter[:\/\-\w.?=&]+png)/'
 
     demosplan_user_authenticator_service:
+        - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LdapAuthenticator'
         - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OzgKeycloakAuthenticator'
         - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator'
         - 'demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OsiHHStaticAuthenticator'
