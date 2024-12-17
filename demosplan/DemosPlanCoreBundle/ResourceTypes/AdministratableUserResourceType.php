@@ -71,6 +71,11 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         return $this->currentUser->hasPermission('feature_user_list');
     }
 
+    public function isCreateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('feature_user_add');
+    }
+
     protected function getAccessConditions(): array
     {
         $conditions = [
@@ -131,10 +136,10 @@ final class AdministratableUserResourceType extends DplanResourceType implements
     {
         return [
             $this->createIdentifier()->readable()->filterable()->sortable(),
-            $this->createAttribute($this->firstname)->readable(true)->filterable()->sortable(),
-            $this->createAttribute($this->lastname)->readable(true)->filterable()->sortable(),
+            $this->createAttribute($this->firstname)->readable(true)->filterable()->sortable()->initializable(),
+            $this->createAttribute($this->lastname)->readable(true)->filterable()->sortable()->initializable(),
             $this->createAttribute($this->login)->readable(true)->filterable()->sortable(),
-            $this->createAttribute($this->email)->readable(true)->filterable()->sortable(),
+            $this->createAttribute($this->email)->readable(true)->filterable()->sortable()->initializable(),
             $this->createAttribute($this->profileCompleted)
                 ->readable(true, static fn (User $user): bool => $user->isProfileCompleted()),
             $this->createAttribute($this->accessConfirmed)
@@ -158,11 +163,14 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                             static fn (UserRoleInCustomer $roleInCustomer): Role => $roleInCustomer->getRole()
                         )
                         ->getValues();
-                }),
+                })
+                ->initializable(), // This one is not working yet
             $this->createToOneRelationship($this->department)
-                ->readable(true, static fn (User $user): ?Department => $user->getDepartment()),
+                ->readable(true, static fn (User $user): ?Department => $user->getDepartment())
+                ->initializable(),
             $this->createToOneRelationship($this->orga)
-                ->readable(true, static fn (User $user): ?Orga => $user->getOrga()),
+                ->readable(true, static fn (User $user): ?Orga => $user->getOrga())
+                ->initializable(),
         ];
     }
 }
