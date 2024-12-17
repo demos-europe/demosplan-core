@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
+use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -21,8 +23,12 @@ use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\InstitutionTagResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
+use EDT\JsonApi\ApiDocumentation\DefaultField;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use Elastica\Index;
 
@@ -132,45 +138,79 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         return [];
     }
 
-    protected function getProperties(): array
-    {
-        return [
-            $this->createIdentifier()->readable()->filterable()->sortable(),
-            $this->createAttribute($this->firstname)->readable(true)->filterable()->sortable()->initializable(),
-            $this->createAttribute($this->lastname)->readable(true)->filterable()->sortable()->initializable(),
-            $this->createAttribute($this->login)->readable(true)->filterable()->sortable(),
-            $this->createAttribute($this->email)->readable(true)->filterable()->sortable()->initializable(),
-            $this->createAttribute($this->profileCompleted)
-                ->readable(true, static fn (User $user): bool => $user->isProfileCompleted()),
-            $this->createAttribute($this->accessConfirmed)
-                ->readable(true, static fn (User $user): bool => $user->isAccessConfirmed()),
-            $this->createAttribute($this->invited)
-                ->readable(true, static fn (User $user): bool => $user->isInvited()),
-            $this->createAttribute($this->newsletter)
-                ->readable(true, static fn (User $user): bool => $user->getNewsletter()),
-            $this->createAttribute($this->noPiwik)
-                ->readable(true, static fn (User $user): bool => $user->getNoPiwik()),
-            $this->createToManyRelationship($this->roles)
-                // Send only the user roles for the current customer.
-                ->readable(true, function (User $user): array {
-                    $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
 
-                    return $user->getRoleInCustomers()
-                        ->filter(
-                            static fn (UserRoleInCustomer $roleInCustomer): bool => $currentCustomer === $roleInCustomer->getCustomer()
-                        )
-                        ->map(
-                            static fn (UserRoleInCustomer $roleInCustomer): Role => $roleInCustomer->getRole()
-                        )
-                        ->getValues();
-                })
-                ->initializable(), // This one is not working yet
-            $this->createToOneRelationship($this->department)
-                ->readable(true, static fn (User $user): ?Department => $user->getDepartment())
-                ->initializable(),
-            $this->createToOneRelationship($this->orga)
-                ->readable(true, static fn (User $user): ?Orga => $user->getOrga())
-                ->initializable(),
-        ];
+    protected function getProperties(): ResourceConfigBuilderInterface
+    {
+
+        $configBuilder = $this->getConfig(UserResourceConfigBuilder::class);
+
+        $configBuilder->id
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->setFilterable();
+
+        $configBuilder->firstname
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->setFilterable();
+
+        $configBuilder->lastname
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->setFilterable();
+
+        $configBuilder->login
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->setFilterable();
+
+        $configBuilder->email
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->setFilterable();
+
+        $configBuilder->profileCompleted
+            ->setSortable()
+            ->setReadableByCallable(static fn (User $user): bool => $user->isProfileCompleted(), DefaultField::YES);
+
+        $configBuilder->accessConfirmed
+            ->setReadableByCallable(static fn (User $user): bool => $user->isAccessConfirmed(), DefaultField::YES);
+
+        $configBuilder->invited
+            ->setReadableByCallable(static fn (User $user): bool => $user->isInvited(), DefaultField::YES);
+
+        $configBuilder->newsletter
+            ->setReadableByCallable(static fn (User $user): bool => $user->getNewsletter(), DefaultField::YES);
+
+        $configBuilder->noPiwik
+            ->setReadableByCallable(static fn (User $user): bool => $user->getNoPiwik(), DefaultField::YES);
+
+        $configBuilder->roles
+            //->setAliasedPath(Paths::user()->roleInCustomers)
+            ->setReadableByCallable( function (User $user): array {
+                $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+
+                return $user->getRoleInCustomers()
+                    ->filter(
+                        static fn (UserRoleInCustomer $roleInCustomer): bool => $currentCustomer === $roleInCustomer->getCustomer()
+                    )
+                    ->map(
+                        static fn (UserRoleInCustomer $roleInCustomer): Role => $roleInCustomer->getRole()
+                    )
+                    ->getValues();
+            }, DefaultField::YES)
+            ->setRelationshipType($this->getTypes()->getRoleResourceType());
+
+        $configBuilder->department
+            ->setReadableByCallable(static fn (User $user): ?Department => $user->getDepartment(), DefaultField::YES)
+            ->setRelationshipType($this->getTypes()->getDepartmentResourceType());
+
+        $configBuilder->orga
+            ->setReadableByCallable( static fn (User $user): ?Orga => $user->getOrga(), DefaultField::YES)
+            ->setRelationshipType($this->getTypes()->getOrgaResourceType());
+
+        return $configBuilder;
     }
+
+
 }
