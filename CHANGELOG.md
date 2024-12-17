@@ -5,3 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+### Added
+
+- Admin institution list: Institutions can now be tagged filtered by categories. 

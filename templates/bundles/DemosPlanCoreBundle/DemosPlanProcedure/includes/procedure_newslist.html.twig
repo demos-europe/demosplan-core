@@ -45,7 +45,7 @@
         {# image is represented as css background image to keep square proportions in fluid context #}
         {% if news.picture is defined and news.picture != "" %}
             <div class="{{ 'o-box__thumbnail'|prefixClass }}"
-                 style="background-image: url( {{ path("core_logo", { 'hash': news.picture|getFile('hash') }) }} );">
+                 style="background-image: url( {{ path("core_logo", { 'hash': news.picture|getFile('hash') }) }} );" nonce="{{ csp_nonce('style') }}">
             </div>
         {% endif %}
 

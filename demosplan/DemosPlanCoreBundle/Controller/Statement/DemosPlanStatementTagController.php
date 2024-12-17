@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\TagTopicNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
@@ -145,6 +146,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      */
     #[Route(name: 'DemosPlan_statement_administration_tags_edit', path: '/verfahren/{procedure}/schlagworte/edit', defaults: ['master' => false], options: ['expose' => true])]
     public function tagListEditAction(
+        FileService $fileService,
         FileUploadService $fileUploadService,
         Request $request,
         StatementHandler $statementHandler,
@@ -326,7 +328,8 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         if (\array_key_exists('r_import', $requestPost)) {
             if (\array_key_exists('r_importCsv', $requestPost) && '' != $requestPost['r_importCsv']) {
                 try {
-                    $statementHandler->importTags($procedure, $requestPost['r_importCsv']);
+                    $fileInfo = $fileService->getFileInfoFromFileString($requestPost['r_importCsv']);
+                    $statementHandler->importTags($procedure, $fileService->getFileContentStream($fileInfo));
                     $this->getMessageBag()->add('confirm', 'explanation.import.topicsAndTags');
                 } catch (DuplicatedTagTitleException $e) {
                     $this->getMessageBag()->add('error', 'error.import.tag.name.taken', ['tagTitle' => $e->getTagTitle(), 'topicName' => $e->getTopic()->getTitle()]);
