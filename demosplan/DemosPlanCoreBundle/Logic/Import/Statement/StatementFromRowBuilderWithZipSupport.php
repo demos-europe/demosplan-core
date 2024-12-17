@@ -38,7 +38,7 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         protected readonly FileService $fileService,
         private readonly EntityManagerInterface $entityManager,
         private readonly StatementFromRowBuilder $baseStatementFromRowBuilder,
-        private readonly StatementAttachmentService $statementAttachmentService
+        private readonly StatementAttachmentService $statementAttachmentService,
     ) {
         parent::__construct();
     }
