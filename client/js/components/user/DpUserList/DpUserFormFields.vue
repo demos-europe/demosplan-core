@@ -267,10 +267,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('Orga', {
-      organisationList: 'list'
-    }),
-
     ...mapMutations('Orga', ['setItem']),
 
     addRole (role) {
