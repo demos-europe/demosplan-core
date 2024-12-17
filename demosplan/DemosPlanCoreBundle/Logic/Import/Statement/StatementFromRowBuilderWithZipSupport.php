@@ -155,6 +155,9 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
                     $fileContainer,
                     [new Type(FileContainer::class), new NotNull()]
                 );
+
+                $fileString = $fileContainer?->getFileString();
+                $statement->setFiles([$fileString]);
             }
 
             $violations->addAll($newViolations);
