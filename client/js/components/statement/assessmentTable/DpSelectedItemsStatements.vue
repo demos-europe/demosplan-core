@@ -154,6 +154,7 @@ export default {
     ]),
 
     ...mapState('Statement', [
+      'filterHash',
       'statements'
     ]),
 
@@ -254,7 +255,7 @@ export default {
             assignee: {
               id: assignee.id,
               name: assignee.attributes.name,
-              orgaName: orgaName,
+              orgaName,
               uId: assignee.id
             },
             currentUserId: this.currentUserId
@@ -311,7 +312,7 @@ export default {
 
     deleteElements (event) {
       sessionStorage.setItem('selectedElements', '{}')
-      window.submitForm(event, 'delete', false)
+      window.submitForm(event, 'delete', this.filterHash)
     },
 
     fetchFragmentByStatement (statement) {

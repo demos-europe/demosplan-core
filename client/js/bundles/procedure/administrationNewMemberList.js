@@ -19,5 +19,4 @@ const components = {
 
 const apiStores = ['InvitableToeb']
 
-
 initialize(components, {}, apiStores)

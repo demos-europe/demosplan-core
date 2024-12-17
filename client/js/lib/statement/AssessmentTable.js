@@ -55,7 +55,7 @@ export default function AssessmentTable () {
       })
   }
 
-  window.submitForm = function (event, task, isHashUpdateNeeded = true) {
+  window.submitForm = function (event, task, filterHash = null) {
     // In case the call originated from a native browser event it needs to be terminated
     if (event) {
       event.stopPropagation()
@@ -66,14 +66,16 @@ export default function AssessmentTable () {
     const filterOptions = inputFields.filter(inputField => inputField.name.includes('filter') && inputField.value !== '')
     const procedureId = $('form[name=bpform]').data('statement-admin-container')
 
-    if (isHashUpdateNeeded) {
+    if (filterHash) {
+      // There are cases were the filterHash has not to be updated, but take the current one
+      document.bpform.action = Routing.generate('dplan_assessmenttable_view_table', { procedureId, filterHash })
+      handleFormSubmission(task)
+    } else {
       window.updateFilterHash(procedureId, filterOptions)
         .then((filterHash) => {
           document.bpform.action = Routing.generate('dplan_assessmenttable_view_table', { procedureId, filterHash })
           handleFormSubmission(task)
         })
-    } else {
-      handleFormSubmission(task)
     }
   }
 
@@ -113,7 +115,7 @@ export default function AssessmentTable () {
     }
 
     /*
-     * if we want to submit the form, don't reset those values,
+     * If we want to submit the form, don't reset those values,
      * otherwise, it might happen too quickly, causing incorrect data to be sent
      */
     if (formsend === false) {

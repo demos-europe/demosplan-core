@@ -16,7 +16,9 @@
     <div
       class="float-right u-mt-0_25"
       v-if="hasPermission('feature_export_protocol')">
-      <a :href="Routing.generate('dplan_export_report', { procedureId })">
+      <a
+        data-cy="exportTriggerPdf"
+        :href="Routing.generate('dplan_export_report', { procedureId })">
         <i
           class="fa fa-share-square"
           aria-hidden="true" />

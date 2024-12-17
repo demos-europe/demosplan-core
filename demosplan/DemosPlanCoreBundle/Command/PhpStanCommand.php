@@ -84,11 +84,13 @@ class PhpStanCommand extends CoreCommand
 
             $this->parameterBag->get('debug.container.dump'),
 
+            // uses local file, no need for flysystem
             file_get_contents(
                 DemosPlanPath::getRootPath($configLoadPath)
             )
         );
 
+        // local file is valid, no need for flysystem
         file_put_contents($configSavePath, $config);
 
         return $configSavePath;
@@ -99,7 +101,7 @@ class PhpStanCommand extends CoreCommand
         OutputInterface $output,
         string $configSavePath,
         string $path,
-        int $level
+        int $level,
     ): ?int {
         $isCi = $input->getOption('ci');
 
