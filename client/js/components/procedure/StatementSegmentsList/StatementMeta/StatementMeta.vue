@@ -95,6 +95,7 @@
           @change="updateLocalStatementProperties" />
 
         <statement-meta-location-and-document-reference
+          v-if="hasPermission('feature_statements_location_and_document_refrence')"
           :editable="editable"
           :initially-selected-document-id="initiallySelectedDocumentId"
           :initially-selected-element-id="initiallySelectedElementId"

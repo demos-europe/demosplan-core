@@ -113,6 +113,8 @@ class GlobalConfig implements GlobalConfigInterface
 
     /** @var string */
     protected $emailFromDomainValidRegex;
+
+    protected string $procedureMetricsReceiver = '';
     /**
      * @var string
      */
@@ -612,6 +614,7 @@ class GlobalConfig implements GlobalConfigInterface
         $this->emailSubjectPrefix = $parameterBag->get('email_subject_prefix');
         $this->emailUseSystemMailAsSender = $parameterBag->get('email_use_system_mail_as_sender');
         $this->emailFromDomainValidRegex = $parameterBag->get('email_from_domain_valid_regex');
+        $this->procedureMetricsReceiver = $parameterBag->get('procedure_metrics_receiver');
         $this->emailUseDataportBounceSystem = $parameterBag->get('email_use_bounce_dataport_system');
 
         // @todo this might be wrong (and is also deprecated)
@@ -1025,6 +1028,11 @@ class GlobalConfig implements GlobalConfigInterface
     public function getEmailFromDomainValidRegex(): string
     {
         return $this->emailFromDomainValidRegex;
+    }
+
+    public function getProcedureMetricsReceiver(): string
+    {
+        return $this->procedureMetricsReceiver;
     }
 
     /**

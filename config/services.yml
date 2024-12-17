@@ -893,7 +893,6 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
         calls:
-            - [ 'setTagImportService', [ '@intriro_csv.importer.tags' ] ]
             - [ 'setElasticsearchIndexManager', ['@fos_elastica.index_manager'] ]
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler:
@@ -1376,6 +1375,8 @@ services:
             $resourceTypes: !tagged dplan.resourceType
 
     Intervention\Image\ImageManager: ~
+
+    Nelmio\SecurityBundle\EventListener\ContentSecurityPolicyListener: '@nelmio_security.csp_listener'
 
     Pagerfanta\View\ViewFactory: '@white_october_pagerfanta.view_factory'
 
