@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
-use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -23,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
-use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\InstitutionTagResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
@@ -138,10 +136,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         return [];
     }
 
-
     protected function getProperties(): ResourceConfigBuilderInterface
     {
-
         $configBuilder = $this->getConfig(UserResourceConfigBuilder::class);
 
         $configBuilder->id
@@ -186,8 +182,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->setReadableByCallable(static fn (User $user): bool => $user->getNoPiwik(), DefaultField::YES);
 
         $configBuilder->roles
-            //->setAliasedPath(Paths::user()->roleInCustomers)
-            ->setReadableByCallable( function (User $user): array {
+            // ->setAliasedPath(Paths::user()->roleInCustomers)
+            ->setReadableByCallable(function (User $user): array {
                 $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
 
                 return $user->getRoleInCustomers()
@@ -206,11 +202,9 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->setRelationshipType($this->getTypes()->getDepartmentResourceType());
 
         $configBuilder->orga
-            ->setReadableByCallable( static fn (User $user): ?Orga => $user->getOrga(), DefaultField::YES)
+            ->setReadableByCallable(static fn (User $user): ?Orga => $user->getOrga(), DefaultField::YES)
             ->setRelationshipType($this->getTypes()->getOrgaResourceType());
 
         return $configBuilder;
     }
-
-
 }

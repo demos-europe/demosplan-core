@@ -12,22 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceConfigBuilder;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
-use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseInstitutionTagResourceConfigBuilder;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseUserResourceConfigBuilder;
-use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
-use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
-use EDT\JsonApi\PropertyConfig\Builder\ToManyRelationshipConfigBuilder;
 use EDT\JsonApi\PropertyConfig\Builder\ToManyRelationshipConfigBuilderInterface;
 use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-
 
 /**
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, UserInterface> $profileCompleted
@@ -40,5 +34,5 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,\DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface,OrgaInterface> $orga
  */
 class UserResourceConfigBuilder extends BaseUserResourceConfigBuilder
- {
+{
 }
