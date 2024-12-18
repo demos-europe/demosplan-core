@@ -165,6 +165,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder->login
             ->setReadableByPath(DefaultField::YES)
             ->setSortable()
+            ->addPathCreationBehavior()
             ->setFilterable();
 
         $configBuilder->email
