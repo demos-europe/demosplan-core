@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
-### Added
+## 2.20.0
 
-- Admin institution list: Institutions can now be tagged filtered by categories. 
+- Added: Admin institution list: Institutions can now be tagged filtered by categories.
+- Fixed: Several bug fixes
+- Chore: Addons can now be installed by automatically, when listed in the `addons.yml` file.
+- Chore: Several major dependencies have been updated.
