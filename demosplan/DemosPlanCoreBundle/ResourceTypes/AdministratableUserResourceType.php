@@ -32,6 +32,7 @@ use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Elastica\Index;
 
@@ -206,10 +207,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             }, DefaultField::YES)
             ->setRelationshipType($this->getTypes()->getRoleResourceType())
             ->addCreationBehavior(
-                CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Role $role): array {
-                    $user->setDplanroles([$role], $this->currentCustomerService->getCurrentCustomer());
-
-                    // $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
+                CallbackToManyRelationshipSetBehavior::createFactory(function (User $user, array $roles): array {
+                    $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
                     return [];
                 }, [], OptionalField::NO, [])
             );
