@@ -52,9 +52,9 @@ class AuthorizedUsersController extends BaseController
         FileResponseGeneratorStrategy $responseGenerator,
         Request $request,
         TranslatorInterface $translator,
-        string $procedureId
+        string $procedureId,
     ): Response {
-        $tokenList = $consultationTokenService->getTokenListFromResourceType($procedureId, $request->query->get('sort'));
+        $tokenList = $consultationTokenService->getTokenListFromResourceType($procedureId, $request->query->all('sort'));
 
         try {
             $bulkLetterExport = new BulkLetterExporter($translator);
