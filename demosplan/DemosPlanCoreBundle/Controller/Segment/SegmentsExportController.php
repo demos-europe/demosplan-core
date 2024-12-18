@@ -64,7 +64,7 @@ class SegmentsExportController extends BaseController
         string $statementId
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
@@ -99,7 +99,7 @@ class SegmentsExportController extends BaseController
         string $procedureId
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -187,7 +187,7 @@ class SegmentsExportController extends BaseController
         string $procedureId
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // This method applies mostly the same restrictions as the generic API access to retrieve statements.

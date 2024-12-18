@@ -94,7 +94,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
         $procedure
     ) {
         $requestPost = $request->request->all();
-        $selectedOrgas = $request->request->get('orga_selected', []);
+        $selectedOrgas = $request->request->all('orga_selected');
 
         // Lösche bestimmte RequestVariablen, die für den Export nicht benötigt werden
         $contentNotToTransferToPDF = ['r_emailTitle', 'r_emailCc', 'r_emailText'];

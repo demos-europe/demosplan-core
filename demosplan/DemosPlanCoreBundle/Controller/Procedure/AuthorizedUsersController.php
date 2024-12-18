@@ -54,7 +54,7 @@ class AuthorizedUsersController extends BaseController
         TranslatorInterface $translator,
         string $procedureId
     ): Response {
-        $tokenList = $consultationTokenService->getTokenListFromResourceType($procedureId, $request->query->get('sort'));
+        $tokenList = $consultationTokenService->getTokenListFromResourceType($procedureId, $request->query->all('sort'));
 
         try {
             $bulkLetterExport = new BulkLetterExporter($translator);

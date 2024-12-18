@@ -125,7 +125,7 @@ class JsonApiActionService
         array $sortMethods,
         ParameterBag $query
     ): ApiListResultInterface {
-        $searchParams = SearchParams::createOptional($query->get(JsonApiEsServiceInterface::SEARCH, []));
+        $searchParams = SearchParams::createOptional($query->all(JsonApiEsServiceInterface::SEARCH));
         $pagination = $this->getPagination($query);
 
         if (null === $searchParams) {
@@ -159,7 +159,7 @@ class JsonApiActionService
             return [];
         }
 
-        $filterParam = $query->get(UrlParameter::FILTER);
+        $filterParam = $query->all(UrlParameter::FILTER);
         $filterParam = $this->filterParser->validateFilter($filterParam);
         $conditions = $this->filterParser->parseFilter($filterParam);
         $query->remove(UrlParameter::FILTER);

@@ -447,10 +447,7 @@ class DemosPlanProcedureAPIController extends APIController
                 $requestData['name'] = str_replace('[]', '', (string) $requestData['name']);
             }
             if ($multiselect) {
-                $filter = $request->request->get($requestData['name'], []);
-                if (is_string($filter)) {
-                    $filter = [];
-                }
+                $filter = $request->request->all($requestData['name']);
                 $filter[] = $requestData['value'];
                 $request->request->set($requestData['name'], $filter);
             } else {
