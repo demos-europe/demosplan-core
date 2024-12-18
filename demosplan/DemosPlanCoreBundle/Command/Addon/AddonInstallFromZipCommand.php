@@ -499,7 +499,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             $links = explode(',', $existingReposResponse->getHeaders()['link'][0]);
             foreach ($links as $link) {
                 if (str_contains($link, 'rel="next"')) {
-                    $nextLink = str_replace(['<', '>', 'rel="next"'], '', $link);
+                    $nextLink = trim(str_replace(['<', '>', 'rel="next"'], '', $link));
                     $nextRepositories = $this->fetchRepositories($ghOptions, $nextLink);
                 }
             }
