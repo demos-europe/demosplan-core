@@ -224,6 +224,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->addCreationBehavior(
                 CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Department $department): array {
                     $user->setDepartment($department);
+                    $department->addUser($user);
 
                     return [];
                 }, [], OptionalField::NO, [])
@@ -235,6 +236,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->addCreationBehavior(
                 CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Orga $orga): array {
                     $user->setOrga($orga);
+                    $orga->addUser($user);
 
                     return [];
                 }, [], OptionalField::NO, [])
