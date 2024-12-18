@@ -60,6 +60,7 @@ class InstitutionTagResourceType extends DplanResourceType
             );
 
         $configBuilder->category
+            ->setReadableByPath()
             ->setRelationshipType($this->getTypes()->getInstitutionTagCategoryResourceType());
 
         $configBuilder->taggedInstitutions
