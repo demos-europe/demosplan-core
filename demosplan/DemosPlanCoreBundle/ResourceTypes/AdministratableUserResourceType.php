@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -21,9 +22,18 @@ use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
+use EDT\JsonApi\ApiDocumentation\DefaultField;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Elastica\Index;
 
 /**
@@ -35,24 +45,15 @@ use Elastica\Index;
  * administrate the accessed resources. It does **not** mean that the {@link User}s covered by this
  * resource type are the only ones that are technically administratable.
  *
- * @property-read End $firstname
- * @property-read End $lastname
  * @property-read End $login
- * @property-read End $email
  * @property-read End $deleted
- * @property-read End $profileCompleted
- * @property-read End $accessConfirmed
- * @property-read End $invited
- * @property-read End $newsletter
- * @property-read End $noPiwik
- * @property-read DepartmentResourceType $department
  * @property-read OrgaResourceType $orga
  * @property-read UserRoleInCustomerResourceType $roleInCustomers
  * @property-read RoleResourceType $roles @deprecated use relation to {@link AdministratableUserResourceType::$roleInCustomers} instead
  */
 final class AdministratableUserResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
 {
-    public function __construct(private readonly QueryUser $esQuery, private readonly JsonApiEsService $jsonApiEsService)
+    public function __construct(private readonly QueryUser $esQuery, private readonly JsonApiEsService $jsonApiEsService, private readonly UserRepository $userRepository)
     {
     }
 
@@ -69,6 +70,11 @@ final class AdministratableUserResourceType extends DplanResourceType implements
     public function isAvailable(): bool
     {
         return $this->currentUser->hasPermission('feature_user_list');
+    }
+
+    public function isCreateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('feature_user_add');
     }
 
     protected function getAccessConditions(): array
@@ -127,42 +133,112 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         return [];
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): ResourceConfigBuilderInterface
     {
-        return [
-            $this->createIdentifier()->readable()->filterable()->sortable(),
-            $this->createAttribute($this->firstname)->readable(true)->filterable()->sortable(),
-            $this->createAttribute($this->lastname)->readable(true)->filterable()->sortable(),
-            $this->createAttribute($this->login)->readable(true)->filterable()->sortable(),
-            $this->createAttribute($this->email)->readable(true)->filterable()->sortable(),
-            $this->createAttribute($this->profileCompleted)
-                ->readable(true, static fn (User $user): bool => $user->isProfileCompleted()),
-            $this->createAttribute($this->accessConfirmed)
-                ->readable(true, static fn (User $user): bool => $user->isAccessConfirmed()),
-            $this->createAttribute($this->invited)
-                ->readable(true, static fn (User $user): bool => $user->isInvited()),
-            $this->createAttribute($this->newsletter)
-                ->readable(true, static fn (User $user): bool => $user->getNewsletter()),
-            $this->createAttribute($this->noPiwik)
-                ->readable(true, static fn (User $user): bool => $user->getNoPiwik()),
-            $this->createToManyRelationship($this->roles)
-                // Send only the user roles for the current customer.
-                ->readable(true, function (User $user): array {
-                    $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+        $configBuilder = $this->getConfig(UserResourceConfigBuilder::class);
 
-                    return $user->getRoleInCustomers()
-                        ->filter(
-                            static fn (UserRoleInCustomer $roleInCustomer): bool => $currentCustomer === $roleInCustomer->getCustomer()
-                        )
-                        ->map(
-                            static fn (UserRoleInCustomer $roleInCustomer): Role => $roleInCustomer->getRole()
-                        )
-                        ->getValues();
-                }),
-            $this->createToOneRelationship($this->department)
-                ->readable(true, static fn (User $user): ?Department => $user->getDepartment()),
-            $this->createToOneRelationship($this->orga)
-                ->readable(true, static fn (User $user): ?Orga => $user->getOrga()),
-        ];
+        $configBuilder->id
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->setFilterable();
+
+        $configBuilder->firstname
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->addPathCreationBehavior()
+            ->setFilterable();
+
+        $configBuilder->lastname
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->addPathCreationBehavior()
+            ->setFilterable();
+
+        $configBuilder->login
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->addPathCreationBehavior()
+            ->setFilterable();
+
+        $configBuilder->email
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->addPathCreationBehavior()
+            ->setFilterable();
+
+        $configBuilder->profileCompleted
+            ->setSortable()
+            ->setReadableByCallable(static fn (User $user): bool => $user->isProfileCompleted(), DefaultField::YES);
+
+        $configBuilder->accessConfirmed
+            ->setReadableByCallable(static fn (User $user): bool => $user->isAccessConfirmed(), DefaultField::YES);
+
+        $configBuilder->invited
+            ->setReadableByCallable(static fn (User $user): bool => $user->isInvited(), DefaultField::YES);
+
+        $configBuilder->newsletter
+            ->setReadableByCallable(static fn (User $user): bool => $user->getNewsletter(), DefaultField::YES);
+
+        $configBuilder->noPiwik
+            ->setReadableByCallable(static fn (User $user): bool => $user->getNoPiwik(), DefaultField::YES);
+
+        $configBuilder->roles
+            // ->setAliasedPath(Paths::user()->roleInCustomers)
+            ->setReadableByCallable(function (User $user): array {
+                $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+
+                return $user->getRoleInCustomers()
+                    ->filter(
+                        static fn (UserRoleInCustomer $roleInCustomer): bool => $currentCustomer === $roleInCustomer->getCustomer()
+                    )
+                    ->map(
+                        static fn (UserRoleInCustomer $roleInCustomer): Role => $roleInCustomer->getRole()
+                    )
+                    ->getValues();
+            }, DefaultField::YES)
+            ->setRelationshipType($this->getTypes()->getRoleResourceType())
+            ->addCreationBehavior(
+                CallbackToManyRelationshipSetBehavior::createFactory(function (User $user, array $roles): array {
+                    $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
+
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
+
+        $configBuilder->roleInCustomers
+            ->setRelationshipType($this->getTypes()->getUserRoleInCustomerResourceType())
+            ->setReadableByPath(DefaultField::YES);
+
+        $configBuilder->department
+            ->setReadableByCallable(static fn (User $user): ?Department => $user->getDepartment(), DefaultField::YES)
+            ->setRelationshipType($this->getTypes()->getDepartmentResourceType())
+            ->addCreationBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Department $department): array {
+                    $user->setDepartment($department);
+                    $department->addUser($user);
+
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
+
+        $configBuilder->orga
+            ->setReadableByCallable(static fn (User $user): ?Orga => $user->getOrga(), DefaultField::YES)
+            ->setRelationshipType($this->getTypes()->getOrgaResourceType())
+            ->addCreationBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Orga $orga): array {
+                    $user->setOrga($orga);
+                    $orga->addUser($user);
+
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
+
+        $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
+            $this->userRepository->persistEntities([$user]);
+
+            return [];
+        }));
+
+        return $configBuilder;
     }
 }
