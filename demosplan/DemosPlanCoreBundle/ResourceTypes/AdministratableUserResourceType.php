@@ -138,53 +138,57 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder = $this->getConfig(UserResourceConfigBuilder::class);
 
         $configBuilder->id
-            ->setReadableByPath(DefaultField::YES)
-            ->setSortable()
-            ->setFilterable();
+            ->readable()
+            ->sortable()
+            ->filterable();
 
         $configBuilder->firstname
-            ->setReadableByPath(DefaultField::YES)
-            ->setSortable()
-            ->addPathCreationBehavior()
-            ->setFilterable();
+            ->readable(true)
+            ->sortable()
+            ->initializable()
+            ->filterable();
 
         $configBuilder->lastname
-            ->setReadableByPath(DefaultField::YES)
-            ->setSortable()
-            ->addPathCreationBehavior()
-            ->setFilterable();
+            ->readable(true)
+            ->sortable()
+            ->initializable()
+            ->filterable();
 
         $configBuilder->login
-            ->setReadableByPath(DefaultField::YES)
-            ->setSortable()
-            ->addPathCreationBehavior()
-            ->setFilterable();
+            ->readable(true)
+            ->sortable()
+            ->initializable()
+            ->filterable();
 
         $configBuilder->email
-            ->setReadableByPath(DefaultField::YES)
-            ->setSortable()
-            ->addPathCreationBehavior()
-            ->setFilterable();
+            ->readable(true)
+            ->sortable()
+            ->initializable()
+            ->filterable();
 
         $configBuilder->profileCompleted
-            ->setSortable()
-            ->setReadableByCallable(static fn (User $user): bool => $user->isProfileCompleted(), DefaultField::YES);
+            ->readable(true, static fn (User $user): bool => $user->isProfileCompleted())
+            ->sortable();
 
         $configBuilder->accessConfirmed
-            ->setReadableByCallable(static fn (User $user): bool => $user->isAccessConfirmed(), DefaultField::YES);
+            ->readable(true, static fn (User $user): bool => $user->isAccessConfirmed())
+            ->sortable();
 
         $configBuilder->invited
-            ->setReadableByCallable(static fn (User $user): bool => $user->isInvited(), DefaultField::YES);
+            ->readable(true, static fn (User $user): bool => $user->isInvited())
+            ->sortable();
 
         $configBuilder->newsletter
-            ->setReadableByCallable(static fn (User $user): bool => $user->getNewsletter(), DefaultField::YES);
+            ->readable(true, static fn (User $user): bool => $user->getNewsletter())
+            ->sortable();
 
         $configBuilder->noPiwik
-            ->setReadableByCallable(static fn (User $user): bool => $user->getNoPiwik(), DefaultField::YES);
+            ->readable(true, static fn (User $user): bool => $user->getNoPiwik())
+            ->sortable();
 
         $configBuilder->roles
-            // ->setAliasedPath(Paths::user()->roleInCustomers)
-            ->setReadableByCallable(function (User $user): array {
+            ->setRelationshipType($this->getTypes()->getRoleResourceType())
+            ->readable(true, function (User $user): array {
                 $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
 
                 return $user->getRoleInCustomers()
@@ -195,43 +199,37 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                         static fn (UserRoleInCustomer $roleInCustomer): Role => $roleInCustomer->getRole()
                     )
                     ->getValues();
-            }, DefaultField::YES)
-            ->setRelationshipType($this->getTypes()->getRoleResourceType())
-            ->addCreationBehavior(
-                CallbackToManyRelationshipSetBehavior::createFactory(function (User $user, array $roles): array {
-                    $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
+            })
+            ->sortable()
+            ->initializable(true, function (User $user, array $roles): array {
+                $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
 
-                    return [];
-                }, [], OptionalField::NO, [])
-            );
+                return [];
+            });
 
         $configBuilder->roleInCustomers
             ->setRelationshipType($this->getTypes()->getUserRoleInCustomerResourceType())
-            ->setReadableByPath(DefaultField::YES);
+            ->readable();
 
         $configBuilder->department
-            ->setReadableByCallable(static fn (User $user): ?Department => $user->getDepartment(), DefaultField::YES)
             ->setRelationshipType($this->getTypes()->getDepartmentResourceType())
-            ->addCreationBehavior(
-                CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Department $department): array {
+            ->readable(true, static fn (User $user): ?Department => $user->getDepartment())
+            ->initializable(true, function (User $user, Department $department): array {
                     $user->setDepartment($department);
                     $department->addUser($user);
 
                     return [];
-                }, [], OptionalField::NO, [])
-            );
+                });
 
         $configBuilder->orga
-            ->setReadableByCallable(static fn (User $user): ?Orga => $user->getOrga(), DefaultField::YES)
             ->setRelationshipType($this->getTypes()->getOrgaResourceType())
-            ->addCreationBehavior(
-                CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Orga $orga): array {
+            ->readable(true, static fn (User $user): ?Orga => $user->getOrga())
+            ->initializable(true, function (User $user, Orga $orga): array {
                     $user->setOrga($orga);
                     $orga->addUser($user);
 
                     return [];
-                }, [], OptionalField::NO, [])
-            );
+                });
 
         $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
             $this->userRepository->persistEntities([$user]);
