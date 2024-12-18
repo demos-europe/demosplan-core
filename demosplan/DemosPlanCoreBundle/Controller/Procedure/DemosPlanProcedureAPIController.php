@@ -61,7 +61,7 @@ class DemosPlanProcedureAPIController extends APIController
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
         MessageFormatter $messageFormatter,
-        SchemaPathProcessor $schemaPathProcessor
+        SchemaPathProcessor $schemaPathProcessor,
     ) {
         parent::__construct(
             $apiLogger,
@@ -181,7 +181,7 @@ class DemosPlanProcedureAPIController extends APIController
         Request $request,
         StatementFilterHandler $statementFilterHandler,
         $procedureId,
-        $filterHash = ''
+        $filterHash = '',
     ) {
         return $this->getStatementFilter(
             $assessmentHandler,
@@ -213,7 +213,7 @@ class DemosPlanProcedureAPIController extends APIController
         Request $request,
         StatementFilterHandler $statementFilterHandler,
         $procedureId,
-        $filterHash = ''
+        $filterHash = '',
     ) {
         return $this->getStatementFilter(
             $assessmentHandler,
@@ -237,7 +237,7 @@ class DemosPlanProcedureAPIController extends APIController
     public function updateNonOriginalFilterSetAction(
         AssessmentHandler $assessmentHandler,
         Request $request,
-        $procedureId
+        $procedureId,
     ): APIResponse {
         return $this->updateFilterSet($assessmentHandler, $request, $procedureId, false);
     }
@@ -251,7 +251,7 @@ class DemosPlanProcedureAPIController extends APIController
     public function updateOriginalFilterSetAction(
         AssessmentHandler $assessmentHandler,
         Request $request,
-        $procedureId
+        $procedureId,
     ): APIResponse {
         return $this->updateFilterSet($assessmentHandler, $request, $procedureId, true);
     }
@@ -308,7 +308,7 @@ class DemosPlanProcedureAPIController extends APIController
         StatementFilterHandler $statementFilterHandler,
         $procedureId,
         $filterHash,
-        $original
+        $original,
     ) {
         // @improve T14122
         $filterSet = $filterSetService->findHashedQueryWithHash($filterHash);
@@ -470,7 +470,7 @@ class DemosPlanProcedureAPIController extends APIController
     public function addInvitedPublicAffairsAgentsAction(
         Request $request,
         ResourceLinkageFactory $linkageFactory,
-        string $procedureId
+        string $procedureId,
     ): JsonResponse {
         // Check if normalizer succeeded, even if we don't need its object here
         if (null === $this->requestData) {
@@ -501,7 +501,7 @@ class DemosPlanProcedureAPIController extends APIController
         ProcedureResourceType $procedureResourceType,
         PublicIndexProcedureLister $procedureLister,
         ProcedureService $procedureService,
-        Request $request
+        Request $request,
     ) {
         $this->fractal->parseFieldsets([
             $procedureResourceType::getName() => $this->buildSparseFieldsetString(

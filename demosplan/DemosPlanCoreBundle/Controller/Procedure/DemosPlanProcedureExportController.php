@@ -46,7 +46,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
         NameGenerator $nameGenerator,
         ProcedureServiceOutput $procedureServiceOutput,
         TranslatorInterface $translator,
-        $procedure
+        $procedure,
     ) {
         // is the user permitted to view the procedure at all?
         if (!$permissions->ownsProcedure() && (!$currentUser->getUser()->isLoggedIn() || !$permissions->hasPermissionsetRead())) {
@@ -91,7 +91,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
         NameGenerator $nameGenerator,
         ProcedureServiceOutput $procedureServiceOutput,
         Request $request,
-        $procedure
+        $procedure,
     ) {
         $requestPost = $request->request->all();
         $selectedOrgas = $request->request->all('orga_selected');
@@ -139,7 +139,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
         CurrentUserService $currentUser,
         ExportService $exportService,
         PermissionsInterface $permissions,
-        $procedure
+        $procedure,
     ) {
         $user = $currentUser->getUser();
 
