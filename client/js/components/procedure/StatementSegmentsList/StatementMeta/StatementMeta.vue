@@ -126,6 +126,7 @@ import {
   DpLabel,
   DpSelect,
   DpTextArea,
+  hasAnyPermissions,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
