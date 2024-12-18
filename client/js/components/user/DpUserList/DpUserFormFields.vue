@@ -266,17 +266,6 @@ export default {
     }
   },
 
-  watch: {
-    '$store.state.Role': {
-      handler () {
-        if (this.allowedRolesForOrga.length === 0) {
-          this.setInitialOrgaData()
-        }
-      },
-      deep: false
-    }
-  },
-
   methods: {
     ...mapActions('Orga', {
       organisationList: 'list'
@@ -298,10 +287,11 @@ export default {
       this.$emit('user-update', this.localUser)
     },
 
-    changeUserOrga (orga) {
+    async changeUserOrga (orga) {
       this.setCurrentUserOrganisation(orga)
       this.setDefaultDepartment(orga)
       this.resetRoles()
+      this.allowedRolesForOrga = await this.getAllowedRolesForOrga()
       this.$emit('user-update', this.localUser)
     },
 
@@ -324,7 +314,7 @@ export default {
         return dpApi.get(url)
       }
 
-      return new Promise((resolve, reject) => resolve(true))
+      return new Promise.resolve(resolve => resolve(true))
     },
 
     /**
