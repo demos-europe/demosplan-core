@@ -29,18 +29,14 @@
 
     <tbody>
     <template v-for="topic in topics">
-      <tag-list-topic-row :topic="topic" />
-      <h2 class="text-sm mt-2 font-bold">thematisch</h2>
+      <tag-list-topic-row
+        :topic="topic"
+        @toggle:change="data => updateAiTags(data)" />
       <template v-for="tag in topic.tags">
         <tag-list-tag-row
           :tag="tag"
-          :topics="topics" />
-      </template>
-      <h2 v-if="topic.tags.filter(el => el.isAi === true).length >= 1" class="text-sm mt-2 font-bold">inhaltlich</h2>
-      <template v-for="tag in topic.tags.filter(el => el.isAi === true)">
-        <tag-list-tag-row
-          :tag="tag"
-          :topics="topics" />
+          :topics="topics"
+          @toggle:change="data => updateAiTags(data)" />
       </template>
     </template>
     </tbody>
@@ -60,6 +56,22 @@ export default {
     DpContextualHelp,
     TagsListControls,
     TagListTopicRow
+  },
+
+  data () {
+    return {
+      selectedAiTags: []
+    }
+  },
+
+  methods: {
+    updateAiTags (event) {
+      if (event.isAiActive) {
+        this.selectedAiTags.push(event.tagId)
+      } else {
+        this.selectedAiTags = this.selectedAiTags.filter(tagId => tagId !== event.tagId)
+      }
+    }
   },
 
   inject: ['topics']

@@ -86,7 +86,8 @@
         <!-- The tag addon will be added here -->
         <dp-toggle
           id="mapStatus"
-          v-model="isAiActive" />
+          v-model="isAiActive"
+          @input="handleChange()" />
       </span>
     </td>
   </tr>
@@ -141,6 +142,13 @@ export default {
 
     handleSelect (id) {
       this.selectedTopicId = id
+    },
+
+    handleChange () {
+      this.$emit('toggle:change', {
+        tagId: this.tag.id,
+        isAiActive: this.isAiActive,
+        type: 'tag'})
     }
   },
 
