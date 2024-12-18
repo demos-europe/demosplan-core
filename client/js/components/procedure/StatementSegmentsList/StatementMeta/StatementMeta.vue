@@ -27,7 +27,7 @@
           class="pr-5"
           role="menu">
           <li
-            v-for="entry in filterMenue"
+            v-for="entry in filteredMenuEntries"
             :class="{
               'bg-selected': activeItem === entry.id
             }"
@@ -255,7 +255,7 @@ export default {
       return today
     },
 
-    filterMenue () {
+    filteredMenuEntries () {
       return this.menuEntries.filter(entry => entry.condition ?? true)
     },
 
