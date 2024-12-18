@@ -144,7 +144,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_statement_administration_tags_edit', path: '/verfahren/{procedure}/schlagworte/edit', defaults: ['master' => false])]
+    #[Route(name: 'DemosPlan_statement_administration_tags_edit', path: '/verfahren/{procedure}/schlagworte/edit', defaults: ['master' => false], options: ['expose' => true])]
     public function tagListEditAction(
         FileService $fileService,
         FileUploadService $fileUploadService,
@@ -315,7 +315,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
 
         // Check if we need to delete a topic
         if (\array_key_exists('r_deletetopic', $requestPost) && \array_key_exists($requestPost['r_deletetopic'], $requestPost)) {
-            $topicname = $requestPost[$requestPost['r_deletetopic']]['r_rename'];
+            $topicname = $requestPost[$requestPost['r_deletetopic']['r_rename']];
             $result = $statementHandler->deleteTopic($requestPost['r_deletetopic']);
             if (true === $result) {
                 $this->getMessageBag()->add('confirm', 'confirm.topic.deleted');
