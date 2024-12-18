@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -22,12 +24,18 @@ use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\InstitutionTagResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Elastica\Index;
 
 /**
@@ -56,7 +64,7 @@ use Elastica\Index;
  */
 final class AdministratableUserResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
 {
-    public function __construct(private readonly QueryUser $esQuery, private readonly JsonApiEsService $jsonApiEsService)
+    public function __construct(private readonly QueryUser $esQuery, private readonly JsonApiEsService $jsonApiEsService, private readonly UserRepository $userRepository)
     {
     }
 
@@ -148,11 +156,13 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder->firstname
             ->setReadableByPath(DefaultField::YES)
             ->setSortable()
+            ->addPathCreationBehavior()
             ->setFilterable();
 
         $configBuilder->lastname
             ->setReadableByPath(DefaultField::YES)
             ->setSortable()
+            ->addPathCreationBehavior()
             ->setFilterable();
 
         $configBuilder->login
@@ -163,6 +173,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder->email
             ->setReadableByPath(DefaultField::YES)
             ->setSortable()
+            ->addPathCreationBehavior()
             ->setFilterable();
 
         $configBuilder->profileCompleted
@@ -195,16 +206,43 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                     )
                     ->getValues();
             }, DefaultField::YES)
-            ->setRelationshipType($this->getTypes()->getRoleResourceType());
+            ->setRelationshipType($this->getTypes()->getRoleResourceType())
+            ->addCreationBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Role $role): array {
+                    $user->setDplanroles([$role], $this->currentCustomerService->getCurrentCustomer());
+                    //$user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
+
+        $configBuilder->roleInCustomers
+            ->setRelationshipType($this->getTypes()->getUserRoleInCustomerResourceType())
+            ->setReadableByPath(DefaultField::YES);
 
         $configBuilder->department
             ->setReadableByCallable(static fn (User $user): ?Department => $user->getDepartment(), DefaultField::YES)
-            ->setRelationshipType($this->getTypes()->getDepartmentResourceType());
+            ->setRelationshipType($this->getTypes()->getDepartmentResourceType())
+            ->addCreationBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Department $department): array {
+                    $user->setDepartment($department);
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
 
         $configBuilder->orga
-            ->setReadableByCallable(static fn (User $user): ?Orga => $user->getOrga(), DefaultField::YES)
-            ->setRelationshipType($this->getTypes()->getOrgaResourceType());
+            ->setReadableByCallable( static fn (User $user): ?Orga => $user->getOrga(), DefaultField::YES)
+            ->setRelationshipType($this->getTypes()->getOrgaResourceType())
+            ->addCreationBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Orga $orga): array {
+                    $user->setOrga($orga);
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
 
+        $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
+            $this->userRepository->persistEntities([$user]);
+            return [];
+        }));
         return $configBuilder;
     }
 }
