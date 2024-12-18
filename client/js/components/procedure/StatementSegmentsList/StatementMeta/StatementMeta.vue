@@ -126,8 +126,8 @@ import {
   DpLabel,
   DpSelect,
   DpTextArea,
+  dpValidateMixin,
   hasAnyPermissions,
-  dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import StatementEntry from './StatementEntry'
