@@ -209,6 +209,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->addCreationBehavior(
                 CallbackToManyRelationshipSetBehavior::createFactory(function (User $user, array $roles): array {
                     $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
+
                     return [];
                 }, [], OptionalField::NO, [])
             );
