@@ -46,6 +46,7 @@ use Elastica\Index;
  * resource type are the only ones that are technically administratable.
  *
  * @property-read End $login
+ * @property-read End $email
  * @property-read End $deleted
  * @property-read OrgaResourceType $orga
  * @property-read UserRoleInCustomerResourceType $roleInCustomers
@@ -154,12 +155,6 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->initializable()
             ->filterable();
 
-        $configBuilder->login
-            ->readable(true)
-            ->sortable()
-            ->initializable()
-            ->filterable();
-
         $configBuilder->email
             ->readable(true)
             ->sortable()
@@ -232,6 +227,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                 });
 
         $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
+            $attributes = $entityData->getAttributes();
+            $user->setLogin($attributes[$this->email->getAsNamesInDotNotation()]);
             $this->userRepository->persistEntities([$user]);
 
             return [];
