@@ -45,17 +45,8 @@ use Elastica\Index;
  * administrate the accessed resources. It does **not** mean that the {@link User}s covered by this
  * resource type are the only ones that are technically administratable.
  *
- * @property-read End $firstname
- * @property-read End $lastname
  * @property-read End $login
- * @property-read End $email
  * @property-read End $deleted
- * @property-read End $profileCompleted
- * @property-read End $accessConfirmed
- * @property-read End $invited
- * @property-read End $newsletter
- * @property-read End $noPiwik
- * @property-read DepartmentResourceType $department
  * @property-read OrgaResourceType $orga
  * @property-read UserRoleInCustomerResourceType $roleInCustomers
  * @property-read RoleResourceType $roles @deprecated use relation to {@link AdministratableUserResourceType::$roleInCustomers} instead
