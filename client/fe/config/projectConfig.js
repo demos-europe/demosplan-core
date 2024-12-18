@@ -11,8 +11,6 @@ const chalk = require('chalk')
 const spawnSync = require('child_process').spawnSync // To run php processes
 const log = require('../webpack/util').log
 
-/* eslint-disable dot-notation */
-
 function projectConfig (mode, project) {
   const frontendIntegratorCommand = [
     'bin/console',

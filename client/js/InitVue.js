@@ -54,7 +54,6 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
   Vue.directive('dp-validate-multiselect', dpValidateMultiselectDirective)
 
   return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
-    /* eslint-disable no-new */
     const vm = new Vue({
       el: '#app',
       /*

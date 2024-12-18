@@ -116,19 +116,8 @@
 </template>
 
 <script>
-import {
-  DpButton,
-  DpButtonRow,
-  DpContextualHelp,
-  DpDatepicker,
-  DpIcon,
-  DpInput,
-  DpLabel,
-  DpSelect,
-  DpTextArea,
-  dpValidateMixin
-} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import { dpValidateMixin } from '@demos-europe/demosplan-ui'
 import StatementEntry from './StatementEntry'
 import StatementMetaAttachments from './StatementMetaAttachments'
 import StatementMetaLocationAndDocumentReference from './StatementMetaLocationAndDocumentReference'
@@ -140,15 +129,6 @@ export default {
   name: 'StatementMeta',
 
   components: {
-    DpButton,
-    DpButtonRow,
-    DpContextualHelp,
-    DpDatepicker,
-    DpIcon,
-    DpInput,
-    DpLabel,
-    DpSelect,
-    DpTextArea,
     StatementEntry,
     StatementMetaAttachments,
     StatementMetaLocationAndDocumentReference,

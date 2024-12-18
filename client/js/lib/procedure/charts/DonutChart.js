@@ -61,7 +61,6 @@ export default class DonutChart {
       .value((d) => d.count)
       .sort(null)
 
-    // eslint-disable-next-line no-unused-vars
     const path = svg.selectAll('path')
       .data(pie(data))
       .enter()
