@@ -13,8 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -25,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
-use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\InstitutionTagResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
@@ -210,7 +207,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->addCreationBehavior(
                 CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Role $role): array {
                     $user->setDplanroles([$role], $this->currentCustomerService->getCurrentCustomer());
-                    //$user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
+
+                    // $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
                     return [];
                 }, [], OptionalField::NO, [])
             );
@@ -225,24 +223,28 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->addCreationBehavior(
                 CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Department $department): array {
                     $user->setDepartment($department);
+
                     return [];
                 }, [], OptionalField::NO, [])
             );
 
         $configBuilder->orga
-            ->setReadableByCallable( static fn (User $user): ?Orga => $user->getOrga(), DefaultField::YES)
+            ->setReadableByCallable(static fn (User $user): ?Orga => $user->getOrga(), DefaultField::YES)
             ->setRelationshipType($this->getTypes()->getOrgaResourceType())
             ->addCreationBehavior(
                 CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Orga $orga): array {
                     $user->setOrga($orga);
+
                     return [];
                 }, [], OptionalField::NO, [])
             );
 
         $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
             $this->userRepository->persistEntities([$user]);
+
             return [];
         }));
+
         return $configBuilder;
     }
 }
