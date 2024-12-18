@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -26,14 +25,10 @@ use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
-use EDT\JsonApi\ApiDocumentation\DefaultField;
-use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
-use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
-use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Elastica\Index;
 
 /**
@@ -215,21 +210,21 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->setRelationshipType($this->getTypes()->getDepartmentResourceType())
             ->readable(true, static fn (User $user): ?Department => $user->getDepartment())
             ->initializable(true, function (User $user, Department $department): array {
-                    $user->setDepartment($department);
-                    $department->addUser($user);
+                $user->setDepartment($department);
+                $department->addUser($user);
 
-                    return [];
-                });
+                return [];
+            });
 
         $configBuilder->orga
             ->setRelationshipType($this->getTypes()->getOrgaResourceType())
             ->readable(true, static fn (User $user): ?Orga => $user->getOrga())
             ->initializable(true, function (User $user, Orga $orga): array {
-                    $user->setOrga($orga);
-                    $orga->addUser($user);
+                $user->setOrga($orga);
+                $orga->addUser($user);
 
-                    return [];
-                });
+                return [];
+            });
 
         $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
             $this->userRepository->persistEntities([$user]);
