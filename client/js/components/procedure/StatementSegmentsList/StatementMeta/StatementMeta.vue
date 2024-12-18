@@ -27,8 +27,7 @@
           class="pr-5"
           role="menu">
           <li
-            v-for="entry in menuEntries"
-            v-if="entry.condition !== undefined ? entry.condition : true"
+            v-for="entry in filterMenue"
             :class="{
               'bg-selected': activeItem === entry.id
             }"
@@ -253,6 +252,10 @@ export default {
 
       today = dd + '.' + mm + '.' + yyyy
       return today
+    },
+
+    filterMenue () {
+      return this.menuEntries.filter(entry => entry.condition ?? true)
     },
 
     isCurrentUserAssigned () {
