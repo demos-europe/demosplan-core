@@ -73,6 +73,11 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         return $this->currentUser->hasPermission('feature_user_add');
     }
 
+    public function isUpdateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('feature_user_edit');
+    }
+
     protected function getAccessConditions(): array
     {
         $conditions = [
@@ -141,18 +146,22 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder->firstname
             ->readable(true)
             ->sortable()
+            ->updatable()
             ->initializable()
             ->filterable();
 
         $configBuilder->lastname
             ->readable(true)
             ->sortable()
+            ->updatable()
             ->initializable()
+            ->updatable()
             ->filterable();
 
         $configBuilder->email
             ->readable(true)
             ->sortable()
+            ->updatable()
             ->initializable()
             ->filterable();
 
@@ -177,6 +186,11 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->sortable();
 
         $configBuilder->roles
+            ->updatable([], [], function (User $user, array $roles): array {
+
+                $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
+                return [];
+            })
             ->setRelationshipType($this->getTypes()->getRoleResourceType())
             ->readable(true, function (User $user): array {
                 $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
