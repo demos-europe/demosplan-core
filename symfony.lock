@@ -20,9 +20,6 @@
     "amphp/byte-stream": {
         "version": "v1.8.1"
     },
-    "ankitpokhrel/tus-php": {
-        "version": "v2.2.0"
-    },
     "babdev/pagerfanta-bundle": {
         "version": "v2.11.0"
     },
@@ -160,9 +157,6 @@
     },
     "efrane/console-additions": {
         "version": "v0.6.2"
-    },
-    "efrane/tus-bundle": {
-        "version": "v0.5"
     },
     "egulias/email-validator": {
         "version": "2.1.25"
@@ -573,9 +567,6 @@
             "phpunit.xml.dist",
             "tests/bootstrap.php"
         ]
-    },
-    "predis/predis": {
-        "version": "v1.1.10"
     },
     "proj4php/proj4php": {
         "version": "2.0.12"
@@ -1017,9 +1008,6 @@
     },
     "symfony/security-csrf": {
         "version": "v5.3.4"
-    },
-    "symfony/security-guard": {
-        "version": "v4.4.27"
     },
     "symfony/security-http": {
         "version": "v4.4.27"

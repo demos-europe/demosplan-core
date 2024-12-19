@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\HandlerInterface;
+use Monolog\LogRecord;
 use Sentry\State\Scope;
 
 use function Sentry\withScope;
@@ -37,7 +38,7 @@ class SentryHandler implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function isHandling(array $record): bool
+    public function isHandling(LogRecord $record): bool
     {
         return $this->decoratedHandler->isHandling($record);
     }
@@ -45,7 +46,7 @@ class SentryHandler implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function handle(array $record): bool
+    public function handle(LogRecord $record): bool
     {
         $result = false;
 
