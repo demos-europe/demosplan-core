@@ -21,6 +21,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
@@ -49,7 +51,7 @@ use Elastica\Index;
  */
 final class AdministratableUserResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
 {
-    public function __construct(private readonly QueryUser $esQuery, private readonly JsonApiEsService $jsonApiEsService, private readonly UserRepository $userRepository)
+    public function __construct(private readonly QueryUser $esQuery, private readonly JsonApiEsService $jsonApiEsService, private readonly UserRepository $userRepository, private readonly UserHandler $userHandler, private readonly UserService $userService)
     {
     }
 
@@ -187,8 +189,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
 
         $configBuilder->roles
             ->updatable([], [], function (User $user, array $roles): array {
+                $this->userService->setUserRoles($user->getId(), []);
                 $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
-
                 return [];
             })
             ->setRelationshipType($this->getTypes()->getRoleResourceType())
