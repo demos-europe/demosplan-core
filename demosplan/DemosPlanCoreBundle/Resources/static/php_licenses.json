@@ -26,6 +26,11 @@
     },
     {
         "license": "MIT",
+        "package": "composer/composer",
+        "website": "https://github.com/composer/composer"
+    },
+    {
+        "license": "MIT",
         "package": "composer/package-versions-deprecated",
         "website": "https://github.com/composer/package-versions-deprecated"
     },
@@ -175,11 +180,6 @@
         "website": "https://github.com/Intervention/image"
     },
     {
-        "license": "MIT",
-        "package": "intriro/csv-bundle",
-        "website": "https://github.com/intriro/csv-bundle"
-    },
-    {
         "license": "BSD-3-Clause",
         "package": "jfcherng/php-diff",
         "website": "https://github.com/jfcherng/php-diff"
@@ -208,6 +208,11 @@
         "license": "MIT",
         "package": "knpuniversity/oauth2-client-bundle",
         "website": "https://github.com/knpuniversity/oauth2-client-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "league/csv",
+        "website": "https://github.com/thephpleague/csv"
     },
     {
         "license": "MIT",
