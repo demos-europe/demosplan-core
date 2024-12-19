@@ -287,10 +287,11 @@ export default {
       this.$emit('user-update', this.localUser)
     },
 
-    changeUserOrga (orga) {
+    async changeUserOrga (orga) {
       this.setCurrentUserOrganisation(orga)
       this.setDefaultDepartment(orga)
       this.resetRoles()
+      this.allowedRolesForOrga = await this.getAllowedRolesForOrga()
       this.$emit('user-update', this.localUser)
     },
 
@@ -313,7 +314,7 @@ export default {
         return dpApi.get(url)
       }
 
-      return new Promise((resolve, reject) => resolve(true))
+      return new Promise.resolve(true)
     },
 
     /**
@@ -331,7 +332,7 @@ export default {
      * - user is not set: all roles
      * - user is set: roles for current organisation
      */
-    getAllowedRolesForOrga () {
+    async getAllowedRolesForOrga () {
       let allowedRoles
 
       if (this.currentUserOrga.id === '') {
@@ -339,7 +340,7 @@ export default {
       } else if (this.organisations[this.currentUserOrga.id].relationships?.allowedRoles?.data) {
         allowedRoles = Object.values(this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list())
       } else {
-        allowedRoles = this.getOrgaAllowedRoles(this.currentUserOrga.id)
+        allowedRoles = await this.getOrgaAllowedRoles(this.currentUserOrga.id)
       }
 
       return allowedRoles
@@ -348,14 +349,17 @@ export default {
     getOrgaAllowedRoles (orgaId) {
       let allowedRoles = this.rolesInRelationshipFormat
 
-      this.fetchOrgaById(orgaId).then((orga) => {
-        this.setOrga(orga.data.data)
-        if (this.currentUserOrga.id && hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
-          allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list()
-        }
-      })
+      return this.fetchOrgaById(orgaId)
+        .then(orga => {
+          this.setOrga(orga.data.data)
 
-      return allowedRoles
+          if (this.currentUserOrga.id && hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+            allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list()
+          }
+        })
+        .finally(() => {
+          return allowedRoles
+        })
     },
 
     /**
@@ -423,8 +427,8 @@ export default {
        */
       if (this.isUserSet || this.isManagingSingleOrganisation) {
         this.fetchCurrentOrganisation()
-          .then((response) => {
-            if (response && response.data) {
+          .then(response => {
+            if (response?.data) {
               this.setOrganisationWithDepartments(response)
             }
           })
