@@ -14,7 +14,7 @@
 import { DpContextualHelp, DpUploadFiles } from '@demos-europe/demosplan-ui'
 import AnimateById from '@DpJs/lib/shared/AnimateById'
 import { initialize } from '@DpJs/InitVue'
-import TagsList from '@DpJs/components/TagsList'
+import TagsList from '@DpJs/components/tags/TagsList'
 
 const components = {
   DpContextualHelp,

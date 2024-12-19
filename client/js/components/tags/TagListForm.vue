@@ -5,17 +5,23 @@
       method="POST"
       name="tag_edit">
 
+      <!-- csrf token -->
+      <input
+        name="_token"
+        type="hidden"
+        :value="dplan.csrfToken">
+
       <slot name="tag-list-bulk-controls" />
       <slot name="tag-list-table" />
 
-      <fieldset class="flow-root u-pb-0 u-mt-2">
+      <fieldset class="flow-root pb-1 mt-2">
 
-        <div class="layout u-mb">
-          <label class="layout__item u-2-of-3">
+        <div class="layout mb-1">
+          <label class="layout__item w-2/3">
             {{ Translator.trans('topic.create') }}
             <input
               data-form-actions-submit-target="#createNewTopic"
-              class="layout__item o-form__control-input"
+              class="layout__item  o-form__control-input"
               type="text"
               name="r_newTopic"
               data-cy="nameNewTopic"
@@ -43,13 +49,12 @@
           name="r_importCsv"
           :tus-endpoint="dplan.paths.tusEndpoint"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.csv', { browse: '{browse}', maxUploadSize: '10GB' }) }"
-          :max-number-of-files="1"
-        />
+          :max-number-of-files="1" />
 
         <button
           data-cy="listTags:tagsImport"
           name="r_import"
-          class="btn btn--primary float-right u-mb-2">
+          class="btn btn--primary float-right mb-1">
           {{ Translator.trans('tags.import') }}
         </button>
 

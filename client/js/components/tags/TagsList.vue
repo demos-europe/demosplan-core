@@ -5,11 +5,9 @@
       <template #tag-list-bulk-controls>
         <tag-list-bulk-controls />
       </template>
-
       <template #tag-list-table>
         <tag-list-table />
       </template>
-
     </tag-list-form>
   </div>
 </template>
