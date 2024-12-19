@@ -874,7 +874,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             /** @var PostNewProcedureCreatedEvent $postNewProcedureCreatedEvent */
             $postNewProcedureCreatedEvent = $this->eventDispatcher->dispatch(
-                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken']),
+                new PostNewProcedureCreatedEvent($newProcedure, $data['procedureCoupleToken'], $blueprintId),
                 PostNewProcedureCreatedEventInterface::class
             );
 
