@@ -314,7 +314,7 @@ export default {
         return dpApi.get(url)
       }
 
-      return new Promise.resolve(resolve => resolve(true))
+      return new Promise.resolve(true)
     },
 
     /**
