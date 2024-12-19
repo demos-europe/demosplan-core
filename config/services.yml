@@ -11,7 +11,6 @@ services:
     Cocur\Slugify\Slugify: ~
 
     demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable\StatementBulkEditTransformer:
-        lazy: true
         tags:
             - name: dplan.json_api_transformer
 
@@ -550,13 +549,11 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer: ~
 
     demosplan\DemosPlanCoreBundle\Transformers\FaqCategoryTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
@@ -580,7 +577,6 @@ services:
             - { name: "dplan.drafts.info.transformer" }
 
     demosplan\DemosPlanCoreBundle\Transformers\SlugDraftTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
@@ -700,7 +696,6 @@ services:
     ########## Transformers
 
     demosplan\DemosPlanCoreBundle\Transformers\Document\DocumentDashboardTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
@@ -756,7 +751,6 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Transformers\Map\MapOptionsTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
@@ -846,13 +840,11 @@ services:
             $rendererName: '%pdf_renderer_name%'
 
     demosplan\DemosPlanCoreBundle\Transformers\Procedure\AssessmentTableFilterTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\Procedure\ProcedureArrayTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
@@ -964,19 +956,16 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Transformers\EntityContentChangeComparisonTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\HistoryTimeTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
@@ -1112,19 +1101,16 @@ services:
         autoconfigure: false
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterItemTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterGroupTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterTypeTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
