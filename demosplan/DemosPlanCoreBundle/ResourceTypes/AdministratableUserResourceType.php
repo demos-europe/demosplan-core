@@ -191,6 +191,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->updatable([], [], function (User $user, array $roles): array {
                 $this->userService->setUserRoles($user->getId(), []);
                 $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
+
                 return [];
             })
             ->setRelationshipType($this->getTypes()->getRoleResourceType())
