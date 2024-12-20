@@ -406,7 +406,7 @@ class DemosPlanStatementAPIController extends APIController
             $filterSetHash = $hashNew->getHash();
 
             $pagination = $paginationParser->parseApiPaginationProfile(
-                $this->request->query->get('page', []),
+                $this->request->query->all('page'),
                 $this->request->query->get('sort', ''),
                 25
             );
