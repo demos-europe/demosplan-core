@@ -21,6 +21,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
@@ -51,7 +53,7 @@ use Elastica\Index;
  */
 final class AdministratableUserResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
 {
-    public function __construct(private readonly QueryUser $esQuery, private readonly JsonApiEsService $jsonApiEsService, private readonly UserRepository $userRepository, private readonly UserHandler $userHandler, private readonly UserService $userService)
+    public function __construct(private readonly QueryUser $esQuery, private readonly JsonApiEsService $jsonApiEsService, private readonly UserRepository $userRepository, private readonly UserHandler $userHandler, private readonly UserService $userService, private readonly RoleService $roleService, private readonly RoleHandler $roleHandler)
     {
     }
 
@@ -221,6 +223,11 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder->department
             ->setRelationshipType($this->getTypes()->getDepartmentResourceType())
             ->readable(true, static fn (User $user): ?Department => $user->getDepartment())
+            ->updatable([], [], function (User $user, Department $department): array {
+                $user->setDepartment($department);
+                $department->addUser($user);
+                return [];
+            })
             ->initializable(true, function (User $user, Department $department): array {
                 $user->setDepartment($department);
                 $department->addUser($user);
@@ -231,6 +238,11 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder->orga
             ->setRelationshipType($this->getTypes()->getOrgaResourceType())
             ->readable(true, static fn (User $user): ?Orga => $user->getOrga())
+            ->updatable([], [], function (User $user, Orga $orga): array {
+                $user->setOrga($orga);
+                $orga->addUser($user);
+                return [];
+            })
             ->initializable(true, function (User $user, Orga $orga): array {
                 $user->setOrga($orga);
                 $orga->addUser($user);
