@@ -9,7 +9,7 @@
 
 <template>
   <li
-    v-if="layer.attributes.isEnabled && !layer.attributes.isScope &&  !layer.attributes.isBplan"
+    v-if="layer.attributes.isEnabled && !layer.attributes.isScope && !layer.attributes.isBplan"
     :id="id"
     :title="layerTitle"
     :class="[(isVisible && layer.attributes.canUserToggleVisibility) ? prefixClass('is-active') : '', prefixClass('c-map__group-item c-map__layer flex items-center space-x-1')]"
@@ -177,7 +177,7 @@ export default {
       this.isVisible = (typeof isVisible !== 'undefined') ? isVisible : (this.isVisible === false)
 
       const exclusively = this.layer.attributes.isBaseLayer
-      this.$root.$emit('layer:toggle', { id: this.id, exclusively: exclusively, isVisible: this.isVisible })
+      this.$root.$emit('layer:toggle', { id: this.id, exclusively, isVisible: this.isVisible })
 
       this.$root.$emit('layer:toggleLegend', { id: this.id, isVisible: this.isVisible })
     },

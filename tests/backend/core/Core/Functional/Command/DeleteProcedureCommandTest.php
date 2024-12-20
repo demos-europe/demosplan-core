@@ -18,14 +18,15 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFacto
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
-use Zenstruck\Foundry\Proxy;
+use Zenstruck\Foundry\Persistence\Proxy;
 
 class DeleteProcedureCommandTest extends FunctionalTestCase
 {
-    private null|Procedure|Proxy $testProcedure;
+    private Procedure|Proxy|null $testProcedure;
 
     /** @var SqlQueriesService */
     protected $queriesService;
@@ -38,28 +39,37 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
         $this->testProcedure = ProcedureFactory::createOne();
     }
 
-    public function testExecute()
+    public function testExecute(): void
     {
         $id = $this->testProcedure->getId();
         $commandTester = $this->executeCommand($id);
         $output = $commandTester->getDisplay();
         $successString = "procedure(s) with id(s) $id are deleted";
 
-        $this->assertStringContainsString($successString, $output);
+        static::assertStringContainsString($successString, $output);
     }
 
-    public function testNoFoundMatchingProcedure()
+    public function testSuccessOutputForMultipleProcedures(): void
     {
-        $commandTester = $this->executeCommand('');
-        $output = $commandTester->getDisplay();
-        $warningString = 'Matching procedure(s) not found for id(s)';
-        $infoString = 'no procedure(s) found to delete';
+        $proceduresToDelete = $this->getEntries(Procedure::class);
+        $procedureIds = [];
+        foreach ($proceduresToDelete as $procedure) {
+            $procedureIds[] = $procedure->getId();
+        }
+        $procedureIdsAsString = implode(',', $procedureIds);
 
-        $this->assertStringContainsString($warningString, $output);
-        $this->assertStringContainsString($infoString, $output);
+        $commandTester = $this->executeCommand($procedureIdsAsString);
+        $output = $commandTester->getDisplay();
+
+        // extract UUIDs from output
+        $successPartOfTheOutput = explode(' are deleted', explode('procedure(s) with id(s)', $output)[1])[0];
+        $extractedUUIDsAsString = trim(str_replace(["\n", '        '], '', $successPartOfTheOutput));
+        $successfullyDeletedProcedureIds = explode(',', $extractedUUIDsAsString);
+
+        static::assertEqualsCanonicalizing($procedureIds, $successfullyDeletedProcedureIds);
     }
 
-    public function testMissingArgument()
+    public function testMissingArgument(): void
     {
         $this->expectException("Symfony\Component\Console\Exception\RuntimeException");
         $this->expectExceptionMessage('Not enough arguments (missing: "procedureIds")');
@@ -68,45 +78,52 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
 
     private function executeCommand(string $procedureIds): CommandTester
     {
-        $kernel = self::bootKernel();
-        $application = new ConsoleApplication($kernel, false);
-
-        $procedureDeleter = $this->getMock(ProcedureDeleter::class);
-        $procedureDeleter->method('deleteProcedures')->willReturnCallback(function ($param): void {});
-
-        $application->add(new DeleteProcedureCommand(
-            $this->createMock(ParameterBagInterface::class),
-            $procedureDeleter,
-            $this->queriesService,
-            null
-        ));
-
-        $command = $application->find(DeleteProcedureCommand::getDefaultName());
+        $command = $this->createCommandTester();
         $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), 'procedureIds' => $procedureIds, '--without-repopulate' => true, '--dry-run' => true]);
+
+        $commandTester->execute(
+            [
+                'command'              => $command->getName(),
+                'procedureIds'         => $procedureIds,
+                '--without-repopulate' => true,
+                '--dry-run'            => false,
+            ]
+        );
 
         return $commandTester;
     }
 
-    private function executeCommandWithoutArgument(): CommandTester
+    private function executeCommandWithoutArgument(): void
+    {
+        $command = $this->createCommandTester();
+        $commandTester = new CommandTester($command);
+
+        $commandTester->execute(
+            ['command'                 => $command->getName(),
+                '--without-repopulate' => true,
+                '--dry-run'            => true,
+            ]
+        );
+    }
+
+    private function createCommandTester(): Command
     {
         $kernel = self::bootKernel();
         $application = new ConsoleApplication($kernel, false);
 
         $procedureDeleter = $this->getMock(ProcedureDeleter::class);
-        $procedureDeleter->method('deleteProcedures')->willReturnCallback(function ($param): void {});
+        $procedureDeleter->method('deleteProcedures')->willReturnCallback(function ($param): void {
+        });
 
-        $application->add(new DeleteProcedureCommand(
-            $this->createMock(ParameterBagInterface::class),
-            $procedureDeleter,
-            $this->queriesService,
-            null
-        ));
+        $application->add(
+            new DeleteProcedureCommand(
+                $this->createMock(ParameterBagInterface::class),
+                $procedureDeleter,
+                $this->queriesService,
+                null
+            )
+        );
 
-        $command = $application->find(DeleteProcedureCommand::getDefaultName());
-        $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName(), '--without-repopulate' => true, '--dry-run' => true]);
-
-        return $commandTester;
+        return $application->find(DeleteProcedureCommand::getDefaultName());
     }
 }

@@ -167,9 +167,9 @@ export default {
         data: {
           data: {
             type: 'SurveyVote',
-            id: id,
+            id,
             attributes: {
-              textReview: textReview
+              textReview
             }
           }
         },

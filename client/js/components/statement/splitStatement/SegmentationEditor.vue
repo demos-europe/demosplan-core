@@ -70,15 +70,15 @@ export default {
             inclusive: false,
             parseDOM: [{
               tag: 'a[href]',
-              getAttrs(dom) {
+              getAttrs (dom) {
                 return {
                   href: dom.getAttribute('href'),
                   class: dom.getAttribute('class')
                 }
               }
             }],
-            toDOM(node) {
-              let { href, class: className } = node.attrs
+            toDOM (node) {
+              const { href, class: className } = node.attrs
               return ['a', { href, class: className }, 0]
             }
           }
@@ -107,7 +107,7 @@ export default {
       }
 
       let prosemirrorStateWrapper = {
-        view: view,
+        view,
         keyAccess: rangePlugin.keys,
         getContent: getContent(proseSchema)
       }

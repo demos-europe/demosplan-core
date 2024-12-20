@@ -89,16 +89,16 @@
           <div
             v-if="hasPermission('feature_map_layer_visibility')"
             class="w-1/12 text-right">
-              <i
-                class="fa fa-link mr-2"
-                v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-w-none' }" />
+            <i
+              class="fa fa-link mr-2"
+              v-tooltip="{ content: Translator.trans('explanation.gislayer.visibilitygroup'), classes: 'max-w-none' }" />
           </div>
           <div
             v-if="hasPermission('feature_map_layer_visibility')"
             class="w-1/12 text-right">
-              <i
-                class="fa fa-eye mr-2"
-                v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
+            <i
+              class="fa fa-eye mr-2"
+              v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
           </div>
 
           <div class="w-1/12 text-right">
@@ -137,28 +137,25 @@
         <h3 class="mt-4">
           {{ Translator.trans('map.bases') }}
         </h3>
-        <h5 v-if="hasPermission('feature_map_required')">
-          {{ Translator.trans('info.gislayer.delete') }}
-        </h5>
         <!-- List-Head -->
         <div class="color--grey mb-1 mt-2 mr-2">
           <div class="c-at-item__row-icon pl-0">
             <!-- DragHandler -->
           </div>
           <div class="flex">
-              <div class="flex-1 pl-2">
-                {{ Translator.trans('description') }}
-              </div>
-              <div
-                v-if="hasPermission('feature_map_layer_visibility')"
-                class="w-1/12 text-right">
-                <i
-                  class="fa fa-eye mr-2"
-                  v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
-              </div>
-              <div class="w-1/12 text-right">
-                  {{ Translator.trans('edit') }}
-              </div>
+            <div class="flex-1 pl-2">
+              {{ Translator.trans('description') }}
+            </div>
+            <div
+              v-if="hasPermission('feature_map_layer_visibility')"
+              class="w-1/12 text-right">
+              <i
+                class="fa fa-eye mr-2"
+                v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
+            </div>
+            <div class="w-1/12 text-right">
+              {{ Translator.trans('edit') }}
+            </div>
           </div>
         </div>
         <dp-draggable
@@ -418,13 +415,13 @@ export default {
           window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
         }
       })
-      .then(() => {
-        dplan.notify.confirm(Translator.trans('confirm.saved'))
-      })
-      .catch(err => {
-        dplan.notify.error(Translator.trans('error.changes.not.saved'))
-        console.error(err)
-      })
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
+        .catch(err => {
+          dplan.notify.error(Translator.trans('error.changes.not.saved'))
+          console.error(err)
+        })
     },
 
     setActiveTab (sortOrder) {
