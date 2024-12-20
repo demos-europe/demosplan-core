@@ -2702,14 +2702,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fullhuman/postcss-purgecss@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "@fullhuman/postcss-purgecss@npm:6.0.0"
+"@fullhuman/postcss-purgecss@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "@fullhuman/postcss-purgecss@npm:7.0.2"
   dependencies:
-    purgecss: "npm:^6.0.0"
+    purgecss: "npm:^7.0.2"
   peerDependencies:
     postcss: ^8.0.0
-  checksum: 10c0/817c1103c400249841cc86257fbdb1da90c75dc412ff3b63b156f72055fe43347281749432f680f7e13673473a7daebf496bd1d2f7b17370f6dafb011cbf83f7
+  checksum: 10c0/4b31c89f2c873b260f12efe92ee1b40634919f3a81f18461d8ec3499aa36e91e61f9b3d6f401bd7e67af942456b9b7f456d6307e7114321ea84e3e63bf90e12c
   languageName: node
   linkType: hard
 
@@ -12746,6 +12746,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"purgecss@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "purgecss@npm:7.0.2"
+  dependencies:
+    commander: "npm:^12.1.0"
+    glob: "npm:^11.0.0"
+    postcss: "npm:^8.4.47"
+    postcss-selector-parser: "npm:^6.1.2"
+  bin:
+    purgecss: bin/purgecss.js
+  checksum: 10c0/d6e1df75bc98a14180db67e1de9fa61637680d75e06e8ec5ac492c07e6208f85add16da904d9f9d0e94d17fe052d5f4c152e3874c9c955baa7775782ac31ee38
+  languageName: node
+  linkType: hard
+
 "qs@npm:^6.11.0":
   version: 6.13.0
   resolution: "qs@npm:6.13.0"
@@ -13210,7 +13224,7 @@ __metadata:
     "@demos-europe/demosplan-ui": "npm:^0.3.42"
     "@demos-europe/dp-consent": "npm:^1.3"
     "@efrane/vuex-json-api": "npm:^0.1.2"
-    "@fullhuman/postcss-purgecss": "npm:^6.0.0"
+    "@fullhuman/postcss-purgecss": "npm:^7.0.2"
     "@masterportal/masterportalapi": "npm:2.40.0"
     "@sentry/browser": "npm:^8.46.0"
     "@sentry/integrations": "npm:^7.114.0"
