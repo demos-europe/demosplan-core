@@ -2411,6 +2411,7 @@ feature_use_xplanbox:
     loginRequired: true
 feature_user_add:
     description: 'allows the user to create a new user'
+    expose: true
     label: 'add user'
     loginRequired: true
     parent: feature_user
