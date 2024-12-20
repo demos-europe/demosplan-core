@@ -182,9 +182,11 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->select('p')
                 ->from(Procedure::class, 'p')
                 ->join('p.dataInputOrganisations', 'o')
+                ->join('p.procedureBehaviorDefinition', 'pb')
                 ->andWhere('o.id = :orgaId')
                 ->andWhere('p.deleted = 0')
                 ->andWhere('p.closed = 0')
+                ->andWhere('pb.participationGuestOnly = 0')
                 ->setParameter('orgaId', $orgaId)
                 ->orderBy('p.name', 'ASC');
 
