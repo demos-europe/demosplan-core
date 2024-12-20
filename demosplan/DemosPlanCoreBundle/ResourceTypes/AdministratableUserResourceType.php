@@ -226,6 +226,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->updatable([], [], function (User $user, Department $department): array {
                 $user->setDepartment($department);
                 $department->addUser($user);
+
                 return [];
             })
             ->initializable(true, function (User $user, Department $department): array {
@@ -241,6 +242,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->updatable([], [], function (User $user, Orga $orga): array {
                 $user->setOrga($orga);
                 $orga->addUser($user);
+
                 return [];
             })
             ->initializable(true, function (User $user, Orga $orga): array {
