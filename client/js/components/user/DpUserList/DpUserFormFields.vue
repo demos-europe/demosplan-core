@@ -242,7 +242,7 @@ export default {
       if (this.currentUserOrga.id === '') {
         allowedRoles = this.rolesInRelationshipFormat
       } else if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
-        allowedRoles = Object.values(this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list())
+        allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.data
       } else {
         allowedRoles = this.getOrgaAllowedRoles(this.currentUserOrga.id)
       }
@@ -350,7 +350,7 @@ export default {
       this.fetchOrgaById(orgaId).then((orga) => {
         this.setOrga(orga.data.data)
         if (this.currentUserOrga.id && hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
-          allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list()
+          allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.data
         }
       })
 
