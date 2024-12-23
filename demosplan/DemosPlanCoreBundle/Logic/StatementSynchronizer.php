@@ -50,7 +50,7 @@ class StatementSynchronizer
         private readonly StatementRepository $statementRepository,
         private readonly StatementService $statementService,
         private readonly TransactionService $transactionService,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -140,7 +140,7 @@ class StatementSynchronizer
      */
     private function copyAsOriginalStatement(
         Statement $sourceStatement,
-        Procedure $targetProcedure
+        Procedure $targetProcedure,
     ): array {
         if ($sourceStatement->isOriginal()) {
             throw new InvalidArgumentException('Given statement is an original statement.');
@@ -167,7 +167,6 @@ class StatementSynchronizer
             // if the externId is not used, set the externId to the new statement
             $newOriginalStatement->setExternId($sourceStatement->getExternId());
         }
-
 
         // warning: order of the method calls matter, as later methods may use information
         // of fields set previously
@@ -265,7 +264,7 @@ class StatementSynchronizer
      */
     private function copyFileContainersBetweenStatements(
         Statement $sourceStatement,
-        Statement $newOriginalStatement
+        Statement $newOriginalStatement,
     ): array {
         $sourceFileContainers = $this->statementService->getFileContainersForStatement($sourceStatement->getId());
 
@@ -281,7 +280,7 @@ class StatementSynchronizer
      */
     private function copyFileContainersToStatement(
         array $fileContainers,
-        Statement $targetStatement
+        Statement $targetStatement,
     ): array {
         $fileContainerCopies = [];
         foreach ($fileContainers as $fileContainer) {
@@ -311,7 +310,7 @@ class StatementSynchronizer
      */
     public function cloneFileContainersToStatement(
         array $originalfileContainers,
-        Statement $newStatement
+        Statement $newStatement,
     ): void {
         $fileStrings = [];
         foreach ($originalfileContainers as $oldFileContainer) {
