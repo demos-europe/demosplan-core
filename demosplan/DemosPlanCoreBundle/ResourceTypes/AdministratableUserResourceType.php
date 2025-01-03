@@ -25,7 +25,9 @@ use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
@@ -53,7 +55,7 @@ use Elastica\Index;
  */
 final class AdministratableUserResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
 {
-    public function __construct(private readonly QueryUser $esQuery, private readonly JsonApiEsService $jsonApiEsService, private readonly UserRepository $userRepository, private readonly UserHandler $userHandler, private readonly UserService $userService, private readonly RoleService $roleService, private readonly RoleHandler $roleHandler)
+    public function __construct(private readonly QueryUser $esQuery, private readonly JsonApiEsService $jsonApiEsService, private readonly UserRepository $userRepository, private readonly UserHandler $userHandler, private readonly UserService $userService, private readonly RoleService $roleService, private readonly RoleHandler $roleHandler, private readonly RoleRepository $roleRepository, private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository)
     {
     }
 
@@ -190,9 +192,28 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->sortable();
 
         $configBuilder->roles
-            ->updatable([], [], function (User $user, array $roles): array {
-                $this->userService->setUserRoles($user->getId(), []);
-                $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
+            ->updatable([], [], function (User $user, array $newRoles): array {
+                //$user->getRoleInCustomers();
+                //$this->userService->setUserRoles($user->getId(), []);
+
+
+                $roles = $user->getDplanroles($this->currentCustomerService->getCurrentCustomer())->toArray();
+
+                // Remove roles that are not in the new roles array
+                $removedRoles = $this->getRemovedRoles($roles, $newRoles);
+                foreach ($removedRoles as $role) {
+                    $roleInCustomer = $user->removeRoleInCustomer($role, $this->currentCustomerService->getCurrentCustomer());
+                    $role->removeUserRoleInCustomer($roleInCustomer);
+                    $this->getTypes()->getUserRoleInCustomerResourceType()->deleteEntity($roleInCustomer->getId());
+                }
+
+                // Add new roles that the user does not already have
+                $addedRoles = $this->getAddedRoles($roles, $newRoles);
+                foreach ($addedRoles as $role) {
+
+                    $userRoleInCustomer =$user->addDplanrole($role, $this->currentCustomerService->getCurrentCustomer());
+                    //$role->addUserRoleInCustomer($userRoleInCustomer);
+                }
 
                 return [];
             })
@@ -223,13 +244,19 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder->department
             ->setRelationshipType($this->getTypes()->getDepartmentResourceType())
             ->readable(true, static fn (User $user): ?Department => $user->getDepartment())
-            ->updatable([], [], function (User $user, Department $department): array {
-                $user->setDepartment($department);
-                $department->addUser($user);
+            ->updatable([], [], static function (User $user, Department $newDepartment): array {
+                // Special logic for moving users from one department into another
+                $originalDepartment = $user->getDepartment();
+                if ($originalDepartment instanceof Department) {
+                    $originalDepartment->setGwId(null);
+                    $originalDepartment->removeUser($user);
+                }
+                $user->setDepartment($newDepartment);
+                $newDepartment->addUser($user);
 
                 return [];
             })
-            ->initializable(true, function (User $user, Department $department): array {
+            ->initializable(false, function (User $user, Department $department): array {
                 $user->setDepartment($department);
                 $department->addUser($user);
 
@@ -239,13 +266,19 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder->orga
             ->setRelationshipType($this->getTypes()->getOrgaResourceType())
             ->readable(true, static fn (User $user): ?Orga => $user->getOrga())
-            ->updatable([], [], function (User $user, Orga $orga): array {
-                $user->setOrga($orga);
-                $orga->addUser($user);
+            ->updatable([], [], static function (User $user, Orga $newOrga): array {
+                // Special logic for moving users from one organization into another
+                $originalOrga = $user->getOrga();
+                if ($originalOrga instanceof Orga) {
+                    $originalOrga->setGwId(null);
+                    $originalOrga->removeUser($user);
+                }
+                $user->setOrga($newOrga);
+                $newOrga->addUser($user);
 
                 return [];
             })
-            ->initializable(true, function (User $user, Orga $orga): array {
+            ->initializable(false, function (User $user, Orga $orga): array {
                 $user->setOrga($orga);
                 $orga->addUser($user);
 
@@ -261,5 +294,15 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         }));
 
         return $configBuilder;
+    }
+
+    private function getAddedRoles(array $currentRoles, array $newRoles): array
+    {
+        return array_filter($newRoles, static fn (Role $newRole): bool => !in_array($newRole, $currentRoles, true));
+    }
+
+    private function getRemovedRoles(array $currentRoles, array $newRoles): array
+    {
+        return array_filter($currentRoles, static fn (Role $currentRole): bool => !in_array($currentRole, $newRoles, true));
     }
 }

@@ -997,6 +997,7 @@ class User implements SamlUserInterface, AddonUserInterface
         $this->orga = new ArrayCollection([]);
     }
 
+
     /**
      * Department des Users.
      *
@@ -1084,6 +1085,30 @@ class User implements SamlUserInterface, AddonUserInterface
             $this->departments->removeElement($department);
         }
     }
+
+    public function removeRolesInCustomer(array $roles, $customer): void
+    {
+        foreach ($roles as $role) {
+            $this->removeRoleInCustomer($role, $customer);
+        }
+    }
+
+    public function removeRoleInCustomer(RoleInterface $role, CustomerInterface $customer): UserRoleInCustomerInterface
+    {
+
+        $roleInCustomer = $this->getRoleInCustomers()->filter(
+            function (UserRoleInCustomerInterface $roleInCustomer) use ($role, $customer) {
+                return $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId();
+            }
+        )->first();
+
+        $this->roleInCustomers->removeElement($roleInCustomer);
+       return $roleInCustomer;
+
+
+
+    }
+
 
     /**
      * Unset Department.
@@ -1322,6 +1347,32 @@ class User implements SamlUserInterface, AddonUserInterface
         return $roles;
     }
 
+
+    public function getRolesInCustomer(?CustomerInterface $customer = null)
+    {
+        $roles = new ArrayCollection();
+        $relations = $this->roleInCustomers->toArray();
+
+        // get customer to check
+        if (!$customer instanceof CustomerInterface) {
+            $specifiedCustomerId = $this->currentCustomer instanceof Customer ? $this->currentCustomer->getId() : '';
+        } else {
+            $specifiedCustomerId = $customer->getId();
+        }
+
+        /** @var UserRoleInCustomerInterface $relation */
+        foreach ($relations as $relation) {
+            $relationCustomerId = $relation->getCustomer() instanceof CustomerInterface ? $relation->getCustomer()->getId() : '';
+            if ($specifiedCustomerId === $relationCustomerId
+                && !$roles->contains($relation->getRole())
+                && in_array($relation->getRole()->getCode(), (array) $this->rolesAllowed, true)) {
+                $roles->add($relation);
+            }
+        }
+
+        return $roles;
+    }
+
     /**
      * Returns an array of the code of roles the user has with a specified customer (current is default).
      *
@@ -1440,7 +1491,12 @@ class User implements SamlUserInterface, AddonUserInterface
     {
         // prevents the same role being set multiple times (if they have been set previously)
         if ($this->hasRole($role->getCode(), $customer)) {
-            return;
+            $roleInCustomer = $this->roleInCustomers->filter(
+                function (UserRoleInCustomerInterface $roleInCustomer) use ($role, $customer) {
+                    return $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId();
+                }
+            )->first();
+            return $roleInCustomer;
         }
 
         $customer ??= $this->getCurrentCustomer();
@@ -1451,7 +1507,11 @@ class User implements SamlUserInterface, AddonUserInterface
         $userRoleInCustomer->setCustomer($customer);
 
         $this->roleInCustomers->add($userRoleInCustomer);
+
+        return $userRoleInCustomer;
     }
+
+
 
     /**
      * Check whether user has role (code) with a specified customer (current is default).
