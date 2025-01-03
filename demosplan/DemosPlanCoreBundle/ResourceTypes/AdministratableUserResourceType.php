@@ -193,9 +193,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
 
         $configBuilder->roles
             ->updatable([], [], function (User $user, array $newRoles): array {
-                //$user->getRoleInCustomers();
-                //$this->userService->setUserRoles($user->getId(), []);
-
+                // $user->getRoleInCustomers();
+                // $this->userService->setUserRoles($user->getId(), []);
 
                 $roles = $user->getDplanroles($this->currentCustomerService->getCurrentCustomer())->toArray();
 
@@ -210,9 +209,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                 // Add new roles that the user does not already have
                 $addedRoles = $this->getAddedRoles($roles, $newRoles);
                 foreach ($addedRoles as $role) {
-
-                    $userRoleInCustomer =$user->addDplanrole($role, $this->currentCustomerService->getCurrentCustomer());
-                    //$role->addUserRoleInCustomer($userRoleInCustomer);
+                    $userRoleInCustomer = $user->addDplanrole($role, $this->currentCustomerService->getCurrentCustomer());
+                    // $role->addUserRoleInCustomer($userRoleInCustomer);
                 }
 
                 return [];

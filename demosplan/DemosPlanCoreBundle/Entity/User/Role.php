@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
@@ -200,18 +198,17 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
     {
         if (!$this->userRoleInCustomers->contains($userRoleInCustomer)) {
             $this->userRoleInCustomers->add($userRoleInCustomer);
-           // $userRoleInCustomer->($this);
+            // $userRoleInCustomer->($this);
         }
     }
-
 
     public function getUserRoleInCustomers(): Collection
     {
         return $this->userRoleInCustomers;
     }
 
-    public function removeUserRoleInCustomer(UserRoleInCustomerInterface $userRoleInCustomer) {
+    public function removeUserRoleInCustomer(UserRoleInCustomerInterface $userRoleInCustomer)
+    {
         $this->userRoleInCustomers->removeElement($userRoleInCustomer);
-
     }
 }

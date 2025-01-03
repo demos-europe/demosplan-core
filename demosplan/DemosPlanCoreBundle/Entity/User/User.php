@@ -997,7 +997,6 @@ class User implements SamlUserInterface, AddonUserInterface
         $this->orga = new ArrayCollection([]);
     }
 
-
     /**
      * Department des Users.
      *
@@ -1095,7 +1094,6 @@ class User implements SamlUserInterface, AddonUserInterface
 
     public function removeRoleInCustomer(RoleInterface $role, CustomerInterface $customer): UserRoleInCustomerInterface
     {
-
         $roleInCustomer = $this->getRoleInCustomers()->filter(
             function (UserRoleInCustomerInterface $roleInCustomer) use ($role, $customer) {
                 return $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId();
@@ -1103,12 +1101,9 @@ class User implements SamlUserInterface, AddonUserInterface
         )->first();
 
         $this->roleInCustomers->removeElement($roleInCustomer);
-       return $roleInCustomer;
 
-
-
+        return $roleInCustomer;
     }
-
 
     /**
      * Unset Department.
@@ -1347,7 +1342,6 @@ class User implements SamlUserInterface, AddonUserInterface
         return $roles;
     }
 
-
     public function getRolesInCustomer(?CustomerInterface $customer = null)
     {
         $roles = new ArrayCollection();
@@ -1496,6 +1490,7 @@ class User implements SamlUserInterface, AddonUserInterface
                     return $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId();
                 }
             )->first();
+
             return $roleInCustomer;
         }
 
@@ -1510,8 +1505,6 @@ class User implements SamlUserInterface, AddonUserInterface
 
         return $userRoleInCustomer;
     }
-
-
 
     /**
      * Check whether user has role (code) with a specified customer (current is default).
