@@ -3,6 +3,7 @@ bamarni/composer-bin-plugin: MIT
 beberlei/doctrineextensions: BSD-3-Clause
 cebe/php-openapi: MIT
 cocur/slugify: MIT
+composer/composer: MIT
 composer/package-versions-deprecated: MIT
 demos-europe/demosplan-addon: MIT
 doctrine/annotations: MIT
@@ -33,13 +34,13 @@ goetas-webservices/xsd2php-runtime: MIT
 guzzlehttp/guzzle: MIT
 illuminate/collections: MIT
 intervention/image: MIT
-intriro/csv-bundle: MIT
 jfcherng/php-diff: BSD-3-Clause
 jmikola/geojson: MIT
 jms/serializer-bundle: MIT
 khanamiryan/qrcode-detector-decoder: MIT
 knplabs/knp-menu-bundle: MIT
 knpuniversity/oauth2-client-bundle: MIT
+league/csv: MIT
 league/flysystem-aws-s3-v3: MIT
 league/flysystem-bundle: MIT
 league/flysystem-memory: MIT
@@ -133,4 +134,4 @@ wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
 zenstruck/foundry: MIT
 
-As of 02.12.2024 07:02
+As of 20.12.2024 07:02

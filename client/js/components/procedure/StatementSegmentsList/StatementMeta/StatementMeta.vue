@@ -27,7 +27,7 @@
           class="pr-5"
           role="menu">
           <li
-            v-for="entry in menuEntries"
+            v-for="entry in filteredMenuEntries"
             :class="{
               'bg-selected': activeItem === entry.id
             }"
@@ -126,7 +126,8 @@ import {
   DpLabel,
   DpSelect,
   DpTextArea,
-  dpValidateMixin
+  dpValidateMixin,
+  hasAnyPermissions
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import StatementEntry from './StatementEntry'
@@ -232,8 +233,8 @@ export default {
       menuEntries: [
         { id: 'entry', transKey: 'entry' },
         { id: 'submitter', transKey: 'submitted.author' },
-        { id: 'publicationAndVoting', transKey: 'publication.and.voting' },
-        { id: 'locationAndDocuments', transKey: 'location.and.document.reference' },
+        { id: 'publicationAndVoting', transKey: 'publication.and.voting', condition: hasAnyPermissions(['feature_statements_vote', 'feature_statements_publication']) },
+        { id: 'locationAndDocuments', transKey: 'location.and.document.reference', condition: hasPermission('feature_statements_location_and_document_refrence') },
         { id: 'attachments', transKey: 'attachments' }
       ]
     }
@@ -252,6 +253,10 @@ export default {
 
       today = dd + '.' + mm + '.' + yyyy
       return today
+    },
+
+    filteredMenuEntries () {
+      return this.menuEntries.filter(entry => entry.condition ?? true)
     },
 
     isCurrentUserAssigned () {
