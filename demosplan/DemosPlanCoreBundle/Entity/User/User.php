@@ -1485,13 +1485,7 @@ class User implements SamlUserInterface, AddonUserInterface
     {
         // prevents the same role being set multiple times (if they have been set previously)
         if ($this->hasRole($role->getCode(), $customer)) {
-            $roleInCustomer = $this->roleInCustomers->filter(
-                function (UserRoleInCustomerInterface $roleInCustomer) use ($role, $customer) {
-                    return $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId();
-                }
-            )->first();
-
-            return $roleInCustomer;
+            return;
         }
 
         $customer ??= $this->getCurrentCustomer();
@@ -1502,8 +1496,6 @@ class User implements SamlUserInterface, AddonUserInterface
         $userRoleInCustomer->setCustomer($customer);
 
         $this->roleInCustomers->add($userRoleInCustomer);
-
-        return $userRoleInCustomer;
     }
 
     /**
