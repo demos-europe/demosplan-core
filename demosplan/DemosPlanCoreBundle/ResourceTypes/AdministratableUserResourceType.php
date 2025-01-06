@@ -85,7 +85,6 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         );
     }
 
-
     protected function getAccessConditions(): array
     {
         $conditions = [
