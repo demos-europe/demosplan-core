@@ -15,20 +15,23 @@
       type="info" />
 
     <dp-loading
-      class="u-mt"
-      v-if="isLoading" />
+      v-if="isLoading"
+      class="u-mt" />
+
     <template v-else>
-      <dp-column-selector
-        data-cy="institutionList:selectableColumns"
-        :initial-selection="currentSelection"
-        local-storage-key="institutionList"
-        :selectable-columns="selectableColumns"
-        use-local-storage
-        @selection-changed="setCurrentSelection" />
+      <div class="flex justify-end mt-4">
+        <dp-column-selector
+          data-cy="institutionList:selectableColumns"
+          :initial-selection="currentSelection"
+          local-storage-key="institutionList"
+          :selectable-columns="selectableColumns"
+          use-local-storage
+          @selection-changed="setCurrentSelection" />
+      </div>
 
       <dp-data-table
         ref="dataTable"
-        class="u-mt-2 overflow-x-auto scrollbar-none"
+        class="mt-1 overflow-x-auto scrollbar-none"
         data-dp-validate="tagsTable"
         data-cy="institutionList:dataTable"
         :header-fields="headerFields"
@@ -70,7 +73,7 @@
                 @click="addTagsToInstitution(institution.id)">
                 <dp-icon
                   icon="check"
-                  aria-hidden />
+                  aria-hidden="true" />
               </button>
               <button
                 :aria-label="Translator.trans('abort')"
@@ -79,7 +82,7 @@
                 @click="abortEdit()">
                 <dp-icon
                   icon="xmark"
-                  aria-hidden />
+                  aria-hidden="true" />
               </button>
             </template>
             <button
@@ -90,7 +93,7 @@
               @click="editInstitution(institution.id)">
               <dp-icon
                 icon="edit"
-                aria-hidden />
+                aria-hidden="true" />
             </button>
           </div>
         </template>
