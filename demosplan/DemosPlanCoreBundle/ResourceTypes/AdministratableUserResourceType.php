@@ -166,7 +166,6 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->readable(true)
             ->sortable()
             ->updatable([], function (User $user, string $email): array {
-                $user->setLogin($email);
                 $user->setEmail($email);
 
                 return [];
