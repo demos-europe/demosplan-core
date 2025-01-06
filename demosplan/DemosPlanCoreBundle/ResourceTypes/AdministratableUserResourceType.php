@@ -284,6 +284,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             $user->setLogin($attributes[$this->email->getAsNamesInDotNotation()]);
             $this->userRepository->persistEntities([$user]);
 
+            $this->userHandler->inviteUser($user);
+
             return [];
         }));
 
