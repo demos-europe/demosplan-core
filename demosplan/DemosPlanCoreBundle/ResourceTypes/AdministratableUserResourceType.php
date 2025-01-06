@@ -55,7 +55,10 @@ use Elastica\Index;
  */
 final class AdministratableUserResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
 {
-    public function __construct(private readonly QueryUser $esQuery, private readonly JsonApiEsService $jsonApiEsService, private readonly UserRepository $userRepository, private readonly UserHandler $userHandler, private readonly UserService $userService, private readonly RoleService $roleService, private readonly RoleHandler $roleHandler, private readonly RoleRepository $roleRepository, private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository)
+    public function __construct(private readonly QueryUser $esQuery,
+                                private readonly JsonApiEsService $jsonApiEsService,
+                                private readonly UserRepository $userRepository,
+                                private readonly UserHandler $userHandler)
     {
     }
 
