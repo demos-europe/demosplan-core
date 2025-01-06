@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use demosplan\DemosPlanCoreBundle\Entity\Faq;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -165,7 +166,11 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder->email
             ->readable(true)
             ->sortable()
-            ->updatable()
+            ->updatable([], function (User $user, string $email): array {
+                $user->setLogin($email);
+                $user->setEmail($email);
+                return [];
+            })
             ->initializable()
             ->filterable();
 
