@@ -54,7 +54,7 @@ class SegmentsExporter
         private readonly ImageManager $imageManager,
         protected readonly ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         $this->translator = $translator;
         $this->initializeStyles();
@@ -148,7 +148,8 @@ class SegmentsExporter
         $table = $section->addTable($this->styles['statementInfoTable']);
         if ($anonymous) {
             $orgaInfoHeader = new class {
-                public function getNextHeader(): string {
+                public function getNextHeader(): string
+                {
                     return '';
                 }
             };
