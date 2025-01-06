@@ -412,7 +412,6 @@ export default {
     setCurrentUserOrganisation (organisation, rels) {
       this.currentUserOrga = { ...organisation, relationships: rels }
       this.localUser.relationships.orga.data = { id: organisation.id, type: organisation.type }
-     // this.localUser.relationships.orga.relationships = rels
     },
 
     setDefaultDepartment (organisation) {
