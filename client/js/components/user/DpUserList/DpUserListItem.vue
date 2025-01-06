@@ -228,12 +228,12 @@ export default {
   },
 
   methods: {
-    ...mapActions('User', {
+    ...mapActions('AdministratableUser', {
       saveUserAction: 'save',
       restoreUser: 'restoreFromInitial'
     }),
 
-    ...mapMutations('User', ['setItem']),
+    ...mapMutations('AdministratableUser', ['setItem']),
 
     // Close item and reset roles multiselect
     reset () {
@@ -263,8 +263,44 @@ export default {
       this.saveUserAction(this.user.id)
     },
 
+    /**
+     * Update user data in store
+     * To avoid adding the whole Object in a relationship, we only add the id and type
+     *
+     * @param {Object} payload
+     */
     updateUser (payload) {
-      this.setItem({ ...payload })
+      const userData = {
+        id: payload.id,
+        type: payload.type,
+        attributes: {
+          ...payload.attributes
+        },
+        relationships: {
+          department: {
+            data: {
+              id: payload.relationships.department.data.id,
+              type: 'Department'
+            }
+          },
+          orga: {
+            data: {
+              id: payload.relationships.orga.data.id,
+              type: 'Orga'
+            }
+          },
+          roles: {
+            data: payload.relationships.roles?.data?.map(role => {
+              return {
+                id: role.id,
+                type: 'Role'
+              }
+            }) ?? null
+          }
+        }
+      }
+
+      this.setItem(userData)
     }
   }
 }

@@ -77,6 +77,15 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         return $this->currentUser->hasPermission('feature_user_add');
     }
 
+    public function isUpdateAllowed(): bool
+    {
+        return $this->currentUser->hasAllPermissions(
+            'feature_user_edit',
+            'feature_json_api_update'
+        );
+    }
+
+
     protected function getAccessConditions(): array
     {
         $conditions = [
@@ -143,12 +152,14 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->setFilterable();
 
         $configBuilder->firstname
+            ->updatable()
             ->setReadableByPath(DefaultField::YES)
             ->setSortable()
             ->addPathCreationBehavior()
             ->setFilterable();
 
         $configBuilder->lastname
+            ->updatable()
             ->setReadableByPath(DefaultField::YES)
             ->setSortable()
             ->addPathCreationBehavior()
@@ -161,6 +172,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->setFilterable();
 
         $configBuilder->email
+            ->updatable()
             ->setReadableByPath(DefaultField::YES)
             ->setSortable()
             ->addPathCreationBehavior()

@@ -193,7 +193,7 @@ export default {
       const type = this.entity === 'user' ? 'AdministratableUser' : this.entity
       return {
         type,
-        ...this.item
+        id: this.item.id
       }
     }
   },
