@@ -305,7 +305,6 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $userAttributes = $entityData->getAttributes();
 
         if (array_key_exists($this->email->getAsNamesInDotNotation(), $userAttributes)) {
-
             $modifiedEntity = parent::updateEntity($entityId, $entityData);
             $this->userHandler->inviteUser($modifiedEntity->getEntity());
 
