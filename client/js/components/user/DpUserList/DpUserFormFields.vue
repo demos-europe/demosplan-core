@@ -322,7 +322,7 @@ export default {
      * Fetch organisation of user or, in DpCreateItem, of currently logged-in user
      */
     fetchCurrentOrganisation () {
-      const orgaId = this.user.relationships.orga?.data?.id
+      const orgaId = this.user.relationships?.orga?.data?.id
         ? this.user.relationships.orga.data.id
         : this.presetUserOrgaId
       if (orgaId !== '') {
@@ -362,11 +362,21 @@ export default {
      *  @param types {Array}
      */
     handleUndefinedRelationships (types) {
+      if (!this.localUser.relationships) {
+        this.localUser.relationships = {}
+      }
+
       types.forEach(type => {
-        if (typeof this.localUser.relationships[type] === 'undefined' || this.localUser.relationships[type] === null) {
-          this.localUser.relationships[type] = {
-            data: {
-              id: ''
+        if (!this.localUser.relationships[type]) {
+          if (type === 'roles') {
+            this.localUser.relationships.roles = {
+              data: []
+            }
+          } else {
+            this.localUser.relationships[type] = {
+              data: {
+                id: ''
+              }
             }
           }
         }
@@ -496,7 +506,7 @@ export default {
 
   created () {
     this.localUser = JSON.parse(JSON.stringify(this.user))
-    this.handleUndefinedRelationships(['orga', 'department'])
+    this.handleUndefinedRelationships(['department', 'orga', 'roles'])
   },
 
   mounted () {
