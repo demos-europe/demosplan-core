@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
+use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\EntityDataInterface;
@@ -159,7 +160,6 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->sortable()
             ->updatable()
             ->initializable()
-            ->updatable()
             ->filterable();
 
         $configBuilder->email
@@ -298,5 +298,20 @@ final class AdministratableUserResourceType extends DplanResourceType implements
     private function getRemovedRoles(array $currentRoles, array $newRoles): array
     {
         return array_filter($currentRoles, static fn (Role $currentRole): bool => !in_array($currentRole, $newRoles, true));
+    }
+
+    public function updateEntity(string $entityId, EntityDataInterface $entityData): ModifiedEntity
+    {
+        $userAttributes = $entityData->getAttributes();
+
+        if (array_key_exists($this->email->getAsNamesInDotNotation(), $userAttributes)) {
+
+            $modifiedEntity = parent::updateEntity($entityId, $entityData);
+            $this->userHandler->inviteUser($modifiedEntity->getEntity());
+
+            return $modifiedEntity;
+        }
+
+        return parent::updateEntity($entityId, $entityData);
     }
 }
