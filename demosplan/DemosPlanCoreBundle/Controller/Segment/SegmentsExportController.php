@@ -66,11 +66,12 @@ class SegmentsExportController extends BaseController
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
+        $anonymous = filter_var($this->requestStack->getCurrentRequest()->query->get('anonymous', 'true'), FILTER_VALIDATE_BOOLEAN);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
-            static function () use ($procedure, $statement, $exporter, $tableHeaders) {
-                $exportedDoc = $exporter->export($procedure, $statement, $tableHeaders);
+            static function () use ($procedure, $statement, $exporter, $tableHeaders, $anonymous) {
+                $exportedDoc = $exporter->export($procedure, $statement, $tableHeaders, $anonymous);
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );

@@ -64,14 +64,14 @@ class SegmentsExporter
     /**
      * @throws Exception
      */
-    public function export(Procedure $procedure, Statement $statement, array $tableHeaders): WriterInterface
+    public function export(Procedure $procedure, Statement $statement, array $tableHeaders, bool $anonymous): WriterInterface
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
-        $this->addStatementInfo($section, $statement);
+        $this->addStatementInfo($section, $statement, $anonymous);
         $this->addSimilarStatementSubmitters($section, $statement);
         $this->addSegments($section, $statement, $tableHeaders);
         $this->addFooter($section, $statement);
@@ -143,10 +143,18 @@ class SegmentsExporter
         return implode(', ', $submitterStrings);
     }
 
-    protected function addStatementInfo(Section $section, Statement $statement): void
+    protected function addStatementInfo(Section $section, Statement $statement, bool $anonymous): void
     {
         $table = $section->addTable($this->styles['statementInfoTable']);
-        $orgaInfoHeader = new ExportOrgaInfoHeader($statement, $this->currentUser, $this->translator);
+        if ($anonymous) {
+            $orgaInfoHeader = new class {
+                public function getNextHeader(): string {
+                    return '';
+                }
+            };
+        } else {
+            $orgaInfoHeader = new ExportOrgaInfoHeader($statement, $this->currentUser, $this->translator);
+        }
 
         if ('' !== $statement->getAuthoredDateString()) {
             $authoredDateRow = $table->addRow();
