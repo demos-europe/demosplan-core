@@ -46,17 +46,20 @@
         <dp-upload
           allowed-file-types="csv"
           :basic-auth="dplan.settings.basicAuth"
-          name="r_importCsv"
           :tus-endpoint="dplan.paths.tusEndpoint"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.csv', { browse: '{browse}', maxUploadSize: '10GB' }) }"
-          :max-number-of-files="1" />
+          :max-number-of-files="1"
+          @upload-success="importCSVs" />
 
-        <button
+        <input type="hidden" name="r_importCsv" :value="this.uploadedCSV" />
+        <input type="hidden" name="uploadedFiles" :value="this.uploadedFiles.join()" />
+        <dp-button
           data-cy="listTags:tagsImport"
+          type="submit"
           name="r_import"
-          class="btn btn--primary float-right mb-1">
+          class="float-right mt-1">
           {{ Translator.trans('tags.import') }}
-        </button>
+        </dp-button>
 
       </fieldset>
     </form>
@@ -73,5 +76,18 @@ export default {
   },
 
   inject: ['topics', 'procedureId']
+  inject: ['topics', 'procedureId'],
+
+  data () {
+    return {
+      uploadedCSV: null,
+      uploadedFiles: []
+    }
+  },
+  methods: {
+    importCSVs (file) {
+      this.uploadedCSV = Object.values(file).join()
+      this.uploadedFiles.push(file.hash)
+  }
 }
 </script>
