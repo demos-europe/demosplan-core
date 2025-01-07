@@ -14,11 +14,14 @@
       :message="Translator.trans('explanation.invitable_institution.group.tags')"
       type="info" />
 
-    <dp-loading
-      v-if="isLoading"
-      class="u-mt" />
-
-    <template v-else>
+    <div>
+      <div class="mt-4">
+        <dp-search-field
+          data-cy="institutionList:searchField"
+          :placeholder="Translator.trans('searchterm')"
+          @reset="handleReset"
+          @search="val => handleSearch(val)" />
+      </div>
       <div class="flex justify-end mt-4">
         <dp-column-selector
           data-cy="institutionList:selectableColumns"
@@ -28,7 +31,13 @@
           use-local-storage
           @selection-changed="setCurrentSelection" />
       </div>
+    </div>
 
+    <dp-loading
+      v-if="isLoading"
+      class="mt-4" />
+
+    <template v-else>
       <dp-data-table
         ref="dataTable"
         class="mt-1 overflow-x-auto scrollbar-none"
@@ -124,6 +133,7 @@ import {
   DpInlineNotification,
   DpLoading,
   DpMultiselect,
+  DpSearchField,
   DpSlidingPagination,
   DpStickyElement,
   formatDate
@@ -141,6 +151,7 @@ export default {
     DpIcon,
     DpInlineNotification,
     DpLoading,
+    DpSearchField,
     DpSlidingPagination,
     DpStickyElement
   },
@@ -154,6 +165,7 @@ export default {
       editingInstitution: null,
       editingInstitutionTags: {},
       isLoading: true,
+      searchTerm: ''
     }
   },
 
@@ -322,7 +334,7 @@ export default {
     },
 
     getInstitutionsByPage (page) {
-      this.fetchInvitableInstitution({
+      return this.fetchInvitableInstitution({
         page: {
           number: page,
           size: 50
@@ -342,6 +354,15 @@ export default {
             'name'
           ].join()
         },
+        filter: {
+          namefilter: {
+            condition: {
+              path: 'name',
+              operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+              value: this.searchTerm
+            }
+          }
+        },
         include: [
           'assignedTags',
           'assignedTags.category',
@@ -351,8 +372,7 @@ export default {
     },
 
     getInstitutionTagCategories () {
-      this.isLoading = true
-      this.fetchInstitutionTagCategories({
+      return this.fetchInstitutionTagCategories({
         fields: {
           InstitutionTagCategory: [
             'name',
@@ -372,9 +392,6 @@ export default {
       .then(() => {
         this.setInitialSelection()
       })
-      .finally(() => {
-        this.isLoading = false
-      })
       .catch(err => {
         console.error(err)
       })
@@ -388,6 +405,21 @@ export default {
       return this.tagList
         .filter(el => el.id === tagId)
         .map(el => el.name)
+    },
+
+    handleReset () {
+      this.searchTerm = ''
+      this.getInstitutionsByPage(1)
+    },
+
+    handleSearch (searchTerm) {
+      this.isLoading = true
+      this.searchTerm = searchTerm
+
+      this.getInstitutionsByPage(1)
+        .then(() => {
+          this.isLoading = false
+        })
     },
 
     separateByCommas (institutionTags) {
@@ -412,8 +444,17 @@ export default {
   },
 
   mounted () {
-    this.getInstitutionsByPage(1)
-    this.getInstitutionTagCategories()
+    this.isLoading = true
+
+    const promises = [
+      this.getInstitutionsByPage(1),
+      this.getInstitutionTagCategories()
+    ]
+
+    Promise.allSettled(promises)
+      .then(() => {
+        this.isLoading = false
+      })
   }
 }
 </script>
