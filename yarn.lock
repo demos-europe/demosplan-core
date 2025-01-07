@@ -4053,15 +4053,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/progress-bar@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "@uppy/progress-bar@npm:4.0.1"
+"@uppy/progress-bar@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "@uppy/progress-bar@npm:4.2.0"
   dependencies:
-    "@uppy/utils": "npm:^6.0.4"
+    "@uppy/utils": "npm:^6.1.0"
     preact: "npm:^10.5.13"
   peerDependencies:
-    "@uppy/core": ^4.2.3
-  checksum: 10c0/02af685d9bdd83a02e2875e5f4725d5e09e4497f68159ae2f242b6af25ac646ff1b87016860c78dfa0a4469f4201daac98c1c343f2cdb9de9ebbfc4fa94a0666
+    "@uppy/core": ^4.4.0
+  checksum: 10c0/2d4e99dbbeddb05047bbe6b73cd1864a233a3ed8de18e3969bd414eb1ff8f86f24413aeac65bbc8daf8ca78d8621194e9c6e5bda57161d97b92f039afa597836
   languageName: node
   linkType: hard
 
@@ -4119,6 +4119,16 @@ __metadata:
     lodash: "npm:^4.17.21"
     preact: "npm:^10.5.13"
   checksum: 10c0/937d31918825c2569fdc3de95eb445b5d6d9d00676ce188c4f11c519f66a523ee790051b6a576f6bb34664de81d4e540a76ab4bb421929c145e97e36a09eaca7
+  languageName: node
+  linkType: hard
+
+"@uppy/utils@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "@uppy/utils@npm:6.1.0"
+  dependencies:
+    lodash: "npm:^4.17.21"
+    preact: "npm:^10.5.13"
+  checksum: 10c0/76df84080a7539e06833fe7e153c84e4b0525b85f4780ebf94f2ecea577bf10f64149101f861fd1569e0793301f12da20f88a1afb9377fcbf13789c58ea67975
   languageName: node
   linkType: hard
 
@@ -13217,7 +13227,7 @@ __metadata:
     "@sentry/tracing": "npm:^7.114.0"
     "@uppy/core": "npm:^4.3.1"
     "@uppy/drag-drop": "npm:^4.0.4"
-    "@uppy/progress-bar": "npm:^4.0.1"
+    "@uppy/progress-bar": "npm:^4.2.0"
     "@vue/test-utils": "npm:^1.3.6"
     "@vue/vue2-jest": "npm:^29.2.6"
     a11y-datepicker: "npm: ^0.9.0"
