@@ -121,7 +121,7 @@ final class TagTopicResourceType extends DplanResourceType
 
         $configBuilder->tags
             ->setRelationshipType($this->resourceTypeStore->getTagResourceType())
-            ->setReadableByPath()->setSortable()->setFilterable()->addPathCreationBehavior()
+            ->setReadableByPath()->setSortable()->setFilterable()->addPathCreationBehavior(OptionalField::YES)
             ->addUpdateBehavior(
                 new CallbackToManyRelationshipSetBehavior(
                     'tags',
