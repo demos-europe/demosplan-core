@@ -58,10 +58,11 @@
           </ul>
         </template>
         <template
-          v-for="category in institutionTagCategories"
+          v-for="(category, idx) in institutionTagCategories"
           v-slot:[category.attributes.name]="institution">
           <dp-multiselect
             v-if="institution.edit"
+            :key="idx"
             v-model="editingInstitutionTags[category.id]"
             :data-cy="`institutionList:tags${category.attributes.name}`"
             label="name"
@@ -70,6 +71,7 @@
             track-by="id" />
           <div
             v-else
+            :key="`tags:${idx}`"
             v-text="separateByCommas(institution.tags.filter(tag => tag.category.id === category.id))" />
         </template>
         <template v-slot:action="institution">
@@ -135,7 +137,6 @@ import {
   DpMultiselect,
   DpSearchField,
   DpSlidingPagination,
-  DpStickyElement,
   formatDate
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -152,8 +153,7 @@ export default {
     DpInlineNotification,
     DpLoading,
     DpSearchField,
-    DpSlidingPagination,
-    DpStickyElement
+    DpSlidingPagination
   },
 
   mixins: [tableScrollbarMixin],
@@ -184,7 +184,7 @@ export default {
       totalPages: 'totalPages'
     }),
 
-    categoryFieldsAvailable() {
+    categoryFieldsAvailable () {
       return this.institutionTagCategoriesValues.map(category => ({
         field: category.attributes.name,
         label: category.attributes.name
@@ -229,7 +229,7 @@ export default {
       })
     },
 
-    institutionTagCategoriesValues() {
+    institutionTagCategoriesValues () {
       return Object.values(this.institutionTagCategories)
     },
 
@@ -389,12 +389,12 @@ export default {
           'tags.category'
         ].join()
       })
-      .then(() => {
-        this.setInitialSelection()
-      })
-      .catch(err => {
-        console.error(err)
-      })
+        .then(() => {
+          this.setInitialSelection()
+        })
+        .catch(err => {
+          console.error(err)
+        })
     },
 
     getTagById (tagId) {
