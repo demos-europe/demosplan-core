@@ -1336,31 +1336,6 @@ class User implements SamlUserInterface, AddonUserInterface
         return $roles;
     }
 
-    public function getRolesInCustomer(?CustomerInterface $customer = null)
-    {
-        $roles = new ArrayCollection();
-        $relations = $this->roleInCustomers->toArray();
-
-        // get customer to check
-        if (!$customer instanceof CustomerInterface) {
-            $specifiedCustomerId = $this->currentCustomer instanceof Customer ? $this->currentCustomer->getId() : '';
-        } else {
-            $specifiedCustomerId = $customer->getId();
-        }
-
-        /** @var UserRoleInCustomerInterface $relation */
-        foreach ($relations as $relation) {
-            $relationCustomerId = $relation->getCustomer() instanceof CustomerInterface ? $relation->getCustomer()->getId() : '';
-            if ($specifiedCustomerId === $relationCustomerId
-                && !$roles->contains($relation->getRole())
-                && in_array($relation->getRole()->getCode(), (array) $this->rolesAllowed, true)) {
-                $roles->add($relation);
-            }
-        }
-
-        return $roles;
-    }
-
     /**
      * Returns an array of the code of roles the user has with a specified customer (current is default).
      *
