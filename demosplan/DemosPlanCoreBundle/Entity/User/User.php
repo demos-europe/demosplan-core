@@ -1085,12 +1085,6 @@ class User implements SamlUserInterface, AddonUserInterface
         }
     }
 
-    public function removeRolesInCustomer(array $roles, $customer): void
-    {
-        foreach ($roles as $role) {
-            $this->removeRoleInCustomer($role, $customer);
-        }
-    }
 
     public function removeRoleInCustomer(RoleInterface $role, CustomerInterface $customer): UserRoleInCustomerInterface
     {
