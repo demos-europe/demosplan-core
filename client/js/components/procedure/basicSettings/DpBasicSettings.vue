@@ -232,18 +232,18 @@ export default {
       const addonHasValue = !!this.addonPayload.value || !!this.addonPayload.initValue
 
       if (addonExists && addonHasValue) {
-        this.handleAddonRequest().then(() => {
-          this.submitConfigForm()
-        })
+        this.dpValidateAction('configForm', () => {
+          this.handleAddonRequest().then(() => this.submitConfigForm())
+        }, false)
       } else {
-        this.submitConfigForm()
+        this.dpValidateAction('configForm', () => {
+          this.submitConfigForm()
+        }, false)
       }
     },
 
     submitConfigForm() {
-      this.dpValidateAction('configForm', () => {
-        this.$refs.configForm.submit()
-      }, false)
+      this.$refs.configForm.submit()
     },
 
     unselectAllAuthUsers () {
