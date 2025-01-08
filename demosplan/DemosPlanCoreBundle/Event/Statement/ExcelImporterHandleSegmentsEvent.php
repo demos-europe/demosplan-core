@@ -8,12 +8,10 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 class ExcelImporterHandleSegmentsEvent extends DPlanEvent implements ExcelImporterHandleSegmentsEventInterface
 {
     protected array $segments;
-    protected string $procedureId;
 
-    public function __construct(array $segments, string $procedureId)
+    public function __construct(array $segments)
     {
         $this->segments = $segments;
-        $this->procedureId = $procedureId;
     }
 
     public function getSegments(): array
@@ -24,10 +22,5 @@ class ExcelImporterHandleSegmentsEvent extends DPlanEvent implements ExcelImport
     public function setSegments(array $segments): void
     {
         $this->segments = $segments;
-    }
-
-    public function getProcedureId(): string
-    {
-        return $this->procedureId;
     }
 }
