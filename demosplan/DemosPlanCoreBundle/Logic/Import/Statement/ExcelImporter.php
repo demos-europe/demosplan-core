@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
 use Carbon\Carbon;
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleSegmentsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistSegmentsEventInterface;
@@ -117,7 +116,6 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         ValidatorInterface $validator,
         StatementCopier $statementCopier,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly CurrentContextProviderInterface $currentContextProvider,
     ) {
         parent::__construct(
             $currentProcedureService,
@@ -204,7 +202,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         // FIXME: that to make sure the event will be disptached only when it have to be.
 
         $event = $this->dispatcher->dispatch(
-            new ExcelImporterHandleSegmentsEvent($segments, $this->currentContextProvider->getCurrentProcedure()->getId()),
+            new ExcelImporterHandleSegmentsEvent($segments),
             ExcelImporterHandleSegmentsEventInterface::class
         );
 
