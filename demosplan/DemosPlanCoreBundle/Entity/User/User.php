@@ -1085,7 +1085,6 @@ class User implements SamlUserInterface, AddonUserInterface
         }
     }
 
-
     public function removeRoleInCustomer(RoleInterface $role, CustomerInterface $customer): UserRoleInCustomerInterface
     {
         $roleInCustomer = $this->getRoleInCustomers()->filter(
