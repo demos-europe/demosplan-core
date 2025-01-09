@@ -36,12 +36,14 @@
             :additional-query-params="{ searchPhrase: searchTerm }"
             :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             :initial-query="queryIds"
+            :items-object="filter.itemsObject"
+            :groups-object="filter.groupsObject"
             :key="`filter_${filter.labelTranslationKey}`"
             :label="Translator.trans(filter.labelTranslationKey)"
             :operator="filter.comparisonOperator"
             :path="filter.rootPath"
-            :procedure-id="procedureId"
-            @filter-apply="sendFilterQuery" />
+            @filter-apply="sendFilterQuery"
+            @filterOptions:request="sendFilterOptionsRequest"/>
         </div>
         <dp-button
           class="ml-2 h-fit"
@@ -653,6 +655,88 @@ export default {
       this.updateQueryHash()
       this.resetSelection()
       this.applyQuery(1)
+    },
+
+    sendFilterOptionsRequest (params) {
+      const { additionalQueryParams, filter, path } = params
+      const requestParams = {
+        ...additionalQueryParams,
+        filter: {
+          ...filter
+        },
+        path: path,
+        sameProcedure: {
+          condition: {
+            path: 'parentStatement.procedure.id',
+            value: this.procedureId
+          }
+        }
+      }
+
+      // We have to set the searchPhrase to null if its empty to satisfy the backend
+      if (params.searchPhrase === '') {
+        params.searchPhrase = null
+      }
+
+      dpRpc('segments.facets.list', requestParams, 'filterList')
+        .then(response => checkResponse(response))
+        .then(response => {
+          const result = (hasOwnProp(response, 0) && response[0].id === 'filterList') ? response[0].result : null
+          const currentFilterType = result.data.find(type => type.attributes.path === path)
+          if (currentFilterType && hasOwnProp(result, 'included')) {
+            const filterKey = currentFilterType.attributes.path
+              result.included.forEach(el => {
+              if (el.type === 'AggregationFilterGroup' && typeof currentFilterType.relationships.aggregationFilterGroups.data.find(group => group.id === el.id) !== 'undefined') {
+                // this.$set(this.groupsObject, el.id, el)
+                if (this.filters[filterKey]) {
+                  if (!this.filters[filterKey].groupsObject) {
+                    this.$set(this.filters[filterKey], 'groupsObject', {});
+                  }
+                  this.$set(this.filters[filterKey].groupsObject, el.id, el)
+                }
+                if (hasOwnProp(el.relationships, 'aggregationFilterItems') && el.relationships.aggregationFilterItems.data.length > 0) {
+                  el.relationships.aggregationFilterItems.data.forEach(item => {
+                    const filterItem = result.included.find(filterItem => filterItem.id === item.id)
+                    // this.$set(this.itemsObject, filterItem.id, filterItem)
+                    if (this.filters[filterKey]) {
+                      if (!this.filters[filterKey].itemsObject) {
+                        this.$set(this.filters[filterKey], 'itemsObject', {});
+                      }
+                      this.$set(this.filters[filterKey].itemsObject, filterItem.id, filterItem)
+                    }
+                  })
+                }
+              } else if (el.type === 'AggregationFilterItem' && typeof currentFilterType.relationships.aggregationFilterItems.data.find(item => item.id === el.id) !== 'undefined') {
+                el.ungrouped = true
+                // this.$set(this.itemsObject, el.id, el)
+                if (this.filters[filterKey]) {
+                  if (!this.filters[filterKey].itemsObject) {
+                    this.$set(this.filters[filterKey], 'itemsObject', {});
+                  }
+                  this.$set(this.filters[filterKey].itemsObject, el.id, el)
+                }
+              }
+            })
+
+            // If the current filter is assignee, display amount of Segments that have assignee as null. That is given by the field missingResourcesSum
+            if (result.data[0].attributes.path === 'assignee') {
+              if (this.filters[filterKey]) {
+                this.$set(this.filters[filterKey].itemsObject, 'unassigned', {
+                  attributes: {
+                    count: result.data[0].attributes.missingResourcesSum,
+                    label: Translator.trans('not.assigned'),
+                    ungrouped: true,
+                    selected: result.meta.unassigned_selected
+                  },
+                  id: 'unassigned',
+                  type: 'AggregationFilterItem',
+                  ungrouped: true
+                })
+              }
+            }
+          }
+        })
+        .catch(err => console.log(err))
     },
 
     setCurrentSelection (selection) {

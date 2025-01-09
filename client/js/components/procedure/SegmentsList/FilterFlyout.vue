@@ -191,10 +191,23 @@ export default {
       default: () => ({})
     },
 
+    groupsObject: {
+      type: Object,
+      required: false,
+      default: () => ({})
+    },
+
     // Contains applied filters from this and the neighboring filterFlyouts
     initialQuery: {
       type: Array,
+      required: false,
       default: () => ([])
+    },
+
+    itemsObject: {
+      type: Object,
+      required: false,
+      default: () => ({})
     },
 
     label: {
@@ -210,11 +223,6 @@ export default {
     path: {
       type: String,
       required: true
-    },
-
-    procedureId: {
-      type: String,
-      required: true
     }
   },
 
@@ -227,8 +235,6 @@ export default {
        * contains only ids
        */
       currentQuery: [],
-      groupsObject: {},
-      itemsObject: {},
       isExpanded: false,
       isLoading: true,
       searchTerm: ''
@@ -368,70 +374,80 @@ export default {
       this.isLoading = true
       this.isExpanded = true
 
-      this.requestNewFilterResults()
-        .then(() => {
-          this.isLoading = false
-          document.getElementById(`searchField_${this.path}`).focus()
-        })
+      this.requestFilterOptions()
+        // .then(() => {
+        //   this.isLoading = false
+        //   document.getElementById(`searchField_${this.path}`).focus()
+        // })
     },
 
-    requestNewFilterResults () {
-      const params = {
-        ...this.additionalQueryParams,
-        filter: {
-          ...this.getFilterQuery,
-          sameProcedure: {
-            condition: {
-              path: 'parentStatement.procedure.id',
-              value: this.procedureId
-            }
-          }
-        },
+    requestFilterOptions () {
+      // const params = {
+      //   ...this.additionalQueryParams,
+      //   filter: {
+      //     ...this.getFilterQuery
+      //   },
+      //   path: this.path
+      // }
+
+      this.$emit('filterOptions:request', {
+        additionalQueryParams: this.additionalQueryParams,
+        filter: this.getFilterQuery,
         path: this.path
-      }
+      })
+
+      // if (this.procedureId) {
+      //   params.filter.sameProcedure = {
+      //     condition: {
+      //       path: 'parentStatement.procedure.id',
+      //       value: this.procedureId
+      //     }
+      //   }
+      // }
+
       // We have to set the searchPhrase to null if its empty to satisfy the backend
-      if (params.searchPhrase === '') {
-        params.searchPhrase = null
-      }
+      // if (params.searchPhrase === '') {
+      //   params.searchPhrase = null
+      // }
 
-      return dpRpc('segments.facets.list', params, 'filterList')
-        .then(response => checkResponse(response))
-        .then(response => {
-          const result = (hasOwnProp(response, 0) && response[0].id === 'filterList') ? response[0].result : null
-          const currentFilterType = result.data.find(type => type.attributes.path === this.path)
-          if (currentFilterType && hasOwnProp(result, 'included')) {
-            result.included.forEach(el => {
-              if (el.type === 'AggregationFilterGroup' && typeof currentFilterType.relationships.aggregationFilterGroups.data.find(group => group.id === el.id) !== 'undefined') {
-                this.$set(this.groupsObject, el.id, el)
-                if (hasOwnProp(el.relationships, 'aggregationFilterItems') && el.relationships.aggregationFilterItems.data.length > 0) {
-                  el.relationships.aggregationFilterItems.data.forEach(item => {
-                    const filterItem = result.included.find(filterItem => filterItem.id === item.id)
-                    this.$set(this.itemsObject, filterItem.id, filterItem)
-                  })
-                }
-              } else if (el.type === 'AggregationFilterItem' && typeof currentFilterType.relationships.aggregationFilterItems.data.find(item => item.id === el.id) !== 'undefined') {
-                el.ungrouped = true
-                this.$set(this.itemsObject, el.id, el)
-              }
-            })
-
-            // If the current filter is assignee, display amount of Segments that have assignee as null. That is given by the field missingResourcesSum
-            if (result.data[0].attributes.path === 'assignee') {
-              this.$set(this.itemsObject, 'unassigned', {
-                attributes: {
-                  count: result.data[0].attributes.missingResourcesSum,
-                  label: Translator.trans('not.assigned'),
-                  ungrouped: true,
-                  selected: result.meta.unassigned_selected
-                },
-                id: 'unassigned',
-                type: 'AggregationFilterItem',
-                ungrouped: true
-              })
-            }
-          }
-        })
-        .catch(err => console.log(err))
+      // return dpRpc('segments.facets.list', params, 'filterList')
+      //   .then(response => checkResponse(response))
+      //   .then(response => {
+      //     const result = (hasOwnProp(response, 0) && response[0].id === 'filterList') ? response[0].result : null
+      //     const currentFilterType = result.data.find(type => type.attributes.path === this.path)
+      //     if (currentFilterType && hasOwnProp(result, 'included')) {
+      //       result.included.forEach(el => {
+      //         if (el.type === 'AggregationFilterGroup' && typeof currentFilterType.relationships.aggregationFilterGroups.data.find(group => group.id === el.id) !== 'undefined') {
+      //           this.$set(this.groupsObject, el.id, el)
+      //           if (hasOwnProp(el.relationships, 'aggregationFilterItems') && el.relationships.aggregationFilterItems.data.length > 0) {
+      //             el.relationships.aggregationFilterItems.data.forEach(item => {
+      //               const filterItem = result.included.find(filterItem => filterItem.id === item.id)
+      //               this.$set(this.itemsObject, filterItem.id, filterItem)
+      //             })
+      //           }
+      //         } else if (el.type === 'AggregationFilterItem' && typeof currentFilterType.relationships.aggregationFilterItems.data.find(item => item.id === el.id) !== 'undefined') {
+      //           el.ungrouped = true
+      //           this.$set(this.itemsObject, el.id, el)
+      //         }
+      //       })
+      //
+      //       // If the current filter is assignee, display amount of Segments that have assignee as null. That is given by the field missingResourcesSum
+      //       if (result.data[0].attributes.path === 'assignee') {
+      //         this.$set(this.itemsObject, 'unassigned', {
+      //           attributes: {
+      //             count: result.data[0].attributes.missingResourcesSum,
+      //             label: Translator.trans('not.assigned'),
+      //             ungrouped: true,
+      //             selected: result.meta.unassigned_selected
+      //           },
+      //           id: 'unassigned',
+      //           type: 'AggregationFilterItem',
+      //           ungrouped: true
+      //         })
+      //       }
+      //     }
+      //   })
+      //   .catch(err => console.log(err))
     },
 
     reset () {
@@ -493,21 +509,21 @@ export default {
       }
 
       this.itemsObject[option.id].attributes.selected = value
-      return this.requestNewFilterResults()
+      return this.requestFilterOptions()
     }
   },
 
   mounted () {
-    if (this.initialQuery.length) {
-      this.requestNewFilterResults()
-        .then(() => {
-          const currentFlyoutFilterIds = this.initialQuery.filter(queryId => {
-            const item = this.items.find(item => item.id === queryId)
-            return item ? item.id : null
-          })
-          this.setCurrentQuery(currentFlyoutFilterIds)
-        })
-    }
+    // if (this.initialQuery.length) {
+    //   this.requestFilterOptions()
+    //     .then(() => {
+    //       const currentFlyoutFilterIds = this.initialQuery.filter(queryId => {
+    //         const item = this.items.find(item => item.id === queryId)
+    //         return item ? item.id : null
+    //       })
+    //       this.setCurrentQuery(currentFlyoutFilterIds)
+    //     })
+    // }
   }
 }
 </script>
