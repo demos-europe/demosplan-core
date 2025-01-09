@@ -23,7 +23,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
-use EDT\PathBuilding\End;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
@@ -34,10 +33,6 @@ use Webmozart\Assert\Assert;
 
 /**
  * @template-extends DplanResourceType<TagTopic>
- *
- * @property-read End $title
- * @property-read ProcedureResourceType $procedure
- * @property-read TagResourceType $tags
  */
 final class TagTopicResourceType extends DplanResourceType
 {
@@ -54,7 +49,17 @@ final class TagTopicResourceType extends DplanResourceType
 
     public static function getName(): string
     {
-        return 'TagTopic';
+        return 'TagTopics';
+    }
+
+    public function getTypeName(): string
+    {
+        return 'TagTopics';
+    }
+
+    public function isListAllowed(): bool
+    {
+        return $this->isGetAllowed();
     }
 
     public function isAvailable(): bool
@@ -75,7 +80,7 @@ final class TagTopicResourceType extends DplanResourceType
 
         return [$this->conditionFactory->propertyHasValue(
             $procedure->getId(),
-            $this->procedure->id
+            ['procedure', 'id']
         )];
     }
 

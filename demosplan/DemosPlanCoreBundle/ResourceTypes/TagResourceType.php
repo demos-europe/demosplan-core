@@ -24,7 +24,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
-use EDT\PathBuilding\End;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
@@ -33,9 +32,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 
 /**
  * @template-extends DplanResourceType<Tag>
- *
- * @property-read TagTopicResourceType $topic
- * @property-read End $title
  */
 final class TagResourceType extends DplanResourceType implements TagResourceTypeInterface
 {
@@ -53,7 +49,17 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
 
     public static function getName(): string
     {
-        return 'Tag';
+        return 'Tags';
+    }
+
+    public function getTypeName(): string
+    {
+        return 'Tags';
+    }
+
+    public function isListAllowed(): bool
+    {
+        return $this->isGetAllowed();
     }
 
     public function isAvailable(): bool
@@ -76,7 +82,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
 
         return [$this->conditionFactory->propertyHasValue(
             $procedure->getId(),
-            $this->topic->procedure->id
+            ['topic', 'procedure', 'id']
         )];
     }
 
