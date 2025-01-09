@@ -11,27 +11,7 @@
         type="hidden"
         :value="dplan.csrfToken">
 
-
       <fieldset class="flow-root pb-1 mt-2">
-        <div class="flex gap-2 mb-1 items-end">
-          <dp-input
-            id="createTopicInput"
-            data-cy="nameNewTopic"
-            type="text"
-            name="r_newTopic"
-            width="flex-1"
-            :label="{
-              text: Translator.trans('topic.create')
-            }"
-            :placeholder="Translator.trans('topic.name')" />
-          <dp-button
-            data-cy="addNewTopic"
-            name="r_create"
-            type="submit"
-            :text="Translator.trans('topic.create.short')"
-            @click="" />
-        </div>
-
         <dp-contextual-help
           class="float-right"
           :text="Translator.trans('tags.import.help')"
@@ -59,6 +39,7 @@
     </form>
   </div>
 </template>
+
 <script>
 import { DpButton, DpContextualHelp, DpInput, DpUpload } from '@demos-europe/demosplan-ui'
 export default {
