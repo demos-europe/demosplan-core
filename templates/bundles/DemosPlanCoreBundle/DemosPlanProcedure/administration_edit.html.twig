@@ -879,11 +879,6 @@
                                         <label class="inline-block u-mb-0" for="r_pictogram">
                                             {{ 'procedure.pictogram'|trans }}
                                         </label>
-                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                            helpText: 'text.procedure.edit.external.pictogram'|trans,
-                                            cssClasses:'mb-1',
-                                            showPlainHint: true
-                                        } %}
                                         {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                                             <br><br>
                                             <img class="layout__item u-1-of-6 u-pl-0 u-mb" src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"><!--
@@ -901,8 +896,7 @@
                                             {{  fileupload(
                                                 "r_pictogram",
                                                 '<p class="lbl__hint">'
-                                                ~ "explanation.procedure.pictogram.missing"|trans
-                                                ~ "explanation.procedure.pictogram.dimensions"|trans
+                                                ~ "text.procedure.edit.external.pictogram"|trans
                                                 ~ '</p>',
                                                 "img",
                                                 "form.button.upload.file",
