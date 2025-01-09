@@ -11,31 +11,25 @@
         type="hidden"
         :value="dplan.csrfToken">
 
-      <slot name="tag-list-bulk-controls" />
-      <slot name="tag-list-table" />
 
       <fieldset class="flow-root pb-1 mt-2">
-
-        <div class="layout mb-1">
-          <label class="layout__item w-2/3">
-            {{ Translator.trans('topic.create') }}
-            <input
-              data-form-actions-submit-target="#createNewTopic"
-              class="layout__item  o-form__control-input"
-              type="text"
-              name="r_newTopic"
-              data-cy="nameNewTopic"
-              :placeholder="Translator.trans('topic.name')">
-          </label><!--
-             --><div class="layout__item u-1-of-3">
-          <button
-            class="btn btn--primary u-mt w-full"
-            id="createNewTopic"
+        <div class="flex gap-2 mb-1 items-end">
+          <dp-input
+            id="createTopicInput"
+            data-cy="nameNewTopic"
+            type="text"
+            name="r_newTopic"
+            width="flex-1"
+            :label="{
+              text: Translator.trans('topic.create')
+            }"
+            :placeholder="Translator.trans('topic.name')" />
+          <dp-button
+            data-cy="addNewTopic"
             name="r_create"
-            data-cy="addNewTopic">
-            {{ Translator.trans('topic.create.short') }}
-          </button>
-        </div>
+            type="submit"
+            :text="Translator.trans('topic.create.short')"
+            @click="" />
         </div>
 
         <dp-contextual-help
@@ -66,16 +60,17 @@
   </div>
 </template>
 <script>
-import { DpContextualHelp, DpUpload } from '@demos-europe/demosplan-ui'
+import { DpButton, DpContextualHelp, DpInput, DpUpload } from '@demos-europe/demosplan-ui'
 export default {
-  name: 'TagListForm',
+  name: 'TagsImportForm',
 
   components: {
+    DpButton,
     DpContextualHelp,
-    DpUpload,
+    DpInput,
+    DpUpload
   },
 
-  inject: ['topics', 'procedureId']
   inject: ['topics', 'procedureId'],
 
   data () {
@@ -84,10 +79,12 @@ export default {
       uploadedFiles: []
     }
   },
+
   methods: {
     importCSVs (file) {
       this.uploadedCSV = Object.values(file).join()
       this.uploadedFiles.push(file.hash)
+    }
   }
 }
 </script>

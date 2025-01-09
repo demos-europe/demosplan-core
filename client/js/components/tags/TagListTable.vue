@@ -1,12 +1,5 @@
 <template>
   <table>
-    <col class="w-6">
-    <col class="w-12">
-    <col class="w-6">
-    <col class="w-6">
-
-    <col class="w-6">
-
     <thead>
       <tr class="border-b">
         <th class="checkbox text-left">
@@ -32,12 +25,11 @@
       <tag-list-topic-row
         :topic="topic"
         @toggle:change="data => updateAiTags(data)" />
-      <template v-for="tag in topic.tags">
-        <tag-list-tag-row
-          :tag="tag"
-          :topics="topics"
-          @toggle:change="data => updateAiTags(data)" />
-      </template>
+      <tag-list-tag-row
+        v-for="tag in topic.tags"
+        :tag="tag"
+        :topics="topics"
+        @toggle:change="data => updateAiTags(data)" />
     </template>
     </tbody>
   </table>

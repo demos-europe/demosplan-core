@@ -22,6 +22,8 @@ const components = {
   TagsList
 }
 
-initialize(components).then(() => {
+const apiStores = ['Tags', 'TagTopics']
+
+initialize(components, {}, apiStores).then(() => {
   AnimateById()
 })

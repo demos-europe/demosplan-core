@@ -84,6 +84,7 @@
     <td>
       <span class="w-full h-full flex justify-center items-center">
         <!-- The tag addon will be added here -->
+        <!-- @TODO -- remove here and add it to create --- Here it only should show the state -->
         <dp-toggle
           id="mapStatus"
           v-model="isAiActive"

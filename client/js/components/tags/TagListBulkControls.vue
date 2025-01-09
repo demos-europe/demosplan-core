@@ -4,10 +4,8 @@
       <input
         class="mr-0"
         type="checkbox"
-        data-form-actions-check-all
         data-cy="checkAllItems"
-        name="checkAllItems"
-        value="">
+        name="checkAllItems">
       {{ Translator.trans('all') }}
     </label>
 
