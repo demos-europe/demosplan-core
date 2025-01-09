@@ -6,6 +6,10 @@
 
 ## UNRELEASED
 
+### Changed
+
+DpInlineNotification: Set margin from outside the component (instead of inside)
+
 ## 2.20.0
 
 - Added: Admin institution list: Institutions can now be tagged filtered by categories.
