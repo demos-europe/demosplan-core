@@ -123,11 +123,7 @@ final class TagTopicResourceType extends DplanResourceType
             ->setRelationshipType($this->resourceTypeStore->getTagResourceType())
             ->setReadableByPath()->setSortable()->setFilterable()->addPathCreationBehavior(OptionalField::YES)
             ->addUpdateBehavior(
-                new CallbackToManyRelationshipSetBehavior(
-                    'tags',
-                    [],
-                    [],
-                    $this->resourceTypeStore->getTagResourceType(),
+                CallbackToManyRelationshipSetBehavior::createFactory(
                     function (TagTopic $tagTopic, ArrayCollection $tags): array {
                         try {
                             Assert::same(
@@ -159,7 +155,9 @@ final class TagTopicResourceType extends DplanResourceType
 
                         return [];
                     },
-                    OptionalField::NO
+                    [],
+                    OptionalField::YES,
+                    []
                 )
             );
 
