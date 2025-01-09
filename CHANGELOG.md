@@ -9,6 +9,9 @@
 ### Added
 - Institution tag management: Add search field to institution list
 
+### Changed
+- Segments list: Use DpSearchField for custom search
+
 ## 2.20.0
 
 ### Added
