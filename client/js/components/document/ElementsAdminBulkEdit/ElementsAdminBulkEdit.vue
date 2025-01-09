@@ -60,6 +60,7 @@
         class="border--bottom u-mt u-pb-0_5">
         <p v-html="confirmStateChangeMessage" />
         <dp-inline-notification
+          class="mt-3 mb-2"
           :message="Translator.trans('elements.bulk.edit.change.state.hint')"
           type="warning" />
       </div>
