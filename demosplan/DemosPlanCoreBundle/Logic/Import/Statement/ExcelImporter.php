@@ -16,7 +16,7 @@ use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleSegmentsEventInterface;
-use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistSegmentsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
@@ -29,7 +29,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterHandleSegmentsEvent;
-use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterPrePersistSegmentsEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterPrePersistTagsEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -282,8 +282,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         }
 
         $this->dispatcher->dispatch(
-            new ExcelImporterPrePersistSegmentsEvent($result->getSegments()),
-            ExcelImporterPrePersistSegmentsEventInterface::class
+            new ExcelImporterPrePersistTagsEvent(segments: $result->getSegments()),
+            ExcelImporterPrePersistTagsEventInterface::class
         );
 
         return $result;
