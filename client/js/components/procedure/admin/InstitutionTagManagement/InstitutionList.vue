@@ -32,7 +32,8 @@
           :label="filter.label"
           :operator="filter.comparisonOperator"
           :path="filter.rootPath"
-          @filter-apply="sendFilterQuery" />
+          @filter-apply="sendFilterQuery"
+         @filterOptions:request="createFilterOptions(filter.id)" />
       </div>
       <dp-column-selector
         data-cy="institutionList:selectableColumns"
@@ -207,6 +208,7 @@ export default {
     filters () {
       return this.institutionTagCategoriesValues.reduce((acc, category) => {
         acc[category.id] = {
+          id: category.id,
           comparisonOperator: '=',
           label: category.attributes.name,
           rootPath: 'assignedTags',
@@ -298,6 +300,10 @@ export default {
       fetchInvitableInstitution: 'list',
       saveInvitableInstitution: 'save',
       restoreInstitutionFromInitial: 'restoreFromInitial'
+    }),
+
+    ...mapMutations('FilterFlyout', {
+      setUngroupedFilterOptions: 'setUngroupedOptions'
     }),
 
     ...mapMutations('InvitableInstitution', {
@@ -450,6 +456,26 @@ export default {
       //   })
     },
 
+    createFilterOptions (categoryId) {
+      let filterOptions = this.institutionTagCategories[categoryId]?.relationships?.tags?.data.length > 0 ? this.institutionTagCategories[categoryId].relationships.tags.list() : []
+
+      if (Object.keys(filterOptions).length > 0) {
+        filterOptions = Object.values(filterOptions).map(option => {
+          const { id, attributes } = option
+          const { name } = attributes
+
+          // @todo missing: count, description (?)
+          return {
+            id,
+            label: name,
+            selected: false
+          }
+        })
+      }
+
+      this.setUngroupedFilterOptions(filterOptions)
+    },
+
     date (d) {
       return formatDate(d)
     },
@@ -513,6 +539,7 @@ export default {
 
     getInstitutionTagCategories () {
       this.isLoading = true
+
       this.fetchInstitutionTagCategories({
         fields: {
           InstitutionTagCategory: [
@@ -586,7 +613,9 @@ export default {
     },
 
     setInitialSelection () {
-      this.currentSelection = this.institutionTagCategoriesValues.slice(0, 7).map(category => category.attributes.name)
+      this.currentSelection = this.institutionTagCategoriesValues
+        .slice(0, 7)
+        .map(category => category.attributes.name)
     },
 
     updateQueryHash () {

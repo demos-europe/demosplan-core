@@ -20,7 +20,7 @@
 
   ## Events
 
-  `@filter-apply` gets emitted after clicking "submit". as payload it sends an Object with the selected fitlers
+  `@filter-apply` gets emitted after clicking "submit". as payload it sends an Object with the selected filters
 
   eg:
   ```
@@ -91,7 +91,7 @@
           <filter-flyout-checkbox
             v-for="item in getUngroupedItems()"
             @change="updateQuery"
-            :checked="isChecked(item)"
+            :checked="isChecked(item.id)"
             :option="item"
             instance="ungrouped"
             :key="item.id" />
@@ -106,7 +106,7 @@
           <filter-flyout-checkbox
             v-for="item in getItemsByGroup(group)"
             @change="updateQuery"
-            :checked="isChecked(item)"
+            :checked="isChecked(item.id)"
             :option="item"
             :instance="group.id"
             :key="item.id" />
@@ -170,7 +170,7 @@ import {
   dpRpc,
   hasOwnProp
 } from '@demos-europe/demosplan-ui'
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapState } from 'vuex'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
 
 export default {
@@ -191,6 +191,9 @@ export default {
       default: () => ({})
     },
 
+    /**
+     * Object of objects: ids as keys, json api objects as values
+     */
     groupsObject: {
       type: Object,
       required: false,
@@ -204,6 +207,9 @@ export default {
       default: () => ([])
     },
 
+    /**
+     * Object of objects: ids as keys, json api objects as values
+     */
     itemsObject: {
       type: Object,
       required: false,
@@ -246,6 +252,11 @@ export default {
       // All currently selected filters, in this as well as in (possible) neighboring filterFlyouts
       getFilterQuery: 'filterQuery'
     }),
+
+    ...mapState('FilterFlyout', [
+      'groupedOptions',
+      'ungroupedOptions'
+    ]),
 
     /**
      * Construct the query object to be passed into vuex-json-api call.
@@ -294,7 +305,7 @@ export default {
     /**
      * {Array of Objects} filterItems
      * {
-     *   attributes: { count: <number>, label: <String>, selected: <Boole<n> },
+     *   attributes: { count: <number>, label: <String>, selected: <Boolean> },
      *   id: <String>,
      *   type: <String>
      * }
@@ -341,6 +352,7 @@ export default {
     getItemsByGroup (group) {
       if (hasOwnProp(group.relationships, 'aggregationFilterItems')) {
         const currentItemIds = this.items.map(item => item.id)
+
         return Object.values(group.relationships.aggregationFilterItems.data)
           .filter(item => currentItemIds.includes(item.id))
           .map(item => this.itemsObject[item.id])
@@ -354,8 +366,8 @@ export default {
       return this.items.filter(item => item.ungrouped === true)
     },
 
-    isChecked (item) {
-      return this.currentQuery.includes(item.id)
+    isChecked (id) {
+      return this.currentQuery.includes(id)
     },
 
     /**

@@ -332,6 +332,23 @@ export default {
       required: true
     },
 
+    /**
+     * {Object of objects}
+     * {
+     *   assignee: {
+     *     comparisonOperator: string,
+     *     grouping?: {
+     *       labelTranslationKey: string,
+     *       targetPath: string
+     *     },
+     *     labelTranslationKey: string,
+     *     rootPath: string,
+     *     selected: boolean
+     *   },
+     *   place: s. assignee,
+     *   tags: s. assignee
+     * }
+     */
     filters: {
       type: Object,
       required: false,
@@ -682,41 +699,44 @@ export default {
         .then(response => checkResponse(response))
         .then(response => {
           const result = (hasOwnProp(response, 0) && response[0].id === 'filterList') ? response[0].result : null
-          const currentFilterType = result.data.find(type => type.attributes.path === path)
+          const currentFilterType = result.data.find(type => type.attributes.path === path) // assignee, place or tags
+
           if (currentFilterType && hasOwnProp(result, 'included')) {
             const filterKey = currentFilterType.attributes.path
-              result.included.forEach(el => {
-              if (el.type === 'AggregationFilterGroup' && typeof currentFilterType.relationships.aggregationFilterGroups.data.find(group => group.id === el.id) !== 'undefined') {
-                // this.$set(this.groupsObject, el.id, el)
-                if (this.filters[filterKey]) {
-                  if (!this.filters[filterKey].groupsObject) {
-                    this.$set(this.filters[filterKey], 'groupsObject', {});
-                  }
-                  this.$set(this.filters[filterKey].groupsObject, el.id, el)
+
+            result.included.forEach(el => {
+            if (el.type === 'AggregationFilterGroup' && typeof currentFilterType.relationships.aggregationFilterGroups.data.find(group => group.id === el.id) !== 'undefined') {
+              // this.$set(this.groupsObject, el.id, el)
+              if (this.filters[filterKey]) {
+                if (!this.filters[filterKey].groupsObject) {
+                  this.$set(this.filters[filterKey], 'groupsObject', {})
                 }
-                if (hasOwnProp(el.relationships, 'aggregationFilterItems') && el.relationships.aggregationFilterItems.data.length > 0) {
-                  el.relationships.aggregationFilterItems.data.forEach(item => {
-                    const filterItem = result.included.find(filterItem => filterItem.id === item.id)
-                    // this.$set(this.itemsObject, filterItem.id, filterItem)
-                    if (this.filters[filterKey]) {
-                      if (!this.filters[filterKey].itemsObject) {
-                        this.$set(this.filters[filterKey], 'itemsObject', {});
-                      }
-                      this.$set(this.filters[filterKey].itemsObject, filterItem.id, filterItem)
-                    }
-                  })
-                }
-              } else if (el.type === 'AggregationFilterItem' && typeof currentFilterType.relationships.aggregationFilterItems.data.find(item => item.id === el.id) !== 'undefined') {
-                el.ungrouped = true
-                // this.$set(this.itemsObject, el.id, el)
-                if (this.filters[filterKey]) {
-                  if (!this.filters[filterKey].itemsObject) {
-                    this.$set(this.filters[filterKey], 'itemsObject', {});
-                  }
-                  this.$set(this.filters[filterKey].itemsObject, el.id, el)
-                }
+                this.$set(this.filters[filterKey].groupsObject, el.id, el)
               }
-            })
+
+              if (hasOwnProp(el.relationships, 'aggregationFilterItems') && el.relationships.aggregationFilterItems.data.length > 0) {
+                el.relationships.aggregationFilterItems.data.forEach(item => {
+                  const filterItem = result.included.find(filterItem => filterItem.id === item.id)
+                  // this.$set(this.itemsObject, filterItem.id, filterItem)
+                  if (this.filters[filterKey]) {
+                    if (!this.filters[filterKey].itemsObject) {
+                      this.$set(this.filters[filterKey], 'itemsObject', {})
+                    }
+                    this.$set(this.filters[filterKey].itemsObject, filterItem.id, filterItem)
+                  }
+                })
+              }
+            } else if (el.type === 'AggregationFilterItem' && typeof currentFilterType.relationships.aggregationFilterItems.data.find(item => item.id === el.id) !== 'undefined') {
+              el.ungrouped = true
+              // this.$set(this.itemsObject, el.id, el)
+              if (this.filters[filterKey]) {
+                if (!this.filters[filterKey].itemsObject) {
+                  this.$set(this.filters[filterKey], 'itemsObject', {})
+                }
+                this.$set(this.filters[filterKey].itemsObject, el.id, el)
+              }
+            }
+          })
 
             // If the current filter is assignee, display amount of Segments that have assignee as null. That is given by the field missingResourcesSum
             if (result.data[0].attributes.path === 'assignee') {

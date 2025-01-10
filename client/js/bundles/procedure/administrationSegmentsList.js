@@ -12,6 +12,7 @@
  */
 import { DpSlidebar } from '@demos-europe/demosplan-ui'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
+import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import { initialize } from '@DpJs/InitVue'
 import SegmentFilterStore from '@DpJs/store/procedure/SegmentFilter'
 import SegmentsList from '@DpJs/components/procedure/SegmentsList/SegmentsList'
@@ -22,7 +23,8 @@ const components = {
   DpVersionHistory
 }
 const stores = {
-  filter: SegmentFilterStore
+  filter: SegmentFilterStore,
+  FilterFlyout: FilterFlyoutStore
 }
 const apiStores = ['AssignableUser', 'Place', 'StatementSegment', 'Tag', 'TagTopic']
 
