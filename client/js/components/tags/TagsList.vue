@@ -1,11 +1,23 @@
 <template>
   <div>
+    <!--
+      preload addons which extend the form
+      to ensure that the additional data is available
+    -->
+    <addon-wrapper
+      hook-name="tag.edit.form"
+      :addon-props="{
+        tag: { id: 'fake', type: 'irrevelvant'}
+      }"
+      @addons:loaded="loadTagsAndTopics"
+      @loaded="extendForm" />
+
     <tag-list-header />
 
     <dp-modal
       content-classes="w-2/3"
       ref="createTagModal"
-      aria-label="Create Tag"
+      :aria-label="Translator.trans('tag.create')"
       aria-modal>
       <template v-slot:header>
         Create Tag
@@ -15,19 +27,20 @@
         <dp-input
           v-model="newTag.title"
           id="new-tag-title"
+          class="mb-1"
           :label="{
-            text: 'Create Tag'
+            text: Translator.trans('tag.create')
           }"
-          placeholder="Title" />
+          :placeholder="Translator.trans('title')" />
 
         <addon-wrapper
-          class="inline-block"
+          class="block mb-1"
           hook-name="tag.create.form"
           @input="updateForm"
           @change="updateForm" />
 
         <dp-button
-          text="Create Tag"
+          :text="Translator.trans('tag.create')"
           @click="saveNewTag" />
       </template>
     </dp-modal>
@@ -38,49 +51,60 @@
       aria-label="Create Topic"
       aria-modal>
       <template v-slot:header>
-        Create Tag
+        {{ Translator.trans('category.create') }}
       </template>
 
-      <template>
-        <dp-input
-          v-model="newTopic.title"
-          id="new-topic-title"
-          :label="{
-            text: 'Create Topic'
-          }"
-          placeholder="Title" />
-
+      <dp-input
+        v-model="newTopic.title"
+        id="new-topic-title"
+        class="mt-2"
+        :placeholder="Translator.trans('title')" />
+      <div class="flex justify-end mt-2">
         <dp-button
-          text="Create Topic"
+          :text="Translator.trans('category.create')"
           @click="saveNewTopic" />
-      </template>
+      </div>
     </dp-modal>
 
-    <dp-button
-      text="Create Topic"
-      @click="() => toggleCreateModal({ type: 'Topic' })" />
+    <div class="flex justify-end">
+      <dp-button
+        :text="Translator.trans('category.create')"
+        @click="() => toggleCreateModal({ type: 'Topic' })" />
+    </div>
 
     <dp-tree-list
+      class="mb-4"
       :tree-data="transformedCategories"
       :options="{
         branchesSelectable: true,
         leavesSelectable: true
       }"
       :branch-identifier="branchFunc()">
+      <template v-slot:header>
+        <div class="flex">
+          <div class="flex-1">
+            {{ Translator.trans('topic.or.tag') }}
+          </div>
+          <div class="flex-0">
+            {{ Translator.trans('boilerplates') }}
+          </div>
+          <div class="flex-0">
+            {{ Translator.trans('actions') }}
+          </div>
+        </div>
+      </template>
       <template v-slot:branch="{ nodeElement }">
         <tag-list-edit-form
+          class="font-bold"
           :node-element="nodeElement"
           :is-in-edit-state="isInEditState"
           has-create-button
-          type="Topic"
+          type="TagTopic"
           @abort="abort"
           @create="() => toggleCreateModal({ type: 'Tag' })"
           @delete="deleteItem"
           @edit="setEditState"
-          @exted="extendForm"
-          @initFetch="loadTagsAndTopics"
-          @save="save"
-        />
+          @save="save" />
       </template>
       <template v-slot:leaf="{ nodeElement }">
         <tag-list-edit-form
@@ -90,24 +114,24 @@
           @abort="abort"
           @delete="deleteItem"
           @edit="setEditState"
-          @save="save"
-        />
+          @save="save" />
       </template>
     </dp-tree-list>
 
-    <tags-import-form />
+    <tags-import-form
+      class="mb-1"
+      procedure-id="procedureId" />
   </div>
 </template>
 
 <script>
 import { DpButton, DpCheckbox, DpIcon, DpInput, DpModal, DpTreeList, DpUpload, dpValidateMixin } from '@demos-europe/demosplan-ui'
-import { mapActions, mapMutations } from 'vuex'
+import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import TagListBulkControls from './TagListBulkControls'
 import TagListEditForm from './TagListEditForm'
 import TagsImportForm from './TagsImportForm'
 import TagListHeader from './TagListHeader'
-import TagListTable from './TagListTable'
 
 export default {
   name: 'TagsList',
@@ -124,26 +148,13 @@ export default {
     TagsImportForm,
     TagListBulkControls,
     TagListEditForm,
-    TagListHeader,
-    TagListTable
+    TagListHeader
   },
 
   props: {
     procedureId: {
       type: String,
       required: true
-    },
-
-    topics: {
-      type: Array,
-      required: true
-    }
-  },
-
-  provide() {
-    return {
-      topics: this.topics,
-      procedureId: this.procedureId
     }
   },
 
@@ -159,38 +170,68 @@ export default {
       newTopic: {
         title: ''
       },
-      unsavedTitle: '',
-      Tag: {}, // @TODO will be moved to state when the data comes from store
-      tagAttributes: { title: '' },
-      transformedCategories: this.transformTagsAndCategories()
+      // This is necessary to allow extending the Tags-Resource
+      tagAttributes: {
+        boilerplate: '',
+        title: ''
+      }
     }
   },
 
   computed: {
+    ...mapState('Tag', {
+      Tag: 'items'
+    }),
+    ...mapState('TagTopic', {
+      TagTopic: 'items'
+    }),
+
     tagAttributeKeys () {
       return Object.keys(this.tagAttributes)
+    },
+
+    transformedCategories () {
+      return Object.values(this.TagTopic).map(category => {
+        const { attributes, id, type } = category
+        const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
+
+        return {
+          id,
+          attributes,
+          children: Object.values(tags).map(tag => {
+            const { id, attributes, type } = tag
+
+            return {
+              attributes,
+              id,
+              type
+            }
+          }),
+          type
+        }
+      })
     }
   },
 
   methods: {
-    ...mapMutations('Tags', {
-      updateTag: 'update'
+    ...mapMutations('Tag', {
+      updateTag: 'setItem'
     }),
 
-    ...mapMutations('TagTopics', {
-      updateTopic: 'update'
+    ...mapMutations('TagTopic', {
+      updateTagTopic: 'setItem'
     }),
 
-    ...mapActions('Tags', {
+    ...mapActions('Tag', {
       createTag: 'create',
       listTags: 'list',
       saveTag: 'save'
     }),
 
-    ...mapActions('TagTopics', {
-      createTopic: 'create',
-      listTopics: 'list',
-      saveTopic: 'save'
+    ...mapActions('TagTopic', {
+      createTagTopic: 'create',
+      listTagTopics: 'list',
+      saveTagTopic: 'save'
     }),
 
     abort () {
@@ -199,7 +240,7 @@ export default {
 
     branchFunc () {
       return function ({ node }) {
-        return node.type === 'Topic'
+        return node.type === 'TagTopic'
       }
     },
 
@@ -223,50 +264,44 @@ export default {
       this.loadTagsAndTopics()
     },
 
-    // @TODO will be removed when the data comes from store
-    getTags () {
-      this.topics.forEach(topic => {
-        topic.tags.forEach(tag => {
-          this.Tag[tag.id] = tag
-        })
-      })
-    },
-
     loadTagsAndTopics () {
       if (this.dataIsRequested) return
 
       this.dataIsRequested = true
+      const topicAttributes = [
+        'title',
+        'tags'
+      ].join()
 
-      this.listTags({
+      this.listTagTopics({
         fields: {
-          Tag: this.tagAttributeKeys.join()
-        }
+          Tag: this.tagAttributeKeys.join(),
+          TagTopic: topicAttributes
+        },
+        include: 'tags'
       })
-
-      this.listTopics({
-        fields: {
-          TagTopic: [
-            'title'
-          ].join()
-        }
-      })
-
-      this.getTags()
     },
 
     toggleCreateModal ({ type = 'Tag' }) {
       this.$refs[`create${type}Modal`].toggle()
     },
 
-    save ({ id, title, type }) {
-      return // @TODO will be removed when the data comes from store
-
+    save ({ id, attributes, type }) {
       if (id === '') {
         return
       }
 
-      this[`update${type}`]({ id, title })
+      console.log('save', id, attributes, type)
+      this[`update${type}`]({
+        attributes,
+        id,
+        relationships: this[type][id].relationships,
+        type
+      })
       this[`save${type}`](id)
+        .then(() => {
+          this.isInEditState = ''
+        })
     },
 
     saveNewTag () {
@@ -275,45 +310,47 @@ export default {
         attributes: {
           ...this.newTag
         }
+      }).then(response => {
+        console.log(response, 'response new tag')
+        this.isInEditState = ''
+        this.newTag = this.tagAttributes
+
+        this.toggleCreateModal({ type: 'Tag' })
+        this.updateTagTopic({
+          id: '',
+          type: 'TagTopic',
+          relationships: {
+            tags: {
+              data: {
+                type: 'Tag',
+                id: this.Tag[this.Tag.length - 1].id
+              }
+            }
+          }
+        })
       })
-
-      this.isInEditState = ''
-      this.newTag = this.tagAttributes
-
-      this.toggleCreateModal({ type: 'Tag' })
     },
 
     saveNewTopic () {
-      this.createTopic({
+      console.log('saveNewTopic', this.newTopic)
+      this.createTagTopic({
         type: 'TagTopic',
         attributes: {
-          title: this.newTag.title
+          title: this.newTopic.title
         }
       })
+        .then(() => {
+          this.isInEditState = ''
+          this.newTopic = {
+            title: ''
+          }
+          this.toggleCreateModal({ type: 'TagTopic' })
+        })
 
-      this.isInEditState = ''
-      this.newTopic = {
-        title: ''
-      }
-      this.toggleCreateModal({ type: 'Topic' })
     },
 
     setEditState ({ id }) {
       this.isInEditState = id
-    },
-
-    // @TODO will be removed when the data comes from store
-    transformTagsAndCategories () {
-      return Object.values(this.topics).map(category => {
-        const { id, title, tags = [] } = category
-
-        return {
-          id,
-          title,
-          type: 'Topic',
-          children: tags
-        }
-      })
     },
 
     updateForm (value) {

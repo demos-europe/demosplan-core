@@ -9,7 +9,7 @@
     <span
       v-else
       class="flex-1"
-      v-text="nodeElement.title" />
+      v-text="nodeElement.attributes.title" />
 
     <addon-wrapper
       hook-name="tag.edit.form"
@@ -42,7 +42,7 @@
         <button
           v-if="hasCreateButton"
           class="btn--blank o-link--default"
-          :data-cy="`tags:abortEdit${type}`"
+          :data-cy="`tags:create${type}`"
           @click="createItem"
           :aria-label="Translator.trans('create')">
           <dp-icon
@@ -79,7 +79,7 @@ import { DpIcon, DpInput } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
-  name: 'TagsListEditForm',
+  name: 'TagListEditForm',
 
   components: {
     AddonWrapper,
@@ -123,16 +123,16 @@ export default {
     },
 
     createItem () {
-      this.$emit('create', { id: this.nodeElement.id, type: this.type })
+      this.$emit('create', { id: this.nodeElement.id, type: this.nodeElement.type })
     },
 
     deleteItem () {
-      this.$emit('delete', { id: this.nodeElement.id, type: this.type })
+      this.$emit('delete', { id: this.nodeElement.id, type: this.nodeElement.type })
     },
 
     editItem () {
-      this.unsavedTitle = this.nodeElement.title
-      this.$emit('edit', { id: this.nodeElement.id, type: this.type })
+      this.unsavedItem = { ...this.nodeElement.attributes }
+      this.$emit('edit', { id: this.nodeElement.id, type: this.nodeElement.type })
     },
 
     extendForm (newAttr) {
@@ -147,7 +147,7 @@ export default {
     },
 
     saveItem () {
-      this.$emit('save', { id: this.nodeElement.id, title: this.unsavedItem, type: this.type })
+      this.$emit('save', { id: this.nodeElement.id, attributes: this.unsavedItem, type: this.nodeElement.type })
     }
   }
 }

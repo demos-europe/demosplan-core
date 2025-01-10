@@ -11,13 +11,18 @@
         type="hidden"
         :value="dplan.csrfToken">
 
-      <fieldset class="flow-root pb-1 mt-2">
+      <fieldset class="flow-root pb-1">
         <dp-contextual-help
           class="float-right"
           :text="Translator.trans('tags.import.help')"
         ></dp-contextual-help>
+        <dp-label
+          :text="Translator.trans('tags.import')"
+          for="uploadTags"
+          :tooltip="Translator.trans('tags.import.help')" />
 
         <dp-upload
+          id="uploadTags"
           allowed-file-types="csv"
           :basic-auth="dplan.settings.basicAuth"
           :tus-endpoint="dplan.paths.tusEndpoint"
@@ -28,20 +33,18 @@
         <input type="hidden" name="r_importCsv" :value="this.uploadedCSV" />
         <input type="hidden" name="uploadedFiles" :value="this.uploadedFiles.join()" />
         <dp-button
+          class="float-right mt-1"
           data-cy="listTags:tagsImport"
-          type="submit"
           name="r_import"
-          class="float-right mt-1">
-          {{ Translator.trans('tags.import') }}
-        </dp-button>
-
+          :text="Translator.trans('tags.import')"
+          type="submit" />
       </fieldset>
     </form>
   </div>
 </template>
 
 <script>
-import { DpButton, DpContextualHelp, DpInput, DpUpload } from '@demos-europe/demosplan-ui'
+import { DpButton, DpContextualHelp, DpInput, DpLabel, DpUpload } from '@demos-europe/demosplan-ui'
 export default {
   name: 'TagsImportForm',
 
@@ -49,10 +52,16 @@ export default {
     DpButton,
     DpContextualHelp,
     DpInput,
+    DpLabel,
     DpUpload
   },
 
-  inject: ['topics', 'procedureId'],
+  props: {
+    procedureId: {
+      type: String,
+      required: true
+    }
+  },
 
   data () {
     return {
