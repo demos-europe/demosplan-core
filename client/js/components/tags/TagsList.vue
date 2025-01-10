@@ -120,7 +120,7 @@
 
     <tags-import-form
       class="mb-1"
-      procedure-id="procedureId" />
+      :procedure-id="procedureId" />
   </div>
 </template>
 
