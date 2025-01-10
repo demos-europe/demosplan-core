@@ -22,7 +22,7 @@ const components = {
   TagsList
 }
 
-const apiStores = ['Tags', 'TagTopics']
+const apiStores = ['Tag', 'TagTopic']
 
 initialize(components, {}, apiStores).then(() => {
   AnimateById()

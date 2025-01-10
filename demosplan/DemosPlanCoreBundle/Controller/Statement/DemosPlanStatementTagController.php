@@ -114,14 +114,11 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      */
     #[Route(name: 'DemosPlan_statement_administration_tags', path: '/verfahren/{procedure}/schlagworte', defaults: ['master' => false], options: ['expose' => true])]
     public function tagListAction(
-        StatementHandler $statementHandler,
         TranslatorInterface $translator,
         string $procedure,
     ): Response {
         $templateVars = [];
-        $topics = $statementHandler->getTopicsByProcedure($procedure);
 
-        $templateVars['topics'] = $topics;
         $templateVars['procedure'] = $procedure;
         $title = $translator->trans('tag.administration');
 
