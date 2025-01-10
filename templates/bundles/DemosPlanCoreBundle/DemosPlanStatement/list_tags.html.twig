@@ -1,25 +1,8 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
-{% set topics = [] %}
 
-{% for topic in templateVars.topics %}
-    {% set topics = topics|merge([
-        {
-            'name': topic.name,
-            'id': topic.id,
-            'title': topic.title,
-            'tags': topic.tags|map(tag => {
-                'id': tag.id,
-                'title': tag.title,
-                'boilerplate': tag.boilerplate.text|default('')
-            })
-        }
-    ]) %}
-{% endfor %}
 
 {% block component_part %}
-    <tags-list
-        :procedure-id="{{ templateVars.procedure|json_encode }}"
-        :topics="{{ topics|json_encode }}">
+    <tags-list :procedure-id="{{ templateVars.procedure|json_encode }}">
     </tags-list>
 {% endblock component_part %}
 
