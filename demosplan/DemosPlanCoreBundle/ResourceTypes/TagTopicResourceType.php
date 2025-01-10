@@ -49,12 +49,12 @@ final class TagTopicResourceType extends DplanResourceType
 
     public static function getName(): string
     {
-        return 'TagTopics';
+        return 'TagTopic';
     }
 
     public function getTypeName(): string
     {
-        return 'TagTopics';
+        return 'TagTopic';
     }
 
     public function isListAllowed(): bool
