@@ -1652,9 +1652,9 @@ class DemosPlanProcedureController extends BaseController
             $this->canAccessProcedure();
         } catch (AccessDeniedException $e) {
             $this->logger->error('This user should not access procedure');
+
             return $this->redirectToRoute('core_home');
         }
-
 
         $templateVars = [
             'isSubmitted'    => false,
@@ -2659,7 +2659,6 @@ class DemosPlanProcedureController extends BaseController
      */
     protected function canAccessProcedure(): void
     {
-
         if ($this->permissions->ownsProcedure()) {
             return;
         }
