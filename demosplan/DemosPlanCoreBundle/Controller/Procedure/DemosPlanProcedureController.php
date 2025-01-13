@@ -1648,9 +1648,13 @@ class DemosPlanProcedureController extends BaseController
         }
 
         // check procedure permissions
-        if (!$this->mayEnterProcedure()) {
-            throw new AccessDeniedException('Thou shall not pass!');
+        try {
+            $this->canAccessProcedure();
+        } catch (AccessDeniedException $e) {
+            $this->logger->error('This user should not access procedure');
+            return $this->redirectToRoute('core_home');
         }
+
 
         $templateVars = [
             'isSubmitted'    => false,
@@ -2653,22 +2657,18 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Is User allowed to enter procedure e.g by using a deeplink.
      */
-    protected function mayEnterProcedure(): bool
+    protected function canAccessProcedure(): void
     {
-        $permissions = $this->permissions;
-        if (!$permissions instanceof Permissions) {
-            return false;
+
+        if ($this->permissions->ownsProcedure()) {
+            return;
         }
 
-        if ($permissions->ownsProcedure()) {
-            return true;
+        if ($this->permissions->isMember() && $this->permissions->hasPermissionsetRead()) {
+            return;
         }
 
-        if ($permissions->isMember() && $permissions->hasPermissionsetRead()) {
-            return true;
-        }
-
-        return false;
+        throw new AccessDeniedException('Access denied to the procedure.');
     }
 
     /**
