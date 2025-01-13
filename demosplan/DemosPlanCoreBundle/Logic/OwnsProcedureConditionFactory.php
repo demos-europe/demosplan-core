@@ -112,7 +112,6 @@ class OwnsProcedureConditionFactory
     public function hasProcedureAccessingRole(Customer $customer): array
     {
         $relevantRoles = [
-            RoleInterface::CUSTOMER_MASTER_USER,
             ...User::PLANNING_AGENCY_ROLES,
             ...User::HEARING_AUTHORITY_ROLES,
         ];
