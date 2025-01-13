@@ -47,14 +47,14 @@
 <template>
   <dp-flyout
     align="left"
-    :data-cy="label"
+    :data-cy="category.label"
     :padded="false"
     @open="handleOpen"
     @close="handleClose"
     ref="flyout">
     <template v-slot:trigger>
       <span :class="{ 'weight--bold' : (appliedQuery.length > 0) }">
-        {{ label }}
+        {{ category.label }}
         <span
           class="o-badge o-badge--small o-badge--transparent"
           v-if="appliedQuery.length > 0">
@@ -86,15 +86,15 @@
         :style="maxHeight"
         class="w-full border--bottom overflow-y-scroll u-p-0_5">
         <ul
-          v-if="getUngroupedItems().length"
+          v-if="ungroupedOptions?.length > 0"
           class="o-list line-height--1_6">
           <filter-flyout-checkbox
-            v-for="item in getUngroupedItems()"
-            @change="updateQuery"
-            :checked="isChecked(item.id)"
-            :option="item"
+            v-for="option in ungroupedOptions"
+            :key="option.id"
+            :checked="isChecked(option.id)"
             instance="ungrouped"
-            :key="item.id" />
+            :option="option"
+            @change="updateQuery" />
         </ul>
         <ul
           v-for="group in groups"
@@ -111,7 +111,8 @@
             :instance="group.id"
             :key="item.id" />
         </ul>
-        <span v-if="groups.length === 0 && getUngroupedItems().length === 0">
+
+        <span v-if="groups.length === 0 && ungroupedOptions?.length === 0">
           {{ Translator.trans('search.results.none') }}
         </span>
       </div>
@@ -170,7 +171,7 @@ import {
   dpRpc,
   hasOwnProp
 } from '@demos-europe/demosplan-ui'
-import { mapGetters, mapMutations, mapState } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
 
 export default {
@@ -189,6 +190,14 @@ export default {
       type: Object,
       required: false,
       default: () => ({})
+    },
+
+    category: {
+      type: Object,
+      required: true,
+      validator: prop => {
+        return hasOwnProp(prop, 'label') && hasOwnProp(prop, 'id')
+      }
     },
 
     /**
@@ -216,11 +225,6 @@ export default {
       default: () => ({})
     },
 
-    label: {
-      type: String,
-      required: true
-    },
-
     operator: {
       type: String,
       required: true
@@ -242,7 +246,6 @@ export default {
        */
       currentQuery: [],
       isExpanded: false,
-      isLoading: true,
       searchTerm: ''
     }
   },
@@ -253,9 +256,10 @@ export default {
       getFilterQuery: 'filterQuery'
     }),
 
-    ...mapState('FilterFlyout', [
-      'groupedOptions',
-      'ungroupedOptions'
+    ...mapGetters('FilterFlyout', [
+      'getGroupedOptionsByCategoryId',
+      'getIsLoadingByCategoryId',
+      'getUngroupedOptionsByCategoryId'
     ]),
 
     /**
@@ -286,11 +290,19 @@ export default {
       return filter
     },
 
+    groupedOptions () {
+      return this.getGroupedOptionsByCategoryId(this.category.id) || []
+    },
+
+    isLoading () {
+      return this.getIsLoadingByCategoryId(this.category.id) ?? false
+    },
+
     /*
      * The maxHeight for the scrollable options is calculated to better match devices.
      */
     maxHeight () {
-      const offsetTop = this.$el.getBoundingClientRect().top + document.documentElement.scrollTop
+      const offsetTop = this.$el?.getBoundingClientRect().top + document.documentElement.scrollTop
       const searchFieldHeight = 58
       const buttonRowHeight = 58
       /*
@@ -326,11 +338,19 @@ export default {
     groups () {
       const groups = Object.values(this.groupsObject)
       return groups.filter(group => this.getItemsByGroup(group).length)
+    },
+
+    ungroupedOptions () {
+      return this.getUngroupedOptionsByCategoryId(this.category.id)
     }
   },
 
   methods: {
     ...mapMutations('SegmentFilter', ['updateFilterQuery']),
+
+    ...mapMutations('FilterFlyout', {
+      setIsLoading: 'setIsLoadingByCategoryId'
+    }),
 
     /**
      * Emit event with currently selected filters as query object.
@@ -383,7 +403,6 @@ export default {
     },
 
     handleOpen () {
-      this.isLoading = true
       this.isExpanded = true
 
       this.requestFilterOptions()
@@ -526,6 +545,7 @@ export default {
   },
 
   mounted () {
+    this.setIsLoading({ categoryId: this.category.id, isLoading: true })
     // if (this.initialQuery.length) {
     //   this.requestFilterOptions()
     //     .then(() => {

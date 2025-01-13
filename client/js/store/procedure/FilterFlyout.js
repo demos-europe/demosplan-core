@@ -6,24 +6,89 @@ const FilterFlyoutStore = {
 
   state: {
     /**
-     * Array of objects (groups) - id, label, options.
+     * Grouped filter options, stored in groupedOptions by categoryId of the filter flyout:
+     * Object with categoryIds as keys and grouped options as values.
+     * Each object has  id, label, and options.
      * Options is an array of objects - id, label, count, description, selected
      */
-    groupedOptions: [],
+    groupedOptions: {},
     /**
-     * Array of objects - id, label, count, description
+     * Object with categoryIds as keys and booleans as values
+     * Used to show/hide loading spinner in each filter flyout
      */
-    ungroupedOptions: []
+    isLoading: {},
+    /**
+     * Ungrouped filter options, stored in ungroupedOptions by categoryId of the filter flyout:
+     * Object with categoryIds as keys and array of ungrouped options as values
+     * Each option has id, label, count, description
+     */
+    ungroupedOptions: {}
   },
 
   mutations: {
-    setGroupedOptions (state, items) {
-      state.groupedOptions = items
+    /**
+     *
+     * @param state
+     * @param payload {Object}
+     * @param payload.categoryId {String} id of the category used as label for the filter flyout
+     * @param payload.groupedOptions {Object} grouped filter options { Array of objects (groups) - id, label, options;
+     * options is an array of objects - id, label, count, description, selected}
+     */
+    setGroupedOptions (state, payload) {
+      const { categoryId, groupedOptions } = payload
+
+      state.groupedOptions[categoryId] = groupedOptions
+      Vue.set(state.groupedOptions, categoryId, groupedOptions)
     },
-    setUngroupedOptions (state, items) {
-      state.ungroupedOptions = items
+
+    /**
+     *
+     * @param state
+     * @param payload {Object}
+     * @param payload.categoryId {String} id of the category used as label for the filter flyout
+     * @param payload.isLoading {Boolean}
+     */
+    setIsLoading (state, payload) {
+      const { categoryId, isLoading } = payload
+
+      // state.isLoading[categoryId] = isLoading
+      Vue.set(state.isLoading, categoryId, isLoading)
+    },
+
+    /**
+     *
+     * @param state
+     * @param payload {Object}
+     * @param payload.categoryId {String} id of the category used as label for the filter flyout
+     * @param payload.options {Array} ungrouped filter options
+     */
+    setUngroupedOptions (state, payload) {
+      const { categoryId, options } = payload
+
+      // state.ungroupedOptions[categoryId] = options
+      Vue.set(state.ungroupedOptions, categoryId, options)
     }
   },
+
+  getters: {
+    getGroupedOptionsByCategoryId: (state) => (categoryId) => {
+      return state.groupedOptions[categoryId]
+    },
+
+    getIsLoadingByCategoryId: (state) => (categoryId) => {
+      return state.isLoading[categoryId]
+    },
+
+    /**
+     *
+     * @param state
+     * @param categoryId {String}
+     * @return {Object}
+     */
+    getUngroupedOptionsByCategoryId: (state) => (categoryId) => {
+      return state.ungroupedOptions[categoryId]
+    }
+  }
 }
 
 export default FilterFlyoutStore

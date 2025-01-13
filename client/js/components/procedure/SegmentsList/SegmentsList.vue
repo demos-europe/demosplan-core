@@ -34,14 +34,15 @@
             v-for="filter in filters"
             ref="filterFlyout"
             :additional-query-params="{ searchPhrase: searchTerm }"
+            :category="{ id: filter.id, label: Translator.trans(filter.labelTranslationKey) }"
             :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
+            :groups-object="filter.groupsObject"
             :initial-query="queryIds"
             :items-object="filter.itemsObject"
-            :groups-object="filter.groupsObject"
             :key="`filter_${filter.labelTranslationKey}`"
-            :label="Translator.trans(filter.labelTranslationKey)"
             :operator="filter.comparisonOperator"
             :path="filter.rootPath"
+            show-count
             @filter-apply="sendFilterQuery"
             @filterOptions:request="sendFilterOptionsRequest"/>
         </div>
@@ -506,6 +507,10 @@ export default {
     }),
 
     ...mapMutations('SegmentFilter', ['updateFilterQuery']),
+
+    ...mapMutations('FilterFlyout', {
+      setGroupedFilterOptions: 'setGroupedOptions'
+    }),
 
     applyQuery (page) {
       lscache.remove(this.lsKey.allSegments)

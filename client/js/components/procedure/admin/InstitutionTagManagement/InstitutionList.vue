@@ -29,7 +29,7 @@
           :data-cy="`institutionListFilter:${filter.label}`"
           :initial-query="queryIds"
           :key="`filter_${filter.label}`"
-          :label="filter.label"
+          :category="{  id: filter.id, label: filter.label }"
           :operator="filter.comparisonOperator"
           :path="filter.rootPath"
           @filter-apply="sendFilterQuery"
@@ -473,7 +473,7 @@ export default {
         })
       }
 
-      this.setUngroupedFilterOptions(filterOptions)
+      this.setUngroupedFilterOptions({ categoryId: categoryId, options: filterOptions })
     },
 
     date (d) {
@@ -635,7 +635,7 @@ export default {
             this.currentQueryHash = response
           }
         })
-        .catch(err => console.log(err))
+        .catch(err => console.error(err))
     },
   },
 
