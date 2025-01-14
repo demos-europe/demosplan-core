@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b532a98a8721abc2c3e3d136179ba68f",
+    "content-hash": "deb8b70b454aa9e8e99fdbf8ab6ca378",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1704,16 +1704,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.44",
+            "version": "v0.47",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "5826224fb429a27645cdfc85e561030ba97d505e"
+                "reference": "1c445204a71a25b6468da83687bd321d60457091"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/5826224fb429a27645cdfc85e561030ba97d505e",
-                "reference": "5826224fb429a27645cdfc85e561030ba97d505e",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/1c445204a71a25b6468da83687bd321d60457091",
+                "reference": "1c445204a71a25b6468da83687bd321d60457091",
                 "shasum": ""
             },
             "require": {
@@ -1726,6 +1726,7 @@
                 "illuminate/collections": "^10.48",
                 "nesbot/carbon": "^2.0.0",
                 "php": "^8.1",
+                "proj4php/proj4php": "^2.0",
                 "ramsey/uuid": "^4",
                 "symfony/cache": "5.*.*",
                 "symfony/config": "5.*.*",
@@ -1778,9 +1779,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.44"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.47"
             },
-            "time": "2024-11-28T14:38:01+00:00"
+            "time": "2024-12-19T16:39:42+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -24191,5 +24192,5 @@
     "platform-overrides": {
         "php": "8.1.12"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }

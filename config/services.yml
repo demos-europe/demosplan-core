@@ -171,8 +171,12 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface:
         class: demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent
 
+    DemosEurope\DemosplanAddon\Contracts\Services\MapProjectionConverterInterface: '@demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter'
+
     DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService
+
+    DemosEurope\DemosplanAddon\Permission\AccessControl\AccessControlRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository'
 
     DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\User\UserService'

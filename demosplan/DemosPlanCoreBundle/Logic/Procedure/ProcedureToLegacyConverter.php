@@ -67,6 +67,8 @@ class ProcedureToLegacyConverter extends CoreService
             $procedureArray['phaseObject'] = $this->entityHelper->toArray($procedure->getPhaseObject());
             $procedureArray['publicParticipationPhaseObject'] = $this->entityHelper->toArray($procedure->getPublicParticipationPhaseObject());
             $procedureArray['pictogram'] = $procedureArray['settings']['pictogram'];
+            $procedureArray['pictogramCopyright'] = $procedureArray['settings']['pictogramCopyright'];
+            $procedureArray['pictogramAltText'] = $procedureArray['settings']['pictogramAltText'];
         }
 
         $procedureArray['isMapEnabled'] = false;
