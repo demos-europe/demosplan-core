@@ -94,22 +94,24 @@
             :checked="isChecked(option.id)"
             instance="ungrouped"
             :option="option"
+            show-count
             @change="updateQuery" />
         </ul>
         <ul
-          v-for="group in groups"
+          v-for="group in groupedOptions"
           class="o-list line-height--1_6"
           :key="`list_${group.id}}`">
           <span class="font-size-small">
-            {{ group.attributes.label }}
+            {{ group.label }}
           </span>
           <filter-flyout-checkbox
-            v-for="item in getItemsByGroup(group)"
+            v-for="option in group.options"
             @change="updateQuery"
-            :checked="isChecked(item.id)"
-            :option="item"
+            :checked="isChecked(option.id)"
+            :option="option"
             :instance="group.id"
-            :key="item.id" />
+            :key="option.id"
+            show-count />
         </ul>
 
         <span v-if="groups.length === 0 && ungroupedOptions?.length === 0">
@@ -137,7 +139,6 @@
           v-for="item in itemsSelected"
           @change="updateQuery"
           :checked="true"
-          :show-count="false"
           :highlight="appliedQuery.includes(item.id) === false"
           :option="item"
           instance="itemsSelected"
@@ -341,7 +342,7 @@ export default {
     },
 
     ungroupedOptions () {
-      return this.getUngroupedOptionsByCategoryId(this.category.id)
+      return this.getUngroupedOptionsByCategoryId(this.category.id) || []
     }
   },
 

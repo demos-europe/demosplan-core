@@ -31,10 +31,10 @@
             {{ Translator.trans('filter') }}
           </span>
           <filter-flyout
-            v-for="filter in filters"
+            v-for="(filter, idx) in Object.values(filters)"
             ref="filterFlyout"
             :additional-query-params="{ searchPhrase: searchTerm }"
-            :category="{ id: filter.id, label: Translator.trans(filter.labelTranslationKey) }"
+            :category="{ id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }"
             :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             :groups-object="filter.groupsObject"
             :initial-query="queryIds"
@@ -44,7 +44,7 @@
             :path="filter.rootPath"
             show-count
             @filter-apply="sendFilterQuery"
-            @filterOptions:request="sendFilterOptionsRequest"/>
+            @filterOptions:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})"/>
         </div>
         <dp-button
           class="ml-2 h-fit"
@@ -509,7 +509,8 @@ export default {
     ...mapMutations('SegmentFilter', ['updateFilterQuery']),
 
     ...mapMutations('FilterFlyout', {
-      setGroupedFilterOptions: 'setGroupedOptions'
+      setGroupedFilterOptions: 'setGroupedOptions',
+      setUngroupedFilterOptions: 'setUngroupedOptions'
     }),
 
     applyQuery (page) {
@@ -679,8 +680,17 @@ export default {
       this.applyQuery(1)
     },
 
+    /**
+     *
+     * @param params {Object}
+     * @param params.additionalQueryParams {Object}
+     * @param params.category {Object} id, label
+     * @param params.filter {Object}
+     * @param params.path {String}
+     * @param params.searchPhrase {String}
+     */
     sendFilterOptionsRequest (params) {
-      const { additionalQueryParams, filter, path } = params
+      const { additionalQueryParams, category, filter, path } = params
       const requestParams = {
         ...additionalQueryParams,
         filter: {
@@ -704,64 +714,150 @@ export default {
         .then(response => checkResponse(response))
         .then(response => {
           const result = (hasOwnProp(response, 0) && response[0].id === 'filterList') ? response[0].result : null
-          const currentFilterType = result.data.find(type => type.attributes.path === path) // assignee, place or tags
 
-          if (currentFilterType && hasOwnProp(result, 'included')) {
-            const filterKey = currentFilterType.attributes.path
+          if (result) {
+            let groupedOptions = []
+            let ungroupedOptions = []
 
-            result.included.forEach(el => {
-            if (el.type === 'AggregationFilterGroup' && typeof currentFilterType.relationships.aggregationFilterGroups.data.find(group => group.id === el.id) !== 'undefined') {
-              // this.$set(this.groupsObject, el.id, el)
-              if (this.filters[filterKey]) {
-                if (!this.filters[filterKey].groupsObject) {
-                  this.$set(this.filters[filterKey], 'groupsObject', {})
-                }
-                this.$set(this.filters[filterKey].groupsObject, el.id, el)
-              }
+            result.included.forEach(resource => {
+              const filter = result.data.find(type => type.attributes.path === path)
+              const resourceIsGroup = resource.type === 'AggregationFilterGroup'
+              const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
+              const groupBelongsToFilterType = resourceIsGroup && filterHasGroups ? !!filter.relationships.aggregationFilterGroups.data.find(group => group.id === resource.id) : false
+              const resourceIsFilterOption = resource.type === 'AggregationFilterItem'
+              const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
+              const filterOptionBelongsToFilterType = resourceIsFilterOption && filterHasFilterOptions ? !!filter.relationships.aggregationFilterItems.data.find(option => option.id === resource.id) : false
 
-              if (hasOwnProp(el.relationships, 'aggregationFilterItems') && el.relationships.aggregationFilterItems.data.length > 0) {
-                el.relationships.aggregationFilterItems.data.forEach(item => {
-                  const filterItem = result.included.find(filterItem => filterItem.id === item.id)
-                  // this.$set(this.itemsObject, filterItem.id, filterItem)
-                  if (this.filters[filterKey]) {
-                    if (!this.filters[filterKey].itemsObject) {
-                      this.$set(this.filters[filterKey], 'itemsObject', {})
+              if (resourceIsGroup && groupBelongsToFilterType) {
+                const filterOptionsIds = resource.relationships.aggregationFilterItems?.data.length > 0 ? resource.relationships.aggregationFilterItems.data.map(item => item.id) : []
+                const filterOptions = filterOptionsIds.map(id => {
+                  const option = result.included.find(item => item.id === id)
+
+                  if (option) {
+                    const { attributes, id } = option
+                    const { count, description, label, selected } = attributes
+
+                    return {
+                      count,
+                      description,
+                      id,
+                      label,
+                      selected
                     }
-                    this.$set(this.filters[filterKey].itemsObject, filterItem.id, filterItem)
                   }
                 })
-              }
-            } else if (el.type === 'AggregationFilterItem' && typeof currentFilterType.relationships.aggregationFilterItems.data.find(item => item.id === el.id) !== 'undefined') {
-              el.ungrouped = true
-              // this.$set(this.itemsObject, el.id, el)
-              if (this.filters[filterKey]) {
-                if (!this.filters[filterKey].itemsObject) {
-                  this.$set(this.filters[filterKey], 'itemsObject', {})
-                }
-                this.$set(this.filters[filterKey].itemsObject, el.id, el)
-              }
-            }
-          })
 
-            // If the current filter is assignee, display amount of Segments that have assignee as null. That is given by the field missingResourcesSum
-            if (result.data[0].attributes.path === 'assignee') {
-              if (this.filters[filterKey]) {
-                this.$set(this.filters[filterKey].itemsObject, 'unassigned', {
-                  attributes: {
-                    count: result.data[0].attributes.missingResourcesSum,
-                    label: Translator.trans('not.assigned'),
-                    ungrouped: true,
-                    selected: result.meta.unassigned_selected
-                  },
-                  id: 'unassigned',
-                  type: 'AggregationFilterItem',
+                if (filterOptions.length > 0) {
+                  const { id, attributes } = resource
+                  const { label } = attributes
+                  const group = {
+                    id,
+                    label,
+                    options: filterOptions
+                  }
+
+                  groupedOptions.push(group)
+                }
+              }
+
+              // ungrouped filter options
+              if (resourceIsFilterOption && filterOptionBelongsToFilterType) {
+                const { id, attributes } = resource
+                const { count, description, label, selected } = attributes
+
+                ungroupedOptions.push({
+                  id,
+                  count,
+                  description,
+                  label,
+                  selected,
                   ungrouped: true
                 })
               }
+            })
+
+            // needs to be added to ungroupedOptions
+            if (result.data[0].attributes.path === 'assignee') {
+              ungroupedOptions.push({
+                id: 'unassigned',
+                count: result.data[0].attributes.missingResourcesSum,
+                label: Translator.trans('not.assigned'),
+                ungrouped: true,
+                selected: result.meta.unassigned_selected
+              })
             }
+
+            this.setGroupedFilterOptions({
+              categoryId: category.id,
+              groupedOptions
+            })
+
+            this.setUngroupedFilterOptions({
+              categoryId: category.id,
+              options: ungroupedOptions
+            })
           }
+
+          //   const currentFilterType = result.data.find(type => type.attributes.path === path) // assignee, place or tags
+          //
+          //   if (currentFilterType && hasOwnProp(result, 'included')) {
+          //     const filterKey = currentFilterType.attributes.path
+          //
+          //     result.included.forEach(el => {
+          //       // if el in included is a group and the group is part of the current filter, add it to the filter's groupsObject
+          //     if (el.type === 'AggregationFilterGroup' && typeof currentFilterType.relationships.aggregationFilterGroups.data.find(group => group.id === el.id) !== 'undefined') {
+          //       // this.$set(this.groupsObject, el.id, el)
+          //       if (this.filters[filterKey]) {
+          //         if (!this.filters[filterKey].groupsObject) {
+          //           this.$set(this.filters[filterKey], 'groupsObject', {})
+          //         }
+          //         this.$set(this.filters[filterKey].groupsObject, el.id, el)
+          //       }
+          //
+          //       if (hasOwnProp(el.relationships, 'aggregationFilterItems') && el.relationships.aggregationFilterItems.data.length > 0) {
+          //         el.relationships.aggregationFilterItems.data.forEach(item => {
+          //           const filterItem = result.included.find(filterItem => filterItem.id === item.id)
+          //           // this.$set(this.itemsObject, filterItem.id, filterItem)
+          //           if (this.filters[filterKey]) {
+          //             if (!this.filters[filterKey].itemsObject) {
+          //               this.$set(this.filters[filterKey], 'itemsObject', {})
+          //             }
+          //             this.$set(this.filters[filterKey].itemsObject, filterItem.id, filterItem)
+          //           }
+          //         })
+          //       }
+          //     } else if (el.type === 'AggregationFilterItem' && typeof currentFilterType.relationships.aggregationFilterItems.data.find(item => item.id === el.id) !== 'undefined') {
+          //       el.ungrouped = true
+          //       // this.$set(this.itemsObject, el.id, el)
+          //       if (this.filters[filterKey]) {
+          //         if (!this.filters[filterKey].itemsObject) {
+          //           this.$set(this.filters[filterKey], 'itemsObject', {})
+          //         }
+          //         this.$set(this.filters[filterKey].itemsObject, el.id, el)
+          //       }
+          //     }
+          //   })
+          //
+          //     // If the current filter is assignee, display amount of Segments that have assignee as null. That is given by the field missingResourcesSum
+          //     if (result.data[0].attributes.path === 'assignee') {
+          //       if (this.filters[filterKey]) {
+          //         this.$set(this.filters[filterKey].itemsObject, 'unassigned', {
+          //           attributes: {
+          //             count: result.data[0].attributes.missingResourcesSum,
+          //             label: Translator.trans('not.assigned'),
+          //             ungrouped: true,
+          //             selected: result.meta.unassigned_selected
+          //           },
+          //           id: 'unassigned',
+          //           type: 'AggregationFilterItem',
+          //           ungrouped: true
+          //         })
+          //       }
+          //     }
+          //   }
+          // })
+          // .catch(err => console.log(err))
         })
-        .catch(err => console.log(err))
     },
 
     setCurrentSelection (selection) {

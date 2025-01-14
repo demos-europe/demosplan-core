@@ -37,7 +37,6 @@ const FilterFlyoutStore = {
     setGroupedOptions (state, payload) {
       const { categoryId, groupedOptions } = payload
 
-      state.groupedOptions[categoryId] = groupedOptions
       Vue.set(state.groupedOptions, categoryId, groupedOptions)
     },
 
@@ -51,7 +50,6 @@ const FilterFlyoutStore = {
     setIsLoading (state, payload) {
       const { categoryId, isLoading } = payload
 
-      // state.isLoading[categoryId] = isLoading
       Vue.set(state.isLoading, categoryId, isLoading)
     },
 
@@ -65,7 +63,6 @@ const FilterFlyoutStore = {
     setUngroupedOptions (state, payload) {
       const { categoryId, options } = payload
 
-      // state.ungroupedOptions[categoryId] = options
       Vue.set(state.ungroupedOptions, categoryId, options)
     }
   },
