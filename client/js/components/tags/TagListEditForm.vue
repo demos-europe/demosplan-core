@@ -15,9 +15,7 @@
       hook-name="tag.edit.form"
       :addon-props="{
         tag: nodeElement
-      }"
-      @addons:loaded="initialiseDataFetching"
-      @loaded="extendForm" />
+      }" />
 
     <div class="flex-0 pl-2">
       <template  v-if="isInEditState !== nodeElement.id">
@@ -37,16 +35,6 @@
           :aria-label="Translator.trans('delete')">
           <dp-icon
             icon="delete"
-            aria-hidden="true" />
-        </button>
-        <button
-          v-if="hasCreateButton"
-          class="btn--blank o-link--default"
-          :data-cy="`tags:create${type}`"
-          @click="createItem"
-          :aria-label="Translator.trans('create')">
-          <dp-icon
-            icon="tag"
             aria-hidden="true" />
         </button>
       </template>
@@ -88,11 +76,6 @@ export default {
   },
 
   props: {
-    hasCreateButton: {
-      type: Boolean,
-      default: false
-    },
-
     isInEditState: {
       type: String,
       required: true
@@ -122,10 +105,6 @@ export default {
       this.$emit('abort')
     },
 
-    createItem () {
-      this.$emit('create', { id: this.nodeElement.id, type: this.nodeElement.type })
-    },
-
     deleteItem () {
       this.$emit('delete', { id: this.nodeElement.id, type: this.nodeElement.type })
     },
@@ -133,17 +112,6 @@ export default {
     editItem () {
       this.unsavedItem = { ...this.nodeElement.attributes }
       this.$emit('edit', { id: this.nodeElement.id, type: this.nodeElement.type })
-    },
-
-    extendForm (newAttr) {
-      console.log('extendForm')
-      this.$emit('extend', newAttr)
-    },
-
-    initialiseDataFetching (addons) {
-      if (addons.length === 0) {
-        this.$emit('initFetch', addons)
-      }
     },
 
     saveItem () {

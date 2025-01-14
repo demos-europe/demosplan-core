@@ -23,6 +23,7 @@
 
         <dp-upload
           id="uploadTags"
+          name="r_importCsv"
           allowed-file-types="csv"
           :basic-auth="dplan.settings.basicAuth"
           :tus-endpoint="dplan.paths.tusEndpoint"
@@ -31,7 +32,7 @@
           @upload-success="importCSVs" />
 
         <input type="hidden" name="r_importCsv" :value="this.uploadedCSV" />
-        <input type="hidden" name="uploadedFiles" :value="this.uploadedFiles.join()" />
+        <input type="hidden" name="uploadedFiles" :value="this.uploadedFiles" />
         <dp-button
           class="float-right mt-1"
           data-cy="listTags:tagsImport"
@@ -66,14 +67,14 @@ export default {
   data () {
     return {
       uploadedCSV: null,
-      uploadedFiles: []
+      uploadedFiles: ''
     }
   },
 
   methods: {
     importCSVs (file) {
       this.uploadedCSV = Object.values(file).join()
-      this.uploadedFiles.push(file.hash)
+      this.uploadedFiles = file.hash
     }
   }
 }

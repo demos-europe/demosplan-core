@@ -1,17 +1,5 @@
 <template>
   <div>
-    <!--
-      preload addons which extend the form
-      to ensure that the additional data is available
-    -->
-    <addon-wrapper
-      hook-name="tag.edit.form"
-      :addon-props="{
-        tag: { id: 'fake', type: 'irrevelvant'}
-      }"
-      @addons:loaded="loadTagsAndTopics"
-      @loaded="extendForm" />
-
     <tag-list-header />
 
     <dp-modal
@@ -32,6 +20,8 @@
             text: Translator.trans('tag.create')
           }"
           :placeholder="Translator.trans('title')" />
+
+        <dp-select :options="topicsAsOptions" v-model="newTag.topic" />
 
         <addon-wrapper
           class="block mb-1"
@@ -66,8 +56,12 @@
       </div>
     </dp-modal>
 
-    <div class="flex justify-end">
+    <div class="flex justify-end mb-1">
       <dp-button
+        :text="Translator.trans('tag.create')"
+        @click="() => toggleCreateModal({ type: 'Tag' })" />
+      <dp-button
+        class="ml-1"
         :text="Translator.trans('category.create')"
         @click="() => toggleCreateModal({ type: 'Topic' })" />
     </div>
@@ -85,7 +79,7 @@
           <div class="flex-1">
             {{ Translator.trans('topic.or.tag') }}
           </div>
-          <div class="flex-0">
+          <div class="ml-1 flex-0">
             {{ Translator.trans('boilerplates') }}
           </div>
           <div class="flex-0">
@@ -98,10 +92,8 @@
           class="font-bold"
           :node-element="nodeElement"
           :is-in-edit-state="isInEditState"
-          has-create-button
           type="TagTopic"
           @abort="abort"
-          @create="() => toggleCreateModal({ type: 'Tag' })"
           @delete="deleteItem"
           @edit="setEditState"
           @save="save" />
@@ -125,13 +117,24 @@
 </template>
 
 <script>
-import { DpButton, DpCheckbox, DpIcon, DpInput, DpModal, DpTreeList, DpUpload, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import {
+  DpButton,
+  DpCheckbox,
+  DpIcon,
+  DpInput,
+  DpModal,
+  DpSelect,
+  DpTreeList,
+  DpUpload,
+  dpValidateMixin
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import TagListBulkControls from './TagListBulkControls'
 import TagListEditForm from './TagListEditForm'
 import TagsImportForm from './TagsImportForm'
 import TagListHeader from './TagListHeader'
+
 
 export default {
   name: 'TagsList',
@@ -144,6 +147,7 @@ export default {
     DpInput,
     DpModal,
     DpUpload,
+    DpSelect,
     DpTreeList,
     TagsImportForm,
     TagListBulkControls,
@@ -165,7 +169,8 @@ export default {
       dataIsRequested: false,
       isInEditState: '',
       newTag: {
-        title: ''
+        title: '',
+        topic: ''
       },
       newTopic: {
         title: ''
@@ -188,6 +193,17 @@ export default {
 
     tagAttributeKeys () {
       return Object.keys(this.tagAttributes)
+    },
+
+    topicsAsOptions () {
+      return Object.values(this.TagTopic).map(category => {
+        const { attributes, id } = category
+
+        return {
+          label: attributes.title,
+          value: id
+        }
+      })
     },
 
     transformedCategories () {
@@ -248,22 +264,6 @@ export default {
       this.deleteTag(id)
     },
 
-    /**
-     * To allow addons extending the form, this method cann add any attributes
-     * to the tag resource request
-     *
-     * @param attribute
-     * @param defaultValue
-     */
-    extendForm ({ attribute, defaultValue }) {
-      if (this.tagAttributeKeys.includes(attribute)) return
-
-      this.newTag[attribute] = defaultValue
-      this.tagAttributes[attribute] = defaultValue
-
-      this.loadTagsAndTopics()
-    },
-
     loadTagsAndTopics () {
       if (this.dataIsRequested) return
 
@@ -291,7 +291,6 @@ export default {
         return
       }
 
-      console.log('save', id, attributes, type)
       this[`update${type}`]({
         attributes,
         id,
@@ -308,16 +307,21 @@ export default {
       this.createTag({
         type: 'Tag',
         attributes: {
-          ...this.newTag
+          title: this.newTag.title
+        },
+        relationships: {
+          topic: {
+            data: {
+              type: 'TagTopic',
+              id: this.newTag.topic
+            }
+          }
         }
       }).then(response => {
         console.log(response, 'response new tag')
-        this.isInEditState = ''
-        this.newTag = this.tagAttributes
 
-        this.toggleCreateModal({ type: 'Tag' })
         this.updateTagTopic({
-          id: '',
+          id: this.newTag.topic,
           type: 'TagTopic',
           relationships: {
             tags: {
@@ -328,6 +332,12 @@ export default {
             }
           }
         })
+
+        this.$root.$emit('tag:created')
+        // Close Modal and Reset form data
+        this.toggleCreateModal({ type: 'Tag' })
+        this.isInEditState = ''
+        this.newTag = this.tagAttributes
       })
     },
 
@@ -337,6 +347,14 @@ export default {
         type: 'TagTopic',
         attributes: {
           title: this.newTopic.title
+        },
+        relationships: {
+          procedure: {
+            data: {
+              type: 'Procedure',
+              id: this.procedureId
+            }
+          }
         }
       })
         .then(() => {
@@ -357,6 +375,11 @@ export default {
       console.log('updateForm', value)
       this.newTag[value.key] = value.value
     }
-  }
+  },
+
+  mounted () {
+    this.loadTagsAndTopics()
+  },
+
 }
 </script>
