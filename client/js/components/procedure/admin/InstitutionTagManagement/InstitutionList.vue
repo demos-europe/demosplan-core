@@ -10,6 +10,7 @@
 <template>
   <div>
     <dp-inline-notification
+      class="mt-3 mb-2"
       dismissible
       :message="Translator.trans('explanation.invitable_institution.group.tags')"
       type="info" />

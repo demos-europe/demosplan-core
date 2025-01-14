@@ -225,6 +225,7 @@
 
       <dp-inline-notification
         v-else
+        class="mt-3"
         :message="Translator.trans('statements.none')"
         type="info" />
     </template>
