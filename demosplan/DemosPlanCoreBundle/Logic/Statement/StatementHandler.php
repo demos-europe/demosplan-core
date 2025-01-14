@@ -12,6 +12,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleImportedTagsRecordsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -42,6 +44,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\GetOriginalFileFromAnnotatedStatementEvent;
 use demosplan\DemosPlanCoreBundle\Event\MultipleStatementsSubmittedEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterHandleImportedTagsRecordsEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterPrePersistTagsEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\AsynchronousStateException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -105,6 +109,7 @@ use Doctrine\ORM\Query\QueryException;
 use Exception;
 use Illuminate\Support\Collection;
 use League\Csv\Reader;
+use League\Csv\UnableToProcessCsv;
 use ReflectionException;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints\Email;
@@ -2279,20 +2284,37 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $reader->setDelimiter(';');
         $reader->setEnclosure('"');
         $records = $reader->getRecords();
-        // Acquire data
-        $newTags = [];
-        foreach ($records as $dataset) {
-            // Do not use line if all fields are empty
-            if (array_reduce($dataset, static fn ($carry, $item) => $carry && ('' == $item), true)) {
-                continue;
+        $records->rewind();
+
+        $columnTitles = [];
+        if ($records->valid()) {
+            $columnTitles = $records->current();
+            $records->next();
+        }
+
+        $event = $this->eventDispatcher->dispatch(
+            new ExcelImporterHandleImportedTagsRecordsEvent($records, $columnTitles),
+            ExcelImporterHandleImportedTagsRecordsEventInterface::class
+        );
+
+        $newTags = $event->getTags();
+
+        if (empty($newTags)) {
+            while ($records->valid()) {
+                $dataset = $records->current();
+                // Do not use line if all fields are empty
+                if (array_reduce($dataset, static fn ($carry, $item) => $carry && ('' == $item), true)) {
+                    continue;
+                }
+                $newTagData = [
+                    'topic'          => $dataset[0] ?? '',
+                    'tag'            => $dataset[1] ?? '',
+                    'useBoilerplate' => isset($dataset[2]) ? 'ja' === $dataset[2] : false,
+                    'boilerplate'    => $dataset[3] ?? '',
+                ];
+                $newTags[] = $newTagData;
+                $records->next();
             }
-            $newTagData = [
-                'topic'          => $dataset[0] ?? '',
-                'tag'            => $dataset[1] ?? '',
-                'useBoilerplate' => isset($dataset[2]) ? 'ja' === $dataset[2] : false,
-                'boilerplate'    => $dataset[3] ?? '',
-            ];
-            $newTags[] = $newTagData;
         }
 
         // Create objects
@@ -2301,6 +2323,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // Will be filled with the tag topics needed to create the imported tags
         // with the tag topic title as key and the object as value.
         $topics = [];
+        $persistedTag = [];
 
         foreach ($newTags as $tagData) {
             $currentTopicTitle = $tagData['topic'];
@@ -2324,6 +2347,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $topics[$currentTopicTitle]
             );
 
+            $persistedTag[] = $tag;
+
             // Create and attach a boilerplate object if required
             if ($tagData['useBoilerplate']) {
                 $boilerplateData = [
@@ -2337,6 +2362,11 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $this->tagService->attachBoilerplateToTag($tag, $boilerplate);
             }
         }
+
+        $this->eventDispatcher->dispatch(
+            new ExcelImporterPrePersistTagsEvent(tags: $persistedTag),
+            ExcelImporterPrePersistTagsEventInterface::class
+        );
     }
 
     /**
