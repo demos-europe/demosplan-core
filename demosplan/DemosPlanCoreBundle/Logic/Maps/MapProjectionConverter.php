@@ -48,7 +48,7 @@ class MapProjectionConverter implements MapProjectionConverterInterface
         string $geoJson,
         Proj $currentProjection,
         Proj $newProjection,
-        string $returnType = self::OBJECT_RETURN_TYPE
+        string $returnType = self::OBJECT_RETURN_TYPE,
     ): object|string {
         $geoJson = '' === $geoJson ? [] : Json::decodeToMatchingType($geoJson);
         $result = $geoJson;
@@ -95,7 +95,7 @@ class MapProjectionConverter implements MapProjectionConverterInterface
         string $viewport,
         Proj $currentProjection,
         Proj $newProjection,
-        string $returnType = self::ARRAY_RETURN_TYPE
+        string $returnType = self::ARRAY_RETURN_TYPE,
     ): array|string {
         $newViewport = [];
         $viewport = explode(',', $viewport);
@@ -151,7 +151,7 @@ class MapProjectionConverter implements MapProjectionConverterInterface
         string $coordinate,
         Proj $currentProjection,
         Proj $newProjection,
-        string $returnType = self::ARRAY_RETURN_TYPE
+        string $returnType = self::ARRAY_RETURN_TYPE,
     ) {
         $coordinateArray = explode(',', $coordinate);
         if (is_array($coordinateArray) && 2 === count($coordinateArray)) {
@@ -174,7 +174,7 @@ class MapProjectionConverter implements MapProjectionConverterInterface
         array $coordinatesGroup,
         Proj $currentProjection,
         Proj $newProjection,
-        string $returnType = self::ARRAY_RETURN_TYPE
+        string $returnType = self::ARRAY_RETURN_TYPE,
     ) {
         $result = [];
         foreach ($coordinatesGroup as $coordinateSubgroup) {
@@ -197,7 +197,7 @@ class MapProjectionConverter implements MapProjectionConverterInterface
         array $coordinates,
         Proj $currentProjection,
         Proj $newProjection,
-        string $returnType = self::ARRAY_RETURN_TYPE
+        string $returnType = self::ARRAY_RETURN_TYPE,
     ) {
         $result = [];
         foreach ($coordinates as $coordinate) {
@@ -213,14 +213,12 @@ class MapProjectionConverter implements MapProjectionConverterInterface
 
     /**
      * @param string $returnType [self::ARRAY_RETURN_TYPE | self::STRING_RETURN_TYPE]
-     *
-     * @return array|string
      */
     public function convertPoint(
         array $coordinate,
         Proj $currentProjection,
         Proj $newProjection,
-        string $returnType = self::ARRAY_RETURN_TYPE
+        string $returnType = self::ARRAY_RETURN_TYPE,
     ): array|string {
         $pointSrc = new Point($coordinate[0], $coordinate[1], $currentProjection);
         $pointDest = $this
