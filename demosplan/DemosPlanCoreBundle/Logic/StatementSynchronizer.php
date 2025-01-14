@@ -155,18 +155,18 @@ class StatementSynchronizer
         $this->statementRepository->persistEntities([$newOriginalStatement]);
 
         // check if the externId is already used in the target procedure
-        $targetProcedureStatemnts = $targetProcedure->getStatements();
-        foreach ($targetProcedureStatemnts as $targetProcedureStatemnt) {
-            if ($targetProcedureStatemnt->getExternId() === $sourceStatement->getExternId()) {
-                // if the externId is already used, add a -1 to the externId
-                $newOriginalStatement->setExternId($sourceStatement->getExternId().'-1');
-                // if find a match, break the loop
-                break;
-            }
+        /** @var Statement[] $targetProcedureStatements */
+        $targetProcedureStatements = $targetProcedure->getStatements();
+        $externId = $sourceStatement->getExternId();
+        $suffix = 1;
 
-            // if the externId is not used, set the externId to the new statement
-            $newOriginalStatement->setExternId($sourceStatement->getExternId());
+        foreach ($targetProcedureStatements as $targetProcedureStatement) {
+            if ($targetProcedureStatement->getExternId() === $externId) {
+                $externId = $sourceStatement->getExternId().'-'.$suffix++;
+            }
         }
+
+        $newOriginalStatement->setExternId($externId);
 
         // warning: order of the method calls matter, as later methods may use information
         // of fields set previously
