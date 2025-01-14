@@ -14,7 +14,7 @@
       <label class="u-mb-0_5">
         <dp-contextual-help
           class="float-right u-mt-0_125"
-          :text="Translator.trans(tooltipContent)" />
+          :tooltip-options="tooltipOptions" />
         {{ title }}
       </label>
       <dp-multiselect
@@ -111,10 +111,10 @@ export default {
   },
 
   computed: {
-    tooltipContent () {
+    tooltipOptions () {
       return {
-        content: Translator.trans('boilerplates.categories.explanation'),
-        classes: 'z-modal'
+        classes: 'z-modal',
+        content: Translator.trans('boilerplates.categories.explanation')
       }
     }
   },

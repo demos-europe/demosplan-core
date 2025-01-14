@@ -46,7 +46,7 @@ class JsonApiResourceTypeService implements JsonApiResourceTypeServiceInterface
         protected readonly Sorter $sorter,
         protected readonly DqlConditionFactory $conditionFactory,
         protected readonly MessageBagInterface $messageBag,
-        protected readonly EntityManagerInterface $entityManager
+        protected readonly EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -81,6 +81,6 @@ class JsonApiResourceTypeService implements JsonApiResourceTypeServiceInterface
      */
     public function addCreationErrorMessage(array $parameters): void
     {
-        $this->messageBag->add('error', 'generic.error');
+        $this->messageBag->add('error', 'error.api.generic');
     }
 }

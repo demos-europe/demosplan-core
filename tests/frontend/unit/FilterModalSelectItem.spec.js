@@ -19,7 +19,7 @@ describe('FilterModalSelectItem', () => {
   beforeEach(() => {
     store = new Vuex.Store({
       modules: {
-        Filter: Filter
+        Filter
       }
     })
 

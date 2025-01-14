@@ -75,7 +75,7 @@ export default {
         ? Object.entries(this.statistics).map(([date, stats]) => {
           const index = Object.keys(this.statistics).findIndex(stat => stat === date)
           return {
-            index: index,
+            index,
             x: date,
             y: stats.views
           }

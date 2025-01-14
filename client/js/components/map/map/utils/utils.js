@@ -53,7 +53,7 @@ export function getResolutionsFromScales (scales, units) {
 export function getScalesAndResolutions (resolutions, units) {
   return resolutions.map((resolution) => {
     return {
-      resolution: resolution,
+      resolution,
       scale: getScaleFromResolution(resolution, units)
     }
   }).sort((a, b) => b.resolution - a.resolution)

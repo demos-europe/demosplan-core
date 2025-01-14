@@ -798,6 +798,12 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             if (array_key_exists('pictogram', $data['settings'])) {
                 $procedureSettings->setPictogram($data['settings']['pictogram']);
             }
+            if (array_key_exists('pictogramCopyright', $data['settings'])) {
+                $procedureSettings->setPictogramCopyright($data['settings']['pictogramCopyright']);
+            }
+            if (array_key_exists('pictogramAltText', $data['settings'])) {
+                $procedureSettings->setPictogramAltText($data['settings']['pictogramAltText']);
+            }
             if (array_key_exists('planningArea', $data['settings'])) {
                 $procedureSettings->setPlanningArea($data['settings']['planningArea']);
             }

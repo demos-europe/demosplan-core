@@ -197,9 +197,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @var string|null
      *
-     * @ORM\Column(name="_st_intern_id", type="string", length=35, nullable=true, options={"fixed":true, "comment":"manuelle Eingangsnummer"})
+     * @ORM\Column(name="_st_intern_id", type="string", length=255, nullable=true, options={"fixed":true, "comment":"manuelle Eingangsnummer"})
      */
-    #[Assert\Length(max: 35)]
+    #[Assert\Length(max: 255)]
     protected $internId;
 
     /**

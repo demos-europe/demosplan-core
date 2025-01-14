@@ -257,13 +257,13 @@ export default {
             }
           }
         } else {
-            filter[id] = {
-              condition: {
-                path: this.path,
-                value: id,
-                operator: this.operator
-              }
+          filter[id] = {
+            condition: {
+              path: this.path,
+              value: id,
+              operator: this.operator
             }
+          }
         }
       })
       return filter
@@ -416,7 +416,7 @@ export default {
             })
 
             // If the current filter is assignee, display amount of Segments that have assignee as null. That is given by the field missingResourcesSum
-             if (result.data[0].attributes.path === 'assignee') {
+            if (result.data[0].attributes.path === 'assignee') {
               this.$set(this.itemsObject, 'unassigned', {
                 attributes: {
                   count: result.data[0].attributes.missingResourcesSum,

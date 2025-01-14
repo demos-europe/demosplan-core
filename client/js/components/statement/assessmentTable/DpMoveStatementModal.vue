@@ -230,7 +230,7 @@ export default {
         setFragmentsInComponent()
         return Promise.resolve(true)
       } else {
-        return this.loadFragments({ procedureId: this.procedureId, statementId: statementId })
+        return this.loadFragments({ procedureId: this.procedureId, statementId })
           .then(() => {
             setFragmentsInComponent()
           })

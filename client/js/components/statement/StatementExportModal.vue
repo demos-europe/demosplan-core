@@ -32,6 +32,7 @@
             v-for="(exportType, key) in exportTypes"
             :key="key"
             :id="key"
+            class="max-w-[70%]"
             :data-cy="`exportType:${key}`"
             :label="{
               hint: active === key ? exportType.hint : '',
@@ -75,7 +76,7 @@
             v-model="fileName"
             class="mt-1"
             :placeholder="Translator.trans('docx.export.file_name.placeholder')"
-            type="text"/>
+            type="text" />
           <div class="font-size-small mt-2">
             <span
               class="weight--bold"
@@ -123,6 +124,14 @@ export default {
 
   mixins: [sessionStorageMixin],
 
+  props: {
+    isSingleStatementExport: {
+      required: false,
+      type: Boolean,
+      default: false
+    }
+  },
+
   data () {
     return {
       active: 'docx',
@@ -167,15 +176,7 @@ export default {
         }
       },
       fileName: '',
-      singleStatementExportPath: 'dplan_segments_export' /** used in the statements detail page */
-    }
-  },
-
-  props: {
-    isSingleStatementExport: {
-      required: false,
-      type: Boolean,
-      default: false
+      singleStatementExportPath: 'dplan_segments_export' /** Used in the statements detail page */
     }
   },
 

@@ -772,12 +772,14 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         array $elementIdsToSwitch,
         DateTime $designatedSwitchDateTime,
         bool $designatedState,
-        string $procedureId
+        string $procedureId,
     ): array {
         $condition = $this->conditionFactory
             ->allConditionsApply(
                 $this->conditionFactory->propertyHasValue($procedureId, $this->elementResourceType->procedure->id),
-                $this->conditionFactory->propertyHasAnyOfValues($elementIdsToSwitch, $this->elementResourceType->id),
+                [] === $elementIdsToSwitch
+                    ? $this->conditionFactory->false()
+                    : $this->conditionFactory->propertyHasAnyOfValues($elementIdsToSwitch, $this->elementResourceType->id),
                 $this->conditionFactory->propertyHasValue(!$designatedState, $this->elementResourceType->enabled),
             );
 
@@ -960,8 +962,8 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     public function guessSystemCategoryType(
         string $elementTitle,
         string $documentTitle,
-        string $paragraphTitle
-    ): null|string|ConstraintViolationListInterface {
+        string $paragraphTitle,
+    ): string|ConstraintViolationListInterface|null {
         if ('' !== $documentTitle) {
             $violations = $this->validator->validate($paragraphTitle, new Blank(
                 ['message' => 'statement.categoryType.already.defined.by.give.document']
@@ -997,8 +999,8 @@ class ElementsService extends CoreService implements ElementsServiceInterface
      *                                                      ConstraintViolationListInterface if given title is empty.
      *                                                      System-category-title if appropriate one was found, otherwise null.
      */
-    private function findSystemCategoryTypeTitleBasedOfTitle(string $title
-    ): null|string|ConstraintViolationListInterface {
+    private function findSystemCategoryTypeTitleBasedOfTitle(string $title,
+    ): string|ConstraintViolationListInterface|null {
         $violations = $this->validator->validate(
             $title,
             new NotBlank(['message' => 'element.title.not.blank'])
@@ -1050,14 +1052,14 @@ class ElementsService extends CoreService implements ElementsServiceInterface
             ElementsInterface::ELEMENT_TITLES['protokolle_und_niederschriften'],
             ElementsInterface::ELEMENT_TITLES['landschaftsplan_aenderung'] => ElementsInterface::ELEMENT_CATEGORIES['file'],
 
-            default => null
+            default => null,
         };
     }
 
     public function getPlanningDocumentCategoryByTitleAndCategoryType(
         string $procedureId,
         string $title,
-        string $category
+        string $category,
     ): ?Elements {
         return $this->elementsRepository->findOneBy([
             'title'     => $title,

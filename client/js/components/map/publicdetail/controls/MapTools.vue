@@ -116,7 +116,7 @@ import isMobile from 'ismobilejs'
 
 export default {
   name: 'DpMapTools',
-  components: {DpContextualHelp},
+  components: { DpContextualHelp },
 
   mixins: [prefixClassMixin],
 

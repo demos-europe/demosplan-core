@@ -1,4 +1,4 @@
-import { describe, beforeEach, afterEach, beforeAll, it, expect } from '@jest/globals'
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from '@jest/globals'
 import { DpModal } from '@demos-europe/demosplan-ui'
 import { sessionStorageMock } from './__mocks__/sessionStorage.mock'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
@@ -104,7 +104,7 @@ describe('StatementExportModal', () => {
     })
   })
 
-  it('emits export event with null docxHeaders for xlsx export type',  () => {
+  it('emits export event with null docxHeaders for xlsx export type', () => {
     const emitSpy = jest.spyOn(wrapper.vm, '$emit')
     wrapper.setData({ active: 'xlsx' })
     wrapper.vm.handleExport()
@@ -116,7 +116,7 @@ describe('StatementExportModal', () => {
     })
   })
 
-  it('closes the DpModal after executing the handleExport function', () =>  {
+  it('closes the DpModal after executing the handleExport function', () => {
     const toggleSpy = jest.spyOn(wrapper.vm.$refs.exportModalInner, 'toggle')
     wrapper.vm.handleExport()
 

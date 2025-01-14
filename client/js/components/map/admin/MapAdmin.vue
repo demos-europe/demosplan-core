@@ -50,7 +50,7 @@
         @suitableScalesChange="value => areScalesSuitable = value" />
 
       <dp-input
-        v-if="!procedureMapSettings.attributes.featureInfoUrl.global && hasPermission('feature_map_feature_info')"
+        v-if="!procedureMapSettings.attributes.useGlobalInformationUrl && hasPermission('feature_map_feature_info')"
         v-model="procedureMapSettings.attributes.informationUrl"
         id="informationURL"
         class="u-mb"
@@ -135,6 +135,12 @@ export default {
   },
 
   props: {
+    isMaster: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     procedureId: {
       type: String,
       required: true
@@ -155,13 +161,13 @@ export default {
       },
       procedureMapSettings: {
         id: '',
-        type: 'ProcecdureMapSetting',
+        type: 'ProcedureMapSetting',
         attributes: {
           coordinate: [],
           copyright: '',
           defaultMapExtent: [],
           defaultBoundingBox: [],
-          featureInfoUrl: { global: false },
+          useGlobalInformationUrl: false,
           informationUrl: '',
           showOnlyOverlayCategory: false,
           mapExtent: [],
@@ -294,7 +300,7 @@ export default {
   },
 
   async mounted () {
-    const settings = await this.fetchProcedureMapSettings(this.procedureId)
+    const settings = await this.fetchProcedureMapSettings({ procedureId: this.procedureId, isMaster: this.isMaster })
     this.procedureMapSettings = JSON.parse(JSON.stringify(settings))
   }
 }

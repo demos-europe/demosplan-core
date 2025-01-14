@@ -161,23 +161,14 @@
                                         name="statementPublish"
                                         id="statementPublish"></a>
 
-                                    <dp-statement-publish
+                                    <statement-publish
                                         :editable="Boolean('{{ statement.publicVerified == 'publication_pending' and not readonly }}')"
                                         files-length="{{ statement.files|default([])|length }}"
                                         :is-manual="Boolean({{ statement.manual }})"
                                         public-verified="{{ statement.publicVerified }}"
                                         public-verified-trans-key="{{ statement.publicVerifiedTranslation }}"
                                         submitter-email="{{ statement.submitterEmailAddress|default }}">
-                                    </dp-statement-publish>
-
-                                    {% if hasPermission('feature_statements_vote') %}
-                                    <div
-                                        class="flash flash-info">
-                                        <p class="u-mb-0">
-                                            {{ "explanation.statement.public.activate.voting"|trans }}
-                                        </p>
-                                    </div>
-                                    {% endif %}
+                                    </statement-publish>
 
                                     {% if statement.files|length > 0 %}
                                         <p class="lbl u-mb-0_5">

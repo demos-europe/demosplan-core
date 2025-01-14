@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -90,17 +91,23 @@ class SegmentController extends BaseController
 
         $recommendationProcedureIds = $procedureService->getRecommendationProcedureIds($currentUser->getUser(), $procedureId);
         $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
+        $statementFormDefinition = $procedure->getStatementFormDefinition();
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_statement_segments_list.html.twig',
             [
-                'procedure'                  => $procedureId,
+                'procedure'                  => [
+                    'id'       => $procedureId,
+                    'name'     => $procedure->getName(),
+                    'orgaName' => $procedure->getOrgaName(),
+                ],
                 'recommendationProcedureIds' => $recommendationProcedureIds,
                 'statementId'                => $statementId,
                 'statementExternId'          => $statement->getExternId(),
                 'title'                      => 'segments.recommendations.create',
                 'templateVars'               => [
                     'isSourceAndCoupledProcedure' => $isSourceAndCoupledProcedure,
+                    'statementFormDefinition'     => $statementFormDefinition,
                 ],
             ]
         );
@@ -119,7 +126,7 @@ class SegmentController extends BaseController
         PermissionsInterface $permissions,
         Request $request,
         XlsxSegmentImport $importer,
-        string $procedureId
+        string $procedureId,
     ): Response {
         $requestPost = $request->request->all();
         $procedure = $currentProcedureService->getProcedure();
@@ -135,7 +142,17 @@ class SegmentController extends BaseController
             $file = $fileService->getFileInfo($uploadHash);
             $fileName = $file->getFileName();
             try {
-                $result = $importer->importFromFile($file);
+                $localPath = $fileService->ensureLocalFile($file->getAbsolutePath());
+                $localFileInfo = new FileInfo(
+                    $file->getHash(),
+                    '',
+                    0,
+                    '',
+                    $localPath,
+                    $localPath,
+                    null
+                );
+                $result = $importer->importFromFile($localFileInfo);
 
                 if ($result->hasErrors()) {
                     return $this->renderTemplate(
@@ -163,6 +180,10 @@ class SegmentController extends BaseController
                 if ($permissions->hasPermission('feature_statement_data_input_orga')) {
                     $route = 'DemosPlan_statement_orga_list';
                 }
+
+                // cleanup import files
+                $fileService->deleteFile($file->getHash());
+                $fileService->deleteLocalFile($localPath);
 
                 return $this->redirectToRoute(
                     $route,
@@ -195,7 +216,7 @@ class SegmentController extends BaseController
         string $procedureId,
         string $queryHash,
         HashedQueryService $filterSetService,
-        FilterUiDataProvider $filterUiDataProvider
+        FilterUiDataProvider $filterUiDataProvider,
     ): Response {
         $querySet = $filterSetService->findHashedQueryWithHash($queryHash);
         $segmentListQuery = null === $querySet ? null : $querySet->getStoredQuery();

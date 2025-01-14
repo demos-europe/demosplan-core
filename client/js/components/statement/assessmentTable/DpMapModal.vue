@@ -15,16 +15,17 @@
       @modal:toggled="(open) => {isModalOpen = open}">
       <template>
         <dp-ol-map
-          :class="prefixClass('u-mv-0_5')"
           v-if="isModalOpen"
-          :procedure-id="procedureId"
-          :map-options-route="mapOptionsRoute"
           ref="map"
+          :class="prefixClass('u-mv-0_5')"
+          map-id="mapModal"
+          :map-options-route="mapOptionsRoute"
           :options="{
             autoSuggest: false,
             scaleSelect: false,
             procedureExtent: true
-          }">
+          }"
+          :procedure-id="procedureId">
           <template>
             <dp-ol-map-layer-vector
               zoom-to-drawing

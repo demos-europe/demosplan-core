@@ -5,8 +5,8 @@
 const config = {
   content: ['./suppress-no-content-configured-warning-in-console/'],
   corePlugins: {
-    preflight: true,
+    preflight: true
   },
-  plugins: [],
+  plugins: []
 }
 module.exports = config

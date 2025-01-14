@@ -118,7 +118,7 @@ export default {
   },
 
   props: {
-    availablePhases: {
+    availableProcedurePhases: {
       type: Object,
       default: () => ({})
     },
@@ -190,7 +190,7 @@ export default {
      * @return {boolean}
      */
     isParticipationPhaseSelected () {
-      return Object.values(this.availablePhases)
+      return Object.values(this.availableProcedurePhases)
         .filter(phase => phase.permission === 'write')
         .map(phase => phase.value)
         .includes(this.selectedCurrentPhase)
@@ -201,7 +201,7 @@ export default {
     },
 
     phaseOptions () {
-      return Object.values(this.availablePhases).filter(phase => phase.value !== this.selectedCurrentPhase)
+      return Object.values(this.availableProcedurePhases).filter(phase => phase.value !== this.selectedCurrentPhase)
     },
 
     phaseSelectId () {

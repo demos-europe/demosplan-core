@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\ResourceType\OrgaResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
@@ -69,7 +70,7 @@ use Illuminate\Support\Collection as IlluminateCollection;
  * @property-read InstitutionTagResourceType       $ownInstitutionTags
  * @property-read End                              $canCreateProcedures
  */
-final class OrgaResourceType extends DplanResourceType
+final class OrgaResourceType extends DplanResourceType implements OrgaResourceTypeInterface
 {
     /**
      * @deprecated use {@link OrgaResourceType::$statusInCustomers} instead

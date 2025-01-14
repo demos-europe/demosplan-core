@@ -118,7 +118,7 @@
         ref="mapContainer"
         data-cy="map:mapContainer"
         :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]"
-        id="map">
+        :id="mapId">
         <dp-loading
           v-if="!Boolean(map)"
           overlay />
@@ -187,6 +187,12 @@ export default {
       required: false,
       type: Array,
       default: () => ([])
+    },
+
+    mapId: {
+      required: false,
+      type: String,
+      default: 'map'
     },
 
     /*
@@ -296,7 +302,7 @@ export default {
         namedProjections,
         options: resolutions,
         startCenter: [this.centerX, this.centerY],
-        target: 'map',
+        target: this.mapId,
         units: 'm'
       }
 

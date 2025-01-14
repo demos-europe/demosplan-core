@@ -89,7 +89,7 @@ export default {
 
       //  Animate view to new resolution
       this.view.animate({
-        resolution: resolution,
+        resolution,
         duration: 250,
         easing: easeOut
       })

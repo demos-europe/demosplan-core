@@ -110,7 +110,6 @@ use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Illuminate\Support\Collection;
 use ReflectionException;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -896,17 +895,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Mark a procedure as deleted to be purged by maintenancetask.
      *
-     * @param string|array $procedureIds
+     * @param array<string> $procedureIds
      *
      * @throws Exception
      */
     public function deleteProcedure($procedureIds): void
     {
+        $deletionCount = 0;
         try {
-            if (!\is_array($procedureIds)) {
-                $procedureIds = [$procedureIds];
-            }
-
             foreach ($procedureIds as $procedureId) {
                 $data = [
                     'ident'    => $procedureId,
@@ -914,13 +910,29 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     'deleted'  => true,
                 ];
 
+                $procedure = $this->getProcedure($procedureId);
+                if (null === $procedure) {
+                    throw ProcedureNotFoundException::createFromId($procedureId);
+                }
+                if ($procedure->isCustomerMasterBlueprint()) {
+                    $this->messageBag->add(
+                        'warning',
+                        'warning.customer.procedure.template.can.not.be.deleted'
+                    );
+                    continue;
+                }
+
                 try {
                     $this->updateProcedureWithoutReport($data);
                     $this->getLogger()->info('Procedure marked as deleted: '.\var_export($procedureId, true));
+                    ++$deletionCount;
                 } catch (Exception $e) {
                     $this->getLogger()->warning("Mark Procedure '$procedureId' as deleted failed Message: ", [$e]);
                     throw $e;
                 }
+            }
+            if ($deletionCount > 0) {
+                $this->messageBag->add('confirm', 'confirm.entries.marked.deleted');
             }
         } catch (Exception $e) {
             $this->getLogger()->warning('Mark Procedure as deleted failed Message: ', [$e]);
@@ -1001,24 +1013,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             $repository->deleteRelatedEntitiesOfProcedure($procedureId);
 
-            // delete pregenerated zips in filedirectory/procedure
-            $filesPath = $fileService->getFilesPathAbsolute();
-            if (\is_dir($filesPath.'/procedure/'.$procedureId)) {
-                try {
-                    $fs = new Filesystem();
-                    $fs->remove($filesPath.'/procedure/'.$procedureId);
-                    $fs = null;
-                } catch (Exception $e) {
-                    $this->getLogger()->error(
-                        'Could not delete orphaned Directory  '.$filesPath.'/procedure/'.$procedureId.'. Reason: '.$e
-                    );
-                }
-            } else {
-                $this->getLogger()->info(
-                    'Pregenerated zips folder not found. '.$filesPath.'/procedure/'.$procedureId
-                );
-            }
-
             // delete Procedure
             $repository->delete($procedureId);
 
@@ -1073,12 +1067,18 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $this->logger->info('Procedure updated without known user');
             }
             $procedure = $this->procedureRepository->update($data['ident'], $data);
+            // set procedurePhase properties: permissionSet, name
+            // they are not mapped do a database but the updated ones are needed within the upcoming event
+            $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
+            $procedure->setPublicParticipationPhaseName(
+                $this->globalConfig->getPhaseNameWithPriorityExternal(
+                    $procedure->getPublicParticipationPhase()
+                )
+            );
             $this->eventDispatcher->dispatch(
                 new PostProcedureUpdatedEvent($sourceProcedure, $procedure),
                 PostProcedureUpdatedEventInterface::class
             );
-
-            $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
             // always update elasticsearch as changes that where made only in
             // ProcedureSettings not automatically trigger an ES update
             if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
@@ -1126,7 +1126,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             $destinationProcedure = $this->procedureRepository->get($procedure->getId());
-
+            // set procedurePhase properties: permissionSet, name
+            // they are not mapped do a database but the updated ones are needed within the upcoming event
+            $destinationProcedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($destinationProcedure);
+            $destinationProcedure->setPublicParticipationPhaseName(
+                $this->globalConfig->getPhaseNameWithPriorityExternal(
+                    $destinationProcedure->getPublicParticipationPhase()
+                )
+            );
             $this->eventDispatcher->dispatch(
                 new PostProcedureUpdatedEvent($sourceProcedure, $destinationProcedure),
                 PostProcedureUpdatedEventInterface::class
@@ -1164,6 +1171,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             $sourceProcedure = $this->cloneProcedure($this->procedureRepository->get($data['ident']));
             $procedure = $this->procedureRepository->update($data['ident'], $data);
+            // set procedurePhase properties: permissionSet, name
+            // they are not mapped do a database but the updated ones are needed within the upcoming event
+            $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
+            $procedure->setPublicParticipationPhaseName(
+                $this->globalConfig->getPhaseNameWithPriorityExternal(
+                    $procedure->getPublicParticipationPhase()
+                )
+            );
             $this->eventDispatcher->dispatch(
                 new PostProcedureUpdatedEvent($sourceProcedure, $procedure),
                 PostProcedureUpdatedEventInterface::class
@@ -2573,7 +2588,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         }
 
         if (isset($filters['municipalCode']) && \is_array($filters['municipalCode'])) {
-            $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], ['municipalCode']);
+            $conditions[] = [] === $filters['municipalCode']
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($filters['municipalCode'], ['municipalCode']);
         }
 
         if ($limitProcedureTemplatesToCustomer) {
@@ -2623,8 +2640,12 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         if (isset($filters['excludeHiddenPhases'])) {
             // Include only procedures where at least one phase is not hidden
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase', 'key']),
-                $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase', 'key']),
+                [] === $hiddenPhases
+                    ? $this->conditionFactory->false()
+                    : $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase', 'key']),
+                [] === $hiddenPhases
+                    ? $this->conditionFactory->false()
+                    : $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase', 'key']),
             );
         }
 

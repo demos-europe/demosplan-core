@@ -28,12 +28,14 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ListLineWidth;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\TextLineWidth;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use Illuminate\Support\Collection;
+use League\Flysystem\FilesystemOperator;
 use LogicException;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
@@ -61,13 +63,14 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         private readonly CurrentUserInterface $currentUser,
         Environment $twig,
         private readonly FileService $fileService,
+        private readonly FilesystemOperator $defaultStorage,
         LoggerInterface $logger,
         private readonly MapService $mapService,
         private readonly PermissionsInterface $permissions,
         RequestStack $requestStack,
         ServiceImporter $serviceImport,
         StatementHandler $statementHandler,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         parent::__construct(
             $assessmentTableServiceOutput,
@@ -261,6 +264,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             $fullTemplateName = '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/'.$templateName.'.tex.twig';
 
             $templateVars['listwidth'] = $this->determineListLineWidth($template, $templateName, $original);
+            $templateVars['textwidth'] = $this->determineTextLineWidth($template, $templateName, $original);
 
             $content = $this->twig->render(
                 $fullTemplateName,
@@ -443,8 +447,8 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 }
                 if (null !== $mapFile && 0 < strlen((string) $mapFile) && Statement::MAP_FILE_EMPTY_DASHED !== $mapFile) {
                     $fileInfo = $this->fileService->getFileInfoFromFileString($mapFile);
-                    if (is_file($fileInfo->getAbsolutePath())) {
-                        $fileContent = file_get_contents($fileInfo->getAbsolutePath());
+                    if ($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+                        $fileContent = $this->defaultStorage->read($fileInfo->getAbsolutePath());
                         $pictures['picture'.$i] = $fileInfo->getHash().'###'.$fileInfo->getFileName().'###'.base64_encode($fileContent);
                         ++$i;
                     }
@@ -590,6 +594,22 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         }
 
         return $listLineWidth;
+    }
+
+    private function determineTextLineWidth(string $template, string $templateName, bool $original): int
+    {
+        $textLineWidth = ListLineWidth::VERTICAL_SPLIT_VIEW->value;
+        if ('portrait' === $template && 'export_original' === $templateName) {
+            $textLineWidth = TextLineWidth::VERTICAL_NOT_SPLIT_VIEW->value;
+        }
+        if ($this->isHorizontalSplitView($template, $templateName, $original)) {
+            $textLineWidth = TextLineWidth::HORIZONTAL_SPLIT_VIEW->value;
+        }
+        if ($this->isHorizontalNotSplitView($template, $templateName, $original)) {
+            $textLineWidth = TextLineWidth::HORIZONTAL_NOT_SPLIT_VIEW->value;
+        }
+
+        return $textLineWidth;
     }
 
     private function isHorizontalSplitView(string $template, string $templateName, bool $original): bool

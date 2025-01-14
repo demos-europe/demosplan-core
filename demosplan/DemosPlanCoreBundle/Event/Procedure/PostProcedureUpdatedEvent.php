@@ -16,13 +16,15 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
+use Exception;
 use ReflectionClass;
 
 class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdatedEventInterface
 {
     public function __construct(
         readonly protected Procedure $procedureBeforeUpdate,
-        readonly protected Procedure $procedureAfterUpdate
+        readonly protected Procedure $procedureAfterUpdate,
+        private array $fieldsNotPresentInNewProcedure = [],
     ) {
     }
 
@@ -44,10 +46,20 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
         return $this->determineModifiedValues($this->procedureBeforeUpdate, $this->procedureAfterUpdate);
     }
 
+    /** Some properties might not exist for both objects (old and new) and can not be compared - of Proxy as example
+     * this method provides access to those properties to be able to check them manually.
+     */
+    public function getPropertiesFailedToCompare(): array
+    {
+        return $this->fieldsNotPresentInNewProcedure;
+    }
+
     /**
+     * Attention! This method will not discover newly added entities for a ToMany Collection relation.
+     *
      * @return array<string, array<string, mixed>>
      */
-    private function determineModifiedValues(object $oldObject, object $newObject): array
+    private function determineModifiedValues(object $oldObject, object $newObject, int $nestingLimit = 2): array
     {
         $modifiedValues = [];
 
@@ -65,13 +77,32 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
 
         foreach ($properties as $property) {
             $propertyName = $property->getName();
+            // skip self references
+            if ('procedure' === $propertyName) {
+                continue;
+            }
 
-            $oldValue = $property->getValue($oldObject);
-            $newValue = $property->getValue($newObject);
+            try {
+                $oldValue = $property->getValue($oldObject);
+                $newValue = $property->getValue($newObject);
+            } catch (Exception $e) {
+                // The property can not be accessed or does not exist within newObject
+                // store it and continue with other properties
+                $this->fieldsNotPresentInNewProcedure[$propertyName] = ['old' => $oldObject, 'new' => $newObject];
+
+                continue;
+            }
 
             if ($oldValue !== $newValue) {
                 if (is_object($oldValue) && is_object($newValue)) {
-                    $modifiedSubValues = $this->determineModifiedValues($oldValue, $newValue);
+                    $modifiedSubValues = [];
+                    if (0 < $nestingLimit) {
+                        $modifiedSubValues = $this->determineModifiedValues(
+                            $oldValue,
+                            $newValue,
+                            $nestingLimit - 1
+                        );
+                    }
                     if ([] !== $modifiedSubValues) {
                         $modifiedValues[$propertyName] = $modifiedSubValues;
                     }

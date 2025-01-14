@@ -10,14 +10,15 @@
 /**
  * This is the entrypoint for institution_tag_management.html.twig
  */
-import InstitutionTagManagement from '@DpJs/components/procedure/admin/InstitutionTagManagement'
+import InstitutionTagManagement from '@DpJs/components/procedure/admin/InstitutionTagManagement/InstitutionTagManagement'
 import { initialize } from '@DpJs/InitVue'
 
 const components = { InstitutionTagManagement }
 
 const apiStores = [
-  'institutionTag',
-  'invitableInstitution'
+  'InstitutionTag',
+  'InstitutionTagCategory',
+  'InvitableInstitution'
 ]
 
 initialize(components, {}, apiStores)

@@ -44,15 +44,15 @@ export default {
   },
 
   methods: {
-    toggleContentVisibility() {
+    toggleContentVisibility () {
       this.$emit('toggle-content-visibility', this.section)
     },
 
-    show() {
+    show () {
       this.$emit('show')
     },
 
-    hide() {
+    hide () {
       this.$emit('hide')
     }
   }

@@ -64,8 +64,8 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
         plugins: [
           initJsonApiPlugin({
             apiModules: apiStoreModules,
-            router: router,
-            baseUrl: baseUrl,
+            router,
+            baseUrl,
             headers: {
               'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
               'X-Demosplan-Procedure-Id': dplan.procedureId

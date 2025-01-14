@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
-use Composer\Console\Input\InputOption;
 use Composer\Package\BasePackage;
 use Composer\Package\CompleteAliasPackage;
 use Composer\Package\CompletePackage;
@@ -38,6 +37,7 @@ use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -194,10 +194,13 @@ class AddonInstallFromZipCommand extends CoreCommand
             /** @var DemosPlanKernel $kernel */
             $activeProject = $kernel->getActiveProject();
 
-            $batchReturn = Batch::create($this->getApplication(), $output)
-                ->addShell(["bin/{$activeProject}", 'cache:clear', '-e', $environment])
-                ->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name, '-e', $environment])
-                ->run();
+            $batch = Batch::create($this->getApplication(), $output)
+                ->addShell(["bin/{$activeProject}", 'cache:clear', '-e', $environment]);
+            // if addon has a package.json, build the frontend assets
+            if (file_exists($this->zipCachePath.'package.json')) {
+                $batch->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name, '-e', $environment]);
+            }
+            $batchReturn = $batch->run();
 
             if (0 === $batchReturn) {
                 $output->success("Addon {$name} successfully installed. Please remember to ".
@@ -230,6 +233,7 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         // If addons.yaml does not exist, create it
         if (!file_exists($this->addonsDirectory.'addons.yaml')) {
+            // local file is valid, no need for flysystem
             file_put_contents($this->addonsDirectory.'addons.yaml', Yaml::dump(['addons' => []]));
         }
 
@@ -254,6 +258,7 @@ class AddonInstallFromZipCommand extends CoreCommand
                     ],
                 ],
             ];
+            // local file is valid, no need for flysystem
             file_put_contents($this->addonsDirectory.'composer.json', Json::encode($content, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
         }
     }
@@ -265,6 +270,7 @@ class AddonInstallFromZipCommand extends CoreCommand
      */
     private function createDirectoryIfNecessary(string $directory): void
     {
+        // uses local file, no need for flysystem
         if (!file_exists($directory)) {
             if (!mkdir($directory, 0777, true) && !is_dir($directory)) {
                 throw new RuntimeException(sprintf('Directory "%s" was not created', $directory));
@@ -295,6 +301,7 @@ class AddonInstallFromZipCommand extends CoreCommand
      */
     private function copyAndUnzipFileIfNecessary(OutputInterface $output, bool $reinstall): void
     {
+        // uses local file, no need for flysystem
         $doesFileExist = file_exists($this->zipSourcePath);
         $addonExistsInCache = file_exists($this->zipCachePath);
         $shouldUnzip = !$addonExistsInCache || $reinstall;
@@ -317,6 +324,7 @@ class AddonInstallFromZipCommand extends CoreCommand
     public function loadPackageDefinition(): PackageInterface
     {
         $loader = new ArrayLoader();
+        // uses local file, no need for flysystem
         $composerJsonArray = Json::decodeToArray(file_get_contents($this->zipCachePath.'composer.json'));
 
         /*
@@ -346,11 +354,13 @@ class AddonInstallFromZipCommand extends CoreCommand
             $addonVersion = '*';
         }
 
+        // uses local file, no need for flysystem
         $composerContent = Json::decodeToArray(file_get_contents($this->addonsDirectory.'composer.json'));
 
         if (!array_key_exists('require', $composerContent)
             || !array_key_exists($addonName, $composerContent['require'])) {
             $composerContent['require'][$addonName] = $addonVersion;
+            // local file is valid, no need for flysystem
             file_put_contents(
                 $this->addonsDirectory.'composer.json',
                 Json::encode($composerContent, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
@@ -420,6 +430,7 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         // tags are prefixed with v, but the zip file is not
         $path = DemosPlanPath::getRootPath($this->folder).'/'.$repo.'-'.str_replace('v', '', $tag).'.zip';
+        // uses local file, no need for flysystem
         if (file_exists($path) && !$input->getOption('force-download')) {
             $output->info('File '.$path.' already exists, skipping download. You may use the --force-download option to force a download.');
         } else {
@@ -427,6 +438,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             $zipResponse = $this->httpClient->request('GET', $zipUrl, $addonRepositoryOptions);
 
             $zipContent = $zipResponse->getContent(false);
+            // local file is valid, no need for flysystem
             file_put_contents($path, $zipContent);
         }
 
@@ -475,6 +487,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             }
 
             $zipContent = $zipResponse->getContent(false);
+            // local file is valid, no need for flysystem
             file_put_contents($path, $zipContent);
         }
 
@@ -543,8 +556,10 @@ class AddonInstallFromZipCommand extends CoreCommand
 
     private function getPathFromLocalDevelopment(InputInterface $input, SymfonyStyle $output): string
     {
+        // local file only, no need for flysystem
         $fs = new Filesystem();
         $addonDevFolder = DemosPlanPath::getRootPath('addonDev');
+        // uses local file, no need for flysystem
         if (!file_exists($addonDevFolder)) {
             throw new RuntimeException("No folder {$addonDevFolder} found. To develop addons locally, create a folder {$addonDevFolder} and put your addons in there.");
         }

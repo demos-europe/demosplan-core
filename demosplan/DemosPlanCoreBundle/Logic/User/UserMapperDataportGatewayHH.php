@@ -24,9 +24,9 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use Exception;
-use Patchwork\Utf8;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Yaml\Parser;
 
 class UserMapperDataportGatewayHH extends UserMapperDataportGateway
@@ -46,7 +46,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
         OrgaService $orgaService,
         private readonly UserRepository $userRepository,
         UserService $userService,
-        RequestStack $requestStack
+        RequestStack $requestStack,
     ) {
         parent::__construct(
             $addressService,
@@ -68,6 +68,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
         // Lädt das Rollenmapping
         $this->roles = collect(
             $yaml->parse(
+                // uses local file, no need for flysystem
                 file_get_contents(DemosPlanPath::getRootPath('demosplan/DemosPlanCoreBundle/Logic/User').'/UserMapperDataportGatewayHH.yml')
             )
         );
@@ -208,8 +209,8 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                     $departmentNameIs = $user->getDepartment() instanceof Department ? $user->getDepartment()->getName() : '';
                     $departmentNameExpected = $this->data['user']['DEPARTMENT'].' - '.$this->data['user']['SUBDEPARTMENT'];
 
-                    $orgaNameChanged = Utf8::filter($this->data['user']['AUTHORITY']) != Utf8::filter($userOrga->getName());
-                    $departmentNameChanged = Utf8::filter($departmentNameExpected) != Utf8::filter($departmentNameIs);
+                    $orgaNameChanged = (new UnicodeString($this->data['user']['AUTHORITY']))->normalize()->toString() != (new UnicodeString($userOrga->getName()))->normalize()->toString();
+                    $departmentNameChanged = (new UnicodeString($departmentNameExpected))->normalize()->toString() != (new UnicodeString($departmentNameIs))->normalize()->toString();
 
                     // organame and Department has NOT changed, check other data to be updated
                     if ((!$orgaNameChanged && !$departmentNameChanged) || $userChangedOrgaDepartment || $userUpdatedOrgaDepartment) {
@@ -334,7 +335,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                     if (!$publicAgencyUser instanceof User) {
                         $getUserContext = [
                             'foundUser' => $publicAgencyUser,
-                            'userData' => $this->data['user']
+                            'userData'  => $this->data['user'],
                         ];
                         $this->logger->info('Could not find user with data', $getUserContext);
                         $this->logger->info('User does not exist create with roles', ['roles' => $toebRoles]);

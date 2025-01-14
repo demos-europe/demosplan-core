@@ -62,6 +62,8 @@ use EDT\PathBuilding\End;
  * @property-read End                                 $externalPhasePermissionset
  * @property-read End                                 $internalPhasePermissionset
  * @property-read CustomerResourceType                $customer
+ * @property-read PlanningDocumentCategoryDetailsResourceType                $availableElements
+ * @property-read PlanningDocumentCategoryDetailsResourceType                $elements
  */
 final class ProcedureResourceType extends DplanResourceType implements ProcedureResourceTypeInterface
 {
@@ -69,7 +71,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         private readonly PhasePermissionsetLoader $phasePermissionsetLoader,
         private readonly DraftStatementService $draftStatementService,
         private readonly ProcedureAccessEvaluator $accessEvaluator,
-        private readonly ProcedureExtension $procedureExtension
+        private readonly ProcedureExtension $procedureExtension,
     ) {
     }
 
@@ -176,6 +178,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             $invitedOrganisations,
         ];
 
+        $properties[] = $this->createToManyRelationship($this->availableElements)->readable()->sortable()->filterable()->aliasedPath($this->elements);
         if ($this->hasAdminPermissions()) {
             $owningOrganisation->readable()->sortable()->filterable();
             $invitedOrganisations->readable()->sortable()->filterable();

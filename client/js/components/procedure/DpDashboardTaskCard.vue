@@ -10,7 +10,7 @@
       <dp-button
         data-cy="dashboardTaskCard:tasksView"
         :href="userFilteredSegmentUrl"
-        :text="Translator.trans('tasks.view')"/>
+        :text="Translator.trans('tasks.view')" />
     </div>
   </dp-card>
 </template>

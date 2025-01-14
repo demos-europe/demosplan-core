@@ -391,7 +391,7 @@ const initRangePlugin = (schema, rangeChangeCallback, editToggleCallback) => {
   marks = marks.addToStart('rangeselection', rangeSelectionMark)
   const currentSchema = new Schema({
     nodes: schema.spec.nodes,
-    marks: marks
+    marks
   })
 
   const editingDecorationsKey = new PluginKey('editing-decorations')

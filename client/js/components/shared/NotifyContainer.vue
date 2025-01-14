@@ -78,7 +78,7 @@ export default {
             message = messages[i]
             // Support legacy messages
             if (typeof message === 'string') {
-              message = { message: message }
+              message = { message }
             }
             this.add({
               type,

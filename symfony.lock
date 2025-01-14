@@ -68,9 +68,6 @@
     "composer/xdebug-handler": {
         "version": "1.4.6"
     },
-    "demos-europe/demosplan-addon": {
-        "version": "dev-main"
-    },
     "dnoegel/php-xdg-base-dir": {
         "version": "v0.1.1"
     },
@@ -396,6 +393,19 @@
     "lcobucci/jwt": {
         "version": "3.4.5"
     },
+    "league/flysystem-bundle": {
+        "version": "3.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "913dc3d7a5a1af0d2b044c5ac3a16e2f851d7380"
+        },
+        "files": [
+            "config/packages/flysystem.yaml",
+            "var/storage/.gitignore"
+        ]
+    },
     "league/fractal": {
         "version": "0.19.2"
     },
@@ -465,12 +475,6 @@
     "netresearch/jsonmapper": {
         "version": "v3.1.1"
     },
-    "nette/php-generator": {
-        "version": "v3.5.4"
-    },
-    "nette/utils": {
-        "version": "v3.2.3"
-    },
     "nikic/php-parser": {
         "version": "v4.12.0"
     },
@@ -482,9 +486,6 @@
     },
     "paragonie/random_compat": {
         "version": "v9.99.100"
-    },
-    "patchwork/utf8": {
-        "version": "v1.3.3"
     },
     "phar-io/manifest": {
         "version": "1.0.3"
@@ -878,9 +879,6 @@
     "symfony/http-kernel": {
         "version": "v4.4.29"
     },
-    "symfony/inflector": {
-        "version": "v4.4.27"
-    },
     "symfony/intl": {
         "version": "v5.3.4"
     },
@@ -1190,9 +1188,6 @@
     },
     "wsdltophp/phpgenerator": {
         "version": "1.2.1"
-    },
-    "yectep/phpspreadsheet-bundle": {
-        "version": "v0.2.0"
     },
     "zenstruck/foundry": {
         "version": "1.33",

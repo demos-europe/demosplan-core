@@ -17,11 +17,12 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\Contracts\ContentField;
 use EDT\Wrapping\CreationDataInterface;
-use EDT\Wrapping\PropertyBehavior\Attribute\Factory\AttributeConstructorBehaviorFactory;
-use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\Factory\RequiredToOneRelationshipConstructorBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\RequiredRelationshipConstructorBehavior;
 use Webmozart\Assert\Assert;
 
 /**
@@ -39,7 +40,7 @@ use Webmozart\Assert\Assert;
 final class SimilarStatementSubmitterResourceType extends DplanResourceType
 {
     public function __construct(
-        private readonly ProcedureRepository $procedureRepository
+        private readonly ProcedureRepository $procedureRepository,
     ) {
     }
 
@@ -53,7 +54,9 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType
         return [
             $this->createIdentifier()->readable(),
             $this->createAttribute($this->fullName)->readable()->sortable()->updatable()
-                ->addConstructorBehavior(new AttributeConstructorBehaviorFactory(null, null)),
+                ->addConstructorBehavior(
+                    AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null)
+                ),
             $this->createAttribute($this->city)->readable()->initializable(true)->updatable(),
             $this->createAttribute($this->streetName)->readable()->initializable(true)->updatable(),
             $this->createAttribute($this->streetNumber)->readable()->initializable(true)->updatable(),
@@ -70,7 +73,7 @@ final class SimilarStatementSubmitterResourceType extends DplanResourceType
 
                     return [];
                 }),
-            $this->createToOneRelationship($this->procedure)->addConstructorBehavior(new RequiredToOneRelationshipConstructorBehaviorFactory(
+            $this->createToOneRelationship($this->procedure)->addConstructorBehavior(RequiredRelationshipConstructorBehavior::createFactory(
                 function (CreationDataInterface $entityData): array {
                     $currentProcedure = $this->currentProcedureService->getProcedure();
                     $toOneRelationships = $entityData->getToOneRelationships();

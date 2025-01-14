@@ -41,7 +41,7 @@ const generateMenuItems = ({ fields, id, number, procedureId, target, isPublishe
       attrs: {
         'data-cy': 'emailSendAs'
       },
-      url: Routing.generate('DemosPlan_statement_send', { statementID: id, procedure: procedureId, target: target }),
+      url: Routing.generate('DemosPlan_statement_send', { statementID: id, procedure: procedureId, target }),
       text: Translator.trans('email.send.as')
     },
 

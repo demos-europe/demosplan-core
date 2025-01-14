@@ -17,6 +17,7 @@ import procedureMapSettings from '@DpJs/store/map/ProcedureMapSettings'
 import SegmentSlidebar from '@DpJs/store/procedure/SegmentSlidebar'
 import SplitStatementStore from '@DpJs/store/statement/SplitStatementStore'
 import StatementSegmentsList from '@DpJs/components/procedure/StatementSegmentsList/StatementSegmentsList'
+import Voter from '@DpJs/store/statement/Voter'
 
 const components = {
   StatementSegmentsList
@@ -25,7 +26,8 @@ const components = {
 const stores = {
   ProcedureMapSettings: procedureMapSettings,
   SegmentSlidebar,
-  SplitStatement: SplitStatementStore
+  SplitStatement: SplitStatementStore,
+  Voter
 }
 
 if (hasPermission('area_admin_boilerplates')) {
@@ -35,10 +37,12 @@ if (hasPermission('area_admin_boilerplates')) {
 const apiStores = [
   'AggregationFilterItems',
   'AssignableUser',
+  'ElementsDetails',
   'Place',
   'SegmentComment',
   'Statement',
   'StatementSegment',
+  'StatementVote',
   'Tags',
   'User'
 ]

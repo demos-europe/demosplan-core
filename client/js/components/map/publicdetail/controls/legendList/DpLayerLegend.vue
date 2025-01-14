@@ -15,6 +15,8 @@
       <button
         :class="[unfolded ? prefixClass('is-active') : '', prefixClass('c-map__group-header c-map__group-item c-map__toggle btn--blank o-link--default u-pv-0_25')]"
         data-cy="layerLegend:legend"
+        :disabled="!hasLegend"
+        :title="buttonTitle"
         @click="toggle">
         {{ Translator.trans('legend') }}
       </button>
@@ -85,10 +87,10 @@ export default {
       default: () => ({})
     },
 
-  procedureId: {
-    type: String,
-    required: true
-  }
+    procedureId: {
+      type: String,
+      required: true
+    }
   },
 
   data () {
@@ -101,6 +103,18 @@ export default {
     ...mapGetters('Layers', {
       legends: 'elementListForLegendSidebar'
     }),
+
+    buttonTitle () {
+      if (!this.hasLegend) {
+        return Translator.trans('legend.not_available')
+      }
+
+      return ''
+    },
+
+    hasLegend () {
+      return this.layersWithLegendFiles.length > 0 || this.planPdf.hash || this.legends.length > 0
+    },
 
     planPdfTitle () {
       let fileInfo = ''

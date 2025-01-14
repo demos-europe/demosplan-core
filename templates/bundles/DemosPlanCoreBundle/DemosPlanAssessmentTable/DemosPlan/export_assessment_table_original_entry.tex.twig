@@ -2,7 +2,7 @@
     {% if pdfLandscape is defined and pdfLandscape == true %}
 	\begin{longtable}{|p{6cm}|p{5.5cm}p{14.0cm}|}
     {% else %}
-	\begin{longtable}{|p{3.5cm}|p{3.5cm}p{9.75cm}|}
+	\begin{longtable}{|p{2.7cm}|p{4.8cm}p{9.75cm}|}
     {% endif %}
 		\hline
 			% Caption-Zeile - der doppelte Backslah setzt das Ende der Tabellenzeile, das & trennt die Spalten auf, \textbf setzt den Text in den geschweiften Klammern Bold (=<b></b> oder <strong></strong>)
@@ -54,12 +54,15 @@
     {% block priority %} {% endblock %}
   		\hline
 	\end{longtable}
+
+    {% set textWidth = templateVars.textwidth|default('18cm') %}
+
     {% if statement.movedToProcedureName is defined and statement.movedToProcedureName is not null %}
         \verb|{{ "statement.moved"|trans({ name: statement.movedToProcedureName })|latex }}|
     {% else %}
     \begin{{ '{' }}longtable{{ '}' }}{{ '{' }}p{{ '{' }}17cm{{ '}' }}p{{ '{' }}0cm{{ '}' }}{{ '}' }}\centering \textbf{{ '{' }}{{ "statement"|trans|latex|raw }}{{ '}' }} & \\
     \end{{ '{' }}longtable{{ '}' }}
-    \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}17cm{{ '}' }}{{ '{' }}0cm{{ '}' }}
+    \begin{{ '{' }}Parallel{{ '}' }}{{ '{' }}{{ textWidth ~ 'cm' }}{{ '}' }}{{ '{' }}0cm{{ '}' }}
     \ParallelLText{{ '{' }}{{ statement.text|default('')|latex(listwidth=templateVars.listwidth)|raw }}{{ '}' }}
     \ParallelRText{{ '{' }}{{ '}' }}
     \end{Parallel}

@@ -21,7 +21,7 @@ initialize()
       return dpApi({
         method: 'POST',
         url: Routing.generate('DemosPlan_procedure_public_list_json'),
-        data: data
+        data
       }).then(({ data }) => {
         const parsedData = JSON.parse(data)
         if (parsedData.code === 100 && parsedData.success === true) {

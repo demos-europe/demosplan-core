@@ -46,6 +46,9 @@
       </template>
     </dp-bulk-edit-header>
     <dp-loading v-if="isLoading" />
+    <p
+      v-else-if="treeData.length < 1"
+      v-text="Translator.trans('plandocuments.no_elements')" />
     <dp-tree-list
       v-else
       :branch-identifier="isBranch"
@@ -318,9 +321,9 @@ export default {
       const index = nextChild ? nextChild.attributes.index : null
       this.canDrag = false
       dpRpc('planningCategoryList.reorder', {
-        elementId: elementId,
+        elementId,
         newIndex: index,
-        parentId: parentId
+        parentId
       })
         .then((response) => {
           /*
@@ -399,7 +402,7 @@ export default {
               ...this.elements[el.id],
               attributes: {
                 ...this.elements[el.id].attributes,
-                idx: idx,
+                idx,
                 parentId: updatedSort.nodeId
               }
             })

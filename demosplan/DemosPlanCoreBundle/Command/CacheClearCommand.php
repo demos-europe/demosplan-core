@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
@@ -66,7 +67,10 @@ class CacheClearCommand extends CoreCommand
         try {
             // clear any app cache
             $cachePoolClearCommand = $this->getApplication()->get('cache:pool:clear');
-            $cachePoolClearCommand->run(new StringInput('cache:pool:clear cache.global_clearer'), $output);
+            $cachePoolClearCommand->run(
+                new ArrayInput(['pools' => ['cache.global_clearer'], '-e', $this->parameterBag->get('kernel.environment')]),
+                $output
+            );
 
             DemosPlanTools::cacheClear();
             $output->success('Cleared CLI APCu and OpCache');
@@ -87,7 +91,7 @@ class CacheClearCommand extends CoreCommand
             $this->handleAppCacheClear($input, $output);
         }
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 
     private function scheduleWebApcuClear(SymfonyStyle $output): void
@@ -122,8 +126,10 @@ class CacheClearCommand extends CoreCommand
 
     private function forceClear(SymfonyStyle $output)
     {
-        $output->warning('Removing cache directory directly as a fallback');
+        $cacheDir = $this->parameterBag->get('kernel.cache_dir');
+        $output->warning(sprintf('Removing cache directory %s directly as a fallback', $cacheDir));
+        // local file cache is deleted, no flysystem needed
         $fs = new Filesystem();
-        $fs->remove($this->getApplication()->getKernel()->getCacheDir());
+        $fs->remove($cacheDir);
     }
 }

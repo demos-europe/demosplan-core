@@ -976,7 +976,7 @@ export default {
 
     handleMoveToProcedure ({ movedToProcedureId, statementId, movedStatementId, placeholderStatementId, movedToAccessibleProcedure, movedToProcedureName }) {
       if (statementId === this.statementId) {
-        this.updateStatement({ id: statementId, movedToProcedureId: movedToProcedureId, movedToProcedureName: movedToProcedureName, movedStatementId: movedStatementId })
+        this.updateStatement({ id: statementId, movedToProcedureId, movedToProcedureName, movedStatementId })
         this.placeholderStatementId = placeholderStatementId
         if (JSON.parse(sessionStorage.getItem('selectedElements')) !== null) {
           this.removeFromSelectionAction(this.statementId)
@@ -1075,7 +1075,7 @@ export default {
                   data: data[fieldName].map(el => {
                     return {
                       id: el,
-                      type: type
+                      type
                     }
                   })
                 }
@@ -1090,7 +1090,7 @@ export default {
                 [fieldName]: {
                   data: {
                     id: data[fieldName],
-                    type: type
+                    type
                   }
                 }
               }

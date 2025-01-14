@@ -323,6 +323,8 @@
         hidden-input="r_text"
         v-model="values.text" />
 
+      <slot />
+
       <!-- File upload fields -->
       <template v-if="allowFileUpload">
         <dp-label
@@ -374,7 +376,8 @@
         :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
         primary
         secondary
-        @primary-action="submit" />
+        @primary-action="submit"
+        @secondary-action="abort" />
     </form>
   </div>
 </template>
@@ -473,6 +476,7 @@ export default {
       required: false,
       default: () => ({
         authoredDate: '',
+        quickSave: '',
         submittedDate: '',
         tags: [],
         text: '',
@@ -529,6 +533,7 @@ export default {
       values: {
         authoredDate: '',
         memo: '',
+        quickSave: '',
         submittedDate: '',
         tags: [],
         text: '',
@@ -576,8 +581,14 @@ export default {
   },
 
   methods: {
+    abort () {
+      const href = `${Routing.generate('DemosPlan_procedure_import', { procedureId: this.procedureId })}/#import#StatementPdfImport`
+      window.location.replace(href)
+    },
+
     setInitialValues () {
       this.values = { ...this.initValues }
+
       // Set default values to ensure reactivity.
       if (typeof this.values.submitter !== 'undefined' && typeof this.values.submitter.institution === 'undefined') {
         // Since Data sends us the key toeb instead of institution, we need to transform this for now but keep all init values

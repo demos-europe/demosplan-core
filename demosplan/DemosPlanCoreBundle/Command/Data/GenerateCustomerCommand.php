@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
@@ -30,8 +31,12 @@ use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Webmozart\Assert\Assert;
 
 use function in_array;
 use function is_string;
@@ -40,6 +45,9 @@ class GenerateCustomerCommand extends CoreCommand
 {
     private const OPTION_NAME = 'name';
     private const OPTION_SUBDOMAIN = 'subdomain';
+    private const MAP_PARAMETERS = 'map-parameters'; // use value 'default' to automatically insert default values
+    private const CHOICE_DEFAULT = 'use default';
+    private const CHOICE_CUSTOMIZE = 'customize';
 
     protected static $defaultName = 'dplan:data:generate-customer';
     protected static $defaultDescription = 'Creates a new customer';
@@ -62,7 +70,8 @@ class GenerateCustomerCommand extends CoreCommand
         ParameterBagInterface $parameterBag,
         private readonly RoleRepository $roleRepository,
         private readonly UserService $userService,
-        ?string $name = null
+        private readonly ValidatorInterface $validator,
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
@@ -86,6 +95,13 @@ class GenerateCustomerCommand extends CoreCommand
             InputOption::VALUE_REQUIRED,
             'The subdomain of the customer to be created. If omitted it will be asked interactively.'
         );
+        $this->addOption(
+            self::MAP_PARAMETERS,
+            'm',
+            InputOption::VALUE_REQUIRED,
+            'The Map parameters of the customer to be created.
+             If omitted or value !== "default" it will be asked interactively.'
+        );
     }
 
     /**
@@ -103,9 +119,16 @@ class GenerateCustomerCommand extends CoreCommand
             $subdomain = $this->askSubdomain($input, $output);
         }
 
+        $mapOption = $input->getOption(self::MAP_PARAMETERS);
+        $mapParams = $this->getMapParams($mapOption, $input, $output);
+
         try {
             // create customer
             $customer = $this->customerService->createCustomer($name, $subdomain);
+            $customer->setBaseLayerUrl($mapParams[0]);
+            $customer->setBaseLayerLayers($mapParams[1]);
+            $customer->setMapAttribution($mapParams[2]);
+
             $this->registerDefaultUsers($customer);
             $this->entityManager->flush();
 
@@ -186,5 +209,120 @@ class GenerateCustomerCommand extends CoreCommand
             );
             $this->userService->updateUserObject($user);
         }
+    }
+
+    private function getMapParams(?string $mapParams, InputInterface $input, OutputInterface $output): array
+    {
+        if ('default' === $mapParams) {
+            return [
+                CustomerInterface::DEFAULT_BASE_LAYER_URL,
+                CustomerInterface::DEFAULT_BASE_LAYER_LAYERS,
+                CustomerInterface::DEFAULT_MAP_ATTRIBUTION,
+            ];
+        }
+
+        $mapUrl = $this->askMapUrl($input, $output);
+        $mapLayers = $this->askMapLayers($input, $output);
+        $mapAttribution = $this->askMapAttribution($input, $output);
+
+        return [$mapUrl, $mapLayers, $mapAttribution];
+    }
+
+    private function askMapUrl(InputInterface $input, OutputInterface $output): string
+    {
+        $questionMapUrl = new ChoiceQuestion(
+            "Please enter the Base Layer URL of the customer\nDefaults to:\n".CustomerInterface::DEFAULT_BASE_LAYER_URL,
+            [self::CHOICE_CUSTOMIZE, self::CHOICE_DEFAULT],
+            self::CHOICE_DEFAULT
+        );
+        $mapUrl = $this->helper->ask($input, $output, $questionMapUrl);
+        if (self::CHOICE_DEFAULT === $mapUrl) {
+            $mapUrl = CustomerInterface::DEFAULT_BASE_LAYER_URL;
+        }
+        if (self::CHOICE_CUSTOMIZE === $mapUrl) {
+            $questionMapUrl = new Question(
+                "Please enter the Base Layer URL of the customer\n",
+                ''
+            );
+            $questionMapUrl->setValidator($this->assertMapUrl(...));
+            $mapUrl = $this->helper->ask($input, $output, $questionMapUrl);
+        }
+
+        return $mapUrl;
+    }
+
+    private function askMapLayers(InputInterface $input, OutputInterface $output): string
+    {
+        $questionMapLayers = new ChoiceQuestion(
+            "Please enter the Base Layers of the customer\n Defaults to: ".CustomerInterface::DEFAULT_BASE_LAYER_LAYERS,
+            [self::CHOICE_CUSTOMIZE, self::CHOICE_DEFAULT],
+            self::CHOICE_DEFAULT
+        );
+        $mapLayers = $this->helper->ask($input, $output, $questionMapLayers);
+        if (self::CHOICE_DEFAULT === $mapLayers) {
+            $mapLayers = CustomerInterface::DEFAULT_BASE_LAYER_LAYERS;
+        }
+        if (self::CHOICE_CUSTOMIZE === $mapLayers) {
+            $questionMapLayers = new Question(
+                "Please enter the Base Layers of the customer\n",
+                ''
+            );
+            $questionMapLayers->setValidator($this->assertIsString(...));
+            $mapLayers = $this->helper->ask($input, $output, $questionMapLayers);
+        }
+
+        return $mapLayers;
+    }
+
+    private function askMapAttribution(InputInterface $input, OutputInterface $output): string
+    {
+        $questionMapAttribution = new ChoiceQuestion(
+            "Please enter the map attribution of the customer\nDefaults to: ".CustomerInterface::DEFAULT_MAP_ATTRIBUTION,
+            [self::CHOICE_CUSTOMIZE, self::CHOICE_DEFAULT],
+            self::CHOICE_DEFAULT
+        );
+        $mapAttribution = $this->helper->ask($input, $output, $questionMapAttribution);
+        if (self::CHOICE_DEFAULT === $mapAttribution) {
+            $mapAttribution = CustomerInterface::DEFAULT_MAP_ATTRIBUTION;
+        }
+        if (self::CHOICE_CUSTOMIZE === $mapAttribution) {
+            $questionMapAttribution = new Question(
+                "Please enter the map attribution of the customer\n",
+                ''
+            );
+            $questionMapAttribution->setValidator($this->assertIsString(...));
+            $mapAttribution = $this->helper->ask($input, $output, $questionMapAttribution);
+        }
+
+        return $mapAttribution;
+    }
+
+    private function assertMapUrl(mixed $mapUrl): string
+    {
+        if (!is_string($mapUrl)) {
+            throw new InvalidArgumentException('Customer Base Layer URL must be a string.');
+        }
+        if ('' === $mapUrl) {
+            return $mapUrl;
+        }
+
+        $constraint = new Url();
+        $violations = $this->validator->validate($mapUrl, $constraint);
+        if (0 < count($violations)) {
+            $violationMessage = '';
+            foreach ($violations as $violation) {
+                $violationMessage .= $violation->getMessage()."\n";
+            }
+            throw new InvalidArgumentException($violationMessage);
+        }
+
+        return $mapUrl;
+    }
+
+    private function assertIsString(mixed $value): string
+    {
+        Assert::string($value, 'the value should be a string');
+
+        return $value;
     }
 }

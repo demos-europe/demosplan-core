@@ -84,7 +84,7 @@ class MapService extends CoreService
         private readonly MapRepository $mapRepository,
         MapScreenshotter $mapScreenshotter,
         private readonly MasterTemplateService $masterTemplateService,
-        private readonly StatementService $statementService
+        private readonly StatementService $statementService,
     ) {
         $this->fileService = $fileService;
         $this->httpCall = $httpCall;
@@ -420,7 +420,7 @@ class MapService extends CoreService
 
             $hash = '';
             try {
-                $hash = $this->fileService->saveTemporaryFile(
+                $hash = $this->fileService->saveTemporaryLocalFile(
                     $file,
                     $fileName,
                     null,
@@ -442,11 +442,6 @@ class MapService extends CoreService
                 $this->getServiceDraftStatement()->updateDraftStatement($update, true, false);
             } else {
                 $this->statementService->updateStatement($update, true, true, true);
-            }
-
-            // Lösche die Datei falls vorhanden
-            if (file_exists($file)) {
-                @unlink($file);
             }
 
             return $fileName.':'.$hash;
@@ -717,9 +712,9 @@ class MapService extends CoreService
      *
      * @throws Exception
      */
-    public function getVisibilityGroup($visibilityGroupId)
+    public function getVisibilityGroup($visibilityGroupId, $procedureId)
     {
-        return $this->mapRepository->getByVisibilityGroupId($visibilityGroupId);
+        return $this->mapRepository->getByVisibilityGroupId($visibilityGroupId, $procedureId);
     }
 
     /**
@@ -727,7 +722,7 @@ class MapService extends CoreService
      *
      * @throws Exception
      */
-    public function getMapOptions(string $procedureId = null): MapOptions
+    public function getMapOptions(?string $procedureId = null): MapOptions
     {
         $procedureId ??= $this->procedureService->calculateCopyMasterId(null);
 

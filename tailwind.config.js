@@ -15,7 +15,7 @@ const config = {
     './addons/vendor/demos-europe/demosplan-addon-*/client/**/*.{js,vue}'
   ],
   corePlugins: {
-    preflight: false,
+    preflight: false
   },
   important: false
 }
