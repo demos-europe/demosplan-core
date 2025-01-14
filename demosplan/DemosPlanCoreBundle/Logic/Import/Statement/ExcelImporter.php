@@ -640,8 +640,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     private function getMatchingTag(string $tagTitle, string $procedureId): ?Tag
     {
         $titleCondition = $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue(trim($tagTitle), $this->tagResourceType->title),
-            $this->conditionFactory->propertyHasValue($procedureId, $this->tagResourceType->topic->procedure->id),
+            $this->conditionFactory->propertyHasValue(trim($tagTitle), ['title']),
+            $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
         );
 
         $matchingTags = $this->tagResourceType->listPrefilteredEntities($this->generatedTags, [$titleCondition]);
