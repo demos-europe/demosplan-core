@@ -49,7 +49,6 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         $this->street = $userInformation[self::COMPANY_STREET_ADDRESS] ?? '';
         $this->postalCode = $userInformation[self::COMPANY_STREET_POSTAL_CODE] ?? '';
 
-
         $this->lock();
         $this->checkMandatoryValuesExist();
     }
