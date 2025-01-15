@@ -196,8 +196,8 @@ class OzgKeycloakUserDataMapper
             $existingOrga->setStreet($this->ozgKeycloakUserData->getStreet());
             $existingOrga->setHouseNumber($this->ozgKeycloakUserData->getHouseNumber());
 
-            //@todo check where to store the address extension
-            //$existingOrga->setAddressExtension($this->ozgKeycloakUserData->getAddressExtension());
+            // @todo check where to store the address extension
+            // $existingOrga->setAddressExtension($this->ozgKeycloakUserData->getAddressExtension());
             $existingOrga->setPostalcode($this->ozgKeycloakUserData->getPostalCode());
             $existingOrga->setCity($this->ozgKeycloakUserData->getCity());
             $existingOrga->setState($this->ozgKeycloakUserData->getCountryCode());

@@ -62,7 +62,6 @@ class CommonUserData extends ValueObject
 
     protected string $countryCode = '';
 
-
     public function __toString(): string
     {
         $customerRoleRelationString = '';
