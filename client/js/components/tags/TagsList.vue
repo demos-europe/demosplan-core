@@ -82,7 +82,10 @@
           <div class="ml-1 flex-0">
             {{ Translator.trans('boilerplates') }}
           </div>
-          <div class="flex-0">
+
+          <addon-wrapper hook-name="tag.extend.form" />
+
+          <div class="ml-1 flex-0">
             {{ Translator.trans('actions') }}
           </div>
         </div>

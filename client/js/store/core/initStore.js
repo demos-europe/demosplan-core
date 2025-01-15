@@ -8,7 +8,7 @@
  */
 
 import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { initJsonApiPlugin, prepareModuleHashMap, StaticRouter } from '@efrane/vuex-json-api'
+import { initJsonApiPlugin, prepareModuleHashMap, Route, StaticRoute, StaticRouter } from '@efrane/vuex-json-api'
 import notify from './Notify'
 import Vue from 'vue'
 import Vuex from 'vuex'
@@ -95,6 +95,13 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
           }),
           store => {
             store.api.checkResponse = checkResponse
+            store.api.newStaticRoute = (route) => {
+              return new StaticRoute(route)
+            }
+            store.api.newRoute = (route) => {
+              return new Route(route)
+            }
+
           }
         ]
       })
