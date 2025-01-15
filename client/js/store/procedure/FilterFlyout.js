@@ -40,6 +40,19 @@ const FilterFlyoutStore = {
       Vue.set(state.groupedOptions, categoryId, groupedOptions)
     },
 
+    setGroupedOptionSelected(state, { categoryId, groupId, optionId, value }) {
+      const groups = state.groupedOptions[categoryId]
+      if (groups) {
+        const group = groups.find(group => group.id === groupId)
+        if (group) {
+          const option = group.options.find(item => item.id === optionId)
+          if (option) {
+            option.selected = value
+          }
+        }
+      }
+    },
+
     /**
      *
      * @param state
@@ -64,6 +77,16 @@ const FilterFlyoutStore = {
       const { categoryId, options } = payload
 
       Vue.set(state.ungroupedOptions, categoryId, options)
+    },
+
+    setUngroupedOptionSelected(state, { categoryId, optionId, value }) {
+      const options = state.ungroupedOptions[categoryId]
+      if (options) {
+        const option = options.find(item => item.id === optionId)
+        if (option) {
+          option.selected = value
+        }
+      }
     }
   },
 

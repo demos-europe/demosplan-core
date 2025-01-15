@@ -114,7 +114,7 @@
             show-count />
         </ul>
 
-        <span v-if="groups.length === 0 && ungroupedOptions?.length === 0">
+        <span v-if="groupedOptions.length === 0 && ungroupedOptions?.length === 0">
           {{ Translator.trans('search.results.none') }}
         </span>
       </div>
@@ -137,12 +137,12 @@
         class="o-list u-p-0_5 u-pt-0 line-height--1_6">
         <filter-flyout-checkbox
           v-for="item in itemsSelected"
-          @change="updateQuery"
-          :checked="true"
+          :key="`itemsSelected_${item.id}}`"
+          checked
           :highlight="appliedQuery.includes(item.id) === false"
-          :option="item"
           instance="itemsSelected"
-          :key="`itemsSelected_${item.id}}`" />
+          :option="item"
+          @change="updateQuery"/>
       </ul>
       <div class="flow-root u-p-0_5 u-pt-0">
         <dp-button
@@ -201,29 +201,11 @@ export default {
       }
     },
 
-    /**
-     * Object of objects: ids as keys, json api objects as values
-     */
-    groupsObject: {
-      type: Object,
-      required: false,
-      default: () => ({})
-    },
-
     // Contains applied filters from this and the neighboring filterFlyouts
     initialQuery: {
       type: Array,
       required: false,
       default: () => ([])
-    },
-
-    /**
-     * Object of objects: ids as keys, json api objects as values
-     */
-    itemsObject: {
-      type: Object,
-      required: false,
-      default: () => ({})
     },
 
     operator: {
@@ -316,29 +298,15 @@ export default {
     },
 
     /**
-     * {Array of Objects} filterItems
-     * {
-     *   attributes: { count: <number>, label: <String>, selected: <Boolean> },
-     *   id: <String>,
-     *   type: <String>
-     * }
-     */
-    items () {
-      return dataTableSearch(this.searchTerm, Object.values(this.itemsObject), ['attributes.label'])
-    },
-
-    /**
      * {Array of Objects} selected filterItems, same structure as items
      */
     itemsSelected () {
-      const items = Object.values(this.itemsObject)
-      return items.filter((item) => item.attributes.selected)
-    },
-
-    // Contains only groups that contain at least 1 item
-    groups () {
-      const groups = Object.values(this.groupsObject)
-      return groups.filter(group => this.getItemsByGroup(group).length)
+      // const items = Object.values(this.itemsObject)
+      const items = [
+        ...this.ungroupedOptions,
+        ...this.groupedOptions.flatMap(group => group.options)
+      ]
+      return items.filter((item) => item.selected)
     },
 
     ungroupedOptions () {
@@ -350,7 +318,9 @@ export default {
     ...mapMutations('SegmentFilter', ['updateFilterQuery']),
 
     ...mapMutations('FilterFlyout', {
-      setIsLoading: 'setIsLoadingByCategoryId'
+      setGroupedSelected: 'setGroupedOptionSelected',
+      setIsLoading: 'setIsLoadingByCategoryId',
+      setUngroupedSelected: 'setUngroupedOptionSelected'
     }),
 
     /**
@@ -368,19 +338,6 @@ export default {
     close () {
       this.handleClose()
       this.$refs.flyout.close()
-    },
-
-    getItemsByGroup (group) {
-      if (hasOwnProp(group.relationships, 'aggregationFilterItems')) {
-        const currentItemIds = this.items.map(item => item.id)
-
-        return Object.values(group.relationships.aggregationFilterItems.data)
-          .filter(item => currentItemIds.includes(item.id))
-          .map(item => this.itemsObject[item.id])
-      } else {
-        // Return if the itemTopic has no items associated with it (for whatever reason)
-        return []
-      }
     },
 
     getUngroupedItems () {
@@ -414,72 +371,11 @@ export default {
     },
 
     requestFilterOptions () {
-      // const params = {
-      //   ...this.additionalQueryParams,
-      //   filter: {
-      //     ...this.getFilterQuery
-      //   },
-      //   path: this.path
-      // }
-
       this.$emit('filterOptions:request', {
         additionalQueryParams: this.additionalQueryParams,
         filter: this.getFilterQuery,
         path: this.path
       })
-
-      // if (this.procedureId) {
-      //   params.filter.sameProcedure = {
-      //     condition: {
-      //       path: 'parentStatement.procedure.id',
-      //       value: this.procedureId
-      //     }
-      //   }
-      // }
-
-      // We have to set the searchPhrase to null if its empty to satisfy the backend
-      // if (params.searchPhrase === '') {
-      //   params.searchPhrase = null
-      // }
-
-      // return dpRpc('segments.facets.list', params, 'filterList')
-      //   .then(response => checkResponse(response))
-      //   .then(response => {
-      //     const result = (hasOwnProp(response, 0) && response[0].id === 'filterList') ? response[0].result : null
-      //     const currentFilterType = result.data.find(type => type.attributes.path === this.path)
-      //     if (currentFilterType && hasOwnProp(result, 'included')) {
-      //       result.included.forEach(el => {
-      //         if (el.type === 'AggregationFilterGroup' && typeof currentFilterType.relationships.aggregationFilterGroups.data.find(group => group.id === el.id) !== 'undefined') {
-      //           this.$set(this.groupsObject, el.id, el)
-      //           if (hasOwnProp(el.relationships, 'aggregationFilterItems') && el.relationships.aggregationFilterItems.data.length > 0) {
-      //             el.relationships.aggregationFilterItems.data.forEach(item => {
-      //               const filterItem = result.included.find(filterItem => filterItem.id === item.id)
-      //               this.$set(this.itemsObject, filterItem.id, filterItem)
-      //             })
-      //           }
-      //         } else if (el.type === 'AggregationFilterItem' && typeof currentFilterType.relationships.aggregationFilterItems.data.find(item => item.id === el.id) !== 'undefined') {
-      //           el.ungrouped = true
-      //           this.$set(this.itemsObject, el.id, el)
-      //         }
-      //       })
-      //
-      //       // If the current filter is assignee, display amount of Segments that have assignee as null. That is given by the field missingResourcesSum
-      //       if (result.data[0].attributes.path === 'assignee') {
-      //         this.$set(this.itemsObject, 'unassigned', {
-      //           attributes: {
-      //             count: result.data[0].attributes.missingResourcesSum,
-      //             label: Translator.trans('not.assigned'),
-      //             ungrouped: true,
-      //             selected: result.meta.unassigned_selected
-      //           },
-      //           id: 'unassigned',
-      //           type: 'AggregationFilterItem',
-      //           ungrouped: true
-      //         })
-      //       }
-      //     }
-      //   })
-      //   .catch(err => console.log(err))
     },
 
     reset () {
@@ -540,7 +436,18 @@ export default {
         this.currentQuery.splice(this.currentQuery.indexOf(option.id), 1)
       }
 
-      this.itemsObject[option.id].attributes.selected = value
+      // Update ungroupedOptions
+      if (option.ungrouped) {
+        this.setUngroupedSelected({ categoryId: this.category.id, optionId: option.id, value })
+      } else {
+        // Update groupedOptions
+        const group = this.groupedOptions.find(group => group.options.some(item => item.id === option.id));
+        if (group) {
+          this.setGroupedSelected({ categoryId: this.category.id, groupId: group.id, optionId: option.id, value });
+        }
+      }
+
+
       return this.requestFilterOptions()
     }
   },
