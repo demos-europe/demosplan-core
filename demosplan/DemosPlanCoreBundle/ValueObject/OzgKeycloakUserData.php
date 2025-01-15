@@ -21,10 +21,9 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const COMPANY_STREET_ADDRESS = 'UnternehmensanschritftStrasse';
     private const COMPANY_STREET_POSTAL_CODE = 'UnternehmensanschritftPLZ';
 
-
     public function __construct(
         private readonly LoggerInterface $logger,
-        ParameterBagInterface $parameterBag
+        ParameterBagInterface $parameterBag,
     ) {
         $this->keycloakGroupRoleString = $parameterBag->get('keycloak_group_role_string');
     }
