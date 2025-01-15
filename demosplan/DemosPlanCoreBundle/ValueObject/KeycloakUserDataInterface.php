@@ -23,6 +23,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  * @method string getOrganisationName()
  * @method string getOrganisationId()
  * @method string getStreet()
+ * @method string getPostalCode()
  * @method string getFirstName()
  * @method string getLastName()
  */

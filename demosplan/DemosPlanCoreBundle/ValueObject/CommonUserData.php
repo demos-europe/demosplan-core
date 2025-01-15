@@ -53,9 +53,10 @@ class CommonUserData extends ValueObject
      */
     protected string $userId = '';
 
+    protected string $street = '';
+
     protected string $postalCode = '';
 
-    protected string $street = '';
 
     public function __toString(): string
     {

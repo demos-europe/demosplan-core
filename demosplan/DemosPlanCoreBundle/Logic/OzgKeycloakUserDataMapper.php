@@ -194,6 +194,7 @@ class OzgKeycloakUserDataMapper
         if (User::ANONYMOUS_USER_ORGA_NAME !== $this->ozgKeycloakUserData->getOrganisationName()) {
             $existingOrga->setName($this->ozgKeycloakUserData->getOrganisationName());
             $existingOrga->setStreet($this->ozgKeycloakUserData->getStreet());
+            $existingOrga->setPostalcode($this->ozgKeycloakUserData->getPostalCode());
         }
         // what OrgaTypes are needed to be set and accepted regarding the requested Roles?
         $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupRequestedRoles($requstedRoles);
