@@ -6,15 +6,17 @@
 
 ## UNRELEASED
 
-### Added
+### Features
 - Institution tag management: Add search field to institution list
 
 ## 2.20.0
 
-### Added
+### Features
 - Admin institution list: Institutions can now be tagged filtered by categories
 
-### Fixed
+### Fixes
 - Several bug fixes
+
+### Further changes
 - Addons can now be installed automatically, when listed in the `addons.yml` file
 - Several major dependencies have been updated
