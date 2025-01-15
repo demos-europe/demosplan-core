@@ -25,7 +25,7 @@
             <template v-slot:trigger>
               <dp-icon
                 :class="{ 'color-message-severe-fill': selectedFields.length > 0 }"
-                icon="settings-regular" />
+                icon="settings" />
             </template>
             <!-- Checkboxes to specify in which fields to search -->
             <div class="space-stack-s space-inset-s w-14">
