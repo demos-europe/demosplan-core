@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\TagResourceTypeInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseTagResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
@@ -20,12 +21,15 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
+use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
+use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use InvalidArgumentException;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
@@ -38,6 +42,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
     public function __construct(
         private readonly TagService $tagService,
         private readonly TagRepository $tagRepository,
+        private readonly TagTopicRepository $tagTopicRepository,
         private readonly StatementHandler $statementHandler,
     ) {
     }
@@ -96,7 +101,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
         $configBuilder = $this->getConfig(BaseTagResourceConfigBuilder::class);
         $configBuilder->id->setReadableByPath()->setSortable()->setFilterable();
         $configBuilder->title->setReadableByPath(DefaultField::YES)->setSortable()->setFilterable()
-            ->addPathCreationBehavior(OptionalField::NO)
+            ->initializable()
             ->addUpdateBehavior(
                 new CallbackAttributeSetBehaviorFactory(
                     [],
@@ -116,9 +121,28 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                     OptionalField::NO
                 )
             );
+        $configBuilder->addConstructorBehavior(
+            new FixedConstructorBehavior(
+                Paths::tag()->title->getAsNamesInDotNotation(),
+                fn (CreationDataInterface $entityData): array => [
+                    $entityData->getAttributes()['title'],
+                    [Paths::tag()->title->getAsNamesInDotNotation()],
+                ]
+            )
+        );
+
         $configBuilder->topic
             ->setRelationshipType($this->resourceTypeStore->getTagTopicResourceType())
-            ->setReadableByPath()->setSortable()->setFilterable()->addPathCreationBehavior();
+            ->setReadableByPath()->setSortable()->setFilterable()->initializable();
+        $configBuilder->addConstructorBehavior(
+            new FixedConstructorBehavior(
+                Paths::tag()->topic->getAsNamesInDotNotation(),
+                fn (CreationDataInterface $entityData): array => [
+                    $this->tagTopicRepository->find(((array) $entityData->getToOneRelationships())['topic']['id']),
+                    [Paths::tag()->topic->getAsNamesInDotNotation()],
+                ]
+            )
+        );
 
         $configBuilder->addCreationBehavior(
             new FixedSetBehavior(
@@ -129,7 +153,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                     // check Tag
                     $this->checkTitle($entityData->getAttributes()['title'] ?? null);
                     // title must be unique
-                    $tagsOfProcedure = $tag->getTopic()->getProcedure()->getTags();
+                    $tagsOfProcedure = $this->currentProcedureService->getProcedure()?->getTags() ?? new ArrayCollection();
                     $this->checkTitleUnique($entityData->getAttributes()['title'], $tagsOfProcedure);
                     // check TagTopic
                     $tagTopicId = ((array) $entityData->getToOneRelationships())['topic']['id'] ?? null;
@@ -159,11 +183,11 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
 
     private function checkTitleUnique(string $title, Collection $tagsOfProcedure): void
     {
-        if (0 < count(
+        if (1 < count(
                 $tagsOfProcedure->filter(fn (TagInterface $t) => $t->getTitle() === $title))
         ) {
             $this->logger->error(
-                'TagResourceType tried to set non-unique title for tag on update',
+                'TagResourceType tried to set non-unique title for a tag',
                 ['tagName' => $title]
             );
             $this->messageBag->add('error', 'tag.name.unique.error');
@@ -174,7 +198,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
 
     private function checkTopicIdInProcedure(string $topicId, Collection $topicsOfProcedure): void
     {
-        if (0 < count(
+        if (1 < count(
                 $topicsOfProcedure->filter(fn (TagTopic $t) => $t->getId() === $topicId))
         ) {
             $this->logger->error(

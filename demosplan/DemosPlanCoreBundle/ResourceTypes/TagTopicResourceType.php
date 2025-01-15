@@ -103,7 +103,7 @@ final class TagTopicResourceType extends DplanResourceType
 
         $configBuilder->id->setReadableByPath()->setSortable()->setFilterable();
 
-        $configBuilder->title->setReadableByPath(DefaultField::YES)->setSortable()->setFilterable()
+        $configBuilder->title->setReadableByPath(DefaultField::YES)->setSortable()->setFilterable()->initializable()
             ->addUpdateBehavior(
                 new CallbackAttributeSetBehaviorFactory(
                     [],
