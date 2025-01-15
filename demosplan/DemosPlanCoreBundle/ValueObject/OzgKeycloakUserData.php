@@ -18,6 +18,9 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInterface, Stringable
 {
     private readonly string $keycloakGroupRoleString;
+    private const COMPANY_STREET_ADDRESS = 'UnternehmensanschritftStrasse';
+    private const COMPANY_STREET_POSTAL_CODE = 'UnternehmensanschritftPLZ';
+
 
     public function __construct(
         private readonly LoggerInterface $logger,
@@ -43,6 +46,8 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         $this->lastName = $userInformation['family_name'] ?? '';
         $this->userName = $userInformation['preferred_username'] ?? ''; // kind of "login" //has to be unique?
         $this->emailAddress = $userInformation['email'] ?? '';
+        $this->postalCode = $userInformation[self::COMPANY_STREET_POSTAL_CODE] ?? '';
+        $this->street = $userInformation[self::COMPANY_STREET_ADDRESS] ?? '';
 
         $this->lock();
         $this->checkMandatoryValuesExist();
