@@ -94,7 +94,7 @@
             :checked="isChecked(option.id)"
             instance="ungrouped"
             :option="option"
-            show-count
+            :show-count="showCount.ungroupedOptions"
             @change="updateQuery" />
         </ul>
         <ul
@@ -111,7 +111,7 @@
             :option="option"
             :instance="group.id"
             :key="option.id"
-            show-count />
+            :show-count="showCount.groupedOptions" />
         </ul>
 
         <span v-if="groupedOptions.length === 0 && ungroupedOptions?.length === 0">
@@ -216,6 +216,21 @@ export default {
     path: {
       type: String,
       required: true
+    },
+
+    /**
+     * Define if count should be displayed behind each filter option
+     */
+    showCount: {
+      type: Object,
+      required: false,
+      default: () => ({
+        groupedOptions: false,
+        ungroupedOptions: false
+      }),
+      validator: prop => {
+        return Object.keys(prop).length === 2 && hasOwnProp(prop, 'groupedOptions') && hasOwnProp(prop, 'ungroupedOptions')
+      }
     }
   },
 

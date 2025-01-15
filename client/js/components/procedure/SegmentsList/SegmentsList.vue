@@ -42,7 +42,10 @@
             :key="`filter_${filter.labelTranslationKey}`"
             :operator="filter.comparisonOperator"
             :path="filter.rootPath"
-            show-count
+            :show-count="{
+              groupedOptions: true,
+              ungroupedOptions: true
+            }"
             @filter-apply="sendFilterQuery"
             @filterOptions:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})"/>
         </div>
