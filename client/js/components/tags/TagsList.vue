@@ -37,7 +37,7 @@
 
     <dp-modal
       content-classes="w-2/3"
-      ref="createTopicModal"
+      ref="createTagTopicModal"
       aria-label="Create Topic"
       aria-modal>
       <template v-slot:header>
@@ -63,7 +63,7 @@
       <dp-button
         class="ml-1"
         :text="Translator.trans('category.create')"
-        @click="() => toggleCreateModal({ type: 'Topic' })" />
+        @click="() => toggleCreateModal({ type: 'TagTopic' })" />
     </div>
 
     <dp-tree-list
@@ -326,16 +326,23 @@ export default {
         }
       }).then(response => {
         console.log(response, 'response new tag')
+        if (!response.data.Tag || !this.TagTopic[this.newTag.topic]) {
+          return
+        }
+
+        const parentTopic = this.TagTopic[this.newTag.topic]
 
         this.updateTagTopic({
           id: this.newTag.topic,
           type: 'TagTopic',
+          attributes: parentTopic.attributes,
           relationships: {
+            ...parentTopic.relationships,
             tags: {
-              data: {
+              data: parentTopic.relationships.tags.data.concat({
                 type: 'Tag',
-                id: this.Tag[this.Tag.length - 1].id
-              }
+                id: Object.keys(response.data.Tag)[0]
+              })
             }
           }
         })
