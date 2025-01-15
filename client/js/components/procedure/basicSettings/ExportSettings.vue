@@ -14,6 +14,7 @@
     </p>
     <dp-inline-notification
       v-if="singleCheckedFieldId"
+      class="mt-3 mb-2"
       :message="Translator.trans('field.selectionRequired')"
       type="warning" />
     <dp-checkbox

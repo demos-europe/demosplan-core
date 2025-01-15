@@ -9,6 +9,10 @@
 ### Features
 - Institution tag management: Add search field to institution list
 
+### Further changes
+
+- DpInlineNotification: Set margin from outside the component (instead of inside)
+
 ## 2.20.0
 
 ### Features

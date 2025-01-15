@@ -43,7 +43,7 @@
         <dp-inline-notification
           v-if="tagCategoriesWithTags.length === 0"
           type="info"
-          class="u-mt-1_5 u-mb"
+          class="u-mt-1_5 mb-4"
           :message="Translator.trans('explanation.noentries')" />
 
         <dp-tree-list
