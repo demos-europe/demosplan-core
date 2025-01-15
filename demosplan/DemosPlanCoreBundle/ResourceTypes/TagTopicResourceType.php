@@ -120,7 +120,7 @@ final class TagTopicResourceType extends DplanResourceType
                     },
                     OptionalField::NO
                 )
-            )->initializable();
+            );
         $configBuilder->addConstructorBehavior(
             new FixedConstructorBehavior(
                 Paths::tagTopic()->title->getAsNamesInDotNotation(),
