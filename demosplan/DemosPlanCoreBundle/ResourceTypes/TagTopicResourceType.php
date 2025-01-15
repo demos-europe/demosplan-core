@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseTagTopicResourceConfigBuilder;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -23,8 +24,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
+use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
+use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
 use Exception;
@@ -101,7 +104,6 @@ final class TagTopicResourceType extends DplanResourceType
         $configBuilder->id->setReadableByPath()->setSortable()->setFilterable();
 
         $configBuilder->title->setReadableByPath(DefaultField::YES)->setSortable()->setFilterable()
-            ->addPathCreationBehavior(OptionalField::NO)
             ->addUpdateBehavior(
                 new CallbackAttributeSetBehaviorFactory(
                     [],
@@ -118,11 +120,29 @@ final class TagTopicResourceType extends DplanResourceType
                     },
                     OptionalField::NO
                 )
-            );
+            )->initializable();
+        $configBuilder->addConstructorBehavior(
+            new FixedConstructorBehavior(
+                Paths::tagTopic()->title->getAsNamesInDotNotation(),
+                fn (CreationDataInterface $entityData): array => [
+                    $entityData->getAttributes()['title'],
+                    [Paths::tagTopic()->title->getAsNamesInDotNotation()],
+                ]
+            )
+        );
 
         $configBuilder->procedure
             ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
-            ->setReadableByPath()->setSortable()->setFilterable()->addPathCreationBehavior();
+            ->setReadableByPath()->setSortable()->setFilterable()->initializable();
+        $configBuilder->addConstructorBehavior(
+            new FixedConstructorBehavior(
+                Paths::tagTopic()->procedure->getAsNamesInDotNotation(),
+                fn (CreationDataInterface $entityData): array => [
+                    $this->currentProcedureService->getProcedureWithCertainty(),
+                    [Paths::tagTopic()->procedure->getAsNamesInDotNotation()],
+                ]
+            )
+        );
 
         $configBuilder->tags
             ->setRelationshipType($this->resourceTypeStore->getTagResourceType())

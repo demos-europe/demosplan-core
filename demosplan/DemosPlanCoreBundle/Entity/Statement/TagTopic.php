@@ -55,7 +55,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
      *
      * @ORM\Column(name="_tt_title", type="string", length=255,  nullable=false)
      */
-    protected $title = '';
+    protected string $title = '';
 
     /**
      * @var DateTime
@@ -64,7 +64,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
      *
      * @Gedmo\Timestampable(on="create")
      */
-    protected $createDate;
+    protected DateTime $createDate;
 
     /**
      * @var ProcedureInterface
@@ -73,7 +73,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
      *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable = false, onDelete="CASCADE")
      */
-    protected $procedure;
+    protected ProcedureInterface $procedure;
 
     /**
      * @var Collection<int, TagInterface>
@@ -82,7 +82,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
      *
      * @ORM\OrderBy({"title" = "ASC"})
      */
-    protected $tags;
+    protected Collection $tags;
 
     /**
      * * Necessary to set Type of $this->tags.
@@ -90,11 +90,11 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
      * @param string             $title
      * @param ProcedureInterface $procedure
      */
-    public function __construct($title, $procedure)
+    public function __construct(string $title = '', ProcedureInterface $procedure)
     {
         $this->tags = new ArrayCollection();
-        $this->setTitle($title);
-        $this->setProcedure($procedure);
+        $this->title = $title;
+        $this->procedure = $procedure;
     }
 
     /**
