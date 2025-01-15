@@ -126,6 +126,7 @@ import {
   DpIcon,
   DpInput,
   DpModal,
+  dpRpc,
   DpSelect,
   DpTreeList,
   DpUpload,
@@ -263,8 +264,11 @@ export default {
       }
     },
 
-    deleteItem (id) {
-      this.deleteTag(id)
+    deleteItem ({ id }) {
+      dpRpc('bulk.delete.tags.and.topics', { ids: [id] })
+        .then(response => {
+          console.log(response, 'response delete')
+        })
     },
 
     loadTagsAndTopics () {
