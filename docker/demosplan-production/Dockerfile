@@ -1,5 +1,5 @@
 # due to BSI SYS.1.6.A6 we need to use excplicit versions
-FROM debian:testing-20241111-slim AS fpm
+FROM debian:stable-20250113-slim AS fpm
 
 ARG PROJECT_NAME
 # ENV vars needs to be set to build the assets
