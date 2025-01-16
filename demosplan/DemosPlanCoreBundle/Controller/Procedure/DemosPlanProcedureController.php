@@ -1651,7 +1651,7 @@ class DemosPlanProcedureController extends BaseController
         try {
             $this->canAccessProcedure();
         } catch (AccessDeniedException $e) {
-            $this->logger->error('This user '. $currentUser->getUser()->getId() . ' should not access procedure ' . $procedureId , [$e]);
+            $this->logger->error('This user '.$currentUser->getUser()->getId().' should not access procedure '.$procedureId, [$e]);
 
             return $this->redirectToRoute('core_home');
         }
