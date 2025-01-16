@@ -87,7 +87,6 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             errorCallbacks: [
               async (err) => {
                 const response = await err.json()
-                console.log('error Callback', err, response)
 
                 const meta = response.data?.meta
                   ? response.data.meta
