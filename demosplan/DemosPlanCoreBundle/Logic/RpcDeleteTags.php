@@ -14,18 +14,21 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\DeleteTagEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcErrorGeneratorInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
+use demosplan\DemosPlanCoreBundle\Event\Tag\DeleteTagEvent;
+use Doctrine\ORM\EntityManager;
+use Exception;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Webmozart\Assert\Assert;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\TagInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\TagNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
-use Doctrine\ORM\EntityManager;
-use Exception;
-use Psr\Log\LoggerInterface;
 use stdClass;
-use Webmozart\Assert\Assert;
 
 class RpcDeleteTags implements RpcMethodSolverInterface
 {
@@ -41,6 +44,7 @@ class RpcDeleteTags implements RpcMethodSolverInterface
         private readonly StatementHandler           $statementHandler,
         private readonly TransactionService         $transactionService,
         private readonly CurrentUserInterface       $currentUser,
+        private readonly EventDispatcherInterface   $eventDispatcher
     ) {
     }
 
@@ -82,6 +86,7 @@ class RpcDeleteTags implements RpcMethodSolverInterface
             try {
                 /** @var array<int, array{itemType: string, id: string}> $items */
                 $items = $rpcRequest->params->items;
+
                 foreach ($items as $item) {
                     $itemType = $item->type;
                     $itemId = $item->id;
@@ -97,8 +102,17 @@ class RpcDeleteTags implements RpcMethodSolverInterface
                                 "$itemType with id: $itemId is in use and can not be deleted"
                             );
                         }
-                        if (false === $this->statementHandler->deleteTag($itemId)) {
-                            throw new TagNotFoundException("Tag with id: $itemId not deleted - was not found");
+
+                        $event = $this->eventDispatcher->dispatch(
+                            new DeleteTagEvent($itemId),
+                            DeleteTagEventInterface::class
+                        );
+
+                        $handledSuccessfully = $event->hasBeenHandledSuccessfully();
+                        if ($handledSuccessfully) {
+                            if (false === $this->statementHandler->deleteTag($itemId)) {
+                                throw new TagNotFoundException("Tag with id: $itemId not deleted - was not found");
+                            }
                         }
                     }
                     if (self::TAG_TOPIC_TYPE === $itemType) {
