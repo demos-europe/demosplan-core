@@ -25,6 +25,12 @@ class AddonInfo
 
     public function isEnabled(): bool
     {
+        //when the permissionInitializer of the addon has a method isEnabled, call it
+        if (method_exists($this->permissionInitializer, 'isEnabled')) {
+
+            return $this->permissionInitializer->isEnabled();
+        }
+
         return $this->config['enabled'];
     }
 
