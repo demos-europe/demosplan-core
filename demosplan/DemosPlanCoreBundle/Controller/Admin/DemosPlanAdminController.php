@@ -42,11 +42,6 @@ class DemosPlanAdminController extends BaseController
     /**
      * Generiert die HTML Seite für die Statistik.
      *
-     * @param string $part
-     * @param string $format
-     *
-     * @return Response
-     *
      * @throws Exception
      */
     #[AttributeDplanPermissions('area_statistics')]
@@ -60,8 +55,8 @@ class DemosPlanAdminController extends BaseController
         ProcedureService $procedureService,
         StatementService $statementService,
         UserService $userService,
-        $part,
-        $format
+        string $part,
+        string $format
     ): ?Response {
         $templateVars = [];
 
