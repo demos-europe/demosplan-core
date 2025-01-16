@@ -31,6 +31,7 @@ use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use Exception;
 use InvalidArgumentException;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 
@@ -114,12 +115,21 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                         TagInterface $tag,
                         ?string $title
                     ): array {
-                        $this->checkTitle($title);
-                        // title must be unique
-                        $tagsOfProcedure =
-                            $this->currentProcedureService->getProcedure()?->getTags() ?? new ArrayCollection();
-                        $this->checkTitleUnique($title, $tagsOfProcedure);
-                        $tag->setTitle($title);
+                        try {
+                            $this->checkTitle($title);
+                            // title must be unique
+                            $tagsOfProcedure =
+                                $this->currentProcedureService->getProcedure()?->getTags() ?? new ArrayCollection();
+                            $this->checkTitleUnique($title, $tagsOfProcedure);
+                            $tag->setTitle($title);
+                        } catch (InvalidArgumentException $e) {
+                            throw $e;
+                        } catch (Exception $e) {
+                            $this->messageBag->add('error', 'warning.tag.renamed');
+                            $this->logError($e);
+                            throw $e;
+                        }
+                        $this->messageBag->add('success', 'confirm.tag.renamed');
 
                         return [];
                     },
@@ -155,18 +165,27 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                     Tag $tag,
                     EntityDataInterface $entityData
                 ): array {
-                    // check Tag
-                    $this->checkTitle($entityData->getAttributes()['title'] ?? null);
-                    // title must be unique
-                    $tagsOfProcedure = $this->currentProcedureService->getProcedure()?->getTags() ?? new ArrayCollection();
-                    $this->checkTitleUnique($entityData->getAttributes()['title'], $tagsOfProcedure);
-                    // check TagTopic
-                    $tagTopicId = ((array) $entityData->getToOneRelationships())['topic']['id'] ?? null;
-                    $existingTopicsOfProcedrue =
-                        $this->currentProcedureService->getProcedure()?->getTopics() ?? new ArrayCollection();
-                    $this->checkTopicIdInProcedure($tagTopicId, $existingTopicsOfProcedrue);
+                    try {
+                        // check Tag
+                        $this->checkTitle($entityData->getAttributes()['title'] ?? null);
+                        // title must be unique
+                        $tagsOfProcedure = $this->currentProcedureService->getProcedure()?->getTags() ?? new ArrayCollection();
+                        $this->checkTitleUnique($entityData->getAttributes()['title'], $tagsOfProcedure);
+                        // check TagTopic
+                        $tagTopicId = ((array) $entityData->getToOneRelationships())['topic']['id'] ?? null;
+                        $existingTopicsOfProcedrue =
+                            $this->currentProcedureService->getProcedure()?->getTopics() ?? new ArrayCollection();
+                        $this->checkTopicIdInProcedure($tagTopicId, $existingTopicsOfProcedrue);
 
-                    $this->tagRepository->persistEntities([$tag]);
+                        $this->tagRepository->persistEntities([$tag]);
+                    } catch (InvalidArgumentException $e) {
+                        throw $e;
+                    } catch (Exception $e) {
+                        $this->logError($e);
+                        $this->messageBag->add('error', 'error.tag.add');
+                        throw $e;
+                    }
+                    $this->messageBag->add('success', 'confirm.tag.created');
 
                     return [];
                 }
@@ -214,5 +233,17 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
 
             throw new InvalidArgumentException('TagTopic title must be unique');
         }
+    }
+
+    private function logError(Exception $e): void
+    {
+        $this->logger->error(
+            'Error handling Tag via TagResourceType',
+            [
+                'ExceptionMessage:' => $e->getMessage(),
+                'Exception:' => $e::class,
+                'ExceptionTrace:' => $e->getTraceAsString(),
+            ]
+        );
     }
 }
