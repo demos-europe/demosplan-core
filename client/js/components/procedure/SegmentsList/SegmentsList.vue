@@ -697,20 +697,20 @@ export default {
       const requestParams = {
         ...additionalQueryParams,
         filter: {
-          ...filter
-        },
-        path: path,
-        sameProcedure: {
-          condition: {
-            path: 'parentStatement.procedure.id',
-            value: this.procedureId
+          ...filter,
+          sameProcedure: {
+            condition: {
+              path: 'parentStatement.procedure.id',
+              value: this.procedureId
+            }
           }
-        }
+        },
+        path: path
       }
 
       // We have to set the searchPhrase to null if its empty to satisfy the backend
-      if (params.searchPhrase === '') {
-        params.searchPhrase = null
+      if (requestParams.searchPhrase === '') {
+        requestParams.searchPhrase = null
       }
 
       dpRpc('segments.facets.list', requestParams, 'filterList')
