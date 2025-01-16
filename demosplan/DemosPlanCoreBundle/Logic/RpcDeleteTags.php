@@ -83,7 +83,7 @@ class RpcDeleteTags implements RpcMethodSolverInterface
                 /** @var array<int, array{itemType: string, id: string}> $items */
                 $items = $rpcRequest->params->items;
                 foreach ($items as $item) {
-                    $itemType = $item->itemType;
+                    $itemType = $item->type;
                     $itemId = $item->id;
                     Assert::stringNotEmpty($itemId, 'itemId is expected to be a string');
                     Assert::inArray(
