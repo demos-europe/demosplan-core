@@ -23,7 +23,6 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschritftHausnummer';
     private const COMPANY_STREET_POSTAL_CODE = 'UnternehmensanschritftPLZ';
     private const COMPANY_CITY_ADDRESS = 'UnternehmensanschritftOrt';
-    private const COMPANY_COUNTRY_CODE = 'UnternehmensanschriftLand';
 
     public function __construct(
         private readonly LoggerInterface $logger,
@@ -55,7 +54,6 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         $this->houseNumber = $userInformation[self::COMPANY_HOUSE_NUMBER] ?? '';
         $this->postalCode = $userInformation[self::COMPANY_STREET_POSTAL_CODE] ?? '';
         $this->city = $userInformation[self::COMPANY_CITY_ADDRESS] ?? '';
-        $this->countryCode = $userInformation[self::COMPANY_COUNTRY_CODE] ?? '';
 
         $this->lock();
         $this->checkMandatoryValuesExist();

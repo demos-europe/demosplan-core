@@ -199,7 +199,6 @@ class OzgKeycloakUserDataMapper
             $existingOrga->setHouseNumber($this->ozgKeycloakUserData->getHouseNumber());
             $existingOrga->setPostalcode($this->ozgKeycloakUserData->getPostalCode());
             $existingOrga->setCity($this->ozgKeycloakUserData->getCity());
-            //$existingOrga->setState($this->ozgKeycloakUserData->getCountryCode());
         }
         // what OrgaTypes are needed to be set and accepted regarding the requested Roles?
         $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupRequestedRoles($requstedRoles);
