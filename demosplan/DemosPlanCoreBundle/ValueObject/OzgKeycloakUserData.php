@@ -19,10 +19,10 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
 {
     private readonly string $keycloakGroupRoleString;
     private const COMPANY_STREET_ADDRESS = 'UnternehmensanschritftStrasse';
+    private const COMPANY_ADDRESS_EXTENSION = 'UnternehmensanschriftAdressergaenzung';
+    private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschritftHausnummer';
     private const COMPANY_STREET_POSTAL_CODE = 'UnternehmensanschritftPLZ';
     private const COMPANY_CITY_ADDRESS = 'UnternehmensanschritftOrt';
-    private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschritftHausnummer';
-    private const COMPANY_ADDRESS_EXTENSION = 'UnternehmensanschriftAdressergaenzung';
     private const COMPANY_COUNTRY_CODE = 'UnternehmensanschriftLand';
 
     public function __construct(

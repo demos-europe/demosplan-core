@@ -193,14 +193,13 @@ class OzgKeycloakUserDataMapper
          */
         if (User::ANONYMOUS_USER_ORGA_NAME !== $this->ozgKeycloakUserData->getOrganisationName()) {
             $existingOrga->setName($this->ozgKeycloakUserData->getOrganisationName());
-            $existingOrga->setStreet($this->ozgKeycloakUserData->getStreet());
-            $existingOrga->setHouseNumber($this->ozgKeycloakUserData->getHouseNumber());
 
-            // @todo check where to store the address extension
-            // $existingOrga->setAddressExtension($this->ozgKeycloakUserData->getAddressExtension());
+            $existingOrga->setStreet($this->ozgKeycloakUserData->getStreet());
+            $existingOrga->setAddressExtension($this->ozgKeycloakUserData->getAddressExtension());
+            $existingOrga->setHouseNumber($this->ozgKeycloakUserData->getHouseNumber());
             $existingOrga->setPostalcode($this->ozgKeycloakUserData->getPostalCode());
             $existingOrga->setCity($this->ozgKeycloakUserData->getCity());
-            $existingOrga->setState($this->ozgKeycloakUserData->getCountryCode());
+            //$existingOrga->setState($this->ozgKeycloakUserData->getCountryCode());
         }
         // what OrgaTypes are needed to be set and accepted regarding the requested Roles?
         $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupRequestedRoles($requstedRoles);
