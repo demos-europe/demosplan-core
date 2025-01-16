@@ -89,7 +89,7 @@
           v-if="ungroupedOptions?.length > 0"
           class="o-list line-height--1_6">
           <filter-flyout-checkbox
-            v-for="option in ungroupedOptions"
+            v-for="option in searchedUngroupedOptions"
             :key="option.id"
             :checked="isChecked(option.id)"
             instance="ungrouped"
@@ -98,7 +98,7 @@
             @change="updateQuery" />
         </ul>
         <ul
-          v-for="group in groupedOptions"
+          v-for="group in searchedGroupedOptions"
           class="o-list line-height--1_6"
           :key="`list_${group.id}}`">
           <span class="font-size-small">
@@ -114,7 +114,7 @@
             :show-count="showCount.groupedOptions" />
         </ul>
 
-        <span v-if="groupedOptions.length === 0 && ungroupedOptions?.length === 0">
+        <span v-if="searchedGroupedOptions.length === 0 && searchedUngroupedOptions?.length === 0">
           {{ Translator.trans('search.results.none') }}
         </span>
       </div>
@@ -324,6 +324,17 @@ export default {
       return items.filter((item) => item.selected)
     },
 
+    searchedGroupedOptions () {
+      return this.groupedOptions.map(group => ({
+        ...group,
+        options: dataTableSearch(this.searchTerm, group.options, ['label'])
+      })).filter(group => group.options.length > 0)
+    },
+
+    searchedUngroupedOptions () {
+      return dataTableSearch(this.searchTerm, this.ungroupedOptions, ['label'])
+    },
+
     ungroupedOptions () {
       return this.getUngroupedOptionsByCategoryId(this.category.id) || []
     }
@@ -353,10 +364,6 @@ export default {
     close () {
       this.handleClose()
       this.$refs.flyout.close()
-    },
-
-    getUngroupedItems () {
-      return this.items.filter(item => item.ungrouped === true)
     },
 
     isChecked (id) {
