@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Admin;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
