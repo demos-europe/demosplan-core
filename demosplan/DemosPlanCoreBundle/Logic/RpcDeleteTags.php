@@ -24,11 +24,12 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use Doctrine\ORM\EntityManager;
 use Exception;
 use Psr\Log\LoggerInterface;
+use stdClass;
 use Webmozart\Assert\Assert;
 
 class RpcDeleteTags implements RpcMethodSolverInterface
 {
-    private const DELETE_TAGS_METHOD = 'bulk.delete.tags';
+    private const DELETE_TAGS_METHOD = 'bulk.delete.tags.and.topics';
     private const TAG_TYPE = 'tag';
     private const TAG_TOPIC_TYPE = 'tagTopic';
     private const HANDLED_ITEM_TYPES = [self::TAG_TYPE, self::TAG_TOPIC_TYPE];
@@ -82,8 +83,8 @@ class RpcDeleteTags implements RpcMethodSolverInterface
                 /** @var array<int, array{itemType: string, id: string}> $items */
                 $items = $rpcRequest->params->items;
                 foreach ($items as $item) {
-                    $itemType = $item['itemType'];
-                    $itemId = $item['id'];
+                    $itemType = $item->type;
+                    $itemId = $item->id;
                     Assert::stringNotEmpty($itemId, 'itemId is expected to be a string');
                     Assert::inArray(
                         $itemType,

@@ -5,8 +5,9 @@
     <dp-modal
       content-classes="w-2/3"
       ref="createTagModal"
+      aria-hidden="true"
       :aria-label="Translator.trans('tag.create')"
-      aria-modal>
+      aria-modal="true">
       <template v-slot:header>
         Create Tag
       </template>
@@ -37,7 +38,7 @@
 
     <dp-modal
       content-classes="w-2/3"
-      ref="createTopicModal"
+      ref="createTagTopicModal"
       aria-label="Create Topic"
       aria-modal>
       <template v-slot:header>
@@ -63,7 +64,7 @@
       <dp-button
         class="ml-1"
         :text="Translator.trans('category.create')"
-        @click="() => toggleCreateModal({ type: 'Topic' })" />
+        @click="() => toggleCreateModal({ type: 'TagTopic' })" />
     </div>
 
     <dp-tree-list
@@ -121,11 +122,13 @@
 
 <script>
 import {
+  checkResponse,
   DpButton,
   DpCheckbox,
   DpIcon,
   DpInput,
   DpModal,
+  dpRpc,
   DpSelect,
   DpTreeList,
   DpUpload,
@@ -263,8 +266,14 @@ export default {
       }
     },
 
-    deleteItem (id) {
-      this.deleteTag(id)
+    deleteItem (item) {
+      console.log(item, 'rpc delete')
+
+      dpRpc('bulk.delete.tags.and.topics', { ids: [item] })
+        .then(checkResponse)
+        .then(response => {
+          console.log(response, 'response delete')
+        })
     },
 
     loadTagsAndTopics () {
@@ -274,14 +283,15 @@ export default {
       const topicAttributes = [
         'title',
         'tags'
-      ].join()
+      ]
 
       this.listTagTopics({
         fields: {
           Tag: this.tagAttributeKeys.join(),
-          TagTopic: topicAttributes
+          TagTopic: topicAttributes.join()
         },
-        include: 'tags'
+        include: 'tags',
+        sort: 'title'
       })
     },
 
@@ -320,18 +330,30 @@ export default {
             }
           }
         }
-      }).then(response => {
+      })
+        .then(response => {
+          console.log(response, 'response new tag')
+          checkResponse(response)
+        })
+        .then(response => {
         console.log(response, 'response new tag')
+        if (!response.data.Tag || !this.TagTopic[this.newTag.topic]) {
+          return
+        }
+
+        const parentTopic = this.TagTopic[this.newTag.topic]
 
         this.updateTagTopic({
           id: this.newTag.topic,
           type: 'TagTopic',
+          attributes: parentTopic.attributes,
           relationships: {
+            ...parentTopic.relationships,
             tags: {
-              data: {
+              data: parentTopic.relationships.tags.data.concat({
                 type: 'Tag',
-                id: this.Tag[this.Tag.length - 1].id
-              }
+                id: Object.keys(response.data.Tag)[0]
+              })
             }
           }
         })
@@ -360,6 +382,10 @@ export default {
           }
         }
       })
+        .then(response => {
+          console.log(response, 'response new topic')
+          return checkResponse(response)
+        })
         .then(() => {
           this.isInEditState = ''
           this.newTopic = {
