@@ -71,25 +71,33 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
               'X-Demosplan-Procedure-Id': dplan.procedureId
             },
             successCallbacks: [
-              (response) => {
-                if (typeof response.data !== 'undefined' &&
-                typeof response.data.meta !== 'undefined' &&
-                typeof response.data.meta.messages !== 'undefined') {
-                  handleResponseMessages(response.data.meta)
+              async (success) => {
+                const response = await success.json()
+
+                const meta = response.data?.meta
+                  ? response.data.meta
+                  : response.meta || null
+                if (meta?.messages) {
+                  handleResponseMessages(meta)
                 }
+
                 return Promise.resolve(response)
               }
             ],
             errorCallbacks: [
-              (err) => {
-                const response = err.response
-                if (typeof response !== 'undefined' &&
-                typeof response.data !== 'undefined' &&
-                typeof response.data.meta !== 'undefined' &&
-                typeof response.data.meta.messages !== 'undefined') {
-                  handleResponseMessages(response.data.meta)
+              async (err) => {
+                const response = await err.json()
+                console.log('error Callback', err, response)
+
+                const meta = response.data?.meta
+                  ? response.data.meta
+                  : response.meta || null
+
+                if (meta?.messages) {
+                  handleResponseMessages(meta)
                 }
-                return Promise.reject(err)
+
+                return Promise.reject(response)
               }
             ]
           }),
