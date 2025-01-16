@@ -168,6 +168,13 @@ class UserService extends CoreService implements UserServiceInterface
                 throw new NullPointerException('The orga of a user that is not in the role group of customer master users is null. This is probably an invalid database state.');
             }
 
+            // orga should not be soft deleted
+            if ($orga->isDeleted()) {
+                $this->getLogger()->info('User Orga is soft deleted', ['orgaId' => $orga->getId()]);
+
+                return null;
+            }
+
             // user needs to have a role in current customer
             if (0 === count($user->getRoles())) {
                 $this->getLogger()->info('User is not registered in current customer',
