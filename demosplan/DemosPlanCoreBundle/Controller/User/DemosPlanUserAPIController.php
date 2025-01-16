@@ -138,7 +138,7 @@ class DemosPlanUserAPIController extends APIController
     ): APIResponse {
         try {
             if ($request->query->has(UrlParameter::FILTER)) {
-                $filterArray = $request->query->get(UrlParameter::FILTER);
+                $filterArray = $request->query->all(UrlParameter::FILTER);
                 $filterArray = $filterParser->validateFilter($filterArray);
                 $conditions = $filterParser->parseFilter($filterArray);
             } else {
@@ -150,7 +150,7 @@ class DemosPlanUserAPIController extends APIController
                 $sortMethodFactory->propertyAscending($userType->firstname),
             ];
 
-            $searchParams = SearchParams::createOptional($request->query->get(JsonApiEsServiceInterface::SEARCH, []));
+            $searchParams = SearchParams::createOptional($request->query->all(JsonApiEsServiceInterface::SEARCH));
             if (!$searchParams instanceof SearchParams) {
                 $listResult = $jsonApiActionService->listObjects($userType, $conditions, $sortMethods);
             } else {
@@ -161,7 +161,7 @@ class DemosPlanUserAPIController extends APIController
             $adapter = new ArrayAdapter($users);
             $paginator = new DemosPlanPaginator($adapter);
             $pagination = $paginationParser->parseApiPaginationProfile(
-                $this->request->query->get(UrlParameter::PAGE, []),
+                $this->request->query->all(UrlParameter::PAGE),
                 $this->request->query->get(UrlParameter::SORT, ''),
                 25
             );

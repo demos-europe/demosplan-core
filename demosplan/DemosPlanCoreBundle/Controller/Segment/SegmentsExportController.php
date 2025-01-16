@@ -61,10 +61,10 @@ class SegmentsExportController extends BaseController
         StatementHandler $statementHandler,
         SegmentExporterFileNameGenerator $fileNameGenerator,
         string $procedureId,
-        string $statementId
+        string $statementId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
@@ -96,10 +96,10 @@ class SegmentsExportController extends BaseController
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
-        string $procedureId
+        string $procedureId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -136,7 +136,7 @@ class SegmentsExportController extends BaseController
         JsonApiActionService $jsonApiActionService,
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
-        string $procedureId
+        string $procedureId,
     ): StreamedResponse {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -184,10 +184,10 @@ class SegmentsExportController extends BaseController
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
         ZipExportService $zipExportService,
-        string $procedureId
+        string $procedureId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // This method applies mostly the same restrictions as the generic API access to retrieve statements.
@@ -208,7 +208,7 @@ class SegmentsExportController extends BaseController
                 array_map(
                     static function (
                         Statement $statement,
-                        string $filePathInZip
+                        string $filePathInZip,
                     ) use ($exporter, $zipExportService, $zipStream, $procedure, $tableHeaders): void {
                         $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure, $tableHeaders);
                         $writer = IOFactory::createWriter($docx);
@@ -229,7 +229,7 @@ class SegmentsExportController extends BaseController
 
     private function setResponseHeaders(
         StreamedResponse $response,
-        string $filename
+        string $filename,
     ): void {
         $response->headers->set('Pragma', 'public');
         $response->headers->set(
