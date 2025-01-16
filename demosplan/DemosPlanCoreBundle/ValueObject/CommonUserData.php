@@ -59,7 +59,6 @@ class CommonUserData extends ValueObject
     protected string $postalCode = '';
     protected string $city = '';
 
-
     public function __toString(): string
     {
         $customerRoleRelationString = '';
