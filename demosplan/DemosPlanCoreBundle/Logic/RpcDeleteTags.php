@@ -29,7 +29,7 @@ use Webmozart\Assert\Assert;
 
 class RpcDeleteTags implements RpcMethodSolverInterface
 {
-    private const DELETE_TAGS_METHOD = 'bulk.delete.tags';
+    private const DELETE_TAGS_METHOD = 'bulk.delete.tags.and.topics';
     private const TAG_TYPE = 'tag';
     private const TAG_TOPIC_TYPE = 'tagTopic';
     private const HANDLED_ITEM_TYPES = [self::TAG_TYPE, self::TAG_TOPIC_TYPE];
