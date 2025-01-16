@@ -111,10 +111,19 @@ final class TagTopicResourceType extends DplanResourceType
                         TagTopicInterface $tag,
                         ?string $title
                     ): array {
-                        $this->checkTitleNotEmpty($title);
-                        // title must be unique
-                        $this->checkTitleUniqueForProcedure($title);
-                        $tag->setTitle($title);
+                        try {
+                            $this->checkTitleNotEmpty($title);
+                            // title must be unique
+                            $this->checkTitleUniqueForProcedure($title);
+                            $tag->setTitle($title);
+                        } catch (InvalidArgumentException $e) {
+                            $this->logError($e);
+                        } catch (Exception $e) {
+                            $this->messageBag->add('error', 'tag.topic.update.error');
+                            $this->logError($e);
+                            throw $e;
+                        }
+                        $this->messageBag->add('success', 'confirm.topic.renamed');
 
                         return [];
                     },
@@ -167,16 +176,10 @@ final class TagTopicResourceType extends DplanResourceType
                             }
                         } catch (Exception $e) {
                             $this->messageBag->add('error', 'tag.move.toTopic.error');
-                            $this->logger->error(
-                                'Error moving tags to topic',
-                                [
-                                    'ExceptionMessage:' => $e->getMessage(),
-                                    'Exception:' => $e::class,
-                                    'ExceptionTrace:' => $e->getTraceAsString(),
-                                ]
-                            );
+                            $this->logError($e);
                             throw $e;
                         }
+                        $this->messageBag->add('success', 'confirm.tag.moved');
 
                         return [];
                     },
@@ -206,18 +209,15 @@ final class TagTopicResourceType extends DplanResourceType
                         $this->checkTitleUniqueForProcedure($title);
 
                         $this->tagTopicRepository->persistEntities([$tagTopic]);
+                    } catch (InvalidArgumentException $e) {
+                        $this->logError($e);
+                        throw $e;
                     } catch (Exception $e) {
                         $this->messageBag->add('error', 'tag.topic.create.error');
-                        $this->logger->error(
-                            'Error creating new TagTopic via TagTopicResourceType',
-                            [
-                                'ExceptionMessage:' => $e->getMessage(),
-                                'Exception:' => $e::class,
-                                'ExceptionTrace:' => $e->getTraceAsString(),
-                            ]
-                        );
+                        $this->logError($e);
                         throw $e;
                     }
+                    $this->messageBag->add('success', 'confirm.topic.created');
 
                     return [];
                 }
@@ -225,6 +225,18 @@ final class TagTopicResourceType extends DplanResourceType
         );
 
         return $configBuilder;
+    }
+
+    private function logError(Exception $e): void
+    {
+        $this->logger->error(
+            'Error creating new TagTopic via TagTopicResourceType',
+            [
+                'ExceptionMessage:' => $e->getMessage(),
+                'Exception:' => $e::class,
+                'ExceptionTrace:' => $e->getTraceAsString(),
+            ]
+        );
     }
 
     /**
