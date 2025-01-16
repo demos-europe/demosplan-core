@@ -21,6 +21,9 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\ReportRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry'
 
+    demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl'
+
     DemosEurope\DemosplanAddon\Contracts\Repositories\ProcedurePhaseRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseRepository'
 
     DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository'
