@@ -66,7 +66,32 @@
           class="color--grey u-mb-0_5">
           -
         </p>
-      </div><!--
+      </div>
+      <div
+        v-if="canEdit('addressExtension') || organisation.attributes.addressExtension !== ''"
+        class="layout__item u-2-of-12">
+        <label
+          :for="organisation.id + 'addressExtension'"
+          class="u-mb-0_25">
+          {{ Translator.trans('address.extension') }}
+        </label>
+        <input
+          v-if="canEdit('addressExtension')"
+          type="text"
+          :id="organisation.id + 'addressExtension'"
+          class="w-full u-mb-0_5"
+          style="height: 27px;"
+          data-cy="orgaFormField:addressExtension"
+          @input="emitOrganisationUpdate"
+          v-model="localOrganisation.attributes.addressExtension">
+        <p
+          v-else-if="false === canEdit('addressExtension') && organisation.attributes.addressExtension !== ''"
+          class="color--grey u-mb-0_5">
+          {{ organisation.attributes.addressExtension }}
+        </p>
+      </div>
+      <!--
+
 
    --><div
         v-if="canEdit('houseNumber') || organisation.attributes.houseNumber !== ''"
