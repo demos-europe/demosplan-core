@@ -206,6 +206,7 @@ const orgaFields = {
     'showname',
     'state',
     'street',
+    'addressExtension',
     'submissionType',
     'types'
   ].join()

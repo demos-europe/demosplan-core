@@ -795,6 +795,7 @@ export default {
             showname: false,
             state: null,
             street: '',
+            addressExtension: '',
             houseNumber: '',
             submissionType: 'standard',
             type: ''
