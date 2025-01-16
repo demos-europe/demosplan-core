@@ -112,7 +112,7 @@
             <p
               v-else-if="false === canEdit('postalcode') && organisation.attributes.postalcode !== ''"
               class="color--grey u-mb-0_5">
-              {{ organisation.attributes.postalCode }}
+              {{ organisation.attributes.postalcode }}
             </p>
             <p
               v-else-if="false === canEdit('postalcode') && organisation.attributes.postalcode === ''"
