@@ -45,8 +45,8 @@ class DemosPlanAdminController extends BaseController
      * @throws Exception
      */
     #[AttributeDplanPermissions('area_statistics')]
-    #[Route(name: 'DemosPlan_statistics', path: '/statistik', defaults: ['format' => 'html', 'part' => 'all'])]
-    #[Route(name: 'DemosPlan_statistics_csv', path: '/statistik/{part}/csv', defaults: ['format' => 'csv'])]
+    #[Route(path: '/statistik', name: 'DemosPlan_statistics', defaults: ['format' => 'html', 'part' => 'all'])]
+    #[Route(path: '/statistik/{part}/csv', name: 'DemosPlan_statistics_csv', defaults: ['format' => 'csv'])]
     public function generateStatisticsAction(
         Environment $twig,
         OrgaService $orgaService,
