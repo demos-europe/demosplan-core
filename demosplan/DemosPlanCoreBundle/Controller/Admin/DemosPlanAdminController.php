@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Admin;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
@@ -41,8 +42,6 @@ class DemosPlanAdminController extends BaseController
     /**
      * Generiert die HTML Seite für die Statistik.
      *
-     * @DplanPermissions("area_statistics")
-     *
      * @param string $part
      * @param string $format
      *
@@ -50,6 +49,7 @@ class DemosPlanAdminController extends BaseController
      *
      * @throws Exception
      */
+    #[AttributeDplanPermissions('area_statistics')]
     #[Route(name: 'DemosPlan_statistics', path: '/statistik', defaults: ['format' => 'html', 'part' => 'all'])]
     #[Route(name: 'DemosPlan_statistics_csv', path: '/statistik/{part}/csv', defaults: ['format' => 'csv'])]
     public function generateStatisticsAction(
