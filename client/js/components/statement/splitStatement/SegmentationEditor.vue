@@ -87,12 +87,14 @@ export default {
       const wrapper = document.createElement('div')
       wrapper.innerHTML = this.initStatementText ?? ''
       const rangePlugin = initRangePlugin(proseSchema, this.rangeChangeCallback, this.editToggleCallback)
-      this.maxRange = DOMParser.fromSchema(rangePlugin.schema).parse(wrapper).content.size
+      const parsedContent = DOMParser.fromSchema(rangePlugin.schema).parse(wrapper, { preserveWhitespace: 'full' })
+
+      this.maxRange = parsedContent.content.size
 
       const view = new EditorView(document.querySelector('#editor'), {
         editable: () => false,
         state: EditorState.create({
-          doc: DOMParser.fromSchema(rangePlugin.schema).parse(wrapper),
+          doc: parsedContent,
           plugins: rangePlugin.plugins
         })
       })
