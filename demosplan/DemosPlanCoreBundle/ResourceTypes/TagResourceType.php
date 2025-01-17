@@ -129,7 +129,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                             $this->logError($e);
                             throw $e;
                         }
-                        $this->messageBag->add('success', 'confirm.tag.renamed');
+                        $this->messageBag->add('confirm', 'confirm.tag.renamed');
 
                         return [];
                     },
@@ -185,7 +185,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                         $this->messageBag->add('error', 'error.tag.add');
                         throw $e;
                     }
-                    $this->messageBag->add('success', 'confirm.tag.created');
+                    $this->messageBag->add('confirm', 'confirm.tag.created');
 
                     return [];
                 }

@@ -123,7 +123,7 @@ final class TagTopicResourceType extends DplanResourceType
                             $this->logError($e);
                             throw $e;
                         }
-                        $this->messageBag->add('success', 'confirm.topic.renamed');
+                        $this->messageBag->add('confirm', 'confirm.topic.renamed');
 
                         return [];
                     },
@@ -179,7 +179,7 @@ final class TagTopicResourceType extends DplanResourceType
                             $this->logError($e);
                             throw $e;
                         }
-                        $this->messageBag->add('success', 'confirm.tag.moved');
+                        $this->messageBag->add('confirm', 'confirm.tag.moved');
 
                         return [];
                     },
@@ -217,7 +217,7 @@ final class TagTopicResourceType extends DplanResourceType
                         $this->logError($e);
                         throw $e;
                     }
-                    $this->messageBag->add('success', 'confirm.topic.created');
+                    $this->messageBag->add('confirm', 'confirm.topic.created');
 
                     return [];
                 }
