@@ -202,6 +202,18 @@
         </p>
       </div>
 
+      <addon-wrapper
+        hook-name="addon.additional.field"
+        :addon-props="{
+          class: 'ml-4',
+          relationshipId: this.organisationId,
+          relationshipKey: 'orga',
+          isValueRemovable: true
+        }"
+        class="w-1/2"
+        @selected="updateAddonPayload"
+        @blur="updateAddonPayload" />
+
       <div class="layout__item u-1-of-1 u-mt">
         <legend class="u-pb-0_5">
           {{ Translator.trans('organisation.types.permissions') }}
@@ -754,11 +766,13 @@
 
 <script>
 import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
   name: 'DpOrganisationFormFields',
 
   components: {
+    AddonWrapper,
     DpCheckbox,
     DpDetails,
     DpEditor,
@@ -998,7 +1012,11 @@ export default {
       })
       this.emitOrganisationUpdate()
       this.resetRegistrationStatus()
-    }
+    },
+
+    updateAddonPayload (payload) {
+      this.$emit('addon-update', payload)
+    },
   },
 
   created () {
