@@ -51,6 +51,18 @@
           :disabled="!isOrgaDataEditable" />
 
         <dp-input
+          id="orga_address_extension"
+          v-model="organisation.addressExtension"
+          :class="!organisation.addressExtension.length ? prefixClass('w-4') : ''"
+          data-cy="organisationData:address:extension"
+          :name="`${organisation.id}:address_extension`"
+          :label="{
+            text: Translator.trans('address.extension')
+          }"
+          :size="!isOrgaDataEditable ? organisation.addressExtension.length : null"
+          :disabled="!isOrgaDataEditable" />
+
+        <dp-input
           v-if="showDetailedInfo"
           id="orga_addressHouseNumber"
           v-model="organisation.houseNumber"
