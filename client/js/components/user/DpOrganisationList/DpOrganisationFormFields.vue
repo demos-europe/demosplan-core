@@ -68,6 +68,29 @@
         </p>
       </div>
       <div
+        v-if="canEdit('houseNumber') || organisation.attributes.houseNumber !== ''"
+        class="layout__item u-2-of-12">
+        <label
+          :for="organisation.id + 'addressHouseNumber'"
+          class="u-mb-0_25">
+          {{ Translator.trans('street.number') }}
+        </label>
+        <input
+          v-if="canEdit('houseNumber')"
+          type="text"
+          :id="organisation.id + 'addressHouseNumber'"
+          class="w-full u-mb-0_5"
+          style="height: 27px;"
+          data-cy="orgaFormField:addressHouseNumber"
+          @input="emitOrganisationUpdate"
+          v-model="localOrganisation.attributes.houseNumber">
+        <p
+          v-else-if="false === canEdit('houseNumber') && organisation.attributes.houseNumber !== ''"
+          class="color--grey u-mb-0_5">
+          {{ organisation.attributes.houseNumber }}
+        </p>
+      </div>
+      <div
         v-if="canEdit('addressExtension') || organisation.attributes.addressExtension !== ''"
         class="layout__item u-2-of-12">
         <label
@@ -90,33 +113,7 @@
           {{ organisation.attributes.addressExtension }}
         </p>
       </div>
-      <!--
-
-
-   --><div
-        v-if="canEdit('houseNumber') || organisation.attributes.houseNumber !== ''"
-        class="layout__item u-2-of-12">
-        <label
-          :for="organisation.id + 'addressHouseNumber'"
-          class="u-mb-0_25">
-          {{ Translator.trans('street.number') }}
-        </label>
-        <input
-          v-if="canEdit('houseNumber')"
-          type="text"
-          :id="organisation.id + 'addressHouseNumber'"
-          class="w-full u-mb-0_5"
-          style="height: 27px;"
-          data-cy="orgaFormField:addressHouseNumber"
-          @input="emitOrganisationUpdate"
-          v-model="localOrganisation.attributes.houseNumber">
-        <p
-          v-else-if="false === canEdit('houseNumber') && organisation.attributes.houseNumber !== ''"
-          class="color--grey u-mb-0_5">
-          {{ organisation.attributes.houseNumber }}
-        </p>
-      </div><!--
-   --><div class="u-1-of-2 layout__item">
+      <div class="u-1-of-2 layout__item">
         <div class="layout">
           <div class="layout__item u-2-of-6">
             <label
