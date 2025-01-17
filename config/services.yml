@@ -237,6 +237,13 @@ services:
                 id: 'app.geo_json_data_collector'
                 priority: -101
 
+    demosplan\DemosPlanCoreBundle\DataCollector\AddonInfoDataCollector:
+        tags:
+            -   name: data_collector
+                template: '@DemosPlanCore/data_collector/addon_info.html.twig'
+                id: 'app.addon_info_collector'
+                priority: -99
+
     demosplan\DemosPlanCoreBundle\DataCollector\UserInfoDataCollector:
         tags:
             -   name: data_collector
