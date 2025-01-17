@@ -24,7 +24,7 @@ class AddonInfoDataCollector extends DataCollector
     {
     }
 
-    public function collect(Request $request, Response $response, Throwable $exception = null): void
+    public function collect(Request $request, Response $response, ?Throwable $exception = null): void
     {
         $addonsLoaded = $this->addonManifestCollectionWrapper->load();
         $addons = [];
