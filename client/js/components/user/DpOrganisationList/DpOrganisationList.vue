@@ -135,7 +135,7 @@
         <ul class="o-list o-list--card u-mb">
           <dp-organisation-list-item
             class="o-list__item"
-            v-for="(item, idx) in organisations"
+            v-for="(item, idx) in items"
             :key="`organisation:${idx}`"
             :available-orga-types="availableOrgaTypes"
             :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
@@ -359,22 +359,17 @@ export default {
       }
 
       ids.forEach(id => {
-        console.log('id', id)
         this.deleteOrganisation(id)
           .then((response) => {
             if (response && response.ok === false) {
-              dplan.notify.notify('confirm', Translator.trans('error.delete.organisation.related.procedure', { count: ids.length }))
+              //dplan.notify.notify('confirm', Translator.trans('error.delete.organisation.related.procedure', { count: ids.length }))
             } else {
-              this.organisations = Object.values(this.organisations).filter(organisation => organisation.id !== id)
-              dplan.notify.notify('confirm', Translator.trans('confirm.orga.deleted', { count: ids.length }))
+              //this.organisations = Object.values(this.organisations).filter(organisation => organisation.id !== id)
+              //dplan.notify.notify('confirm', Translator.trans('confirm.orga.deleted', { count: ids.length }))
             }
-            console.log('response', response, response.ok)
             // Remove deleted item from itemSelections
-            console.log('before', this.itemSelections[id])
             delete this.itemSelections[id]
-            //this.organisations = Object.values(this.organisations).filter(organisation => organisation.id !== id)
-            console.log('after', this.itemSelections[id])
-            //this.getItemsByPage()
+            this.getItemsByPage()
             // Confirm notification for organisations is done in BE
           })
       })
@@ -450,7 +445,6 @@ export default {
         include: ['currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
       })
         .then((data) => {
-          console.log('data', data.data.Orga)
           this.organisations = data.data.Orga
           this.pendingOrganisationsLoading = false
           this.isLoading = false
