@@ -332,16 +332,13 @@ export default {
         }
       })
         .then(response => {
-          console.log(response, 'response new tag')
-          checkResponse(response)
-        })
-        .then(response => {
         console.log(response, 'response new tag')
         if (!response.data.Tag || !this.TagTopic[this.newTag.topic]) {
           return
         }
 
         const parentTopic = this.TagTopic[this.newTag.topic]
+        const newTagId = Object.keys(response.data.Tag)[0]
 
         this.updateTagTopic({
           id: this.newTag.topic,
@@ -352,13 +349,13 @@ export default {
             tags: {
               data: parentTopic.relationships.tags.data.concat({
                 type: 'Tag',
-                id: Object.keys(response.data.Tag)[0]
+                id: newTagId
               })
             }
           }
         })
 
-        this.$root.$emit('tag:created')
+        this.$root.$emit('tag:created', newTagId)
         // Close Modal and Reset form data
         this.toggleCreateModal({ type: 'Tag' })
         this.isInEditState = ''
@@ -382,10 +379,6 @@ export default {
           }
         }
       })
-        .then(response => {
-          console.log(response, 'response new topic')
-          return checkResponse(response)
-        })
         .then(() => {
           this.isInEditState = ''
           this.newTopic = {
