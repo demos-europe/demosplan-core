@@ -85,7 +85,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
 
         // Create Orga
         $orga = new Orga();
-        $orga->setName('DEMOS E-Partizipation GmbH');
+        $orga->setName('DEMOS plan GmbH');
         $slug = new Slug('demos');
         $orga->addSlug($slug);
         $orga->setCurrentSlug($slug);
