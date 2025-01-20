@@ -106,6 +106,9 @@ class RpcDeleteTags implements RpcMethodSolverInterface
                             );
                         }
                         $this->sendTagDeleteAddonNotification($itemId);
+                        if (false === $this->statementHandler->deleteTag($itemId)) {
+                            throw new TagNotFoundException("Tag with id: $itemId not deleted - was not found");
+                        }
                     }
                     if (self::TAG_TOPIC_TYPE === $itemType) {
                         if ($this->statementHandler->isTopicInUse($itemId)) {
