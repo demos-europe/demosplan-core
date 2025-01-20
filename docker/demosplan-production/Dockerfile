@@ -126,6 +126,7 @@ COPY php-fpm.conf /etc/php/8.2/fpm/php-fpm.conf
 WORKDIR /srv/www
 
 COPY --from=build /srv/www /srv/www
+COPY --from=build /opt/config/parameters.yml /opt/config/parameters.yml
 # delte the cache and log files
 RUN rm -rf /srv/www/var/cache/* && \
     rm -rf /srv/www/var/log/* && \
