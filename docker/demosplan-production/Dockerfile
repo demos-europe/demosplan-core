@@ -99,7 +99,7 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
     touch /var/log/php8.2-fpm.log && chown www-data:www-data /var/log/php8.2-fpm.log
 
-FROM debian:testing-20241111-slim AS fpm
+FROM debian:stable-20241111-slim AS fpm
 
 ARG PROJECT_NAME
 ENV PROJECT_PREFIX=$PROJECT_NAME \
