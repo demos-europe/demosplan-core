@@ -62,29 +62,11 @@ class DemosPlanAdminController extends BaseController
         $templateVars = [];
 
         $procedureList = $procedureService->getProcedureFullList();
-
-        // Verfahrensschritte
         $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
         $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
-
-        // T17387:
         $originalStatements = $statementService->getOriginalStatements();
         $amountOfProcedures = $procedureService->getAmountOfProcedures();
-        $globalStatementStatistic = new StatementStatistic($originalStatements, $amountOfProcedures);
-        $templateVars['statementStatistic'] = $globalStatementStatistic;
-
-        $templateVars = $this->prepareProcedureListForStatisticsView(
-            $templateVars,
-            $procedureList,
-            $internalPhases,
-            $externalPhases,
-            $globalStatementStatistic
-        );
-
         $undeletedUsers = $userService->getUndeletedUsers();
-        $templateVars['rolesList'] = $userService->collectRoleStatistics($undeletedUsers);
-        $templateVars['orgaList'] = $orgaService->getOrgaCountByTypeTranslated($customerProvider->getCurrentCustomer());
-        $templateVars['orgaUsersList'] = $userService->getOrgaUsersList();
         $allowedRoleCodeMap = [];
         foreach ($this->getParameter('roles_allowed') as $allowedRoleCode) {
             if (!in_array($allowedRoleCode, self::ROLES_EXCLUDED_IN_EXPORT, true)
@@ -92,9 +74,23 @@ class DemosPlanAdminController extends BaseController
                 $allowedRoleCodeMap[$allowedRoleCode] = RoleInterface::ROLE_CODE_NAME_MAP[$allowedRoleCode];
             }
         }
+        $globalStatementStatistic = new StatementStatistic($originalStatements, $amountOfProcedures);
+
+        $templateVars['statementStatistic'] = $globalStatementStatistic;
+        $templateVars = $this->prepareProcedureListForStatisticsView(
+            $templateVars,
+            $procedureList,
+            $internalPhases,
+            $externalPhases,
+            $globalStatementStatistic
+        );
+        $templateVars['rolesList'] = $userService->collectRoleStatistics($undeletedUsers);
+        $templateVars['orgaList'] = $orgaService->getOrgaCountByTypeTranslated($customerProvider->getCurrentCustomer());
+        $templateVars['orgaUsersList'] = $userService->getOrgaUsersList();
         $templateVars['allowedRoleCodeMap'] = $allowedRoleCodeMap;
 
         $title = 'statistic';
+
         if ('html' === $format) {
             return $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.html.twig', [
                 'templateVars' => $templateVars,
