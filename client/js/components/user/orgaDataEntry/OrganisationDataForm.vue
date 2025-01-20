@@ -228,6 +228,8 @@
       v-if="hasPaperCopyPermission"
       :organisation="organisation" />
 
+    <organisation-competence :organisation="organisation" />
+
     <organisation-branding-settings
       :organisation="organisation"
       :project-name="projectName" />
@@ -253,6 +255,7 @@
 import { DpButton, DpInput, DpRadio, DpSelect, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import EmailNotificationSettings from '@DpJs/components/user/orgaDataEntry/EmailNotificationSettings'
 import OrganisationBrandingSettings from '@DpJs/components/user/orgaDataEntry/OrganisationBrandingSettings'
+import OrganisationCompetence from '@DpJs/components/user/orgaDataEntry/OrganisationCompetence'
 import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyPreferences'
 
 export default {
@@ -265,6 +268,7 @@ export default {
     DpSelect,
     EmailNotificationSettings,
     OrganisationBrandingSettings,
+    OrganisationCompetence,
     PaperCopyPreferences
   },
 
