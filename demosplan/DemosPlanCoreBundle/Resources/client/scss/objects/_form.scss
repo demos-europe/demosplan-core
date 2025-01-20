@@ -293,7 +293,7 @@ input.disabled {
     // The height is calculated by adding $dp-button-font-size (which is used for
     // button line-height), vertical padding and 2px border.
     $element-height: $dp-button-font-size + $dp-form-element-spacing-vertical * 2 + 2px;
-// 15px + 2 * 13px + 2px = 43px
+
     // Basic styling of form labels
     &__label {
         display: block;
