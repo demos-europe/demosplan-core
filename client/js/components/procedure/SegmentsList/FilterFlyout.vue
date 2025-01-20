@@ -368,8 +368,9 @@ export default {
 
     ...mapMutations('FilterFlyout', {
       setGroupedSelected: 'setGroupedOptionSelected',
-      setIsLoading: 'setIsLoadingByCategoryId',
-      setUngroupedSelected: 'setUngroupedOptionSelected'
+      setIsLoading: 'setIsLoading',
+      setUngroupedSelected: 'setUngroupedOptionSelected',
+      updateFilters: 'updateFilterQuery'
     }),
 
     /**
@@ -445,7 +446,8 @@ export default {
       Object.values(this.filter).forEach(el => {
         const query = {}
         query[el.condition.value] = el
-        this.updateFilterQuery(query)
+        // this.updateFilterQuery(query)
+        this.updateFilters(query)
       })
     },
 
@@ -463,7 +465,8 @@ export default {
           if (typeof this.appliedQuery.find(queryId => queryId === filter.condition.value) === 'undefined') {
             const query = {}
             query[filter.condition.value] = filter
-            this.updateFilterQuery(query)
+            // this.updateFilterQuery(query)
+            this.updateFilters(query)
           }
         })
       }
@@ -474,30 +477,32 @@ export default {
       this.appliedQuery = JSON.parse(JSON.stringify(query))
     },
 
-    updateQuery (value, option) {
-      if (value === true) {
+    updateQuery (isSelected, option) {
+      if (isSelected) {
         this.currentQuery.push(option.id)
         const query = {}
         query[option.id] = this.filter[option.id]
-        this.updateFilterQuery(query)
-      } else if (value === false) {
+        // this.updateFilterQuery(query)
+        this.updateFilters(query)
+      } else if (!isSelected) {
         const query = {}
         query[option.id] = this.filter[option.id]
-        this.updateFilterQuery(query)
+        // this.updateFilterQuery(query)
+        this.updateFilters(query)
         this.currentQuery.splice(this.currentQuery.indexOf(option.id), 1)
       }
 
       // Update ungroupedOptions
       if (option.ungrouped) {
-        this.setUngroupedSelected({ categoryId: this.category.id, optionId: option.id, value })
+        this.setUngroupedSelected({ categoryId: this.category.id, optionId: option.id, isSelected })
       } else {
         // Update groupedOptions
-        const group = this.groupedOptions.find(group => group.options.some(item => item.id === option.id));
+        const group = this.groupedOptions.find(group => group.options.some(item => item.id === option.id))
+
         if (group) {
-          this.setGroupedSelected({ categoryId: this.category.id, groupId: group.id, optionId: option.id, value });
+          this.setGroupedSelected({ categoryId: this.category.id, groupId: group.id, optionId: option.id, isSelected })
         }
       }
-
 
       return this.requestFilterOptions()
     }

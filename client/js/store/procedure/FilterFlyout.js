@@ -1,3 +1,4 @@
+import { del, set } from 'vue'
 
 const FilterFlyoutStore = {
   namespaced: true,
@@ -5,6 +6,7 @@ const FilterFlyoutStore = {
   name: 'FilterFlyout',
 
   state: {
+    filterQuery: {},
     /**
      * Object to store the initial flyout filter IDs.
      * Keys are category IDs and values are arrays of filter IDs.
@@ -41,7 +43,8 @@ const FilterFlyoutStore = {
      */
     setInitialFlyoutFilterIds(state, payload) {
       const { categoryId, filterIds } = payload
-      Vue.set(state.initialFlyoutFilterIds, categoryId, filterIds)
+
+      set(state.initialFlyoutFilterIds, categoryId, filterIds)
     },
 
     /**
@@ -55,7 +58,7 @@ const FilterFlyoutStore = {
     setGroupedOptions (state, payload) {
       const { categoryId, groupedOptions } = payload
 
-      Vue.set(state.groupedOptions, categoryId, groupedOptions)
+      set(state.groupedOptions, categoryId, groupedOptions)
     },
 
     /**
@@ -70,10 +73,13 @@ const FilterFlyoutStore = {
      */
     setGroupedOptionSelected(state, { categoryId, groupId, optionId, value }) {
       const groups = state.groupedOptions[categoryId]
+
       if (groups) {
         const group = groups.find(group => group.id === groupId)
+
         if (group) {
           const option = group.options.find(item => item.id === optionId)
+
           if (option) {
             option.selected = value
           }
@@ -91,7 +97,7 @@ const FilterFlyoutStore = {
     setIsLoading (state, payload) {
       const { categoryId, isLoading } = payload
 
-      Vue.set(state.isLoading, categoryId, isLoading)
+      set(state.isLoading, categoryId, isLoading)
     },
 
     /**
@@ -104,7 +110,7 @@ const FilterFlyoutStore = {
     setUngroupedOptions (state, payload) {
       const { categoryId, options } = payload
 
-      Vue.set(state.ungroupedOptions, categoryId, options)
+      set(state.ungroupedOptions, categoryId, options)
     },
 
     /**
@@ -118,16 +124,55 @@ const FilterFlyoutStore = {
      */
     setUngroupedOptionSelected(state, { categoryId, optionId, value }) {
       const options = state.ungroupedOptions[categoryId]
+
       if (options) {
         const option = options.find(item => item.id === optionId)
+
         if (option) {
           option.selected = value
         }
+      }
+    },
+
+    /**
+     * Adds or removes filters from the filterQuery
+     * @param filter {Object} with the following structure:
+     * {
+     *   id: {
+     *     condition: {
+     *       operator: <String>,
+     *       path: <String>,
+     *       value: <String>
+     *     }
+     *   }
+     * }
+     */
+    updateFilterQuery (state, filter) {
+      if (Object.keys(filter).length) {
+        const filterQuery = Object.values(filter)[0]
+        const value = !filterQuery.condition.value ? 'unassigned' : filterQuery.condition.value
+        const queryIdx = Object.values(state.filterQuery).findIndex(el => {
+          if (value === 'unassigned') {
+            return el.condition.value === undefined
+          }
+
+          return el.condition.value === value
+        })
+
+        if (queryIdx < 0) {
+          set(state.filterQuery, [value], filterQuery)
+        } else {
+          del(state.filterQuery, [value])
+        }
+      } else {
+        set(state, 'filterQuery', filter)
       }
     }
   },
 
   getters: {
+    getFilterQuery: (state) => state.filterQuery,
+
     /**
      * Retrieves the initial flyout filter IDs for a given category.
      *

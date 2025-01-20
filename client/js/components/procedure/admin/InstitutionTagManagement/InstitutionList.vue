@@ -18,23 +18,33 @@
     <dp-loading
       class="u-mt"
       v-if="isLoading" />
+
     <template v-else>
-      <div class="bg-color--grey-light-2 rounded-md ml-2">
-          <span class="color--grey ml-1 align-middle">
-            {{ Translator.trans('filter') }}
-          </span>
-        <filter-flyout
-          v-for="filter in filters"
-          ref="filterFlyout"
-          :data-cy="`institutionListFilter:${filter.label}`"
-          :initial-query="queryIds"
-          :key="`filter_${filter.label}`"
-          :category="{  id: filter.id, label: filter.label }"
-          :operator="filter.comparisonOperator"
-          :path="filter.rootPath"
-          @filter-apply="sendFilterQuery"
-         @filterOptions:request="createFilterOptions(filter.id)" />
+      <div class="flex">
+        <div class="bg-color--grey-light-2 rounded-md ml-2 w-1/2">
+          <filter-flyout
+            v-for="filter in filters"
+            ref="filterFlyout"
+            :data-cy="`institutionListFilter:${filter.label}`"
+            :initial-query="queryIds"
+            :key="`filter_${filter.label}`"
+            :category="{  id: filter.id, label: filter.label }"
+            :operator="filter.comparisonOperator"
+            :path="filter.rootPath"
+            @filter-apply="(filtersToBeApplied) => applyFilterQuery(filtersToBeApplied, filter.id)"
+           @filterOptions:request="createFilterOptions(filter.id)" />
+        </div>
+        <dp-button
+          class="ml-2 h-fit"
+          data-cy="institutionList:resetFilter"
+          :disabled="!isQueryApplied"
+          :text="Translator.trans('reset')"
+          variant="outline"
+          v-tooltip="Translator.trans('search.filter.reset')"
+          @click="resetQuery" />
       </div>
+
+
       <dp-column-selector
         data-cy="institutionList:selectableColumns"
         :initial-selection="currentSelection"
@@ -134,6 +144,7 @@
 import {
   checkResponse,
   dpApi,
+  DpButton,
   DpColumnSelector,
   DpDataTable,
   DpIcon,
@@ -144,7 +155,7 @@ import {
   DpStickyElement,
   formatDate
 } from '@demos-europe/demosplan-ui'
-import { mapActions, mapMutations, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 
@@ -152,6 +163,7 @@ export default {
   name: 'InstitutionList',
 
   components: {
+    DpButton,
     DpColumnSelector,
     DpDataTable,
     DpMultiselect,
@@ -180,10 +192,15 @@ export default {
       editingInstitution: null,
       editingInstitutionTags: {},
       isLoading: true,
+      searchTerm: ''
     }
   },
 
   computed: {
+    ...mapGetters('FilterFlyout', {
+      filterQuery: 'getFilterQuery'
+    }),
+
     ...mapState('InstitutionTag', {
       institutionTagList: 'items'
     }),
@@ -233,17 +250,20 @@ export default {
       return [institutionField, ...categoryFields, actionField]
     },
 
+    isQueryApplied () {
+      const isFilterApplied = !Array.isArray(this.appliedFilterQuery) && Object.keys(this.appliedFilterQuery).length > 0
+      const isSearchApplied = this.searchTerm !== ''
+
+      return isFilterApplied || isSearchApplied
+    },
+
     queryIds () {
       let ids = []
-      if (Array.isArray(this.appliedFilterQuery) === false && Object.values(this.appliedFilterQuery).length > 0) {
-        ids = Object.values(this.appliedFilterQuery).map(el => {
-          if (!el.condition.value) {
-            return 'unassigned'
-          }
 
-          return el.condition.value
-        })
+      if (!Array.isArray(this.appliedFilterQuery) && Object.values(this.appliedFilterQuery).length > 0) {
+        ids = Object.values(this.appliedFilterQuery).map(el => el.condition.value)
       }
+
       return ids
     },
 
@@ -303,7 +323,9 @@ export default {
     }),
 
     ...mapMutations('FilterFlyout', {
-      setUngroupedFilterOptions: 'setUngroupedOptions'
+      setIsFilterFlyoutLoading: 'setIsLoading',
+      setUngroupedFilterOptions: 'setUngroupedOptions',
+      updateFilterQuery: 'updateFilterQuery'
     }),
 
     ...mapMutations('InvitableInstitution', {
@@ -346,7 +368,25 @@ export default {
         })
     },
 
-    applyQuery (page) {
+    /**
+     * Set appliedFilterQuery and request filtered institutions
+     * @param filter {Object} Object of objects as expected by json api, i.e.
+     * {
+     *    [id]: {
+     *      condition: {
+     *        path: <string>,
+     *        value: <string>
+     *      }
+     *    }
+     * }
+     * @param categoryId {String}
+     */
+    applyFilterQuery (filter, categoryId) {
+      this.setAppliedFilterQuery(filter)
+      this.getInstitutionsByPage(1, categoryId)
+
+
+
       // lscache.remove(this.lsKey.allSegments)
       // lscache.remove(this.lsKey.toggledSegments)
       // this.allItemsCount = null
@@ -474,6 +514,7 @@ export default {
       }
 
       this.setUngroupedFilterOptions({ categoryId: categoryId, options: filterOptions })
+      this.setIsFilterFlyoutLoading({ categoryId: categoryId, isLoading: false })
     },
 
     date (d) {
@@ -508,8 +549,8 @@ export default {
       })
     },
 
-    getInstitutionsByPage (page) {
-      this.fetchInvitableInstitution({
+    getInstitutionsByPage (page, categoryId = null) {
+      const args = {
         page: {
           number: page,
           size: 50
@@ -534,7 +575,21 @@ export default {
           'assignedTags.category',
           'category'
         ].join()
-      })
+      }
+
+      if(Object.keys(this.filterQuery).length > 0) {
+        args.filter = this.filterQuery
+      }
+
+      return this.fetchInvitableInstitution(args)
+        .then(() => {
+          if (categoryId) {
+            this.setIsFilterFlyoutLoading({ categoryId: categoryId, isLoading: false })
+          }
+        })
+        .catch(err => {
+          console.error(err)
+        })
     },
 
     getInstitutionTagCategories () {
@@ -578,23 +633,61 @@ export default {
         .map(el => el.name)
     },
 
-    sendFilterQuery (filter) {
-      // const isReset = Object.keys(filter).length === 0
-      // if (isReset === false && Object.keys(this.appliedFilterQuery).length) {
-      //   Object.values(filter).forEach(el => {
-      //     this.appliedFilterQuery[el.condition.value] = el
-      //   })
-      // } else {
-      //   if (isReset) {
-      //     this.appliedFilterQuery = Object.keys(this.getFilterQuery).length ? this.getFilterQuery : []
-      //   } else {
-      //     this.appliedFilterQuery = filter
-      //   }
-      // }
-      // this.updateQueryHash()
-      // this.resetSelection()
-      // this.applyQuery(1)
+    resetQuery () {
+      this.searchTerm = ''
+      Object.keys(this.filters).forEach((filter, idx) => {
+        this.$refs.filterFlyout[idx].reset()
+      })
+      this.appliedFilterQuery = []
+      this.getInstitutionsByPage(1)
     },
+
+    /**
+     *
+     * @param filter {Object} Object of filter objects as expected by json api, i.e.
+     * {
+     *    [id]: {
+     *      condition: {
+     *        path: <string>,
+     *        value: <string>
+     *      }
+     *    }
+     * }
+     */
+    setAppliedFilterQuery (filter) {
+      const isReset = Object.keys(filter).length === 0
+
+      if (!isReset && !Array.isArray(this.appliedFilterQuery) && Object.keys(this.appliedFilterQuery).length === 0) {
+        Object.values(filter).forEach(el => {
+          this.$set(this.appliedFilterQuery, el.condition.value, el)
+        })
+      } else {
+        if (isReset) {
+          this.appliedFilterQuery = Object.keys(this.filterQuery).length ? this.filterQuery : []
+        } else {
+          this.appliedFilterQuery = filter
+        }
+      }
+    },
+
+    // sendFilterQuery (filter) {
+    //   const isReset = Object.keys(filter).length === 0
+    //
+    //   if (!isReset && Object.keys(this.appliedFilterQuery).length === 0) {
+    //     Object.values(filter).forEach(el => {
+    //       this.appliedFilterQuery[el.condition.value] = el
+    //     })
+    //   } else {
+    //     if (isReset) {
+    //       this.appliedFilterQuery = Object.keys(this.getFilterQuery).length ? this.getFilterQuery : []
+    //     } else {
+    //       this.appliedFilterQuery = filter
+    //     }
+    //   }
+    //   this.updateQueryHash()
+    //   this.resetSelection()
+    //   this.applyQuery(1)
+    // },
 
     separateByCommas (institutionTags) {
       const tagsLabels = []
@@ -618,25 +711,25 @@ export default {
         .map(category => category.attributes.name)
     },
 
-    updateQueryHash () {
-      const hrefParts = window.location.href.split('/')
-      const oldQueryHash = hrefParts[hrefParts.length - 1]
-      const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash: oldQueryHash })
-
-      const data = { filter: this.getFilterQuery }
-      if (this.searchterm !== '') {
-        data.searchPhrase = this.searchTerm
-      }
-      return dpApi.patch(url, {}, data)
-        .then(response => checkResponse(response))
-        .then(response => {
-          if (response) {
-            this.updateQueryHashInURL(oldQueryHash, response)
-            this.currentQueryHash = response
-          }
-        })
-        .catch(err => console.error(err))
-    },
+    // updateQueryHash () {
+    //   const hrefParts = window.location.href.split('/')
+    //   const oldQueryHash = hrefParts[hrefParts.length - 1]
+    //   const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash: oldQueryHash })
+    //
+    //   const data = { filter: this.getFilterQuery }
+    //   if (this.searchterm !== '') {
+    //     data.searchPhrase = this.searchTerm
+    //   }
+    //   return dpApi.patch(url, {}, data)
+    //     .then(response => checkResponse(response))
+    //     .then(response => {
+    //       if (response) {
+    //         this.updateQueryHashInURL(oldQueryHash, response)
+    //         this.currentQueryHash = response
+    //       }
+    //     })
+    //     .catch(err => console.error(err))
+    // },
   },
 
   mounted () {
