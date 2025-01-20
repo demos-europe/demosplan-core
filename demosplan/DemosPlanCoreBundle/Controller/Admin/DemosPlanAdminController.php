@@ -132,16 +132,8 @@ class DemosPlanAdminController extends BaseController
 
                 $procedureList['result'][$procedureData['id']] = $procedureData; // actually overwrite data
 
-                // speichere die Anzahl der Phasen zwischen
-                if (0 < strlen((string) $procedureData['phase'])) {
-                    // Wenn der key num noch nicht vorhanden ist, lege ihn an
-                    isset($internalPhases[$procedureData['phase']]['num']) ? $internalPhases[$procedureData['phase']]['num']++ : $internalPhases[$procedureData['phase']]['num'] = 1;
-                }
-                if (0 < strlen((string) $procedureData['publicParticipationPhase'])) {
-                    isset($externalPhases[$procedureData['publicParticipationPhase']]['num'])
-                        ? $externalPhases[$procedureData['publicParticipationPhase']]['num']++
-                        : $externalPhases[$procedureData['publicParticipationPhase']]['num'] = 1;
-                }
+                $internalPhases = $this->cacheProcedurePhase($procedureData, $internalPhases, 'phase');
+                $externalPhases = $this->cacheProcedurePhase($procedureData, $externalPhases, 'publicParticipationPhase');
             }
         }
 
@@ -151,5 +143,16 @@ class DemosPlanAdminController extends BaseController
         $templateVars['procedureList'] = $procedureList['result'];
 
         return $templateVars;
+    }
+
+    private function cacheProcedurePhase(array $procedureData, array $procedurePhases, string $phaseType): array
+    {
+        if (0 < strlen($procedureData[$phaseType])) {
+            isset($procedurePhases[$procedureData[$phaseType]]['num'])
+                ? $procedurePhases[$procedureData[$phaseType]]['num']++
+                : $procedurePhases[$procedureData[$phaseType]]['num'] = 1;
+        }
+
+        return $procedurePhases;
     }
 }
