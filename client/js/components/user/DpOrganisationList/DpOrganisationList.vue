@@ -166,7 +166,10 @@ import {
   dpSelectAllMixin,
   DpSkeletonBox,
   DpSlidingPagination,
-  hasOwnProp
+  hasOwnProp,
+  checkResponse,
+  dpApi
+
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
@@ -359,7 +362,13 @@ export default {
       }
 
       ids.forEach(id => {
-        this.deleteOrganisation(id)
+        dpApi({
+          method: 'DELETE',
+          url: Routing.generate('organisation_delete', {
+            id: id
+          })
+        })
+          .then(checkResponse)
           .then((response) => {
             if (response && response.ok === false) {
               //dplan.notify.notify('confirm', Translator.trans('error.delete.organisation.related.procedure', { count: ids.length }))
