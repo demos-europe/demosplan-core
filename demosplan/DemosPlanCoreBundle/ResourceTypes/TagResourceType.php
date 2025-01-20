@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
+use EDT\JsonApi\ApiDocumentation\DefaultInclude;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
@@ -158,6 +159,10 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                 ]
             )
         );
+
+        $configBuilder->boilerplate
+            ->setRelationshipType($this->resourceTypeStore->getBoilerplateResourceType())
+            ->setReadableByPath(DefaultField::YES, DefaultInclude::YES)->setSortable()->setFilterable();
 
         $configBuilder->addCreationBehavior(
             new FixedSetBehavior(
