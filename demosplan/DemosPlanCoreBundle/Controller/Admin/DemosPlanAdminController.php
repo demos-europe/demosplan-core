@@ -73,31 +73,13 @@ class DemosPlanAdminController extends BaseController
         $globalStatementStatistic = new StatementStatistic($originalStatements, $amountOfProcedures);
         $templateVars['statementStatistic'] = $globalStatementStatistic;
 
-        if ($procedureList['total'] > 0) {
-            foreach ($procedureList['result'] as $procedureData) {
-                $procedureData['phaseName'] = $this->globalConfig->getPhaseNameWithPriorityInternal($procedureData['phase']);
-                $procedureData['publicParticipationPhaseName'] = $this->globalConfig->getPhaseNameWithPriorityExternal($procedureData['publicParticipationPhase']);
-                $procedureData['statementStatistic'] = $globalStatementStatistic->getStatisticDataForProcedure($procedureData['id']);
-
-                $procedureList['result'][$procedureData['id']] = $procedureData; // actually overwrite data
-
-                // speichere die Anzahl der Phasen zwischen
-                if (0 < strlen((string) $procedureData['phase'])) {
-                    // Wenn der key num noch nicht vorhanden ist, lege ihn an
-                    isset($internalPhases[$procedureData['phase']]['num']) ? $internalPhases[$procedureData['phase']]['num']++ : $internalPhases[$procedureData['phase']]['num'] = 1;
-                }
-                if (0 < strlen((string) $procedureData['publicParticipationPhase'])) {
-                    isset($externalPhases[$procedureData['publicParticipationPhase']]['num'])
-                        ? $externalPhases[$procedureData['publicParticipationPhase']]['num']++
-                        : $externalPhases[$procedureData['publicParticipationPhase']]['num'] = 1;
-                }
-            }
-        }
-
-        $templateVars['internalPhases'] = $internalPhases;
-        $templateVars['externalPhases'] = $externalPhases;
-
-        $templateVars['procedureList'] = $procedureList['result'];
+        $templateVars = $this->prepareProcedureListForStatisticsView(
+            $templateVars,
+            $procedureList,
+            $internalPhases,
+            $externalPhases,
+            $globalStatementStatistic
+        );
 
         $undeletedUsers = $userService->getUndeletedUsers();
         $templateVars['rolesList'] = $userService->collectRoleStatistics($undeletedUsers);
@@ -133,5 +115,41 @@ class DemosPlanAdminController extends BaseController
         ]);
 
         return $csvHelper->prepareCsvResponse($response, $part, $nameGenerator);
+    }
+
+    private function prepareProcedureListForStatisticsView(
+        array $templateVars,
+        array $procedureList,
+        array $internalPhases,
+        array $externalPhases,
+        StatementStatistic $globalStatementStatistic
+    ): array {
+        if ($procedureList['total'] > 0) {
+            foreach ($procedureList['result'] as $procedureData) {
+                $procedureData['phaseName'] = $this->globalConfig->getPhaseNameWithPriorityInternal($procedureData['phase']);
+                $procedureData['publicParticipationPhaseName'] = $this->globalConfig->getPhaseNameWithPriorityExternal($procedureData['publicParticipationPhase']);
+                $procedureData['statementStatistic'] = $globalStatementStatistic->getStatisticDataForProcedure($procedureData['id']);
+
+                $procedureList['result'][$procedureData['id']] = $procedureData; // actually overwrite data
+
+                // speichere die Anzahl der Phasen zwischen
+                if (0 < strlen((string) $procedureData['phase'])) {
+                    // Wenn der key num noch nicht vorhanden ist, lege ihn an
+                    isset($internalPhases[$procedureData['phase']]['num']) ? $internalPhases[$procedureData['phase']]['num']++ : $internalPhases[$procedureData['phase']]['num'] = 1;
+                }
+                if (0 < strlen((string) $procedureData['publicParticipationPhase'])) {
+                    isset($externalPhases[$procedureData['publicParticipationPhase']]['num'])
+                        ? $externalPhases[$procedureData['publicParticipationPhase']]['num']++
+                        : $externalPhases[$procedureData['publicParticipationPhase']]['num'] = 1;
+                }
+            }
+        }
+
+        $templateVars['internalPhases'] = $internalPhases;
+        $templateVars['externalPhases'] = $externalPhases;
+
+        $templateVars['procedureList'] = $procedureList['result'];
+
+        return $templateVars;
     }
 }
