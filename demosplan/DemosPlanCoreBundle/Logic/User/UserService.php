@@ -53,6 +53,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use DOMDocument;
 use Exception;
+use Illuminate\Support\Collection as IlluminateCollection;
 use LSS\XML2Array;
 use Pagerfanta\Pagerfanta;
 use RuntimeException;
@@ -60,7 +61,6 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Illuminate\Support\Collection as IlluminateCollection;
 
 use function array_key_exists;
 
@@ -122,7 +122,7 @@ class UserService extends CoreService implements UserServiceInterface
         private readonly TranslatorInterface $translator,
         private readonly UserPasswordHasherInterface $userPasswordHasher,
         private readonly UserRepository $userRepository,
-        private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository
+        private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository,
     ) {
         $this->addressService = $addressService;
         $this->contentService = $serviceContent;
@@ -1014,7 +1014,7 @@ class UserService extends CoreService implements UserServiceInterface
     /**
      * Change the login and the email of a user.
      *
-     * @return user|bool - User in case of successfully set Email, otherwise false
+     * @return User|bool - User in case of successfully set Email, otherwise false
      *
      * @throws Exception
      */
