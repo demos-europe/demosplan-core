@@ -512,6 +512,7 @@ export default {
     ...mapMutations('SegmentFilter', ['updateFilterQuery']),
 
     ...mapMutations('FilterFlyout', {
+      setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
       setGroupedFilterOptions: 'setGroupedOptions',
       setUngroupedFilterOptions: 'setUngroupedOptions'
     }),
@@ -693,7 +694,7 @@ export default {
      * @param params.searchPhrase {String}
      */
     sendFilterOptionsRequest (params) {
-      const { additionalQueryParams, category, filter, path } = params
+      const { additionalQueryParams, category, filter, isInitialWithQuery, path } = params
       const requestParams = {
         ...additionalQueryParams,
         filter: {
@@ -787,6 +788,20 @@ export default {
                 label: Translator.trans('not.assigned'),
                 ungrouped: true,
                 selected: result.meta.unassigned_selected
+              })
+            }
+
+            if (isInitialWithQuery && this.queryIds.length > 0) {
+              const allOptions = [...groupedOptions.flatMap(group => group.options), ...ungroupedOptions]
+
+              const currentFlyoutFilterIds = this.queryIds.filter(queryId => {
+                const item = allOptions.find(item => item.id === queryId)
+                return item ? item.id : null
+              })
+
+              this.setInitialFlyoutFilterIds({
+                categoryId: category.id,
+                filterIds: currentFlyoutFilterIds
               })
             }
 

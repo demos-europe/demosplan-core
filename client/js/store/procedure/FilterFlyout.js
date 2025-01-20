@@ -6,6 +6,11 @@ const FilterFlyoutStore = {
 
   state: {
     /**
+     * Object to store the initial flyout filter IDs.
+     * Keys are category IDs and values are arrays of filter IDs.
+     */
+    initialFlyoutFilterIds: {},
+    /**
      * Grouped filter options, stored in groupedOptions by categoryId of the filter flyout:
      * Object with categoryIds as keys and grouped options as values.
      * Each object has  id, label, and options.
@@ -27,6 +32,19 @@ const FilterFlyoutStore = {
 
   mutations: {
     /**
+     * Sets the initial flyout filter IDs for a given category.
+     *
+     * @param {Object} state - The state object.
+     * @param {Object} payload - The payload object.
+     * @param {String} payload.categoryId - The ID of the category.
+     * @param {Array} payload.filterIds - The array of filter IDs to set.
+     */
+    setInitialFlyoutFilterIds(state, payload) {
+      const { categoryId, filterIds } = payload
+      Vue.set(state.initialFlyoutFilterIds, categoryId, filterIds)
+    },
+
+    /**
      *
      * @param state
      * @param payload {Object}
@@ -40,6 +58,16 @@ const FilterFlyoutStore = {
       Vue.set(state.groupedOptions, categoryId, groupedOptions)
     },
 
+    /**
+     * Sets the selected state of a grouped option for a given category and group.
+     *
+     * @param {Object} state - The state object.
+     * @param {Object} payload - The payload object.
+     * @param {String} payload.categoryId - The ID of the category.
+     * @param {String} payload.groupId - The ID of the group.
+     * @param {String} payload.optionId - The ID of the option.
+     * @param {Boolean} payload.value - The selected state to set.
+     */
     setGroupedOptionSelected(state, { categoryId, groupId, optionId, value }) {
       const groups = state.groupedOptions[categoryId]
       if (groups) {
@@ -79,6 +107,15 @@ const FilterFlyoutStore = {
       Vue.set(state.ungroupedOptions, categoryId, options)
     },
 
+    /**
+     * Sets the selected state of an ungrouped option for a given category.
+     *
+     * @param {Object} state - The state object.
+     * @param {Object} payload - The payload object.
+     * @param {String} payload.categoryId - The ID of the category.
+     * @param {String} payload.optionId - The ID of the option.
+     * @param {Boolean} payload.value - The selected state to set.
+     */
     setUngroupedOptionSelected(state, { categoryId, optionId, value }) {
       const options = state.ungroupedOptions[categoryId]
       if (options) {
@@ -91,10 +128,35 @@ const FilterFlyoutStore = {
   },
 
   getters: {
+    /**
+     * Retrieves the initial flyout filter IDs for a given category.
+     *
+     * @param {Object} state - The state object.
+     * @param {String} categoryId - The ID of the category.
+     * @return {Array} The initial flyout filter IDs for the specified category.
+     */
+    getInitialFlyoutFilterIdsByCategoryId: (state) =>  (categoryId) =>{
+      return state.initialFlyoutFilterIds[categoryId]
+    },
+
+    /**
+     * Retrieves the grouped filter options for a given category.
+     *
+     * @param {Object} state - The state object.
+     * @param {String} categoryId - The ID of the category.
+     * @return {Object} The grouped filter options for the specified category.
+     */
     getGroupedOptionsByCategoryId: (state) => (categoryId) => {
       return state.groupedOptions[categoryId]
     },
 
+    /**
+     * Retrieves the loading state for a given category.
+     *
+     * @param {Object} state - The state object.
+     * @param {String} categoryId - The ID of the category.
+     * @return {Boolean} The loading state for the specified category.
+     */
     getIsLoadingByCategoryId: (state) => (categoryId) => {
       return state.isLoading[categoryId]
     },

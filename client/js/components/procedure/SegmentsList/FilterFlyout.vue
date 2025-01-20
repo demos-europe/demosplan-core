@@ -255,10 +255,15 @@ export default {
     }),
 
     ...mapGetters('FilterFlyout', [
+      'getInitialFlyoutFilterIdsByCategoryId',
       'getGroupedOptionsByCategoryId',
       'getIsLoadingByCategoryId',
       'getUngroupedOptionsByCategoryId'
     ]),
+
+    initialFlyoutFilterIds() {
+      return this.getInitialFlyoutFilterIdsByCategoryId(this.category.id)
+    },
 
     /**
      * Construct the query object to be passed into vuex-json-api call.
@@ -340,6 +345,24 @@ export default {
     }
   },
 
+  watch: {
+    /**
+     * Watcher for initialFlyoutFilterIds.
+     * Compares new and old values deeply and updates the current query if they differ.
+     *
+     * @param {Array} newIds - The new array of filter IDs.
+     * @param {Array} oldIds - The old array of filter IDs.
+     */
+    initialFlyoutFilterIds: {
+      handler(newIds, oldIds) {
+        if (JSON.stringify(newIds) !== JSON.stringify(oldIds)) {
+          this.setCurrentQuery(newIds)
+        }
+      },
+      deep: true
+    }
+  },
+
   methods: {
     ...mapMutations('SegmentFilter', ['updateFilterQuery']),
 
@@ -392,10 +415,16 @@ export default {
         // })
     },
 
-    requestFilterOptions () {
+    /**
+     * Emits a 'filterOptions:request' event with the provided query parameters.
+     *
+     * @param {boolean} [isInitialWithQuery=false] - Indicates if it is an initial request with query.
+     */
+    requestFilterOptions (isInitialWithQuery = false) {
       this.$emit('filterOptions:request', {
         additionalQueryParams: this.additionalQueryParams,
         filter: this.getFilterQuery,
+        isInitialWithQuery: isInitialWithQuery,
         path: this.path
       })
     },
@@ -476,16 +505,10 @@ export default {
 
   mounted () {
     this.setIsLoading({ categoryId: this.category.id, isLoading: true })
-    // if (this.initialQuery.length) {
-    //   this.requestFilterOptions()
-    //     .then(() => {
-    //       const currentFlyoutFilterIds = this.initialQuery.filter(queryId => {
-    //         const item = this.items.find(item => item.id === queryId)
-    //         return item ? item.id : null
-    //       })
-    //       this.setCurrentQuery(currentFlyoutFilterIds)
-    //     })
-    // }
+    if (this.initialQuery.length) {
+      const isInitialWithQuery = true
+      this.requestFilterOptions(isInitialWithQuery)
+    }
   }
 }
 </script>
