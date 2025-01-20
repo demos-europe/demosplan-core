@@ -62,6 +62,18 @@ export default {
         nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
         marks: {
           ...schema.spec.marks,
+          bold: {
+            parseDOM: [{ tag: 'strong' }],
+            toDOM() {
+              return ['strong']
+            }
+          },
+          italic: {
+            parseDOM: [{ tag: 'em' }],
+            toDOM() {
+              return ['em']
+            }
+          },
           link: {
             attrs: {
               href: {},
