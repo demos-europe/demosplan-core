@@ -34,7 +34,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         private readonly AccessControlService $accessControlPermissionService,
         private readonly OrgaService $orgaService,
         private readonly UserHandler $userHandler,
-        private readonly UserService $userService
+        private readonly UserService $userService,
     ) {
         parent::__construct($entityManager);
     }
@@ -133,7 +133,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
     public function createAnonymousCitizenUser(
         ObjectManager $manager,
         OrgaType $orgaTypeOlauth,
-        Customer $customer
+        Customer $customer,
     ): void {
         // Create Department
         $department = new Department();

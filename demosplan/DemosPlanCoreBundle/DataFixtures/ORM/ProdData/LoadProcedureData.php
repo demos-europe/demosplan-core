@@ -44,7 +44,7 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         GlobalConfigInterface $globalConfig,
         PermissionsInterface $permissions,
         ProcedureHandler $procedureHandler,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         parent::__construct($entityManager);
         $this->translator = $translator;
