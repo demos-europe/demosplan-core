@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Admin;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Logic\CsvHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
@@ -47,10 +48,11 @@ class DemosPlanAdminController extends BaseController
     #[Route(path: '/statistik', name: 'DemosPlan_statistics', defaults: ['format' => 'html', 'part' => 'all'])]
     #[Route(path: '/statistik/{part}/csv', name: 'DemosPlan_statistics_csv', defaults: ['format' => 'csv'])]
     public function generateStatisticsAction(
-        Environment $twig,
-        OrgaService $orgaService,
+        CsvHelper $csvHelper,
         CustomerService $customerProvider,
+        Environment $twig,
         NameGenerator $nameGenerator,
+        OrgaService $orgaService,
         ProcedureService $procedureService,
         StatementService $statementService,
         UserService $userService,
@@ -129,14 +131,7 @@ class DemosPlanAdminController extends BaseController
             'title'        => $title,
             'part'         => $part,
         ]);
-        // T25516 UTF-8-MB for MS-excel umlauts support
-        $bom = chr(0xEF).chr(0xBB).chr(0xBF);
-        $response->setContent($bom.$response->getContent());
-        $filename = 'export_'.$part.'_'.date('Y_m_d_His').'.csv';
-        $response->headers->set('Content-Type', 'text/csv');
-        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
-        $response->setCharset('UTF-8');
 
-        return $response;
+        return $csvHelper->prepareCsvResponse($response, $part, $nameGenerator);
     }
 }
