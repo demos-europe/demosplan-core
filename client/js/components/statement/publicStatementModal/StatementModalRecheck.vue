@@ -17,12 +17,13 @@
       v-text="Translator.trans('statement.recheck')" />
 
     <dp-inline-notification
-      :class="prefixClass('mt-1')"
+      :class="prefixClass('mt-1 mb-2')"
       :message="Translator.trans('statement.recheck')"
       type="warning" />
 
     <dp-inline-notification
       v-if="statementFormHintRecheck !== ''"
+      :class="prefixClass('mt-3 mb-2')"
       type="info">
       <p v-cleanhtml="statementFormHintRecheck" />
     </dp-inline-notification>
