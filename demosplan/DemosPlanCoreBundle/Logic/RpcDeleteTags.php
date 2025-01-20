@@ -19,6 +19,8 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcErrorGeneratorInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Event\Tag\DeleteTagEvent;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -33,8 +35,8 @@ use stdClass;
 class RpcDeleteTags implements RpcMethodSolverInterface
 {
     private const DELETE_TAGS_METHOD = 'bulk.delete.tags.and.topics';
-    private const TAG_TYPE = 'tag';
-    private const TAG_TOPIC_TYPE = 'tagTopic';
+    private const TAG_TYPE = 'Tag';
+    private const TAG_TOPIC_TYPE = 'TagTopic';
     private const HANDLED_ITEM_TYPES = [self::TAG_TYPE, self::TAG_TOPIC_TYPE];
 
     public function __construct(
@@ -44,7 +46,8 @@ class RpcDeleteTags implements RpcMethodSolverInterface
         private readonly StatementHandler           $statementHandler,
         private readonly TransactionService         $transactionService,
         private readonly CurrentUserInterface       $currentUser,
-        private readonly EventDispatcherInterface   $eventDispatcher
+        private readonly EventDispatcherInterface   $eventDispatcher,
+        private readonly TagService                 $tagService,
     ) {
     }
 
@@ -85,7 +88,7 @@ class RpcDeleteTags implements RpcMethodSolverInterface
         foreach ($rpcRequests as $rpcRequest) {
             try {
                 /** @var array<int, array{itemType: string, id: string}> $items */
-                $items = $rpcRequest->params->items;
+                $items = $rpcRequest->params->ids;
 
                 foreach ($items as $item) {
                     $itemType = $item->type;
@@ -102,18 +105,7 @@ class RpcDeleteTags implements RpcMethodSolverInterface
                                 "$itemType with id: $itemId is in use and can not be deleted"
                             );
                         }
-
-                        $event = $this->eventDispatcher->dispatch(
-                            new DeleteTagEvent($itemId),
-                            DeleteTagEventInterface::class
-                        );
-
-                        $handledSuccessfully = $event->hasBeenHandledSuccessfully();
-                        if ($handledSuccessfully) {
-                            if (false === $this->statementHandler->deleteTag($itemId)) {
-                                throw new TagNotFoundException("Tag with id: $itemId not deleted - was not found");
-                            }
-                        }
+                        $this->sendTagDeleteAddonNotification($itemId);
                     }
                     if (self::TAG_TOPIC_TYPE === $itemType) {
                         if ($this->statementHandler->isTopicInUse($itemId)) {
@@ -121,6 +113,11 @@ class RpcDeleteTags implements RpcMethodSolverInterface
                                 "$itemType with id: $itemId is in use and can not be deleted"
                             );
                         }
+                        $tagsOfTopic = $this->tagService->getTopic($itemId)?->getTags() ?? new ArrayCollection();
+                        foreach ($tagsOfTopic as $tag) {
+                            $this->sendTagDeleteAddonNotification($tag->getId());
+                        }
+
                         if (false === $this->statementHandler->deleteTopic($itemId)) {
                             throw new TagNotFoundException(
                                 "Topic with id: $itemId and its topics could not be deleted."
@@ -141,6 +138,19 @@ class RpcDeleteTags implements RpcMethodSolverInterface
         }
 
         return $resultResponse;
+    }
+
+    /**
+     * @throws TagNotFoundException
+     */
+    private function sendTagDeleteAddonNotification(string $tagId): void
+    {
+        $event = $this->eventDispatcher->dispatch(new DeleteTagEvent($tagId), DeleteTagEventInterface::class);
+        if (!$event->hasBeenHandledSuccessfully()) {
+            throw new TagNotFoundException(
+                "Tag with id: $tagId not deleted - an existing additional relation could not be deleted"
+            );
+        }
     }
 
     public function isTransactional(): bool
