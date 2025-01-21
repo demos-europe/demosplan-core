@@ -30,7 +30,7 @@
         id="orga_paperCopySpec"
         data-cy="organisationData:paperCopy:specification"
         :name="`${organisation.id}:paperCopySpec`"
-        :value="organisation.paperCopySpec"
+        :v-model="organisation.paperCopySpec"
         :label="Translator.trans('copies.kind')"
         :hint="Translator.trans('explanation.organisation.copies.kind')" />
     </div>
