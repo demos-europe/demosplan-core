@@ -46,12 +46,13 @@ class Version20250120151616 extends AbstractMigration
 
         // fetch all entries with the old id, try to update them one by one, catch
         // non-unique constraint violations and delete the entry if it could not be updated
-        $this->updateNewsRoles($roleIdToRemove, $roleIdToKeep);
-        $this->updatePlatformContentRoles($roleIdToRemove, $roleIdToKeep);
-        $this->updateAccessControl($roleIdToRemove, $roleIdToKeep);
-        $this->updateFaqRole($roleIdToRemove, $roleIdToKeep);
-        $this->updatePlatformFaqRole($roleIdToRemove, $roleIdToKeep);
-        $this->updateRelationRoleUserCustomer($roleIdToRemove, $roleIdToKeep);
+        $this->updateRoleReferences('_news_roles', '_r_id', '_n_id', $roleIdToRemove, $roleIdToKeep);
+        $this->updateRoleReferences('_platform_content_roles', '_r_id', '_pc_id', $roleIdToRemove, $roleIdToKeep);
+        $this->updateRoleReferences('access_control', 'role_id', 'id', $roleIdToRemove, $roleIdToKeep);
+        $this->updateRoleReferences('faq_role', 'role_id', 'faq_id', $roleIdToRemove, $roleIdToKeep);
+        $this->updateRoleReferences('platform_faq_role', 'role_id', 'platformFaq_id', $roleIdToRemove, $roleIdToKeep);
+        $this->updateRoleReferences('relation_role_user_customer', 'role', 'id', $roleIdToRemove, $roleIdToKeep);
+
         // Delete the duplicate role entry
         $this->addSql('DELETE FROM `_role` WHERE _r_id = :roleIdToRemove', ['roleIdToRemove' => $roleIdToRemove]);
     }
@@ -73,19 +74,18 @@ class Version20250120151616 extends AbstractMigration
         );
     }
 
-    private function updateNewsRoles(mixed $roleIdToRemove, mixed $roleIdToKeep): void
+    private function updateRoleReferences(string $table, string $roleColumn, string $idColumn, mixed $roleIdToRemove, mixed $roleIdToKeep): void
     {
         $entries = $this->connection->fetchAllAssociative(
-            'SELECT *
-                FROM `_news_roles`
-                WHERE _r_id = :roleIdToRemove',
+            "SELECT * FROM `$table` WHERE $roleColumn = :roleIdToRemove",
             ['roleIdToRemove' => $roleIdToRemove]
         );
+
         foreach ($entries as $entry) {
             try {
                 $this->connection->executeStatement(
-                    'UPDATE `_news_roles` SET _r_id = :roleIdToKeep WHERE _n_id = :id',
-                    ['roleIdToKeep' => $roleIdToKeep, 'id' => $entry['_n_id']]
+                    "UPDATE `$table` SET $roleColumn = :roleIdToKeep WHERE $idColumn = :id",
+                    ['roleIdToKeep' => $roleIdToKeep, 'id' => $entry[$idColumn]]
                 );
             } catch (Exception) {
                 // Entries are deleted later on in bulk
@@ -93,130 +93,7 @@ class Version20250120151616 extends AbstractMigration
         }
 
         $this->addSql(
-            'DELETE FROM `_news_roles` WHERE _r_id = :roleIdToRemove',
-            ['roleIdToRemove' => $roleIdToRemove]
-        );
-    }
-
-    private function updatePlatformContentRoles(mixed $roleIdToRemove, mixed $roleIdToKeep): void
-    {
-        $entries = $this->connection->fetchAllAssociative(
-            'SELECT *
-                FROM `_platform_content_roles`
-                WHERE _r_id = :roleIdToRemove',
-            ['roleIdToRemove' => $roleIdToRemove]
-        );
-        foreach ($entries as $entry) {
-            try {
-                $this->connection->executeStatement(
-                    'UPDATE `_platform_content_roles` SET _r_id = :roleIdToKeep WHERE _pc_id = :id',
-                    ['roleIdToKeep' => $roleIdToKeep, 'id' => $entry['_pc_id']]
-                );
-            } catch (Exception) {
-                // Entries are deleted later on in bulk
-            }
-        }
-        $this->addSql(
-            'DELETE FROM `_platform_content_roles` WHERE _r_id = :roleIdToRemove',
-            ['roleIdToRemove' => $roleIdToRemove]
-        );
-    }
-
-    private function updateAccessControl(mixed $roleIdToRemove, mixed $roleIdToKeep): void
-    {
-        $entries = $this->connection->fetchAllAssociative(
-            'SELECT *
-                FROM `access_control`
-                WHERE role_id = :roleIdToRemove',
-            ['roleIdToRemove' => $roleIdToRemove]
-        );
-        foreach ($entries as $entry) {
-            try {
-                $this->connection->executeStatement(
-                    'UPDATE `access_control` SET role_id = :roleIdToKeep WHERE id = :id',
-                    ['roleIdToKeep' => $roleIdToKeep, 'id' => $entry['id']]
-                );
-            } catch (Exception) {
-                // Entries are deleted later on in bulk
-            }
-        }
-        $this->addSql(
-            'DELETE FROM `access_control` WHERE role_id = :roleIdToRemove',
-            ['roleIdToRemove' => $roleIdToRemove]
-        );
-    }
-
-    private function updateFaqRole(mixed $roleIdToRemove, mixed $roleIdToKeep): void
-    {
-        $entries = $this->connection->fetchAllAssociative(
-            'SELECT *
-                FROM `faq_role`
-                WHERE role_id = :roleIdToRemove',
-            ['roleIdToRemove' => $roleIdToRemove]
-        );
-        foreach ($entries as $entry) {
-            try {
-                $this->connection->executeStatement(
-                    'UPDATE `faq_role` SET role_id = :roleIdToKeep WHERE faq_id = :id',
-                    ['roleIdToKeep' => $roleIdToKeep, 'id' => $entry['faq_id']]
-                );
-            } catch (Exception) {
-                // Entries are deleted later on in bulk
-            }
-        }
-        $this->addSql(
-            'DELETE FROM `faq_role` WHERE role_id = :roleIdToRemove',
-            ['roleIdToRemove' => $roleIdToRemove]
-        );
-    }
-
-    private function updatePlatformFaqRole(mixed $roleIdToRemove, mixed $roleIdToKeep): void
-    {
-        $entries = $this->connection->fetchAllAssociative(
-            'SELECT *
-                FROM `platform_faq_role`
-                WHERE role_id = :roleIdToRemove',
-            ['roleIdToRemove' => $roleIdToRemove]
-        );
-        foreach ($entries as $entry) {
-            try {
-                $this->connection->executeStatement(
-                    'UPDATE `platform_faq_role` SET role_id = :roleIdToKeep WHERE platformFaq_id = :id',
-                    [
-                        'roleIdToKeep' => $roleIdToKeep,
-                        'id'           => $entry['platformFaq_id'],
-                    ]
-                );
-            } catch (Exception) {
-                // Entries are deleted later on in bulk
-            }
-        }
-        $this->addSql(
-            'DELETE FROM `platform_faq_role` WHERE role_id = :roleIdToRemove',
-            ['roleIdToRemove' => $roleIdToRemove]
-        );
-    }
-
-    private function updateRelationRoleUserCustomer(mixed $roleIdToRemove, mixed $roleIdToKeep): void
-    {
-        $entries = $this->connection->fetchAllAssociative(
-            'SELECT *
-            FROM `relation_role_user_customer`
-            WHERE role = :roleIdToRemove',
-            ['roleIdToRemove' => $roleIdToRemove]
-        );
-        foreach ($entries as $entry) {
-            try {
-                $this->connection->executeStatement(
-                    'UPDATE `relation_role_user_customer` SET role = :roleIdToKeep WHERE id = :id',
-                    ['roleIdToKeep' => $roleIdToKeep, 'id' => $entry['id']]
-                );
-            } catch (Exception $e) {
-                // Entries are deleted later on in bulk
-            }
-        }
-        $this->addSql(
-            'DELETE FROM `relation_role_user_customer` WHERE role = :roleIdToRemove',
+            "DELETE FROM `$table` WHERE $roleColumn = :roleIdToRemove",
             ['roleIdToRemove' => $roleIdToRemove]
         );
     }
