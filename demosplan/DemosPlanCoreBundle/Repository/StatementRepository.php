@@ -1986,7 +1986,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     /**
      * Returns only original statements and these whose related procedure is not deleted.
      *
-     * @return Statement[]
+     * @return array<int, array<string, mixed>>
      */
     public function getOriginalStatements(): array
     {
