@@ -6,7 +6,7 @@
       content-classes="w-2/3"
       ref="createTagModal"
       aria-hidden="true"
-      :aria-label="Translator.trans('tag.create')"
+      :aria-label="Translator.trans('tag.new.create')"
       aria-modal="true">
       <template v-slot:header>
         Create Tag
@@ -18,11 +18,13 @@
           id="new-tag-title"
           class="mb-1"
           :label="{
-            text: Translator.trans('tag.create')
+            text: Translator.trans('tag.new.create')
           }"
           :placeholder="Translator.trans('title')" />
 
-        <dp-select :options="topicsAsOptions" v-model="newTag.topic" />
+        <div class="mb-1">
+          <dp-select :options="topicsAsOptions" v-model="newTag.topic" />
+        </div>
 
         <addon-wrapper
           class="block mb-1"
@@ -42,7 +44,7 @@
       aria-label="Create Topic"
       aria-modal>
       <template v-slot:header>
-        {{ Translator.trans('category.create') }}
+        {{ Translator.trans('topic.create') }}
       </template>
 
       <dp-input
@@ -52,27 +54,31 @@
         :placeholder="Translator.trans('title')" />
       <div class="flex justify-end mt-2">
         <dp-button
-          :text="Translator.trans('category.create')"
+          :text="Translator.trans('topic.create.short')"
           @click="saveNewTopic" />
       </div>
     </dp-modal>
 
-    <div class="flex justify-end mb-1">
+    <div class="flex justify-end mb-2">
       <dp-button
         :text="Translator.trans('tag.create')"
         @click="() => toggleCreateModal({ type: 'Tag' })" />
       <dp-button
         class="ml-1"
-        :text="Translator.trans('category.create')"
+        color="secondary"
+        :text="Translator.trans('topic.create.short')"
+        variant="outline"
         @click="() => toggleCreateModal({ type: 'TagTopic' })" />
     </div>
 
     <dp-tree-list
+      v-if="transformedCategories"
       class="mb-4"
       :tree-data="transformedCategories"
       :options="{
         branchesSelectable: true,
-        leavesSelectable: true
+        leavesSelectable: true,
+        dragLeaves: true
       }"
       :branch-identifier="branchFunc()">
       <template v-slot:header>
@@ -80,13 +86,13 @@
           <div class="flex-1">
             {{ Translator.trans('topic.or.tag') }}
           </div>
-          <div class="ml-1 flex-0">
+          <div class="ml-1 flex-0 w-9">
             {{ Translator.trans('boilerplates') }}
           </div>
 
           <addon-wrapper hook-name="tag.extend.form" />
 
-          <div class="ml-1 flex-0">
+          <div class="ml-1 flex-0 w-8 text-right">
             {{ Translator.trans('actions') }}
           </div>
         </div>
@@ -96,6 +102,7 @@
           class="font-bold"
           :node-element="nodeElement"
           :is-in-edit-state="isInEditState"
+          :procedure-id="procedureId"
           type="TagTopic"
           @abort="abort"
           @delete="deleteItem"
@@ -106,6 +113,7 @@
         <tag-list-edit-form
           :node-element="nodeElement"
           :is-in-edit-state="isInEditState"
+          :procedure-id="procedureId"
           type="Tag"
           @abort="abort"
           @delete="deleteItem"
@@ -113,6 +121,8 @@
           @save="save" />
       </template>
     </dp-tree-list>
+
+    <dp-loading v-else />
 
     <tags-import-form
       class="mb-1"
@@ -127,6 +137,7 @@ import {
   DpCheckbox,
   DpIcon,
   DpInput,
+  DpLoading,
   DpModal,
   dpRpc,
   DpSelect,
@@ -151,6 +162,7 @@ export default {
     DpCheckbox,
     DpIcon,
     DpInput,
+    DpLoading,
     DpModal,
     DpUpload,
     DpSelect,
