@@ -228,7 +228,9 @@
       v-if="hasPaperCopyPermission"
       :organisation="organisation" />
 
-    <organisation-competence :organisation="organisation" />
+    <organisation-competence
+      v-if="hasPermission('field_organisation_competence')"
+      :organisation="organisation" />
 
     <organisation-branding-settings
       :organisation="organisation"

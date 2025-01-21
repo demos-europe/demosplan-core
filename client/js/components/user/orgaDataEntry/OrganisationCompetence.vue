@@ -1,6 +1,5 @@
 <template>
   <fieldset
-    v-if="hasPermission('field_organisation_competence')"
     id="organisationCompetence"
     class="w-3/4">
     <legend class="font-size-large weight--normal u-mb-0_75">
