@@ -23,9 +23,9 @@
             accessGroup: 'planner'
           }"
           :search-term="searchTerm"
-          @change-fields="updateSearchFields"
-          @search="updateSearchQuery"
-          @reset="updateSearchQuery" />
+          @changeFields="updateSearchFields"
+          @search="term => updateSearchQuery(term)"
+          @reset="handleResetSearch" />
         <div class="bg-color--grey-light-2 rounded-md ml-2">
           <span class="color--grey ml-1 align-middle">
             {{ Translator.trans('filter') }}
@@ -103,7 +103,7 @@
       <template v-if="items.length > 0">
         <image-modal
           ref="imageModal"
-          data-cy="segment:imgModal"/>
+          data-cy="segment:imgModal" />
         <dp-data-table
           ref="dataTable"
           class="overflow-x-auto pb-3 min-h-12"
@@ -294,7 +294,7 @@ import ImageModal from '@DpJs/components/shared/ImageModal'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
-import StatusBadge from '../Shared/StatusBadge.vue'
+import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 
 export default {
@@ -515,7 +515,7 @@ export default {
           size: this.pagination.perPage
         },
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
-        filter: filter,
+        filter,
         fields: {
           File: [
             'hash'
@@ -584,7 +584,7 @@ export default {
 
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
-            filter: filter,
+            filter,
             search: payload.search
           })
         })
@@ -636,6 +636,11 @@ export default {
       window.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
     },
 
+    handleResetSearch () {
+      this.resetSearchQuery()
+      this.applyQuery(1)
+    },
+
     handleSizeChange (newSize) {
       // Compute new page with current page for changed number of items per page
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
@@ -644,8 +649,7 @@ export default {
     },
 
     resetQuery () {
-      this.searchTerm = ''
-      this.$refs.customSearch.reset()
+      this.resetSearchQuery()
       this.appliedFilterQuery = []
       Object.keys(this.filters).forEach((filter, idx) => {
         this.$refs.filterFlyout[idx].reset()
@@ -653,6 +657,11 @@ export default {
       this.updateQueryHash()
       this.resetSelection()
       this.applyQuery(1)
+    },
+
+    resetSearchQuery () {
+      this.searchTerm = ''
+      this.$refs.customSearch.reset()
     },
 
     setCurrentSelection (selection) {

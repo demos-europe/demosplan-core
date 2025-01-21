@@ -184,6 +184,7 @@ parameters:
     email_test_from: "testMailSender@localhost.de"
     email_test_to: "testMailReceiver@localhost.de"
     email_system: "systememail@localhost.de"
+    procedure_metrics_receiver: "%env(string:PROCEDURE_METRICS_MAIL)%"
     email_bounce_check: false
     # #refactor: path and file could be used as one
     email_bouncefile_path: ""
@@ -363,6 +364,7 @@ parameters:
     demosplan_csp_script_src:
         - 'self'
         - 'unsafe-eval' # vue.js needs it if templates are not precompiled
+        - 'strict-dynamic' # Trust scripts added by a trusted script
     demosplan_csp_style_src:
         - 'unsafe-inline'
         - 'self'

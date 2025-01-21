@@ -108,8 +108,10 @@
         :init-procedure-categories="JSON.parse('{{ selectedProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
         init-procedure-phase-internal="{{ proceduresettings.phase }}"
         init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
-        :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')">
+        :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
+        procedure-id="{{ proceduresettings.id|default }}">
         <form
+            ref="configForm"
             name="configForm"
             enctype="multipart/form-data"
             data-procedure="{{ proceduresettings.ident }}"
@@ -400,7 +402,7 @@
                                         }]) %}
                                     {% endfor %}
                                     <participation-phases
-                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.internal.evaluating'|trans }) }}"
+                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.internal.analysis'|trans }) }}"
                                         data-cy="internalPhase"
                                         field-name="r_phase"
                                         help-text="{{ 'text.procedure.edit.internal.change_phase'|trans }}"
@@ -723,6 +725,17 @@
                                 </div>
                             {% endif %}
 
+                            <addon-wrapper
+                                class="mb-4"
+                                hook-name="addon.additional.field"
+                                :addon-props="{
+                                    relationshipId: '{{ proceduresettings.id }}',
+                                    relationshipKey: 'procedure',
+                                    isInput: true
+                                }"
+                                @blur="updateAddonPayload">
+                            </addon-wrapper>
+
                             {% if hasPermission('feature_short_url') %}
                                 <div>
                                     <label class="inline-block u-mb-0" for="r_shortUrl">
@@ -864,13 +877,8 @@
                                 {% if hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation') %}
                                     <div class="u-mb">
                                         <label class="inline-block u-mb-0" for="r_pictogram">
-                                            {{ 'procedure.pictogram'|trans }}
+                                            {{ 'procedure.pictogram'|trans }}*
                                         </label>
-                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                            helpText: 'text.procedure.edit.external.pictogram'|trans,
-                                            cssClasses:'mb-1',
-                                            showPlainHint: true
-                                        } %}
                                         {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                                             <br><br>
                                             <img class="layout__item u-1-of-6 u-pl-0 u-mb" src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"><!--
@@ -888,16 +896,42 @@
                                             {{  fileupload(
                                                 "r_pictogram",
                                                 '<p class="lbl__hint">'
-                                                ~ "explanation.procedure.pictogram.missing"|trans
-                                                ~ "explanation.procedure.pictogram.dimensions"|trans
+                                                ~ "text.procedure.edit.external.pictogram"|trans
                                                 ~ '</p>',
                                                 "img",
                                                 "form.button.upload.file",
                                                 1,
+                                                true,
+                                                false,
                                                 true
                                             )
                                             }}
                                         {% endif %}
+
+                                        <dp-input
+                                            id="r_pictogramCopyright"
+                                            class="my-2"
+                                            data-cy="procedure:pictogramCopyright"
+                                            name="r_pictogramCopyright"
+                                            :label="{
+                                                text: Translator.trans('procedure.pictogram.copyright')
+                                            }"
+                                            value="{{ proceduresettings.pictogramCopyright|default }}"
+                                            required>
+                                        </dp-input>
+
+                                        <dp-input
+                                            id="r_pictogramAltText"
+                                            class="my-2"
+                                            data-cy="procedure:pictogramAltText"
+                                            name="r_pictogramAltText"
+                                            :label="{
+                                                text: Translator.trans('procedure.pictogram.altText'),
+                                                tooltip: Translator.trans('procedure.pictogram.altText.toolTipp')
+                                            }"
+                                            value="{{ proceduresettings.pictogramAltText|default }}"
+                                            required>
+                                        </dp-input>
                                     </div>
                                 {% endif %}
 
@@ -1175,7 +1209,12 @@
                                         showPlainHint: true
                                     } %}
                                     <div class="layout__item u-pl-0">
-                                        <input id="sendMailsToCounties" type="checkbox" name="r_sendMailsToCounties" {% if proceduresettings.settings.sendMailsToCounties|default == true %}checked{% endif %}>
+                                        <input
+                                            data-cy="sendMailsToCounties"
+                                            id="sendMailsToCounties"
+                                            type="checkbox"
+                                            name="r_sendMailsToCounties"
+                                            {% if proceduresettings.settings.sendMailsToCounties|default == true %}checked{% endif %}>
                                         <label for="sendMailsToCounties" class="u-mb-0 inline-block weight--normal">
                                             {{ "text.procedure.edit.additional.notifyCounty"|trans }}
                                         </label>
@@ -1279,13 +1318,20 @@
 
             {# form controls when not in wizard mode #}
             <div class="text-right space-inline-s">
+                {# A hidden input is used here to prevent the form from being submitted in wizard mode when the next button is clicked #}
                 <input
+                    type="submit"
+                    class="hidden"
+                    value="{{ "save"|trans }}">
+                <button
                     class="btn btn--primary"
                     id="saveConfig"
                     name="saveConfig"
                     data-cy="saveConfig"
-                    type="submit"
-                    value="{{ "save"|trans }}">
+                    type="button"
+                    @click="submit">
+                    {{ "save"|trans }}
+                </button>
                 <a
                     class="btn btn--secondary"
                     data-cy="abortConfig"

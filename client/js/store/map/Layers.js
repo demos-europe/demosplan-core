@@ -239,7 +239,7 @@ const LayersStore = {
           name: {
             condition: {
               path: 'parentId',
-              operator: 'IS NULL',
+              operator: 'IS NULL'
             }
           }
         }
@@ -288,7 +288,7 @@ const LayersStore = {
     },
 
     saveAll ({ state, dispatch }) {
-      /* save each GIS layer and GIS layer category with its relationships */
+      /* Save each GIS layer and GIS layer category with its relationships */
       state.apiData.included.forEach(el => {
         dispatch('save', el)
       })
@@ -339,7 +339,7 @@ const LayersStore = {
             type,
             attributes: {
               treeOrder,
-              hasDefaultVisibility,
+              hasDefaultVisibility
             },
             relationships: {
               parentCategory: {

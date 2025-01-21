@@ -41,7 +41,7 @@ class <className> extends AbstractMigration
     private function abortIfNotMysql(): void
     {
         $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof MySqlPlatform,
+            !$this->connection->getDatabasePlatform() instanceof MySQLPlatform,
             "Migration can only be executed safely on 'mysql'."
         );
     }

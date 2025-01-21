@@ -4,6 +4,7 @@
 
     <button
       class="btn--blank o-link--default"
+      :data-cy="isExpanded ? 'showLessText' : 'showMoreText'"
       type="button"
       :aria-label="Translator.trans('aria.toggle')"
       @click.stop="toggle"

@@ -98,6 +98,7 @@
 
     <dp-inline-notification
       v-else
+      class="mt-3 mb-2"
       :message="Translator.trans('explanation.noentries')"
       type="info" />
   </form>

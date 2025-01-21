@@ -266,7 +266,13 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
     &.icon-only {
         // Assume that half leading is distributed well on non-system fonts...
         &.small {
-            padding: $dp-form-element-spacing-vertical $inuit-base-spacing-unit--tiny;
+            &.search {
+                padding: 7px 6px 6px 6px;
+            }
+
+            &:not(.search) {
+                padding: $dp-form-element-spacing-vertical $inuit-base-spacing-unit--tiny;
+            }
         }
         &.medium {
             padding: $inuit-base-spacing-unit--tiny - 1px $inuit-base-spacing-unit--tiny;

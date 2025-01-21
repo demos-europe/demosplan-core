@@ -12,7 +12,6 @@
     ref="sideBar"
     :style="`max-height: calc(100vh - ${offset}px - 8px);`"
     class="side-bar flex flex-col">
-
     <!-- Selected Tags Section -->
     <div class="relative px-2 py-2">
       <dp-label
@@ -41,7 +40,6 @@
       :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-hidden': availableTags.length && tagTopics.length > 8 }]"
       @mouseover="showFloatingContextButton.tags = true"
       @mouseleave="showFloatingContextButton.tags = false">
-
       <button
         v-if="!isCollapsed.tags"
         data-cy="sidebar:toggleVisibility:tags"
@@ -96,7 +94,6 @@
       class="relative py-1 pl-2 pr-5 -mr-4"
       @mouseover="showFloatingContextButton.placesAndAssignee = true"
       @mouseleave="showFloatingContextButton.placesAndAssignee = false">
-
       <FloatingContextButton
         class="right-0 top-0"
         section="placesAndAssignee"

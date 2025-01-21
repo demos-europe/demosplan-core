@@ -202,7 +202,7 @@ export default {
           delegator: this.currentUserName
         }
       )
-      return { text: status, icon: icon }
+      return { text: status, icon }
     }
   },
 

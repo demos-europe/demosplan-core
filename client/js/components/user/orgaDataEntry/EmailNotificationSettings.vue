@@ -16,9 +16,9 @@
       data-cy="organisationData:email2"
       :name="`${organisation.id}:email2`"
       :label="{
-          text: Translator.trans('email.participation'),
-          hint: Translator.trans('explanation.organisation.email.participation')
-        }"
+        text: Translator.trans('email.participation'),
+        hint: Translator.trans('explanation.organisation.email.participation')
+      }"
       v-model="organisation.email2"
       required />
 
@@ -30,9 +30,9 @@
       data-cy="organisationData:ccEmail2"
       :name="`${organisation.id}:ccEmail2`"
       :label="{
-          text: Translator.trans('email.cc.participation'),
-          hint: Translator.trans('explanation.organisation.email.cc')
-        }"
+        text: Translator.trans('email.cc.participation'),
+        hint: Translator.trans('explanation.organisation.email.cc')
+      }"
       v-model="organisation.ccEmail2" />
 
     <!-- PLANNING_SUPPORTING_DEPARTMENT users may specify an email address to receive notifications whenever a fragment is assigned to someone -->
@@ -43,9 +43,9 @@
       data-cy="organisationData:emailReviewerAdmin"
       :name="`${organisation.id}:emailReviewerAdmin`"
       :label="{
-          text: Translator.trans('email.reviewer.admin'),
-          hint: Translator.trans('explanation.organisation.email.reviewer.admin')
-        }"
+        text: Translator.trans('email.reviewer.admin'),
+        hint: Translator.trans('explanation.organisation.email.reviewer.admin')
+      }"
       v-model="organisation.emailReviewerAdmin" />
 
     <!-- Notifications Section -->
@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import { DpInput, DpCheckbox } from '@demos-europe/demosplan-ui'
+import { DpCheckbox, DpInput } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'EmailNotificationSettings',
@@ -93,7 +93,7 @@ export default {
   },
 
   props: {
-    organisation:  {
+    organisation: {
       type: Object,
       required: true
     },
@@ -124,4 +124,3 @@ export default {
   }
 }
 </script>
-
