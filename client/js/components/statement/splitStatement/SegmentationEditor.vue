@@ -52,7 +52,19 @@ export default {
 
   data () {
     return {
-      customMarks: {
+      marks: {
+        bold: {
+          parseDOM: [{ tag: 'strong' }],
+          toDOM() {
+            return ['strong']
+          }
+        },
+        italic: {
+          parseDOM: [{ tag: 'em' }],
+          toDOM() {
+            return ['em']
+          }
+        },
         underline: {
           parseDOM: [{ tag: 'u' }],
           toDOM() {
@@ -85,20 +97,10 @@ export default {
   },
 
   methods: {
-   extendMarks (baseMarks, newMarks) {
-      let extendedMarks = baseMarks
-
-      for (const [key, value] of Object.entries(newMarks)) {
-        extendedMarks = extendedMarks.update(key, value)
-      }
-
-      return extendedMarks
-    },
-
     initialize () {
       const proseSchema = new Schema({
         nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
-        marks: this.extendMarks(schema.spec.marks, this.customMarks)
+        marks: this.marks
       })
       const wrapper = document.createElement('div')
       wrapper.innerHTML = this.initStatementText ?? ''
