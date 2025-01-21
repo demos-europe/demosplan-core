@@ -84,27 +84,15 @@ class DemosPlanAdminController extends BaseController
         $templateVars['allowedRoleCodeMap'] = $allowedRoleCodeMap;
 
         $title = 'statistic';
-
-        if ('html' === $format) {
-            return $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.html.twig', [
-                'templateVars' => $templateVars,
-                'title'        => $title,
-            ]);
-        }
-
-        // set csv Escaper
-        $twig->getExtension(EscaperExtension::class)->setEscaper(
-            'csv',
-            fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string)
+        return $this->renderStatisticsTemplate(
+            $templateVars,
+            $title,
+            $format,
+            $part,
+            $twig,
+            $csvHelper,
+            $nameGenerator
         );
-
-        $response = $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.csv.twig', [
-            'templateVars' => $templateVars,
-            'title'        => $title,
-            'part'         => $part,
-        ]);
-
-        return $csvHelper->prepareCsvResponse($response, $part, $nameGenerator);
     }
 
     private function prepareProcedureListForStatisticsView(
@@ -155,5 +143,29 @@ class DemosPlanAdminController extends BaseController
             }
         }
         return $allowedRoleCodeMap;
+    }
+
+    private function renderStatisticsTemplate(array $templateVars, string $title, string $format, string $part, Environment $twig, CsvHelper $csvHelper, NameGenerator $nameGenerator): ?Response
+    {
+        if ('html' === $format) {
+            return $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.html.twig', [
+                'templateVars' => $templateVars,
+                'title'        => $title,
+            ]);
+        }
+
+        // set csv Escaper
+        $twig->getExtension(EscaperExtension::class)->setEscaper(
+            'csv',
+            fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string)
+        );
+
+        $response = $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.csv.twig', [
+            'templateVars' => $templateVars,
+            'title'        => $title,
+            'part'         => $part,
+        ]);
+
+        return $csvHelper->prepareCsvResponse($response, $part, $nameGenerator);
     }
 }
