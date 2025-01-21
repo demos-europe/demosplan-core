@@ -6,13 +6,21 @@
 
 ## UNRELEASED
 
-### Changed
+### Features
+- Institution tag management: Add search field to institution list
 
-DpInlineNotification: Set margin from outside the component (instead of inside)
+### Further changes
+- Segments list: Use DpSearchField for custom search
+- DpInlineNotification: Set margin from outside the component (instead of inside)
 
 ## 2.20.0
 
-- Added: Admin institution list: Institutions can now be tagged filtered by categories.
-- Fixed: Several bug fixes
-- Chore: Addons can now be installed by automatically, when listed in the `addons.yml` file.
-- Chore: Several major dependencies have been updated.
+### Features
+- Admin institution list: Institutions can now be tagged filtered by categories
+
+### Fixes
+- Several bug fixes
+
+### Further changes
+- Addons can now be installed automatically, when listed in the `addons.yml` file
+- Several major dependencies have been updated

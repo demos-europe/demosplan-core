@@ -2430,9 +2430,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:^0.3.42":
-  version: 0.3.42
-  resolution: "@demos-europe/demosplan-ui@npm:0.3.42"
+"@demos-europe/demosplan-ui@npm:^0.3.43":
+  version: 0.3.43
+  resolution: "@demos-europe/demosplan-ui@npm:0.3.43"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.4.5"
@@ -2507,7 +2507,7 @@ __metadata:
       optional: true
     prosemirror-view:
       optional: true
-  checksum: 10c0/208a459907a73b6fcf433a9bd46a912af0134b3ad4a8774a29c1ff25a1e33de65abc94feec2ecf8cbabdf3719875e7971ccd4b9749ea4dce3fc285fb7c7a3faf
+  checksum: 10c0/b4cd6d722c299f62c685e348b9fed7a9a0454e35e3e06c24b7e847439e5fb45b33e8e9895f6f643ea16b4eb60218ac1172edc07e158adea57686fda5069b03ae
   languageName: node
   linkType: hard
 
@@ -13207,7 +13207,7 @@ __metadata:
     "@babel/plugin-transform-runtime": "npm:^7.25.9"
     "@babel/preset-env": "npm:^7.26.0"
     "@babel/runtime": "npm:^7.26.0"
-    "@demos-europe/demosplan-ui": "npm:^0.3.42"
+    "@demos-europe/demosplan-ui": "npm:^0.3.43"
     "@demos-europe/dp-consent": "npm:^1.3"
     "@efrane/vuex-json-api": "npm:^0.1.2"
     "@fullhuman/postcss-purgecss": "npm:^6.0.0"
