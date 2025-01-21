@@ -399,12 +399,20 @@ input.disabled {
                 $icon-height: 20px;
                 top: calc(50% - (#{$icon-height} / 2));
                 right: calc((#{$element-height} - #{$icon-height}) / 2);
+
+                &.grouped {
+                    right: $inuit-base-spacing-unit;
+                }
             }
 
             &-reset--small {
                 $icon-height: 12px;
                 top: calc((#{$element-height} - #{$icon-height}) / 2);
                 right: $inuit-base-spacing-unit--tiny;
+
+                &.grouped {
+                    right: 24px;
+                }
             }
         }
 
