@@ -337,6 +337,10 @@ input.disabled {
             max-width: 100%;
         }
 
+        &-input {
+            border: $form-border-width solid $form-border-color !important;
+        }
+
         &-input,
         &-search {
             height: $element-height;
@@ -353,7 +357,6 @@ input.disabled {
 
             background: $dp-color-white;
             color: $form-color;
-            border: $form-border-width solid $form-border-color !important;
             line-height: $form-lineheight;
             border-radius: $form-radius;
 
@@ -376,8 +379,11 @@ input.disabled {
             }
         }
 
-
         &-search {
+            border-top: $form-border-width solid $form-border-color !important;
+            border-bottom: $form-border-width solid $form-border-color !important;
+            border-left: $form-border-width solid $form-border-color !important;
+
             &-reset,
             &-reset--small {
                 position: absolute;
