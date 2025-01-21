@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseStatementVoteResourceConfigBuilder;
@@ -9,10 +17,8 @@ use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 
 final class StatementVoteResourceType extends DplanResourceType
 {
-
     protected function getProperties(): ResourceConfigBuilderInterface
     {
-
         $statementVoteConfigBuilder = $this->getConfig(BaseStatementVoteResourceConfigBuilder::class);
 
         $statementVoteConfigBuilder->lastName->setReadableByPath();
@@ -30,7 +36,6 @@ final class StatementVoteResourceType extends DplanResourceType
         return StatementVote::class;
     }
 
-
     protected function getAccessConditions(): array
     {
         return [$this->conditionFactory->true()];
@@ -41,11 +46,8 @@ final class StatementVoteResourceType extends DplanResourceType
         return true;
     }
 
-    public function isGetAllowed (): bool
+    public function isGetAllowed(): bool
     {
-
         return true;
-
-
     }
 }
