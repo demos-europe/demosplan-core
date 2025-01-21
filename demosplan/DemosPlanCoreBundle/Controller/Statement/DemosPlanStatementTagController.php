@@ -133,6 +133,66 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     }
 
     /**
+     * Create Tag for one procedure.
+     *
+     * @DplanPermissions("area_admin_statements_tag")
+     *
+     * @return RedirectResponse|Response
+     *
+     * @throws Exception
+     */
+    #[Route(name: 'DemosPlan_statement_administration_tag_create', path: '/verfahren/{procedure}/schlagwort/erstellen', defaults: ['master' => false], options: ['expose' => true])]
+    public function tagCreateAction(
+        TranslatorInterface $translator,
+        string $procedure,
+    ): Response {
+        $templateVars = [];
+
+        $templateVars['procedure'] = $procedure;
+        // todo need title and template for tag create
+        $title = $translator->trans('tag.administration');
+
+        return $this->renderTemplate(
+            '@DemosPlanCore/DemosPlanStatement/list_tags.html.twig',
+            [
+                'templateVars' => $templateVars,
+                'title'        => $title,
+                'procedure'    => $procedure,
+            ]
+        );
+    }
+
+    /**
+     * Create TagTopic for one procedure.
+     *
+     * @DplanPermissions("area_admin_statements_tag")
+     *
+     * @return RedirectResponse|Response
+     *
+     * @throws Exception
+     */
+    #[Route(name: 'DemosPlan_statement_administration_tagTopic_create', path: '/verfahren/{procedure}/thema/erstellen', defaults: ['master' => false], options: ['expose' => true])]
+    public function tagTopicCreateAction(
+        TranslatorInterface $translator,
+        string $procedure,
+    ): Response {
+        $templateVars = [];
+
+        $templateVars['procedure'] = $procedure;
+        // todo need title and template for tagTopic create
+        $title = $translator->trans('tag.administration');
+
+        return $this->renderTemplate(
+            '@DemosPlanCore/DemosPlanStatement/list_tags.html.twig',
+            [
+                'templateVars' => $templateVars,
+                'title'        => $title,
+                'procedure'    => $procedure,
+            ]
+        );
+    }
+
+    /**
      * Edit Tags and topics that are being used in this procedures.
      *
      * @DplanPermissions("area_admin_statements_tag")
