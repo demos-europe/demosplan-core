@@ -67,13 +67,7 @@ class DemosPlanAdminController extends BaseController
         $originalStatements = $statementService->getOriginalStatements();
         $amountOfProcedures = $procedureService->getAmountOfProcedures();
         $undeletedUsers = $userService->getUndeletedUsers();
-        $allowedRoleCodeMap = [];
-        foreach ($this->getParameter('roles_allowed') as $allowedRoleCode) {
-            if (!in_array($allowedRoleCode, self::ROLES_EXCLUDED_IN_EXPORT, true)
-            ) {
-                $allowedRoleCodeMap[$allowedRoleCode] = RoleInterface::ROLE_CODE_NAME_MAP[$allowedRoleCode];
-            }
-        }
+        $allowedRoleCodeMap = $this->getAllowedRoleCodeMap();
         $globalStatementStatistic = new StatementStatistic($originalStatements, $amountOfProcedures);
 
         $templateVars['statementStatistic'] = $globalStatementStatistic;
@@ -150,5 +144,16 @@ class DemosPlanAdminController extends BaseController
         }
 
         return $procedurePhases;
+    }
+
+    private function getAllowedRoleCodeMap(): array
+    {
+        $allowedRoleCodeMap = [];
+        foreach ($this->getParameter('roles_allowed') as $allowedRoleCode) {
+            if (!in_array($allowedRoleCode, self::ROLES_EXCLUDED_IN_EXPORT, true)) {
+                $allowedRoleCodeMap[$allowedRoleCode] = RoleInterface::ROLE_CODE_NAME_MAP[$allowedRoleCode];
+            }
+        }
+        return $allowedRoleCodeMap;
     }
 }
