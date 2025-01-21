@@ -145,6 +145,9 @@ class DemosPlanAdminController extends BaseController
         return $allowedRoleCodeMap;
     }
 
+    /**
+     * @throws Exception
+     */
     private function renderStatisticsTemplate(array $templateVars, string $title, string $format, string $part, Environment $twig, CsvHelper $csvHelper, NameGenerator $nameGenerator): ?Response
     {
         if ('html' === $format) {
