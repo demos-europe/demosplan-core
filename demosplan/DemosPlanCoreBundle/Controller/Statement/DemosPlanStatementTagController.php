@@ -42,7 +42,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_statement_administration_tag', path: '/verfahren/{procedure}/tag/{tag}', defaults: ['master' => false])]
+    #[Route(name: 'DemosPlan_statement_administration_tag', path: '/verfahren/{procedure}/tag/{tag}', defaults: ['master' => false], options: ['expose' => true])]
     public function tagViewAction(
         ProcedureService $procedureService,
         Request $request,

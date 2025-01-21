@@ -233,11 +233,13 @@ export default {
           id,
           attributes,
           children: Object.values(tags).map(tag => {
-            const { id, attributes, type } = tag
+            const { attributes, id, relationships, type } = tag
+            const boilerplate = relationships?.boilerplate?.get ? relationships.boilerplate.get() : null
 
             return {
               attributes,
               id,
+              relationships: { boilerplate },
               type
             }
           }),
@@ -300,9 +302,12 @@ export default {
       this.listTagTopics({
         fields: {
           Tag: this.tagAttributeKeys.join(),
-          TagTopic: topicAttributes.join()
+          TagTopic: topicAttributes.join(),
+          Boilerplate: [
+            'title'
+          ].join()
         },
-        include: 'tags',
+        include: 'tags,tags.boilerplate',
         sort: 'title'
       })
     },
