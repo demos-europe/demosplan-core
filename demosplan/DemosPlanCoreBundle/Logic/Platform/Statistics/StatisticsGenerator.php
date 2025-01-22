@@ -34,12 +34,12 @@ class StatisticsGenerator
     ];
 
     public function __construct(
-        private readonly ProcedureService $procedureService,
+        private readonly CustomerService $customerService,
         private readonly GlobalConfigInterface $globalConfig,
+        private readonly OrgaService $orgaService,
+        private readonly ProcedureService $procedureService,
         private readonly StatementService $statementService,
         private readonly UserService $userService,
-        private readonly OrgaService $orgaService,
-        private readonly CustomerService $customerService,
     ) {
     }
 

@@ -30,8 +30,8 @@ class DemosPlanAdminController extends BaseController
 {
     private const STATISTICS_TITLE = 'statistic';
     public function __construct(
-        private readonly Environment $twig,
         private readonly CsvHelper $csvHelper,
+        private readonly Environment $twig,
         private readonly NameGenerator $nameGenerator,
         private readonly StatisticsGenerator $statisticsGenerator,
     ) {
