@@ -77,10 +77,13 @@
       :tree-data="transformedCategories"
       :options="{
         branchesSelectable: true,
+        dragAcrossBranches: true,
+        dragLeaves: true,
         leavesSelectable: true,
         dragLeaves: true
       }"
-      :branch-identifier="branchFunc()">
+      :branch-identifier="branchFunc()"
+      @draggable:change="changeTopic">
       <template v-slot:header>
         <div class="flex">
           <div class="flex-1">
@@ -277,6 +280,44 @@ export default {
     branchFunc () {
       return function ({ node }) {
         return node.type === 'TagTopic'
+      }
+    },
+
+    changeTopic ({ elementId, parentId }) {
+      console.log('changeTopic', { elementId, parentId })
+
+      if (!parentId) {
+        console.error('No parentId provided:', { elementId, parentId })
+
+        return
+      }
+
+      const newParent = !this.TagTopic[parentId].relationships.tags.data.find(tag => tag.id === elementId)
+
+      if (newParent) {
+        const parentTopic = this.TagTopic[parentId]
+
+        this.updateTagTopic({
+          id: parentTopic.id,
+          type: 'TagTopic',
+          attributes: parentTopic.attributes,
+          relationships: {
+            ...parentTopic.relationships,
+            tags: {
+              data: parentTopic.relationships.tags.data.concat({
+                id: elementId,
+                type: 'Tag'
+              })
+            }
+          }
+        })
+
+        this.saveTagTopic(parentTopic.id)
+          .then(payload => {
+            console.log('tagtopic saved', payload)
+          })
+      } else {
+        dplan.notify.notify('warning', Translator.trans('tags.can.only.be.moved.to.topics'))
       }
     },
 
