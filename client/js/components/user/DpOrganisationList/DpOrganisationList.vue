@@ -360,15 +360,19 @@ export default {
         return
       }
 
-      ids.forEach(id => {
+      const deleteOrganisations = ids.map(id =>
         this.deleteOrganisation(id)
           .then(() => {
             // Remove deleted item from itemSelections
             delete this.itemSelections[id]
             // Confirm notification for organisations is done in BE
-            this.getItemsByPage()
           })
-      })
+      )
+
+      Promise.all(deleteOrganisations)
+        .then(() => {
+          this.getItemsByPage()
+        })
     },
 
     fetchFilteredOrganisations (selected, page) {
