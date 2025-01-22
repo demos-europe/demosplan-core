@@ -14,12 +14,14 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Platform\Statistics;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementStatistic;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statistics;
 use Exception;
@@ -38,6 +40,7 @@ class StatisticsGenerator
         private readonly GlobalConfigInterface $globalConfig,
         private readonly OrgaService $orgaService,
         private readonly ProcedureService $procedureService,
+        private readonly ProcedureRepository $procedureRepository,
         private readonly StatementService $statementService,
         private readonly UserService $userService,
     ) {
@@ -68,14 +71,14 @@ class StatisticsGenerator
         }
 
         return new Statistics(
-            $procedureList['result'],
-            $internalPhases,
-            $externalPhases,
-            $this->userService->collectRoleStatistics($this->userService->getUndeletedUsers()),
-            $this->orgaService->getOrgaCountByTypeTranslated($this->customerService->getCurrentCustomer()),
-            $this->userService->getOrgaUsersList(),
+            $globalStatementStatistic,
             $this->getAllowedRoleCodeMap($allowedRoles),
-            $globalStatementStatistic
+            $externalPhases,
+            $internalPhases,
+            $this->orgaService->getOrgaCountByTypeTranslated($this->customerService->getCurrentCustomer()),
+            $procedureList['result'],
+            $this->userService->collectRoleStatistics($this->userService->getUndeletedUsers()),
+            $this->userService->getOrgaUsersList(),
         );
     }
 
