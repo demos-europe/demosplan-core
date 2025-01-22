@@ -65,7 +65,7 @@ class DemosPlanReportAPIController extends APIController
         Assert::isInstanceOf($resourceType, JsonApiResourceTypeInterface::class);
 
         $pagination = $paginationParser->parseApiPaginationProfile(
-            $this->request->query->get('page', []),
+            $this->request->query->all('page'),
             $this->request->query->get('sort', '')
         );
 

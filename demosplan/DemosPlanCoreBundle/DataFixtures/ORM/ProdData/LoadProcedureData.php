@@ -44,7 +44,7 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         GlobalConfigInterface $globalConfig,
         PermissionsInterface $permissions,
         ProcedureHandler $procedureHandler,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         parent::__construct($entityManager);
         $this->translator = $translator;
@@ -62,7 +62,7 @@ class LoadProcedureData extends ProdFixture implements DependentFixtureInterface
         $procedureMaster = new Procedure();
         $procedureMaster->setName('Master');
         $procedureMaster->setOrga($this->getReference('orga_demos'));
-        $procedureMaster->setOrgaName('DEMOS E-Partizipation GmbH');
+        $procedureMaster->setOrgaName('DEMOS plan GmbH');
         $procedureMaster->setPhase($masterProcedurePhase);
         $procedureMaster->setPublicParticipationPhase($masterProcedurePhase);
         $procedureMaster->setMaster(true);

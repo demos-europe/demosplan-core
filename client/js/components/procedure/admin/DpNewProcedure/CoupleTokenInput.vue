@@ -23,7 +23,7 @@
       @input="validateToken" />
     <dp-inline-notification
       v-if="notification"
-      class="u-mb-0"
+      class="mt-3 mb-0"
       id="token-notification"
       :message="notification.text"
       :type="notification.type" />

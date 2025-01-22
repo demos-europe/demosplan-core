@@ -132,7 +132,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             // pagination
             $pagination = $paginationParser->parseApiPaginationProfile(
-                $this->request->query->get('page', []),
+                $this->request->query->all('page'),
                 $this->request->query->get('sort', ''),
                 $this->request->query->get('size', '10')
             );
