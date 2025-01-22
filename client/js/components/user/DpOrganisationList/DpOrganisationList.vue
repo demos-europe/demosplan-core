@@ -181,6 +181,7 @@ const orgaFields = {
     'subdomain'
   ].join(),
   Orga: [
+    'addressExtension',
     'canCreateProcedures',
     'ccEmail2',
     'city',
@@ -206,7 +207,6 @@ const orgaFields = {
     'showname',
     'state',
     'street',
-    'addressExtension',
     'submissionType',
     'types'
   ].join()

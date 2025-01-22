@@ -808,6 +808,7 @@ export default {
       default: () => {
         return {
           attributes: {
+            addressExtension: '',
             canCreateProcedures: false,
             ccEmail2: '',
             city: '',
@@ -831,7 +832,6 @@ export default {
             showname: false,
             state: null,
             street: '',
-            addressExtension: '',
             houseNumber: '',
             submissionType: 'standard',
             type: ''
