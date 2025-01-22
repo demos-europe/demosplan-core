@@ -1,0 +1,114 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Logic\Platform\Statistics;
+
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementStatistic;
+use demosplan\DemosPlanCoreBundle\ValueObject\Statistics;
+use Exception;
+
+class StatisticsGenerator
+{
+    private const ROLES_EXCLUDED_IN_EXPORT = [
+        RoleInterface::API_AI_COMMUNICATOR,
+        RoleInterface::GUEST,
+        RoleInterface::PROSPECT,
+        RoleInterface::CITIZEN,
+    ];
+
+    public function __construct(
+        private readonly ProcedureService $procedureService,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly StatementService $statementService,
+        private readonly UserService $userService,
+        private readonly OrgaService $orgaService,
+        private readonly CustomerService $customerService,
+    ) {
+    }
+
+    /**
+     * @throws CustomerNotFoundException
+     * @throws Exception
+     */
+    public function generateStatistics(array $allowedRoles): Statistics
+    {
+        $procedureList = $this->procedureService->getProcedureFullList();
+        $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
+        $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
+        $originalStatements = $this->statementService->getOriginalStatements();
+        $amountOfProcedures = $this->procedureService->getAmountOfProcedures();
+        $globalStatementStatistic = new StatementStatistic($originalStatements, $amountOfProcedures);
+
+        if ($procedureList['total'] > 0) {
+            foreach ($procedureList['result'] as $procedureData) {
+                $procedureList = $this->prepareProcedureListForStatisticsView($procedureList, $procedureData, $globalStatementStatistic);
+                $internalPhases = $this->cacheProcedurePhase($procedureData, $internalPhases, 'phase');
+                $externalPhases = $this->cacheProcedurePhase($procedureData, $externalPhases, 'publicParticipationPhase');
+            }
+        }
+
+        return new Statistics(
+            $procedureList,
+            $internalPhases,
+            $externalPhases,
+            $this->userService->collectRoleStatistics($this->userService->getUndeletedUsers()),
+            $this->orgaService->getOrgaCountByTypeTranslated($this->customerService->getCurrentCustomer()),
+            $this->userService->getOrgaUsersList(),
+            $this->getAllowedRoleCodeMap($allowedRoles),
+            $globalStatementStatistic
+        );
+    }
+
+    private function prepareProcedureListForStatisticsView(
+        array $procedureList,
+        array $procedureData,
+        StatementStatistic $globalStatementStatistic
+    ): array {
+        $procedureData['phaseName'] = $this->globalConfig->getPhaseNameWithPriorityInternal($procedureData['phase']);
+        $procedureData['publicParticipationPhaseName'] = $this->globalConfig->getPhaseNameWithPriorityExternal($procedureData['publicParticipationPhase']);
+        $procedureData['statementStatistic'] = $globalStatementStatistic->getStatisticDataForProcedure($procedureData['id']);
+
+        $procedureList['result'][$procedureData['id']] = $procedureData; // actually overwrite data
+
+        return $procedureList['result'];
+    }
+
+    private function cacheProcedurePhase(array $procedureData, array $procedurePhases, string $phaseType): array
+    {
+        if (0 < strlen($procedureData[$phaseType])) {
+            isset($procedurePhases[$procedureData[$phaseType]]['num'])
+                ? $procedurePhases[$procedureData[$phaseType]]['num']++
+                : $procedurePhases[$procedureData[$phaseType]]['num'] = 1;
+        }
+
+        return $procedurePhases;
+    }
+
+    private function getAllowedRoleCodeMap(array $allowedRoles): array
+    {
+        $allowedRoleCodeMap = [];
+        foreach ($allowedRoles as $allowedRoleCode) {
+            if (!in_array($allowedRoleCode, self::ROLES_EXCLUDED_IN_EXPORT, true)) {
+                $allowedRoleCodeMap[$allowedRoleCode] = RoleInterface::ROLE_CODE_NAME_MAP[$allowedRoleCode];
+            }
+        }
+        return $allowedRoleCodeMap;
+    }
+}
