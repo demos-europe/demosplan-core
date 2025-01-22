@@ -14,18 +14,25 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseTagResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Wrapping\Contracts\ContentField;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructorBehavior;
+use Webmozart\Assert\Assert;
 
 /**
  * @template-extends DplanResourceType<Tag>
@@ -79,11 +86,12 @@ final class TagResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('feature_json_api_tag_create');
     }
 
-    protected function getProperties(): BaseTagResourceConfigBuilder
+    protected function getProperties(): ResourceConfigBuilderInterface
     {
         $configBuilder = $this->getConfig(BaseTagResourceConfigBuilder::class);
         $configBuilder->id->readable()->sortable()->filterable();
         $configBuilder->title->readable(true)->sortable()->filterable()
+            ->addPathCreationBehavior()
             ->addConstructorBehavior(
                 AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null)
             );
@@ -92,19 +100,13 @@ final class TagResourceType extends DplanResourceType
             ->readable(true, null, true)
             ->sortable()
             ->filterable()
-            ->addConstructorBehavior(
+           ->addConstructorBehavior(
                 ToOneRelationshipConstructorBehavior::createFactory(null, [], function (CreationDataInterface $entityData): array {
-                    $tagTopic = $this->getTagTopic();
-                    $createTagTopic = null === $tagTopic;
-                    $procedure = $this->currentProcedureService->getProcedureWithCertainty();
-                    if ($createTagTopic) {
-                        $tagTopicTitle = $this->translator->trans('tag_topic.name.default');
-                        $tagTopic = $this->tagService->createTagTopic($tagTopicTitle, $procedure);
-                    }
-
+                    $tagTopic = $this->getTagTopic($entityData);
                     return [$tagTopic, [Paths::tag()->topic->getAsNamesInDotNotation()]];
                 }, OptionalField::NO)
             );
+
 
         $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (Tag $tag, EntityDataInterface $entityData): array {
             $this->tagRepository->persistEntities([$tag]);
@@ -115,12 +117,23 @@ final class TagResourceType extends DplanResourceType
         return $configBuilder;
     }
 
-    private function getTagTopic(): ?TagTopic
+
+    private function getTagTopic($entityData): ?TagTopic
     {
         $procedure = $this->currentProcedureService->getProcedureWithCertainty();
+        $toOneRelationships = $entityData->getToOneRelationships();
+        $topicRef = $toOneRelationships[$this->topic->getAsNamesInDotNotation()];
+        $topicId = $topicRef[ContentField::ID];
+
+        $tagTopics = $this->tagService->getTagTopicsById($procedure, $topicId);
+        $topic = array_shift($tagTopics);
+        if (null !== $topic) {
+           return $topic;
+        }
+
         $defaultTagTopicTitle = $this->translator->trans('tag_topic.name.default');
         $topics = $this->tagService->getTagTopicsByTitle($procedure, $defaultTagTopicTitle);
-        /** @var TagTopic|null $defaultTagTopic */
+
         $defaultTagTopic = array_shift($topics);
         if (null !== $defaultTagTopic && 0 < count($topics)) {
             $defaultTagTopicId = $defaultTagTopic->getId();

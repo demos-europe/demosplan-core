@@ -251,6 +251,14 @@ class TagService extends CoreService
         ]);
     }
 
+    public function getTagTopicsById(Procedure $procedure, string $tagTopicId): array
+    {
+        return $this->tagTopicRepository->findBy([
+            'procedure' => $procedure->getId(),
+            'id'     => $tagTopicId,
+        ]);
+    }
+
     /**
      * This method will attempt to find a unique {@link Tag} by the given tag title and {@link Procedure}
      * ID, even though multiple tags may exist within different {@link TagTopic}s.
