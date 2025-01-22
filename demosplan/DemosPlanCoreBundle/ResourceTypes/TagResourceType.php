@@ -110,7 +110,7 @@ final class TagResourceType extends DplanResourceType
             );
 
 
-        $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (Tag $tag, EntityDataInterface $entityData): array {
+        $configBuilder->addCreationBehavior(new FixedSetBehavior(function (Tag $tag, EntityDataInterface $entityData): array {
             $this->tagRepository->persistEntities([$tag]);
 
             return [];
