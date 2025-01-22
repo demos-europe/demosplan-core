@@ -33,7 +33,7 @@ class TagService extends CoreService
         private readonly BoilerplateRepository $boilerplateRepository,
         private readonly DqlConditionFactory $conditionFactory,
         private readonly TagRepository $tagRepository,
-        private readonly TagTopicRepository $tagTopicRepository
+        private readonly TagTopicRepository $tagTopicRepository,
     ) {
     }
 
@@ -255,7 +255,7 @@ class TagService extends CoreService
     {
         return $this->tagTopicRepository->findBy([
             'procedure' => $procedure->getId(),
-            'id'     => $tagTopicId,
+            'id'        => $tagTopicId,
         ]);
     }
 

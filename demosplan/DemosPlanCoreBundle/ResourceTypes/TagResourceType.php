@@ -14,11 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseTagResourceConfigBuilder;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
@@ -32,9 +29,7 @@ use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\AttributeConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
-use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipConstructorBehavior;
-use Webmozart\Assert\Assert;
 
 /**
  * @template-extends DplanResourceType<Tag>
@@ -99,16 +94,16 @@ final class TagResourceType extends DplanResourceType
             );
         $configBuilder->topic
             ->setRelationshipType($this->resourceTypeStore->getTagTopicResourceType())
-            ->setReadableByPath(DefaultField::YES,DefaultInclude::YES)
+            ->setReadableByPath(DefaultField::YES, DefaultInclude::YES)
             ->setSortable()
             ->setFilterable()
            ->addConstructorBehavior(
-                ToOneRelationshipConstructorBehavior::createFactory(null, [], function (CreationDataInterface $entityData): array {
-                    $tagTopic = $this->getTagTopic($entityData);
-                    return [$tagTopic, [Paths::tag()->topic->getAsNamesInDotNotation()]];
-                }, OptionalField::NO)
-            );
+               ToOneRelationshipConstructorBehavior::createFactory(null, [], function (CreationDataInterface $entityData): array {
+                   $tagTopic = $this->getTagTopic($entityData);
 
+                   return [$tagTopic, [Paths::tag()->topic->getAsNamesInDotNotation()]];
+               }, OptionalField::NO)
+           );
 
         $configBuilder->addCreationBehavior(new FixedSetBehavior(function (Tag $tag, EntityDataInterface $entityData): array {
             $this->tagRepository->persistEntities([$tag]);
@@ -118,7 +113,6 @@ final class TagResourceType extends DplanResourceType
 
         return $configBuilder;
     }
-
 
     private function getTagTopic($entityData): ?TagTopic
     {
@@ -130,7 +124,7 @@ final class TagResourceType extends DplanResourceType
         $tagTopics = $this->tagService->getTagTopicsById($procedure, $topicId);
         $topic = array_shift($tagTopics);
         if (null !== $topic) {
-           return $topic;
+            return $topic;
         }
 
         $defaultTagTopicTitle = $this->translator->trans('tag_topic.name.default');
