@@ -366,6 +366,7 @@ export default {
             // Remove deleted item from itemSelections
             delete this.itemSelections[id]
             // Confirm notification for organisations is done in BE
+            this.getItemsByPage()
           })
       })
     },
