@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
+use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
@@ -89,8 +90,8 @@ final class TagResourceType extends DplanResourceType
     protected function getProperties(): ResourceConfigBuilderInterface
     {
         $configBuilder = $this->getConfig(BaseTagResourceConfigBuilder::class);
-        $configBuilder->id->readable()->sortable()->filterable();
-        $configBuilder->title->readable(true)->sortable()->filterable()
+        $configBuilder->id->setReadableByPath(DefaultField::YES)->setSortable()->setFilterable();
+        $configBuilder->title->setReadableByPath(DefaultField::YES)->setSortable()->setFilterable()
             ->addPathCreationBehavior()
             ->addConstructorBehavior(
                 AttributeConstructorBehavior::createFactory(null, OptionalField::NO, null)
