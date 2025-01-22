@@ -56,16 +56,19 @@ class StatisticsGenerator
         $amountOfProcedures = $this->procedureService->getAmountOfProcedures();
         $globalStatementStatistic = new StatementStatistic($originalStatements, $amountOfProcedures);
 
+        $modifiedResults = [];
         if ($procedureList['total'] > 0) {
             foreach ($procedureList['result'] as $procedureData) {
-                $procedureList = $this->prepareProcedureListForStatisticsView($procedureList, $procedureData, $globalStatementStatistic);
+                $procedureData = $this->prepareProcedureData($procedureData, $globalStatementStatistic);
+                $modifiedResults[$procedureData['id']] = $procedureData; // store modified data
                 $internalPhases = $this->cacheProcedurePhase($procedureData, $internalPhases, 'phase');
                 $externalPhases = $this->cacheProcedurePhase($procedureData, $externalPhases, 'publicParticipationPhase');
             }
+            $procedureList['result'] = $modifiedResults; // actually overwrite data
         }
 
         return new Statistics(
-            $procedureList,
+            $procedureList['result'],
             $internalPhases,
             $externalPhases,
             $this->userService->collectRoleStatistics($this->userService->getUndeletedUsers()),
@@ -76,8 +79,7 @@ class StatisticsGenerator
         );
     }
 
-    private function prepareProcedureListForStatisticsView(
-        array $procedureList,
+    private function prepareProcedureData(
         array $procedureData,
         StatementStatistic $globalStatementStatistic
     ): array {
@@ -85,9 +87,7 @@ class StatisticsGenerator
         $procedureData['publicParticipationPhaseName'] = $this->globalConfig->getPhaseNameWithPriorityExternal($procedureData['publicParticipationPhase']);
         $procedureData['statementStatistic'] = $globalStatementStatistic->getStatisticDataForProcedure($procedureData['id']);
 
-        $procedureList['result'][$procedureData['id']] = $procedureData; // actually overwrite data
-
-        return $procedureList['result'];
+        return $procedureData;
     }
 
     private function cacheProcedurePhase(array $procedureData, array $procedurePhases, string $phaseType): array
