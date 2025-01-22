@@ -2,69 +2,73 @@
   <div>
     <tag-list-header />
 
-    <dp-modal
-      content-classes="w-2/3"
-      ref="createTagModal"
-      aria-hidden="true"
-      :aria-label="Translator.trans('tag.create')"
-      aria-modal="true">
-      <template v-slot:header>
-        Create Tag
-      </template>
+    <div
+      v-if="addNew === 'tag'"
+      class="border rounded p-4 my-4"
+      data-dp-validate="addNewTagForm">
+      <dp-input
+        v-model="newTag.title"
+        id="new-tag-title"
+        class="mb-4"
+        :label="{
+           text: Translator.trans('title')
+        }"
+        maxlength="250"
+        required />
 
-      <template>
-        <dp-input
-          v-model="newTag.title"
-          id="new-tag-title"
-          class="mb-1"
-          :label="{
-            text: Translator.trans('tag.create')
-          }"
-          :placeholder="Translator.trans('title')" />
+      <dp-select
+        class="mb-4"
+        data-cy=""
+        :label="{
+          text: Translator.trans('topic.insertTag')
+        }"
+        :options="topicsAsOptions"
+        v-model="newTag.topic" />
 
-        <dp-select :options="topicsAsOptions" v-model="newTag.topic" />
+      <addon-wrapper
+        class="block mb-4"
+        hook-name="tag.create.form"
+        @input="updateForm"
+        @change="updateForm" />
 
-        <addon-wrapper
-          class="block mb-1"
-          hook-name="tag.create.form"
-          @input="updateForm"
-          @change="updateForm" />
+      <dp-button-row
+        primary
+        secondary
+        data-cy="toggleForm"
+        @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(), false)"
+        @secondary-action="addNew = ''" />
+    </div>
 
-        <dp-button
-          :text="Translator.trans('tag.create')"
-          @click="saveNewTag" />
-      </template>
-    </dp-modal>
-
-    <dp-modal
-      content-classes="w-2/3"
-      ref="createTagTopicModal"
-      aria-label="Create Topic"
-      aria-modal>
-      <template v-slot:header>
-        {{ Translator.trans('category.create') }}
-      </template>
-
+    <div
+      v-if="addNew === 'tagTopic'"
+      class="border rounded p-4 my-4">
       <dp-input
         v-model="newTopic.title"
         id="new-topic-title"
-        class="mt-2"
-        :placeholder="Translator.trans('title')" />
+        class="mb-2"
+        :label="{
+           text: Translator.trans('title')
+        }" />
       <div class="flex justify-end mt-2">
-        <dp-button
-          :text="Translator.trans('category.create')"
-          @click="saveNewTopic" />
+        <dp-button-row
+          primary
+          secondary
+          data-cy="toggleForm"
+          @primary-action="saveNewTopic"
+          @secondary-action="addNew = ''" />
       </div>
-    </dp-modal>
+    </div>
 
-    <div class="flex justify-end mb-1">
+    <div
+      v-if="!addNew"
+      class="flex justify-end mb-1">
       <dp-button
         :text="Translator.trans('tag.create')"
-        @click="() => toggleCreateModal({ type: 'Tag' })" />
+        @click="() => addNew = 'tag'" />
       <dp-button
         class="ml-1"
         :text="Translator.trans('category.create')"
-        @click="() => toggleCreateModal({ type: 'TagTopic' })" />
+        @click="() => addNew = 'tagTopic'" />
     </div>
 
     <dp-tree-list
@@ -124,6 +128,7 @@
 import {
   checkResponse,
   DpButton,
+  DpButtonRow,
   DpCheckbox,
   DpIcon,
   DpInput,
@@ -146,6 +151,7 @@ export default {
   name: 'TagsList',
 
   components: {
+    DpButtonRow,
     AddonWrapper,
     DpButton,
     DpCheckbox,
@@ -172,6 +178,7 @@ export default {
 
   data() {
     return {
+      addNew: '',
       dataIsRequested: false,
       isInEditState: '',
       newTag: {
