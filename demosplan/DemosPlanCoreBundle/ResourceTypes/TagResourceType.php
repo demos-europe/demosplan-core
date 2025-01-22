@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
+use EDT\JsonApi\ApiDocumentation\DefaultInclude;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
@@ -98,9 +99,9 @@ final class TagResourceType extends DplanResourceType
             );
         $configBuilder->topic
             ->setRelationshipType($this->resourceTypeStore->getTagTopicResourceType())
-            ->readable(true, null, true)
-            ->sortable()
-            ->filterable()
+            ->setReadableByPath(DefaultField::YES,DefaultInclude::YES)
+            ->setSortable()
+            ->setFilterable()
            ->addConstructorBehavior(
                 ToOneRelationshipConstructorBehavior::createFactory(null, [], function (CreationDataInterface $entityData): array {
                     $tagTopic = $this->getTagTopic($entityData);
