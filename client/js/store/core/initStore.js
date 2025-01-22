@@ -72,7 +72,13 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             },
             successCallbacks: [
               async (success) => {
-                const response = await success.json()
+                let response = success
+
+                try {
+                  response = await success.json()
+                } catch (e) {
+                  console.warn('Could not parse response. It was already parsed', e)
+                }
 
                 const meta = response.data?.meta
                   ? response.data.meta
@@ -86,7 +92,13 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             ],
             errorCallbacks: [
               async (error) => {
-                const response = await error.json()
+                let response = error
+
+                try {
+                  response = await error.json()
+                } catch (e) {
+                  console.warn('Could not parse response. It was already parsed', e)
+                }
 
                 const meta = response.data?.meta
                   ? response.data.meta
