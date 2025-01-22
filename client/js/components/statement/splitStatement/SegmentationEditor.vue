@@ -85,10 +85,10 @@ export default {
   },
 
   methods: {
-    extendMarks (baseMarks, newMarks) {
-      let extendedMarks = baseMarks
+    getExtendedMarks () {
+      let extendedMarks = schema.spec.marks
 
-      for (const [key, value] of Object.entries(newMarks)) {
+      for (const [key, value] of Object.entries(this.customMarks)) {
         extendedMarks = extendedMarks.update(key, value)
       }
 
@@ -98,7 +98,7 @@ export default {
     initialize () {
       const proseSchema = new Schema({
         nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
-        marks: this.extendMarks(schema.spec.marks, this.customMarks)
+        marks: this.getExtendedMarks()
       })
       const wrapper = document.createElement('div')
       wrapper.innerHTML = this.initStatementText ?? ''
