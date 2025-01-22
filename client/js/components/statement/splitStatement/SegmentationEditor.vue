@@ -89,8 +89,6 @@ export default {
       const rangePlugin = initRangePlugin(proseSchema, this.rangeChangeCallback, this.editToggleCallback)
       const parsedContent = DOMParser.fromSchema(rangePlugin.schema).parse(wrapper, { preserveWhitespace: true })
 
-      console.log('parsedContent', parsedContent)
-
       this.maxRange = parsedContent.content.size
 
       const view = new EditorView(document.querySelector('#editor'), {
