@@ -63,6 +63,7 @@
           :disabled="!isOrgaDataEditable" />
 
         <dp-input
+          v-if="showDetailedInfo"
           id="orga_address_extension"
           v-model="organisation.addressExtension"
           :class="!organisation.addressExtension.length ? prefixClass('w-4') : ''"
