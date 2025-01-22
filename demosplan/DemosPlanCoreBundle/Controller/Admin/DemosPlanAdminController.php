@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -22,74 +24,62 @@ use Twig\Environment;
 use Twig\Extension\EscaperExtension;
 
 /**
- * Stellt Adminfunktionen zur Verfügung.
+ * Provides admin functions.
  */
 class DemosPlanAdminController extends BaseController
 {
+    private const STATISTICS_TITLE = 'statistic';
+    public function __construct(
+        private readonly Environment $twig,
+        private readonly CsvHelper $csvHelper,
+        private readonly NameGenerator $nameGenerator,
+        private readonly StatisticsGenerator $statisticsGenerator,
+    ) {
+    }
+
     /**
-     * Generiert die HTML Seite für die Statistik.
-     *
      * @throws Exception
      */
     #[AttributeDplanPermissions('area_statistics')]
     #[Route(path: '/statistik', name: 'DemosPlan_statistics', defaults: ['format' => 'html', 'part' => 'all'])]
     #[Route(path: '/statistik/{part}/csv', name: 'DemosPlan_statistics_csv', defaults: ['format' => 'csv'])]
     public function generateStatisticsAction(
-        CsvHelper $csvHelper,
-        Environment $twig,
-        NameGenerator $nameGenerator,
-        StatisticsGenerator $statisticsGenerator,
         string $part,
         string $format
     ): ?Response {
-        $statistics = $statisticsGenerator->generateStatistics($this->getParameter('roles_allowed'));
+        $statistics = $this->statisticsGenerator->generateStatistics($this->getParameter('roles_allowed'));
 
-        $templateVars = [];
-        $templateVars['procedureList'] = $statistics->getProcedures();
-        $templateVars['statementStatistic'] = $statistics->getGlobalStatementStatistic();
-        $templateVars['internalPhases'] = $statistics->getInternalPhases();
-        $templateVars['externalPhases'] = $statistics->getExternalPhases();
-        $templateVars['rolesList'] = $statistics->getRoles();
-        $templateVars['orgaList'] = $statistics->getOrgas();
-        $templateVars['orgaUsersList'] = $statistics->getUsersPerOrga();
-        $templateVars['allowedRoleCodeMap'] = $statistics->getAllowedRoleCodeMap();
-
-        $title = 'statistic';
         return $this->renderStatisticsTemplate(
-            $templateVars,
-            $title,
+            $statistics->getAsTemplateVars(),
             $format,
-            $part,
-            $twig,
-            $csvHelper,
-            $nameGenerator
+            $part
         );
     }
 
     /**
      * @throws Exception
      */
-    private function renderStatisticsTemplate(array $templateVars, string $title, string $format, string $part, Environment $twig, CsvHelper $csvHelper, NameGenerator $nameGenerator): ?Response
+    private function renderStatisticsTemplate(array $templateVars, string $format, string $part): ?Response
     {
         if ('html' === $format) {
             return $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.html.twig', [
                 'templateVars' => $templateVars,
-                'title'        => $title,
+                'title'        => self::STATISTICS_TITLE,
             ]);
         }
 
         // set csv Escaper
-        $twig->getExtension(EscaperExtension::class)->setEscaper(
+        $this->twig->getExtension(EscaperExtension::class)->setEscaper(
             'csv',
             fn ($twigEnv, $string, $charset) => str_replace('"', '""', (string) $string)
         );
 
         $response = $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.csv.twig', [
             'templateVars' => $templateVars,
-            'title'        => $title,
+            'title'        => self::STATISTICS_TITLE,
             'part'         => $part,
         ]);
 
-        return $csvHelper->prepareCsvResponse($response, $part, $nameGenerator);
+        return $this->csvHelper->prepareCsvResponse($response, $part, $this->nameGenerator);
     }
 }

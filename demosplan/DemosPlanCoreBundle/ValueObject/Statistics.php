@@ -57,4 +57,19 @@ class Statistics extends ValueObject
 
         $this->lock();
     }
+
+    public function getAsTemplateVars(): array
+    {
+        $templateVars = [];
+        $templateVars['procedureList'] = $this->procedures;
+        $templateVars['statementStatistic'] = $this->globalStatementStatistic;
+        $templateVars['internalPhases'] = $this->internalPhases;
+        $templateVars['externalPhases'] = $this->externalPhases;
+        $templateVars['rolesList'] = $this->roles;
+        $templateVars['orgaList'] = $this->orgas;
+        $templateVars['orgaUsersList'] = $this->usersPerOrga;
+        $templateVars['allowedRoleCodeMap'] = $this->allowedRoleCodeMap;
+
+        return $templateVars;
+    }
 }
