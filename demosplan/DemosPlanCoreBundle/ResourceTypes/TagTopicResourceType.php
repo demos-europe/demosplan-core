@@ -127,7 +127,7 @@ final class TagTopicResourceType extends DplanResourceType
 
                         return [];
                     },
-                    OptionalField::NO
+                    OptionalField::YES
                 )
             );
         $configBuilder->addConstructorBehavior(
