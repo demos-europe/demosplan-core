@@ -158,7 +158,7 @@ final class TagTopicResourceType extends DplanResourceType
             ->setReadableByPath()->setSortable()->setFilterable()->addPathCreationBehavior(OptionalField::YES)
             ->addUpdateBehavior(
                 CallbackToManyRelationshipSetBehavior::createFactory(
-                    function (TagTopic $tagTopic, ArrayCollection $tags): array {
+                    function (TagTopic $tagTopic, array $tags): array {
                         try {
                             Assert::same(
                                 $tagTopic->getProcedure()->getId(),
