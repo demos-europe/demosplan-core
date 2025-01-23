@@ -21,14 +21,15 @@
         class="mt-4" />
 
       <template v-else>
-        <div class="grid grid-cols-12 gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
           <dp-search-field
-            class="h-fit mt-1 col-span-3"
+            class="h-fit mt-1 col-span-1 sm:col-span-3"
             data-cy="institutionList:searchField"
+            input-width="u-1-of-1"
             :placeholder="Translator.trans('searchterm')"
             @reset="handleReset"
             @search="val => handleSearch(val)" />
-          <div class="flex flex-wrap space-x-1 space-x-reverse space-y-1 col-span-7 ml-4">
+          <div class="flex flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-2">
             <filter-flyout
               v-for="filter in filters"
               :key="`filter_${filter.label}`"
@@ -43,7 +44,7 @@
               @filterOptions:request="createFilterOptions(filter.id)" />
           </div>
           <dp-button
-            class="h-fit col-span-2 mt-1 justify-center"
+            class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
             data-cy="institutionList:resetFilter"
             :disabled="!isQueryApplied"
             :text="Translator.trans('reset')"
