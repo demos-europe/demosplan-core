@@ -193,4 +193,22 @@ class Role extends CoreEntity implements UuidEntityInterface, RoleInterface, Str
     {
         return $this->groupName;
     }
+
+    public function addUserRoleInCustomer(UserRoleInCustomerInterface $userRoleInCustomer): void
+    {
+        if (!$this->userRoleInCustomers->contains($userRoleInCustomer)) {
+            $this->userRoleInCustomers->add($userRoleInCustomer);
+            // $userRoleInCustomer->($this);
+        }
+    }
+
+    public function getUserRoleInCustomers(): Collection
+    {
+        return $this->userRoleInCustomers;
+    }
+
+    public function removeUserRoleInCustomer(UserRoleInCustomerInterface $userRoleInCustomer)
+    {
+        $this->userRoleInCustomers->removeElement($userRoleInCustomer);
+    }
 }

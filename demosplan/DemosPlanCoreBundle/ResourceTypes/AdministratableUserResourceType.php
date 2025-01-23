@@ -21,9 +21,16 @@ use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
+use EDT\JsonApi\RequestHandling\ModifiedEntity;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use Elastica\Index;
 
 /**
@@ -35,24 +42,19 @@ use Elastica\Index;
  * administrate the accessed resources. It does **not** mean that the {@link User}s covered by this
  * resource type are the only ones that are technically administratable.
  *
- * @property-read End $firstname
- * @property-read End $lastname
  * @property-read End $login
  * @property-read End $email
  * @property-read End $deleted
- * @property-read End $profileCompleted
- * @property-read End $accessConfirmed
- * @property-read End $invited
- * @property-read End $newsletter
- * @property-read End $noPiwik
- * @property-read DepartmentResourceType $department
  * @property-read OrgaResourceType $orga
  * @property-read UserRoleInCustomerResourceType $roleInCustomers
  * @property-read RoleResourceType $roles @deprecated use relation to {@link AdministratableUserResourceType::$roleInCustomers} instead
  */
 final class AdministratableUserResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
 {
-    public function __construct(private readonly QueryUser $esQuery, private readonly JsonApiEsService $jsonApiEsService)
+    public function __construct(private readonly QueryUser $esQuery,
+        private readonly JsonApiEsService $jsonApiEsService,
+        private readonly UserRepository $userRepository,
+        private readonly UserHandler $userHandler)
     {
     }
 
@@ -69,6 +71,16 @@ final class AdministratableUserResourceType extends DplanResourceType implements
     public function isAvailable(): bool
     {
         return $this->currentUser->hasPermission('feature_user_list');
+    }
+
+    public function isCreateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('feature_user_add');
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('feature_user_edit');
     }
 
     protected function getAccessConditions(): array
@@ -127,42 +139,182 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         return [];
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): ResourceConfigBuilderInterface
     {
-        return [
-            $this->createIdentifier()->readable()->filterable()->sortable(),
-            $this->createAttribute($this->firstname)->readable(true)->filterable()->sortable(),
-            $this->createAttribute($this->lastname)->readable(true)->filterable()->sortable(),
-            $this->createAttribute($this->login)->readable(true)->filterable()->sortable(),
-            $this->createAttribute($this->email)->readable(true)->filterable()->sortable(),
-            $this->createAttribute($this->profileCompleted)
-                ->readable(true, static fn (User $user): bool => $user->isProfileCompleted()),
-            $this->createAttribute($this->accessConfirmed)
-                ->readable(true, static fn (User $user): bool => $user->isAccessConfirmed()),
-            $this->createAttribute($this->invited)
-                ->readable(true, static fn (User $user): bool => $user->isInvited()),
-            $this->createAttribute($this->newsletter)
-                ->readable(true, static fn (User $user): bool => $user->getNewsletter()),
-            $this->createAttribute($this->noPiwik)
-                ->readable(true, static fn (User $user): bool => $user->getNoPiwik()),
-            $this->createToManyRelationship($this->roles)
-                // Send only the user roles for the current customer.
-                ->readable(true, function (User $user): array {
-                    $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+        $configBuilder = $this->getConfig(UserResourceConfigBuilder::class);
 
-                    return $user->getRoleInCustomers()
-                        ->filter(
-                            static fn (UserRoleInCustomer $roleInCustomer): bool => $currentCustomer === $roleInCustomer->getCustomer()
-                        )
-                        ->map(
-                            static fn (UserRoleInCustomer $roleInCustomer): Role => $roleInCustomer->getRole()
-                        )
-                        ->getValues();
-                }),
-            $this->createToOneRelationship($this->department)
-                ->readable(true, static fn (User $user): ?Department => $user->getDepartment()),
-            $this->createToOneRelationship($this->orga)
-                ->readable(true, static fn (User $user): ?Orga => $user->getOrga()),
-        ];
+        $configBuilder->id
+            ->readable()
+            ->sortable()
+            ->filterable();
+
+        $configBuilder->firstname
+            ->readable(true)
+            ->sortable()
+            ->updatable()
+            ->initializable()
+            ->filterable();
+
+        $configBuilder->lastname
+            ->readable(true)
+            ->sortable()
+            ->updatable()
+            ->initializable()
+            ->filterable();
+
+        $configBuilder->email
+            ->readable(true)
+            ->sortable()
+            ->updatable([], function (User $user, string $email): array {
+                $user->setEmail($email);
+
+                return [];
+            })
+            ->initializable()
+            ->filterable();
+
+        $configBuilder->profileCompleted
+            ->readable(true, static fn (User $user): bool => $user->isProfileCompleted())
+            ->sortable();
+
+        $configBuilder->accessConfirmed
+            ->readable(true, static fn (User $user): bool => $user->isAccessConfirmed())
+            ->sortable();
+
+        $configBuilder->invited
+            ->readable(true, static fn (User $user): bool => $user->isInvited())
+            ->sortable();
+
+        $configBuilder->newsletter
+            ->readable(true, static fn (User $user): bool => $user->getNewsletter())
+            ->sortable();
+
+        $configBuilder->noPiwik
+            ->readable(true, static fn (User $user): bool => $user->getNoPiwik())
+            ->sortable();
+
+        $configBuilder->roles
+            ->updatable([], [], function (User $user, array $newRoles): array {
+                $roles = $user->getDplanroles($this->currentCustomerService->getCurrentCustomer())->toArray();
+
+                // Remove roles that are not in the new roles array
+                $removedRoles = $this->getRemovedRoles($roles, $newRoles);
+                foreach ($removedRoles as $role) {
+                    $roleInCustomer = $user->removeRoleInCustomer($role, $this->currentCustomerService->getCurrentCustomer());
+                    $role->removeUserRoleInCustomer($roleInCustomer);
+                    $this->getTypes()->getUserRoleInCustomerResourceType()->deleteEntity($roleInCustomer->getId());
+                }
+
+                // Add new roles that the user does not already have
+                $addedRoles = $this->getAddedRoles($roles, $newRoles);
+                foreach ($addedRoles as $role) {
+                    $user->addDplanrole($role, $this->currentCustomerService->getCurrentCustomer());
+                }
+
+                return [];
+            })
+            ->setRelationshipType($this->getTypes()->getRoleResourceType())
+            ->readable(true, function (User $user): array {
+                $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
+
+                return $user->getRoleInCustomers()
+                    ->filter(
+                        static fn (UserRoleInCustomer $roleInCustomer): bool => $currentCustomer === $roleInCustomer->getCustomer()
+                    )
+                    ->map(
+                        static fn (UserRoleInCustomer $roleInCustomer): Role => $roleInCustomer->getRole()
+                    )
+                    ->getValues();
+            })
+            ->sortable()
+            ->initializable(true, function (User $user, array $roles): array {
+                $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
+
+                return [];
+            });
+
+        $configBuilder->roleInCustomers
+            ->setRelationshipType($this->getTypes()->getUserRoleInCustomerResourceType())
+            ->readable();
+
+        $configBuilder->department
+            ->setRelationshipType($this->getTypes()->getDepartmentResourceType())
+            ->readable(true, static fn (User $user): ?Department => $user->getDepartment())
+            ->updatable([], [], static function (User $user, Department $newDepartment): array {
+                // Special logic for moving users from one department into another
+                $originalDepartment = $user->getDepartment();
+                if ($originalDepartment instanceof Department) {
+                    $originalDepartment->setGwId(null);
+                    $originalDepartment->removeUser($user);
+                }
+                $user->setDepartment($newDepartment);
+                $newDepartment->addUser($user);
+
+                return [];
+            })
+            ->initializable(false, function (User $user, Department $department): array {
+                $user->setDepartment($department);
+                $department->addUser($user);
+
+                return [];
+            });
+
+        $configBuilder->orga
+            ->setRelationshipType($this->getTypes()->getOrgaResourceType())
+            ->readable(true, static fn (User $user): ?Orga => $user->getOrga())
+            ->updatable([], [], static function (User $user, Orga $newOrga): array {
+                // Special logic for moving users from one organization into another
+                $originalOrga = $user->getOrga();
+                if ($originalOrga instanceof Orga) {
+                    $originalOrga->setGwId(null);
+                    $originalOrga->removeUser($user);
+                }
+                $user->setOrga($newOrga);
+                $newOrga->addUser($user);
+
+                return [];
+            })
+            ->initializable(false, function (User $user, Orga $orga): array {
+                $user->setOrga($orga);
+                $orga->addUser($user);
+
+                return [];
+            });
+
+        $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
+            $attributes = $entityData->getAttributes();
+            $user->setLogin($attributes[$this->email->getAsNamesInDotNotation()]);
+            $this->userRepository->persistEntities([$user]);
+
+            $this->userHandler->inviteUser($user);
+
+            return [];
+        }));
+
+        return $configBuilder;
+    }
+
+    private function getAddedRoles(array $currentRoles, array $newRoles): array
+    {
+        return array_filter($newRoles, static fn (Role $newRole): bool => !in_array($newRole, $currentRoles, true));
+    }
+
+    private function getRemovedRoles(array $currentRoles, array $newRoles): array
+    {
+        return array_filter($currentRoles, static fn (Role $currentRole): bool => !in_array($currentRole, $newRoles, true));
+    }
+
+    public function updateEntity(string $entityId, EntityDataInterface $entityData): ModifiedEntity
+    {
+        $userAttributes = $entityData->getAttributes();
+
+        if (array_key_exists($this->email->getAsNamesInDotNotation(), $userAttributes)) {
+            $modifiedEntity = parent::updateEntity($entityId, $entityData);
+            $this->userHandler->inviteUser($modifiedEntity->getEntity());
+
+            return $modifiedEntity;
+        }
+
+        return parent::updateEntity($entityId, $entityData);
     }
 }
