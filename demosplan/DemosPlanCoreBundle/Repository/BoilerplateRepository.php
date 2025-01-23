@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\BoilerplateRepositoryInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -69,9 +70,9 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
      *
      * @param string $categoryId
      *
-     * @return Boilerplate|null
+     * @return BoilerplateInterface|null
      */
-    public function getByProcedureAndCategory(string $procedureId, string $categoryId): ?Boilerplate
+    public function getByProcedureAndCategory(string $procedureId, string $categoryId): ?BoilerplateInterface
     {
         try {
             return $this->findOneBy(['procedure' => $procedureId, 'categories' => [$categoryId]]);
