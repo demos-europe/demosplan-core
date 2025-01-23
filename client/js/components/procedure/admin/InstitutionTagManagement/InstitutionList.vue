@@ -21,19 +21,20 @@
         class="mt-4" />
 
       <template v-else>
-        <div class="flex justify-between">
+        <div class="grid grid-cols-12 gap-2">
           <dp-search-field
-            class="h-fit mt--0.5"
+            class="h-fit mt-1 col-span-3"
             data-cy="institutionList:searchField"
             :placeholder="Translator.trans('searchterm')"
             @reset="handleReset"
             @search="val => handleSearch(val)" />
-          <div class="ml-2 w-1/2">
+          <div class="flex flex-wrap space-x-1 space-x-reverse space-y-1 col-span-7 ml-4">
             <filter-flyout
               v-for="filter in filters"
-              ref="filterFlyout"
               :key="`filter_${filter.label}`"
+              ref="filterFlyout"
               :category="{  id: filter.id, label: filter.label }"
+              class="first:mr-1 first: mt-1 inline-block"
               :data-cy="`institutionListFilter:${filter.label}`"
               :initial-query="queryIds"
               :operator="filter.comparisonOperator"
@@ -42,7 +43,7 @@
               @filterOptions:request="createFilterOptions(filter.id)" />
           </div>
           <dp-button
-            class="ml-2 h-fit"
+            class="h-fit col-span-2 mt-1 justify-center"
             data-cy="institutionList:resetFilter"
             :disabled="!isQueryApplied"
             :text="Translator.trans('reset')"
