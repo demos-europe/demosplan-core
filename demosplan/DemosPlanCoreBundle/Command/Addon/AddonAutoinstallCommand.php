@@ -94,6 +94,7 @@ class AddonAutoinstallCommand extends CoreCommand
             $name = $addonConfig['name'];
             if (!in_array($name, $enabledAddons, true)) {
                 $output->note("Installing addon {$name} in Version {$addonConfig['version']}");
+                $this->runCommand($this->cacheClearCommand, ['--force' => true], $output);
 
                 $arguments = [
                     '--name'   => $name,

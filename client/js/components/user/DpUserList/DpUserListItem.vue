@@ -228,12 +228,12 @@ export default {
   },
 
   methods: {
-    ...mapActions('User', {
+    ...mapActions('AdministratableUser', {
       saveUserAction: 'save',
       restoreUser: 'restoreFromInitial'
     }),
 
-    ...mapMutations('User', ['setItem']),
+    ...mapMutations('AdministratableUser', ['setItem']),
 
     // Close item and reset roles multiselect
     reset () {
