@@ -220,7 +220,8 @@ const FilterFlyoutStore = {
      *
      * @param {Object} state - The state object.
      * @param {String} categoryId - The ID of the category.
-     * @
+     * @return {Boolean} The expanded state for the specified category.
+     */
     getIsExpandedByCategoryId: (state) => (categoryId) => {
       return state.isExpanded[categoryId]
     },
