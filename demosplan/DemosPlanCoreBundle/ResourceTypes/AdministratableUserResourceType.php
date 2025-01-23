@@ -27,11 +27,14 @@ use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilde
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Elastica\Index;
 
 /**
@@ -215,7 +218,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                 return [];
             })
             ->setRelationshipType($this->getTypes()->getRoleResourceType())
-            ->readable(true, function (User $user): array {
+            ->setReadableByCallable( function (User $user): array {
                 $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
 
                 return $user->getRoleInCustomers()
@@ -228,11 +231,12 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                     ->getValues();
             })
             ->setSortable()
-            ->initializable(true, function (User $user, array $roles): array {
-                $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
-
-                return [];
-            });
+            ->addCreationBehavior(
+                CallbackToManyRelationshipSetBehavior::createFactory(function (User $user, array $roles): array {
+                    $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
 
         $configBuilder->roleInCustomers
             ->setRelationshipType($this->getTypes()->getUserRoleInCustomerResourceType())
