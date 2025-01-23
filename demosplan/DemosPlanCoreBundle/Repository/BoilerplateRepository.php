@@ -65,13 +65,6 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
         return $this->findBy(['procedure' => $procedureId, 'group' => null], ['title' => 'asc']);
     }
 
-    /**
-     * @param string $procedureId
-     *
-     * @param string $categoryId
-     *
-     * @return BoilerplateInterface|null
-     */
     public function getByProcedureAndCategory(string $procedureId, string $categoryId): ?BoilerplateInterface
     {
         try {
