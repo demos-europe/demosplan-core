@@ -30,21 +30,9 @@
         id="orga_paperCopySpec"
         data-cy="organisationData:paperCopy:specification"
         :name="`${organisation.id}:paperCopySpec`"
-        :value="organisation.paperCopySpec"
+        :v-model="organisation.paperCopySpec"
         :label="Translator.trans('copies.kind')"
         :hint="Translator.trans('explanation.organisation.copies.kind')" />
-    </div>
-
-    <div
-      v-if="hasPermission('field_organisation_competence')"
-      class="w-full mb-3">
-      <dp-text-area
-        id="orga_competence"
-        data-cy="organisationData:paperCopy:competence"
-        :name="`${organisation.id}:competence`"
-        :value="organisation.competence"
-        :label="Translator.trans('competence.explanation')"
-        :hint="Translator.trans('explanation.organisation.competence')" />
     </div>
   </fieldset>
 </template>
@@ -70,8 +58,7 @@ export default {
   computed: {
     hasPaperCopyPermission () {
       return hasPermission('field_organisation_paper_copy') ||
-        hasPermission('field_organisation_paper_copy_spec') ||
-        hasPermission('field_organisation_competence')
+        hasPermission('field_organisation_paper_copy_spec')
     }
   },
 
