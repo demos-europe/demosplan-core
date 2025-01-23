@@ -513,6 +513,7 @@ export default {
 
     ...mapMutations('FilterFlyout', {
       setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
+      setIsLoadingFilterFlyout: 'setIsLoading',
       setGroupedFilterOptions: 'setGroupedOptions',
       setUngroupedFilterOptions: 'setUngroupedOptions'
     }),
@@ -704,6 +705,7 @@ export default {
      */
     sendFilterOptionsRequest (params) {
       const { additionalQueryParams, category, filter, isInitialWithQuery, path } = params
+      this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: true })
       const requestParams = {
         ...additionalQueryParams,
         filter: {
@@ -823,67 +825,9 @@ export default {
               categoryId: category.id,
               options: ungroupedOptions
             })
-          }
 
-          //   const currentFilterType = result.data.find(type => type.attributes.path === path) // assignee, place or tags
-          //
-          //   if (currentFilterType && hasOwnProp(result, 'included')) {
-          //     const filterKey = currentFilterType.attributes.path
-          //
-          //     result.included.forEach(el => {
-          //       // if el in included is a group and the group is part of the current filter, add it to the filter's groupsObject
-          //     if (el.type === 'AggregationFilterGroup' && typeof currentFilterType.relationships.aggregationFilterGroups.data.find(group => group.id === el.id) !== 'undefined') {
-          //       // this.$set(this.groupsObject, el.id, el)
-          //       if (this.filters[filterKey]) {
-          //         if (!this.filters[filterKey].groupsObject) {
-          //           this.$set(this.filters[filterKey], 'groupsObject', {})
-          //         }
-          //         this.$set(this.filters[filterKey].groupsObject, el.id, el)
-          //       }
-          //
-          //       if (hasOwnProp(el.relationships, 'aggregationFilterItems') && el.relationships.aggregationFilterItems.data.length > 0) {
-          //         el.relationships.aggregationFilterItems.data.forEach(item => {
-          //           const filterItem = result.included.find(filterItem => filterItem.id === item.id)
-          //           // this.$set(this.itemsObject, filterItem.id, filterItem)
-          //           if (this.filters[filterKey]) {
-          //             if (!this.filters[filterKey].itemsObject) {
-          //               this.$set(this.filters[filterKey], 'itemsObject', {})
-          //             }
-          //             this.$set(this.filters[filterKey].itemsObject, filterItem.id, filterItem)
-          //           }
-          //         })
-          //       }
-          //     } else if (el.type === 'AggregationFilterItem' && typeof currentFilterType.relationships.aggregationFilterItems.data.find(item => item.id === el.id) !== 'undefined') {
-          //       el.ungrouped = true
-          //       // this.$set(this.itemsObject, el.id, el)
-          //       if (this.filters[filterKey]) {
-          //         if (!this.filters[filterKey].itemsObject) {
-          //           this.$set(this.filters[filterKey], 'itemsObject', {})
-          //         }
-          //         this.$set(this.filters[filterKey].itemsObject, el.id, el)
-          //       }
-          //     }
-          //   })
-          //
-          //     // If the current filter is assignee, display amount of Segments that have assignee as null. That is given by the field missingResourcesSum
-          //     if (result.data[0].attributes.path === 'assignee') {
-          //       if (this.filters[filterKey]) {
-          //         this.$set(this.filters[filterKey].itemsObject, 'unassigned', {
-          //           attributes: {
-          //             count: result.data[0].attributes.missingResourcesSum,
-          //             label: Translator.trans('not.assigned'),
-          //             ungrouped: true,
-          //             selected: result.meta.unassigned_selected
-          //           },
-          //           id: 'unassigned',
-          //           type: 'AggregationFilterItem',
-          //           ungrouped: true
-          //         })
-          //       }
-          //     }
-          //   }
-          // })
-          // .catch(err => console.log(err))
+            this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: false })
+          }
         })
     },
 
