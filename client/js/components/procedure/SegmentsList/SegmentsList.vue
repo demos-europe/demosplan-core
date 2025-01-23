@@ -704,7 +704,6 @@ export default {
      */
     sendFilterOptionsRequest (params) {
       const { additionalQueryParams, category, filter, isInitialWithQuery, path } = params
-      this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: true })
       const requestParams = {
         ...additionalQueryParams,
         filter: {
