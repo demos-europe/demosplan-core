@@ -23,6 +23,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Illuminate\Support\Collection;
@@ -67,7 +69,8 @@ class StatementFactory extends FactoryBase
         OrgaService $orgaService,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
-        private readonly UserService $userService
+        private readonly UserService $userService,
+        private readonly EntityManager $entityManager
     ) {
         $this->orgaService = $orgaService;
         $this->procedureService = $procedureService;
@@ -140,14 +143,18 @@ class StatementFactory extends FactoryBase
     /**
      * @throws DataProviderException
      * @throws InvalidUserDataException
+     * @throws NotSupported
      */
     protected function makeStatementData(): array
     {
         if ($this->procedure instanceof Procedure) {
             $procedure = $this->procedure;
         } else {
-            $procedures = collect($this->procedureService->getProcedureFullList('', false));
-            /* @var $procedure Procedure */
+            $procedures = collect(
+                $this->entityManager->getRepository(Procedure::class)
+                    ->findBy(['master' => false, 'deleted' => false], ['orgaName' => 'ASC'])
+            );
+            /* @var Procedure $procedure */
             $procedure = $procedures->random();
         }
 

@@ -511,34 +511,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * Ruft alle Verfahren ab
-     * Funktion benötigt die Rolle Verfahrenssupport (RTSUPP).
-     *
-     * @return array
-     *
-     * @throws Exception
-     */
-    public function getProcedureFullList(string $search = '', bool $toLegacy = true)
-    {
-        try {
-            $procedures = $this->procedureRepository->getFullList(false);
-
-            if (!$toLegacy) {
-                return $procedures;
-            }
-            $procedureList = [];
-            foreach ($procedures as $procedure) {
-                $procedureList[$procedure->getId()] = $this->procedureToLegacyConverter->convertToLegacy($procedure);
-            }
-
-            return $this->procedureToLegacyConverter->toLegacyResult($procedureList, $search)->toArray();
-        } catch (Exception $e) {
-            $this->logger->warning('Fehler beim Abruf der ProcedureFullList: ', [$e]);
-            throw $e;
-        }
-    }
-
-    /**
      * @param string $slug
      *
      * @throws NonUniqueResultException

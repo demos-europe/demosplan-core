@@ -122,50 +122,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     }
 
     /**
-     * Get a list of all Procedures, which are not deleted.
-     *
-     * @param bool|null $master  Optional include Blaupausen; If set to null the query will be executed
-     *                           <strong>without</strong> limiting the resulting Procedures using the
-     *                           master property. If set to true only Procedures with the
-     *                           master property set to true will be returned. If set to
-     *                           false only Procedures with the master property set to
-     *                           false will be returned.
-     * @param bool      $idsOnly determines if the whole object will be returned or only the UUID of the object
-     *
-     * @return array<int, string>|array<int, Procedure>
-     *
-     * @throws Exception
-     */
-    public function getFullList(?bool $master = null, bool $idsOnly = false): array
-    {
-        try {
-            $em = $this->getEntityManager();
-            $queryBuilder = $em->createQueryBuilder();
-            $selector = $idsOnly ? 'p.id' : 'p';
-
-            $queryBuilder
-                ->select($selector)
-                ->from(Procedure::class, 'p')
-                ->join('p.orga', 'o')
-                ->orderBy('o.name', 'asc')
-                ->andWhere('p.deleted = :deleted')
-                ->setParameter('deleted', false);
-
-            if (!is_null($master)) {
-                $queryBuilder->andWhere('p.master = :master')
-                    ->setParameter('master', $master);
-            }
-
-            $result = $queryBuilder->getQuery()->getResult();
-
-            return $idsOnly ? array_map('current', $result) : $result;
-        } catch (Exception $e) {
-            $this->logger->warning('Get List Procedure failed Message: ', [$e]);
-            throw $e;
-        }
-    }
-
-    /**
      * Get a list of all not deleted and open Procedures by dataInputOrga.
      *
      * @param array<int, string> $allowedPhases
