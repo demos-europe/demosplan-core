@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateCategoryInterface;
+use DemosEurope\DemosplanAddon\Contracts\Repositories\BoilerplateCategoryRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
@@ -25,7 +27,7 @@ use Exception;
 /**
  * @template-extends CoreRepository<BoilerplateCategory>
  */
-class BoilerplateCategoryRepository extends CoreRepository implements ArrayInterface, ObjectInterface
+class BoilerplateCategoryRepository extends CoreRepository implements ArrayInterface, ObjectInterface, BoilerplateCategoryRepositoryInterface
 {
     /**
      * Fetch all boilerplate-categories for a certain procedure.
@@ -94,6 +96,22 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
     {
         try {
             return $this->findOneBy(['title' => $boilerplateCategoryTitle]);
+        } catch (Exception) {
+            return null;
+        }
+    }
+
+    /**
+     * @param string $procedureId
+     *
+     * @param string $boilerplateCategoryTitle
+     *
+     * @return BoilerplateCategoryInterface|null
+     */
+    public function getByProcedureAndTitle(string $procedureId, string $boilerplateCategoryTitle): ?BoilerplateCategoryInterface
+    {
+        try {
+            return $this->findOneBy(['procedure' => $procedureId, 'title' => $boilerplateCategoryTitle]);
         } catch (Exception) {
             return null;
         }

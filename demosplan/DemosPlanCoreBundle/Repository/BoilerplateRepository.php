@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Repositories\BoilerplateRepositoryInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
@@ -29,7 +30,7 @@ use InvalidArgumentException;
 /**
  * @template-extends FluentRepository<Boilerplate>
  */
-class BoilerplateRepository extends FluentRepository implements ArrayInterface, ObjectInterface
+class BoilerplateRepository extends FluentRepository implements ArrayInterface, ObjectInterface, BoilerplateRepositoryInterface
 {
     /**
      * Fetch all boilerplates for a certain procedure.
@@ -61,6 +62,22 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
     public function getBoilerplatesWhithoutGroup(string $procedureId): array
     {
         return $this->findBy(['procedure' => $procedureId, 'group' => null], ['title' => 'asc']);
+    }
+
+    /**
+     * @param string $procedureId
+     *
+     * @param string $categoryId
+     *
+     * @return Boilerplate|null
+     */
+    public function getByProcedureAndCategory(string $procedureId, string $categoryId): ?Boilerplate
+    {
+        try {
+            return $this->findOneBy(['procedure' => $procedureId, 'categories' => [$categoryId]]);
+        } catch (Exception) {
+            return null;
+        }
     }
 
     /**
