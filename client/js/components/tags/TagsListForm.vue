@@ -116,6 +116,13 @@ export default {
 
   mixins: [dpValidateMixin],
 
+  props: {
+    procedureId: {
+      type: String,
+      required: true
+    }
+  },
+
   data () {
     return {
       currentForm: '',
