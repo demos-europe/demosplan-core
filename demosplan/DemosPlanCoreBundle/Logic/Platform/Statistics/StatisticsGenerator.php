@@ -14,15 +14,15 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Platform\Statistics;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureToLegacyConverter;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementStatistic;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statistics;
 use Exception;
@@ -43,7 +43,7 @@ class StatisticsGenerator
         private readonly ProcedureService $procedureService,
         private readonly ProcedureRepository $procedureRepository,
         private readonly ProcedureToLegacyConverter $procedureToLegacyConverter,
-        private readonly StatementService $statementService,
+        private readonly StatementRepository $statementRepository,
         private readonly UserService $userService,
     ) {
     }
@@ -60,7 +60,7 @@ class StatisticsGenerator
         );
         $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
         $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
-        $originalStatements = $this->statementService->getOriginalStatements();
+        $originalStatements = $this->statementRepository->getOriginalStatements();
         $amountOfProcedures = $this->procedureService->getAmountOfProcedures();
         $globalStatementStatistic = new StatementStatistic($originalStatements, $amountOfProcedures);
 

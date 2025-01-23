@@ -38,12 +38,14 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\AdditionalStatementDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadyConnectedToGdprConsentRevokeTokenException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentStatementQuery;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -80,7 +82,8 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         private readonly EventDispatcherInterface $eventDispatcher,
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
-        string $entityClass
+        string $entityClass,
+        private readonly CustomerService $customerService
     ) {
         parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
@@ -1987,6 +1990,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
      * Returns only original statements and these whose related procedure is not deleted.
      *
      * @return array<int, array<string, mixed>>
+     * @throws CustomerNotFoundException
      */
     public function getOriginalStatements(): array
     {
@@ -1999,14 +2003,17 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->addSelect('procedure.id as procedureId')
             ->from(Statement::class, 'statement')
             ->leftJoin('statement.procedure', 'procedure')
+            ->leftJoin('procedure.customer', 'customer')
             ->leftJoin('statement.meta', 'meta')
             ->leftJoin('statement.user', 'user')
             ->andWhere('statement.deleted = :deleted')
             ->andWhere('statement.original IS NULL')
             ->andWhere('procedure.deleted = :deleted')
             ->andWhere('procedure.master = :master')
+            ->andWhere('customer.id = :customerId')
             ->setParameter('deleted', false)
             ->setParameter('master', false)
+            ->setParameter('customerId', $this->customerService->getCurrentCustomer())
             ->getQuery()
             ->getResult();
     }
