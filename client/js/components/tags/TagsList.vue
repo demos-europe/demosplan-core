@@ -1,82 +1,8 @@
 <template>
   <div>
-    <tag-list-header />
+    <tags-list-header />
 
-    <div
-      v-if="currentForm === 'tag'"
-      class="border rounded p-4 my-4"
-      data-dp-validate="addNewTagForm">
-      <dp-input
-        v-model="newTag.title"
-        id="new-tag-title"
-        class="mb-4"
-        data-cy="tagList:newTag:title"
-        :label="{
-           text: Translator.trans('title')
-        }"
-        maxlength="250"
-        required />
-
-      <dp-select
-        v-model="newTag.topic"
-        class="mb-4"
-        data-cy="tagList:newTag:topic"
-        :label="{
-          text: Translator.trans('topic.insertTag')
-        }"
-        :options="topicsAsOptions" />
-
-      <addon-wrapper
-        class="block mb-4"
-        hook-name="tag.create.form"
-        @input="updateForm"
-        @change="updateForm" />
-
-      <dp-button-row
-        data-cy="tagList:addNewTag"
-        primary
-        secondary
-        @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(), false)"
-        @secondary-action="closeForm" />
-    </div>
-
-    <div
-      v-else-if="currentForm === 'topic'"
-      class="border rounded p-4 my-4"
-      data-dp-validate="addNewTopicForm">
-      <dp-input
-        v-model="newTopic.title"
-        id="new-topic-title"
-        class="mb-4"
-        :label="{
-           text: Translator.trans('title')
-        }"
-        maxlength="250"
-        required />
-      <div class="flex justify-end mt-2">
-        <dp-button-row
-          data-cy="tagList:addNewTopic"
-          primary
-          secondary
-          @primary-action="dpValidateAction('addNewTopicForm', () => saveNewTopic(), false)"
-          @secondary-action="closeForm" />
-      </div>
-    </div>
-
-    <div
-      v-else
-      class="flex justify-end my-4">
-      <dp-button
-        class="mr-2"
-        data-cy=""
-        :text="Translator.trans('tag.create')"
-        @click="() => openForm('tag')" />
-      <dp-button
-        data-cy=""
-        :text="Translator.trans('category.create')"
-        variant="outline"
-        @click="() => openForm('topic')" />
-    </div>
+    <tags-list-form />
 
     <dp-tree-list
       class="mb-4"
@@ -135,35 +61,33 @@
 import {
   checkResponse,
   DpButton,
-  DpButtonRow,
   DpCheckbox,
   DpIcon,
   DpInput,
+  DpLabel,
   DpModal,
   dpRpc,
   DpSelect,
   DpTreeList,
-  DpUpload,
-  dpValidateMixin
+  DpUpload
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import TagListBulkControls from './TagListBulkControls'
 import TagListEditForm from './TagListEditForm'
 import TagsImportForm from './TagsImportForm'
-import TagListHeader from './TagListHeader'
-
-
+import TagsListHeader from './TagListHeader'
+import TagsListForm from './TagsListForm.vue'
 export default {
   name: 'TagsList',
 
   components: {
-    DpButtonRow,
     AddonWrapper,
     DpButton,
     DpCheckbox,
     DpIcon,
     DpInput,
+    DpLabel,
     DpModal,
     DpUpload,
     DpSelect,
@@ -171,7 +95,8 @@ export default {
     TagsImportForm,
     TagListBulkControls,
     TagListEditForm,
-    TagListHeader
+    TagsListHeader,
+    TagsListForm
   },
 
   props: {
@@ -181,20 +106,10 @@ export default {
     }
   },
 
-  mixins: [dpValidateMixin],
-
   data() {
     return {
-      currentForm: '',
       dataIsRequested: false,
       isInEditState: '',
-      newTag: {
-        title: '',
-        topic: ''
-      },
-      newTopic: {
-        title: ''
-      },
       // This is necessary to allow extending the Tags-Resource
       tagAttributes: {
         boilerplate: '',
@@ -204,9 +119,6 @@ export default {
   },
 
   computed: {
-    ...mapState('Tag', {
-      Tag: 'items'
-    }),
     ...mapState('TagTopic', {
       TagTopic: 'items'
     }),
@@ -215,16 +127,6 @@ export default {
       return Object.keys(this.tagAttributes)
     },
 
-    topicsAsOptions () {
-      return Object.values(this.TagTopic).map(category => {
-        const { attributes, id } = category
-
-        return {
-          label: attributes.title,
-          value: id
-        }
-      })
-    },
 
     transformedCategories () {
       return Object.values(this.TagTopic).map(category => {
@@ -250,45 +152,12 @@ export default {
   },
 
   methods: {
-    ...mapMutations('Tag', {
-      updateTag: 'setItem'
-    }),
-
-    ...mapMutations('TagTopic', {
-      updateTagTopic: 'setItem'
-    }),
-
-    ...mapActions('Tag', {
-      createTag: 'create',
-      listTags: 'list',
-      saveTag: 'save'
-    }),
-
     ...mapActions('TagTopic', {
-      createTagTopic: 'create',
-      listTagTopics: 'list',
-      saveTagTopic: 'save'
+      listTagTopics: 'list'
     }),
 
     abort () {
       this.isInEditState = ''
-    },
-
-    closeForm () {
-      this.currentForm = ''
-      this.resetFormData()
-    },
-
-    resetFormData () {
-      this.newTopic.title = ''
-      this.newTag = {
-        title: '',
-        topic: ''
-      }
-    },
-
-    openForm (form) {
-      this.currentForm = form
     },
 
     branchFunc () {
@@ -343,90 +212,13 @@ export default {
         })
     },
 
-    saveNewTag () {
-      this.createTag({
-        type: 'Tag',
-        attributes: {
-          title: this.newTag.title
-        },
-        relationships: {
-          topic: {
-            data: {
-              type: 'TagTopic',
-              id: this.newTag.topic
-            }
-          }
-        }
-      })
-        .then(response => {
-        console.log(response, 'response new tag')
-        if (!response.data.Tag || !this.TagTopic[this.newTag.topic]) {
-          return
-        }
-
-        const parentTopic = this.TagTopic[this.newTag.topic]
-        const newTagId = Object.keys(response.data.Tag)[0]
-
-        this.updateTagTopic({
-          id: this.newTag.topic,
-          type: 'TagTopic',
-          attributes: parentTopic.attributes,
-          relationships: {
-            ...parentTopic.relationships,
-            tags: {
-              data: parentTopic.relationships.tags.data.concat({
-                type: 'Tag',
-                id: newTagId
-              })
-            }
-          }
-        })
-
-        this.$root.$emit('tag:created', newTagId)
-        // reset form data
-        this.isInEditState = ''
-        this.newTag = this.tagAttributes
-      })
-    },
-
-    saveNewTopic () {
-      console.log('saveNewTopic', this.newTopic)
-      this.createTagTopic({
-        type: 'TagTopic',
-        attributes: {
-          title: this.newTopic.title
-        },
-        relationships: {
-          procedure: {
-            data: {
-              type: 'Procedure',
-              id: this.procedureId
-            }
-          }
-        }
-      })
-        .then(() => {
-          this.isInEditState = ''
-          this.newTopic = {
-            title: ''
-          }
-        })
-
-    },
-
     setEditState ({ id }) {
       this.isInEditState = id
-    },
-
-    updateForm (value) {
-      console.log('updateForm', value)
-      this.newTag[value.key] = value.value
     }
   },
 
   mounted () {
     this.loadTagsAndTopics()
-  },
-
+  }
 }
 </script>

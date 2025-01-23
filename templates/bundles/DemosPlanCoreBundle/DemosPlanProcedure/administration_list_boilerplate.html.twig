@@ -12,42 +12,47 @@
         method="post"
         action="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
         <input type="hidden" name="manualsort" value="">
+
         {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
-        {# mark all #}
-        <label class="u-mb-0 u-mh-0_75 inline-block">
-            <input
-                class="u-mr-0"
-                type="checkbox"
-                data-cy="checkAllItems"
-                data-form-actions-check-all
-                name="checkAllItems"
-                value="">
-            {{ "all"|trans }}
-        </label>
+        <div class="flex flex-wrap-reverse gap-4 items-center justify-between">
+            <div>
+                {# mark all #}
+                <label class="mb-0 mx-3 inline-block">
+                    <input
+                        class="mr-0"
+                        type="checkbox"
+                        data-cy="checkAllItems"
+                        data-form-actions-check-all
+                        name="checkAllItems">
+                    {{ "all"|trans }}
+                </label>
 
-        {# delete marked items #}
-        <button
-            class="btn-icns u-ml-0_25"
-            data-cy="deleteSelectedBoilerplate"
-            name="boilerplateDeleteChecked"
-            data-form-actions-confirm="{{ "check.entries.marked.delete" |trans }}">
-            <i class="fa fa-times-circle"></i> {{ "items.marked.delete"|trans }}
-        </button>
+                {# delete marked items #}
+                <button
+                    class="btn-icns m-0"
+                    data-cy="deleteSelectedBoilerplate"
+                    name="boilerplateDeleteChecked"
+                    data-form-actions-confirm="{{ "check.entries.marked.delete" |trans }}">
+                    <i class="fa fa-times-circle"></i> {{ "items.marked.delete"|trans }}
+                </button>
+            </div>
 
-        <div class="">
-            <dp-button
-                class="inline-block float-right"
-                data-cy="addNewBoilerplate"
-                href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure}) }}"
-                text="{{ 'boilerplate.generate'|trans }}">
-            </dp-button>
+            <div class="ml-3">
+                <dp-button
+                    class="mr-2"
+                    data-cy="addNewBoilerplate"
+                    href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure}) }}"
+                    text="{{ 'entity.create'|trans({ entity: 'boilerplate'|trans }) }}">
+                </dp-button>
 
-            <dp-button
-                data-cy="addNewBoilerplateGroup"
-                href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure}) }}"
-                text="{{ 'new.group.create'|trans }}"
-                variant="outline"></dp-button>
+                <dp-button
+                    data-cy="addNewBoilerplateGroup"
+                    href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure}) }}"
+                    text="{{ 'entity.create'|trans({ entity: 'group'|trans }) }}"
+                    variant="outline">
+                </dp-button>
+            </div>
         </div>
 
         <table class="c-table o-toggle o-toggle--not-animated u-mb u-mt-0_5">
