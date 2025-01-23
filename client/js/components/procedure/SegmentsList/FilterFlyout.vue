@@ -249,11 +249,6 @@ export default {
   },
 
   computed: {
-    ...mapGetters('SegmentFilter', {
-      // All currently selected filters, in this as well as in (possible) neighboring filterFlyouts
-      getFilterQuery: 'filterQuery'
-    }),
-
     ...mapGetters('FilterFlyout', [
       'getInitialFlyoutFilterIdsByCategoryId',
       'getGroupedOptionsByCategoryId',
@@ -364,8 +359,6 @@ export default {
   },
 
   methods: {
-    ...mapMutations('SegmentFilter', ['updateFilterQuery']),
-
     ...mapMutations('FilterFlyout', {
       setGroupedSelected: 'setGroupedOptionSelected',
       setIsLoading: 'setIsLoading',

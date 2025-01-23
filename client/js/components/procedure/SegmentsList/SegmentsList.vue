@@ -411,9 +411,9 @@ export default {
   },
 
   computed: {
-    ...mapGetters('SegmentFilter', {
-      getFilterQuery: 'filterQuery'
-    }),
+    ...mapGetters('FilterFlyout', [
+      'getFilterQuery'
+    ]),
 
     ...mapState('AssignableUser', {
       assignableUsersObject: 'items'
@@ -509,13 +509,12 @@ export default {
       fetchPlaces: 'list'
     }),
 
-    ...mapMutations('SegmentFilter', ['updateFilterQuery']),
-
     ...mapMutations('FilterFlyout', {
       setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
       setIsLoadingFilterFlyout: 'setIsLoading',
       setGroupedFilterOptions: 'setGroupedOptions',
-      setUngroupedFilterOptions: 'setUngroupedOptions'
+      setUngroupedFilterOptions: 'setUngroupedOptions',
+      updateFilterQuery: 'updateFilterQuery'
     }),
 
     applyQuery (page) {
