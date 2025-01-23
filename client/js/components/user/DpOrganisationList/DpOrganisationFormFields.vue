@@ -66,8 +66,9 @@
           class="color--grey u-mb-0_5">
           -
         </p>
-      </div>
-      <div
+      </div><!--
+
+   --><div
         v-if="canEdit('houseNumber') || organisation.attributes.houseNumber !== ''"
         class="layout__item u-2-of-12">
         <label
@@ -89,7 +90,8 @@
           class="color--grey u-mb-0_5">
           {{ organisation.attributes.houseNumber }}
         </p>
-      </div>
+      </div><!--
+   -->
       <div
         v-if="canEdit('addressExtension') || organisation.attributes.addressExtension !== ''"
         class="layout__item u-2-of-12">
