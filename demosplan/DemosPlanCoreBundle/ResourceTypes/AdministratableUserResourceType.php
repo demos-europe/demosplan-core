@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
+use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
@@ -144,27 +145,27 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder = $this->getConfig(UserResourceConfigBuilder::class);
 
         $configBuilder->id
-            ->readable()
-            ->sortable()
-            ->filterable();
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->setFilterable();
 
         $configBuilder->firstname
-            ->readable(true)
-            ->sortable()
-            ->updatable()
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->addPathUpdateBehavior()
             ->initializable()
             ->filterable();
 
         $configBuilder->lastname
-            ->readable(true)
-            ->sortable()
-            ->updatable()
-            ->initializable()
-            ->filterable();
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->addPathUpdateBehavior()
+            ->addPathCreationBehavior()
+            ->setFilterable();
 
         $configBuilder->email
-            ->readable(true)
-            ->sortable()
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
             ->updatable([], function (User $user, string $email): array {
                 $user->setEmail($email);
 
@@ -174,24 +175,24 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->filterable();
 
         $configBuilder->profileCompleted
-            ->readable(true, static fn (User $user): bool => $user->isProfileCompleted())
-            ->sortable();
+            ->setReadableByCallable(static fn (User $user): bool => $user->isProfileCompleted(), DefaultField::YES)
+            ->setSortable();
 
         $configBuilder->accessConfirmed
-            ->readable(true, static fn (User $user): bool => $user->isAccessConfirmed())
-            ->sortable();
+            ->setReadableByCallable(static fn (User $user): bool => $user->isAccessConfirmed(), DefaultField::YES)
+            ->setSortable();
 
         $configBuilder->invited
-            ->readable(true, static fn (User $user): bool => $user->isInvited())
-            ->sortable();
+            ->setReadableByCallable(static fn (User $user): bool => $user->isInvited(), DefaultField::YES)
+            ->setSortable();
 
         $configBuilder->newsletter
-            ->readable(true, static fn (User $user): bool => $user->getNewsletter())
-            ->sortable();
+            ->setReadableByCallable(static fn (User $user): bool => $user->getNewsletter(), DefaultField::YES)
+            ->setSortable();
 
         $configBuilder->noPiwik
-            ->readable(true, static fn (User $user): bool => $user->getNoPiwik())
-            ->sortable();
+            ->setReadableByCallable(static fn (User $user): bool => $user->getNoPiwik(), DefaultField::YES)
+            ->setSortable();
 
         $configBuilder->roles
             ->updatable([], [], function (User $user, array $newRoles): array {
@@ -226,7 +227,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                     )
                     ->getValues();
             })
-            ->sortable()
+            ->setSortable()
             ->initializable(true, function (User $user, array $roles): array {
                 $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
 
@@ -235,7 +236,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
 
         $configBuilder->roleInCustomers
             ->setRelationshipType($this->getTypes()->getUserRoleInCustomerResourceType())
-            ->readable();
+            ->setReadableByPath();
 
         $configBuilder->department
             ->setRelationshipType($this->getTypes()->getDepartmentResourceType())
