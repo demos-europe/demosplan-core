@@ -1553,7 +1553,7 @@ explanation.proxy.use: "Nutze den Proxy für Aufrufe, die über den Server und n
 explanation.public.participation.contact: "Die Ansprechperson wird auf der öffentlichen Verfahrensseite angezeigt."
 explanation.public.participation.detail.palm: "Im Rahmen der Öffentlichkeitsbeteiligung der Bauleitplanung Online können Sie Ihre Stellungnahme zu Verfahren auch über diese Webseite abgeben. Diese Funktionalität steht allerdings nicht auf dem Smartphone zur Verfügung."
 explanation.invitable_institution.authorisations: "Wenn keine Organisation ausgewählt ist, dann ist die Kategorie für alle dem Verfahren zugewiesenen Organisationen sichtbar. Ist mindestens eine Organisation ausgewählt, ist die Kategorie für Bürger*innen nicht mehr sichtbar."
-explanation.invitable_institution.group.tags: "Gruppieren Sie Institutionen mit eigenen Schlagworten. Diese stehen Fachplanenden Ihrer Organisation als Filter und Orientierung im Bereich „Institutionen verwalten“ in allen Verfahren zur Verfügung."
+explanation.invitable_institution.group.tags: "Gruppieren Sie Institutionen mit eigenen Schlagworten. Diese stehen Fachplanenden Ihrer Organisation als Filter und Orientierung im Bereich \"Institutionen verwalten\" in allen Verfahren zur Verfügung."
 explanation.invitable_institution.list.show: "Ist das Häkchen gesetzt, wird die Organisation in der Institutionen-Liste angezeigt und kann somit zu Verfahren eingeladen werden. Diese Option ist ausschließlich für den Support verfügbar."
 explanation.invitable_institutions.noneselected: "Es wurden keine Institutionen ausgewählt."
 explanation.reason.configuration: "Die Konfiguration der Begründungskapitel erfolgt unter nachfolgendem Link im Menü „Begründung“."
