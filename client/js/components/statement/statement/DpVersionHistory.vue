@@ -44,9 +44,9 @@
               colspan="4"
               class="u-mr">
               <dp-inline-notification
-                type="info"
+                class="mt-3 mb-2"
                 :message="Translator.trans('explanation.noentries')"
-              />
+                type="info" />
             </td>
           </tr>
           <!-- if there are history items -->
