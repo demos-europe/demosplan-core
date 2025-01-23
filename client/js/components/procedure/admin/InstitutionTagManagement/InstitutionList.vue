@@ -15,131 +15,131 @@
       :message="Translator.trans('explanation.invitable_institution.group.tags')"
       type="info" />
 
-    <div>
-      <div class="mt-4">
-        <dp-search-field
-          data-cy="institutionList:searchField"
-          :placeholder="Translator.trans('searchterm')"
-          @reset="handleReset"
-          @search="val => handleSearch(val)" />
-      </div>
-      <div class="flex justify-end mt-4">
-        <dp-column-selector
-          data-cy="institutionList:selectableColumns"
-          :initial-selection="currentSelection"
-          local-storage-key="institutionList"
-          :selectable-columns="selectableColumns"
-          use-local-storage
-          @selection-changed="setCurrentSelection" />
-      </div>
-    </div>
+    <div class="mt-4">
+      <dp-loading
+        v-if="isLoading"
+        class="mt-4" />
 
-    <dp-loading
-      v-if="isLoading"
-      class="mt-4" />
-
-    <template v-else>
-      <div class="flex">
-        <div class="ml-2 w-1/2">
-          <filter-flyout
-            v-for="filter in filters"
-            ref="filterFlyout"
-            :key="`filter_${filter.label}`"
-            :category="{  id: filter.id, label: filter.label }"
-            :data-cy="`institutionListFilter:${filter.label}`"
-            :initial-query="queryIds"
-            :operator="filter.comparisonOperator"
-            :path="filter.rootPath"
-            @filter-apply="(filtersToBeApplied) => applyFilterQuery(filtersToBeApplied, filter.id)"
-            @filterOptions:request="createFilterOptions(filter.id)" />
-        </div>
-        <dp-button
-          class="ml-2 h-fit"
-          data-cy="institutionList:resetFilter"
-          :disabled="!isQueryApplied"
-          :text="Translator.trans('reset')"
-          variant="outline"
-          v-tooltip="Translator.trans('search.filter.reset')"
-          @click="resetQuery" />
-      </div>
-      <dp-data-table
-        ref="dataTable"
-        class="mt-1 overflow-x-auto scrollbar-none"
-        data-dp-validate="tagsTable"
-        data-cy="institutionList:dataTable"
-        :header-fields="headerFields"
-        is-resizable
-        :items="institutionList"
-        track-by="id">
-        <template v-slot:name="institution">
-          <ul class="o-list max-w-12">
-            <li>
-              {{ institution.name }}
-            </li>
-            <li class="o-list__item o-hellip--nowrap">
-              {{ date(institution.createdDate) }}
-            </li>
-          </ul>
-        </template>
-        <template
-          v-for="(category, idx) in institutionTagCategories"
-          v-slot:[category.attributes.name]="institution">
-          <dp-multiselect
-            v-if="institution.edit"
-            :key="idx"
-            v-model="editingInstitutionTags[category.id]"
-            :data-cy="`institutionList:tags${category.attributes.name}`"
-            label="name"
-            multiple
-            :options="getCategoryTags(category.id)"
-            track-by="id" />
-          <div
-            v-else
-            :key="`tags:${idx}`"
-            v-text="separateByCommas(institution.tags.filter(tag => tag.category.id === category.id))" />
-        </template>
-        <template v-slot:action="institution">
-          <div class="float-right">
-            <template v-if="institution.edit">
-              <button
-                :aria-label="Translator.trans('save')"
-                class="btn--blank o-link--default u-mr-0_25"
-                data-cy="institutionList:saveTag"
-                @click="addTagsToInstitution(institution.id)">
-                <dp-icon
-                  icon="check"
-                  aria-hidden="true" />
-              </button>
-              <button
-                :aria-label="Translator.trans('abort')"
-                class="btn--blank o-link--default"
-                data-cy="institutionList:abortTag"
-                @click="abortEdit()">
-                <dp-icon
-                  icon="xmark"
-                  aria-hidden="true" />
-              </button>
-            </template>
-            <button
-              v-else
-              :aria-label="Translator.trans('item.edit')"
-              class="btn--blank o-link--default"
-              data-cy="institutionList:editTag"
-              @click="editInstitution(institution.id)">
-              <dp-icon
-                icon="edit"
-                aria-hidden="true" />
-            </button>
+      <template v-else>
+        <div class="flex justify-between">
+          <dp-search-field
+            class="h-fit mt--0.5"
+            data-cy="institutionList:searchField"
+            :placeholder="Translator.trans('searchterm')"
+            @reset="handleReset"
+            @search="val => handleSearch(val)" />
+          <div class="ml-2 w-1/2">
+            <filter-flyout
+              v-for="filter in filters"
+              ref="filterFlyout"
+              :key="`filter_${filter.label}`"
+              :category="{  id: filter.id, label: filter.label }"
+              :data-cy="`institutionListFilter:${filter.label}`"
+              :initial-query="queryIds"
+              :operator="filter.comparisonOperator"
+              :path="filter.rootPath"
+              @filter-apply="(filtersToBeApplied) => applyFilterQuery(filtersToBeApplied, filter.id)"
+              @filterOptions:request="createFilterOptions(filter.id)" />
           </div>
-        </template>
-      </dp-data-table>
+          <dp-button
+            class="ml-2 h-fit"
+            data-cy="institutionList:resetFilter"
+            :disabled="!isQueryApplied"
+            :text="Translator.trans('reset')"
+            variant="outline"
+            v-tooltip="Translator.trans('search.filter.reset')"
+            @click="resetQuery" />
+        </div>
 
-      <div
-        ref="scrollBar"
-        class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden">
-        <div />
-      </div>
-    </template>
+        <div class="flex justify-end mt-4">
+          <dp-column-selector
+            data-cy="institutionList:selectableColumns"
+            :initial-selection="currentSelection"
+            local-storage-key="institutionList"
+            :selectable-columns="selectableColumns"
+            use-local-storage
+            @selection-changed="setCurrentSelection" />
+        </div>
+
+        <dp-data-table
+          ref="dataTable"
+          class="mt-1 overflow-x-auto scrollbar-none"
+          data-dp-validate="tagsTable"
+          data-cy="institutionList:dataTable"
+          :header-fields="headerFields"
+          is-resizable
+          :items="institutionList"
+          track-by="id">
+          <template v-slot:name="institution">
+            <ul class="o-list max-w-12">
+              <li>
+                {{ institution.name }}
+              </li>
+              <li class="o-list__item o-hellip--nowrap">
+                {{ date(institution.createdDate) }}
+              </li>
+            </ul>
+          </template>
+          <template
+            v-for="(category, idx) in institutionTagCategories"
+            v-slot:[category.attributes.name]="institution">
+            <dp-multiselect
+              v-if="institution.edit"
+              :key="idx"
+              v-model="editingInstitutionTags[category.id]"
+              :data-cy="`institutionList:tags${category.attributes.name}`"
+              label="name"
+              multiple
+              :options="getCategoryTags(category.id)"
+              track-by="id" />
+            <div
+              v-else
+              :key="`tags:${idx}`"
+              v-text="separateByCommas(institution.tags.filter(tag => tag.category.id === category.id))" />
+          </template>
+          <template v-slot:action="institution">
+            <div class="float-right">
+              <template v-if="institution.edit">
+                <button
+                  :aria-label="Translator.trans('save')"
+                  class="btn--blank o-link--default u-mr-0_25"
+                  data-cy="institutionList:saveTag"
+                  @click="addTagsToInstitution(institution.id)">
+                  <dp-icon
+                    icon="check"
+                    aria-hidden="true" />
+                </button>
+                <button
+                  :aria-label="Translator.trans('abort')"
+                  class="btn--blank o-link--default"
+                  data-cy="institutionList:abortTag"
+                  @click="abortEdit()">
+                  <dp-icon
+                    icon="xmark"
+                    aria-hidden="true" />
+                </button>
+              </template>
+              <button
+                v-else
+                :aria-label="Translator.trans('item.edit')"
+                class="btn--blank o-link--default"
+                data-cy="institutionList:editTag"
+                @click="editInstitution(institution.id)">
+                <dp-icon
+                  icon="edit"
+                  aria-hidden="true" />
+              </button>
+            </div>
+          </template>
+        </dp-data-table>
+
+        <div
+          ref="scrollBar"
+          class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden">
+          <div />
+        </div>
+      </template>
+    </div>
 
     <dp-sliding-pagination
       v-if="totalPages > 1"
