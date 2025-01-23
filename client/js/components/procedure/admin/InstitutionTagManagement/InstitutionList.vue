@@ -593,8 +593,7 @@ export default {
         },
         include: [
           'assignedTags',
-          'assignedTags.category',
-          'category'
+          'assignedTags.category'
         ].join()
       }
 
