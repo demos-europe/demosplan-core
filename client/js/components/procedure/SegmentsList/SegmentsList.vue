@@ -15,8 +15,8 @@
       :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
       <div class="flex items-start mb-2">
         <custom-search
-          ref="customSearch"
           id="customSearch"
+          ref="customSearch"
           :elasticsearch-field-definition="{
             entity: 'statementSegment',
             function: 'search',
@@ -412,7 +412,8 @@ export default {
 
   computed: {
     ...mapGetters('FilterFlyout', [
-      'getFilterQuery'
+      'getFilterQuery',
+      'getIsExpandedByCategoryId'
     ]),
 
     ...mapState('AssignableUser', {
@@ -825,6 +826,9 @@ export default {
             })
 
             this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: false })
+            if (this.getIsExpandedByCategoryId(category.id)) {
+              document.getElementById(`searchField_${path}`).focus()
+            }
           }
         })
     },

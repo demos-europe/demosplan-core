@@ -13,6 +13,12 @@ const FilterFlyoutStore = {
      */
     initialFlyoutFilterIds: {},
     /**
+     * @type {boolean}
+     * @description Indicates whether the filter flyout is expanded or not.
+     * This state is used to control the visibility of the filter flyout.
+     */
+    isExpanded: {},
+    /**
      * Grouped filter options, stored in groupedOptions by categoryId of the filter flyout:
      * Object with categoryIds as keys and grouped options as values.
      * Each object has  id, label, and options.
@@ -85,6 +91,20 @@ const FilterFlyoutStore = {
           }
         }
       }
+    },
+
+    /**
+     * Sets the expanded state for a given category.
+     *
+     * @param {Object} state - The state object.
+     * @param {Object} payload - The payload object.
+     * @param {String} payload.categoryId - The ID of the category.
+     * @param {Boolean} payload.isExpanded - The expanded state to set.
+     */
+    setIsExpanded (state, payload) {
+      const { categoryId, isExpanded } = payload
+
+      set(state.isExpanded, categoryId, isExpanded)
     },
 
     /**
@@ -193,6 +213,16 @@ const FilterFlyoutStore = {
      */
     getGroupedOptionsByCategoryId: (state) => (categoryId) => {
       return state.groupedOptions[categoryId]
+    },
+
+    /**
+     * Retrieves the expanded state for a given category.
+     *
+     * @param {Object} state - The state object.
+     * @param {String} categoryId - The ID of the category.
+     * @
+    getIsExpandedByCategoryId: (state) => (categoryId) => {
+      return state.isExpanded[categoryId]
     },
 
     /**

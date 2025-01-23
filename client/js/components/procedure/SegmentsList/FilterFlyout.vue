@@ -243,7 +243,6 @@ export default {
        * contains only ids
        */
       currentQuery: [],
-      isExpanded: false,
       searchTerm: ''
     }
   },
@@ -253,6 +252,7 @@ export default {
       'getFilterQuery',
       'getGroupedOptionsByCategoryId',
       'getInitialFlyoutFilterIdsByCategoryId',
+      'getIsExpandedByCategoryId',
       'getIsLoadingByCategoryId',
       'getUngroupedOptionsByCategoryId'
     ]),
@@ -313,6 +313,10 @@ export default {
       return `max-height: calc(100vh - ${subtractedHeight}px);min-height: 100px;`
     },
 
+    isExpanded () {
+      return this.getIsExpandedByCategoryId(this.category.id) ?? false
+    },
+
     /**
      * {Array of Objects} selected filterItems, same structure as items
      */
@@ -362,6 +366,7 @@ export default {
   methods: {
     ...mapMutations('FilterFlyout', {
       setGroupedSelected: 'setGroupedOptionSelected',
+      setIsExpanded: 'setIsExpanded',
       setIsLoading: 'setIsLoading',
       setUngroupedSelected: 'setUngroupedOptionSelected',
       updateFilters: 'updateFilterQuery'
@@ -394,20 +399,15 @@ export default {
      * - updates facets
      */
     handleClose () {
-      this.isExpanded = false
+      this.setIsExpanded({ categoryId: this.category.id, isExpanded: false })
       this.resetSearch()
       this.restoreAppliedFilterQuery()
       this.currentQuery = JSON.parse(JSON.stringify(this.appliedQuery))
     },
 
     handleOpen () {
-      this.isExpanded = true
-
+      this.setIsExpanded({ categoryId: this.category.id, isExpanded: true })
       this.requestFilterOptions()
-        // .then(() => {
-        //   this.isLoading = false
-        //   document.getElementById(`searchField_${this.path}`).focus()
-        // })
     },
 
     /**
@@ -501,6 +501,7 @@ export default {
 
   mounted () {
     this.setIsLoading({ categoryId: this.category.id, isLoading: true })
+    this.setIsExpanded({ categoryId: this.category.id, isExpanded: false })
     if (this.initialQuery.length) {
       const isInitialWithQuery = true
       this.requestFilterOptions(isInitialWithQuery)
