@@ -23,9 +23,9 @@
             accessGroup: 'planner'
           }"
           :search-term="searchTerm"
-          @change-fields="updateSearchFields"
-          @search="updateSearchQuery"
-          @reset="updateSearchQuery" />
+          @changeFields="updateSearchFields"
+          @search="term => updateSearchQuery(term)"
+          @reset="handleResetSearch" />
         <div class="bg-color--grey-light-2 rounded-md ml-2">
           <span class="color--grey ml-1 align-middle">
             {{ Translator.trans('filter') }}
@@ -665,6 +665,11 @@ export default {
       window.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
     },
 
+    handleResetSearch () {
+      this.resetSearchQuery()
+      this.applyQuery(1)
+    },
+
     handleSizeChange (newSize) {
       // Compute new page with current page for changed number of items per page
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
@@ -673,8 +678,7 @@ export default {
     },
 
     resetQuery () {
-      this.searchTerm = ''
-      this.$refs.customSearch.reset()
+      this.resetSearchQuery()
       this.appliedFilterQuery = []
       Object.keys(this.filters).forEach((filter, idx) => {
         this.$refs.filterFlyout[idx].reset()
@@ -682,6 +686,11 @@ export default {
       this.updateQueryHash()
       this.resetSelection()
       this.applyQuery(1)
+    },
+
+    resetSearchQuery () {
+      this.searchTerm = ''
+      this.$refs.customSearch.reset()
     },
 
     /**

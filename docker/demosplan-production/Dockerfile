@@ -99,7 +99,7 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
     touch /var/log/php8.2-fpm.log && chown www-data:www-data /var/log/php8.2-fpm.log
 
-FROM debian:testing-20241111-slim AS fpm
+FROM debian:stable-20241111-slim AS fpm
 
 ARG PROJECT_NAME
 ENV PROJECT_PREFIX=$PROJECT_NAME \
@@ -126,6 +126,7 @@ COPY php-fpm.conf /etc/php/8.2/fpm/php-fpm.conf
 WORKDIR /srv/www
 
 COPY --from=build /srv/www /srv/www
+COPY --from=build /opt/config/parameters.yml /opt/config/parameters.yml
 # delte the cache and log files
 RUN rm -rf /srv/www/var/cache/* && \
     rm -rf /srv/www/var/log/* && \
