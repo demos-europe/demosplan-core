@@ -3920,7 +3920,7 @@ topic.create.duplicated.title: "Das Thema existiert in diesem Verfahren bereits.
 topic.create: "Neues Thema anlegen"
 topic.delete: "Thema löschen"
 topic.insertFirstTag: "Ein Schlagwort hinzufügen."
-topic.insertTag: "Schlagwort diesem Thema hinzufügen"
+topic.insertTag: "Schlagwort zum Thema hinzufügen"
 topic.name: "Name des neuen Themas"
 # The 'topic.new' key works as a button label. The 3 dots intentionally differentiate it from select options nearby.
 topic.new: "Neues Thema…"

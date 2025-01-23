@@ -35,24 +35,20 @@
             <i class="fa fa-times-circle"></i> {{ "items.marked.delete"|trans }}
         </button>
 
-        <dp-split-button
-            data-cy="addNewBoilerplate"
-            class="inline-block float-right">
-            <a
-               class="btn btn--primary has-dropdown u-m-0"
-               data-cy="generateBoilerplate"
-               href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure}) }}">
-                {{ "boilerplate.generate"|trans }}
-            </a><!--
-         --><template v-slot:dropdown>
-            <a
-               data-cy="addNewBoilerplateGroup"
-               href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure}) }}">
-               {{ "new.group.create"|trans }}
-            </a>
-            </template>
-        </dp-split-button>
+        <div class="">
+            <dp-button
+                class="inline-block float-right"
+                data-cy="addNewBoilerplate"
+                href="{{ path('DemosPlan_procedure_boilerplate_edit', {'procedure': procedure}) }}"
+                text="{{ 'boilerplate.generate'|trans }}">
+            </dp-button>
 
+            <dp-button
+                data-cy="addNewBoilerplateGroup"
+                href="{{ path('DemosPlan_procedure_boilerplate_group_edit', {'procedure': procedure}) }}"
+                text="{{ 'new.group.create'|trans }}"
+                variant="outline"></dp-button>
+        </div>
 
         <table class="c-table o-toggle o-toggle--not-animated u-mb u-mt-0_5">
             <colgroup>

@@ -3,13 +3,14 @@
     <tag-list-header />
 
     <div
-      v-if="addNew === 'tag'"
+      v-if="currentForm === 'tag'"
       class="border rounded p-4 my-4"
       data-dp-validate="addNewTagForm">
       <dp-input
         v-model="newTag.title"
         id="new-tag-title"
         class="mb-4"
+        data-cy="tagList:newTag:title"
         :label="{
            text: Translator.trans('title')
         }"
@@ -17,13 +18,13 @@
         required />
 
       <dp-select
+        v-model="newTag.topic"
         class="mb-4"
-        data-cy=""
+        data-cy="tagList:newTag:topic"
         :label="{
           text: Translator.trans('topic.insertTag')
         }"
-        :options="topicsAsOptions"
-        v-model="newTag.topic" />
+        :options="topicsAsOptions" />
 
       <addon-wrapper
         class="block mb-4"
@@ -32,43 +33,49 @@
         @change="updateForm" />
 
       <dp-button-row
+        data-cy="tagList:addNewTag"
         primary
         secondary
-        data-cy="toggleForm"
         @primary-action="dpValidateAction('addNewTagForm', () => saveNewTag(), false)"
-        @secondary-action="addNew = ''" />
+        @secondary-action="closeForm" />
     </div>
 
     <div
-      v-if="addNew === 'tagTopic'"
-      class="border rounded p-4 my-4">
+      v-else-if="currentForm === 'topic'"
+      class="border rounded p-4 my-4"
+      data-dp-validate="addNewTopicForm">
       <dp-input
         v-model="newTopic.title"
         id="new-topic-title"
-        class="mb-2"
+        class="mb-4"
         :label="{
            text: Translator.trans('title')
-        }" />
+        }"
+        maxlength="250"
+        required />
       <div class="flex justify-end mt-2">
         <dp-button-row
+          data-cy="tagList:addNewTopic"
           primary
           secondary
-          data-cy="toggleForm"
-          @primary-action="saveNewTopic"
-          @secondary-action="addNew = ''" />
+          @primary-action="dpValidateAction('addNewTopicForm', () => saveNewTopic(), false)"
+          @secondary-action="closeForm" />
       </div>
     </div>
 
     <div
-      v-if="!addNew"
-      class="flex justify-end mb-1">
+      v-else
+      class="flex justify-end my-4">
       <dp-button
+        class="mr-2"
+        data-cy=""
         :text="Translator.trans('tag.create')"
-        @click="() => addNew = 'tag'" />
+        @click="() => openForm('tag')" />
       <dp-button
-        class="ml-1"
+        data-cy=""
         :text="Translator.trans('category.create')"
-        @click="() => addNew = 'tagTopic'" />
+        variant="outline"
+        @click="() => openForm('topic')" />
     </div>
 
     <dp-tree-list
@@ -178,7 +185,7 @@ export default {
 
   data() {
     return {
-      addNew: '',
+      currentForm: '',
       dataIsRequested: false,
       isInEditState: '',
       newTag: {
@@ -267,6 +274,23 @@ export default {
       this.isInEditState = ''
     },
 
+    closeForm () {
+      this.currentForm = ''
+      this.resetFormData()
+    },
+
+    resetFormData () {
+      this.newTopic.title = ''
+      this.newTag = {
+        title: '',
+        topic: ''
+      }
+    },
+
+    openForm (form) {
+      this.currentForm = form
+    },
+
     branchFunc () {
       return function ({ node }) {
         return node.type === 'TagTopic'
@@ -300,10 +324,6 @@ export default {
         include: 'tags',
         sort: 'title'
       })
-    },
-
-    toggleCreateModal ({ type = 'Tag' }) {
-      this.$refs[`create${type}Modal`].toggle()
     },
 
     save ({ id, attributes, type }) {
@@ -363,8 +383,7 @@ export default {
         })
 
         this.$root.$emit('tag:created', newTagId)
-        // Close Modal and Reset form data
-        this.toggleCreateModal({ type: 'Tag' })
+        // reset form data
         this.isInEditState = ''
         this.newTag = this.tagAttributes
       })
@@ -391,7 +410,6 @@ export default {
           this.newTopic = {
             title: ''
           }
-          this.toggleCreateModal({ type: 'TagTopic' })
         })
 
     },
