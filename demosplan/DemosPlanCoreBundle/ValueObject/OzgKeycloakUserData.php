@@ -14,7 +14,10 @@ use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use Psr\Log\LoggerInterface;
 use Stringable;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-
+/**
+ * @method string getAddressExtension()
+ * @method string getCity()
+ */
 class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInterface, Stringable
 {
     private readonly string $keycloakGroupRoleString;
@@ -23,6 +26,8 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
     private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschritftHausnummer';
     private const COMPANY_STREET_POSTAL_CODE = 'UnternehmensanschritftPLZ';
     private const COMPANY_CITY_ADDRESS = 'UnternehmensanschritftOrt';
+    protected string $addressExtension = '';
+    protected string $city = '';
 
     public function __construct(
         private readonly LoggerInterface $logger,
