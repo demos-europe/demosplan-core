@@ -70,7 +70,7 @@ class StatementFactory extends FactoryBase
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
         private readonly UserService $userService,
-        private readonly EntityManager $entityManager
+        private readonly EntityManager $entityManager,
     ) {
         $this->orgaService = $orgaService;
         $this->procedureService = $procedureService;
@@ -203,8 +203,6 @@ class StatementFactory extends FactoryBase
      *
      * @param array $baseData
      *
-     * @return mixed
-     *
      * @throws InvalidUserDataException on invalid user value
      */
     protected function determineUserInfo($baseData)
@@ -293,8 +291,6 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @param string $userLogin
-     *
      * @throws DataProviderException
      */
     protected function fetchUser(?string $userLogin): void
@@ -313,8 +309,6 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @param string $orgaId
-     *
      * @throws DataProviderException
      */
     protected function fetchOrga(?string $orgaId): void
@@ -327,8 +321,6 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @param string $procedureId
-     *
      * @throws DataProviderException
      */
     protected function fetchProcedure(?string $procedureId): void

@@ -15,13 +15,13 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementStatistic;
 
 /**
- * @method array getProcedures()
- * @method array getInternalPhases()
- * @method array getExternalPhases()
- * @method array getRoles()
- * @method array getOrgas()
- * @method array getUsersPerOrga()
- * @method array getAllowedRoleCodeMap()
+ * @method array              getProcedures()
+ * @method array              getInternalPhases()
+ * @method array              getExternalPhases()
+ * @method array              getRoles()
+ * @method array              getOrgas()
+ * @method array              getUsersPerOrga()
+ * @method array              getAllowedRoleCodeMap()
  * @method StatementStatistic getGlobalStatementStatistic()
  */
 class Statistics extends ValueObject
@@ -44,8 +44,7 @@ class Statistics extends ValueObject
         array $procedures,
         array $roles,
         array $usersPerOrga,
-    )
-    {
+    ) {
         $this->procedures = $procedures;
         $this->internalPhases = $internalPhases;
         $this->externalPhases = $externalPhases;

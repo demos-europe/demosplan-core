@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Platform\Statistics;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureToLegacyConverter;
@@ -89,7 +88,7 @@ class StatisticsGenerator
 
     private function prepareProcedureData(
         array $procedureData,
-        StatementStatistic $globalStatementStatistic
+        StatementStatistic $globalStatementStatistic,
     ): array {
         $procedureData['phaseName'] = $this->globalConfig->getPhaseNameWithPriorityInternal($procedureData['phase']);
         $procedureData['publicParticipationPhaseName'] = $this->globalConfig->getPhaseNameWithPriorityExternal($procedureData['publicParticipationPhase']);
@@ -117,6 +116,7 @@ class StatisticsGenerator
                 $allowedRoleCodeMap[$allowedRoleCode] = RoleInterface::ROLE_CODE_NAME_MAP[$allowedRoleCode];
             }
         }
+
         return $allowedRoleCodeMap;
     }
 }
