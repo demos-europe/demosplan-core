@@ -34,7 +34,6 @@ use EDT\PathBuilding\End;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
-use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Elastica\Index;
 
 /**
@@ -218,7 +217,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                 return [];
             })
             ->setRelationshipType($this->getTypes()->getRoleResourceType())
-            ->setReadableByCallable( function (User $user): array {
+            ->setReadableByCallable(function (User $user): array {
                 $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
 
                 return $user->getRoleInCustomers()
@@ -234,6 +233,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->addCreationBehavior(
                 CallbackToManyRelationshipSetBehavior::createFactory(function (User $user, array $roles): array {
                     $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
+
                     return [];
                 }, [], OptionalField::NO, [])
             );
