@@ -8,7 +8,7 @@
       <dp-label
         class="mb-4"
         for="new-tag-form"
-        :text="Translator.trans('tag.create.new')"
+        :text="Translator.trans('entity.create', { entity: Translator.trans('tag') })"
         bold />
       <dp-input
         v-model="newTag.title"
@@ -26,7 +26,7 @@
         class="mb-4"
         data-cy="tagsList:newTag:topic"
         :label="{
-          text: Translator.trans('topic.insertTag')
+          text: Translator.trans('entity.choose', { entity: Translator.trans('tag.category') })
         }"
         :options="topicsAsOptions"
         required />
@@ -53,7 +53,7 @@
       <dp-label
         class="mb-4"
         for="new-topic-form"
-        :text="Translator.trans('topic.create.new')"
+        :text="Translator.trans('entity.create', { entity: Translator.trans('tag.category')})"
         bold />
       <dp-input
         v-model="newTopic.title"
@@ -83,7 +83,7 @@
         @click="() => openForm('tag')" />
       <dp-button
         data-cy="tagsList:openTopicForm"
-        :text="Translator.trans('entity.create', { entity: Translator.trans('category') })"
+        :text="Translator.trans('entity.create', { entity: Translator.trans('tag.category') })"
         variant="outline"
         @click="() => openForm('topic')" />
     </div>
