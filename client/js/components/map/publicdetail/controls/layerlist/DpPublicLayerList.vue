@@ -23,7 +23,7 @@
         :layer-groups-alternate-visibility="layerGroupsAlternateVisibility" />
       <dp-public-layer-list-category
         v-else
-        :key="`category:${layer.id}?`"
+        :key="`category:${layer.id}`"
         :group="layer"
         :layer-type="layerType"
         :visible="true"

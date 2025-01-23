@@ -437,7 +437,7 @@ export default {
 
       if (hasPermission('feature_customer_branding_edit')) {
         this.requestIncludes.push('branding')
-        this.addAttributesToField('Branding', ['cssvars', 'styling'])
+        this.addAttributesToField('Branding', ['styling'])
         this.addAttributesToField('Customer', ['branding'])
       }
 

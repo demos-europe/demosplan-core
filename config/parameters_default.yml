@@ -364,6 +364,7 @@ parameters:
     demosplan_csp_script_src:
         - 'self'
         - 'unsafe-eval' # vue.js needs it if templates are not precompiled
+        - 'strict-dynamic' # Trust scripts added by a trusted script
     demosplan_csp_style_src:
         - 'unsafe-inline'
         - 'self'

@@ -168,7 +168,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('User', {
+    ...mapActions('AdministratableUser', {
       saveUserAction: 'save'
     }),
 
@@ -272,7 +272,7 @@ export default {
         this.resetCurrentDepartment()
       }
 
-      const url = Routing.generate('api_resource_update', { resourceType: 'User', resourceId: this.user.id })
+      const url = Routing.generate('api_resource_update', { resourceType: 'AdministratableUser', resourceId: this.user.id })
       const payload = {
         data: {
           id: this.user.id,
@@ -290,7 +290,7 @@ export default {
               }
             }
           },
-          type: 'User'
+          type: 'AdministratableUser'
         }
       }
 

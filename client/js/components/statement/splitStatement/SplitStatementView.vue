@@ -16,6 +16,7 @@
           class="u-pv-0_25 flow-root">
           <dp-inline-notification
             v-if="!isLoading && isSegmentDraftUpdated"
+            class="mt-3 mb-2"
             :message="Translator.trans('last.saved', { date: lastSavedTime })"
             type="info" />
           <h1 class="font-size-h1 align-bottom inline-block u-m-0">

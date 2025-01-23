@@ -43,7 +43,7 @@
         <dp-inline-notification
           v-if="tagCategoriesWithTags.length === 0"
           type="info"
-          class="u-mt-1_5 u-mb"
+          class="u-mt-1_5 mb-4"
           :message="Translator.trans('explanation.noentries')" />
 
         <dp-tree-list
@@ -145,22 +145,24 @@ export default {
           ].join(),
           InstitutionTag: [
             'isUsed',
-            'name'
+            'name',
+            'category'
           ].join()
         },
         include: [
-          'tags'
+          'tags',
+          'tags.category'
         ].join()
       })
-        .then(() => {
-          this.tagCategoriesWithTags = this.transformTagsAndCategories()
-        })
-        .catch(err => {
-          console.error(err)
-        })
-        .finally(() => {
-          this.isLoading = false
-        })
+      .then(() => {
+        this.tagCategoriesWithTags = this.transformTagsAndCategories()
+      })
+      .catch(err => {
+        console.error(err)
+      })
+      .finally(() => {
+        this.isLoading = false
+      })
     },
 
     handleAddNewCategoryForm () {

@@ -10,6 +10,7 @@
 <template>
   <div>
     <dp-inline-notification
+      class="mt-3 mb-2"
       :message="Translator.trans('excel.import.error', { count: errors.length, entities: Translator.trans(context) })"
       type="error" />
 

@@ -52,6 +52,7 @@
       </div>
       <dp-inline-notification
         v-if="hasActiveFilters && hasChangedStatements"
+        class="mt-3 mb-2"
         :message="Translator.trans('filter.settings_not_current')"
         type="warning" />
     </fieldset>
