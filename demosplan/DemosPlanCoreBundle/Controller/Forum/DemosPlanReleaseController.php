@@ -58,6 +58,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
             // zeige das jüngste an
             $sumActiveReleases = count($templateVars['releaseForVoting']);
             $latestActiveReleaseKey = $sumActiveReleases - 1;
+
             // nehme das älteste Release (1. aus der Liste) und zeige es an
             return $this->redirectToRoute(
                 'DemosPlan_forum_development_release_detail',
@@ -300,7 +301,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         Request $request,
         TranslatorInterface $translator,
         MessageBagInterface $messageBag,
-        $releaseId
+        $releaseId,
     ) {
         $releaseDetails = $this->forumHandler->getSingleRelease($releaseId);
         $permissions = $this->getReleasePhasePermissions($releaseDetails['phase']);
@@ -586,7 +587,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         Request $request,
         TranslatorInterface $translator,
         FileUploadService $fileUploadService,
-        $storyId
+        $storyId,
     ) {
         $templateVars = [];
         $storageResultStory = $this->forumHandler->getUserStory($storyId);
@@ -651,7 +652,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
         PermissionsInterface $permissions,
         Request $request,
         $storyId,
-        $threadEntryId
+        $threadEntryId,
     ) {
         $storageResultStory = $this->forumHandler->getUserStory($storyId);
         // Hole die Details zum Beitrag

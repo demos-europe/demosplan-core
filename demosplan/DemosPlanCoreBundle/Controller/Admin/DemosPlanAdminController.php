@@ -29,6 +29,7 @@ use Twig\Extension\EscaperExtension;
 class DemosPlanAdminController extends BaseController
 {
     private const STATISTICS_TITLE = 'statistic';
+
     public function __construct(
         private readonly Environment $twig,
         private readonly CsvHelper $csvHelper,
@@ -45,7 +46,7 @@ class DemosPlanAdminController extends BaseController
     #[Route(path: '/statistik/{part}/csv', name: 'DemosPlan_statistics_csv', defaults: ['format' => 'csv'])]
     public function generateStatisticsAction(
         string $part,
-        string $format
+        string $format,
     ): ?Response {
         $statistics = $this->statisticsGenerator->generateStatistics($this->getParameter('roles_allowed'));
 

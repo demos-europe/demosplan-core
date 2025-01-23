@@ -20,8 +20,8 @@ class CsvHelper
     /**
      * Prepares the CSV response with UTF-8 BOM, headers, and charset.
      *
-     * @param Response $response The response object
-     * @param string $part The part to be added to the filename for the CSV export
+     * @param Response      $response      The response object
+     * @param string        $part          The part to be added to the filename for the CSV export
      * @param NameGenerator $nameGenerator The name generator for the filename
      *
      * @return Response The prepared response object
@@ -47,6 +47,7 @@ class CsvHelper
     private function addUtf8Bom(string $content): string
     {
         $bom = chr(0xEF).chr(0xBB).chr(0xBF);
-        return $bom . $content;
+
+        return $bom.$content;
     }
 }
