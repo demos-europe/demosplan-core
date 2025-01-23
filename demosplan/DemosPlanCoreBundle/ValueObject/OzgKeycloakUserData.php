@@ -14,6 +14,7 @@ use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use Psr\Log\LoggerInterface;
 use Stringable;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+
 /**
  * @method string getAddressExtension()
  * @method string getCity()
