@@ -46,17 +46,17 @@
 
 <template>
   <dp-flyout
+    ref="flyout"
     align="left"
     :data-cy="category.label"
     :padded="false"
-    @open="handleOpen"
     @close="handleClose"
-    ref="flyout">
+    @open="handleOpen">
     <template v-slot:trigger>
       <span :class="{ 'weight--bold' : (appliedQuery.length > 0) }">
         {{ category.label }}
         <span
-          class="o-badge o-badge--small o-badge--transparent"
+          class="o-badge o-badge--small o-badge--transparent mb-px"
           v-if="appliedQuery.length > 0">
           {{ appliedQuery.length }}
         </span>

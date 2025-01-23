@@ -21,18 +21,18 @@
 
     <template v-else>
       <div class="flex">
-        <div class="bg-color--grey-light-2 rounded-md ml-2 w-1/2">
+        <div class="ml-2 w-1/2">
           <filter-flyout
             v-for="filter in filters"
             ref="filterFlyout"
-            :data-cy="`institutionListFilter:${filter.label}`"
-            :initial-query="queryIds"
             :key="`filter_${filter.label}`"
             :category="{  id: filter.id, label: filter.label }"
+            :data-cy="`institutionListFilter:${filter.label}`"
+            :initial-query="queryIds"
             :operator="filter.comparisonOperator"
             :path="filter.rootPath"
             @filter-apply="(filtersToBeApplied) => applyFilterQuery(filtersToBeApplied, filter.id)"
-           @filterOptions:request="createFilterOptions(filter.id)" />
+            @filterOptions:request="createFilterOptions(filter.id)" />
         </div>
         <dp-button
           class="ml-2 h-fit"
