@@ -47,7 +47,7 @@ class DemosPlanAdminController extends BaseController
     public function generateStatisticsAction(
         string $part,
         string $format,
-    ): ?Response {
+    ): Response {
         $statistics = $this->statisticsGenerator->generateStatistics($this->getParameter('roles_allowed'));
 
         return $this->renderStatisticsTemplate(
@@ -60,7 +60,7 @@ class DemosPlanAdminController extends BaseController
     /**
      * @throws Exception
      */
-    private function renderStatisticsTemplate(array $templateVars, string $format, string $part): ?Response
+    private function renderStatisticsTemplate(array $templateVars, string $format, string $part): Response
     {
         if ('html' === $format) {
             return $this->renderTemplate('@DemosPlanCore/DemosPlanAdmin/statistics.html.twig', [
