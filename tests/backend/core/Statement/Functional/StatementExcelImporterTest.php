@@ -138,6 +138,18 @@ class StatementExcelImporterTest extends FunctionalTestCase
         );
     }
 
+    public function testInvalidStatementText(): void
+    {
+        $this->setProcedureAndLogin();
+        $statementData = [
+            'Stellungnahmetext'   => '',
+            'publicStatement'     => Statement::EXTERNAL,
+        ];
+        $this->sut->createNewOriginalStatement($statementData, 0, 0, 'Öffentlichkeit');
+        // in case of an error an exception would be thrown
+        static::asserttrue(true);
+    }
+
     public function testGenerateStatementsFromExcel(): void
     {
         self::markSkippedForCIElasticsearchUnavailable();

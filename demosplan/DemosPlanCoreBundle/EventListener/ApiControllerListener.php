@@ -10,15 +10,20 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Services\ApiResourceService;
+use Exception;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 
 class ApiControllerListener
 {
-    public function __construct(private readonly RequestStack $requestStack, private readonly ApiResourceService $resourceService)
-    {
+    public function __construct(
+        private readonly ApiResourceService $resourceService,
+        private readonly RequestStack $requestStack,
+        protected readonly ApiLoggerInterface $logger,
+    ) {
     }
 
     public function onKernelController(ControllerEvent $event): void
@@ -31,9 +36,14 @@ class ApiControllerListener
         }
 
         if ($eventController[0] instanceof APIController) {
-            /** @var APIController $apiController */
             $apiController = $eventController[0];
-            $apiController->setupApiController($this->requestStack, $this->resourceService);
+            try {
+                $apiController->setupApiController($this->requestStack, $this->resourceService);
+            } catch (Exception $e) {
+                // log the error. It is not possible to throw an exception here
+                // as it would break the application
+                $this->logger->warning('API controller setup failed', ['exception' => $e]);
+            }
         }
     }
 }

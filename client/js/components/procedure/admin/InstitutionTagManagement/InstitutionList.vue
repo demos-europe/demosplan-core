@@ -15,21 +15,33 @@
       :message="Translator.trans('explanation.invitable_institution.group.tags')"
       type="info" />
 
-    <dp-loading
-      class="u-mt"
-      v-if="isLoading" />
-    <template v-else>
-      <dp-column-selector
-        data-cy="institutionList:selectableColumns"
-        :initial-selection="currentSelection"
-        local-storage-key="institutionList"
-        :selectable-columns="selectableColumns"
-        use-local-storage
-        @selection-changed="setCurrentSelection" />
+    <div>
+      <div class="mt-4">
+        <dp-search-field
+          data-cy="institutionList:searchField"
+          :placeholder="Translator.trans('searchterm')"
+          @reset="handleReset"
+          @search="val => handleSearch(val)" />
+      </div>
+      <div class="flex justify-end mt-4">
+        <dp-column-selector
+          data-cy="institutionList:selectableColumns"
+          :initial-selection="currentSelection"
+          local-storage-key="institutionList"
+          :selectable-columns="selectableColumns"
+          use-local-storage
+          @selection-changed="setCurrentSelection" />
+      </div>
+    </div>
 
+    <dp-loading
+      v-if="isLoading"
+      class="mt-4" />
+
+    <template v-else>
       <dp-data-table
         ref="dataTable"
-        class="u-mt-2 overflow-x-auto scrollbar-none"
+        class="mt-1 overflow-x-auto scrollbar-none"
         data-dp-validate="tagsTable"
         data-cy="institutionList:dataTable"
         :header-fields="headerFields"
@@ -47,10 +59,11 @@
           </ul>
         </template>
         <template
-          v-for="category in institutionTagCategories"
+          v-for="(category, idx) in institutionTagCategories"
           v-slot:[category.attributes.name]="institution">
           <dp-multiselect
             v-if="institution.edit"
+            :key="idx"
             v-model="editingInstitutionTags[category.id]"
             :data-cy="`institutionList:tags${category.attributes.name}`"
             label="name"
@@ -59,6 +72,7 @@
             track-by="id" />
           <div
             v-else
+            :key="`tags:${idx}`"
             v-text="separateByCommas(institution.tags.filter(tag => tag.category.id === category.id))" />
         </template>
         <template v-slot:action="institution">
@@ -71,7 +85,7 @@
                 @click="addTagsToInstitution(institution.id)">
                 <dp-icon
                   icon="check"
-                  aria-hidden />
+                  aria-hidden="true" />
               </button>
               <button
                 :aria-label="Translator.trans('abort')"
@@ -80,7 +94,7 @@
                 @click="abortEdit()">
                 <dp-icon
                   icon="xmark"
-                  aria-hidden />
+                  aria-hidden="true" />
               </button>
             </template>
             <button
@@ -91,7 +105,7 @@
               @click="editInstitution(institution.id)">
               <dp-icon
                 icon="edit"
-                aria-hidden />
+                aria-hidden="true" />
             </button>
           </div>
         </template>
@@ -122,8 +136,8 @@ import {
   DpInlineNotification,
   DpLoading,
   DpMultiselect,
+  DpSearchField,
   DpSlidingPagination,
-  DpStickyElement,
   formatDate
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -139,8 +153,8 @@ export default {
     DpIcon,
     DpInlineNotification,
     DpLoading,
-    DpSlidingPagination,
-    DpStickyElement
+    DpSearchField,
+    DpSlidingPagination
   },
 
   mixins: [tableScrollbarMixin],
@@ -152,6 +166,7 @@ export default {
       editingInstitution: null,
       editingInstitutionTags: {},
       isLoading: true,
+      searchTerm: ''
     }
   },
 
@@ -170,7 +185,7 @@ export default {
       totalPages: 'totalPages'
     }),
 
-    categoryFieldsAvailable() {
+    categoryFieldsAvailable () {
       return this.institutionTagCategoriesValues.map(category => ({
         field: category.attributes.name,
         label: category.attributes.name
@@ -215,7 +230,7 @@ export default {
       })
     },
 
-    institutionTagCategoriesValues() {
+    institutionTagCategoriesValues () {
       return Object.values(this.institutionTagCategories)
     },
 
@@ -320,7 +335,7 @@ export default {
     },
 
     getInstitutionsByPage (page) {
-      this.fetchInvitableInstitution({
+      return this.fetchInvitableInstitution({
         page: {
           number: page,
           size: 50
@@ -340,6 +355,15 @@ export default {
             'name'
           ].join()
         },
+        filter: {
+          namefilter: {
+            condition: {
+              path: 'name',
+              operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+              value: this.searchTerm
+            }
+          }
+        },
         include: [
           'assignedTags',
           'assignedTags.category',
@@ -349,8 +373,7 @@ export default {
     },
 
     getInstitutionTagCategories () {
-      this.isLoading = true
-      this.fetchInstitutionTagCategories({
+      return this.fetchInstitutionTagCategories({
         fields: {
           InstitutionTagCategory: [
             'name',
@@ -367,15 +390,12 @@ export default {
           'tags.category'
         ].join()
       })
-      .then(() => {
-        this.setInitialSelection()
-      })
-      .finally(() => {
-        this.isLoading = false
-      })
-      .catch(err => {
-        console.error(err)
-      })
+        .then(() => {
+          this.setInitialSelection()
+        })
+        .catch(err => {
+          console.error(err)
+        })
     },
 
     getTagById (tagId) {
@@ -386,6 +406,21 @@ export default {
       return this.tagList
         .filter(el => el.id === tagId)
         .map(el => el.name)
+    },
+
+    handleReset () {
+      this.searchTerm = ''
+      this.getInstitutionsByPage(1)
+    },
+
+    handleSearch (searchTerm) {
+      this.isLoading = true
+      this.searchTerm = searchTerm
+
+      this.getInstitutionsByPage(1)
+        .then(() => {
+          this.isLoading = false
+        })
     },
 
     separateByCommas (institutionTags) {
@@ -410,8 +445,17 @@ export default {
   },
 
   mounted () {
-    this.getInstitutionsByPage(1)
-    this.getInstitutionTagCategories()
+    this.isLoading = true
+
+    const promises = [
+      this.getInstitutionsByPage(1),
+      this.getInstitutionTagCategories()
+    ]
+
+    Promise.allSettled(promises)
+      .then(() => {
+        this.isLoading = false
+      })
   }
 }
 </script>

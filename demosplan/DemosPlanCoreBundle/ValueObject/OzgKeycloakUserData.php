@@ -15,13 +15,24 @@ use Psr\Log\LoggerInterface;
 use Stringable;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+/**
+ * @method string getAddressExtension()
+ * @method string getCity()
+ */
 class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInterface, Stringable
 {
     private readonly string $keycloakGroupRoleString;
+    private const COMPANY_STREET_ADDRESS = 'UnternehmensanschritftStrasse';
+    private const COMPANY_ADDRESS_EXTENSION = 'UnternehmensanschriftAdressergaenzung';
+    private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschritftHausnummer';
+    private const COMPANY_STREET_POSTAL_CODE = 'UnternehmensanschritftPLZ';
+    private const COMPANY_CITY_ADDRESS = 'UnternehmensanschritftOrt';
+    protected string $addressExtension = '';
+    protected string $city = '';
 
     public function __construct(
         private readonly LoggerInterface $logger,
-        ParameterBagInterface $parameterBag
+        ParameterBagInterface $parameterBag,
     ) {
         $this->keycloakGroupRoleString = $parameterBag->get('keycloak_group_role_string');
     }
@@ -43,6 +54,12 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
         $this->lastName = $userInformation['family_name'] ?? '';
         $this->userName = $userInformation['preferred_username'] ?? ''; // kind of "login" //has to be unique?
         $this->emailAddress = $userInformation['email'] ?? '';
+
+        $this->street = $userInformation[self::COMPANY_STREET_ADDRESS] ?? '';
+        $this->addressExtension = $userInformation[self::COMPANY_ADDRESS_EXTENSION] ?? '';
+        $this->houseNumber = $userInformation[self::COMPANY_HOUSE_NUMBER] ?? '';
+        $this->postalCode = $userInformation[self::COMPANY_STREET_POSTAL_CODE] ?? '';
+        $this->city = $userInformation[self::COMPANY_CITY_ADDRESS] ?? '';
 
         $this->lock();
         $this->checkMandatoryValuesExist();
