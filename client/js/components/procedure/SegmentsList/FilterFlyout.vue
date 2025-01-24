@@ -20,7 +20,7 @@
 
   ## Events
 
-  `@filter-apply` gets emitted after clicking "submit". as payload it sends an Object with the selected filters
+  `@filterApply` gets emitted after clicking "submit". as payload it sends an Object with the selected filters
 
   eg:
   ```
@@ -374,7 +374,7 @@ export default {
      * Emit event with currently selected filters as query object.
      */
     apply () {
-      this.$emit('filter-apply', this.filter)
+      this.$emit('filterApply', this.filter)
       this.appliedQuery = JSON.parse(JSON.stringify(this.currentQuery))
       this.$refs.flyout.close()
     },

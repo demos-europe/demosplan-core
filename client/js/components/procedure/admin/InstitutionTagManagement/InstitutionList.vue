@@ -39,7 +39,7 @@
               :initial-query="queryIds"
               :operator="filter.comparisonOperator"
               :path="filter.rootPath"
-              @filter-apply="(filtersToBeApplied) => applyFilterQuery(filtersToBeApplied, filter.id)"
+              @filterApply="(filtersToBeApplied) => applyFilterQuery(filtersToBeApplied, filter.id)"
               @filterOptions:request="createFilterOptions(filter.id)" />
           </div>
           <dp-button

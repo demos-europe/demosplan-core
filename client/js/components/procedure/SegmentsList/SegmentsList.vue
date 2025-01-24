@@ -46,7 +46,7 @@
               groupedOptions: true,
               ungroupedOptions: true
             }"
-            @filter-apply="sendFilterQuery"
+            @filterApply="sendFilterQuery"
             @filterOptions:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})" />
         </div>
         <dp-button
