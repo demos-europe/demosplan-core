@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -197,25 +198,15 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->setSortable();
 
         $configBuilder->roles
-            ->updatable([], [], function (User $user, array $newRoles): array {
-                $roles = $user->getDplanroles($this->currentCustomerService->getCurrentCustomer())->toArray();
-
-                // Remove roles that are not in the new roles array
-                $removedRoles = $this->getRemovedRoles($roles, $newRoles);
-                foreach ($removedRoles as $role) {
-                    $roleInCustomer = $user->removeRoleInCustomer($role, $this->currentCustomerService->getCurrentCustomer());
-                    $role->removeUserRoleInCustomer($roleInCustomer);
-                    $this->getTypes()->getUserRoleInCustomerResourceType()->deleteEntity($roleInCustomer->getId());
-                }
-
-                // Add new roles that the user does not already have
-                $addedRoles = $this->getAddedRoles($roles, $newRoles);
-                foreach ($addedRoles as $role) {
-                    $user->addDplanrole($role, $this->currentCustomerService->getCurrentCustomer());
-                }
-
-                return [];
-            })
+            ->addUpdateBehavior(
+                CallbackToManyRelationshipSetBehavior::createFactory(function (User $user, array $newRoles): array {
+                    $this->updateRoles($user, $newRoles);
+                    return [];
+                    },
+                    [],
+                OptionalField::NO,
+                    [])
+            )
             ->setRelationshipType($this->getTypes()->getRoleResourceType())
             ->setReadableByCallable(function (User $user): array {
                 $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
@@ -320,5 +311,23 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         }
 
         return parent::updateEntity($entityId, $entityData);
+    }
+
+    private function updateRoles(UserInterface $user, array $newRoles): void {
+        $roles = $user->getDplanroles($this->currentCustomerService->getCurrentCustomer())->toArray();
+
+        // Remove roles that are not in the new roles array
+        $removedRoles = $this->getRemovedRoles($roles, $newRoles);
+        foreach ($removedRoles as $role) {
+            $roleInCustomer = $user->removeRoleInCustomer($role, $this->currentCustomerService->getCurrentCustomer());
+            $role->removeUserRoleInCustomer($roleInCustomer);
+            $this->getTypes()->getUserRoleInCustomerResourceType()->deleteEntity($roleInCustomer->getId());
+        }
+
+        // Add new roles that the user does not already have
+        $addedRoles = $this->getAddedRoles($roles, $newRoles);
+        foreach ($addedRoles as $role) {
+            $user->addDplanrole($role, $this->currentCustomerService->getCurrentCustomer());
+        }
     }
 }
