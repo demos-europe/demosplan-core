@@ -56,7 +56,9 @@ use Illuminate\Support\Collection as IlluminateCollection;
  * @property-read End                              $showname
  * @property-read End                              $state @deprecated Use a {@link Address} relationships instead
  * @property-read End                              $street @deprecated Use a {@link Address} relationships instead
+ * @property-read End                              $street1 @deprecated Use a {@link Address} relationships instead
  * @property-read End                              $houseNumber @deprecated Use a {@link Address} relationships instead
+ * @property-read End                              $addressExtension @deprecated Use a {@link Address} relationships instead
  * @property-read End                              $submissionType
  * @property-read End                              $types @deprecated Use {@link OrgaResourceType::$statusInCustomers} instead
  * @property-read End                              $registrationStatuses @deprecated use {@link OrgaResourceType::$statusInCustomers} instead
@@ -179,6 +181,7 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
             $this->createAttribute($this->state)->readable(true, static fn (Orga $orga): string => $orga->getState()),
             $this->createAttribute($this->street)->readable(true, static fn (Orga $orga): string => $orga->getStreet()),
             $this->createAttribute($this->houseNumber)->readable(true, static fn (Orga $orga): string => $orga->getHouseNumber()),
+            $this->createAttribute($this->addressExtension)->aliasedPath($this->street1)->readable(true, static fn (Orga $orga): string => $orga->getAddressExtension()),
             $this->createAttribute($this->submissionType)->readable(true, static fn (Orga $orga): string => $orga->getSubmissionType()),
             $this->createAttribute($this->types)->readable(true, fn (Orga $orga): array => $orga->getTypes($this->globalConfig->getSubdomain())),
             $this->createAttribute($this->registrationStatuses)->readable(true, $this->getRegistrationStatuses(...)),

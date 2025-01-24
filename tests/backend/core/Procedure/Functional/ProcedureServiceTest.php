@@ -3391,7 +3391,7 @@ Email:',
     protected function setAndUpdateAutoSwitchPublic(
         array $procedureUpdateData,
         $designatedSwitchDate,
-        ?string $designatedPhase
+        ?string $designatedPhase,
     ): array {
         try {
             if ($this->isValidDesignatedPhase($designatedPhase)) {
@@ -3420,7 +3420,7 @@ Email:',
     protected function setAndUpdateAutoSwitch(
         array $procedureData,
         ?DateTime $designatedSwitchDate,
-        ?string $designatedPhase
+        ?string $designatedPhase,
     ): array {
         try {
             if ($this->isValidDesignatedPhase($designatedPhase)) {
