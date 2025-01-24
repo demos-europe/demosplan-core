@@ -235,18 +235,23 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder->department
             ->setRelationshipType($this->getTypes()->getDepartmentResourceType())
             ->readable(true, static fn (User $user): ?Department => $user->getDepartment())
-            ->updatable([], [], static function (User $user, Department $newDepartment): array {
-                // Special logic for moving users from one department into another
-                $originalDepartment = $user->getDepartment();
-                if ($originalDepartment instanceof Department) {
-                    $originalDepartment->setGwId(null);
-                    $originalDepartment->removeUser($user);
-                }
-                $user->setDepartment($newDepartment);
-                $newDepartment->addUser($user);
+            ->addUpdateBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Department $newDepartment): array {
+                    // Special logic for moving users from one department into another
+                    $originalDepartment = $user->getDepartment();
+                    if ($originalDepartment instanceof Department) {
+                        $originalDepartment->setGwId(null);
+                        $originalDepartment->removeUser($user);
+                    }
+                    $user->setDepartment($newDepartment);
+                    $newDepartment->addUser($user);
 
-                return [];
-            })
+                    return [];
+                },
+                    [],
+                    OptionalField::YES,
+                    [])
+            )
             ->initializable(false, function (User $user, Department $department): array {
                 $user->setDepartment($department);
                 $department->addUser($user);
