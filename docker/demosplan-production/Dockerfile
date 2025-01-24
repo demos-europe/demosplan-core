@@ -116,7 +116,9 @@ RUN apt update -y && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    mkdir -p /opt/config && \
+    chown -R www-data:www-data /opt/config
 
 COPY zzz-dplan.ini /etc/php/8.2/fpm/conf.d/zzz-dplan.ini
 COPY zzz-dplan-cli.ini /etc/php/8.2/cli/conf.d/zzz-dplan-cli.ini
