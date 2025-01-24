@@ -337,6 +337,7 @@ export default {
 
     save () {
       this.clickTrackerSaveButton()
+
       if (this.needsUpdate) {
         this.updateSegment()
       }

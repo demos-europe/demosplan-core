@@ -728,6 +728,7 @@ export default {
 
     async saveAndFinish () {
       this.clickTrackerSaveButton()
+
       if (this.segments.length > 0) {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
