@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -35,6 +36,7 @@ use EDT\PathBuilding\End;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Elastica\Index;
 
 /**
@@ -267,12 +269,14 @@ final class AdministratableUserResourceType extends DplanResourceType implements
 
                 return [];
             })
-            ->initializable(false, function (User $user, Orga $orga): array {
-                $user->setOrga($orga);
-                $orga->addUser($user);
+            ->addCreationBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(static function (UserInterface $user, OrgaInterface $orga): array {
+                    $user->setOrga($orga);
+                    $orga->addUser($user);
 
-                return [];
-            });
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
 
         $configBuilder->addCreationBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
             $attributes = $entityData->getAttributes();
