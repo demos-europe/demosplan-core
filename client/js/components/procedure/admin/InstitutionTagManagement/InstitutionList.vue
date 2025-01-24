@@ -486,7 +486,10 @@ export default {
       }
 
       if (Object.keys(this.filterQuery).length > 0) {
-        args.filter = this.filterQuery
+        args.filter = {
+          ...args.filter,
+          ...this.filterQuery
+        }
       }
 
       return this.fetchInvitableInstitution(args)
