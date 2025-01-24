@@ -264,18 +264,23 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder->orga
             ->setRelationshipType($this->getTypes()->getOrgaResourceType())
             ->setReadableByCallable(static fn (User $user): ?Orga => $user->getOrga(), DefaultField::YES)
-            ->updatable([], [], static function (User $user, Orga $newOrga): array {
-                // Special logic for moving users from one organization into another
-                $originalOrga = $user->getOrga();
-                if ($originalOrga instanceof Orga) {
-                    $originalOrga->setGwId(null);
-                    $originalOrga->removeUser($user);
-                }
-                $user->setOrga($newOrga);
-                $newOrga->addUser($user);
+            ->addUpdateBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Orga $newOrga): array {
+                    // Special logic for moving users from one organization into another
+                    $originalOrga = $user->getOrga();
+                    if ($originalOrga instanceof Orga) {
+                        $originalOrga->setGwId(null);
+                        $originalOrga->removeUser($user);
+                    }
+                    $user->setOrga($newOrga);
+                    $newOrga->addUser($user);
 
-                return [];
-            })
+                    return [];
+                },
+                    [],
+                    OptionalField::YES,
+                    [])
+            )
             ->addCreationBehavior(
                 CallbackToOneRelationshipSetBehavior::createFactory(static function (UserInterface $user, OrgaInterface $orga): array {
                     $user->setOrga($orga);
