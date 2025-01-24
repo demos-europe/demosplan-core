@@ -286,11 +286,10 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                 return [];
             });
 
-        $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
+        $configBuilder->addCreationBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
             $attributes = $entityData->getAttributes();
             $user->setLogin($attributes[$this->email->getAsNamesInDotNotation()]);
             $this->userRepository->persistEntities([$user]);
-
             $this->userHandler->inviteUser($user);
 
             return [];
