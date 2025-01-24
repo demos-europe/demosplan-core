@@ -1246,22 +1246,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
     }
 
-    public function getNumberOfProcedures(): int
-    {
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $queryResult = $qb
-            ->select('procedure.id')
-            ->from(Procedure::class, 'procedure')
-            ->andWhere('procedure.deleted = :deleted')
-            ->andWhere('procedure.master = :master')
-            ->setParameter('deleted', false)
-            ->setParameter('master', false)
-            ->getQuery()
-            ->getResult();
-
-        return is_countable($queryResult) ? count($queryResult) : 0;
-    }
-
     /**
      * @return array<int, string>
      */

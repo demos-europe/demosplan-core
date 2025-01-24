@@ -495,21 +495,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         return $this->procedureRepository->getProceduresWithEndedParticipation($writePhaseKeys, $internal);
     }
 
-    public function getAmountOfProcedures(): int
-    {
-        return $this->procedureRepository->getNumberOfProcedures();
-    }
-
-    protected function getOrgaService(): OrgaService
-    {
-        return $this->orgaService;
-    }
-
-    protected function getEntityContentChangeService(): EntityContentChangeService
-    {
-        return $this->entityContentChangeService;
-    }
-
     /**
      * Ruft alle Verfahren ab
      * Funktion benötigt die Rolle Verfahrenssupport (RTSUPP).
