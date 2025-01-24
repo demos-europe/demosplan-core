@@ -16,10 +16,10 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementStatistic;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statistics;
 use Exception;
@@ -34,12 +34,12 @@ class StatisticsGenerator
     ];
 
     public function __construct(
-        private readonly ProcedureService $procedureService,
-        private readonly GlobalConfigInterface $globalConfig,
-        private readonly StatementService $statementService,
-        private readonly UserService $userService,
-        private readonly OrgaService $orgaService,
         private readonly CustomerService $customerService,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly OrgaService $orgaService,
+        private readonly ProcedureService $procedureService,
+        private readonly StatementRepository $statementRepository,
+        private readonly UserService $userService,
     ) {
     }
 
@@ -49,33 +49,33 @@ class StatisticsGenerator
      */
     public function generateStatistics(array $allowedRoles): Statistics
     {
-        $procedureList = $this->procedureService->getProcedureFullList();
+        $procedureList = $this->procedureService->getProcedureFullList($this->customerService->getCurrentCustomer());
         $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
         $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
-        $originalStatements = $this->statementService->getOriginalStatements();
-        $amountOfProcedures = $this->procedureService->getAmountOfProcedures();
+        $originalStatements = $this->statementRepository->getOriginalStatements();
+        $amountOfProcedures = count($procedureList['result']);
         $globalStatementStatistic = new StatementStatistic($originalStatements, $amountOfProcedures);
 
         $modifiedResults = [];
         if ($procedureList['total'] > 0) {
             foreach ($procedureList['result'] as $procedureData) {
                 $procedureData = $this->prepareProcedureData($procedureData, $globalStatementStatistic);
-                $modifiedResults[$procedureData['id']] = $procedureData; // store modified data
+                $modifiedResults[$procedureData['id']] = $procedureData;
                 $internalPhases = $this->cacheProcedurePhase($procedureData, $internalPhases, 'phase');
                 $externalPhases = $this->cacheProcedurePhase($procedureData, $externalPhases, 'publicParticipationPhase');
             }
-            $procedureList['result'] = $modifiedResults; // actually overwrite data
+            $procedureList['result'] = $modifiedResults;
         }
 
         return new Statistics(
-            $procedureList['result'],
-            $internalPhases,
-            $externalPhases,
-            $this->userService->collectRoleStatistics($this->userService->getUndeletedUsers()),
-            $this->orgaService->getOrgaCountByTypeTranslated($this->customerService->getCurrentCustomer()),
-            $this->userService->getOrgaUsersList(),
+            $globalStatementStatistic,
             $this->getAllowedRoleCodeMap($allowedRoles),
-            $globalStatementStatistic
+            $externalPhases,
+            $internalPhases,
+            $this->orgaService->getOrgaCountByTypeTranslated($this->customerService->getCurrentCustomer()),
+            $procedureList['result'],
+            $this->userService->collectRoleStatistics($this->userService->getUndeletedUsers()),
+            $this->userService->getOrgaUsersList(),
         );
     }
 

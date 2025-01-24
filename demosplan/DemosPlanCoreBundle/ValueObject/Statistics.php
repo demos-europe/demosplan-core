@@ -36,14 +36,14 @@ class Statistics extends ValueObject
     protected StatementStatistic $globalStatementStatistic;
 
     public function __construct(
-        array $procedures,
-        array $internalPhases,
-        array $externalPhases,
-        array $roles,
-        array $orgas,
-        array $usersPerOrga,
-        array $allowedRoleCodeMap,
         StatementStatistic $globalStatementStatistic,
+        array $allowedRoleCodeMap,
+        array $externalPhases,
+        array $internalPhases,
+        array $orgas,
+        array $procedures,
+        array $roles,
+        array $usersPerOrga,
     ) {
         $this->procedures = $procedures;
         $this->internalPhases = $internalPhases;

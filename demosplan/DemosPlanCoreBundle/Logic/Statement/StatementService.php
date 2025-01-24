@@ -3276,16 +3276,6 @@ class StatementService extends CoreService implements StatementServiceInterface
     }
 
     /**
-     * Returns only original statements and these whose related procedure is not deleted.
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    public function getOriginalStatements(): array
-    {
-        return $this->statementRepository->getOriginalStatements();
-    }
-
-    /**
      * Checks the corresponding Permission for the publicVerified field.
      * If enabled sets it to the received value.
      * Otherwise sets the default value.
