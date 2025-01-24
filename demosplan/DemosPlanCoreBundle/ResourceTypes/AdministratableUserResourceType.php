@@ -158,8 +158,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->setReadableByPath(DefaultField::YES)
             ->setSortable()
             ->addPathUpdateBehavior()
-            ->initializable()
-            ->filterable();
+            ->addPathCreationBehavior()
+            ->setFilterable();
 
         $configBuilder->lastname
             ->setReadableByPath(DefaultField::YES)
@@ -172,8 +172,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->setReadableByPath(DefaultField::YES)
             ->setSortable()
             ->addPathUpdateBehavior()
-            ->initializable()
-            ->filterable();
+            ->addPathCreationBehavior()
+            ->setFilterable();
 
         $configBuilder->profileCompleted
             ->setReadableByCallable(static fn (User $user): bool => $user->isProfileCompleted(), DefaultField::YES)
