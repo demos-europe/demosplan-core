@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementStatistic;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statistics;
@@ -39,7 +38,6 @@ class StatisticsGenerator
         private readonly GlobalConfigInterface $globalConfig,
         private readonly OrgaService $orgaService,
         private readonly ProcedureService $procedureService,
-        private readonly ProcedureRepository $procedureRepository,
         private readonly StatementRepository $statementRepository,
         private readonly UserService $userService,
     ) {
@@ -51,11 +49,11 @@ class StatisticsGenerator
      */
     public function generateStatistics(array $allowedRoles): Statistics
     {
-        $procedureList = $this->procedureService->getProcedureFullList();
+        $procedureList = $this->procedureService->getProcedureFullList($this->customerService->getCurrentCustomer());
         $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
         $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
         $originalStatements = $this->statementRepository->getOriginalStatements();
-        $amountOfProcedures = $this->procedureService->getAmountOfProcedures();
+        $amountOfProcedures = count($procedureList['result']);
         $globalStatementStatistic = new StatementStatistic($originalStatements, $amountOfProcedures);
 
         $modifiedResults = [];

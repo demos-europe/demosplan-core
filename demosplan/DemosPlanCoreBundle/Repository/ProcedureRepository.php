@@ -136,7 +136,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @throws Exception
      */
-    public function getFullList(?bool $master = null, bool $idsOnly = false): array
+    public function getFullList(?bool $master = null, bool $idsOnly = false, Customer $customer = null): array
     {
         try {
             $em = $this->getEntityManager();
@@ -150,6 +150,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->orderBy('o.name', 'asc')
                 ->andWhere('p.deleted = :deleted')
                 ->setParameter('deleted', false);
+
+            if (null !== $customer) {
+                $queryBuilder->andWhere('p.customer = :customer')->setParameter('customer', $customer);
+            }
 
             if (!is_null($master)) {
                 $queryBuilder->andWhere('p.master = :master')

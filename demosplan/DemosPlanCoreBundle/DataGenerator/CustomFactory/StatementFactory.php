@@ -146,7 +146,7 @@ class StatementFactory extends FactoryBase
         if ($this->procedure instanceof Procedure) {
             $procedure = $this->procedure;
         } else {
-            $procedures = collect($this->procedureService->getProcedureFullList('', false));
+            $procedures = collect($this->procedureService->getProcedureFullList(null,'', false));
             /* @var Procedure $procedure */
             $procedure = $procedures->random();
         }

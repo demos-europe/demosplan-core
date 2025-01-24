@@ -518,10 +518,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @throws Exception
      */
-    public function getProcedureFullList(string $search = '', bool $toLegacy = true)
+    public function getProcedureFullList(Customer $customer = null, $search = '', bool $toLegacy = true)
     {
         try {
-            $procedures = $this->procedureRepository->getFullList(false);
+            $procedures = $this->procedureRepository->getFullList(false, false, $customer);
 
             if (!$toLegacy) {
                 return $procedures;
