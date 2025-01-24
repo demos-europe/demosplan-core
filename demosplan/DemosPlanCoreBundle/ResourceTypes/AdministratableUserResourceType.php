@@ -201,10 +201,11 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->addUpdateBehavior(
                 CallbackToManyRelationshipSetBehavior::createFactory(function (User $user, array $newRoles): array {
                     $this->updateRoles($user, $newRoles);
+
                     return [];
-                    },
+                },
                     [],
-                OptionalField::NO,
+                    OptionalField::NO,
                     [])
             )
             ->setRelationshipType($this->getTypes()->getRoleResourceType())
@@ -313,7 +314,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         return parent::updateEntity($entityId, $entityData);
     }
 
-    private function updateRoles(UserInterface $user, array $newRoles): void {
+    private function updateRoles(UserInterface $user, array $newRoles): void
+    {
         $roles = $user->getDplanroles($this->currentCustomerService->getCurrentCustomer())->toArray();
 
         // Remove roles that are not in the new roles array
