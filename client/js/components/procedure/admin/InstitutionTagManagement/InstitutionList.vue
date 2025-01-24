@@ -34,7 +34,7 @@
               :key="`filter_${filter.label}`"
               ref="filterFlyout"
               :category="{ id: filter.id, label: filter.label }"
-              class="first:mr-1 first: mt-1 inline-block"
+              class="first:mr-1 first:mt-1 inline-block"
               :data-cy="`institutionListFilter:${filter.label}`"
               :initial-query="queryIds"
               :operator="filter.comparisonOperator"
