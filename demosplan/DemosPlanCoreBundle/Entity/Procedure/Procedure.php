@@ -1674,11 +1674,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->topics;
     }
 
-    /**
-     * This method is used to detach all existing Topics from this Procedure without deleting them.
-     * This is important for the PostNewProcedureCreatedEvent as otherwise the cloned blueprint topics are still set
-     * for the embedded procedure.
-     */
     public function detachAllTopics(): void
     {
         $this->topics->clear();
