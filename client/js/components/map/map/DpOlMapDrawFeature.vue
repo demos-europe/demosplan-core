@@ -159,6 +159,11 @@ export default {
     }
   },
 
+  emits: [
+    'layerFeatures:changed',
+    'setDrawingActive'
+  ],
+
   data () {
     return {
       currentlyActive: this.initActive,

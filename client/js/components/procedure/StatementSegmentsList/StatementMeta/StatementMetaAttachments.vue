@@ -232,7 +232,8 @@ export default {
           this.resetSourceAttachment()
           this.setLocalOriginalAttachment(this.initialAttachments.originalAttachment)
         }
-      }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
     'initialAttachments.additionalAttachments': {
       handler (newVal) {

@@ -624,7 +624,6 @@
             :class="prefixClass('color-highlight')"
             id="statementModalTitle"
             data-title="confirmation"
-            tabindex="0"
             aria-describedby="successConfirmation">
             <i
               :class="prefixClass('fa fa-comment')"
@@ -697,6 +696,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
+import { defineAsyncComponent } from 'vue'
 import StatementModalRecheck from './StatementModalRecheck'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
@@ -733,24 +733,24 @@ export default {
     DpModal,
     DpMultistepNav,
     DpRadio,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
+    }),
     DpUploadFiles,
-    FormGroupCitizenOrInstitution: () => import('./formGroups/FormGroupCitizenOrInstitution'),
-    FormGroupCountyReference: () => import('./formGroups/FormGroupCountyReference'),
-    FormGroupEmailAddress: () => import('./formGroups/FormGroupEmailAddress'),
-    FormGroupEvaluationMailViaEmail: () => import('./formGroups/FormGroupEvaluationMailViaEmail'),
-    FormGroupEvaluationMailViaSnailMailOrEmail: () => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail'),
-    FormGroupMapReference: () => import('./formGroups/FormGroupMapReference'),
-    FormGroupName: () => import('./formGroups/FormGroupName'),
-    FormGroupPhoneNumber: () => import('./formGroups/FormGroupPhoneNumber'),
-    FormGroupPhoneOrEmail: () => import('./formGroups/FormGroupPhoneOrEmail'),
-    FormGroupPostalAndCity: () => import('./formGroups/FormGroupPostalAndCity'),
-    FormGroupStateAndGroupAndOrgaNameAndPosition: () => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition'),
-    FormGroupStreet: () => import('./formGroups/FormGroupStreet'),
-    FormGroupStreetAndHouseNumber: () => import('./formGroups/FormGroupStreetAndHouseNumber'),
+    FormGroupCitizenOrInstitution: defineAsyncComponent(() => import('./formGroups/FormGroupCitizenOrInstitution')),
+    FormGroupCountyReference: defineAsyncComponent(() => import('./formGroups/FormGroupCountyReference')),
+    FormGroupEmailAddress: defineAsyncComponent(() => import('./formGroups/FormGroupEmailAddress')),
+    FormGroupEvaluationMailViaEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaEmail')),
+    FormGroupEvaluationMailViaSnailMailOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail')),
+    FormGroupMapReference: defineAsyncComponent(() => import('./formGroups/FormGroupMapReference')),
+    FormGroupName: defineAsyncComponent(() => import('./formGroups/FormGroupName')),
+    FormGroupPhoneNumber: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneNumber')),
+    FormGroupPhoneOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneOrEmail')),
+    FormGroupPostalAndCity: defineAsyncComponent(() => import('./formGroups/FormGroupPostalAndCity')),
+    FormGroupStateAndGroupAndOrgaNameAndPosition: defineAsyncComponent(() => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition')),
+    FormGroupStreet: defineAsyncComponent(() => import('./formGroups/FormGroupStreet')),
+    FormGroupStreetAndHouseNumber: defineAsyncComponent(() => import('./formGroups/FormGroupStreetAndHouseNumber')),
     StatementModalRecheck
   },
 
@@ -1071,39 +1071,12 @@ export default {
       })
         .then(checkResponse)
         .then(data => {
-          const priorityAreaKey = data.draftStatement.statementAttributes.priorityAreaKey || ''
-          const priorityAreaType = data.draftStatement.statementAttributes.priorityAreaType || ''
-          const statementFiles = data.draftStatement.files ? JSON.stringify(data.draftStatement.files) : ''
-
-          const draft = {
-            r_text: data.draftStatement.text,
-            r_files_initial: statementFiles || [],
-            r_ident: this.draftStatementId,
-            r_isNegativeReport: data.draftStatement.negativ ? '1' : '0',
-            r_element_id: data.draftStatement.elementId || '',
-            r_element_title: !!data.draftStatement.element && !!data.draftStatement.element.title ? data.draftStatement.element.title : '',
-            r_paragraph_id: data.draftStatement.paragraphId || '',
-            r_paragraph_title: !!data.draftStatement.paragraph && !!data.draftStatement.paragraph.title ? data.draftStatement.paragraph.title : '',
-            r_document_id: !!data.draftStatement.document && !!data.draftStatement.document.id ? data.draftStatement.document.id : '',
-            r_document_title: !!data.draftStatement.document && !!data.draftStatement.document.title ? data.draftStatement.document.title : '',
-            r_represents: data.draftStatement.represents !== null ? data.draftStatement.represents : '',
-            r_location: Object.keys(data.draftStatement.statementAttributes).reduce((acc, key) => {
-              acc = key
-              return acc
-            }, 'mapLocation'),
-            r_location_geometry: data.draftStatement.polygon,
-            r_location_priority_area_key: priorityAreaKey,
-            r_location_priority_area_type: priorityAreaType,
-            r_location_point: '',
-            location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
-            r_county: data.draftStatement.statementAttributes.county ? data.draftStatement.statementAttributes.county : '',
-            r_makePublic: !!data.draftStatement.publicAllowed
-          }
           this.hasPlanningDocuments = data.hasPlanningDocuments || this.initHasPlanningDocuments
-          if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
-          if (draft.r_location === 'mapLocation' && data.draftStatement.polygon) draft.r_location = 'point'
 
           if (draftExists === false) {
+            const priorityAreaKey = data.draftStatement.statementAttributes.priorityAreaKey || ''
+            const priorityAreaType = data.draftStatement.statementAttributes.priorityAreaType || ''
+            const draft = this.setDraftData(data, priorityAreaKey, priorityAreaType)
             /*
              * If it is a draft, we set the data from local storage (see above).
              */
@@ -1221,6 +1194,75 @@ export default {
       }
     },
 
+    /**
+     * Prepare the data to be sent to the backend
+     * We have to copy the store state because deleting entries is not reactive atm.
+     *
+     * @param formData
+     *
+     * @return {*}
+     */
+    prepareDataToSend (formData) {
+      const dataToSend = { ...formData }
+
+      /*
+       * If we have no map/county-reference enabled we can't set it as default, because then this would be preselected
+       * which we don't want
+       */
+      if (dataToSend.location_is_set === '') {
+        dataToSend.location_is_set = 'notLocated'
+      }
+
+      if (dataToSend.r_location !== 'county') {
+        dataToSend.r_county = ''
+      }
+
+      /*
+       * If no submitter type is selected we assume its a citizen.
+       * it can't be preset to prevent the radio options from being preselected
+       */
+      if (dataToSend.r_submitter_role === '') {
+        dataToSend.r_submitter_role = 'citizen'
+      }
+
+      if (dataToSend.r_location !== 'point') {
+        dataToSend.r_location_point = ''
+        dataToSend.r_location_priority_area_key = ''
+        dataToSend.r_location_priority_area_type = ''
+        dataToSend.r_location_geometry = ''
+      }
+
+      /*
+       * Remove not used fields
+       * thats neccessary because the BE checks for their existance to decide what do show (e.g. in exports)
+       *
+       */
+      if (dataToSend.r_getFeedback === 'off') {
+        delete dataToSend.r_getFeedback
+      }
+      if (dataToSend.r_houseNumber === '') {
+        delete dataToSend.r_houseNumber
+      }
+      if (dataToSend.r_postalCode === '') {
+        delete dataToSend.r_postalCode
+      }
+      if (dataToSend.r_city === '') {
+        delete dataToSend.r_city
+      }
+      if (hasPermission('feature_statements_feedback_check_email') === false) {
+        delete dataToSend.r_email2
+      }
+      /*
+       * Tweak e-mail values so they fit to the update request
+       * due to the dynamic handling there can be inconsistencies
+       */
+      if ((hasOwnProp(dataToSend, 'r_getFeedback') === false || dataToSend.r_getEvaluation !== 'email') && dataToSend.r_email === '') {
+        delete dataToSend.r_email
+      }
+
+      return dataToSend
+    },
+
     removeDocumentRelation () {
       const elementFields = {
         r_element_id: '',
@@ -1230,6 +1272,7 @@ export default {
         r_paragraph_id: '',
         r_paragraph_title: ''
       }
+
       this.setStatementData(elementFields)
     },
 
@@ -1241,8 +1284,13 @@ export default {
 
     removeUnsavedFile (file) {
       const indexToRemove = this.unsavedFiles.findIndex(el => el.hash === file.hash)
+
       this.unsavedFiles.splice(indexToRemove, 1)
-      this.setStatementData({ uploadedFiles: this.unsavedFiles.map(el => el.hash).join(',') })
+      this.setStatementData({
+        uploadedFiles: this.unsavedFiles
+          .map(el => el.hash)
+          .join(',')
+      })
     },
 
     sendStatement (e, immediateSubmit = false, keepModalOpen = false) {
@@ -1253,78 +1301,22 @@ export default {
       }
 
       this.isLoading = true
-
       this.setStatementData({ immediate_submit: immediateSubmit })
       this.setStatementData({ r_loadtime: dayjs().unix() })
 
-      /*
-       * If we have no map/county-reference enabled we can't set it as default, because then this would be preselected
-       * which we don't want
-       */
-      if (this.formData.location_is_set === '') {
-        this.setStatementData({ location_is_set: 'notLocated' })
-      }
-
-      if (this.formData.r_location !== 'county') {
-        this.setStatementData({ r_county: '' })
-      }
-
-      /*
-       * If no submitter type is selected we assume its a citizen.
-       * it can't be preset to prevent the radio options from being preselected
-       */
-      if (this.formData.r_submitter_role === '') {
-        this.setStatementData({ r_submitter_role: 'citizen' })
-      }
-
-      if (this.formData.r_location !== 'point') {
-        this.setStatementData({
-          r_location_point: '',
-          r_location_priority_area_key: '',
-          r_location_priority_area_type: '',
-          r_location_geometry: ''
-        })
-      }
-
-      /*
-       * Remove not used fields
-       * thats neccessary because the BE checks for their existance to decide what do show (e.g. in exports)
-       *
-       */
-      if (this.formData.r_getFeedback === 'off') {
-        delete this.formData.r_getFeedback
-      }
-      if (this.formData.r_houseNumber === '') {
-        delete this.formData.r_houseNumber
-      }
-      if (this.formData.r_postalCode === '') {
-        delete this.formData.r_postalCode
-      }
-      if (this.formData.r_city === '') {
-        delete this.formData.r_city
-      }
-      if (hasPermission('feature_statements_feedback_check_email') === false) {
-        delete this.formData.r_email2
-      }
-      /*
-       * Tweak e-mail values so they fit to the update request
-       * due to the dynamic handling there can be inconsistencies
-       */
-      if ((hasOwnProp(this.formData, 'r_getFeedback') === false || this.formData.r_getEvaluation !== 'email') && this.formData.r_email === '') {
-        delete this.formData.r_email
-      }
+      const dataToSend = this.prepareDataToSend(this.formData)
 
       let route = Routing.generate('DemosPlan_statement_public_participation_new_ajax', { procedure: this.procedureId }) + (immediateSubmit ? '?immediate_submit=true' : '')
 
       // Draft statements
       if (this.draftStatementId !== '') {
-        this.setStatementData({ action: 'statementedit' })
+        dataToSend.action = 'statementedit'
         route = Routing.generate('DemosPlan_statement_edit', { statementID: this.draftStatementId, procedure: this.procedureId })
       } else {
-        this.setStatementData({ action: 'statementpublicnew' })
+        dataToSend.action = 'statementpublicnew'
       }
 
-      return makeFormPost(this.formData, route)
+      return makeFormPost(dataToSend, route)
         .then(response => {
           if (response.status === 429) {
             dplan.notify.notify('error', Translator.trans('error.statement.not.saved.throttle'))
@@ -1338,7 +1330,7 @@ export default {
           }
           /*
            * Handling for successful responses
-           * if its not an HTML-Response like after creating a new one
+           * if it's not an HTML-Response like after creating a new one
            */
           if (response.status === 200) {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.saved'))
@@ -1415,6 +1407,35 @@ export default {
         })
     },
 
+    setDraftData (data, priorityAreaKey, priorityAreaType) {
+      const draft = {
+        r_text: data.draftStatement.text,
+        r_files_initial: data.draftStatement.files ? JSON.stringify(data.draftStatement.files) : [],
+        r_ident: this.draftStatementId,
+        r_isNegativeReport: data.draftStatement.negativ ? '1' : '0',
+        r_element_id: data.draftStatement.elementId || '',
+        r_element_title: data.draftStatement.element?.title ?? '',
+        r_paragraph_id: data.draftStatement.paragraphId ?? '',
+        r_paragraph_title: data.draftStatement.paragraph?.title ?? '',
+        r_document_id: data.draftStatement.document?.id ?? '',
+        r_document_title: data.draftStatement.document?.title ?? '',
+        r_represents: data.draftStatement.represents ?? '',
+        r_location: Object.keys(data.draftStatement.statementAttributes).pop() ?? 'mapLocation',
+        r_location_geometry: data.draftStatement.polygon,
+        r_location_priority_area_key: priorityAreaKey,
+        r_location_priority_area_type: priorityAreaType,
+        r_location_point: '',
+        location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
+        r_county: data.draftStatement.statementAttributes.county ?? '',
+        r_makePublic: !!data.draftStatement.publicAllowed
+      }
+
+      if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
+      if (draft.r_location === 'mapLocation' && data.draftStatement.polygon) draft.r_location = 'point'
+
+      return draft
+    },
+
     setPrivacyPreference (data) {
       this.setStatementData(data)
       this.removeNotificationsFromStore()
@@ -1434,7 +1455,7 @@ export default {
       this.updateStatement({ r_ident: this.draftStatementId, ...data })
     },
 
-    toggleModal (resetOnClose = true, data) {
+    toggleModal (resetOnClose = true, data = null) {
       // Check if browser is in fullscreen mode
       if (isActiveFullScreen()) {
         toggleFullscreen()
@@ -1536,6 +1557,10 @@ export default {
       }
     })
 
+    this.$root.$on('statement-modal:goto-tab', tabname => {
+      this.gotoTab(tabname)
+    })
+
     // Set draft statement Id from href
     this.draftStatementId = sessionStorage.getItem(this.draftStatementIdStorageName) || ''
     this.redirectPath = sessionStorage.getItem('redirectpath') || this.initRedirectPath
@@ -1546,8 +1571,7 @@ export default {
       const sessionStorageBegunStatement = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:new`)
       const sessionStorageBegunStatementParsed = JSON.parse(sessionStorageBegunStatement)
       if (sessionStorageBegunStatement && sessionStorageBegunStatement !== this.initFormDataJSON && sessionStorageBegunStatementParsed.r_ident === '') {
-        const existingData = sessionStorageBegunStatementParsed
-        this.setStatementData(existingData)
+        this.setStatementData(sessionStorageBegunStatementParsed)
       } else {
         this.setStatementData({ r_county: this.counties.find(el => el.selected) ? this.counties.find(el => el.selected).value : '' })
       }

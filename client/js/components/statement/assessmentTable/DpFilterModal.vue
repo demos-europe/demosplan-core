@@ -33,11 +33,6 @@
     </button>
 
     <!-- Modal content -->
-    <!-- refs T11499: The portal removed the filter form
-         fields from the corresponding form.
-         Once we have no more need to serialize these
-         form fields with jquery this can be
-         added to the portal again. -->
     <dp-modal
       ref="filterModalInner"
       class="layout"
@@ -45,21 +40,20 @@
       @modal:toggled="isOpen => resetUnsavedOptions(isOpen)">
       <dp-loading v-if="isLoading" />
 
-      <template v-else>
-        <!-- Show filters -->
-        <template v-if="false === saveFilterSetView">
-          <h2 class="u-mb">
-            {{ Translator.trans('filter.modalTitle') }}
-          </h2>
+      <!-- Show filters -->
+      <template v-else-if="!saveFilterSetView">
+        <h2 class="u-mb">
+          {{ Translator.trans('filter.modalTitle') }}
+        </h2>
 
           <!-- Select with saved filter sets -->
           <div
             v-if="userFilterSetSaveEnabled">
             <dp-multiselect
               id="userFilterSets"
-              data-cy="userFilterSets"
               v-model="selectedUserFilterSet"
               :custom-label="nameFromAttributes"
+              data-cy="userFilterSets"
               :options="userFilterSets"
               track-by="id">
               <template v-slot:option="{ props }">
@@ -78,16 +72,16 @@
               </template>
             </dp-multiselect>
 
-            <div class="text-right u-mb u-pt-0_5">
-              <button
-                type="button"
-                class="btn btn--primary"
-                data-cy="loadUserFilterSet"
-                @click.prevent="loadUserFilterSet">
-                {{ Translator.trans('filter.saveFilterSet.load') }}
-              </button>
-            </div>
+          <div class="text--right u-mb u-pt-0_5">
+            <button
+              type="button"
+              class="btn btn--primary"
+              data-cy="loadUserFilterSet"
+              @click.prevent="loadUserFilterSet">
+              {{ Translator.trans('filter.saveFilterSet.load') }}
+            </button>
           </div>
+        </div>
 
           <!-- Tabs with filters -->
           <dp-tabs tab-size="medium">
@@ -110,28 +104,26 @@
             </dp-tab>
           </dp-tabs>
 
-          <!-- hidden selects so selected fields can be saved via form submit -->
-          <template>
-            <select
-              v-for="(option, optionKey) in allSelectedFilterOptionsWithFilterName"
-              :key="optionKey"
-              :id="option.name"
-              :name="option.name"
-              multiple
-              style="display: none">
-              <option
-                :key="optionKey"
-                :value="option.value"
-                selected>
-                {{ option.label }}
-              </option>
-            </select>
-          </template>
+        <!-- hidden selects so selected fields can be saved via form submit -->
+        <select
+          v-for="(option, optionKey) in allSelectedFilterOptionsWithFilterName"
+          :key="optionKey"
+          :id="option.name"
+          :name="option.name"
+          multiple
+          style="display: none">
+          <option
+            :key="optionKey"
+            :value="option.value"
+            selected>
+            {{ option.label }}
+          </option>
+        </select>
 
-          <!-- Checkbox to indicate user wants to save the current filter set -->
-          <template v-if="userFilterSetSaveEnabled">
-            <div class="layout__item u-1-of-3" /><!--
-         --><label
+        <!-- Checkbox to indicate user wants to save the current filter set -->
+        <template v-if="userFilterSetSaveEnabled">
+          <div class="layout__item u-1-of-3" />
+          <label
             for="r_save_filter_set"
             class="layout__item u-2-of-3 u-pt-0_5"
             :class="{'color--grey': noFilterSelected}">
@@ -144,73 +136,72 @@
               v-model="saveFilterSet">
             {{ Translator.trans('filter.saveFilterSet.label') }}
           </label>
-          </template>
-
-          <!-- Button row -->
-          <div class="text-right space-inline-s">
-            <button
-              type="submit"
-              class="btn btn--primary"
-              :class="{'pointer-events-none':disabledInteractions}"
-              data-cy="submitOrNext"
-              @click.prevent="submitOrNext"
-              v-text="Translator.trans(saveFilterSet ? 'filter.saveFilterSet.next' : 'filter.apply')" />
-            <button
-              type="button"
-              class="btn btn--secondary"
-              data-cy="filterReset"
-              @click="reset"
-              v-text="Translator.trans('filter.reset')" />
-          </div>
         </template>
 
-        <!-- Show UI to save filter set -->
-        <template v-else>
-          <h2>{{ Translator.trans('filter.saveFilterSet.title') }}</h2>
+        <!-- Button row -->
+        <div class="text-right space-inline-s">
+          <button
+            type="submit"
+            class="btn btn--primary"
+            :class="{'pointer-events-none':disabledInteractions}"
+            data-cy="submitOrNext"
+            @click.prevent="submitOrNext"
+            v-text="Translator.trans(saveFilterSet ? 'filter.saveFilterSet.next' : 'filter.apply')" />
+          <button
+            type="button"
+            class="btn btn--secondary"
+            data-cy="filterReset"
+            @click="reset"
+            v-text="Translator.trans('filter.reset')" />
+        </div>
+      </template>
 
-          <label
-            for="r_save_filter_set_name"
-            class="u-pt-0_5">
-            {{ Translator.trans('filter.saveFilterSet.label') }}
-            <input
-              class="layout__item u-mt-0_5"
-              type="text"
-              id="r_save_filter_set_name"
-              name="r_save_filter_set_name"
-              data-cy="filterSetName"
-              :value="filterSetName">
-          </label>
+      <!-- Show UI to save filter set -->
+      <template v-else>
+        <h2>{{ Translator.trans('filter.saveFilterSet.title') }}</h2>
 
-          <div
-            class="visuallyhidden"
-            v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
-            :key="index">
-            <dp-filter-modal-select-item
-              v-for="filterItem in filterByType(filterGroup.type)"
-              :key="filterItem.id"
-              :filter-item="filterItem"
-              :filter-group="filterGroup"
-              hidden />
-          </div>
+        <label
+          for="r_save_filter_set_name"
+          class="u-pt-0_5">
+          {{ Translator.trans('filter.saveFilterSet.label') }}
+          <input
+            class="layout__item u-mt-0_5"
+            type="text"
+            id="r_save_filter_set_name"
+            name="r_save_filter_set_name"
+            data-cy="filterSetName"
+            :value="filterSetName">
+        </label>
 
-          <!-- Button row -->
-          <div class="text-right space-inline-s">
-            <button
-              class="btn btn--primary"
-              :class="{'pointer-events-none': disabledInteractions}"
-              type="submit"
-              data-cy="submitWithSave"
-              @click.stop="submitWithSave">
-              {{ Translator.trans('filter.saveFilterSet.submit') }}
-            </button>
-            <button
-              type="button"
-              class="btn btn--secondary"
-              @click="back">
-              {{ Translator.trans('filter.saveFilterSet.back') }}
-            </button>
-          </div>
-        </template>
+        <div
+          class="visuallyhidden"
+          v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
+          :key="index">
+          <dp-filter-modal-select-item
+            v-for="filterItem in filterByType(filterGroup.type)"
+            :key="filterItem.id"
+            :filter-item="filterItem"
+            :filter-group="filterGroup"
+            hidden />
+        </div>
+
+        <!-- Button row -->
+        <div class="text-right space-inline-s">
+          <button
+            class="btn btn--primary"
+            :class="{'pointer-events-none': disabledInteractions}"
+            type="submit"
+            data-cy="submitWithSave"
+            @click.stop="submitWithSave">
+            {{ Translator.trans('filter.saveFilterSet.submit') }}
+          </button>
+          <button
+            type="button"
+            class="btn btn--secondary"
+            @click="back">
+            {{ Translator.trans('filter.saveFilterSet.back') }}
+          </button>
+        </div>
       </template>
     </dp-modal>
   </div>
@@ -260,6 +251,7 @@ export default {
 
   data () {
     return {
+      activeTabId: null,
       disabledInteractions: false, // Do not submit form if filters are currently updating
       disabledOpenModalButton: true, // Do not open modal if AT is still loading
       isLoading: true,
@@ -336,13 +328,20 @@ export default {
   },
 
   watch: {
-    noFilterSelected: function () {
-      // If no filter is selected, uncheck the filter.saveFilterSet checkbox
-      this.saveFilterSet = false
+    noFilterSelected: {
+      handler () {
+        // If no filter is selected, uncheck the filter.saveFilterSet checkbox
+        this.saveFilterSet = false
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
+
     },
 
-    selectedOptionsInStore: function () {
-      this.selectedOptions = this.selectedFilterOptions
+    selectedOptionsInStore: {
+      handler () {
+        this.selectedOptions = this.selectedFilterOptions
+      },
+      deep: true
     }
   },
 
@@ -364,6 +363,10 @@ export default {
       'loadSelectedFilterOptions',
       'resetSelectedOptions'
     ]),
+
+    setActiveTabId (id) {
+      this.activeTabId = id
+    },
 
     back () {
       this.saveFilterSetView = false
@@ -446,7 +449,6 @@ export default {
     },
 
     /**
-     **
      * Reset only the unsaved selected filter options, but only when closing modal
      */
     resetUnsavedOptions (isOpen) {
