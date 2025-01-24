@@ -69,8 +69,7 @@ class StatementFactory extends FactoryBase
         OrgaService $orgaService,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
-        private readonly UserService $userService,
-        private readonly EntityManager $entityManager,
+        private readonly UserService $userService
     ) {
         $this->orgaService = $orgaService;
         $this->procedureService = $procedureService;
@@ -143,17 +142,13 @@ class StatementFactory extends FactoryBase
     /**
      * @throws DataProviderException
      * @throws InvalidUserDataException
-     * @throws NotSupported
      */
     protected function makeStatementData(): array
     {
         if ($this->procedure instanceof Procedure) {
             $procedure = $this->procedure;
         } else {
-            $procedures = collect(
-                $this->entityManager->getRepository(Procedure::class)
-                    ->findBy(['master' => false, 'deleted' => false], ['orgaName' => 'ASC'])
-            );
+            $procedures = collect($this->procedureService->getProcedureFullList('', false));
             /* @var Procedure $procedure */
             $procedure = $procedures->random();
         }

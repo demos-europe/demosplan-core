@@ -16,7 +16,6 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureToLegacyConverter;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -41,7 +40,6 @@ class StatisticsGenerator
         private readonly OrgaService $orgaService,
         private readonly ProcedureService $procedureService,
         private readonly ProcedureRepository $procedureRepository,
-        private readonly ProcedureToLegacyConverter $procedureToLegacyConverter,
         private readonly StatementRepository $statementRepository,
         private readonly UserService $userService,
     ) {
@@ -53,25 +51,22 @@ class StatisticsGenerator
      */
     public function generateStatistics(array $allowedRoles): Statistics
     {
-        $procedures = $this->procedureRepository->findBy(
-            ['master' => false, 'customer' => $this->customerService->getCurrentCustomer(), 'deleted' => false],
-            ['orgaName' => 'ASC']
-        );
+        $procedureList = $this->procedureService->getProcedureFullList();
         $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
         $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
         $originalStatements = $this->statementRepository->getOriginalStatements();
         $amountOfProcedures = $this->procedureService->getAmountOfProcedures();
         $globalStatementStatistic = new StatementStatistic($originalStatements, $amountOfProcedures);
 
-        $procedureList = [];
-        if (count($procedures) > 0) {
-            foreach ($procedures as $procedure) {
-                $procedureData = $this->procedureToLegacyConverter->convertToLegacy($procedure);
+        $modifiedResults = [];
+        if ($procedureList['total'] > 0) {
+            foreach ($procedureList['result'] as $procedureData) {
                 $procedureData = $this->prepareProcedureData($procedureData, $globalStatementStatistic);
-                $procedureList[$procedureData['id']] = $procedureData;
+                $modifiedResults[$procedureData['id']] = $procedureData;
                 $internalPhases = $this->cacheProcedurePhase($procedureData, $internalPhases, 'phase');
                 $externalPhases = $this->cacheProcedurePhase($procedureData, $externalPhases, 'publicParticipationPhase');
             }
+            $procedureList['result'] = $modifiedResults;
         }
 
         return new Statistics(
@@ -80,7 +75,7 @@ class StatisticsGenerator
             $externalPhases,
             $internalPhases,
             $this->orgaService->getOrgaCountByTypeTranslated($this->customerService->getCurrentCustomer()),
-            $procedureList,
+            $procedureList['result'],
             $this->userService->collectRoleStatistics($this->userService->getUndeletedUsers()),
             $this->userService->getOrgaUsersList(),
         );

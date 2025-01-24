@@ -282,6 +282,21 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertArrayHasKey('boundingBox', $procedureToTest['settings']);
     }
 
+    public function testGetProcedureFullList(): void
+    {
+        $procedureList = $this->sut->getProcedureFullList();
+        $this->checkListResultStructure($procedureList);
+        static::assertArrayHasKey('total', $procedureList);
+        static::assertEquals($this->countEntries(Procedure::class, ['deleted' => false, 'master' => false]), $procedureList['total']);
+        static::assertIsString($procedureList['search']);
+        static::assertEquals(0, strlen($procedureList['search']));
+        $procedureToTest = array_pop($procedureList['result']);
+        $this->checkId($procedureToTest['ident']);
+        static::assertArrayHasKey('externalName', $procedureToTest);
+        static::assertArrayHasKey('settings', $procedureToTest);
+        static::assertArrayHasKey('boundingBox', $procedureToTest['settings']);
+    }
+
     public function testGetProcedurePublicList(): void
     {
         self::markSkippedForCIElasticsearchUnavailable();
@@ -2074,6 +2089,24 @@ Email:',
         static::assertIsArray($proceduresToSwitch);
         static::assertCount(1, $proceduresToSwitch);
         static::assertEquals($testProcedure, $proceduresToSwitch[0]);
+    }
+
+    public function testGetFullIdList(): void
+    {
+        $procedureRepository = $this->sut->getDoctrine()->getManager()->getRepository(Procedure::class);
+        $procedures = $procedureRepository->getFullList(null, true);
+
+        static::assertIsArray($procedures);
+        static::assertIsString($procedures[0]);
+    }
+
+    public function testGetFullList(): void
+    {
+        $procedureRepository = $this->sut->getDoctrine()->getManager()->getRepository(Procedure::class);
+        $procedures = $procedureRepository->getFullList();
+
+        static::assertIsArray($procedures);
+        static::assertInstanceOf(Procedure::class, $procedures[0]);
     }
 
     /**
