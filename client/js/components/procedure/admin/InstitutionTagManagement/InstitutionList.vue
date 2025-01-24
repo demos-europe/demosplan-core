@@ -26,7 +26,6 @@
             class="h-fit mt-1 col-span-1 sm:col-span-3"
             data-cy="institutionList:searchField"
             input-width="u-1-of-1"
-            :placeholder="Translator.trans('searchterm')"
             @reset="handleReset"
             @search="val => handleSearch(val)" />
           <div class="flex flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-2">
