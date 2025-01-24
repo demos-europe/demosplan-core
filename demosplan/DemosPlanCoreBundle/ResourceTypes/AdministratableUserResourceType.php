@@ -252,12 +252,14 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                     OptionalField::YES,
                     [])
             )
-            ->initializable(false, function (User $user, Department $department): array {
-                $user->setDepartment($department);
-                $department->addUser($user);
+            ->addCreationBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(static function (User $user, Department $department): array {
+                    $user->setDepartment($department);
+                    $department->addUser($user);
 
-                return [];
-            });
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
 
         $configBuilder->orga
             ->setRelationshipType($this->getTypes()->getOrgaResourceType())
