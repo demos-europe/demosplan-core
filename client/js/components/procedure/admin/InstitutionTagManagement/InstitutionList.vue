@@ -155,8 +155,6 @@
 
 <script>
 import {
-  checkResponse,
-  dpApi,
   DpButton,
   DpColumnSelector,
   DpDataTable,
@@ -397,116 +395,6 @@ export default {
     applyFilterQuery (filter, categoryId) {
       this.setAppliedFilterQuery(filter)
       this.getInstitutionsByPage(1, categoryId)
-
-
-
-      // lscache.remove(this.lsKey.allSegments)
-      // lscache.remove(this.lsKey.toggledSegments)
-      // this.allItemsCount = null
-      //
-      // const filter = {
-      //   ...this.getFilterQuery,
-      //   sameProcedure: {
-      //     condition: {
-      //       path: 'parentStatement.procedure.id',
-      //       value: this.procedureId
-      //     }
-      //   }
-      // }
-      // const payload = {
-      //   include: [
-      //     'assignee',
-      //     'place',
-      //     'tags',
-      //     'parentStatement.genericAttachments.file',
-      //     'parentStatement.sourceAttachment.file'
-      //   ].join(),
-      //   page: {
-      //     number: page,
-      //     size: this.pagination.perPage
-      //   },
-      //   sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
-      //   filter,
-      //   fields: {
-      //     File: [
-      //       'hash'
-      //     ].join(),
-      //     GenericStatementAttachment: [
-      //       'file'
-      //     ].join(),
-      //     Place: [
-      //       'name'
-      //     ].join(),
-      //     SourceStatementAttachment: ['file'].join(),
-      //     Statement: [
-      //       'authoredDate',
-      //       'authorName',
-      //       'genericAttachments',
-      //       'isSubmittedByCitizen',
-      //       'initialOrganisationDepartmentName',
-      //       'initialOrganisationName',
-      //       'initialOrganisationStreet',
-      //       'initialOrganisationHouseNumber',
-      //       'initialOrganisationPostalCode',
-      //       'initialOrganisationCity',
-      //       'internId',
-      //       'memo',
-      //       'sourceAttachment',
-      //       'status',
-      //       'submitDate',
-      //       'submitName',
-      //       'submitType'
-      //     ].join(),
-      //     StatementSegment: [
-      //       'assignee',
-      //       'externId',
-      //       'orderInProcedure',
-      //       'parentStatement',
-      //       'place',
-      //       'tags',
-      //       'text',
-      //       'recommendation'
-      //     ].join(),
-      //     Tag: [
-      //       'title'
-      //     ].join()
-      //   }
-      // }
-      // if (this.searchTerm !== '') {
-      //   payload.search = {
-      //     value: this.searchTerm,
-      //     ...this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {}
-      //   }
-      // }
-      // this.isLoading = true
-      // this.listSegments(payload)
-      //   .catch(() => {
-      //     dplan.notify.notify('error', Translator.trans('error.generic'))
-      //   })
-      //   .then((data) => {
-      //     /**
-      //      * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
-      //      */
-      //     this.setLocalStorage(data.meta.pagination)
-      //
-      //     // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
-      //     this.allItemsCount = data.meta.pagination.total
-      //     this.updatePagination(data.meta.pagination)
-      //
-      //     // Get all segments (without pagination) to save them in localStorage for bulk editing
-      //     this.fetchSegmentIds({
-      //       filter,
-      //       search: payload.search
-      //     })
-      //   })
-      //   .finally(() => {
-      //     this.isLoading = false
-      //     if (this.items.length > 0) {
-      //       this.$nextTick(() => {
-      //         this.$refs.imageModal.addClickListener(this.$refs.dataTable.$el.querySelectorAll('img'))
-      //       })
-      //     }
-      //   })
     },
 
     createFilterOptions (categoryId) {
@@ -517,7 +405,6 @@ export default {
           const { id, attributes } = option
           const { name } = attributes
 
-          // @todo missing: count, description (?)
           return {
             id,
             label: name,
@@ -701,25 +588,6 @@ export default {
       }
     },
 
-    // sendFilterQuery (filter) {
-    //   const isReset = Object.keys(filter).length === 0
-    //
-    //   if (!isReset && Object.keys(this.appliedFilterQuery).length === 0) {
-    //     Object.values(filter).forEach(el => {
-    //       this.appliedFilterQuery[el.condition.value] = el
-    //     })
-    //   } else {
-    //     if (isReset) {
-    //       this.appliedFilterQuery = Object.keys(this.getFilterQuery).length ? this.getFilterQuery : []
-    //     } else {
-    //       this.appliedFilterQuery = filter
-    //     }
-    //   }
-    //   this.updateQueryHash()
-    //   this.resetSelection()
-    //   this.applyQuery(1)
-    // },
-
     separateByCommas (institutionTags) {
       const tagsLabels = []
 
@@ -740,27 +608,7 @@ export default {
       this.currentSelection = this.institutionTagCategoriesValues
         .slice(0, 7)
         .map(category => category.attributes.name)
-    },
-
-    // updateQueryHash () {
-    //   const hrefParts = window.location.href.split('/')
-    //   const oldQueryHash = hrefParts[hrefParts.length - 1]
-    //   const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash: oldQueryHash })
-    //
-    //   const data = { filter: this.getFilterQuery }
-    //   if (this.searchterm !== '') {
-    //     data.searchPhrase = this.searchTerm
-    //   }
-    //   return dpApi.patch(url, {}, data)
-    //     .then(response => checkResponse(response))
-    //     .then(response => {
-    //       if (response) {
-    //         this.updateQueryHashInURL(oldQueryHash, response)
-    //         this.currentQueryHash = response
-    //       }
-    //     })
-    //     .catch(err => console.error(err))
-    // },
+    }
   },
 
   mounted () {
