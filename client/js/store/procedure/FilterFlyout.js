@@ -47,7 +47,7 @@ const FilterFlyoutStore = {
      * @param {String} payload.categoryId - The ID of the category.
      * @param {Array} payload.filterIds - The array of filter IDs to set.
      */
-    setInitialFlyoutFilterIds(state, payload) {
+    setInitialFlyoutFilterIds (state, payload) {
       const { categoryId, filterIds } = payload
 
       set(state.initialFlyoutFilterIds, categoryId, filterIds)
@@ -77,7 +77,7 @@ const FilterFlyoutStore = {
      * @param {String} payload.optionId - The ID of the option.
      * @param {Boolean} payload.value - The selected state to set.
      */
-    setGroupedOptionSelected(state, { categoryId, groupId, optionId, value }) {
+    setGroupedOptionSelected (state, { categoryId, groupId, optionId, value }) {
       const groups = state.groupedOptions[categoryId]
 
       if (groups) {
@@ -142,7 +142,7 @@ const FilterFlyoutStore = {
      * @param {String} payload.optionId - The ID of the option.
      * @param {Boolean} payload.value - The selected state to set.
      */
-    setUngroupedOptionSelected(state, { categoryId, optionId, value }) {
+    setUngroupedOptionSelected (state, { categoryId, optionId, value }) {
       const options = state.ungroupedOptions[categoryId]
 
       if (options) {
@@ -200,7 +200,7 @@ const FilterFlyoutStore = {
      * @param {String} categoryId - The ID of the category.
      * @return {Array} The initial flyout filter IDs for the specified category.
      */
-    getInitialFlyoutFilterIdsByCategoryId: (state) =>  (categoryId) =>{
+    getInitialFlyoutFilterIdsByCategoryId: (state) => (categoryId) => {
       return state.initialFlyoutFilterIds[categoryId]
     },
 

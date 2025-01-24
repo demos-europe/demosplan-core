@@ -34,7 +34,7 @@
               v-for="filter in filters"
               :key="`filter_${filter.label}`"
               ref="filterFlyout"
-              :category="{  id: filter.id, label: filter.label }"
+              :category="{ id: filter.id, label: filter.label }"
               class="first:mr-1 first: mt-1 inline-block"
               :data-cy="`institutionListFilter:${filter.label}`"
               :initial-query="queryIds"
@@ -192,7 +192,7 @@ export default {
     initialFilter: {
       type: [Object, Array],
       default: () => ({})
-    },
+    }
   },
 
   data () {
@@ -413,8 +413,8 @@ export default {
         })
       }
 
-      this.setUngroupedFilterOptions({ categoryId: categoryId, options: filterOptions })
-      this.setIsFilterFlyoutLoading({ categoryId: categoryId, isLoading: false })
+      this.setUngroupedFilterOptions({ categoryId, options: filterOptions })
+      this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
     },
 
     date (d) {
@@ -485,14 +485,14 @@ export default {
         ].join()
       }
 
-      if(Object.keys(this.filterQuery).length > 0) {
+      if (Object.keys(this.filterQuery).length > 0) {
         args.filter = this.filterQuery
       }
 
       return this.fetchInvitableInstitution(args)
         .then(() => {
           if (categoryId) {
-            this.setIsFilterFlyoutLoading({ categoryId: categoryId, isLoading: false })
+            this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
           }
         })
         .catch(err => {

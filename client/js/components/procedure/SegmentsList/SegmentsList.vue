@@ -47,7 +47,7 @@
               ungroupedOptions: true
             }"
             @filter-apply="sendFilterQuery"
-            @filterOptions:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})"/>
+            @filterOptions:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})" />
         </div>
         <dp-button
           class="ml-2 h-fit"
@@ -300,7 +300,7 @@ import ImageModal from '@DpJs/components/shared/ImageModal'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
-import StatusBadge from '../Shared/StatusBadge.vue'
+import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 
 export default {
@@ -716,7 +716,7 @@ export default {
             }
           }
         },
-        path: path
+        path
       }
 
       // We have to set the searchPhrase to null if its empty to satisfy the backend
@@ -730,8 +730,8 @@ export default {
           const result = (hasOwnProp(response, 0) && response[0].id === 'filterList') ? response[0].result : null
 
           if (result) {
-            let groupedOptions = []
-            let ungroupedOptions = []
+            const groupedOptions = []
+            const ungroupedOptions = []
 
             result.included.forEach(resource => {
               const filter = result.data.find(type => type.attributes.path === path)
@@ -759,7 +759,9 @@ export default {
                       selected
                     }
                   }
-                })
+
+                  return null
+                }).filter(option => option !== null)
 
                 if (filterOptions.length > 0) {
                   const { id, attributes } = resource
@@ -774,7 +776,7 @@ export default {
                 }
               }
 
-              // ungrouped filter options
+              // Ungrouped filter options
               if (resourceIsFilterOption && filterOptionBelongsToFilterType) {
                 const { id, attributes } = resource
                 const { count, description, label, selected } = attributes
@@ -790,7 +792,7 @@ export default {
               }
             })
 
-            // needs to be added to ungroupedOptions
+            // Needs to be added to ungroupedOptions
             if (result.data[0].attributes.path === 'assignee') {
               ungroupedOptions.push({
                 id: 'unassigned',

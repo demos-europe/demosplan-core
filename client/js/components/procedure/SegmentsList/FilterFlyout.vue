@@ -143,7 +143,7 @@
           :highlight="appliedQuery.includes(item.id) === false"
           instance="itemsSelected"
           :option="item"
-          @change="updateQuery"/>
+          @change="updateQuery" />
       </ul>
       <div class="flow-root u-p-0_5 u-pt-0">
         <dp-button
@@ -164,13 +164,11 @@
 
 <script>
 import {
-  checkResponse,
   dataTableSearch,
   DpButton,
   DpFlyout,
   DpLoading,
   DpResettableInput,
-  dpRpc,
   hasOwnProp
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
@@ -258,7 +256,7 @@ export default {
       'getUngroupedOptionsByCategoryId'
     ]),
 
-    initialFlyoutFilterIds() {
+    initialFlyoutFilterIds () {
       return this.getInitialFlyoutFilterIdsByCategoryId(this.category.id)
     },
 
@@ -322,7 +320,6 @@ export default {
      * {Array of Objects} selected filterItems, same structure as items
      */
     itemsSelected () {
-      // const items = Object.values(this.itemsObject)
       const items = [
         ...this.ungroupedOptions,
         ...this.groupedOptions.flatMap(group => group.options)
@@ -355,7 +352,7 @@ export default {
      * @param {Array} oldIds - The old array of filter IDs.
      */
     initialFlyoutFilterIds: {
-      handler(newIds, oldIds) {
+      handler (newIds, oldIds) {
         if (JSON.stringify(newIds) !== JSON.stringify(oldIds)) {
           this.setCurrentQuery(newIds)
         }
@@ -395,9 +392,9 @@ export default {
     },
 
     /**
-     * - resets filter flyout search
-     * - resets filters that were selected but not applied
-     * - updates facets
+     * - Resets filter flyout search
+     * - Resets filters that were selected but not applied
+     * - Updates facets
      */
     handleClose () {
       this.setIsExpanded({ categoryId: this.category.id, isExpanded: false })
@@ -420,7 +417,7 @@ export default {
       this.$emit('filterOptions:request', {
         additionalQueryParams: this.additionalQueryParams,
         filter: this.getFilterQuery,
-        isInitialWithQuery: isInitialWithQuery,
+        isInitialWithQuery,
         path: this.path
       })
     },
@@ -441,7 +438,6 @@ export default {
       Object.values(this.filter).forEach(el => {
         const query = {}
         query[el.condition.value] = el
-        // this.updateFilterQuery(query)
         this.updateFilters(query)
       })
     },
