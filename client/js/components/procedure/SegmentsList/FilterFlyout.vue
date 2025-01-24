@@ -49,7 +49,7 @@
     ref="flyout"
     align="left"
     :data-cy="category.label"
-    mode="dark"
+    variant="dark"
     :padded="false"
     @close="handleClose"
     @open="handleOpen">
