@@ -92,6 +92,8 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
+use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
+use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
@@ -124,6 +126,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
+use Webmozart\Assert\Assert;
 use function array_key_exists;
 use function is_string;
 
@@ -233,16 +236,16 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         ServiceOutput $procedureOutput,
         private readonly SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
         private readonly SingleDocumentService $singleDocumentService,
-        StatementClusterService $statementClusterService,
-        StatementCopyAndMoveService $statementCopyAndMoveService,
-        StatementFragmentService $statementFragmentService,
-        StatementService $statementService,
-        TagService $tagService,
-        private readonly TranslatorInterface $translator,
-        UserService $userService,
-        private readonly StatementCopier $statementCopier,
-        private readonly ValidatorInterface $validator,
-        private readonly StatementDeleter $statementDeleter,
+        StatementClusterService                $statementClusterService,
+        StatementCopyAndMoveService            $statementCopyAndMoveService,
+        StatementFragmentService               $statementFragmentService,
+        StatementService                       $statementService,
+        TagService                             $tagService,
+        private readonly TranslatorInterface   $translator,
+        UserService                            $userService,
+        private readonly StatementCopier       $statementCopier,
+        private readonly ValidatorInterface    $validator,
+        private readonly StatementDeleter      $statementDeleter, private readonly TagRepository $tagRepository, private readonly TagTopicRepository $tagTopicRepository,
     ) {
         parent::__construct($messageBag);
         $this->assignService = $assignService;
@@ -2303,13 +2306,13 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             while ($records->valid()) {
                 $dataset = $records->current();
                 // Do not use line if all fields are empty
-                if (array_reduce($dataset, static fn ($carry, $item) => $carry && ('' == $item), true)) {
+                if (array_reduce($dataset, static fn ($carry, $item) => $carry && '' === $item, true)) {
                     continue;
                 }
                 $newTagData = [
                     'topic'          => $dataset[0] ?? '',
                     'tag'            => $dataset[1] ?? '',
-                    'useBoilerplate' => isset($dataset[2]) ? 'ja' === $dataset[2] : false,
+                    'useBoilerplate' => isset($dataset[2]) && 'ja' === $dataset[2],
                     'boilerplate'    => $dataset[3] ?? '',
                 ];
                 $newTags[] = $newTagData;
@@ -2329,16 +2332,23 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $currentTopicTitle = $tagData['topic'];
             $currentTagTitle = $tagData['tag'];
             // Create topic if not already present
-            if ($currentTopicTitle != $lastTopic) {
+            if ($currentTopicTitle !== $lastTopic) {
                 try {
+                    Assert::stringNotEmpty($currentTopicTitle);
+                    Assert::stringNotEmpty($currentTagTitle);
                     $topics[$currentTopicTitle] = $this->createTopic($currentTopicTitle, $procedureId);
-                    $lastTopic = $currentTopicTitle;
+                } catch (InvalidArgumentException) {
+                    $this->getMessageBag()->add('warning', 'tag.or.topic.name.empty.error');
+                    continue;
                 } catch (DuplicatedTagTopicTitleException) {
+                    $alreadyCreatedTopic = $this->tagTopicRepository->findOneByTitle($currentTopicTitle, $procedureId);
+                    Assert::notNull($alreadyCreatedTopic);
+                    $topics[$currentTopicTitle] = $alreadyCreatedTopic;
                     // better do not try to heal import as it may have unforeseen
                     // consequences?
                     $this->getMessageBag()->add('warning', 'topic.create.duplicated.title');
-                    continue;
                 }
+                $lastTopic = $currentTopicTitle;
             }
 
             // Create the tag
