@@ -222,6 +222,11 @@ const createCreatorMenu = (view, anchor, head) => {
     if (bubbleMenu) {
       bubbleMenu.destroy()
     }
+
+    // Matomo Tracking Event Tagging & Slicing
+    if (window._paq) {
+      _paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('tag.new')])
+    }
   })
 
   const bubbleMenu = tippy(view.dom, {
