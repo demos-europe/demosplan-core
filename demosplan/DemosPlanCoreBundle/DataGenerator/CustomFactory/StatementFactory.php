@@ -23,8 +23,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Exception\NotSupported;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Illuminate\Support\Collection;
@@ -69,7 +67,7 @@ class StatementFactory extends FactoryBase
         OrgaService $orgaService,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
-        private readonly UserService $userService
+        private readonly UserService $userService,
     ) {
         $this->orgaService = $orgaService;
         $this->procedureService = $procedureService;
