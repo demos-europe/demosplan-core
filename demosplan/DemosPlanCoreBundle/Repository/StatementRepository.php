@@ -80,7 +80,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         private readonly EventDispatcherInterface $eventDispatcher,
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
-        string $entityClass
+        string $entityClass,
     ) {
         parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
@@ -1791,7 +1791,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         Statement $originalToCopy,
         Procedure $targetProcedure,
         ?GdprConsent $gdprConsentToSet = null,
-        $internIdToSet = null
+        $internIdToSet = null,
     ): Statement {
         if (!$originalToCopy->isOriginal()) {
             throw new InvalidArgumentException('Given Statement is not an OriginalStatement.');
@@ -1986,7 +1986,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     /**
      * Returns only original statements and these whose related procedure is not deleted.
      *
-     * @return Statement[]
+     * @return array<int, array<string, mixed>>
      */
     public function getOriginalStatements(): array
     {
