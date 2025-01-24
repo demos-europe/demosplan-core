@@ -328,7 +328,15 @@ export default {
       this.$emit('abort')
     },
 
+    // Matomo Tracking Event Tagging & Slicing
+    clickTrackerSaveButton(){
+      if (window._paq) {
+        _paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('tags.select')])
+      }
+    },
+
     save () {
+      this.clickTrackerSaveButton()
       if (this.needsUpdate) {
         this.updateSegment()
       }
