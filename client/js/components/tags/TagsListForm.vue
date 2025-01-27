@@ -132,11 +132,6 @@ export default {
       },
       newTopic: {
         title: ''
-      },
-      // This is necessary to allow extending the Tags-Resource
-      tagAttributes: {
-        boilerplate: '',
-        title: ''
       }
     }
   },
@@ -227,9 +222,7 @@ export default {
           })
 
           this.$root.$emit('tag:created', newTagId)
-          // reset form data
           this.closeForm()
-          this.newTag = this.tagAttributes
         })
     },
 

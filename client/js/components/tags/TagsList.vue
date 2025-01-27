@@ -103,12 +103,7 @@ export default {
   data() {
     return {
       dataIsRequested: false,
-      isInEditState: '',
-      // This is necessary to allow extending the Tags-Resource
-      tagAttributes: {
-        boilerplate: '',
-        title: ''
-      }
+      isInEditState: ''
     }
   },
 
@@ -116,11 +111,6 @@ export default {
     ...mapState('TagTopic', {
       TagTopic: 'items'
     }),
-
-    tagAttributeKeys () {
-      return Object.keys(this.tagAttributes)
-    },
-
 
     transformedCategories () {
       return Object.values(this.TagTopic).map(category => {
@@ -181,7 +171,7 @@ export default {
 
       this.listTagTopics({
         fields: {
-          Tag: this.tagAttributeKeys.join(),
+          Tag: ['boilerplate', 'title'].join(),
           TagTopic: topicAttributes.join()
         },
         include: 'tags',
