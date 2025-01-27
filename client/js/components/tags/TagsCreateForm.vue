@@ -103,7 +103,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'TagsForm',
+  name: 'TagsCreateForm',
 
   components: {
     AddonWrapper,
