@@ -81,10 +81,12 @@ final class TagTopicResourceType extends DplanResourceType
             return [$this->conditionFactory->false()];
         }
 
-        return [$this->conditionFactory->propertyHasValue(
-            $procedure->getId(),
-            ['procedure', 'id']
-        )];
+        return [
+            $this->conditionFactory->propertyHasValue(
+                $procedure->getId(),
+                Paths::tagTopic()->procedure->id
+            ),
+        ];
     }
 
     public function isCreateAllowed(): bool
