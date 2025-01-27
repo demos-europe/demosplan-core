@@ -131,6 +131,20 @@ class RpcDeleteTags implements RpcMethodSolverInterface
                 $this->deleteTopicsByIds($wholeTopicIdsToDelete);
                 $resultResponse[] = $this->generateMethodSuccessResult($rpcRequest);
                 $this->messageBag->add('confirm', 'confirm.entries.deleted');
+            } catch (TagInUseException $e) {
+                if (self::TAG_TYPE === $itemType) {
+                    $tagName = $this->statementHandler->getTag($itemId ?? '')?->getName() ?? 'ERROR';
+                    $this->messageBag->add('warning', 'warning.tag.in.use', ['tagname' => $tagName]);
+                }
+                if (self::TAG_TOPIC_TYPE === $itemType) {
+                    $topicName = $this->tagService->getTopic($itemId ?? '')?->getTitle() ?? 'ERROR';
+                    $this->messageBag->add('warning', 'warning.topic.in.use', ['topicname' => $topicName]);
+                }
+                $this->logger->error(
+                    'An error occurred trying to delete Tag(s) and or Topic(s) via RpcDeleteTags',
+                    ['ExceptionMessage' => $e->getMessage(), 'Exception' => $e]
+                );
+                $resultResponse[] = $this->rpcErrorGenerator->internalError($rpcRequest);
             } catch (Exception $e) {
                 $this->messageBag->add('error', 'warning.tag.bulk.delete.generic.error');
                 $this->logger->error(
