@@ -2344,9 +2344,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     $alreadyCreatedTopic = $this->tagTopicRepository->findOneByTitle($currentTopicTitle, $procedureId);
                     Assert::notNull($alreadyCreatedTopic);
                     $topics[$currentTopicTitle] = $alreadyCreatedTopic;
-                    // better do not try to heal import as it may have unforeseen
-                    // consequences?
-                    $this->getMessageBag()->add('warning', 'topic.create.duplicated.title');
                 }
                 $lastTopic = $currentTopicTitle;
             }
