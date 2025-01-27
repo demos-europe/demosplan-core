@@ -2,7 +2,7 @@
   <div>
     <tags-list-header />
 
-    <tags-list-form :procedure-id="procedureId" />
+    <tags-form :procedure-id="procedureId" />
 
     <dp-tree-list
       class="mb-4"
@@ -70,10 +70,10 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import TagsForm from './TagsListForm.vue'
 import TagsImportForm from './TagsImportForm'
 import TagListBulkControls from './TagListBulkControls'
 import TagListEditForm from './TagListEditForm'
-import TagsListForm from './TagsListForm.vue'
 import TagsListHeader from './TagsListHeader'
 export default {
   name: 'TagsList',
@@ -86,11 +86,11 @@ export default {
     DpModal,
     DpUpload,
     DpTreeList,
+    TagsForm,
     TagsImportForm,
     TagListBulkControls,
     TagListEditForm,
-    TagsListHeader,
-    TagsListForm
+    TagsListHeader
   },
 
   props: {
