@@ -76,10 +76,10 @@
       class="mb-4"
       :tree-data="transformedCategories"
       :options="{
-        branchesSelectable: true,
+        branchesSelectable: false,
         dragAcrossBranches: true,
         dragLeaves: true,
-        leavesSelectable: true,
+        leavesSelectable: false,
         selectOn: {
           parentSelect: true,
           childDeselect: true
@@ -89,7 +89,7 @@
       @draggable:change="changeTopic">
       <template v-slot:header>
         <div class="flex">
-          <div class="flex-1">
+          <div class="ml-4 flex-1">
             {{ Translator.trans('topic.or.tag') }}
           </div>
           <div class="ml-1 flex-0 w-9">
