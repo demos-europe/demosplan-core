@@ -221,7 +221,7 @@ export default {
 
     topicsAsOptions () {
       return Object.values(this.TagTopic).map(category => {
-        const { attributes, id } = category
+        const { attributes, id } = { ...category }
 
         return {
           label: attributes.title,
@@ -232,7 +232,7 @@ export default {
 
     transformedCategories () {
       return Object.values(this.TagTopic).map(category => {
-        const { attributes, id, type } = category
+        const { attributes, id, relationships, type } = category
         const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
 
         return {
@@ -249,6 +249,7 @@ export default {
               type
             }
           }),
+          relationships,
           type
         }
       })
@@ -295,10 +296,11 @@ export default {
         return
       }
 
-      const newParent = !this.TagTopic[parentId].relationships.tags.data.find(tag => tag.id === elementId)
+      const hasNewParent = !this.TagTopic[parentId].relationships.tags.data.find(tag => tag.id === elementId)
 
-      if (newParent) {
+      if (hasNewParent) {
         const parentTopic = { ...this.TagTopic[parentId] }
+        const oldParent = Object.values(this.TagTopic).find(topic => topic.relationships.tags.data.find(tag => tag.id === elementId))
 
         // Add tag to new topic
         this.updateTagTopic({
@@ -307,16 +309,18 @@ export default {
           attributes: parentTopic.attributes,
           relationships: {
             tags: {
-              data: parentTopic.relationships.tags.data.concat({
-                id: elementId,
-                type: 'Tag'
-              })
+              data: [
+                ...parentTopic.relationships.tags.data,
+                {
+                  id: elementId,
+                  type: 'Tag'
+                }
+              ]
             }
           }
         })
 
         // remove Tag from old topic
-        const oldParent = Object.values(this.TagTopic).find(topic => topic.relationships.tags.data.find(tag => tag.id === elementId))
         const oldParentTags = [...oldParent.relationships?.tags?.data || []]
         const indexToBeRemoved = oldParentTags.findIndex(el => el.id === elementId)
         oldParentTags.splice(indexToBeRemoved, 1)
@@ -333,6 +337,7 @@ export default {
         })
 
         this.saveTagTopic(parentTopic.id)
+        this.saveTagTopic(oldParent.id)
           .then(payload => {
             console.log('tagtopic saved', payload)
           })
@@ -417,7 +422,6 @@ export default {
           return
         }
 
-        const parentTopic = this.TagTopic[this.newTag.topic]
         const newTagId = Object.keys(response.data.Tag)[0]
 
         this.updateTagTopic({
@@ -425,12 +429,14 @@ export default {
           type: 'TagTopic',
           attributes: parentTopic.attributes,
           relationships: {
-            ...parentTopic.relationships,
             tags: {
-              data: parentTopic.relationships.tags.data.concat({
-                type: 'Tag',
-                id: newTagId
-              })
+              data: [
+                ...topicRelations.tags.data,
+                {
+                  type: 'Tag',
+                  id: newTagId
+                }
+              ]
             }
           }
         })
