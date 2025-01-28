@@ -92,17 +92,22 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             ],
             errorCallbacks: [
               async (error) => {
-                const response = await error.json()
+                // If the response body is empty, contentType will be null
+                const contentType = success.headers.get('Content-Type')
 
-                const meta = response.data?.meta
-                  ? response.data.meta
-                  : response.meta || null
+                if (contentType && contentType.includes('application/json')) {
+                  const response = await error.json()
 
-                if (meta?.messages) {
-                  handleResponseMessages(meta)
+                  const meta = response.data?.meta
+                    ? response.data.meta
+                    : response.meta || null
+
+                  if (meta?.messages) {
+                    handleResponseMessages(meta)
+                  }
+
+                  return Promise.reject(response)
                 }
-
-                return Promise.reject(response)
               }
             ]
           }),
