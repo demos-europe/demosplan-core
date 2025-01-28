@@ -4028,19 +4028,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/core@npm:^4.3.1":
-  version: 4.3.1
-  resolution: "@uppy/core@npm:4.3.1"
+"@uppy/core@npm:^4.4.1":
+  version: 4.4.1
+  resolution: "@uppy/core@npm:4.4.1"
   dependencies:
     "@transloadit/prettier-bytes": "npm:^0.3.4"
-    "@uppy/store-default": "npm:^4.1.2"
-    "@uppy/utils": "npm:^6.0.6"
+    "@uppy/store-default": "npm:^4.2.0"
+    "@uppy/utils": "npm:^6.1.1"
     lodash: "npm:^4.17.21"
     mime-match: "npm:^1.0.2"
     namespace-emitter: "npm:^2.0.1"
-    nanoid: "npm:^5.0.0"
+    nanoid: "npm:^5.0.9"
     preact: "npm:^10.5.13"
-  checksum: 10c0/42a28098fc6da0b42a4c40babfe2ac207efeeb153f76226d579c30cd20f3595a7c15486a3cfcff8952ca30642748dff6972f1e5cb98e852ce255e9f444dcce31
+  checksum: 10c0/ac6ca55576c21c932d1c765fc64480e232428e377a9bbb217445c8e3c24b3cb906561d634d7a77bb04bf0cf163dc93954cafc3c8b0635b5361c0c0598546916d
   languageName: node
   linkType: hard
 
@@ -4099,10 +4099,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/store-default@npm:^4.1.2":
-  version: 4.1.2
-  resolution: "@uppy/store-default@npm:4.1.2"
-  checksum: 10c0/3705648e55d218743a11f510de8ba9afe7dd283eaa45bb8a3228de801a2cba7f3826ae48243e66e0e6f0eff5b74bf149a5e8d307a40a377d8e0a32fa14b24ef9
+"@uppy/store-default@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "@uppy/store-default@npm:4.2.0"
+  checksum: 10c0/b8107fc85ab6ec6ea212f107de20e577533fbc22f8db10d06dace147d09378d8b75741c626187d2c0249cc496fae650425457532ff8ed454ead5482a9f866c3e
   languageName: node
   linkType: hard
 
@@ -4126,16 +4126,6 @@ __metadata:
     lodash: "npm:^4.17.21"
     preact: "npm:^10.5.13"
   checksum: 10c0/857c8fa11814816f0a1d97ce78f86cac8c9f4e46267d2d64631f7cce8d3b8caf3796cccdd4cecdfe110862ebbed5a76896522a965f09b0940f0979b91f04c793
-  languageName: node
-  linkType: hard
-
-"@uppy/utils@npm:^6.0.6":
-  version: 6.0.6
-  resolution: "@uppy/utils@npm:6.0.6"
-  dependencies:
-    lodash: "npm:^4.17.21"
-    preact: "npm:^10.5.13"
-  checksum: 10c0/937d31918825c2569fdc3de95eb445b5d6d9d00676ce188c4f11c519f66a523ee790051b6a576f6bb34664de81d4e540a76ab4bb421929c145e97e36a09eaca7
   languageName: node
   linkType: hard
 
@@ -10909,12 +10899,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^5.0.0":
-  version: 5.0.7
-  resolution: "nanoid@npm:5.0.7"
+"nanoid@npm:^5.0.9":
+  version: 5.0.9
+  resolution: "nanoid@npm:5.0.9"
   bin:
     nanoid: bin/nanoid.js
-  checksum: 10c0/a3fb1c157e3e35378f44e5a7130c70f80c9037f66c9a37285e5e3d8298e8405fcb2399baaa420980b0fe5fd9c2e4186a6a31c3526f21de03cf34c1b459871401
+  checksum: 10c0/a2d9710525d4998a8a1610bbe6eb9a92c254ebab7c567c1ab429046fe7eed9c4df3508b59fb44c58ffdc98edb28dd6f953715c14b64ea0a3a2ce37420cdfeefd
   languageName: node
   linkType: hard
 
@@ -13336,7 +13326,7 @@ __metadata:
     "@sentry/browser": "npm:^8.51.0"
     "@sentry/integrations": "npm:^7.114.0"
     "@sentry/tracing": "npm:^7.120.3"
-    "@uppy/core": "npm:^4.3.1"
+    "@uppy/core": "npm:^4.4.1"
     "@uppy/drag-drop": "npm:^4.1.1"
     "@uppy/progress-bar": "npm:^4.2.1"
     "@vue/test-utils": "npm:^1.3.6"
