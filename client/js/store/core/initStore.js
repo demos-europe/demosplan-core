@@ -87,6 +87,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
 
                   return Promise.resolve(response)
                 }
+
                 return Promise.resolve(success)
               }
             ],
