@@ -91,4 +91,12 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
             }
         }
     }
+
+    public function __toString(): string
+    {
+        $parentString = parent::__toString();
+        return $parentString .
+            ', addressExtension: ' . $this->addressExtension .
+            ', city: ' . $this->city;
+    }
 }
