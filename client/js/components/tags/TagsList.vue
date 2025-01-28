@@ -5,7 +5,6 @@
     <dp-modal
       content-classes="w-2/3"
       ref="createTagModal"
-      aria-hidden="true"
       :aria-label="Translator.trans('tag.new.create')"
       aria-modal="true">
       <template v-slot:header>
@@ -42,7 +41,7 @@
       content-classes="w-2/3"
       ref="createTagTopicModal"
       aria-label="Create Topic"
-      aria-modal>
+      aria-modal="true">
       <template v-slot:header>
         {{ Translator.trans('topic.create') }}
       </template>
