@@ -68,7 +68,8 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             baseUrl,
             headers: {
               'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
-              'X-Demosplan-Procedure-Id': dplan.procedureId
+              'X-Demosplan-Procedure-Id': dplan.procedureId,
+              'X-CSRF-Token': dplan.csrfToken
             },
             successCallbacks: [
               async (success) => {
