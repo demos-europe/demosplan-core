@@ -18,10 +18,8 @@ use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
 
 /**
-* @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $email
- *
-*/
-
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $email
+ */
 class StatementVoteResourceConfigBuilder extends BaseStatementVoteResourceConfigBuilder
 {
 }

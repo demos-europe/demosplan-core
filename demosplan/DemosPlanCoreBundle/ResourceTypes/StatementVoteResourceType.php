@@ -11,11 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
-use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseStatementVoteResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementVoteResourceConfigBuilder;
-use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 
 final class StatementVoteResourceType extends DplanResourceType
@@ -29,12 +27,7 @@ final class StatementVoteResourceType extends DplanResourceType
             ->setReadableByPath()
             ->setAliasedPath(Paths::statementVote()->userMail);
 
-
-
-
-
         return $statementVoteResourceConfigBuilder;
-
     }
 
     public static function getName(): string
@@ -66,7 +59,4 @@ final class StatementVoteResourceType extends DplanResourceType
     {
         return true;
     }
-
-
-
 }
