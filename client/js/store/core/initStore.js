@@ -93,7 +93,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             errorCallbacks: [
               async (error) => {
                 // If the response body is empty, contentType will be null
-                const contentType = success.headers.get('Content-Type')
+                const contentType = error.headers.get('Content-Type')
 
                 if (contentType && contentType.includes('application/json')) {
                   const response = await error.json()
