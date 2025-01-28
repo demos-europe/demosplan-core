@@ -109,6 +109,8 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
 
                   return Promise.reject(response)
                 }
+
+                return Promise.reject(error)
               }
             ]
           }),
