@@ -129,10 +129,6 @@ export default {
       TagTopic: 'items'
     }),
 
-    tagAttributeKeys () {
-      return Object.keys(this.tagAttributes)
-    },
-
     topicsAsOptions () {
       return Object.values(this.TagTopic).map(category => {
         const { attributes, id } = { ...category }
