@@ -6,18 +6,25 @@
       :id="`edit-${type}-${nodeElement.id}`"
       class="flex-1"
       v-model="unsavedItem.title" />
-    <span
-      v-else
-      class="flex-1"
-      v-text="nodeElement.attributes.title" />
+    <template v-else>
+      <div
+        class="flex-1"
+        v-text="nodeElement.attributes.title" />
 
-    <addon-wrapper
-      hook-name="tag.edit.form"
-      :addon-props="{
-        tag: nodeElement
-      }" />
+      <div class="text-center w-9">
+        <dp-contextual-help
+          v-if="nodeElement.relationships?.boilerplate"
+          icon="file"
+          :text="nodeElement.relationships.boilerplate.attributes.title" />
+      </div>
 
-    <div class="flex-0 pl-2">
+      <addon-wrapper
+        hook-name="tag.edit.form"
+        :addon-props="{
+          tag: nodeElement
+        }" />
+    </template>
+    <div class="flex-0 pl-2 w-8">
       <template  v-if="isInEditState !== nodeElement.id">
         <button
           :aria-label="Translator.trans('item.edit')"
@@ -37,6 +44,19 @@
             icon="delete"
             aria-hidden="true" />
         </button>
+        <dp-flyout
+          v-if="nodeElement.type === 'Tag'"
+          data-cy="tagItem:flyoutEditMenu">
+          <a
+            :href="Routing.generate('DemosPlan_statement_administration_tag', {
+              tag: nodeElement.id,
+              procedure: procedureId
+            })"
+            data-cy="tag:editPage"
+            rel="noopener">
+            {{ Translator.trans('edit') }}
+          </a>
+        </dp-flyout>
       </template>
       <template v-else>
         <button
@@ -63,7 +83,12 @@
 </template>
 
 <script>
-import { DpIcon, DpInput } from '@demos-europe/demosplan-ui'
+import {
+  DpContextualHelp,
+  DpFlyout,
+  DpIcon,
+  DpInput
+} from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
@@ -71,6 +96,8 @@ export default {
 
   components: {
     AddonWrapper,
+    DpContextualHelp,
+    DpFlyout,
     DpIcon,
     DpInput
   },
@@ -83,6 +110,11 @@ export default {
 
     nodeElement: {
       type: Object,
+      required: true
+    },
+
+    procedureId: {
+      type: String,
       required: true
     },
 

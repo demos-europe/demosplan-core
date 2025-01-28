@@ -68,11 +68,18 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             baseUrl,
             headers: {
               'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
-              'X-Demosplan-Procedure-Id': dplan.procedureId
+              'X-Demosplan-Procedure-Id': dplan.procedureId,
+              'X-CSRF-Token': dplan.csrfToken
             },
             successCallbacks: [
               async (success) => {
-                const response = await success.json()
+                let response = success
+
+                try {
+                  response = await success.json()
+                } catch (e) {
+                  console.warn('Could not parse response. It was already parsed', e)
+                }
 
                 const meta = response.data?.meta
                   ? response.data.meta
@@ -85,8 +92,14 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
               }
             ],
             errorCallbacks: [
-              async (err) => {
-                const response = await err.json()
+              async (error) => {
+                let response = error
+
+                try {
+                  response = await error.json()
+                } catch (e) {
+                  console.warn('Could not parse response. It was already parsed', e)
+                }
 
                 const meta = response.data?.meta
                   ? response.data.meta

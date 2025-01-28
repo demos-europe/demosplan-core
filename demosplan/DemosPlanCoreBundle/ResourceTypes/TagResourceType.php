@@ -87,10 +87,12 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
             return [$this->conditionFactory->false()];
         }
 
-        return [$this->conditionFactory->propertyHasValue(
-            $procedure->getId(),
-            ['topic', 'procedure', 'id']
-        )];
+        return [
+            $this->conditionFactory->propertyHasValue(
+                $procedure->getId(),
+                Paths::tag()->topic->procedure->id
+            ),
+        ];
     }
 
     public function isCreateAllowed(): bool
@@ -162,7 +164,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
 
         $configBuilder->boilerplate
             ->setRelationshipType($this->resourceTypeStore->getBoilerplateResourceType())
-            ->setReadableByPath(DefaultField::YES, DefaultInclude::YES)->setSortable()->setFilterable();
+            ->setReadableByPath()->setSortable()->setFilterable();
 
         $configBuilder->addCreationBehavior(
             new FixedSetBehavior(

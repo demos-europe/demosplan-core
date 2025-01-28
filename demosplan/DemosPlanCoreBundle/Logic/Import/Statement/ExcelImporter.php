@@ -198,9 +198,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         unset($segmentsWorksheet);
 
-        // FIXME: This event has to be distaptched only when the field 'Schlagworte' does not exist. Have to check
-        // FIXME: that to make sure the event will be disptached only when it have to be.
-
+        // option for addons to process additional information of import file
         $event = $this->dispatcher->dispatch(
             new ExcelImporterHandleSegmentsEvent($segments),
             ExcelImporterHandleSegmentsEventInterface::class
@@ -281,6 +279,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             unset($segments[$statementId]);
         }
 
+        // option for addons to gather the persisted ids and core relations of imported segments
         $this->dispatcher->dispatch(
             new ExcelImporterPrePersistTagsEvent(segments: $result->getSegments()),
             ExcelImporterPrePersistTagsEventInterface::class

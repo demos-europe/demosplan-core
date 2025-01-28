@@ -81,10 +81,12 @@ final class TagTopicResourceType extends DplanResourceType
             return [$this->conditionFactory->false()];
         }
 
-        return [$this->conditionFactory->propertyHasValue(
-            $procedure->getId(),
-            ['procedure', 'id']
-        )];
+        return [
+            $this->conditionFactory->propertyHasValue(
+                $procedure->getId(),
+                Paths::tagTopic()->procedure->id
+            ),
+        ];
     }
 
     public function isCreateAllowed(): bool
@@ -127,7 +129,7 @@ final class TagTopicResourceType extends DplanResourceType
 
                         return [];
                     },
-                    OptionalField::NO
+                    OptionalField::YES
                 )
             );
         $configBuilder->addConstructorBehavior(
@@ -158,7 +160,7 @@ final class TagTopicResourceType extends DplanResourceType
             ->setReadableByPath()->setSortable()->setFilterable()->addPathCreationBehavior(OptionalField::YES)
             ->addUpdateBehavior(
                 CallbackToManyRelationshipSetBehavior::createFactory(
-                    function (TagTopic $tagTopic, ArrayCollection $tags): array {
+                    function (TagTopic $tagTopic, array $tags): array {
                         try {
                             Assert::same(
                                 $tagTopic->getProcedure()->getId(),

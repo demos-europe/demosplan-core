@@ -5,25 +5,33 @@
     <tags-create-form :procedure-id="procedureId" />
 
     <dp-tree-list
+      v-if="transformedCategories"
       class="mb-4"
       :tree-data="transformedCategories"
       :options="{
-        branchesSelectable: true,
-        leavesSelectable: true
+        branchesSelectable: false,
+        dragAcrossBranches: true,
+        dragLeaves: true,
+        leavesSelectable: false,
+        selectOn: {
+          parentSelect: true,
+          childDeselect: true
+        }
       }"
-      :branch-identifier="branchFunc()">
+      :branch-identifier="branchFunc()"
+      @draggable:change="changeTopic">
       <template v-slot:header>
         <div class="flex">
-          <div class="flex-1">
+          <div class="ml-4 flex-1">
             {{ Translator.trans('topic.or.tag') }}
           </div>
-          <div class="ml-1 flex-0">
+          <div class="ml-1 flex-0 w-9">
             {{ Translator.trans('boilerplates') }}
           </div>
 
           <addon-wrapper hook-name="tag.extend.form" />
 
-          <div class="ml-1 flex-0">
+          <div class="ml-1 flex-0 w-8 text-right">
             {{ Translator.trans('actions') }}
           </div>
         </div>
@@ -33,6 +41,7 @@
           class="font-bold"
           :node-element="nodeElement"
           :is-in-edit-state="isInEditState"
+          :procedure-id="procedureId"
           type="TagTopic"
           @abort="abort"
           @delete="deleteItem"
@@ -43,6 +52,7 @@
         <tag-list-edit-form
           :node-element="nodeElement"
           :is-in-edit-state="isInEditState"
+          :procedure-id="procedureId"
           type="Tag"
           @abort="abort"
           @delete="deleteItem"
@@ -50,6 +60,8 @@
           @save="save" />
       </template>
     </dp-tree-list>
+
+    <dp-loading v-else />
 
     <tags-import-form
       class="mb-1"
@@ -63,12 +75,13 @@ import {
   DpButton,
   DpIcon,
   DpInput,
+  DpLoading,
   DpModal,
   dpRpc,
   DpTreeList,
   DpUpload
 } from '@demos-europe/demosplan-ui'
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import TagsCreateForm from './TagsCreateForm'
 import TagsImportForm from './TagsImportForm'
@@ -83,6 +96,7 @@ export default {
     DpButton,
     DpIcon,
     DpInput,
+    DpLoading,
     DpModal,
     DpUpload,
     DpTreeList,
@@ -108,27 +122,48 @@ export default {
   },
 
   computed: {
+    ...mapState('Tag', {
+      Tag: 'items'
+    }),
     ...mapState('TagTopic', {
       TagTopic: 'items'
     }),
 
+    tagAttributeKeys () {
+      return Object.keys(this.tagAttributes)
+    },
+
+    topicsAsOptions () {
+      return Object.values(this.TagTopic).map(category => {
+        const { attributes, id } = { ...category }
+
+        return {
+          label: attributes.title,
+          value: id
+        }
+      })
+    },
+
     transformedCategories () {
       return Object.values(this.TagTopic).map(category => {
-        const { attributes, id, type } = category
+        const { attributes, id, relationships, type } = category
         const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
 
         return {
           id,
           attributes,
           children: Object.values(tags).map(tag => {
-            const { id, attributes, type } = tag
+            const { attributes, id, relationships, type } = tag
+            const boilerplate = relationships?.boilerplate?.get ? relationships.boilerplate.get() : null
 
             return {
               attributes,
               id,
+              relationships: { boilerplate },
               type
             }
           }),
+          relationships,
           type
         }
       })
@@ -136,8 +171,24 @@ export default {
   },
 
   methods: {
+    ...mapMutations('Tag', {
+      updateTag: 'setItem'
+    }),
+
+    ...mapMutations('TagTopic', {
+      updateTagTopic: 'setItem'
+    }),
+
+    ...mapActions('Tag', {
+      createTag: 'create',
+      listTags: 'list',
+      saveTag: 'save'
+    }),
+
     ...mapActions('TagTopic', {
-      listTagTopics: 'list'
+      createTagTopic: 'create',
+      listTagTopics: 'list',
+      saveTagTopic: 'save'
     }),
 
     abort () {
@@ -147,6 +198,65 @@ export default {
     branchFunc () {
       return function ({ node }) {
         return node.type === 'TagTopic'
+      }
+    },
+
+    changeTopic ({ elementId, parentId }) {
+      console.log('changeTopic', { elementId, parentId })
+
+      if (!parentId) {
+        console.error('No parentId provided:', { elementId, parentId })
+
+        return
+      }
+
+      const hasNewParent = !this.TagTopic[parentId].relationships.tags.data.find(tag => tag.id === elementId)
+
+      if (hasNewParent) {
+        const parentTopic = { ...this.TagTopic[parentId] }
+        const oldParent = Object.values(this.TagTopic).find(topic => topic.relationships.tags.data.find(tag => tag.id === elementId))
+
+        // Add tag to new topic
+        this.updateTagTopic({
+          id: parentTopic.id,
+          type: 'TagTopic',
+          attributes: parentTopic.attributes,
+          relationships: {
+            tags: {
+              data: [
+                ...parentTopic.relationships.tags.data,
+                {
+                  id: elementId,
+                  type: 'Tag'
+                }
+              ]
+            }
+          }
+        })
+
+        // remove Tag from old topic
+        const oldParentTags = [...oldParent.relationships?.tags?.data || []]
+        const indexToBeRemoved = oldParentTags.findIndex(el => el.id === elementId)
+        oldParentTags.splice(indexToBeRemoved, 1)
+
+        this.updateTagTopic({
+          id: oldParent.id,
+          attributes: oldParent.attributes,
+          type: 'TagTopic',
+          relationships: {
+            tags: {
+              data: oldParentTags
+            }
+          }
+        })
+
+        this.saveTagTopic(parentTopic.id)
+        this.saveTagTopic(oldParent.id)
+          .then(payload => {
+            console.log('tagtopic saved', payload)
+          })
+      } else {
+        dplan.notify.notify('warning', Translator.trans('tags.can.only.be.moved.to.topics'))
       }
     },
 
@@ -172,9 +282,12 @@ export default {
       this.listTagTopics({
         fields: {
           Tag: ['boilerplate', 'title'].join(),
-          TagTopic: topicAttributes.join()
+          TagTopic: topicAttributes.join(),
+          Boilerplate: [
+            'title'
+          ].join()
         },
-        include: 'tags',
+        include: 'tags,tags.boilerplate',
         sort: 'title'
       })
     },
@@ -183,6 +296,8 @@ export default {
       if (id === '') {
         return
       }
+
+      console.log('save', { id, attributes, type })
 
       this[`update${type}`]({
         attributes,
