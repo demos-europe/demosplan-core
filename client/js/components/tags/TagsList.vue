@@ -416,29 +416,32 @@ export default {
         }
       })
         .then(response => {
-        console.log(response, 'response new tag')
-        if (!response.data.Tag || !this.TagTopic[this.newTag.topic]) {
-          return
-        }
+          console.log(response, 'response new tag')
+          const parentTopic = this.TagTopic[this.newTag.topic]
 
-        const newTagId = Object.keys(response.data.Tag)[0]
-
-        this.updateTagTopic({
-          id: this.newTag.topic,
-          type: 'TagTopic',
-          attributes: parentTopic.attributes,
-          relationships: {
-            tags: {
-              data: [
-                ...topicRelations.tags.data,
-                {
-                  type: 'Tag',
-                  id: newTagId
-                }
-              ]
-            }
+          if (!response.data.Tag || !parentTopic) {
+            return
           }
-        })
+
+          const newTagId = Object.keys(response.data.Tag)[0]
+          const topicRelations = parentTopic.relationships
+
+          this.updateTagTopic({
+            id: this.newTag.topic,
+            type: 'TagTopic',
+            attributes: parentTopic.attributes,
+            relationships: {
+              tags: {
+                data: [
+                  ...topicRelations.tags.data,
+                  {
+                    type: 'Tag',
+                    id: newTagId
+                  }
+                ]
+              }
+            }
+          })
 
         this.$root.$emit('tag:created', newTagId)
         // Close Modal and Reset form data

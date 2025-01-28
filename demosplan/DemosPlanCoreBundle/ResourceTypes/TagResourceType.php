@@ -151,7 +151,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
 
         $configBuilder->topic
             ->setRelationshipType($this->resourceTypeStore->getTagTopicResourceType())
-            ->setReadableByPath(DefaultField::YES, DefaultInclude::YES)->setSortable()->setFilterable()->initializable();
+            ->setReadableByPath()->setSortable()->setFilterable()->initializable();
         $configBuilder->addConstructorBehavior(
             new FixedConstructorBehavior(
                 Paths::tag()->topic->getAsNamesInDotNotation(),
@@ -164,7 +164,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
 
         $configBuilder->boilerplate
             ->setRelationshipType($this->resourceTypeStore->getBoilerplateResourceType())
-            ->setReadableByPath(DefaultField::YES, DefaultInclude::YES)->setSortable()->setFilterable();
+            ->setReadableByPath()->setSortable()->setFilterable();
 
         $configBuilder->addCreationBehavior(
             new FixedSetBehavior(
