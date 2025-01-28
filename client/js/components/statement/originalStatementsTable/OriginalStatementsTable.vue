@@ -52,16 +52,22 @@
 
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page')"
+      :key="`pager1_${pagination.current_page}_${pagination.count}`"
       :class="{ 'invisible': isLoading }"
       class="u-pt-0_5 text-right u-1-of-1"
       :current-page="pagination.current_page"
+      :label-texts="{
+            multipleItems: Translator.trans('pager.amount.multiple.items'),
+            multipleLabel: Translator.trans('pager.amount.multiple.label',
+              {results: pagination.total, items: Translator.trans('pager.amount.multiple.items')}),
+            multipleOf: Translator.trans('pager.amount.multiple.of')
+          }"
+      :limits="pagination.limits"
       :total-pages="pagination.total_pages"
       :total-items="pagination.total"
       :per-page="pagination.count"
-      :limits="pagination.limits"
       @page-change="handlePageChange"
-      @size-change="handleSizeChange"
-      :key="`pager1_${pagination.current_page}_${pagination.count}`" />
+      @size-change="handleSizeChange"/>
 
     <export-modal
       v-if="hasPermission('feature_assessmenttable_export')"

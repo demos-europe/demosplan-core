@@ -11,10 +11,16 @@
     <template v-else>
       <dp-pager
         v-if="pagination.currentPage && originalStatements.length > 0"
+        :key="`pager1_${pagination.currentPage}_${pagination.perPage}`"
         :class="{ 'invisible': isLoading }"
         class="mt-4 mb-2"
         :current-page="pagination.currentPage"
-        :key="`pager1_${pagination.currentPage}_${pagination.perPage}`"
+        :label-texts="{
+            multipleItems: Translator.trans('pager.amount.multiple.items'),
+            multipleLabel: Translator.trans('pager.amount.multiple.label',
+              {results: pagination.total, items: Translator.trans('pager.amount.multiple.items')}),
+            multipleOf: Translator.trans('pager.amount.multiple.of')
+          }"
         :limits="pagination.limits"
         :per-page="pagination.perPage"
         :total-items="pagination.total"

@@ -76,9 +76,15 @@
         class="flex justify-between items-center mt-4">
         <dp-pager
           v-if="pagination.currentPage"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
-          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
+          :label-texts="{
+            multipleItems: Translator.trans('pager.amount.multiple.items'),
+            multipleLabel: Translator.trans('pager.amount.multiple.label',
+              {results: pagination.total, items: Translator.trans('pager.amount.multiple.items')}),
+            multipleOf: Translator.trans('pager.amount.multiple.of')
+          }"
           :limits="pagination.limits"
           :per-page="pagination.perPage"
           :total-pages="pagination.totalPages"

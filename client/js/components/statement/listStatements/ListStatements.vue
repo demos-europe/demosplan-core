@@ -55,15 +55,22 @@
         class="flex mt-2">
         <dp-pager
           v-if="pagination.currentPage"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
+          :label-texts="{
+            multipleItems: Translator.trans('pager.amount.multiple.items'),
+            multipleLabel: Translator.trans('pager.amount.multiple.label',
+              {results: pagination.total, items: Translator.trans('pager.amount.multiple.items')}),
+            multipleOf: Translator.trans('pager.amount.multiple.of')
+          }"
+          :limits="pagination.limits"
+          :per-page="pagination.perPage"
           :total-pages="pagination.totalPages"
           :total-items="pagination.total"
-          :per-page="pagination.perPage"
-          :limits="pagination.limits"
           @page-change="getItemsByPage"
           @size-change="handleSizeChange"
-          :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
+        />
         <div class="ml-auto flex items-center space-inline-xs">
           <label
             class="u-mb-0"
