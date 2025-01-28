@@ -18,7 +18,7 @@
           childDeselect: true
         }
       }"
-      :branch-identifier="branchFunc()"
+      :branch-identifier="isBranch"
       @draggable:change="changeTopic">
       <template v-slot:header>
         <div class="flex">
@@ -191,15 +191,28 @@ export default {
       this.isInEditState = ''
     },
 
-    branchFunc () {
-      return function ({ node }) {
-        return node.type === 'TagTopic'
-      }
+    addTagToNewTopic (parentTopic, tagId) {
+      this.updateTagTopic({
+        id: parentTopic.id,
+        type: 'TagTopic',
+        attributes: parentTopic.attributes,
+        relationships: {
+          tags: {
+            data: [
+              ...parentTopic.relationships.tags.data,
+              {
+                id: tagId,
+                type: 'Tag'
+              }
+            ]
+          }
+        }
+      })
+
+      this.saveTagTopic(parentTopic.id)
     },
 
     changeTopic ({ elementId, parentId }) {
-      console.log('changeTopic', { elementId, parentId })
-
       if (!parentId) {
         console.error('No parentId provided:', { elementId, parentId })
 
@@ -212,58 +225,23 @@ export default {
         const parentTopic = { ...this.TagTopic[parentId] }
         const oldParent = Object.values(this.TagTopic).find(topic => topic.relationships.tags.data.find(tag => tag.id === elementId))
 
-        // Add tag to new topic
-        this.updateTagTopic({
-          id: parentTopic.id,
-          type: 'TagTopic',
-          attributes: parentTopic.attributes,
-          relationships: {
-            tags: {
-              data: [
-                ...parentTopic.relationships.tags.data,
-                {
-                  id: elementId,
-                  type: 'Tag'
-                }
-              ]
-            }
-          }
-        })
-
-        // remove Tag from old topic
-        const oldParentTags = [...oldParent.relationships?.tags?.data || []]
-        const indexToBeRemoved = oldParentTags.findIndex(el => el.id === elementId)
-        oldParentTags.splice(indexToBeRemoved, 1)
-
-        this.updateTagTopic({
-          id: oldParent.id,
-          attributes: oldParent.attributes,
-          type: 'TagTopic',
-          relationships: {
-            tags: {
-              data: oldParentTags
-            }
-          }
-        })
-
-        this.saveTagTopic(parentTopic.id)
-        this.saveTagTopic(oldParent.id)
-          .then(payload => {
-            console.log('tagtopic saved', payload)
-          })
+        this.addTagToNewTopic(parentTopic, elementId)
+        this.removeTagFromOldTopic(oldParent, elementId)
       } else {
         dplan.notify.notify('warning', Translator.trans('tags.can.only.be.moved.to.topics'))
       }
     },
 
     deleteItem (item) {
-      console.log(item, 'rpc delete')
-
       dpRpc('bulk.delete.tags.and.topics', { ids: [item] })
         .then(checkResponse)
         .then(response => {
           console.log(response, 'response delete')
         })
+    },
+
+    isBranch ({ node }) {
+      return node.type === 'TagTopic'
     },
 
     loadTagsAndTopics () {
@@ -286,6 +264,25 @@ export default {
         include: 'tags,tags.boilerplate',
         sort: 'title'
       })
+    },
+
+    removeTagFromOldTopic (oldParent, tagId) {
+      const oldParentTags = [...oldParent.relationships?.tags?.data || []]
+      const indexToBeRemoved = oldParentTags.findIndex(el => el.id === tagId)
+      oldParentTags.splice(indexToBeRemoved, 1)
+
+      this.updateTagTopic({
+        id: oldParent.id,
+        attributes: oldParent.attributes,
+        type: 'TagTopic',
+        relationships: {
+          tags: {
+            data: oldParentTags
+          }
+        }
+      })
+
+      this.saveTagTopic(oldParent.id)
     },
 
     save ({ id, attributes, type }) {

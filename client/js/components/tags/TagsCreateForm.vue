@@ -20,7 +20,6 @@
         }"
         maxlength="250"
         required />
-
       <dp-select
         v-model="newTag.topic"
         class="mb-4"
@@ -30,13 +29,11 @@
         }"
         :options="topicsAsOptions"
         required />
-
       <addon-wrapper
         class="block mb-4"
         hook-name="tag.create.form"
         @input="updateForm"
         @change="updateForm" />
-
       <dp-button-row
         data-cy="tagsList:addNewTag"
         primary
