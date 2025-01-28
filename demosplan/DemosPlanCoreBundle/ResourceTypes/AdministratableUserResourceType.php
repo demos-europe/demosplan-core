@@ -150,7 +150,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder = $this->getConfig(UserResourceConfigBuilder::class);
 
         $configBuilder->id
-            ->setReadableByPath(DefaultField::YES)
+            ->setReadableByPath()
             ->setSortable()
             ->setFilterable();
 
