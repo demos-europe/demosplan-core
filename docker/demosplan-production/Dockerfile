@@ -111,7 +111,7 @@ RUN apt update -y && \
     apt --no-install-recommends install acl bind9-host ca-certificates curl gettext-base  \
     default-mysql-client php8.2 php8.2-apcu php8.2-bcmath php8.2-bz2 php8.2-cli  \
     php8.2-common php8.2-curl php8.2-fpm php8.2-gd php8.2-intl php8.2-mbstring php8.2-mysqli  \
-    php8.2-soap php8.2-sqlite3 php8.2-xml php8.2-zip unzip -y && \
+    php8.2-soap php8.2-sqlite3 php8.2-xml php8.2-zip unzip vim-tiny -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
