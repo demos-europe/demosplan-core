@@ -33,7 +33,7 @@ class SqlQueriesService extends CoreService
     public function deleteFromTableByIdentifierArray(string $tableName, string $identifier, array $ids, bool $isDryRun): void
     {
         if (!$this->doesTableExist($tableName)) {
-            echo "No table with the name $tableName exists in this database. Data could not be fetched.";
+            $this->logger->warning("No table with the name $tableName exists in this database. Data could not be fetched.");
 
             return;
         }
@@ -57,7 +57,7 @@ class SqlQueriesService extends CoreService
     public function fetchFromTableByParameter(array $targetColumns, string $tableName, string $identifier, array $parameter): array
     {
         if (!$this->doesTableExist($tableName)) {
-            echo "No table with the name $tableName exists in this database. Data could not be fetched. \n";
+            $this->logger->warning("No table with the name $tableName exists in this database. Data could not be fetched.");
 
             return [];
         }
@@ -78,7 +78,7 @@ class SqlQueriesService extends CoreService
     public function fetchFromTableByExcludedParameter(array $targetColumns, string $tableName, string $identifier, array $parameter): array
     {
         if (!$this->doesTableExist($tableName)) {
-            echo "No table with the name $tableName exists in this database. Data could not be fetched.";
+            $this->logger->warning("No table with the name $tableName exists in this database. Data could not be fetched.");
 
             return [];
         }

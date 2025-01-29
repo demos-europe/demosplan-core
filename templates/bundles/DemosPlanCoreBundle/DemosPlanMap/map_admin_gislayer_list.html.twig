@@ -10,7 +10,7 @@
 
     {% if hasPermission('feature_map_use_plan_draw_pdf') or hasPermission('feature_map_use_plan_pdf') or canEditMapHint %}
         <form
-            class="flow-root border--bottom u-pb-0_5 u-mb"
+            class="flow-root border--bottom pb-4 mb-4"
             name="planform"
             action="{{ path('DemosPlan_map_administration_gislayer',{'procedureId':procedure}) }}"
             method="post"
@@ -27,15 +27,15 @@
             {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {% if hasPermission('feature_map_use_plan_draw_pdf') or hasPermission('feature_map_use_plan_pdf') %}
-                <fieldset class="u-pb layout layout--flush" id="drawingData">
+                <fieldset class="pb-4 layout layout--flush" id="drawingData">
                     {% if hasPermission('feature_map_use_plan_draw_pdf') %}
                         {# upload pdf #}
-                        <div class="u-mb">
+                        <div class="mb-4">
                             {{ fileupload( "r_planDrawPDF", "drawing"|trans, null, null, null, true) }}
                         </div>
 
                         {% if templateVars.procedure.settings.planDrawPDF is defined and templateVars.procedure.settings.planDrawPDF != '' %}
-                            <div class="u-mb break-words">
+                            <div class="mb-4 break-words">
                                 <a
                                     class="o-hellip"
                                     target="_blank"
@@ -58,7 +58,7 @@
                         {{ fileupload( "r_planPDF", "drawing.explanation"|trans, null, null, null, true ) }}
 
                         {% if templateVars.procedure.settings.planDrawPDF is defined and templateVars.procedure.settings.planPDF != '' %}
-                            <div class="u-mb break-words">
+                            <div class="mb-3 mt-4 break-words">
                                 <a
                                     class="o-hellip"
                                     target="_blank"
@@ -85,7 +85,7 @@
                     </h3>
                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                         helpText: 'map.hint.edit.contextual.help'|trans,
-                        cssClasses:'float-right u-mt-0_5'
+                        cssClasses:'float-right mt-3'
                     } %}
                     <p class="lbl__hint">
                         {{ 'map.hint.edit.explanation'|trans }}
@@ -93,11 +93,19 @@
                     <p class="lbl__hint u-mb-0_75">
                         {{ 'map.hint.warning.tooshort'|trans({ minLength: 50, maxLength: 2000 }) }} {{ 'map.hint.set.to.default'|trans }}
                     </p>
-                    <textarea id="r_mapHint" name="r_mapHint" class="o-form__control-textarea u-p-0_5" required minlength="50" maxlength="2000">{{ templateVars.procedure.settings.mapHint|default(templateVars.procedure.procedureUiDefinition.mapHintDefault) }}</textarea>
+                    <textarea
+                        id="r_mapHint"
+                        name="r_mapHint"
+                        class="o-form__control-textarea u-p-0_5"
+                        data-cy="mapAdminGislayerList:mapHint"
+                        required minlength="50"
+                        maxlength="2000">
+                        {{ templateVars.procedure.settings.mapHint|default(templateVars.procedure.procedureUiDefinition.mapHintDefault) }}
+                    </textarea>
                 </fieldset>
             {% endif %}
 
-            <div class="text-right space-inline-s">
+            <div class="text-right space-x-2">
                 <input
                     class="btn btn--primary"
                     type="submit"
@@ -110,7 +118,13 @@
                     data-cy="saveAndReturn"
                     value="{{ "save.and.return.to.list"|trans }}">
                 {% if canEditMapHint %}
-                    <input class="btn btn--secondary" type="submit" data-skip-validation name="reset_map_hint" value="{{ "map.hint.use.default"|trans }}">
+                    <input
+                        class="btn btn--secondary"
+                        type="submit"
+                        data-cy="mapAdminGislayerList:mapHintUseDefault"
+                        data-skip-validation
+                        name="reset_map_hint"
+                        value="{{ "map.hint.use.default"|trans }}">
                 {% endif %}
             </div>
 
@@ -122,40 +136,10 @@
         <input type="hidden" name="manualsort" value="">
         {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
-        <fieldset class="layout--flush" id="gislayers">
-
-            <div class="layout__item u-1-of-4">
-                <legend>
-                    {{ "gislayer"|trans }}
-                </legend>
-
-            </div><!--
-         --><div class="layout__item u-3-of-4 text-right">
-
-                <dp-split-button>
-                    <a
-                        :class="{'has-dropdown':hasPermission('feature_map_category')}"
-                        class="btn btn--primary"
-                        data-cy="createNewGisLayer"
-                        href="{{ path('DemosPlan_map_administration_gislayer_new',{'procedure':procedure}) }}">
-                        {{ "gislayer.create"|trans }}
-                    </a><!--
-                 --><template
-                        v-slot:dropdown
-                        v-if="hasPermission('feature_map_category')">
-                        <a href="{{ path('DemosPlan_map_administration_gislayer_category_new',{'procedureId':procedure}) }}">
-                            {{ "maplayer.category.new"|trans }}
-                        </a>
-                    </template>
-                </dp-split-button>
-
-            </div>
-
-            <dp-admin-layer-list
-                class="w-full u-mt"
-                procedure-id="{{ templateVars.procedure.id|default('nö') }}"
-            ></dp-admin-layer-list>
-        </fieldset>
+        <admin-layer-list
+            class="w-full u-mt"
+            procedure-id="{{ templateVars.procedure.id|default('nö') }}">
+        </admin-layer-list>
     </form>
 
 {% endblock %}

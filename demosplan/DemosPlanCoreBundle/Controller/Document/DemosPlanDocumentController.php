@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Document;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ElementsAdminListSaveEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
@@ -52,8 +53,8 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use DirectoryIterator;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use Pagerfanta\Adapter\ArrayAdapter;
-use Patchwork\Utf8;
 use ReflectionException;
 use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -63,10 +64,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\UnicodeString;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use ZipArchive;
-use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
 
 use function array_key_exists;
@@ -81,8 +82,14 @@ use function set_time_limit;
  */
 class DemosPlanDocumentController extends BaseController
 {
-    public function __construct(private readonly ElementHandler $elementHandler, private readonly ElementsService $elementsService, private readonly FileService $fileService, private readonly PermissionsInterface $permissions, private readonly SingleDocumentService $singleDocumentService)
-    {
+    public function __construct(
+        private readonly ElementHandler $elementHandler,
+        private readonly ElementsService $elementsService,
+        private readonly FileService $fileService,
+        private readonly FilesystemOperator $defaultStorage,
+        private readonly PermissionsInterface $permissions,
+        private readonly SingleDocumentService $singleDocumentService,
+    ) {
     }
 
     /**
@@ -104,7 +111,7 @@ class DemosPlanDocumentController extends BaseController
         Request $request,
         ServiceImporter $serviceImporter,
         $procedure,
-        $elementId
+        $elementId,
     ) {
         $route = 'DemosPlan_elements_administration_edit';
 
@@ -178,7 +185,7 @@ class DemosPlanDocumentController extends BaseController
         ServiceImporter $serviceImporter,
         ElementHandler $elementHandler,
         string $procedure,
-        array $element
+        array $element,
     ) {
         try {
             $templateVars = [];
@@ -270,7 +277,7 @@ class DemosPlanDocumentController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         $procedure,
-        $documentID
+        $documentID,
     ) {
         // Storage und Output initialisieren
         $paragraphDocument = $paragraphService->getParaDocument($documentID);
@@ -370,7 +377,7 @@ class DemosPlanDocumentController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         $procedure,
-        $elementId
+        $elementId,
     ) {
         // get Element -> get Title
         $elementService = $this->elementsService;
@@ -457,7 +464,7 @@ class DemosPlanDocumentController extends BaseController
         TranslatorInterface $translator,
         $procedure,
         $elementId,
-        $category
+        $category,
     ) {
         $templateVars = [];
         $templateVars['procedure'] = $procedure;
@@ -531,7 +538,7 @@ class DemosPlanDocumentController extends BaseController
         SingleDocumentHandler $singleDocumentHandler,
         TranslatorInterface $translator,
         $procedure,
-        $documentID
+        $documentID,
     ) {
         $templateVars = [];
         $templateVars['procedure'] = $procedure;
@@ -625,8 +632,6 @@ class DemosPlanDocumentController extends BaseController
      *
      * @DplanPermissions("area_admin_single_document")
      *
-     * @param string $procedure
-     *
      * @return Response
      *
      * @throws Exception
@@ -636,22 +641,79 @@ class DemosPlanDocumentController extends BaseController
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
-        DocumentHandler $documentHandler,
-        ElementsService $elementsService,
         MapService $mapService,
         ProcedureHandler $procedureHandler,
         Request $request,
-        EventDispatcherInterface $eventDispatcher,
-        $procedure
-    ) {
-        $result = [];
+        string $procedure,
+        TranslatorInterface $translator)
+    {
         $templateVars = [];
         $session = $request->getSession();
-        // setze für den Import die Max_execution_time hoch
+        $title = $translator->trans('elements.dashboard');
+
+        $currentProcedureArray = $currentProcedureService->getProcedureArray();
+
+        /*
+         * Remove files from the session when import was cancelled
+         * @see DemosPlanDocumentController::importElementDirToArraySaveHashInSession
+         * */
+        if ($session->has('element_import_list')) {
+            $this->cleanElementImport($request, $currentProcedureArray['id'], $currentUser->getUser());
+        }
+
+        /**
+         * Collect errors, if any, produced during the saving of imported elements
+         * and store them in a variable to display in the UI.
+         *
+         * @see DemosPlanDocumentController::saveImportedElementsAdminAction
+         * */
+        $errorReports = $session->getFlashBag()->get('errorReports');
+        $templateVars['errorReport'] = [];
+
+        if ((is_countable($errorReports) ? count($errorReports) : 0) > 0) {
+            $templateVars['errorReport'] = $errorReports[0];
+        }
+
+        $templateVars['procedure'] = $procedureHandler->getProcedure($procedure);
+
+        $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp($title);
+        $mapOptions = $mapService->getMapOptions($procedure);
+        $templateVars['procedureDefaultInitialExtent'] = $mapOptions->getProcedureDefaultInitialExtent();
+
+        $procedureSettings = $currentProcedureArray['settings'];
+
+        return $this->renderTemplate(
+            '@DemosPlanCore/DemosPlanDocument/elements_admin_list.html.twig',
+            compact('templateVars', 'title', 'procedureSettings')
+        );
+    }
+
+    /**
+     * Save imported elements and redirect to route: @see elementAdminListAction.
+     *
+     * @DplanPermissions("area_admin_single_document")
+     *
+     * @return Response
+     *
+     * @throws Exception
+     */
+    #[Route(name: 'DemosPlan_save_imported_elements_administration', path: '/verfahren/{procedure}/verwalten/planunterlagen/import/speichern', options: ['expose' => true])]
+    public function saveImportedElementsAdminAction(
+        CurrentUserInterface $currentUser,
+        CurrentProcedureService $currentProcedureService,
+        DocumentHandler $documentHandler,
+        Request $request,
+        EventDispatcherInterface $eventDispatcher,
+        string $procedure)
+    {
+        $session = $request->getSession();
+
+        // Set the Max_execution_time for the import
         set_time_limit(3600);
 
         $currentProcedureArray = $currentProcedureService->getProcedureArray();
         $requestPost = $request->request->all();
+
         if ($request->isMethod('POST')) {
             // if you need the event, this method returns it :)
             $eventDispatcher->dispatch(
@@ -660,77 +722,19 @@ class DemosPlanDocumentController extends BaseController
             );
         }
 
-        // get title filter from configuration
-        $hideTitlesArray = $this->globalConfig->getAdminlistElementsHiddenByTitle();
-        // build criteria array by which elements are removed from the list of elements to display
-        $filterCriteria = [
-            'category' => ['map'], // elements must not be in the 'map' category
-            'title'    => $hideTitlesArray, // elements must not have one of the configured titles
-            'deleted'  => [true], // elements must not be deleted
-        ];
-
-        if (!empty($requestPost['action']) && 'importElements' === $requestPost['action']) {
-            $sessionElementImportList = $session->get('element_import_list');
-            $errorReport = $documentHandler->saveElementsFromImport(
-                $requestPost,
-                $session->get('sessionId'),
-                $sessionElementImportList,
-                $procedure,
-                $this->getElementImportDir($currentProcedureArray['id'], $currentUser->getUser())
-            );
-
-            // Redirect, damit die Dokumente nicht bei einem Reload neu geladen werden & die Dateien gleich mit angezeigt werden
-            $session->getFlashBag()->add('errorReports', $errorReport);
-
-            return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
-        }
-
-        // bereinige die Dateien nach einem Export oder einem Abbruch auf der Zwischenseite
-        if ($session->has('element_import_list')) {
-            $this->cleanElementImport($request, $currentProcedureArray['id'], $currentUser->getUser());
-        }
-
-        // Template Variable aus Storage Ergebnis erstellen(Output)
-        // die Rekursion der Elemente wird im Twig erledigt, hole nur top-level elements (Elements ohne parent) aus dem repository,
-        // jedoch ohne solche die eines der Kriterien aus $filterCriteria erfüllen, diese sollen momentan nicht im template angezeigt werden
-        $result['elementlist'] = $elementsService->getTopElementsByProcedureId(
+        $sessionElementImportList = $session->get('element_import_list');
+        $errorReport = $documentHandler->saveElementsFromImport(
+            $requestPost,
+            $session->get('sessionId'),
+            $sessionElementImportList,
             $procedure,
-            $filterCriteria,
-            true
+            $this->getElementImportDir($currentProcedureArray['id'], $currentUser->getUser())
         );
 
-        $templateVars['list'] = $result;
+        // Redirect so that the documents are not recharged with a reload and the files are displayed immediately
+        $session->getFlashBag()->add('errorReports', $errorReport);
 
-        $templateVars['procedure'] = $procedureHandler->getProcedure($procedure);
-
-        $errorReports = $session->getFlashBag()->get('errorReports');
-        $templateVars['errorReport'] = [];
-
-        if ((is_countable($errorReports) ? count($errorReports) : 0) > 0) {
-            $templateVars['errorReport'] = $errorReports[0];
-        }
-
-        $title = 'elements.dashboard';
-
-        // Füge die kontextuelle Hilfe dazu
-        $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp($title);
-        // @improve T14122
-        $mapOptions = $mapService->getMapOptions($procedure);
-        $templateVars['procedureDefaultInitialExtent'] = $mapOptions->getProcedureDefaultInitialExtent();
-
-        $procedureSettings = $currentProcedureArray['settings'];
-
-        // This redirect ensures that any messagesBag notifications created in events related to this action are
-        // properly transformed into FlashBag messages, since the method for that is called in the
-        // DemosPlanResponseListener, see bug T17790.
-        if (0 !== (is_countable($requestPost) ? count($requestPost) : 0)) {
-            return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
-        }
-
-        return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanDocument/elements_admin_list.html.twig',
-            compact('templateVars', 'procedure', 'title', 'procedureSettings')
-        );
+        return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
     }
 
     /**
@@ -748,7 +752,7 @@ class DemosPlanDocumentController extends BaseController
         Request $request,
         FileUploadService $fileUploadService,
         FileService $fileService,
-        string $procedureId
+        string $procedureId,
     ) {
         $templateVars = [];
         $session = $request->getSession();
@@ -785,9 +789,10 @@ class DemosPlanDocumentController extends BaseController
         }
 
         $extractDir = $this->getElementImportDir($procedureId, $currentUser->getUser());
-        $fn = $uploadedFileInfo->getAbsolutePath();
+        // zip file needs to be local to extract files. So move it to the import dir
+        $uploadedZipFileLocal = $fileService->ensureLocalFileFromHash($uploadedFileInfo->getHash());
         $zip = new ZipArchive();
-        $res = $zip->open($fn);
+        $res = $zip->open($uploadedZipFileLocal);
         $successFiles = 0;
         $folderCount = 0;
         if (true === $res) {
@@ -807,8 +812,8 @@ class DemosPlanDocumentController extends BaseController
                 $fileinfo = pathinfo($filenameOrig);
 
                 // T5659 only filter filenames for bad chars, do not translit
-                $filename = Utf8::filter($fileinfo['basename']);
-                $dirname = Utf8::filter($fileinfo['dirname']);
+                $filename = (new UnicodeString($fileinfo['basename']))->normalize()->toString();
+                $dirname = (new UnicodeString($fileinfo['dirname']))->normalize()->toString();
 
                 // T8843 zip-slip: check whether path is in valid location
                 $destination = $extractDir.'/'.$dirname;
@@ -843,6 +848,7 @@ class DemosPlanDocumentController extends BaseController
 
             // Lösche das hochgeladene Zipfile, es wird nicht mehr benötigt
             $fileService->deleteFile($uploadedFileInfo->getHash());
+            $fileService->deleteFile($uploadedZipFileLocal);
         } else {
             $this->logger->warning('Could not open Zip file. Reason: '.$res);
             $this->getMessageBag()->add('error', 'error.elementimport.cantopen');
@@ -883,7 +889,7 @@ class DemosPlanDocumentController extends BaseController
         $currentPage = $request->get('page', 1) > 0 ? $request->get('page', 1) : 1;
 
         try {
-            $documentlistPager->setMaxPerPage($request->get('r_limit', 3));
+            $documentlistPager->setMaxPerPage((int) $request->get('r_limit', 3));
             $documentlistPager->setCurrentPage($currentPage);
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not set paginate: ', [$e]);
@@ -956,6 +962,7 @@ class DemosPlanDocumentController extends BaseController
         $result = [];
 
         // Gehe rekursiv alle Verzeichnisse durch. Speichere Ordner als Elements, dateien als Files in den Elements
+        // at this point local files need to be used, no flysystem needed
         $iter = new DirectoryIterator($dir);
         foreach ($iter as $fileInfo) {
             if ($fileInfo->isDot()) {
@@ -975,21 +982,28 @@ class DemosPlanDocumentController extends BaseController
                         $session
                     ),
                 ];
+                $this->defaultStorage->createDirectory($fileInfo->getPathname());
             } else {
                 $hash = 'file_'.random_int(1, 99_999_999);
                 // T5659 only filter filenames, do not translit
-                $filename = Utf8::filter($fileInfo->getFilename());
+                $filename = (new UnicodeString($fileInfo->getFilename()))->normalize()->toString();
 
                 $result[] = [
                     'isDir' => false,
                     'title' => $filename,
                     'hash'  => $hash,
                 ];
+                $stream = fopen($fileInfo->getPathname(), 'rb+');
+                $this->defaultStorage->writeStream($fileInfo->getPathname(), $stream);
+                fclose($stream);
             }
             $sessionImportList = $session->get('element_import_list');
             $sessionImportList[$hash] = $fileInfo->getPathname();
             $session->set('element_import_list', $sessionImportList);
         }
+        $fs = new Filesystem();
+        $fs->remove($dir);
+
         // Sortiere die Elements natürlichsprachig
         usort($result, [DocumentHandler::class, 'sortElementsAlphabetically']);
 
@@ -1004,7 +1018,7 @@ class DemosPlanDocumentController extends BaseController
         try {
             $request->getSession()->remove('element_import_list');
             if (is_dir($this->getElementImportDir($procedureId, $user))) {
-                DemosPlanPath::recursiveRemovePath($this->getElementImportDir($procedureId, $user));
+                DemosPlanPath::recursiveRemoveLocalPath($this->getElementImportDir($procedureId, $user));
             }
         } catch (Exception) {
         }
@@ -1032,7 +1046,7 @@ class DemosPlanDocumentController extends BaseController
         TranslatorInterface $translator,
         EventDispatcherPostInterface $eventDispatcherPost,
         string $procedure,
-        string $elementId
+        string $elementId,
     ) {
         // Storage und Output initialisieren
         $elementService = $this->elementsService;
@@ -1183,7 +1197,7 @@ class DemosPlanDocumentController extends BaseController
         Request $request,
         ServiceOutput $serviceOutput,
         TranslatorInterface $translator,
-        $procedure
+        $procedure,
     ) {
         $title = 'element.admin.category.new';
         $inData = $this->prepareIncomingData($request, 'elementnew');
@@ -1209,8 +1223,8 @@ class DemosPlanDocumentController extends BaseController
                 $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.saved');
 
                 return $this->redirectToRoute('DemosPlan_elements_administration_edit', [
-                  'procedure' => $procedure,
-                  'elementId' => $storageResult['ident'],
+                    'procedure' => $procedure,
+                    'elementId' => $storageResult['ident'],
                 ]);
             }
         }
@@ -1233,9 +1247,9 @@ class DemosPlanDocumentController extends BaseController
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanDocument/elements_admin_edit.html.twig',
             [
-            'procedure'    => $procedure,
-            'templateVars' => $templateVars,
-            'title'        => $title,
+                'procedure'    => $procedure,
+                'templateVars' => $templateVars,
+                'title'        => $title,
             ]
         );
     }
@@ -1258,7 +1272,7 @@ class DemosPlanDocumentController extends BaseController
         ElementsService $elementsService,
         Request $request,
         $procedure,
-        $title
+        $title,
     ): Response {
         $elements = $elementsService->getEnabledFileAndParagraphElements(
             $procedure,
@@ -1309,7 +1323,7 @@ class DemosPlanDocumentController extends BaseController
         Request $request,
         $procedure,
         $elementId,
-        $category
+        $category,
     ) {
         // @improve T14613
         $procedureId = $procedure;
@@ -1494,9 +1508,10 @@ class DemosPlanDocumentController extends BaseController
         return $result;
     }
 
-    public function getElementImportDir(string $procedureId, User $user): string
+    public function getElementImportDir(string $procedureId, UserInterface $user): string
     {
-        $tmpDir = sys_get_temp_dir().'/'.$user->getId().'/'.$procedureId;
+        // import dir is used as real local file path but as well as path "name" in flysystem
+        $tmpDir = DemosPlanPath::getTemporaryPath($user->getId().'/'.$procedureId);
         if (!is_dir($tmpDir) && !mkdir($tmpDir, 0777, true) && !is_dir($tmpDir)) {
             throw new RuntimeException(sprintf('Directory "%s" was not created', $tmpDir));
         }
@@ -1511,12 +1526,10 @@ class DemosPlanDocumentController extends BaseController
      */
     protected function calculateImgSize(string $hash)
     {
-        $fileService = $this->fileService;
         try {
-            // @improve T14122
-            $fileInfo = $fileService->getFileInfo($hash);
-            if (is_file($fileInfo->getAbsolutePath())) {
-                $sizeArray = getimagesize($fileInfo->getAbsolutePath());
+            $fileInfo = $this->fileService->getFileInfo($hash);
+            if ($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+                $sizeArray = getimagesizefromstring($this->defaultStorage->read($fileInfo->getAbsolutePath()));
 
                 return [$sizeArray[0], $sizeArray[1]];
             }
@@ -1700,7 +1713,6 @@ class DemosPlanDocumentController extends BaseController
                         : $filesRequestInfo;
         $filesToZip = $this->validatefilesToZip($filesToZip, $procedureId);
         $fileInfo = [];
-        $fs = new Filesystem();
         foreach ($filesToZip as $fileRequestInfo) {
             $singleDocId = $fileRequestInfo['id'];
             $fileId = $fileService->getFileIdFromSingleDocumentId($singleDocId);
@@ -1711,7 +1723,7 @@ class DemosPlanDocumentController extends BaseController
             }
             $fileName = $fileEntity->getFilename();
             $fileFullPath = $fileEntity->getFilePathWithHash();
-            if (!$fs->exists($fileFullPath)) {
+            if (!$this->defaultStorage->fileExists($fileFullPath)) {
                 $this->getLogger()->warning('Could not find file to add to zip', [$fileEntity->getId()]);
                 continue;
             }
@@ -1793,17 +1805,16 @@ class DemosPlanDocumentController extends BaseController
             $filesInfo = $this->getFilesInfo($request, $procedureId);
 
             return new StreamedResponse(function () use ($filesInfo, $translator) {
-                $options = new Archive();
-
-                $options->setSendHttpHeaders(true);
-                $options->setContentType('application/zip');
-                $options->setContentDisposition('attachment');
-
-                $zip = new ZipStream($translator->trans('plandocument.zip.file.name'), $options);
+                $zip = new ZipStream(
+                    sendHttpHeaders: true,
+                    outputName: $translator->trans('plandocument.zip.file.name'),
+                    contentDisposition: 'attachment',
+                    contentType: 'application/zip'
+                );
                 foreach ($filesInfo as $fileInfo) {
                     try {
-                        $streamRead = fopen($fileInfo['fullPath'], 'rb');
-                        $zip->addFileFromStream(Utf8::toAscii($fileInfo['namedPath']), $streamRead);
+                        $streamRead = $this->defaultStorage->readStream($fileInfo['fullPath']);
+                        $zip->addFileFromStream((new UnicodeString($fileInfo['namedPath']))->ascii()->toString(), $streamRead);
                     } catch (Exception $e) {
                         $this->getLogger()->error($e->getMessage(), $e->getTrace());
                     }

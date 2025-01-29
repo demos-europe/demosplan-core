@@ -4,6 +4,7 @@
 
 {% block component_part %}
     {% apply spaceless -%}
+        <h1 class="sr-only">{{ "public.index.heading"|trans({ projectName: projectName }) }}</h1>
 
         {# onboarding / welcome panel #}
         {% block panel %}
@@ -27,7 +28,7 @@
                 3. planners do not see any filters, but procedures they can administer  #}
         {% block procedurelist_header %}
             {% if not hasPermission('area_admin_procedures') %}
-                <h2 class="{{ 'c-proceduresearch__heading o-page__padded layout__item u-1-of-1 text-center text-left-palm font-size-h2 u-m-0'|prefixClass }}">
+                <h2 class="{{ 'c-proceduresearch__heading o-page__padded layout__item u-1-of-1 text-left sm:text-center font-size-h2 u-m-0'|prefixClass }}">
                     <span class="{{ 'border--bottom u-pv-0_75 u-ph block'|prefixClass }}">
                         {% if templateVars.useInternalFields == true %}
                             {{ "search.procedures.yours"|trans }}
@@ -37,7 +38,7 @@
                     </span>
                 </h2>
             {% else %}
-                <h2 class="{{ 'c-proceduresearch__heading o-page__padded layout__item u-1-of-1 text-center text-left-palm font-size-h2 u-m-0'|prefixClass }}">
+                <h2 class="{{ 'c-proceduresearch__heading o-page__padded layout__item u-1-of-1 text-left sm:text-center font-size-h2 u-m-0'|prefixClass }}">
                     <span class="{{ 'border--bottom u-pv-0_75 u-ph block'|prefixClass }}">
                         {{ "procedures.yours"|trans }}
                     </span>

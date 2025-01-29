@@ -136,7 +136,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @throws Exception
      */
-    public function getFullList(?bool $master = null, bool $idsOnly = false): array
+    public function getFullList(?bool $master = null, bool $idsOnly = false, ?Customer $customer = null): array
     {
         try {
             $em = $this->getEntityManager();
@@ -150,6 +150,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->orderBy('o.name', 'asc')
                 ->andWhere('p.deleted = :deleted')
                 ->setParameter('deleted', false);
+
+            if (null !== $customer) {
+                $queryBuilder->andWhere('p.customer = :customer')->setParameter('customer', $customer);
+            }
 
             if (!is_null($master)) {
                 $queryBuilder->andWhere('p.master = :master')
@@ -279,6 +283,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             // this kind of denylisting should be avoided by do not using "clone"
             // instead copy each attribute which has to be copied (allowlisting)
             $procedure->clearExportFieldsConfiguration();
+            $procedure->clearProcedureTypeDefinitions();
             // this will be filled later
 
             $this->validateProcedureLike($procedure);
@@ -797,6 +802,12 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             if (array_key_exists('pictogram', $data['settings'])) {
                 $procedureSettings->setPictogram($data['settings']['pictogram']);
             }
+            if (array_key_exists('pictogramCopyright', $data['settings'])) {
+                $procedureSettings->setPictogramCopyright($data['settings']['pictogramCopyright']);
+            }
+            if (array_key_exists('pictogramAltText', $data['settings'])) {
+                $procedureSettings->setPictogramAltText($data['settings']['pictogramAltText']);
+            }
             if (array_key_exists('planningArea', $data['settings'])) {
                 $procedureSettings->setPlanningArea($data['settings']['planningArea']);
             }
@@ -1233,22 +1244,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $this->getLogger()->warning('getListOfEndedYesterday failed Reason: ', [$e]);
             throw $e;
         }
-    }
-
-    public function getNumberOfProcedures(): int
-    {
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $queryResult = $qb
-            ->select('procedure.id')
-            ->from(Procedure::class, 'procedure')
-            ->andWhere('procedure.deleted = :deleted')
-            ->andWhere('procedure.master = :master')
-            ->setParameter('deleted', false)
-            ->setParameter('master', false)
-            ->getQuery()
-            ->getResult();
-
-        return is_countable($queryResult) ? count($queryResult) : 0;
     }
 
     /**

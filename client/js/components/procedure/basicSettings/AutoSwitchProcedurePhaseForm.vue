@@ -64,10 +64,7 @@
             enforce-plausible-dates
             :min-date="startDate"
             required
-            :data-cy="{
-                endDate: dataCyEndDate,
-                startDate: dataCyStartDate
-            }"
+            :data-cy="dataCyPhasePeriod"
             start-disabled
             :start-id="startDateId"
             :start-name="startDateId"
@@ -80,7 +77,7 @@
           mode="out-in">
           <dp-inline-notification
             v-if="showAutoSwitchToAnalysisHint"
-            class="u-mb-0"
+            class="mt-3 mb-0"
             :message="Translator.trans('period.autoswitch.hint', { phase: Translator.trans(isInternal ? 'procedure.phases.internal.analysis' : 'procedure.phases.external.evaluating')})"
             type="warning" />
         </transition>
@@ -88,7 +85,7 @@
 
       <dp-inline-notification
         v-if="hasPermission('feature_auto_switch_to_procedure_end_phase') && isParticipationPhaseSelected"
-        class="u-mb-0"
+        class="mt-3 mb-0"
         :message="Translator.trans('period.autoswitch.hint', { phase: Translator.trans(isInternal ? 'procedure.phases.internal.analysis' : 'procedure.phases.external.evaluating')})"
         type="warning" />
     </transition>
@@ -121,21 +118,15 @@ export default {
   },
 
   props: {
-    availablePhases: {
+    availableProcedurePhases: {
       type: Object,
       default: () => ({})
     },
 
-    dataCyEndDate: {
+    dataCyPhasePeriod: {
       type: String,
       required: false,
-      default: 'endDate'
-    },
-
-    dataCyStartDate: {
-      type: String,
-      required: false,
-      default: 'startDate'
+      default: ''
     },
 
     /**
@@ -199,7 +190,7 @@ export default {
      * @return {boolean}
      */
     isParticipationPhaseSelected () {
-      return Object.values(this.availablePhases)
+      return Object.values(this.availableProcedurePhases)
         .filter(phase => phase.permission === 'write')
         .map(phase => phase.value)
         .includes(this.selectedCurrentPhase)
@@ -210,7 +201,7 @@ export default {
     },
 
     phaseOptions () {
-      return Object.values(this.availablePhases).filter(phase => phase.value !== this.selectedCurrentPhase)
+      return Object.values(this.availableProcedurePhases).filter(phase => phase.value !== this.selectedCurrentPhase)
     },
 
     phaseSelectId () {
@@ -218,7 +209,9 @@ export default {
     },
 
     showAutoSwitchToAnalysisHint () {
-      return hasPermission('feature_auto_switch_to_procedure_end_phase') && this.autoSwitchPhase && ['participation', 'earlyparticipation', 'anotherparticipation'].includes(this.selectedPhase)
+      const isInParticipation = this.phaseOptions.find(option => option.value === this.selectedPhase)?.permission === 'write'
+
+      return hasPermission('feature_auto_switch_to_procedure_end_phase') && this.autoSwitchPhase && isInParticipation
     },
 
     startDateId () {

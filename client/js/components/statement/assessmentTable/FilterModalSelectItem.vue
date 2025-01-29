@@ -156,7 +156,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('filter', {
+    ...mapGetters('Filter', {
       // Available options for current filter
       getFilterOptionsByFilter: 'filterOptionsByFilter',
       // Selected options for current filter
@@ -164,7 +164,7 @@ export default {
       optionsForFilterHash: 'allSelectedFilterOptionsWithFilterName'
     }),
 
-    ...mapState('filter', [
+    ...mapState('Filter', [
       'original',
       'procedureId',
       'selectedOptions'
@@ -190,11 +190,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('filter', [
+    ...mapActions('Filter', [
       'getFilterOptionsAction'
     ]),
 
-    ...mapMutations('filter', [
+    ...mapMutations('Filter', [
       'sortFilterOptions',
       'updateSelectedOptions'
     ]),
@@ -217,7 +217,7 @@ export default {
       window.updateFilterHash(this.procedureId, optionsForFilterHash)
         .then((filterHash) => {
           // Get filter options for current filter
-          this.getFilterOptionsAction({ filterHash: filterHash, filterId: this.filterItem.id })
+          this.getFilterOptionsAction({ filterHash, filterId: this.filterItem.id })
             .then(() => {
               this.availableOptions = this.getFilterOptionsByFilter(this.filterItem.id)
               if (this.isInitialLoad) {
@@ -295,7 +295,7 @@ export default {
 
     toggleSorting (id) {
       // Sort options in store
-      this.sortFilterOptions({ id: id, sortingType: this.sortingType })
+      this.sortFilterOptions({ id, sortingType: this.sortingType })
       // Get sorted options from store
       this.availableOptions = this.getFilterOptionsByFilter(this.filterItem.id)
       this.sortingType = this.sortingType === 'count' ? 'alphabetic' : 'count'

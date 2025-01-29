@@ -31,7 +31,7 @@
 
         {# Styles. Leave in header until critical css is in place. #}
         {% block stylesheets %}
-            {{ webpackBundles(['demosplan-ui.css', 'style.css']) }}
+            {{ webpackBundles(['preflight.css', 'style.css', 'demosplan-ui.css']) }}
         {% endblock stylesheets %}
 
         {% block component_header %}
@@ -41,7 +41,7 @@
         {% include '@DemosPlanCore/DemosPlanCore/includes/base_js_class.html.twig' %}
 
         {# Prevent "flash of unstyled content" revealing vue inline templates being revealed before all css has loaded #}
-        <style>
+        <style nonce="{{ csp_nonce('style') }}">
             [v-cloak] {
                 display: none;
             }
@@ -57,7 +57,7 @@
             {% block a11y_jump_navigation %}
                 {# @improve T17928 investigate focus vs. visibility  #}
                 <nav class="c-jumpnav" aria-labelledby="jumpToLabel" tabindex="-1" role="navigation">
-                    <span class="hide-visually" id="jumpToLabel" aria-hidden="true">{{ "jumpTo"|trans }}</span>
+                    <span class="sr-only" id="jumpToLabel" aria-hidden="true">{{ "jumpTo"|trans }}</span>
                     <ul class="u-m-0 u-p-0">
                         <li>
                             <a href="#jumpNavigation">{{ 'jumpTo.mainNavigation'|trans }}</a>
@@ -151,12 +151,14 @@
                                 data-sticky="lap-up"
                                 data-sticky-context="mainContent">
                                 <button
+                                    data-cy="sideMenuButton"
                                     data-toggle-sidebar-menu-trigger
                                     type="button"
                                     class="o-link--default btn--blank whitespace-nowrap u-mv-0_25">
                                     <i
                                         aria-hidden="true"
-                                        class="fa fa-chevron-right"></i>
+                                        class="fa fa-chevron-right"
+                                        data-cy="sideMenuButtonIcon"></i>
                                     {{ 'menu'|trans }}
                                 </button>
                                 <div

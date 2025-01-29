@@ -198,6 +198,16 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     protected $pictogram;
 
     /**
+     * @ORM\Column(name="_ps_pictogram_copyright", type="string", nullable=false, length=512, options={"default":""})
+     */
+    protected string $pictogramCopyright = '';
+
+    /**
+     * @ORM\Column(name="_ps_pictogram_alt_text", type="string", nullable=false, length=512, options={"default":""})
+     */
+    protected string $pictogramAltText = '';
+
+    /**
      * @var bool
      *
      * @ORM\Column(name="_ps_send_mails_to_counties", type="boolean", nullable=false, options={"default":false})
@@ -806,6 +816,30 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
         return $this->pictogram;
     }
 
+    public function setPictogramCopyright(string $pictogramCopyright): ProcedureSettingsInterface
+    {
+        $this->pictogramCopyright = $pictogramCopyright;
+
+        return $this;
+    }
+
+    public function getPictogramCopyright(): string
+    {
+        return $this->pictogramCopyright;
+    }
+
+    public function setPictogramAltText(string $pictogramAltText): ProcedureSettingsInterface
+    {
+        $this->pictogramAltText = $pictogramAltText;
+
+        return $this;
+    }
+
+    public function getPictogramAltText(): string
+    {
+        return $this->pictogramAltText;
+    }
+
     /**
      * Returns the internal phase to which will be switch, when the time(dateOfSwitchPhase) has come.
      *
@@ -841,7 +875,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     /**
      * @param string $designatedPublicPhase
      */
-    public function setDesignatedPublicPhase($designatedPublicPhase)
+    public function setDesignatedPublicPhase($designatedPublicPhase): self
     {
         $this->procedure->getPublicParticipationPhaseObject()->setDesignatedPhase($designatedPublicPhase);
 

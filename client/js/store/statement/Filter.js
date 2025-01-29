@@ -11,9 +11,9 @@ import { del, set } from 'vue'
 import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const Filter = {
-
   namespaced: true,
-  name: 'filter',
+
+  name: 'Filter',
 
   state: {
     appliedOptions: [],
@@ -298,15 +298,20 @@ const Filter = {
     /**
      * Get UserFilterSets for current procedure
      */
-    getUserFilterSetsAction ({ commit, state }) {
-      return dpApi({
-        method: 'GET',
-        url: Routing.generate('api_resource_list', { resourceType: 'UserFilterSet' })
-      }).then(this.api.checkResponse)
-        .then(data => {
-          commit('updateUserFilterSets', data)
-        }).catch(() => {
-          console.error('filter.saveFilterSet.load.error')
+    getUserFilterSetsAction ({ commit }) {
+      const url = Routing.generate('api_resource_list', { resourceType: 'UserFilterSet' })
+      const params = {
+        include: 'filterSet',
+        fields: {
+          UserFilterSet: ['filterSet', 'name'].join(),
+          FilterSet: ['hash', 'name'].join()
+        }
+      }
+      return dpApi.get(url, params)
+        .then(this.api.checkResponse)
+        .then(data => commit('updateUserFilterSets', data))
+        .catch((err) => {
+          console.error('filter.saveFilterSet.load.error', err)
         })
     },
 

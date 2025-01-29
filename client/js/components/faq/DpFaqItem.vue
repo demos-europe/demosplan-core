@@ -41,28 +41,31 @@
  --><div class="layout__item u-2-of-12 text-center u-pv-0_25">
       <dp-toggle
         v-model="itemEnabled"
-        class="u-mt-0_125" />
+        class="u-mt-0_125"
+        data-cy="enabledFaqItem" />
     </div><!--
- --><div class="layout__item u-2-of-12 text-center u-pv-0_25">
-      <a
-        class="btn--blank o-link--default u-mh-0_25"
-        :href="Routing.generate('DemosPlan_faq_administration_faq_edit', {faqID: this.faqItem.id})"
-        :aria-label="Translator.trans('item.edit')"
-        data-cy="editElement">
-        <i
-          class="fa fa-pencil"
-          aria-hidden="true" />
-      </a>
-      <button
-        type="button"
-        @click="deleteFaqItem"
-        data-cy="deleteFaqItem"
-        :aria-label="Translator.trans('item.delete')"
-        class="btn--blank o-link--default u-mh-0_25">
-        <i
-          class="fa fa-trash"
-          aria-hidden="true" />
-      </button>
+ --><div class="layout__item u-2-of-12 text-center py-1">
+      <div class="flex flex-col sm:flex-row justify-center">
+        <a
+          class="btn--blank o-link--default"
+          :href="Routing.generate('DemosPlan_faq_administration_faq_edit', {faqID: this.faqItem.id})"
+          :aria-label="Translator.trans('item.edit')"
+          data-cy="editFaqItem">
+          <i
+            class="fa fa-pencil"
+            aria-hidden="true" />
+        </a>
+        <button
+          type="button"
+          @click="deleteFaqItem"
+          data-cy="deleteFaqItem"
+          :aria-label="Translator.trans('item.delete')"
+          class="btn--blank o-link--default sm:ml-2">
+          <i
+            class="fa fa-trash"
+            aria-hidden="true" />
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -113,10 +116,10 @@ export default {
   },
 
   computed: {
-    ...mapState('faq', {
+    ...mapState('Faq', {
       faqItems: 'items'
     }),
-    ...mapState('faqCategory', {
+    ...mapState('FaqCategory', {
       faqCategories: 'items'
     }),
 
@@ -185,14 +188,14 @@ export default {
   },
 
   methods: {
-    ...mapActions('faq', {
+    ...mapActions('Faq', {
       deleteFaq: 'delete',
       saveFaq: 'save'
     }),
-    ...mapMutations('faq', {
+    ...mapMutations('Faq', {
       updateFaq: 'setItem'
     }),
-    ...mapMutations('faqCategory', {
+    ...mapMutations('FaqCategory', {
       updateCategory: 'setItem'
     }),
 

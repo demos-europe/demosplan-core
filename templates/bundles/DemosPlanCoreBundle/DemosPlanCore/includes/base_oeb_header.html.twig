@@ -24,6 +24,7 @@
                     <div class="c-actionmenu c-header__switcher-menu" data-actionmenu>
                         <button
                             class="c-actionmenu__trigger c-actionmenu__trigger--padded btn--blank"
+                            data-cy="baseHeader:projectSwitcher"
                             type="button"
                             aria-haspopup="true"
                             aria-expanded="false"
@@ -38,6 +39,7 @@
                                         class="c-actionmenu__menuitem whitespace-normal"
                                         data-actionmenu-menuitem
                                         data-actionmenu-current
+                                        :data-cy="`baseHeader:platformSwitcher:{{ loop.index }}`"
                                         aria-disabled="true"
                                         aria-label="{{ project.ariaName }}"
                                         role="menuitem"
@@ -46,6 +48,7 @@
                                     <a
                                         href="{{ project.url }}"
                                         data-actionmenu-menuitem
+                                        :data-cy="`baseHeader:platformSwitcher:{{ loop.index }}`"
                                         class="c-actionmenu__menuitem whitespace-normal"
                                         aria-label="{{ project.ariaName }}"
                                         role="menuitem">{{ project.name|wysiwyg }}</a>
@@ -177,7 +180,7 @@
                     {% endif %}
                 {% endblock header_userbox %}
 
-                <div id="currentPageDescription" class="hide-visually">
+                <div id="currentPageDescription" class="sr-only">
                     {{ 'menu.currentPage'|trans }}
                 </div>
 

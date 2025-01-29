@@ -37,7 +37,7 @@
       :max-extent="procedureMapSettings.attributes.defaultMapExtent"
       :procedure-id="procedureId"
       :procedure-coordinates="procedureMapSettings.attributes.coordinate"
-      :procedure-init-territory="procedureMapSettings.attributes.territory"
+      :procedure-init-territory="Array.isArray(procedureMapSettings.attributes.territory) ? {} : procedureMapSettings.attributes.territory"
       :scales="procedureMapSettings.attributes.availableScales"
       @field:update="setField" />
 
@@ -50,10 +50,11 @@
         @suitableScalesChange="value => areScalesSuitable = value" />
 
       <dp-input
-        v-if="!procedureMapSettings.attributes.featureInfoUrl.global && hasPermission('feature_map_feature_info')"
+        v-if="!procedureMapSettings.attributes.useGlobalInformationUrl && hasPermission('feature_map_feature_info')"
         v-model="procedureMapSettings.attributes.informationUrl"
         id="informationURL"
         class="u-mb"
+        data-cy="map:informationUrl"
         :label="{
           text: Translator.trans('url.information'),
           hint: Translator.trans('url.information.hint', { buttonlabel: 'map.getfeatureinfo.label' })
@@ -64,6 +65,7 @@
         id="copyright"
         v-model="procedureMapSettings.attributes.copyright"
         class="u-mb"
+        data-cy="map:mapCopyright"
         :label="{
           text: Translator.trans('map.attribution'),
           hint: Translator.trans('map.attribution.placeholder')
@@ -82,35 +84,42 @@
       }" />
 
     <div class="layout__item u-1-of-1 text-right u-mt-0_5 space-inline-s">
-      <input
-        class="btn btn--primary"
+      <dp-button
+        data-cy="save"
         :disabled="!areScalesSuitable"
-        type="submit"
         name="saveConfig"
-        :value="Translator.trans('save')"
-        @click="() => save()">
-      <input
-        v-if="hasPermission('area_admin_single_document')"
-        class="btn btn--primary"
-        :disabled="!areScalesSuitable"
+        :text="Translator.trans('save')"
         type="submit"
+        @click="() => save()" />
+      <dp-button
+        v-if="hasPermission('area_admin_single_document')"
+        data-cy="saveAndReturn"
+        :disabled="!areScalesSuitable"
         name="submit_item_return_button"
-        :value="Translator.trans('save.and.return.to.list')"
-        @click="() => save(true)">
-      <a
-        class="btn btn--secondary"
-        :href="Routing.generate('DemosPlan_element_administration', { procedure: procedureId })">
-        {{ Translator.trans('abort') }}
-      </a>
+        :text="Translator.trans('save.and.return.to.list')"
+        type="submit"
+        @click="() => save(true)" />
+      <dp-button
+        v-if="hasPermission('area_admin_single_document')"
+        color="secondary"
+        data-cy="abort"
+        :href="Routing.generate('DemosPlan_element_administration', { procedure: procedureId })"
+        :text="Translator.trans('abort')" />
+      <dp-button
+        v-else
+        color="secondary"
+        data-cy="reset"
+        :text="Translator.trans('reset')"
+        @click="reset" />
     </div>
   </div>
 </template>
 <script>
-import { checkResponse, dpApi, DpCheckbox, DpInput } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButton, DpCheckbox, DpInput } from '@demos-europe/demosplan-ui'
+import { mapActions, mapState } from 'vuex'
 import { Attribution } from 'ol/control'
 import convertExtentToObject from '../map/utils/convertExtentToObject'
 import { fromExtent } from 'ol/geom/Polygon'
-import { mapActions } from 'vuex'
 import MapAdminScales from './MapAdminScales'
 import MapView from '@DpJs/components/map/map/MapView'
 
@@ -118,6 +127,7 @@ export default {
   name: 'MapAdmin',
 
   components: {
+    DpButton,
     DpCheckbox,
     DpInput,
     MapAdminScales,
@@ -125,15 +135,15 @@ export default {
   },
 
   props: {
+    isMaster: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     procedureId: {
       type: String,
       required: true
-    }
-  },
-
-  provide () {
-    return {
-      olMapState: this.olMapState
     }
   },
 
@@ -151,13 +161,13 @@ export default {
       },
       procedureMapSettings: {
         id: '',
-        type: 'ProcecdureMapSetting',
+        type: 'ProcedureMapSetting',
         attributes: {
           coordinate: [],
           copyright: '',
           defaultMapExtent: [],
           defaultBoundingBox: [],
-          featureInfoUrl: { global: false },
+          useGlobalInformationUrl: false,
           informationUrl: '',
           showOnlyOverlayCategory: false,
           mapExtent: [],
@@ -170,6 +180,10 @@ export default {
   },
 
   computed: {
+    ...mapState('ProcedureMapSettings', {
+      originalProcedureMapSettings: 'procedureMapSettings'
+    }),
+
     attributionControl () {
       return new Attribution({ collapsible: false })
     },
@@ -221,6 +235,10 @@ export default {
 
   methods: {
     ...mapActions('ProcedureMapSettings', ['fetchProcedureMapSettings']),
+
+    reset () {
+      this.procedureMapSettings = this.originalProcedureMapSettings
+    },
 
     save (returnToOverview = false) {
       const url = Routing.generate('api_resource_update', { resourceType: 'ProcedureMapSetting', resourceId: this.procedureMapSettings.id })
@@ -282,7 +300,7 @@ export default {
   },
 
   async mounted () {
-    const settings = await this.fetchProcedureMapSettings(this.procedureId)
+    const settings = await this.fetchProcedureMapSettings({ procedureId: this.procedureId, isMaster: this.isMaster })
     this.procedureMapSettings = JSON.parse(JSON.stringify(settings))
   }
 }

@@ -50,6 +50,8 @@ use EDT\PathBuilding\End;
  * @property-read End $url
  * @property-read End $treeOrder
  * @property-read End $categoryId
+ * @property-read GisLayerCategoryResourceType $category
+ * @property-read GisLayerCategoryResourceType $parentCategory
  * @property-read End $canUserToggleVisibility
  * @property-read End $userToggleVisibility
  * @property-read End $visibilityGroupId
@@ -84,19 +86,44 @@ final class GisLayerResourceType extends DplanResourceType
         return true;
     }
 
+    public function isDeleteAllowed(): bool
+    {
+        return $this->hasManagementPermission();
+    }
+
     public function isGetAllowed(): bool
     {
-        return false;
+        return $this->hasManagementPermission();
     }
 
     public function isListAllowed(): bool
     {
-        return false;
+        return $this->hasManagementPermission();
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        return $this->hasManagementPermission();
+    }
+
+    protected function hasManagementPermission(): bool
+    {
+        return $this->currentUser->hasPermission('area_map_participation_area');
     }
 
     protected function getAccessConditions(): array
     {
-        return [];
+        $currentProcedure = $this->currentProcedureService->getProcedure();
+        if (null === $currentProcedure) {
+            return [$this->conditionFactory->false()];
+        }
+
+        $procedureId = $currentProcedure->getId();
+
+        return [
+            $this->conditionFactory->propertyHasValue($procedureId, Paths::gisLayer()->category->procedure->id),
+            $this->conditionFactory->propertyHasValue(false, Paths::gisLayer()->category->procedure->deleted),
+        ];
     }
 
     protected function getProperties(): array
@@ -110,7 +137,7 @@ final class GisLayerResourceType extends DplanResourceType
             $this->createAttribute($this->procedureId)->readable(true),
             $this->createAttribute($this->layerType)->readable(true)->aliasedPath(Paths::gisLayer()->type),
             $this->createAttribute($this->tileMatrixSet)->readable(true),
-            $this->createAttribute($this->treeOrder)->readable(true),
+            $this->createAttribute($this->treeOrder)->updatable()->readable(true),
             $this->createAttribute($this->projectionValue)->readable(true),
             $this->createAttribute($this->projectionLabel)->readable(true),
             $this->createIdentifier()
@@ -120,6 +147,7 @@ final class GisLayerResourceType extends DplanResourceType
             $this->createAttribute($this->globalLayerId)
                 ->readable(true)->aliasedPath($this->gId),
             $this->createAttribute($this->hasDefaultVisibility)
+                ->updatable()
                 ->readable(true)->aliasedPath($this->defaultVisibility),
             $this->createAttribute($this->isBplan)
                 ->readable(true)->aliasedPath($this->bplan),
@@ -130,12 +158,13 @@ final class GisLayerResourceType extends DplanResourceType
             $this->createAttribute($this->isXplan)
                 ->readable(true)->aliasedPath($this->xplan),
             $this->createAttribute($this->mapOrder)
+                ->updatable()
                 ->readable(true)->aliasedPath($this->order),
             $this->createAttribute($this->canUserToggleVisibility)
                 ->readable(true)->aliasedPath($this->userToggleVisibility),
             $this->createAttribute($this->isScope)
                 ->readable(true)->aliasedPath($this->scope),
-            $this->createAttribute($this->isMinimap)
+            $this->createAttribute($this->isMinimap)->updatable()
                 ->readable(true)->aliasedPath($this->isMiniMap),
             // Keep this as a default include because these relationships are included in
             // GisLayerCategories and available filters are not usable for nested resources yet.
@@ -149,7 +178,14 @@ final class GisLayerResourceType extends DplanResourceType
                 ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getUrl()),
             $this->createAttribute($this->categoryId)
                 ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getCategoryId()),
+            $this->createToOneRelationship($this->parentCategory)
+                ->updatable()
+                ->readable(true)
+                ->sortable()
+                ->filterable()
+                ->aliasedPath($this->category),
             $this->createAttribute($this->visibilityGroupId)
+                ->updatable()
                 ->readable(true, static fn (GisLayer $gisLayer): string => $gisLayer->getVisibilityGroupId() ?? ''),
         ];
 

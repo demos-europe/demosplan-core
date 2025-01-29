@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DpProcedureCoordinateInput should match the snapshot 1`] = `
+"<div class="block u-mb-0_5 u-pv-0_5 border--top flow-root"><label for="customLatitude" class="inline-block u-m-0">
+    coordinate.right.value
+  </label> <input type="text" pattern="[0-9]*[.|,]?[0-9]+" required="required" id="customLatitude" class="c-ol-map__select w-9 u-mr"> <label for="customLongitude" class="inline-block u-m-0">
+    coordinate.top.value
+  </label> <input type="text" pattern="[0-9]*[.|,]?[0-9]+" required="required" id="customLongitude" class="c-ol-map__select w-9 u-mr"> <button disabled="disabled" class="btn btn--primary float-right">
+    coordinate.location.submite
+  </button></div>"
+`;

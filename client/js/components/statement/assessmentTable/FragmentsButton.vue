@@ -69,11 +69,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters('fragment', ['fragmentsByStatement']),
+    ...mapGetters('Fragment', ['fragmentsByStatement']),
 
     assessmentBaseLoaded () {
-      if (hasOwnProp(this.$store.state, 'assessmentTable')) {
-        return this.$store.state.assessmentTable.assessmentBaseLoaded
+      if (hasOwnProp(this.$store.state, 'AssessmentTable')) {
+        return this.$store.state.AssessmentTable.assessmentBaseLoaded
       }
       return true
     },
@@ -81,10 +81,10 @@ export default {
     showFragmentsCount () { return (this.statementFragmentsTotal !== '0') },
 
     filteredFragmentsLength () {
-      if (!this.$store.state.fragment.fragments[this.statementId]) {
+      if (!this.$store.state.Fragment.fragments[this.statementId]) {
         return this.statementFragmentsLength
-      } else if (this.$store.state.fragment.fragments[this.statementId] && this.$store.state.fragment.fragments[this.statementId].filteredFragments) {
-        return this.$store.state.fragment.fragments[this.statementId].filteredFragments.length
+      } else if (this.$store.state.Fragment.fragments[this.statementId] && this.$store.state.Fragment.fragments[this.statementId].filteredFragments) {
+        return this.$store.state.Fragment.fragments[this.statementId].filteredFragments.length
       } else {
         return 0
       }
@@ -98,7 +98,7 @@ export default {
        *  and the event becomes the first argument (when called from actionmenu)
        */
       statementId = typeof statementId === 'object' ? false : statementId
-      if (!this.$store.state.fragment.fragments[this.statementId]) {
+      if (!this.$store.state.Fragment.fragments[this.statementId]) {
         // Load statements only if the button is clicked for the first time, because then they are stored in fragment store
         this.$root.$emit('fragments:load', statementId)
       }

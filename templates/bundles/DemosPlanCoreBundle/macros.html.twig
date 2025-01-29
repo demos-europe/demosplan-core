@@ -25,7 +25,7 @@
         {% if templateVars.pager is defined and templateVars.pager.count is defined and templateVars.pager.limits is defined and
             templateVars.pager.count > templateVars.pager.limits|default([])|first %}
 
-            {# Pager Dropdown #}
+{#             Pager Dropdown #}
             <div class="{{ 'c-pager__dropdown u-mb-0_5-palm'|prefixClass(omitPrefix) }}">
 
                 <label
@@ -57,35 +57,28 @@
             {# Pager Links #}
             {% if templateVars.pager.haveToPaginate == true %}
 
-                {% set prev_message %}
-                    <span class="{{ 'show-lap-up-i'|prefixClass(omitPrefix) }}">{{ 'pager.previous'|trans }}</span>
-                    <span class="{{ 'hide-lap-up-i'|prefixClass(omitPrefix) }}">
-                        <i title="{{ 'pager.previous'|trans }}" class="{{ 'fa fa-angle-left'|prefixClass(omitPrefix) }}" aria-hidden="true"></i>
-                    </span>
-                {% endset %}
+                {% set prev_message = '<span class="' ~ 'show-lap-up-i'|prefixClass(omitPrefix) ~ '">' ~ 'pager.previous'|trans ~ '</span>'
+                    ~ '<span class="' ~ 'hide-lap-up-i'|prefixClass(omitPrefix) ~ '">'
+                    ~ '<i title="' ~ 'pager.previous'|trans ~ '" class="' ~ 'fa fa-angle-left'|prefixClass(omitPrefix) ~ '" aria-hidden="true"></i>'
+                    ~ '</span>' %}
 
-                {% set next_message %}
-                    <span class="{{ 'show-lap-up-i'|prefixClass(omitPrefix) }}">{{ 'pager.next'|trans }}</span>
-                    <span class="{{ 'hide-lap-up-i'|prefixClass(omitPrefix) }}">
-                        <i title="{{ 'pager.next'|trans }}" class="{{ 'fa fa-angle-right'|prefixClass(omitPrefix) }}" aria-hidden="true"></i>
-                    </span>
-                {% endset %}
+                {% set next_message = '<span class="' ~ 'show-lap-up-i'|prefixClass(omitPrefix) ~ '">' ~ 'pager.next'|trans ~ '</span>'
+                    ~ '<span class="' ~ 'hide-lap-up-i'|prefixClass(omitPrefix) ~ '">'
+                    ~ '<i title="' ~ 'pager.next'|trans ~ '" class="' ~ 'fa fa-angle-right'|prefixClass(omitPrefix) ~ '" aria-hidden="true"></i>'
+                    ~ '</span>' %}
 
-                {{
-                pagerfanta( templateVars.pager, 'default', {
+                {{ pagerfanta(templateVars.pager, 'default', {
                     prev_message: prev_message,
                     next_message: next_message,
                     container_template: '<nav class="' ~ 'u-ml-lap-up inline-block'|prefixClass(omitPrefix) ~ '" role="navigation" aria-label="'
                     ~ ( label_first == true ? 'pager.label.first'|trans : 'pager.label.last'|trans )
-                    ~ '" data-pager-nav><ul class="' ~ 'c-pager__page-list'|prefixClass(omitPrefix) ~ '">%pages%</ul></nav>',
+                    ~ '" data-pager-nav><ul class="' ~ 'c-pager__page-list'|prefixClass(omitPrefix) ~ '">%%pages%%</ul></nav>',
                     page_template: '<li class="' ~ 'c-pager__page-item'|prefixClass(omitPrefix) ~ '"><a href="%href%" aria-label="'
                     ~ 'pager.goto.page'|trans
                     ~ '">%text%</a></li>',
                     span_template: '<li class="' ~ 'c-pager__page-item %class%'|prefixClass(omitPrefix) ~ '">%text%</li>',
                     routeParams: {'r_limit': templateVars.limitResults|default(25), '_fragment': urlFragment}
-                } )
-                }}
-
+                } ) }}
             {% endif %}
 
         {% else %}

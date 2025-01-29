@@ -184,6 +184,7 @@ parameters:
     email_test_from: "testMailSender@localhost.de"
     email_test_to: "testMailReceiver@localhost.de"
     email_system: "systememail@localhost.de"
+    procedure_metrics_receiver: "%env(string:PROCEDURE_METRICS_MAIL)%"
     email_bounce_check: false
     # #refactor: path and file could be used as one
     email_bouncefile_path: ""
@@ -310,21 +311,9 @@ parameters:
     # LocationUpdateService::repopulateDatabase()
     use_opengeodb: true
 
-    # SAML-related settings. These are set in config files in project folder
-    # this is just an example to document the keys
-    saml_baseurl: 'http://localhost/'
-    saml_idp_entityid: 'id'
-    saml_idp_slo_url: 'http://localhost/'
-    saml_idp_sso_url: 'http://localhost/'
-    saml_idp_x509_string: 'secretString'
-    saml_sp_acs_url: 'http://localhost/'
-    saml_sp_entityid: 'id'
-    saml_sp_sls_url: 'http://localhost/'
-    saml_sp_x509_private_string: 'secretString'
-    saml_sp_x509_string: 'secretString'
-    saml_registration_url: 'http://localhost/'
-
     # knpu_oauth2_client settings
+    # oath client referenced by knpu_oauth2_client when oauth is used
+    oauth_client: ''
     oauth_keycloak_client_id: ''
     oauth_keycloak_client_secret: ''
     oauth_keycloak_auth_server_url: ''
@@ -375,6 +364,7 @@ parameters:
     demosplan_csp_script_src:
         - 'self'
         - 'unsafe-eval' # vue.js needs it if templates are not precompiled
+        - 'strict-dynamic' # Trust scripts added by a trusted script
     demosplan_csp_style_src:
         - 'unsafe-inline'
         - 'self'

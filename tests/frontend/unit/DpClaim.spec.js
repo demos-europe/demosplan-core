@@ -12,14 +12,6 @@ import DpClaim from '@DpJs/components/statement/DpClaim'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('DpClaim', () => {
-  it('should be an object', () => {
-    expect(typeof DpClaim).toBe('object')
-  })
-
-  it('should be named DpClaim', () => {
-    expect(DpClaim.name).toBe('DpClaim')
-  })
-
   it('should return the correct icons and text for fragments-claim-states', async () => {
     const localVue = createLocalVue()
 

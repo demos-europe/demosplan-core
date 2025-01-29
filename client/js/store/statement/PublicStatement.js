@@ -57,7 +57,7 @@ const statementStructure = {
 const PublicStatementStore = {
   namespaced: true,
 
-  name: 'publicStatement',
+  name: 'PublicStatement',
 
   state: {
     activeActionBoxTab: 'talk',

@@ -20,11 +20,12 @@ use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface;
 use demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\RouterInterface;
 use Tests\Base\FunctionalTestCase;
 
@@ -51,6 +52,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         $this->sut = new ServiceImporter(
             self::$container->get(DocxImporterInterface::class),
             self::$container->get(FileService::class),
+            $this->createMock(FilesystemOperator::class),
             self::$container->get(GlobalConfigInterface::class),
             self::$container->get(LoggerInterface::class),
             self::$container->get(MessageBagInterface::class),
@@ -62,15 +64,24 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         );
     }
 
-    public function testAllowedFileUploadFail()
+    public function testAllowedFileUploadFail(): void
     {
         $this->expectException(FileException::class);
 
-        $file = new UploadedFile(__DIR__.'/res/db_2Ebenen_wenigeDateien.zip', 'db_2Ebenen_wenigeDateien.zip');
-        $this->sut->checkFileIsValidToImport($file, []);
+        $fileInfo = new FileInfo(
+            hash: 'someHash',
+            fileName: 'myFile.zip',
+            fileSize: 12345,
+            contentType: 'not/allowed',
+            path: '/path/to/file',
+            absolutePath: '/path/to/file',
+            procedure: null
+        );
+
+        $this->sut->checkFileIsValidToImport($fileInfo);
     }
 
-    public function testParagraphImportCreateParagraphs()
+    public function testParagraphImportCreateParagraphs(): void
     {
         $procedureId = $this->fixtures->getReference('testProcedure')->getId();
         $elementId = $this->fixtures->getReference('testElement1')->getId();
@@ -327,5 +338,36 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         static::assertEquals($procedureParagraphsAfter[3]['id'], $procedureParagraphsAfter[4]['parent']->getId());
         static::assertNotNull($procedureParagraphsAfter[6]['parent']);
         static::assertEquals($procedureParagraphsAfter[5]['id'], $procedureParagraphsAfter[6]['parent']->getId());
+    }
+
+    public function testParagraphImportCreateParagraphsWithPicture(): void
+    {
+        $procedureId = $this->fixtures->getReference('testProcedure')->getId();
+        $elementId = $this->fixtures->getReference('testElement1')->getId();
+        $paragraphs = [
+            [
+                'text'         => "<p>Standard Absatztext</p><p><img src='/file/khaeti4c3lmqpjfnqtped251ka' width='0' height='0'>nochmal</p><p><img src='/file/ha3qod8qfr0s413ghve7vqqeqi' width='0' height='0'></p>",
+                'title'        => 'Meine Überschrift',
+                'files'        => [
+                    ['##khaeti4c3lmqpjfnqtped251ka' => 'khaeti4c3lmqpjfnqtped251ka.png::iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4//8/AAX+Av4N70a4AAAAAElFTkSuQmCC'],
+                    ['##ha3qod8qfr0s413ghve7vqqeqi' => 'ha3qod8qfr0s413ghve7vqqeqi.png::iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNgYGAAAAAEAAH2FzhVAAAAAElFTkSuQmCC'],
+                ],
+                'nestingLevel' => 0,
+            ],
+        ];
+
+        $importResult = [
+            'procedure'  => $procedureId,
+            'elementId'  => $elementId,
+            'category'   => 'paragraph',
+            'paragraphs' => $paragraphs,
+        ];
+        $paragraphService = static::getContainer()->get(ParagraphService::class);
+        $this->sut->createParagraphsFromImportResult($importResult, $procedureId);
+
+        $procedureParagraphsAfter = $paragraphService->getParaDocumentObjectList($procedureId, $elementId);
+        // check only for the width and height as the hash always differs
+        $expectedPart = '/file/procedure1slug';
+        static::assertStringContainsString($expectedPart, $procedureParagraphsAfter[count($procedureParagraphsAfter) - 1]->getText());
     }
 }

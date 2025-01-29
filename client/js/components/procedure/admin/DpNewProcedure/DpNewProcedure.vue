@@ -49,7 +49,7 @@
     </template>
     <fieldset>
       <legend
-        class="hide-visually"
+        class="sr-only"
         v-text="Translator.trans('procedure.data')" />
 
       <addon-wrapper hook-name="procedure.fields" />
@@ -179,7 +179,7 @@
 
         <p
           v-if="hasPermission('feature_use_plis')"
-          class="hide-visually flash"
+          class="sr-only flash"
           id="js__statusBox" />
       </div>
 
@@ -193,6 +193,7 @@
         <div v-text="Translator.trans('procedure.couple_token.vht.info')" />
 
         <dp-inline-notification
+          class="mt-3 mb-2"
           :message="Translator.trans('procedure.couple_token.vht.inline_notification')"
           type="warning" />
 
@@ -314,7 +315,7 @@ export default {
   },
 
   computed: {
-    ...mapState('newProcedure', [
+    ...mapState('NewProcedure', [
       'requireField'
     ]),
 

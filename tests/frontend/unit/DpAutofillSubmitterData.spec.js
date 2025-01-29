@@ -16,14 +16,6 @@ import SubmitterComponent from '@DpJs/components/statement/statement/DpAutofillS
 import Submitters from './__mocks__/DpAutofillSubmitterData.json'
 
 describe('Submitter', () => {
-  it('should be an object', () => {
-    expect(typeof SubmitterComponent).toBe('object')
-  })
-
-  it('should be named DpAutofillSubmitterData', () => {
-    expect(SubmitterComponent.name).toBe('DpAutofillSubmitterData')
-  })
-
   it.skip('renders correct markup with permission..SubmitterInvited but permission..SubmitterCitizens = false', () => {
     global.features = {
       featureInstitutionParticipation: true,

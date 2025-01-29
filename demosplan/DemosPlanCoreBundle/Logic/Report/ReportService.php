@@ -48,7 +48,8 @@ class ReportService extends CoreService
         private readonly SortMethodFactory $sortMethodFactory,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         private readonly TranslatorInterface $translator,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -60,18 +61,23 @@ class ReportService extends CoreService
     public function persistAndFlushReportEntries(ReportEntry ...$reportEntries): void
     {
         $this->reportRepository->executeAndFlushInTransaction(
-            function (EntityManagerInterface $em) use ($reportEntries) {
-                foreach ($reportEntries as $reportEntry) {
-                    $violations = $this->validator->validate($reportEntry);
-                    if (0 !== $violations->count()) {
-                        throw ViolationsException::fromConstraintViolationList($violations);
-                    }
-                    $em->persist($reportEntry);
-                }
+            function () use ($reportEntries) {
+                $this->persistReportEntries($reportEntries);
 
                 return null;
             }
         );
+    }
+
+    public function persistAndFlushWithoutTransaction(ReportEntry ...$reportEntries): void
+    {
+        foreach ($reportEntries as $reportEntry) {
+            $violations = $this->validator->validate($reportEntry);
+            if (0 !== $violations->count()) {
+                throw ViolationsException::fromConstraintViolationList($violations);
+            }
+            $this->reportRepository->addObject($reportEntry);
+        }
     }
 
     /**
@@ -335,5 +341,16 @@ class ReportService extends CoreService
         $report = $this->statementReportEntryFactory->createAnonymizationEntry($category, $event);
 
         return $this->reportRepository->addObject($report);
+    }
+
+    public function persistReportEntries(array $reportEntries): void
+    {
+        foreach ($reportEntries as $reportEntry) {
+            $violations = $this->validator->validate($reportEntry);
+            if (0 !== $violations->count()) {
+                throw ViolationsException::fromConstraintViolationList($violations);
+            }
+            $this->entityManager->persist($reportEntry);
+        }
     }
 }

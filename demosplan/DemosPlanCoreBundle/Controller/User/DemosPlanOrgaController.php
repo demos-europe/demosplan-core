@@ -138,14 +138,14 @@ class DemosPlanOrgaController extends BaseController
      *
      * @throws MessageBagException
      */
-    #[Route(name: 'DemosPlan_orga_edit_save', path: '/organisation/edit/{orgaId}', methods: ['POST'])]
+    #[Route(name: 'DemosPlan_orga_edit_save', path: '/organisation/edit/{orgaId}', methods: ['POST'], options: ['expose' => true])]
     public function editOrgaSaveAction(
         CurrentUserService $currentUser,
         EventDispatcherPostInterface $eventDispatcherPost,
         Request $request,
         UserHandler $userHandler,
         OrgaHandler $orgaHandler,
-        string $orgaId
+        string $orgaId,
     ) {
         $requestPost = $request->request;
         $accessPreventionRedirect = $this->preventInvalidOrgaAccess($orgaId, $currentUser->getUser());
@@ -339,7 +339,7 @@ class DemosPlanOrgaController extends BaseController
         CurrentUserInterface $currentUser,
         OsiHHAuthenticator $osiHHAuthenticator,
         Request $request,
-        UserAuthenticatorInterface $userAuthenticator
+        UserAuthenticatorInterface $userAuthenticator,
     ): Response {
         // Wenn es zwei Organisationen zu dem User gibt, tausche die aktive Session aus
         if ($currentUser->getUser()->hasTwinUser()) {
@@ -375,6 +375,8 @@ class DemosPlanOrgaController extends BaseController
         $templateVars = [];
         $orga = $this->orgaHandler->getOrga($orgaId);
         $templateVars['orga'] = $orga;
+        $templateVars['submissionTypeDefault'] = Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT;
+        $templateVars['submissionTypeShort'] = Orga::STATEMENT_SUBMISSION_TYPE_SHORT;
 
         // Add OrgaTypes to frontend. Needed in create orga form.
         $templateVars['orgaTypes'] = [];
@@ -429,7 +431,7 @@ class DemosPlanOrgaController extends BaseController
         RateLimiterFactory $userRegisterLimiter,
         Request $request,
         OrgaService $orgaService,
-        CustomerHandler $customerHandler
+        CustomerHandler $customerHandler,
     ): RedirectResponse {
         try {
             // check Honeypotfields

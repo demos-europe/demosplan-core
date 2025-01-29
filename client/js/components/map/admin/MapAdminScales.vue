@@ -7,6 +7,7 @@
     <dp-multiselect
       v-model="scales"
       label="label"
+      data-cy="map:mapAdminScales"
       multiple
       :options="availableScales"
       track-by="value"
@@ -34,6 +35,7 @@
     </p>
     <dp-inline-notification
       v-if="!areScalesSuitable"
+      class="mt-3 mb-2"
       :message="Translator.trans('map.scales.select.error')"
       type="error" />
   </div>

@@ -3,283 +3,28 @@ services:
         autowire: true
         autoconfigure: true
 
-    demosplan\DemosPlanCoreBundle\Repository\CategoryRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Category'
-
-    demosplan\DemosPlanCoreBundle\Repository\ConsultationTokenRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken'
-
-    demosplan\DemosPlanCoreBundle\Repository\SegmentRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Segment'
-
-    demosplan\DemosPlanCoreBundle\Repository\NewsRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\News\News'
-
-    demosplan\DemosPlanCoreBundle\Repository\RoleRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\Role'
-
-    demosplan\DemosPlanCoreBundle\Repository\LocationRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Location'
+    # only special cases need to be defined here, as the rest is autowired via RepositoryLoaderPass
+    # when $entityClass matches the name of the Repository
 
     demosplan\DemosPlanCoreBundle\Repository\ContentRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\GlobalContent'
 
-    demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\FileContainer'
-
-    demosplan\DemosPlanCoreBundle\Repository\FaqRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Faq'
-
-    demosplan\DemosPlanCoreBundle\Repository\PlatformFaqRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\PlatformFaq'
-
-    demosplan\DemosPlanCoreBundle\Repository\ProcedurePersonRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson'
-
-    demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase'
-
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureSettingsRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings'
-
-    demosplan\DemosPlanCoreBundle\Repository\FileRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\File'
-
-    demosplan\DemosPlanCoreBundle\Repository\OrgaStatusInCustomerRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer'
-
-    demosplan\DemosPlanCoreBundle\Repository\OriginalStatementAnonymizationRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\OriginalStatementAnonymization'
-
-    demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\EmailAddress'
-
-    demosplan\DemosPlanCoreBundle\Repository\ManualListSortRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\ManualListSort'
-
     demosplan\DemosPlanCoreBundle\Repository\OpenGeoDbRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\OpenGeoDbShortTable'
-
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken'
 
     demosplan\DemosPlanCoreBundle\Repository\MailRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\MailSend'
 
-    demosplan\DemosPlanCoreBundle\Repository\SegmentCommentRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\SegmentComment'
-
-    demosplan\DemosPlanCoreBundle\Repository\StatementAttachmentRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\StatementAttachment'
-
-    demosplan\DemosPlanCoreBundle\Repository\StatementMetaRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta'
-
-    demosplan\DemosPlanCoreBundle\Repository\VideoRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Video'
-
-    demosplan\DemosPlanCoreBundle\Repository\FaqCategoryRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\FaqCategory'
-
-    demosplan\DemosPlanCoreBundle\Repository\FloodRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Flood'
-
-    demosplan\DemosPlanCoreBundle\Repository\SettingRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Setting'
-
-#    demosplan\DemosPlanCoreBundle\Repository\SluggedRepository: ~
-
-    demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\EntityContentChange'
-
-    demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Workflow\Place'
-
-    demosplan\DemosPlanCoreBundle\Repository\SlugRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Slug'
-
-    demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\SupportContact'
-
-    demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink'
-
-    demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentRelease'
-
-    demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory'
-
-    demosplan\DemosPlanCoreBundle\Repository\DevelopmentUserStoryVoteRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStoryVote'
-
-    demosplan\DemosPlanCoreBundle\Repository\ForumEntryFileRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile'
-
-    demosplan\DemosPlanCoreBundle\Repository\ForumEntryRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry'
-
-    demosplan\DemosPlanCoreBundle\Repository\ForumThreadRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Forum\ForumThread'
-
-    demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp'
-
     demosplan\DemosPlanCoreBundle\Repository\MapRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer'
-
-    demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory'
-
-    demosplan\DemosPlanCoreBundle\Repository\GdprConsentRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent'
-
-    demosplan\DemosPlanCoreBundle\Repository\GdprConsentRevokeTokenRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsentRevokeToken'
-
-    demosplan\DemosPlanCoreBundle\Repository\CountyRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\County'
-
-    demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic'
-
-    demosplan\DemosPlanCoreBundle\Repository\StatementFragmentVersionRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragmentVersion'
-
-    demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute'
-
-    demosplan\DemosPlanCoreBundle\Repository\TagRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Tag'
-
-    demosplan\DemosPlanCoreBundle\Repository\DraftStatementVersionRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion'
-
-    demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote'
-
-    demosplan\DemosPlanCoreBundle\Repository\StatementRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Statement'
-
-    demosplan\DemosPlanCoreBundle\Repository\PriorityAreaRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea'
-
-    demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement'
-
-    demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment'
-
-    demosplan\DemosPlanCoreBundle\Repository\MunicipalityRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality'
 
     demosplan\DemosPlanCoreBundle\Repository\ReportRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry'
 
-    demosplan\DemosPlanCoreBundle\Repository\AddressBookEntryRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry'
+    demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl'
 
-    demosplan\DemosPlanCoreBundle\Repository\MasterToebVersionRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\MasterToebVersion'
-
-    demosplan\DemosPlanCoreBundle\Repository\OrgaRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\Orga'
-
-    demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag'
-
-    demosplan\DemosPlanCoreBundle\Repository\MasterToebRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb'
-
-    demosplan\DemosPlanCoreBundle\Repository\UserRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\User'
-
-    demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\Department'
-
-    demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\OrgaType'
-
-    demosplan\DemosPlanCoreBundle\Repository\CustomerRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\Customer'
-
-    demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer'
-
-    demosplan\DemosPlanCoreBundle\Repository\AddressRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\User\Address'
-
-    demosplan\DemosPlanCoreBundle\Repository\StatementFormDefinitionRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition'
-
-    demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate'
-
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureSubscriptionRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription'
-
-    demosplan\DemosPlanCoreBundle\Repository\StatementFieldDefinitionRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition'
-
-    demosplan\DemosPlanCoreBundle\Repository\UserFilterSetRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet'
-
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure'
-
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureBehaviorDefinitionRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition'
-
-    demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver'
-
-    demosplan\DemosPlanCoreBundle\Repository\BoilerplateCategoryRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory'
-
-    demosplan\DemosPlanCoreBundle\Repository\HashedQueryRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery'
-
-    demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup'
-
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureTypeRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType'
-
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureProposalRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureProposal'
-
-    demosplan\DemosPlanCoreBundle\Repository\InstitutionMailRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\InstitutionMail'
-
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureCategoryRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCategory'
-
-    demosplan\DemosPlanCoreBundle\Repository\ProcedureUiDefinitionRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition'
-
-    demosplan\DemosPlanCoreBundle\Repository\SurveyRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Survey\Survey'
-
-    demosplan\DemosPlanCoreBundle\Repository\SurveyVoteRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote'
-
-    demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph'
-
-    demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument'
-
-    demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion'
-
-    demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion'
-
-    demosplan\DemosPlanCoreBundle\Repository\ExportFieldsConfigurationRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration'
-
-    demosplan\DemosPlanCoreBundle\Repository\BrandingRepository:
-        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Branding'
+    DemosEurope\DemosplanAddon\Contracts\Repositories\ProcedurePhaseRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseRepository'
 
     DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository'
 

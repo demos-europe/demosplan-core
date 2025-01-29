@@ -158,6 +158,7 @@
             <button
               type="button"
               class="btn btn--secondary"
+              data-cy="filterReset"
               @click="reset"
               v-text="Translator.trans('filter.reset')" />
           </div>
@@ -270,13 +271,13 @@ export default {
   },
 
   computed: {
-    ...mapState('filter', {
+    ...mapState('Filter', {
       filterGroups: 'filterGroups',
       filterList: 'filterList',
       filterOptionsSelected: 'selectedOptions'
     }),
 
-    ...mapGetters('filter', {
+    ...mapGetters('Filter', {
       filterByType: 'filterByType',
       getFilterHash: 'userFilterSetFilterHash',
       userFilterSets: 'userFilterSets',
@@ -346,7 +347,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('filter', [
+    ...mapActions('Filter', [
       'getFilterListAction',
       'getFilterOptionsAction',
       'getUserFilterSetsAction',
@@ -354,11 +355,11 @@ export default {
       'updateBaseState'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setProperty'
     ]),
 
-    ...mapMutations('filter', [
+    ...mapMutations('Filter', [
       'loadAppliedFilterOptions',
       'loadSelectedFilterOptions',
       'resetSelectedOptions'
@@ -386,7 +387,7 @@ export default {
     loadUserFilterSet () {
       const filterHash = this.userFilterSetFilterHash(this.selectedUserFilterSet)
       // Reload with userFilterSet
-      document.location.href = Routing.generate(this.route, { procedureId: this.procedureId, filterHash: filterHash })
+      document.location.href = Routing.generate(this.route, { procedureId: this.procedureId, filterHash })
     },
 
     nameFromAttributes (option) {
@@ -488,7 +489,7 @@ export default {
       window.updateFilterHash(this.procedureId, this.allSelectedFilterOptionsWithFilterName)
         .then((filterHash) => {
           // Get updated options for selected filters
-          this.getFilterOptionsAction({ filterHash: filterHash })
+          this.getFilterOptionsAction({ filterHash })
             .then((filterHash) => {
               this.$root.$emit('selected-updated', filterHash)
               this.disabledInteractions = false

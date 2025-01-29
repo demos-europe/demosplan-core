@@ -16,6 +16,7 @@
           class="u-pv-0_25 flow-root">
           <dp-inline-notification
             v-if="!isLoading && isSegmentDraftUpdated"
+            class="mt-3 mb-2"
             :message="Translator.trans('last.saved', { date: lastSavedTime })"
             type="info" />
           <h1 class="font-size-h1 align-bottom inline-block u-m-0">
@@ -89,7 +90,7 @@
           </div>
           <main
             ref="main"
-            class="container u-pv"
+            class="container pt-2"
             v-else-if="initialData">
             <segmentation-editor
               @prosemirror-initialized="runPostInitTasks"
@@ -143,6 +144,7 @@
               @click="saveAndFinish"
               :busy="isBusy"
               :text="Translator.trans('statement.split.complete')"
+              data-cy="statementSplitComplete"
               variant="outline" />
           </div>
         </div>
@@ -285,7 +287,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('splitstatement', [
+    ...mapGetters('SplitStatement', [
       'currentlyHighlightedSegmentId',
       'editingSegment',
       'editingSegmentId',
@@ -343,14 +345,14 @@ export default {
   },
 
   methods: {
-    ...mapMutations('splitstatement', [
+    ...mapMutations('SplitStatement', [
       'locallyDeleteSegments',
       'locallyUpdateSegments',
       'resetSegments',
       'setProperty'
     ]),
 
-    ...mapActions('splitstatement', [
+    ...mapActions('SplitStatement', [
       'acceptSegmentProposal',
       'deleteSegmentAction',
       'setInitialData',
@@ -494,7 +496,11 @@ export default {
       return dpApi.get(Routing.generate('api_resource_list', {
         resourceType: 'Place',
         fields: {
-          Place: ['name', 'description'].join()
+          Place: [
+            'name',
+            'description',
+            'solved'
+          ].join()
         },
         sort: 'sortIndex'
       })).then((response) => {
@@ -663,14 +669,14 @@ export default {
     },
 
     immediatelyDeleteSegment (segmentId) {
-      const idToDelete = segmentId
-      const segment = this.segmentById(idToDelete)
-      this.ignoreProsemirrorUpdates = true
+      const segment = this.segmentById(segmentId)
       const { state } = this.prosemirror.view
       const tr = removeRange(state, segment.charStart, segment.charEnd)
+
+      this.ignoreProsemirrorUpdates = true
       this.prosemirror.view.dispatch(tr)
       this.ignoreProsemirrorUpdates = false
-      this.deleteSegmentAction(idToDelete)
+      this.deleteSegmentAction(segmentId)
       this.isSegmentDraftUpdated = true
       this.setCurrentTime()
     },
@@ -715,19 +721,30 @@ export default {
       this.ignoreProsemirrorUpdates = false
     },
 
+    // Matomo Tracking Event Tagging & Slicing
+    clickTrackerSaveButton(){
+      if (window._paq) {
+        _paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('statement.split.complete')])
+      }
+    },
+
     async saveAndFinish () {
+      this.clickTrackerSaveButton()
+
       if (this.segments.length > 0) {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
           try {
             // Set data with html not only charStart and charEnd
             const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
-            const segmentsWithText = this.segments.map(segment => {
-              return {
-                ...segment,
-                text: ranges[segment.id].text
-              }
-            })
+            const segmentsWithText = this.segments
+              .filter(segment => !!ranges[segment.id])
+              .map(segment => {
+                return {
+                  ...segment,
+                  text: ranges[segment.id].text
+                }
+              })
             this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
             const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
             this.setProperty({ prop: 'statementText', val: currentStatementText })
@@ -750,10 +767,15 @@ export default {
      * the range changes locally, saveSegmentsDrafts will save the new json to our API.
      */
     save () {
-      applySelectionChange(this.prosemirror.view, this.prosemirror.keyAccess.editStateTrackerKey, this.prosemirror.keyAccess.rangeTrackerKey)
+      const validSegment = applySelectionChange(this.prosemirror.view, this.prosemirror.keyAccess.editStateTrackerKey, this.prosemirror.keyAccess.rangeTrackerKey)
+
+      if (!validSegment) {
+        return
+      }
+
       this.saveSegmentsDrafts(true)
-      this.disableEditMode()
       this.isSegmentDraftUpdated = true
+      this.disableEditMode()
       this.setCurrentTime()
     },
 

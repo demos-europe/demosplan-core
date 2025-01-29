@@ -298,7 +298,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('fragment', ['selectedFragments']),
+    ...mapGetters('Fragment', ['selectedFragments']),
 
     // Array with keys (names) of all checked options
     checkedOptions () {
@@ -424,8 +424,8 @@ export default {
         })
     },
 
-    ...mapActions('fragment', ['setSelectedFragmentsAction']),
-    ...mapMutations('fragment', ['setProcedureId'])
+    ...mapActions('Fragment', ['setSelectedFragmentsAction']),
+    ...mapMutations('Fragment', ['setProcedureId'])
   },
 
   created () {

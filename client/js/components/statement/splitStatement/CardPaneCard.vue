@@ -59,12 +59,13 @@
       @click="$emit('edit-segment', segment.id)" />
     <addon-wrapper
       :addon-props="{
-        segmentStatus: segment.status
+        class: 'mt-1',
+        segmentStatus: segment.status ? segment.status : 'not confirmed'
       }"
+      class="inline-block"
       hook-name="split.statement.buttons"
       @segment:confirm="$emit('segment:confirm', segment.id)" />
     <dp-button-icon
-      class="u-ml-0_25"
       icon="fa-trash"
       :text="Translator.trans('selection.tags.discard')"
       @click="$emit('delete-segment', segment.id)" />
@@ -109,7 +110,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('splitstatement', [
+    ...mapGetters('SplitStatement', [
       'assignableUsers',
       'availablePlaces',
       'currentlyHighlightedSegmentId',

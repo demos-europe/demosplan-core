@@ -10,8 +10,8 @@
 
 namespace Tests\Core\Core\Unit\Handler;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use stdClass;
 use Symfony\Component\HttpFoundation\FileBag;
 use Tests\Base\UnitTestCase;
@@ -25,7 +25,7 @@ use Tests\Base\UnitTestCase;
 class CoreHandlerTest extends UnitTestCase
 {
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\CoreHandler
+     * @var CoreHandler
      */
     protected $coreHandler;
 
@@ -34,7 +34,7 @@ class CoreHandlerTest extends UnitTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->coreHandler = new CoreHandler(self::$container->get(MessageBag::class));
+        $this->coreHandler = new CoreHandler(self::$container->get(MessageBagInterface::class));
 
         if (is_dir($this->getUploadDir().'/coreHandlerUpload_test/')) {
             $this->deleteTestDir();
@@ -52,6 +52,7 @@ class CoreHandlerTest extends UnitTestCase
     protected function deleteTestDir()
     {
         foreach (glob($this->getUploadDir().'/coreHandlerUpload_test/*') as $file) {
+            // local file is valid, no need for flysystem
             unlink($file);
         }
 

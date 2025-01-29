@@ -24,6 +24,7 @@
     <div class="o-box--dark soft">
       <div
         class="px-3 py-3"
+        :data-cy="customComponent[entity].formName"
         :data-dp-validate="customComponent[entity].formName">
         <!-- Form fields   -->
         <component
@@ -35,6 +36,7 @@
         <!-- Save/Abort buttons   -->
         <dp-button-row
           class="mt-6"
+          data-cy="createItem"
           :form-name="customComponent[entity].formName"
           primary
           secondary
@@ -175,13 +177,6 @@ export default {
   },
 
   computed: {
-    /**
-     * Needed for entity === 'user'
-     */
-    ...mapState('role', {
-      roles: 'items'
-    }),
-
     dynamicComponent () {
       return this.customComponent[this.entity].componentName
     },
@@ -195,18 +190,19 @@ export default {
     },
 
     itemResource () {
+      const type = this.entity === 'user' ? 'AdministratableUser' : this.entity
       return {
-        type: this.entity,
+        type,
         ...this.item
       }
     }
   },
 
   methods: {
-    ...mapActions('orga', {
+    ...mapActions('Orga', {
       createOrganisation: 'create'
     }),
-    ...mapActions('user', {
+    ...mapActions('AdministratableUser', {
       createUser: 'create'
     }),
 

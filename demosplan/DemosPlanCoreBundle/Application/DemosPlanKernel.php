@@ -14,11 +14,11 @@ use demosplan\DemosPlanCoreBundle\Addon\AddonBundleGenerator;
 use demosplan\DemosPlanCoreBundle\Addon\AddonDoctrineMigrationsPass;
 use demosplan\DemosPlanCoreBundle\Addon\AddonResolveTargetEntity;
 use demosplan\DemosPlanCoreBundle\Addon\LoadAddonInfoCompilerPass;
-use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DeploymentStrategyLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpGraphContainerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\DumpYmlContainerPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\MenusLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\OptionsLoaderPass;
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\RepositoryLoaderPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler\RpcMethodSolverPass;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\ServiceTagAutoconfigurator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -77,7 +77,7 @@ class DemosPlanKernel extends Kernel
     public function __construct(
         private readonly string $activeProject,
         string $environment,
-        bool $debug
+        bool $debug,
     ) {
         parent::__construct($environment, $debug);
 
@@ -150,23 +150,20 @@ class DemosPlanKernel extends Kernel
      */
     public function getCacheDir(): string
     {
-        // override default symfony4 cache dir
-        $dir = DemosPlanPath::getProjectPath('app/cache/'.$this->environment);
-
         if ($this->isLocalContainer()) {
-            $dir = DemosPlanPath::getTemporaryPath(
-                sprintf('dplan/%s/cache/%s', $this->activeProject, $this->environment)
+            return DemosPlanPath::getRootPath(
+                sprintf('var/cache/%s/%s', $this->environment, $this->activeProject)
             );
         }
 
         // use distinct caches for parallel tests if needed
         if ('test' === $this->getEnvironment()) {
-            $dir = DemosPlanPath::getTemporaryPath(
-                sprintf('dplan/%s/cache/%s/%s', $this->activeProject, $this->environment, $_SERVER['APP_TEST_SHARD'] ?? '')
+            return DemosPlanPath::getRootPath(
+                sprintf('var/cache/%s/%s/%s', $this->environment, $this->activeProject, $_SERVER['APP_TEST_SHARD'] ?? '')
             );
         }
 
-        return $dir;
+        return parent::getCacheDir();
     }
 
     /**
@@ -174,23 +171,20 @@ class DemosPlanKernel extends Kernel
      */
     public function getLogDir(): string
     {
-        // override default symfony4 cache dir
-        $dir = DemosPlanPath::getProjectPath('app/logs');
-
         if ($this->isLocalContainer()) {
-            $dir = DemosPlanPath::getTemporaryPath(
-                sprintf('dplan/%s/logs/%s', $this->activeProject, $this->environment)
+            return DemosPlanPath::getRootPath(
+                sprintf('var/log/%s/%s', $this->environment, $this->activeProject)
             );
         }
 
         // use distinct logfiles for parallel tests if needed
         if ('test' === $this->getEnvironment()) {
-            $dir = DemosPlanPath::getTemporaryPath(
-                sprintf('dplan/%s/logs/%s/%s', $this->activeProject, $this->environment, $_SERVER['APP_TEST_SHARD'] ?? '')
+            return DemosPlanPath::getRootPath(
+                sprintf('var/logs/%s/%s/%s', $this->environment, $this->activeProject, $_SERVER['APP_TEST_SHARD'] ?? '')
             );
         }
 
-        return $dir;
+        return parent::getLogDir();
     }
 
     /**
@@ -279,9 +273,9 @@ class DemosPlanKernel extends Kernel
             );
         }
 
-        $container->addCompilerPass(new DeploymentStrategyLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new RpcMethodSolverPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new MenusLoaderPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new RepositoryLoaderPass());
         $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING, 0);
         $container->addCompilerPass(new AddonResolveTargetEntity(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         if ('test' !== $this->getEnvironment()) {
@@ -302,7 +296,7 @@ class DemosPlanKernel extends Kernel
      */
     private function determineParameterGlobs(
         string $coreConfigPath,
-        string $projectConfigPath
+        string $projectConfigPath,
     ): array {
         $parameterGlobs = [
             // global defaults
@@ -336,7 +330,7 @@ class DemosPlanKernel extends Kernel
      */
     private function determineServiceGlobs(
         string $coreConfigPath,
-        string $projectConfigPath
+        string $projectConfigPath,
     ): array {
         $bundleGlobs = [
             // default bundle configurations
@@ -349,6 +343,7 @@ class DemosPlanKernel extends Kernel
             "{$projectConfigPath}/config_{$this->environment}",
         ];
 
+        // uses local file, no need for flysystem
         if (file_exists(DemosPlanPath::getRootPath('deploy'))) {
             // deployment services, these are a little extra
             // as they are not shipped and MUST thus not always be included

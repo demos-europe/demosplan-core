@@ -154,9 +154,9 @@ function transformStatementStructure ({ el, includes, meta }) {
           statement[relationKey] = includes.filter(incl => ids.includes(incl.id) && type === incl.type)
           statement[relationKey] = statement[relationKey].map(statementRel => Object.assign(statementRel.attributes, { id: statementRel.id }))
 
-          if (type === 'StatementAttachment' && hasOwnProp(statement[relationKey][0], 'id')) {
+          if (type === 'SourceStatementAttachment' && hasOwnProp(statement[relationKey][0], 'id')) {
             const attachment = includes
-              .filter(incl => incl.type === 'StatementAttachment')
+              .filter(incl => incl.type === 'SourceStatementAttachment')
               .filter(incl => statement[relationKey][0].id === incl.id)
 
             if (hasOwnProp(attachment[0], 'relationships')) {
@@ -211,11 +211,12 @@ function setStatementAssignee (statement) {
   return statement
 }
 export default {
-
   namespaced: true,
-  name: 'statement',
+
+  name: 'Statement',
 
   state: {
+    filterHash: '',
     statements: {},
     procedureId: '',
     selectedElements: {},
@@ -341,6 +342,11 @@ export default {
     /**
      * @param value
      */
+
+    updateFilterHash (state, value) {
+      set(state, 'filterHash', value)
+    },
+
     updatePagination (state, value) {
       set(state, 'pagination', Object.assign(state.pagination, value))
     },
@@ -504,7 +510,7 @@ export default {
         fields.County = 'name'
       }
 
-      if (hasAnyPermissions(['field_statement_municipality', 'area_admin_assessmenttable'])) {
+      if (hasPermission('field_statement_municipality')) {
         includes.push('municipalities')
         statementFields.push('municipalities')
         fields.Municipality = 'name'
@@ -526,7 +532,7 @@ export default {
             number: data.pagination.current_page,
             size: data.pagination.count
           },
-          view_mode: rootState.assessmentTable.viewMode,
+          view_mode: rootState.AssessmentTable.viewMode,
           sort: data.sort,
           // Size: data.pagination.size,
           fields: {
@@ -600,7 +606,7 @@ export default {
               'parentId',
               'title'
             ].join(),
-            StatementAttachment: [
+            SourceStatementAttachment: [
               'file',
               'attachmentType'
             ].join()
@@ -616,6 +622,7 @@ export default {
           commit('setFilteredState', response.meta.isFiltered)
           commit('setInitStatements', response.meta.statementAssignments)
           commit('setStatementGrouping', response.meta.grouping)
+          commit('updateFilterHash', response.meta.filterHash)
           const refinedStatements = {}
           const sessionStorageUpdates = {}
 
@@ -727,7 +734,7 @@ export default {
     setAssigneeAction ({ commit }, { statementId, assigneeId }) {
       return dpApi({
         method: 'PATCH',
-        url: Routing.generate('dplan_claim_statements_api', { statementId: statementId }),
+        url: Routing.generate('dplan_claim_statements_api', { statementId }),
         data: {
           data: {
             type: 'user',
@@ -858,7 +865,6 @@ export default {
             'elements',
             'files',
             'fragmentsElements',
-            'municipalities',
             'paragraph',
             'priorityAreas',
             'tags'

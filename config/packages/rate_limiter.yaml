@@ -10,3 +10,14 @@ framework:
             policy: 'token_bucket'
             limit: 2
             rate: { interval: '60 minutes', amount: 1 }
+        # limit password reset requests
+        user_password_reset:
+            policy: 'token_bucket'
+            limit: 5
+            rate: { interval: '15 minutes', amount: 2 }
+        # limit api requests for captured bearer tokens
+        # the bearer token is reset at every page reload
+        jwt_token:
+            policy: 'fixed_window'
+            limit: 100
+            interval: '30 days'

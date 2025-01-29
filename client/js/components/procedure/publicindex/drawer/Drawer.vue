@@ -23,6 +23,7 @@
         <div class="c-publicindex__drawer-nav">
           <strong
             v-if="currentView !== 'DpDetailView'"
+            aria-live="assertive"
             class="inline-block"
             data-cy="participationProcedures">
             {{ procedureCount }} {{ Translator.trans('participation.procedures') }}
@@ -66,14 +67,14 @@ export default {
   },
 
   computed: {
-    ...mapGetters('procedure', [
+    ...mapGetters('Procedure', [
       'currentProcedureId',
       'currentView',
       'isDrawerOpened',
       'isLoading'
     ]),
 
-    ...mapState('procedure', [
+    ...mapState('Procedure', [
       'procedures'
     ]),
 
@@ -91,7 +92,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('procedure', [
+    ...mapMutations('Procedure', [
       'setProperty'
     ]),
 
@@ -101,7 +102,7 @@ export default {
 
     toggleList () {
       const val = this.currentView !== 'DpList' ? 'DpList' : ''
-      this.setProperty({ prop: 'currentView', val: val })
+      this.setProperty({ prop: 'currentView', val })
     }
   },
 

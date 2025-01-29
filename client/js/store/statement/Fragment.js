@@ -12,7 +12,8 @@ import { del, set } from 'vue'
 
 export default {
   namespaced: true,
-  name: 'fragment',
+
+  name: 'Fragment',
 
   state: {
     /**
@@ -214,9 +215,9 @@ export default {
       const url = Routing.generate(
         'DemosPlan_statement_fragment_delete_ajax',
         {
-          procedureId: procedureId,
-          statementId: statementId,
-          fragmentId: fragmentId
+          procedureId,
+          statementId,
+          fragmentId
         }
       )
 
@@ -301,7 +302,7 @@ export default {
           data: {
             type: 'user',
             id: assigneeId,
-            ignoreLastClaimed: ignoreLastClaimed,
+            ignoreLastClaimed,
             ...((ignoreLastClaimed === false && typeof lastClaimed !== 'undefined') && { relationships: { lastClaimed: { data: { id: lastClaimed, type: 'user' } } } })
           }
         },
@@ -481,11 +482,11 @@ export default {
 
           // If the reviewer has been set, update fragment assignment
           if (hasOwnProp(data, 'departmentId')) {
-            if (hasOwnProp(data, 'lastClaimed') && hasOwnProp(responseRelationships, 'lastClaimedUser')) {
+            if (hasOwnProp(data, 'lastClaimed') && responseRelationships.lastClaimedUser?.data) {
               dataToUpdate.lastClaimedUserId = responseRelationships.lastClaimedUser.data.id
             }
 
-            dataToUpdate.departmentId = hasOwnProp(responseRelationships, 'department') ? responseRelationships.department.data.id : ''
+            dataToUpdate.departmentId = responseRelationships.department?.data ? responseRelationships.department.data.id : ''
 
             if (dataToUpdate.departmentId) { // If departmentId is in response and is not null
               // we reset the assignee with the values from BE

@@ -72,7 +72,7 @@
       :key="`pager1_${pagination.current_page}_${pagination.count}`" />
 
     <!-- Export modal -->
-    <dp-export-modal
+    <export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
       ref="exportModal"
       :current-table-sort="sort.value || ''"
@@ -139,7 +139,7 @@
         v-for="element in selectedElements"
         :key="`selectedElement:${element.id}`">
         <input
-          class="hide-visually"
+          class="sr-only"
           name="item_check[]"
           type="checkbox"
           :id="element.id + ':item_check[]'"
@@ -153,7 +153,7 @@
         v-for="element in selectedFragments"
         :key="`selectedFragment:${element.id}`">
         <input
-          class="hide-visually"
+          class="sr-only"
           name="item_check[]"
           type="checkbox"
           :key="`selectedFragmentInput:${element.id}`"
@@ -170,9 +170,10 @@
       <!-- Loop statements in default viewMode -->
       <template
         v-else
-        v-for="statement in statements">
+        v-for="(statement, key, index) in statements">
         <dp-assessment-table-card
           :csrf-token="csrfToken"
+          :data-cy="`statementCard:index:${index}`"
           :ref="'itemdisplay_' + statement.id"
           :key="`statement:${statement.id}`"
           class="o-list__item"
@@ -240,7 +241,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
 import changeUrlforPager from './utils/changeUrlforPager'
 import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
-import DpExportModal from '@DpJs/components/statement/assessmentTable/DpExportModal'
+import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import { scrollTo } from 'vue-scrollto'
 
 /*
@@ -257,7 +258,7 @@ export default {
     AssignEntityModal: () => import(/* webpackChunkName: "assign-entity-modal" */ '@DpJs/components/statement/assessmentTable/AssignEntityModal'),
     ConsolidateModal: () => import(/* webpackChunkName: "consolidate-modal" */ '@DpJs/components/statement/assessmentTable/ConsolidateModal'),
     CopyStatementModal: () => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal'),
-    DpExportModal,
+    ExportModal,
     DpLoading,
     DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal'),
     DpMoveStatementModal: () => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal'),
@@ -407,26 +408,26 @@ export default {
   },
 
   computed: {
-    ...mapState('assessmentTable', [
+    ...mapState('AssessmentTable', [
       'assessmentBase',
       'assessmentBaseLoaded',
       'currentTableView',
       'sort'
     ]),
 
-    ...mapGetters('assessmentTable', [
+    ...mapGetters('AssessmentTable', [
       'assignEntityModal',
       'consolidateModal',
       'copyStatementModal',
       'isLoading'
     ]),
 
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'selectedElements',
       'pagination'
     ]),
 
-    ...mapGetters('statement', [
+    ...mapGetters('Statement', [
       'getSelectionStateById',
       'selectedElementsFromOtherPages',
       'selectedElementsLength',
@@ -434,7 +435,7 @@ export default {
       'statementsInOrder'
     ]),
 
-    ...mapGetters('fragment', [
+    ...mapGetters('Fragment', [
       'selectedFragments'
     ]),
 
@@ -473,36 +474,36 @@ export default {
   },
 
   methods: {
-    ...mapActions('assessmentTable', [
+    ...mapActions('AssessmentTable', [
       'applyBaseData'
     ]),
 
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'addToSelectionAction',
       'getStatementAction',
       'removeFromSelectionAction',
       'updateStatementAction'
     ]),
 
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       resetStatementSelection: 'resetSelection',
       setProcedureIdForStatement: 'setProcedureIdAction',
       setSelectedStatements: 'setSelectedElementsAction'
     }),
 
-    ...mapActions('fragment', {
+    ...mapActions('Fragment', {
       resetFragmentSelection: 'resetSelection',
       setProcedureIdForFragment: 'setProcedureIdAction',
       setSelectedFragments: 'setSelectedFragmentsAction'
     }),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setAssessmentBaseProperty',
       'setModalProperty',
       'setProperty'
     ]),
 
-    ...mapMutations('statement', [
+    ...mapMutations('Statement', [
       'updatePagination'
     ]),
 
@@ -656,7 +657,7 @@ export default {
         this.resetFragmentSelection()
       }
       if (hasPermission('area_statements_fragment')) {
-        this.$store.commit('fragment/setInitFragments', response.meta.fragmentAssignments)
+        this.$store.commit('Fragment/setInitFragments', response.meta.fragmentAssignments)
         this.setSelectedFragments(response.meta.fragmentAssignments)
           .then(() => {
             // And we do the same with statements (making sure not to have statements and fragments checked)

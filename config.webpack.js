@@ -88,6 +88,7 @@ const bundlesConfig = merge(baseConfig, {
     return {
       style: config.stylesEntryPoint,
       'style-public': config.publicStylesEntryPoint,
+      preflight: './client/css/preflight.css',
       'demosplan-ui': './client/css/index.css',
       ...bundleEntryPoints(config.clientBundleGlob)
     }
@@ -98,7 +99,8 @@ const bundlesConfig = merge(baseConfig, {
   },
   devtool: (config.isProduction) ? false : 'eval',
   resolve: {
-    extensions: ['.js', '.vue', '.json'],
+    fullySpecified: false,
+    extensions: ['...', '.js', '.vue', '.json', '.ts', '.tsx'],
     alias: resolveAliases()
   },
   optimization: optimization(),

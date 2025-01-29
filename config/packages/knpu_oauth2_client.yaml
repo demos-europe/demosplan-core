@@ -4,6 +4,19 @@ knpu_oauth2_client:
         # will create service: "knpu.oauth2.client.keycloak"
         # an instance of: KnpU\OAuth2ClientBundle\Client\Provider\KeycloakClient
         # composer require stevenmaguire/oauth2-keycloak
+        keycloak:
+            # must be "keycloak" - it activates that type!
+            type: keycloak
+            # add and set these environment variables in your parameters.yml files
+            client_id: '%oauth_keycloak_client_id%'
+            client_secret: '%oauth_keycloak_client_secret%'
+            # a route name you'll create
+            redirect_route: connect_keycloak_check
+            redirect_params: {}
+            # Keycloak server URL
+            auth_server_url: '%oauth_keycloak_auth_server_url%'
+            # Keycloak realm
+            realm: '%oauth_keycloak_realm%'
         keycloak_ozg:
             # must be "keycloak" - it activates that type!
             type: keycloak

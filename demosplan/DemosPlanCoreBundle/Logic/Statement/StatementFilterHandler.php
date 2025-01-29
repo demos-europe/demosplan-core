@@ -10,9 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
-use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -22,7 +22,7 @@ class StatementFilterHandler extends CoreHandler
     /** @var Permissions */
     protected $permissions;
 
-    public function __construct(MessageBag $messageBag, PermissionsInterface $permissions, private readonly TranslatorInterface $translator)
+    public function __construct(MessageBagInterface $messageBag, PermissionsInterface $permissions, private readonly TranslatorInterface $translator)
     {
         parent::__construct($messageBag);
         $this->permissions = $permissions;
@@ -444,7 +444,7 @@ class StatementFilterHandler extends CoreHandler
                 // FB or FPA
                 'hasPermission' => $this->permissions->hasPermissions(
                     [
-                    'area_admin_assessmenttable',
+                        'area_admin_assessmenttable',
                         'feature_documents_category_use_paragraph',
                     ]),
                 'type'          => 'statement',
@@ -452,8 +452,10 @@ class StatementFilterHandler extends CoreHandler
             // Datei - documentParentId - documentParentId
             [
                 'key'           => 'documentParentId',
-                'hasPermission' => $this->permissions->hasPermission(
-                    'area_admin_assessmenttable'
+                'hasPermission' => $this->permissions->hasPermissions([
+                    'area_admin_assessmenttable',
+                    'feature_statement_file_filter_set',
+                ]
                 ),
                 'type'          => 'statement',
             ],

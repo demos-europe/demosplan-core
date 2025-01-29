@@ -11,34 +11,34 @@
 namespace demosplan\DemosPlanCoreBundle\Utilities\Pagination;
 
 use Pagerfanta\Adapter\ArrayAdapter;
-use Traversable;
 
 class DemosPlanArrayAdapter extends ArrayAdapter
 {
     /** @var int */
     protected $nbResults = 0;
 
+    /**
+     * The constructor is needed as parent constructor defines array variable as private
+     * and we need to access it here.
+     */
+    public function __construct(
+        private readonly array $array,
+    ) {
+        parent::__construct($array);
+    }
+
     public function setNbResults(int $resultCount)
     {
         $this->nbResults = $resultCount;
     }
 
-    /**
-     * @return int
-     */
-    public function getNbResults()
+    public function getNbResults(): int
     {
         return $this->nbResults;
     }
 
-    /**
-     * @param int $offset
-     * @param int $length
-     *
-     * @return array|Traversable
-     */
-    public function getSlice($offset, $length)
+    public function getSlice(int $offset, int $length): iterable
     {
-        return $this->getArray();
+        return $this->array;
     }
 }

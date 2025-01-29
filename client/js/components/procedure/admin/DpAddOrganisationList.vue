@@ -14,37 +14,41 @@
     <dp-data-table-extended
       ref="dataTable"
       class="mt-2"
+      :default-sort-order="sortOrder"
       :header-fields="headerFields"
-      :table-items="rowItems"
+      :init-items-per-page="itemsPerPage"
       is-expandable
       is-selectable
       :items-per-page-options="itemsPerPageOptions"
-      :default-sort-order="sortOrder"
-      @items-selected="setSelectedItems"
-      :init-items-per-page="itemsPerPage">
+      lock-checkbox-by="hasNoEmail"
+      :table-items="rowItems"
+      :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
+      @items-selected="setSelectedItems">
       <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson }">
         <div class="lg:w-2/3 lg:flex pt-4">
           <dl class="pl-4 w-full">
             <dt class="color--grey">
               {{ Translator.trans('address') }}
             </dt>
+            <template v-if="locationContacts && hasAdress">
+              <dd
+                v-if="locationContacts.street"
+                class="ml-0">
+                {{ locationContacts.street }}
+              </dd>
+              <dd
+                v-if="locationContacts.postalcode"
+                class="ml-0">
+                {{ locationContacts.postalcode }}
+              </dd>
+              <dd
+                v-if="locationContacts.city"
+                class="ml-0">
+                {{ locationContacts.city }}
+              </dd>
+            </template>
             <dd
-              v-if="locationContacts.street"
-              class="ml-0">
-              {{ locationContacts.street }}
-            </dd>
-            <dd
-              v-if="locationContacts.postalCode"
-              class="ml-0">
-              {{ locationContacts.postalCode }}
-            </dd>
-            <dd
-              v-if="locationContacts.city"
-              class="ml-0">
-              {{ locationContacts.city }}
-            </dd>
-            <dd
-              v-if="!locationContacts.street && !locationContacts.city && !locationContacts.postalCode"
+              v-else
               class="ml-0">
               {{ Translator.trans('notspecified') }}
             </dd>
@@ -54,7 +58,7 @@
               {{ Translator.trans('phone') }}
             </dt>
             <dd
-              v-if="locationContacts.hasOwnProperty('phone') && locationContacts.phone"
+              v-if="locationContacts?.hasOwnProperty('phone') && locationContacts.phone"
               class="ml-0">
               {{ locationContacts.phone }}
             </dd>
@@ -96,11 +100,11 @@
         </div>
       </template>
       <template v-slot:footer>
-        <div class="pt-2">
+        <div class="pt-2 flex">
           <div class="w-1/3 inline-block">
             <span
-              class="weight--bold line-height--1_6"
-              v-if="selectedItems.length">
+              v-if="selectedItems.length"
+              class="weight--bold line-height--1_6">
               {{ selectedItems.length }} {{ (selectedItems.length === 1 && Translator.trans('entry.selected')) || Translator.trans('entries.selected') }}
             </span>
           </div>
@@ -111,6 +115,7 @@
               @click="addPublicInterestBodies(selectedItems)" />
             <a
               :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
+              data-cy="organisationList:abortAndBack"
               class="btn btn--secondary">
               {{ Translator.trans('abort.and.back') }}
             </a>
@@ -144,7 +149,7 @@ export default {
       required: false,
       default: () => [
         { field: 'legalName', label: Translator.trans('invitable_institution') },
-        hasPermission('field_organisation_competence') ? { field: 'competenceDescription', label: Translator.trans('competence.explanation') } : {}
+        ...hasPermission('field_organisation_competence') ? [{ field: 'competenceDescription', label: Translator.trans('competence.explanation') }] : []
       ]
     }
   },
@@ -166,18 +171,19 @@ export default {
   },
 
   computed: {
-    ...mapState('institutionLocationContact', {
+    ...mapState('InstitutionLocationContact', {
       institutionLocationContactItems: 'items'
     }),
 
-    ...mapState('invitableToeb', {
+    ...mapState('InvitableToeb', {
       invitableToebItems: 'items'
     }),
 
     rowItems () {
       return Object.values(this.invitableToebItems).reduce((acc, item) => {
-        const locationContactId = item.relationships.locationContacts.data[0].id
-        const locationContact = this.getLocationContactById(locationContactId)
+        const locationContactId = item.relationships.locationContacts?.data.length > 0 ? item.relationships.locationContacts.data[0].id : null
+        const locationContact = locationContactId ? this.getLocationContactById(locationContactId) : null
+        const hasNoEmail = !item.attributes.participationFeedbackEmailAddress
 
         return [
           ...acc,
@@ -185,10 +191,13 @@ export default {
             {
               id: item.id,
               ...item.attributes,
-              locationContacts: {
-                id: locationContact.id,
-                ...locationContact.attributes
-              }
+              locationContacts: locationContact
+                ? {
+                    id: locationContact.id,
+                    ...locationContact.attributes
+                  }
+                : null,
+              hasNoEmail
             }
           ]
         ]
@@ -197,7 +206,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('invitableToeb', {
+    ...mapActions('InvitableToeb', {
       getInstitutions: 'list'
     }),
 
@@ -215,7 +224,7 @@ export default {
           data: publicAgenciesIds.map(id => {
             return {
               type: 'publicAffairsAgent',
-              id: id
+              id
             }
           })
         }
@@ -260,6 +269,10 @@ export default {
 
     getLocationContactById (id) {
       return this.institutionLocationContactItems[id]
+    },
+
+    hasAdress () {
+      return this.rowItems.locationContacts?.street || this.rowItems.locationContacts?.postalcode || this.rowItems.locationContacts?.city
     },
 
     returnPermissionChecksValuesArray (permissionChecks) {

@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-white': isFullscreen }">
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
     <dp-sticky-element
       border
       class="pt-2 pb-3"
@@ -23,11 +23,11 @@
             accessGroup: 'planner'
           }"
           :search-term="searchTerm"
-          @change-fields="updateSearchFields"
-          @search="updateSearchQuery"
-          @reset="updateSearchQuery" />
-        <div class="bg-color--grey-light-2 rounded-md space-inline-xs ml-2">
-          <span class="color--grey ml-2 line-height--2">
+          @changeFields="updateSearchFields"
+          @search="term => updateSearchQuery(term)"
+          @reset="handleResetSearch" />
+        <div class="bg-color--grey-light-2 rounded-md ml-2">
+          <span class="color--grey ml-1 align-middle">
             {{ Translator.trans('filter') }}
           </span>
           <filter-flyout
@@ -71,7 +71,9 @@
           variant="outline"
           @click.prevent="handleBulkEdit" />
       </dp-bulk-edit-header>
-      <div class="flex justify-between items-center mt-4">
+      <div
+        v-if="items.length > 0"
+        class="flex justify-between items-center mt-4">
         <dp-pager
           v-if="pagination.currentPage"
           :class="{ 'invisible': isLoading }"
@@ -98,11 +100,15 @@
       v-if="isLoading" />
 
     <template v-else>
-      <template v-if="items">
+      <template v-if="items.length > 0">
+        <image-modal
+          ref="imageModal"
+          data-cy="segment:imgModal" />
         <dp-data-table
           ref="dataTable"
-          class="overflow-x-auto"
-          :class="isFullscreen ? 'px-2 overflow-y-scroll grow' : '-mt-3'"
+          class="overflow-x-auto pb-3 min-h-12"
+          :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
+          data-cy="segmentsList"
           has-flyout
           :header-fields="headerFields"
           is-resizable
@@ -128,6 +134,11 @@
                   :places="places" />
               </template>
             </v-popover>
+          </template>
+          <template v-slot:statementStatus="rowData">
+            <status-badge
+              class="mt-0.5"
+              :status="statementsObject[rowData.relationships.parentStatement.data.id].attributes.status" />
           </template>
           <template v-slot:internId="rowData">
             <div class="o-hellip__wrapper">
@@ -240,14 +251,16 @@
         </dp-data-table>
 
         <div
+          v-show="!isFullscreen"
           ref="scrollBar"
-          class="sticky bottom-0 left-0 right-0 -mt-3 overflow-x-scroll overflow-y-hidden">
+          class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden">
           <div />
         </div>
       </template>
 
       <dp-inline-notification
         v-else
+        :class="{ 'mx-2': isFullscreen }"
         :message="Translator.trans('segments.none')"
         type="info" />
     </template>
@@ -277,9 +290,11 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearch from './CustomSearch'
 import FilterFlyout from './FilterFlyout'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
+import ImageModal from '@DpJs/components/shared/ImageModal'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
+import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 
 export default {
@@ -297,7 +312,9 @@ export default {
     DpPager,
     DpStickyElement,
     FilterFlyout,
+    ImageModal,
     StatementMetaTooltip,
+    StatusBadge,
     VPopover
   },
 
@@ -348,6 +365,7 @@ export default {
       },
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
+        { field: 'statementStatus', label: Translator.trans('statement.status') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '150px' },
         { field: 'submitter', label: Translator.trans('submitter') },
         { field: 'address', label: Translator.trans('address') },
@@ -370,31 +388,31 @@ export default {
   },
 
   computed: {
-    ...mapGetters('segmentfilter', {
+    ...mapGetters('SegmentFilter', {
       getFilterQuery: 'filterQuery'
     }),
 
-    ...mapState('assignableUser', {
+    ...mapState('AssignableUser', {
       assignableUsersObject: 'items'
     }),
 
-    ...mapState('orga', {
+    ...mapState('Orga', {
       orgaObject: 'items'
     }),
 
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segmentsObject: 'items'
     }),
 
-    ...mapState('statement', {
+    ...mapState('Statement', {
       statementsObject: 'items'
     }),
 
-    ...mapState('tag', {
+    ...mapState('Tag', {
       tagsObject: 'items'
     }),
 
-    ...mapState('place', {
+    ...mapState('Place', {
       placesObject: 'items'
     }),
 
@@ -436,6 +454,10 @@ export default {
       let ids = []
       if (Array.isArray(this.appliedFilterQuery) === false && Object.values(this.appliedFilterQuery).length > 0) {
         ids = Object.values(this.appliedFilterQuery).map(el => {
+          if (!el.condition.value) {
+            return 'unassigned'
+          }
+
           return el.condition.value
         })
       }
@@ -452,19 +474,19 @@ export default {
   },
 
   methods: {
-    ...mapActions('assignableUser', {
+    ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       listSegments: 'list'
     }),
 
-    ...mapActions('place', {
+    ...mapActions('Place', {
       fetchPlaces: 'list'
     }),
 
-    ...mapMutations('segmentfilter', ['updateFilterQuery']),
+    ...mapMutations('SegmentFilter', ['updateFilterQuery']),
 
     applyQuery (page) {
       lscache.remove(this.lsKey.allSegments)
@@ -481,16 +503,48 @@ export default {
         }
       }
       const payload = {
-        include: ['assignee', 'place', 'tags', 'parentStatement.attachments.file'].join(),
+        include: [
+          'assignee',
+          'place',
+          'tags',
+          'parentStatement.genericAttachments.file',
+          'parentStatement.sourceAttachment.file'
+        ].join(),
         page: {
           number: page,
           size: this.pagination.perPage
         },
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
-        filter: filter,
+        filter,
         fields: {
+          File: [
+            'hash'
+          ].join(),
+          GenericStatementAttachment: [
+            'file'
+          ].join(),
           Place: [
             'name'
+          ].join(),
+          SourceStatementAttachment: ['file'].join(),
+          Statement: [
+            'authoredDate',
+            'authorName',
+            'genericAttachments',
+            'isSubmittedByCitizen',
+            'initialOrganisationDepartmentName',
+            'initialOrganisationName',
+            'initialOrganisationStreet',
+            'initialOrganisationHouseNumber',
+            'initialOrganisationPostalCode',
+            'initialOrganisationCity',
+            'internId',
+            'memo',
+            'sourceAttachment',
+            'status',
+            'submitDate',
+            'submitName',
+            'submitType'
           ].join(),
           StatementSegment: [
             'assignee',
@@ -502,26 +556,9 @@ export default {
             'text',
             'recommendation'
           ].join(),
-          Statement: [
-            'attachments',
-            'authoredDate',
-            'authorName',
-            'isSubmittedByCitizen',
-            'initialOrganisationDepartmentName',
-            'initialOrganisationName',
-            'initialOrganisationStreet',
-            'initialOrganisationHouseNumber',
-            'initialOrganisationPostalCode',
-            'initialOrganisationCity',
-            'internId',
-            'memo',
-            'submitDate',
-            'submitName',
-            'submitType'
-          ].join(),
-          Tag: 'title',
-          StatementAttachment: ['file', 'attachmentType'].join(),
-          File: 'hash'
+          Tag: [
+            'title'
+          ].join()
         }
       }
       if (this.searchTerm !== '') {
@@ -547,12 +584,17 @@ export default {
 
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
-            filter: filter,
+            filter,
             search: payload.search
           })
         })
         .finally(() => {
           this.isLoading = false
+          if (this.items.length > 0) {
+            this.$nextTick(() => {
+              this.$refs.imageModal.addClickListener(this.$refs.dataTable.$el.querySelectorAll('img'))
+            })
+          }
         })
     },
 
@@ -594,6 +636,11 @@ export default {
       window.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
     },
 
+    handleResetSearch () {
+      this.resetSearchQuery()
+      this.applyQuery(1)
+    },
+
     handleSizeChange (newSize) {
       // Compute new page with current page for changed number of items per page
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
@@ -602,8 +649,7 @@ export default {
     },
 
     resetQuery () {
-      this.searchTerm = ''
-      this.$refs.customSearch.reset()
+      this.resetSearchQuery()
       this.appliedFilterQuery = []
       Object.keys(this.filters).forEach((filter, idx) => {
         this.$refs.filterFlyout[idx].reset()
@@ -611,6 +657,11 @@ export default {
       this.updateQueryHash()
       this.resetSelection()
       this.applyQuery(1)
+    },
+
+    resetSearchQuery () {
+      this.searchTerm = ''
+      this.$refs.customSearch.reset()
     },
 
     setCurrentSelection (selection) {

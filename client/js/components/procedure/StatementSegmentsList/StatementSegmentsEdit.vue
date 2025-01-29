@@ -86,7 +86,8 @@
         v-else
         class="border space-inset-s">
         <dp-inline-notification
-          class="mt-1"
+          v-if="segmentDraftList"
+          class="mt mb-2"
           :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
           type="warning" />
         <p class="weight--bold">
@@ -168,11 +169,11 @@ export default {
   },
 
   computed: {
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
-    ...mapState('statement', {
+    ...mapState('Statement', {
       statements: 'items'
     }),
 
@@ -216,23 +217,23 @@ export default {
   },
 
   methods: {
-    ...mapMutations('statementSegment', {
+    ...mapMutations('StatementSegment', {
       updateSegment: 'update',
       setSegment: 'setItem'
     }),
 
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       updateSegmentAction: 'update',
       restoreSegmentAction: 'restoreFromInitial',
       saveSegmentAction: 'save',
       listSegments: 'list'
     }),
 
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapMutations('statement', {
+    ...mapMutations('Statement', {
       setStatement: 'setItem'
     }),
 
@@ -280,7 +281,7 @@ export default {
 
     reset (segmentId) {
       // Restore initial text value
-      const initText = this.$store.state.statementSegment.initial[segmentId].attributes.text
+      const initText = this.$store.state.StatementSegment.initial[segmentId].attributes.text
       this.updateSegmentText(segmentId, initText)
       if (this.$refs[`editField_${segmentId}`][0]) {
         this.$refs[`editField_${segmentId}`][0].loading = false
@@ -381,12 +382,12 @@ export default {
     if (Object.keys(this.segments).length === 0 && hasPermission('area_statement_segmentation')) {
       this.isLoading = true
       this.listSegments({
-        include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
+        include: ['assignee', 'comments', 'place', 'tag', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
         sort: 'orderInProcedure',
         fields: {
           Place: ['name', 'sortIndex'].join(),
           SegmentComment: ['creationDate', 'place', 'submitter', 'text'].join(),
-          StatementSegment: ['assignee', 'comments', 'externId', 'recommendation', 'text'].join(),
+          StatementSegment: ['assignee', 'comments', 'externId', 'recommendation', 'text', 'place'].join(),
           User: ['lastname', 'firstname', 'orga'].join(),
           Orga: ['name'].join()
         },

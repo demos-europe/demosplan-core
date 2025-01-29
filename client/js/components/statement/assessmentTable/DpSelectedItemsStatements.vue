@@ -14,6 +14,7 @@
     <button
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
+      data-cy="selectedItemsStatements:edit"
       disabled
       :title="Translator.trans('statement.moved.not.editable')"
       v-if="Object.values(this.selectedElements).every(elem => elem.movedToProcedure === true)">
@@ -26,6 +27,7 @@
     <a
       role="button"
       class="btn--blank u-mr-0_5"
+      data-cy="selectedItemsStatements:edit"
       :href="Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_action', { procedureId: procedureId })"
       v-else-if="editable || false === hasPermission('feature_statement_assignment')">
       <i
@@ -55,6 +57,7 @@
       v-if="canConsolidate"
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
+      data-cy="selectedItemsStatements:consolidate"
       @click="openConsolidateModal">
       <i
         aria-hidden="true"
@@ -65,6 +68,7 @@
     <button
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
+      data-cy="selectedItemsStatements:copy"
       @click="copyElements">
       <i
         aria-hidden="true"
@@ -75,7 +79,7 @@
     <button
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
-      data-cy="triggerDeletion"
+      data-cy="selectedItemsStatements:delete"
       @click="triggerDeletion">
       <i
         aria-hidden="true"
@@ -86,6 +90,7 @@
     <button
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
+      data-cy="selectedItemsStatements:export"
       @click.prevent="$root.$emit('exportModal:toggle', 'docx')">
       <i
         aria-hidden="true"
@@ -139,20 +144,21 @@ export default {
   },
 
   computed: {
-    ...mapGetters('statement', [
+    ...mapGetters('Statement', [
       'selectedElementsLength',
       'selectedElements'
     ]),
 
-    ...mapGetters('fragment', [
+    ...mapGetters('Fragment', [
       'fragmentsByStatement'
     ]),
 
-    ...mapState('statement', [
+    ...mapState('Statement', [
+      'filterHash',
       'statements'
     ]),
 
-    ...mapState('fragment', [
+    ...mapState('Fragment', [
       'fragments'
     ]),
 
@@ -196,16 +202,16 @@ export default {
   },
 
   methods: {
-    ...mapActions('fragment', [
+    ...mapActions('Fragment', [
       'loadFragments'
     ]),
 
-    ...mapMutations('statement', [
+    ...mapMutations('Statement', [
       'updateStatement',
       'resetSelection'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setModalProperty'
     ]),
 
@@ -244,12 +250,12 @@ export default {
           const orgaName = response.included.find(elem => elem.type === 'Claim').attributes.orgaName
 
           // Commit mutation for each element
-          response.data.relationships.statements.data.forEach(statement => this.$store.commit('statement/updateStatement', {
+          response.data.relationships.statements.data.forEach(statement => this.$store.commit('Statement/updateStatement', {
             id: statement.id,
             assignee: {
               id: assignee.id,
               name: assignee.attributes.name,
-              orgaName: orgaName,
+              orgaName,
               uId: assignee.id
             },
             currentUserId: this.currentUserId
@@ -306,7 +312,7 @@ export default {
 
     deleteElements (event) {
       sessionStorage.setItem('selectedElements', '{}')
-      window.submitForm(event, 'delete')
+      window.submitForm(event, 'delete', this.filterHash)
     },
 
     fetchFragmentByStatement (statement) {

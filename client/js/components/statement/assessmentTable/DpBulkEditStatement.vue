@@ -105,6 +105,7 @@
             </template>
             <template v-slot:button>
               <button
+                v-if="hasPermission('area_admin_boilerplates')"
                 :class="prefixClass('menubar__button')"
                 type="button"
                 v-tooltip="Translator.trans('boilerplate.insert')"
@@ -290,8 +291,8 @@ export default {
   },
 
   computed: {
-    ...mapState('statement', ['selectedElements']),
-    ...mapGetters('statement', ['selectedElementsLength']),
+    ...mapState('Statement', ['selectedElements']),
+    ...mapGetters('Statement', ['selectedElementsLength']),
 
     // Array with keys (names) of all checked options
     checkedOptions () {
@@ -315,7 +316,7 @@ export default {
     payloadRelationships () {
       return {
         statements: {
-          data: this.selectedElementsIds.map(id => ({ id: id, type: 'statement' }))
+          data: this.selectedElementsIds.map(id => ({ id, type: 'statement' }))
         },
         ...(this.options.newAssignee.checked && { assignee: { data: this.options.newAssignee.value !== '' ? { type: 'user', id: this.options.newAssignee.value.id } : null } })
       }
@@ -331,10 +332,10 @@ export default {
   },
 
   methods: {
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       resetSelectionAction: 'resetSelection'
     }),
-    ...mapActions('statement', ['setSelectedElementsAction', 'setProcedureIdAction']),
+    ...mapActions('Statement', ['setSelectedElementsAction', 'setProcedureIdAction']),
 
     handleReturn () {
       this.resetSelectionAction()

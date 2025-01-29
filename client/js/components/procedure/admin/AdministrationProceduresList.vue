@@ -301,7 +301,7 @@ export default {
           }
         },
         include: 'procedure',
-        sort: sort
+        sort
       }
 
       dpApi.get(url, params)
@@ -321,6 +321,11 @@ export default {
             originalStatementsCount: el.attributes.originalStatementsCount,
             statementsCount: el.attributes.statementsCount
           }))
+        })
+        .catch(e => {
+          console.error(e)
+        })
+        .finally(() => {
           this.isLoading = false
         })
     },

@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -63,7 +64,7 @@ class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInt
         return new SecurityUser($this->loadUserByLogin($identifier));
     }
 
-    public function upgradePassword(UserInterface $user, string $newHashedPassword): void
+    public function upgradePassword(UserInterface|PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
         $userEntity = $this->loadUserByLogin($user->getUserIdentifier());
         $this->userRepository->upgradePassword($userEntity, $newHashedPassword);

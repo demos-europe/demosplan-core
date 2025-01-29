@@ -19,6 +19,7 @@
             {{ 'subject'|trans }}
             <input
                 class="layout__item u-pl-0"
+                data-cy="sendEmailConfirm:emailSubject"
                 type="text"
                 name="r_email_subject"
                 value="{{ templateVars.preparationMail.mailSubject }}"
@@ -30,7 +31,7 @@
             {{ 'email.body'|trans }}
         </label>
 
-        <div>{{ templateVars.preparationMail.mailBody|wysiwyg }}</div>
+        <div class="c-styled-html">{{ templateVars.preparationMail.mailBody|wysiwyg }}</div>
         <input type="hidden" name="r_email_body" value="{{ templateVars.preparationMail.mailBody }}"/>
 
         {{ uiComponent('form.element', {

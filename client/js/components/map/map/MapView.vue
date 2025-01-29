@@ -101,7 +101,7 @@
           class="border--bottom u-pv-0_5 u-mb-0_5 flow-root">
           <i
             aria-hidden="true"
-            class="fa fa-map-marker u-ml-0_25 color--grey-light"/>
+            class="fa fa-map-marker u-ml-0_25 color--grey-light" />
           <dp-ol-map-draw-feature
             data-cy="setMapRelation"
             :features="procedureCoordinatesFeature"
@@ -258,7 +258,8 @@ export default {
 
     updateCoordinates (data) {
       const features = JSON.parse(data).features
-      if (JSON.parse(data).features.length > 0) {
+
+      if (features.length > 0) {
         this.coordinate = features[0].geometry.coordinates
         this.emitFieldUpdate({ field: 'coordinate', data: this.coordinate })
       }

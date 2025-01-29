@@ -182,7 +182,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setRefreshButtonVisibility'
     ]),
 

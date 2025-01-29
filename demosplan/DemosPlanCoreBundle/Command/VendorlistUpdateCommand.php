@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Support\Collection;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,7 +24,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
-use Tightenco\Collect\Support\Collection;
 
 class VendorlistUpdateCommand extends CoreCommand
 {
@@ -128,6 +128,7 @@ class VendorlistUpdateCommand extends CoreCommand
 
             $progressBar->finish();
 
+            // local file only, no need for flysystem
             $fs = new Filesystem();
             $this->dumpPhpLicenseFile($fs, $phpLicenses);
 
@@ -177,6 +178,7 @@ class VendorlistUpdateCommand extends CoreCommand
             $json = collect(explode("\n", trim($yarn->getOutput())))->last();
             $dependencies = Json::decodeToArray($json)['data']['body'];
 
+            // uses local file, no need for flysystem
             $packageJson = Json::decodeToArray(
                 \file_get_contents(DemosPlanPath::getRootPath('package.json'))
             );
@@ -216,6 +218,7 @@ class VendorlistUpdateCommand extends CoreCommand
 
             $progressBar->finish();
 
+            // local file only, no need for flysystem
             $fs = new Filesystem();
             $filename = DemosPlanPath::getRootPath(self::JS_PATH_JSON);
             $formattedJsLicenses = $jsLicenses->values()->toJson(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);

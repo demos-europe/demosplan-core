@@ -49,7 +49,7 @@
     <dp-inline-notification
       v-else
       type="info"
-      class="u-mt-1_5 u-mb"
+      class="u-mt-1_5 mb-4"
       :message="Translator.trans('explanation.noentries')" />
   </div>
 </template>
@@ -81,15 +81,15 @@ export default {
   },
 
   computed: {
-    ...mapState('segmentSlidebar', [
+    ...mapState('SegmentSlidebar', [
       'isLoading'
     ]),
 
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
-    ...mapGetters('segmentSlidebar', [
+    ...mapGetters('SegmentSlidebar', [
       'commentsList',
       'procedureId',
       'showForm',
@@ -118,15 +118,15 @@ export default {
   },
 
   methods: {
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       listSegments: 'list'
     }),
 
-    ...mapActions('segmentComment', {
+    ...mapActions('SegmentComment', {
       listComments: 'list'
     }),
 
-    ...mapMutations('segmentSlidebar', [
+    ...mapMutations('SegmentSlidebar', [
       'setContent'
     ]),
 
