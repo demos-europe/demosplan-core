@@ -1,74 +1,8 @@
 <template>
   <div>
-    <tag-list-header />
+    <tags-list-header />
 
-    <dp-modal
-      content-classes="w-2/3"
-      ref="createTagModal"
-      :aria-label="Translator.trans('tag.new.create')"
-      aria-modal="true">
-      <template v-slot:header>
-        Create Tag
-      </template>
-
-      <template>
-        <dp-input
-          v-model="newTag.title"
-          id="new-tag-title"
-          class="mb-1"
-          :label="{
-            text: Translator.trans('tag.new.create')
-          }"
-          :placeholder="Translator.trans('title')" />
-
-        <div class="mb-1">
-          <dp-select :options="topicsAsOptions" v-model="newTag.topic" />
-        </div>
-
-        <addon-wrapper
-          class="block mb-1"
-          hook-name="tag.create.form"
-          @input="updateForm"
-          @change="updateForm" />
-
-        <dp-button
-          :text="Translator.trans('tag.create')"
-          @click="saveNewTag" />
-      </template>
-    </dp-modal>
-
-    <dp-modal
-      content-classes="w-2/3"
-      ref="createTagTopicModal"
-      aria-label="Create Topic"
-      aria-modal="true">
-      <template v-slot:header>
-        {{ Translator.trans('topic.create') }}
-      </template>
-
-      <dp-input
-        v-model="newTopic.title"
-        id="new-topic-title"
-        class="mt-2"
-        :placeholder="Translator.trans('title')" />
-      <div class="flex justify-end mt-2">
-        <dp-button
-          :text="Translator.trans('topic.create.short')"
-          @click="saveNewTopic" />
-      </div>
-    </dp-modal>
-
-    <div class="flex justify-end mb-2">
-      <dp-button
-        :text="Translator.trans('tag.create')"
-        @click="() => toggleCreateModal({ type: 'Tag' })" />
-      <dp-button
-        class="ml-1"
-        color="secondary"
-        :text="Translator.trans('topic.create.short')"
-        variant="outline"
-        @click="() => toggleCreateModal({ type: 'TagTopic' })" />
-    </div>
+    <tags-create-form :procedure-id="procedureId" />
 
     <dp-tree-list
       v-if="transformedCategories"
@@ -84,7 +18,7 @@
           childDeselect: true
         }
       }"
-      :branch-identifier="branchFunc()"
+      :branch-identifier="isBranch"
       @draggable:change="changeTopic">
       <template v-slot:header>
         <div class="flex">
@@ -139,43 +73,38 @@
 import {
   checkResponse,
   DpButton,
-  DpCheckbox,
   DpIcon,
   DpInput,
   DpLoading,
   DpModal,
   dpRpc,
-  DpSelect,
   DpTreeList,
-  DpUpload,
-  dpValidateMixin
+  DpUpload
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import TagsCreateForm from './TagsCreateForm'
+import TagsImportForm from './TagsImportForm'
 import TagListBulkControls from './TagListBulkControls'
 import TagListEditForm from './TagListEditForm'
-import TagsImportForm from './TagsImportForm'
-import TagListHeader from './TagListHeader'
-
-
+import TagsListHeader from './TagsListHeader'
 export default {
   name: 'TagsList',
 
   components: {
     AddonWrapper,
     DpButton,
-    DpCheckbox,
     DpIcon,
     DpInput,
     DpLoading,
     DpModal,
     DpUpload,
-    DpSelect,
     DpTreeList,
+    TagsCreateForm,
     TagsImportForm,
     TagListBulkControls,
     TagListEditForm,
-    TagListHeader
+    TagsListHeader
   },
 
   props: {
@@ -185,24 +114,10 @@ export default {
     }
   },
 
-  mixins: [dpValidateMixin],
-
   data() {
     return {
       dataIsRequested: false,
-      isInEditState: '',
-      newTag: {
-        title: '',
-        topic: ''
-      },
-      newTopic: {
-        title: ''
-      },
-      // This is necessary to allow extending the Tags-Resource
-      tagAttributes: {
-        boilerplate: '',
-        title: ''
-      }
+      isInEditState: ''
     }
   },
 
@@ -213,10 +128,6 @@ export default {
     ...mapState('TagTopic', {
       TagTopic: 'items'
     }),
-
-    tagAttributeKeys () {
-      return Object.keys(this.tagAttributes)
-    },
 
     topicsAsOptions () {
       return Object.values(this.TagTopic).map(category => {
@@ -280,15 +191,28 @@ export default {
       this.isInEditState = ''
     },
 
-    branchFunc () {
-      return function ({ node }) {
-        return node.type === 'TagTopic'
-      }
+    addTagToNewTopic (parentTopic, tagId) {
+      this.updateTagTopic({
+        id: parentTopic.id,
+        type: 'TagTopic',
+        attributes: parentTopic.attributes,
+        relationships: {
+          tags: {
+            data: [
+              ...parentTopic.relationships.tags.data,
+              {
+                id: tagId,
+                type: 'Tag'
+              }
+            ]
+          }
+        }
+      })
+
+      this.saveTagTopic(parentTopic.id)
     },
 
     changeTopic ({ elementId, parentId }) {
-      console.log('changeTopic', { elementId, parentId })
-
       if (!parentId) {
         console.error('No parentId provided:', { elementId, parentId })
 
@@ -301,58 +225,23 @@ export default {
         const parentTopic = { ...this.TagTopic[parentId] }
         const oldParent = Object.values(this.TagTopic).find(topic => topic.relationships.tags.data.find(tag => tag.id === elementId))
 
-        // Add tag to new topic
-        this.updateTagTopic({
-          id: parentTopic.id,
-          type: 'TagTopic',
-          attributes: parentTopic.attributes,
-          relationships: {
-            tags: {
-              data: [
-                ...parentTopic.relationships.tags.data,
-                {
-                  id: elementId,
-                  type: 'Tag'
-                }
-              ]
-            }
-          }
-        })
-
-        // remove Tag from old topic
-        const oldParentTags = [...oldParent.relationships?.tags?.data || []]
-        const indexToBeRemoved = oldParentTags.findIndex(el => el.id === elementId)
-        oldParentTags.splice(indexToBeRemoved, 1)
-
-        this.updateTagTopic({
-          id: oldParent.id,
-          attributes: oldParent.attributes,
-          type: 'TagTopic',
-          relationships: {
-            tags: {
-              data: oldParentTags
-            }
-          }
-        })
-
-        this.saveTagTopic(parentTopic.id)
-        this.saveTagTopic(oldParent.id)
-          .then(payload => {
-            console.log('tagtopic saved', payload)
-          })
+        this.addTagToNewTopic(parentTopic, elementId)
+        this.removeTagFromOldTopic(oldParent, elementId)
       } else {
         dplan.notify.notify('warning', Translator.trans('tags.can.only.be.moved.to.topics'))
       }
     },
 
     deleteItem (item) {
-      console.log(item, 'rpc delete')
-
       dpRpc('bulk.delete.tags.and.topics', { ids: [item] })
         .then(checkResponse)
         .then(response => {
           console.log(response, 'response delete')
         })
+    },
+
+    isBranch ({ node }) {
+      return node.type === 'TagTopic'
     },
 
     loadTagsAndTopics () {
@@ -366,7 +255,7 @@ export default {
 
       this.listTagTopics({
         fields: {
-          Tag: this.tagAttributeKeys.join(),
+          Tag: ['boilerplate', 'title'].join(),
           TagTopic: topicAttributes.join(),
           Boilerplate: [
             'title'
@@ -377,8 +266,23 @@ export default {
       })
     },
 
-    toggleCreateModal ({ type = 'Tag' }) {
-      this.$refs[`create${type}Modal`].toggle()
+    removeTagFromOldTopic (oldParent, tagId) {
+      const oldParentTags = [...oldParent.relationships?.tags?.data || []]
+      const indexToBeRemoved = oldParentTags.findIndex(el => el.id === tagId)
+      oldParentTags.splice(indexToBeRemoved, 1)
+
+      this.updateTagTopic({
+        id: oldParent.id,
+        attributes: oldParent.attributes,
+        type: 'TagTopic',
+        relationships: {
+          tags: {
+            data: oldParentTags
+          }
+        }
+      })
+
+      this.saveTagTopic(oldParent.id)
     },
 
     save ({ id, attributes, type }) {
@@ -400,96 +304,13 @@ export default {
         })
     },
 
-    saveNewTag () {
-      this.createTag({
-        type: 'Tag',
-        attributes: {
-          title: this.newTag.title
-        },
-        relationships: {
-          topic: {
-            data: {
-              type: 'TagTopic',
-              id: this.newTag.topic
-            }
-          }
-        }
-      })
-        .then(response => {
-          console.log(response, 'response new tag')
-          const parentTopic = this.TagTopic[this.newTag.topic]
-
-          if (!response.data.Tag || !parentTopic) {
-            return
-          }
-
-          const newTagId = Object.keys(response.data.Tag)[0]
-          const topicRelations = parentTopic.relationships
-
-          this.updateTagTopic({
-            id: this.newTag.topic,
-            type: 'TagTopic',
-            attributes: parentTopic.attributes,
-            relationships: {
-              tags: {
-                data: [
-                  ...topicRelations.tags.data,
-                  {
-                    type: 'Tag',
-                    id: newTagId
-                  }
-                ]
-              }
-            }
-          })
-
-        this.$root.$emit('tag:created', newTagId)
-        // Close Modal and Reset form data
-        this.toggleCreateModal({ type: 'Tag' })
-        this.isInEditState = ''
-        this.newTag = this.tagAttributes
-      })
-    },
-
-    saveNewTopic () {
-      console.log('saveNewTopic', this.newTopic)
-      this.createTagTopic({
-        type: 'TagTopic',
-        attributes: {
-          title: this.newTopic.title
-        },
-        relationships: {
-          procedure: {
-            data: {
-              type: 'Procedure',
-              id: this.procedureId
-            }
-          }
-        }
-      })
-        .then(() => {
-          this.isInEditState = ''
-          this.newTopic = {
-            title: ''
-          }
-          this.toggleCreateModal({ type: 'TagTopic' })
-        })
-
-    },
-
     setEditState ({ id }) {
       this.isInEditState = id
-    },
-
-    updateForm (value) {
-      console.log('updateForm', value)
-      this.newTag[value.key] = value.value
     }
   },
 
   mounted () {
     this.loadTagsAndTopics()
-  },
-
+  }
 }
 </script>
