@@ -226,7 +226,6 @@ export default {
       dpRpc('bulk.delete.tags.and.topics', { ids: [item] })
         .then(checkResponse)
         .then(() => {
-          this.dataIsRequested = false
           this.loadTagsAndTopics()
         })
     },
@@ -254,6 +253,8 @@ export default {
         },
         include: 'tags,tags.boilerplate',
         sort: 'title'
+      }).then(() => {
+        this.dataIsRequested = false
       })
     },
 
