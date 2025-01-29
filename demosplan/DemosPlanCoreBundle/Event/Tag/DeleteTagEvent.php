@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 class DeleteTagEvent extends DPlanEvent implements DeleteTagEventInterface
 {
     private bool $handledSuccessfully = false;
+
     public function __construct(private string $tagId)
     {
     }
@@ -24,6 +25,7 @@ class DeleteTagEvent extends DPlanEvent implements DeleteTagEventInterface
     {
         return $this->tagId;
     }
+
     public function hasBeenHandledSuccessfully(): bool
     {
         return $this->handledSuccessfully;

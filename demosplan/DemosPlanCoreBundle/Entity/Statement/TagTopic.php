@@ -51,15 +51,11 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
     protected $id;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="_tt_title", type="string", length=255,  nullable=false)
      */
     protected string $title = '';
 
     /**
-     * @var DateTime
-     *
      * @ORM\Column(name="_tt_create_date", type="datetime", nullable=false)
      *
      * @Gedmo\Timestampable(on="create")
@@ -67,8 +63,6 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
     protected DateTime $createDate;
 
     /**
-     * @var ProcedureInterface
-     *
      * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="topics")
      *
      * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable = false, onDelete="CASCADE")
@@ -86,9 +80,6 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
 
     /**
      * * Necessary to set Type of $this->tags.
-     *
-     * @param string             $title
-     * @param ProcedureInterface $procedure
      */
     public function __construct(string $title = '', ProcedureInterface $procedure)
     {
