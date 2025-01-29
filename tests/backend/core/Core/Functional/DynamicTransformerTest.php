@@ -418,7 +418,9 @@ class DynamicTransformerTest extends JsonApiTest
         ]);
 
         return new DynamicTransformer(
-            $type,
+            $type->getTypeName(),
+            $type->getEntityClass(),
+            $type->getReadability(),
             new MessageFormatter(),
             $apiLogger
         );
