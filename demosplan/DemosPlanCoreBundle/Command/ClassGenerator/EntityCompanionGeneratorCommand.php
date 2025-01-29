@@ -73,7 +73,7 @@ class EntityCompanionGeneratorCommand extends CoreCommand
         protected readonly PathClassFromEntityGenerator $pathClassGenerator,
         protected readonly TypeHolderGenerator $typeHolderGenerator,
         ParameterBagInterface $parameterBag,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
 
@@ -203,13 +203,13 @@ class EntityCompanionGeneratorCommand extends CoreCommand
 
     protected function getConfigClassGenerator(ClassOrInterfaceType $entityType): ResourceConfigBuilderFromEntityGenerator
     {
-        $parentDetector = new class() extends AbstractTypeFromInterfaceDetector {
+        $parentDetector = new class extends AbstractTypeFromInterfaceDetector {
             protected function isCorrectInterface(string $interface, ReflectionClass $class): bool
             {
                 return match ($class->getName()) {
                     PlatformFaq::class         => FaqInterface::class === $interface,
                     PlatformFaqCategory::class => FaqCategoryInterface::class === $interface,
-                    default                    => str_ends_with($interface, "DemosEurope\DemosplanAddon\Contracts\Entities\\{$class->getShortName()}Interface")
+                    default                    => str_ends_with($interface, "DemosEurope\DemosplanAddon\Contracts\Entities\\{$class->getShortName()}Interface"),
                 };
             }
         };
