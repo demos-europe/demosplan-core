@@ -50,7 +50,8 @@ WORKDIR /srv/www
 # Install composer and yarn before copying the project files to make use of the docker cache
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
 # do not use --no-scripts, as we do not need all the aws stuff
-RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,uid=33,gid=33 composer install -o --prefer-dist --no-dev --no-progress && \
+RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,uid=33,gid=33 \
+    composer install -o --prefer-dist --no-dev --no-progress && \
     yarn install --immutable && \
     yarn cache clean && \
     rm -rf /srv/www/.cache/*
@@ -78,6 +79,7 @@ USER www-data
 # during addon install the cache is deleted and the command "fails" because it does not find the cache
 # the command is executed with "|| true" to prevent the build from failing
 RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
+    --mount=type=cache,target=/var/www,uid=33,gid=33 \
     ACTIVE_PROJECT=$PROJECT_NAME bin/console dplan:addon:autoinstall -e prod --no-debug || true && \
      ./fe build $PROJECT_NAME --prod && \
     rm -rf /srv/www/node_modules && \
