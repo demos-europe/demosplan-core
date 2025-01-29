@@ -54,7 +54,7 @@
         {{ Translator.trans('organisation') }}*
       </label>
       <dp-multiselect
-        v-if="hasPermission('area_organisations')"
+        v-if="hasPermission('feature_organisation_user_list')"
         :id="userId + ':organisationId'"
         ref="orgasDropdown"
         data-cy="organisation"
@@ -91,7 +91,7 @@
         }"
         :options="departmentSelectOptions"
         required
-        :selected="localUser.relationships.department.data.id"
+        :selected="localUser.relationships.department.data?.id || ''"
         @select="changeUserDepartment" />
     </div>
 
@@ -107,9 +107,9 @@
       <dp-multiselect
         :id="userId + ':userRoles'"
         ref="rolesDropdown"
-        class="u-mb-0_5"
+        class="u-mb-0_5 whitespace-normal"
         :custom-label="option =>`${ roles[option.id].attributes.name }`"
-        data-cy="role"
+        data-cy="roles"
         label="name"
         multiple
         :options="allowedRolesForOrga"
@@ -208,23 +208,23 @@ export default {
   },
 
   computed: {
-    ...mapGetters('role', {
+    ...mapGetters('Role', {
       rolesInRelationshipFormat: 'itemsInRelationshipFormat'
     }),
 
-    ...mapGetters('orga', {
+    ...mapGetters('Orga', {
       orgasInRelationshipFormat: 'itemsInRelationshipFormat'
     }),
 
-    ...mapState('orga', {
+    ...mapState('Orga', {
       organisations: 'items'
     }),
 
-    ...mapState('department', {
+    ...mapState('Department', {
       departments: 'items'
     }),
 
-    ...mapState('role', {
+    ...mapState('Role', {
       roles: 'items'
     }),
 
@@ -242,7 +242,7 @@ export default {
       if (this.currentUserOrga.id === '') {
         allowedRoles = this.rolesInRelationshipFormat
       } else if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
-        allowedRoles = Object.values(this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list())
+        allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.data
       } else {
         allowedRoles = this.getOrgaAllowedRoles(this.currentUserOrga.id)
       }
@@ -267,11 +267,11 @@ export default {
     },
 
     isDepartmentSet () {
-      return this.localUser.relationships.department.data.id !== ''
+      return this.localUser.relationships.department.data?.id !== ''
     },
 
     isManagingSingleOrganisation () {
-      return hasPermission('area_organisations') === false && this.presetUserOrgaId
+      return !hasPermission('feature_organisation_user_list') && this.presetUserOrgaId
     },
 
     isUserSet () {
@@ -284,11 +284,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('orga', {
-      organisationList: 'list'
-    }),
-
-    ...mapMutations('orga', ['setItem']),
+    ...mapMutations('Orga', ['setItem']),
 
     addRole (role) {
       this.localUser.relationships.roles.data.push(role)
@@ -298,7 +294,7 @@ export default {
     changeUserDepartment (departmentId) {
       this.localUser.relationships.department.data = {
         id: departmentId,
-        type: 'department'
+        type: 'Department'
       }
 
       this.$emit('user-update', this.localUser)
@@ -322,7 +318,7 @@ export default {
      * Fetch organisation of user or, in DpCreateItem, of currently logged-in user
      */
     fetchCurrentOrganisation () {
-      const orgaId = this.user.relationships.orga?.data?.id
+      const orgaId = this.user.relationships?.orga?.data?.id
         ? this.user.relationships.orga.data.id
         : this.presetUserOrgaId
       if (orgaId !== '') {
@@ -349,8 +345,8 @@ export default {
 
       this.fetchOrgaById(orgaId).then((orga) => {
         this.setOrga(orga.data.data)
-        if (hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
-          allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.list()
+        if (this.currentUserOrga.id && hasOwnProp(this.organisations[this.currentUserOrga.id].relationships, 'allowedRoles')) {
+          allowedRoles = this.organisations[this.currentUserOrga.id].relationships.allowedRoles.data
         }
       })
 
@@ -362,11 +358,21 @@ export default {
      *  @param types {Array}
      */
     handleUndefinedRelationships (types) {
+      if (!this.localUser.relationships) {
+        this.localUser.relationships = {}
+      }
+
       types.forEach(type => {
-        if (typeof this.localUser.relationships[type] === 'undefined' || this.localUser.relationships[type] === null) {
-          this.localUser.relationships[type] = {
-            data: {
-              id: ''
+        if (!this.localUser.relationships[type]) {
+          if (type === 'roles') {
+            this.localUser.relationships.roles = {
+              data: []
+            }
+          } else {
+            this.localUser.relationships[type] = {
+              data: {
+                id: ''
+              }
             }
           }
         }
@@ -379,7 +385,7 @@ export default {
     },
 
     resetData () {
-      if (hasPermission('area_organisations') === false) {
+      if (!hasPermission('feature_organisation_user_list')) {
         const plainUser = JSON.parse(JSON.stringify(this.user))
         delete plainUser.relationships
         plainUser.relationships = this.localUser.relationships
@@ -402,7 +408,6 @@ export default {
     setCurrentUserOrganisation (organisation, rels) {
       this.currentUserOrga = { ...organisation, relationships: rels }
       this.localUser.relationships.orga.data = { id: organisation.id, type: organisation.type }
-      this.localUser.relationships.orga.relationships = rels
     },
 
     setDefaultDepartment (organisation) {
@@ -466,7 +471,7 @@ export default {
               ? payloadRel.allowedRoles.data.map(el => {
                 return {
                   ...el,
-                  type: 'role'
+                  type: 'Role'
                 }
               })
               : null
@@ -474,7 +479,7 @@ export default {
           currentSlug: {
             data: {
               id: payloadRel.currentSlug.data.id,
-              type: 'slug'
+              type: 'Slug'
             }
           },
           departments: {
@@ -482,7 +487,7 @@ export default {
               ? payloadRel.departments.data.map(el => {
                 return {
                   ...el,
-                  type: 'department'
+                  type: 'Department'
                 }
               })
               : null
@@ -496,7 +501,7 @@ export default {
 
   created () {
     this.localUser = JSON.parse(JSON.stringify(this.user))
-    this.handleUndefinedRelationships(['orga', 'department'])
+    this.handleUndefinedRelationships(['department', 'orga', 'roles'])
   },
 
   mounted () {

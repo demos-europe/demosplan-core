@@ -9,6 +9,7 @@
 
 import {
   DpAccordion,
+  DpContextualHelp,
   DpFlyout,
   DpObscure,
   dpValidateMultiselectDirective,
@@ -64,12 +65,13 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
         ...components,
         BackToTopButton,
         DpAccordion,
+        DpContextualHelp,
         DpFlyout,
         HamburgerMenuButton,
         NotifyContainer,
         RegisterFlyout
       },
-      store: store,
+      store,
       mounted () {
         window.dplan.notify = new NotificationStoreAdapter(this.$store)
         loadLibs()

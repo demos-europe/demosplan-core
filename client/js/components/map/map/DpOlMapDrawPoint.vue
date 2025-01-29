@@ -10,6 +10,7 @@
 <template>
   <button
     type="button"
+    data-cy="map:mapDrawPoint"
     @click="activate"
     :class="[prefixClass('btn--blank o-link--default weight--bold'), active ? prefixClass('color-highlight') : '']">
     <i

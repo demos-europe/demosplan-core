@@ -12,7 +12,7 @@ import { initJsonApiPlugin, prepareModuleHashMap, StaticRouter } from '@efrane/v
 import notify from './Notify'
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { VuexApiRoutes } from './VuexApiRoutes'
+import { api1_0Routes, generateApi2_0Routes } from './VuexApiRoutes'
 
 function registerPresetModules (store, presetStoreModules) {
   if (Object.keys(presetStoreModules).length > 0) {
@@ -38,7 +38,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
   Vue.use(Vuex)
 
   const staticModules = { notify, ...storeModules }
-
+  const VuexApiRoutes = [...generateApi2_0Routes(apiStoreModules), ...api1_0Routes]
   // This should probably be replaced with an adapter to our existing routes
   const router = new StaticRouter(VuexApiRoutes)
 
@@ -64,32 +64,53 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
         plugins: [
           initJsonApiPlugin({
             apiModules: apiStoreModules,
-            router: router,
-            baseUrl: baseUrl,
+            router,
+            baseUrl,
             headers: {
               'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
               'X-Demosplan-Procedure-Id': dplan.procedureId
             },
-            preprocessingCallbacks: [
-              (response) => {
-                if (typeof response.data !== 'undefined' &&
-                typeof response.data.meta !== 'undefined' &&
-                typeof response.data.meta.messages !== 'undefined') {
-                  handleResponseMessages(response.data.meta)
+            successCallbacks: [
+              async (success) => {
+                // If the response body is empty, contentType will be null
+                const contentType = success.headers.get('Content-Type')
+
+                if (contentType && contentType.includes('application/json')) {
+                  const response = await success.json()
+
+                  const meta = response.data?.meta
+                    ? response.data.meta
+                    : response.meta || null
+                  if (meta?.messages) {
+                    handleResponseMessages(meta)
+                  }
+
+                  return Promise.resolve(response)
                 }
-                return Promise.resolve(response)
+
+                return Promise.resolve(success)
               }
             ],
             errorCallbacks: [
-              (err) => {
-                const response = err.response
-                if (typeof response !== 'undefined' &&
-                typeof response.data !== 'undefined' &&
-                typeof response.data.meta !== 'undefined' &&
-                typeof response.data.meta.messages !== 'undefined') {
-                  handleResponseMessages(response.data.meta)
+              async (error) => {
+                // If the response body is empty, contentType will be null
+                const contentType = error.headers.get('Content-Type')
+
+                if (contentType && contentType.includes('application/json')) {
+                  const response = await error.json()
+
+                  const meta = response.data?.meta
+                    ? response.data.meta
+                    : response.meta || null
+
+                  if (meta?.messages) {
+                    handleResponseMessages(meta)
+                  }
+
+                  return Promise.reject(response)
                 }
-                return Promise.reject(err)
+
+                return Promise.reject(error)
               }
             ]
           }),

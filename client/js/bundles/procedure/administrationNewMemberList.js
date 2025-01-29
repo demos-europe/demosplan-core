@@ -17,4 +17,6 @@ const components = {
   DpAddOrganisationList
 }
 
-initialize(components, {}, ['invitableToeb'])
+const apiStores = ['InvitableToeb']
+
+initialize(components, {}, apiStores)

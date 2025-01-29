@@ -37,6 +37,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -137,14 +138,14 @@ class DemosPlanOrgaController extends BaseController
      *
      * @throws MessageBagException
      */
-    #[Route(name: 'DemosPlan_orga_edit_save', path: '/organisation/edit/{orgaId}', methods: ['POST'])]
+    #[Route(name: 'DemosPlan_orga_edit_save', path: '/organisation/edit/{orgaId}', methods: ['POST'], options: ['expose' => true])]
     public function editOrgaSaveAction(
         CurrentUserService $currentUser,
         EventDispatcherPostInterface $eventDispatcherPost,
         Request $request,
         UserHandler $userHandler,
         OrgaHandler $orgaHandler,
-        string $orgaId
+        string $orgaId,
     ) {
         $requestPost = $request->request;
         $accessPreventionRedirect = $this->preventInvalidOrgaAccess($orgaId, $currentUser->getUser());
@@ -179,6 +180,7 @@ class DemosPlanOrgaController extends BaseController
                 }
             }
         }
+
         // Lade die Seite neu, damit das Formular nicht erneut abgeschickt werden kann
         return $this->redirectToRoute('DemosPlan_orga_edit_view', ['orgaId' => $orgaId]);
     }
@@ -337,7 +339,7 @@ class DemosPlanOrgaController extends BaseController
         CurrentUserInterface $currentUser,
         OsiHHAuthenticator $osiHHAuthenticator,
         Request $request,
-        UserAuthenticatorInterface $userAuthenticator
+        UserAuthenticatorInterface $userAuthenticator,
     ): Response {
         // Wenn es zwei Organisationen zu dem User gibt, tausche die aktive Session aus
         if ($currentUser->getUser()->hasTwinUser()) {
@@ -373,6 +375,8 @@ class DemosPlanOrgaController extends BaseController
         $templateVars = [];
         $orga = $this->orgaHandler->getOrga($orgaId);
         $templateVars['orga'] = $orga;
+        $templateVars['submissionTypeDefault'] = Orga::STATEMENT_SUBMISSION_TYPE_DEFAULT;
+        $templateVars['submissionTypeShort'] = Orga::STATEMENT_SUBMISSION_TYPE_SHORT;
 
         // Add OrgaTypes to frontend. Needed in create orga form.
         $templateVars['orgaTypes'] = [];
@@ -424,9 +428,10 @@ class DemosPlanOrgaController extends BaseController
     public function createOrgaRegisterAction(
         CsrfTokenManagerInterface $csrfTokenManager,
         EventDispatcherPostInterface $eventDispatcherPost,
+        RateLimiterFactory $userRegisterLimiter,
         Request $request,
         OrgaService $orgaService,
-        CustomerHandler $customerHandler
+        CustomerHandler $customerHandler,
     ): RedirectResponse {
         try {
             // check Honeypotfields
@@ -454,6 +459,14 @@ class DemosPlanOrgaController extends BaseController
             // in xhr requests. We do not need this here, instead, we need to
             // make sure that the token is only valid once.
             $csrfTokenManager->refreshToken($tokenId);
+
+            // avoid brute force attacks
+            $limiter = $userRegisterLimiter->create($request->getClientIp());
+            if (false === $limiter->consume()->isAccepted()) {
+                $this->messageBag->add('warning', 'warning.user.register.throttle');
+
+                return $this->redirectToRoute('core_home');
+            }
 
             $customer = $customerHandler->getCurrentCustomer();
             $customerName = $customer->getName();

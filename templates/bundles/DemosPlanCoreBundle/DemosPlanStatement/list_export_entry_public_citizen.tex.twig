@@ -64,7 +64,7 @@
                 {{ "file"|trans|latex|raw }}: &
                 {% if statement.files|default([])|length > 0 %}
                     {% for file in statement.files %}
-                        {{ file|getFile('name')|raw }}
+                        {{ file|getFile('name')|latex|raw }}
                     {% endfor%}
                 {% else %}
                     {{ "notspecified"|trans|latex|raw }}

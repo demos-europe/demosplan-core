@@ -75,7 +75,7 @@ use Elastica\Query\MatchAll;
 use Elastica\Query\Terms;
 use Elastica\ResultSet;
 use Exception;
-use Pagerfanta\Adapter\ElasticaAdapter;
+use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -139,7 +139,7 @@ class StatementFragmentService extends CoreService
         private readonly StatementService $statementService,
         TranslatorInterface $translator,
         private readonly UserRepository $userRepository,
-        UserService $userService
+        UserService $userService,
     ) {
         $this->assignService = $assignService;
         $this->elementService = $elementService;
@@ -1129,7 +1129,7 @@ class StatementFragmentService extends CoreService
         $limit = 0,
         $page = 1,
         $searchFields = [],
-        $addAllAggregations = true
+        $addAllAggregations = true,
     ): ElasticsearchResult {
         $elasticsearchResultStatement = new ElasticsearchResult();
         $boolQuery = new BoolQuery();
@@ -1397,7 +1397,7 @@ class StatementFragmentService extends CoreService
                 $limit = 25;
             }
 
-            $paginator->setMaxPerPage($limit);
+            $paginator->setMaxPerPage((int) $limit);
             // try to paginate Result, check for validity
             try {
                 $paginator->setCurrentPage($page);
@@ -1740,7 +1740,7 @@ class StatementFragmentService extends CoreService
      */
     public function updateClaimingForStatementFragmentFromStatementFragmentUpdate(
         StatementFragment $statementFragment,
-        StatementFragmentUpdate $statementFragmentUpdate
+        StatementFragmentUpdate $statementFragmentUpdate,
     ) {
         if (in_array('assigneeId', $statementFragmentUpdate->getPropertiesSet(), true)) {
             $newAssigneeId = $statementFragmentUpdate->getAssigneeId();

@@ -12,19 +12,7 @@
 
         {% block content %}
 
-        <form class="{{ 'u-mt'|prefixClass }}" action="{{ path('DemosPlan_orga_edit_save', {'orgaId': organisation.ident|default}) }}" data-orga-id="{{ organisation.ident|default }}" method="post" data-dp-validate="orgadata">
-            <input
-                type="hidden"
-                name="organisation_ident"
-                value="{% if organisation is defined %}{{ organisation.ident|default }}{% endif %}">
-            <input
-                type="hidden"
-                name="address_ident"
-                value="{% if organisation is defined %}{{ organisation.address_ident|default }}{% endif %}">
-            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
-
             {% include '@DemosPlanCore/DemosPlanUser/orga_data_entry.html.twig' %}
-        </form>
 
         {% endblock content %}
 

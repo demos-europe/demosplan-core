@@ -70,9 +70,9 @@ class Segment extends Statement implements SegmentInterface
      *
      * @var PlaceInterface
      *
-     * @ORM\ManyToOne(targetEntity=Place::class)
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Workflow\Place")
      *
-     * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="place_id", referencedColumnName="id", nullable=true)
      */
     #[Assert\NotBlank(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, SegmentInterface::VALIDATION_GROUP_IMPORT])]
     private $place;

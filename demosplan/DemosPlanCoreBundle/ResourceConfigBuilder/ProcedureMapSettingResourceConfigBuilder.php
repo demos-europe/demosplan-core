@@ -25,12 +25,19 @@ use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $informationUrl
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $copyright
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $availableScales
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $availableProjections
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $showOnlyOverlayCategory
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $coordinate
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $territory
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $defaultBoundingBox
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $defaultMapExtent
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $useGlobalInformationUrl
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $baseLayerUrl
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $baseLayerLayerNames
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $baseLayerProjection
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $defaultProjection
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $globalAvailableScales
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, ProcedureSettingsInterface> $publicSearchAutoZoom
  *
  * @template-extends MagicResourceConfigBuilder<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,ProcedureSettingsInterface>
  */

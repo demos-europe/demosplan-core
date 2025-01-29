@@ -28,6 +28,7 @@
 
       <dp-button
         class="float-right"
+        data-cy="editSelectedItemsMenu:unselect"
         :text="Translator.trans('unselect')"
         variant="outline"
         @click="resetSelection" />
@@ -78,15 +79,15 @@ export default {
   },
 
   computed: {
-    ...mapGetters('statement', {
+    ...mapGetters('Statement', {
       selectedStatementsLength: 'selectedElementsLength'
     }),
 
-    ...mapGetters('fragment', [
+    ...mapGetters('Fragment', [
       'selectedFragmentsLength'
     ]),
 
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'statements'
     ]),
 
@@ -128,10 +129,14 @@ export default {
   },
 
   methods: {
-    resetSelection () {
-      this.$store.dispatch(`${this.visibleEntityType}/resetSelection`)
+    capitalizeFirstLetter (str) {
+      return str.charAt(0).toUpperCase() + str.slice(1)
     },
-    ...mapMutations('statement', ['updateStatement'])
+
+    resetSelection () {
+      this.$store.dispatch(`${this.capitalizeFirstLetter(this.visibleEntityType)}/resetSelection`)
+    },
+    ...mapMutations('Statement', ['updateStatement'])
   }
 }
 </script>

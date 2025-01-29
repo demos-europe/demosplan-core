@@ -3,6 +3,9 @@
     {% set td_width_2 = 80 %}
     {% set td_width_3 = 20 %}
 
+{# Needed to display link to public detail in base.html.twig #}
+{% set procedure = templateVars.procedure.id %}
+
 {% block demosplanbundlecontent %}
 
     {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
@@ -18,13 +21,16 @@
             map-attribution="{{ procedureSettings.copyright }}"
             procedure-coordinate="{{ procedureSettings.coordinate }}"
             :procedure-default-initial-extent="JSON.parse('{{ templateVars.procedureDefaultInitialExtent|json_encode|e('js', 'utf-8') }}')"
-            procedure-id="{{ procedure }}"
+            procedure-id="{{ templateVars.procedure.id }}"
             territory="{{ procedureSettings.territory }}"
         >
         </dp-map-settings-preview>
     {% endif %}
 
-    {% set addonProps = { 'procedureId': procedure } %}
+    {% set addonProps = {
+        'procedureId': templateVars.procedure.id,
+        'csrf-token': csrf_token('csrf')|json_encode
+    } %}
     <addon-wrapper
         hook-name="procedure.adminlist.fields"
         :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">
@@ -46,15 +52,17 @@
             {% if hasPermission('feature_admin_element_edit') %}
                 <a
                     class="btn btn--primary float-right"
-                    href="{{ path('DemosPlan_elements_administration_new',{'procedure':procedure }) }}"
+                    href="{{ path('DemosPlan_elements_administration_new',{'procedure':templateVars.procedure.id }) }}"
                     data-cy="createElementCategory">
                     {{ "category.create"|trans }}
                 </a>
             {% endif %}
         </div>
 
-        <elements-admin-list>
-        </elements-admin-list>
+        {% if hasPermission("area_admin_elements") %}
+            <elements-admin-list>
+            </elements-admin-list>
+        {% endif %}
     </div>
 
 
@@ -67,7 +75,7 @@
         </p>
         <form
             class="flow-root u-mb-0_75"
-            action="{{ path('DemosPlan_element_import', {'procedureId':procedure }) }}" method="post" enctype="multipart/form-data">
+            action="{{ path('DemosPlan_element_import', {'procedureId':templateVars.procedure.id }) }}" method="post" enctype="multipart/form-data">
             {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
             {{
@@ -75,13 +83,7 @@
                     "r_zipImport",
                     "hide",
                     "zip",
-                    "form.button.upload.zip",
-                    1,
-                    false,
-                    '',
-                    false,
-                    '',
-                    20000000
+                    "form.button.upload.zip"
                 )
             }}
 

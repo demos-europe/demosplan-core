@@ -48,6 +48,14 @@ export default {
   methods: {
     setExtent () {
       const extent = this.map.getView().calculateExtent(this.map.getSize())
+
+      // Zoom out a bit to visualize the newly set extent
+      this.map.getView().fit(extent, {
+        size: this.map.getSize(),
+        padding: [5, 5, 5, 5],
+        duration: 100
+      })
+
       this.$emit('extentSet', extent)
     }
   }

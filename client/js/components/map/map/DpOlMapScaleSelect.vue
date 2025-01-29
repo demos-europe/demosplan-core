@@ -17,6 +17,7 @@
     <select
       name="customScaleControl"
       id="customScaleControl"
+      data-cy="map:customScaleControl"
       @change="setScale"
       class="c-ol-map__select">
       <option
@@ -88,7 +89,7 @@ export default {
 
       //  Animate view to new resolution
       this.view.animate({
-        resolution: resolution,
+        resolution,
         duration: 250,
         easing: easeOut
       })

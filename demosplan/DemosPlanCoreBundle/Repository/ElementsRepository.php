@@ -46,9 +46,10 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
         ManagerRegistry $registry,
         PermissionsInterface $permissions,
         Reindexer $reindexer,
-        SortMethodFactory $sortMethodFactory
+        SortMethodFactory $sortMethodFactory,
+        string $entityClass = Elements::class
     ) {
-        parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, Elements::class);
+        parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
 
         $this->permissions = $permissions;
     }

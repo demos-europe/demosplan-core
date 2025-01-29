@@ -10,9 +10,9 @@
 import { del } from 'vue'
 
 const Voter = {
-
   namespaced: true,
-  name: 'voter',
+
+  name: 'Voter',
 
   state: {
     voters: {}

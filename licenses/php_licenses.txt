@@ -3,9 +3,9 @@ bamarni/composer-bin-plugin: MIT
 beberlei/doctrineextensions: BSD-3-Clause
 cebe/php-openapi: MIT
 cocur/slugify: MIT
+composer/composer: MIT
 composer/package-versions-deprecated: MIT
 demos-europe/demosplan-addon: MIT
-demos-europe/edt-extra: MIT
 doctrine/annotations: MIT
 doctrine/common: MIT
 doctrine/doctrine-bundle: MIT
@@ -17,6 +17,7 @@ dompdf/dompdf: LGPL-2.1
 efrane/console-additions: MIT
 efrane/tus-bundle: MIT
 egulias/email-validator: MIT
+endroid/qr-code-bundle: MIT
 enqueue/elastica-bundle: MIT
 enqueue/enqueue-bundle: MIT
 enqueue/fs: MIT
@@ -31,14 +32,18 @@ geocoder-php/nominatim-provider: MIT
 goetas-webservices/xsd2php: MIT
 goetas-webservices/xsd2php-runtime: MIT
 guzzlehttp/guzzle: MIT
-hslavich/oneloginsaml-bundle: MIT
+illuminate/collections: MIT
 intervention/image: MIT
-intriro/csv-bundle: MIT
 jfcherng/php-diff: BSD-3-Clause
 jmikola/geojson: MIT
 jms/serializer-bundle: MIT
+khanamiryan/qrcode-detector-decoder: MIT
 knplabs/knp-menu-bundle: MIT
 knpuniversity/oauth2-client-bundle: MIT
+league/csv: MIT
+league/flysystem-aws-s3-v3: MIT
+league/flysystem-bundle: MIT
+league/flysystem-memory: MIT
 league/fractal: MIT
 league/html-to-markdown: MIT
 lexik/jwt-authentication-bundle: MIT
@@ -50,10 +55,10 @@ myclabs/php-enum: MIT
 nelmio/security-bundle: MIT
 nesbot/carbon: MIT
 openlss/lib-array2xml: Apache-2.0
-patchwork/utf8: (Apache-2.0 or GPL-2.0)
 php-amqplib/rabbitmq-bundle: MIT
 php-parallel-lint/php-console-highlighter: MIT
 phpdocumentor/reflection-docblock: MIT
+phpoffice/phpspreadsheet: MIT
 phpoffice/phpword: LGPL-3.0
 phpspec/prophecy: MIT
 phpspec/prophecy-phpunit: MIT
@@ -65,7 +70,9 @@ psalm/plugin-symfony: MIT
 ramsey/uuid: MIT
 rector/rector: MIT
 rollerworks/password-strength-bundle: MIT
-sensio/framework-extra-bundle: MIT
+scheb/2fa-bundle: MIT
+scheb/2fa-email: MIT
+scheb/2fa-totp: MIT
 sentry/sentry-symfony: MIT
 squizlabs/php_codesniffer: BSD-3-Clause
 stevenmaguire/oauth2-keycloak: MIT
@@ -86,8 +93,8 @@ symfony/flex: MIT
 symfony/form: MIT
 symfony/http-client: MIT
 symfony/http-foundation: MIT
-symfony/inflector: MIT
 symfony/intl: MIT
+symfony/lock: MIT
 symfony/mailer: MIT
 symfony/maker-bundle: MIT
 symfony/mime: MIT
@@ -102,6 +109,7 @@ symfony/process: MIT
 symfony/property-access: MIT
 symfony/property-info: MIT
 symfony/proxy-manager-bridge: MIT
+symfony/rate-limiter: MIT
 symfony/security-bundle: MIT
 symfony/security-csrf: MIT
 symfony/serializer: MIT
@@ -116,7 +124,6 @@ symfony/var-dumper: MIT
 symfony/var-exporter: MIT
 symfony/web-profiler-bundle: MIT
 symfony/yaml: MIT
-tightenco/collect: MIT
 timeweb/phpstan-enum: MIT
 vimeo/psalm: MIT
 weirdan/doctrine-psalm-plugin: MIT
@@ -125,7 +132,6 @@ willdurand/geocoder-bundle: MIT
 willdurand/js-translation-bundle: MIT
 wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
-yectep/phpspreadsheet-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 19.04.2024 07:03
+As of 23.01.2025 07:02

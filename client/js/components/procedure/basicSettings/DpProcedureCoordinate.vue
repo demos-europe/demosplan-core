@@ -40,7 +40,7 @@
         <div :class="prefixClass('inline-block')">
           <dp-ol-map-draw-point
             :class="prefixClass('u-mb-0_5')"
-            target="procedureCoordinateDrawer"
+            target="layer:procedureCoordinateDrawer"
             :active="isDrawingActive"
             @tool:setPoint="checkProcedureValidation"
             @tool:activated="setDrawingActive" />
@@ -69,6 +69,7 @@
         name="r_coordinate"
         v-model="currentProcedureCoordinate"
         required
+        :data-dp-validate-error-fieldname="Translator.trans('public.participation.relation.map')"
         data-dp-validate-if="#r_publicParticipationPhase!==configuration,#r_phase!==configuration">
       <span :class="prefixClass('validation-hint')">
         {{ Translator.trans('statement.map.draw.no_drawing_warning') }}
@@ -210,9 +211,12 @@ export default {
     },
 
     setProcedureCoordinateValidState () {
-      this.requiredMapIsValid = this.currentProcedureCoordinate !== '' && hasPermission('feature_procedure_require_location')
-      if (this.requiredMapIsValid === false) {
-        dplan.notify.error(Translator.trans('public.participation.relation.map.missing'))
+      this.requiredMapIsValid = true
+      const publicParticipationPhaseElement = document.getElementsByName('r_publicParticipationPhase')[0]
+      const phaseElement = document.getElementsByName('r_phase')[0]
+
+      if (publicParticipationPhaseElement.value !== 'configuration' || phaseElement.value !== 'configuration') {
+        this.requiredMapIsValid = this.currentProcedureCoordinate !== '' && hasPermission('feature_procedure_require_location')
       }
     },
 

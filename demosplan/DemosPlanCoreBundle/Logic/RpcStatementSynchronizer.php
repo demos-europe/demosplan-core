@@ -246,6 +246,7 @@ class RpcStatementSynchronizer implements RpcMethodSolverInterface
     private function getStatements(array $filter, array $search, Procedure $sourceProcedure): array
     {
         $searchParams = SearchParams::createOptional($search);
+        $filter = $this->filterParser->validateFilter($filter);
         $conditions = $this->filterParser->parseFilter($filter);
         $conditions[] = $this->conditionFactory->propertyHasValue(
             $sourceProcedure->getId(),

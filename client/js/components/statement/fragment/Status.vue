@@ -154,7 +154,7 @@ export default {
     },
 
     adviceValues () {
-      return this.$store.getters['assessmentTable/adviceValues']
+      return this.$store.getters['AssessmentTable/adviceValues']
     },
 
     voteString () {

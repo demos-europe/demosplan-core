@@ -30,7 +30,7 @@
           :id="organisation.id + ':orgaName'"
           class="w-full u-mb-0_5 block"
           style="height: 27px;"
-          data-cy="orgaName"
+          data-cy="orgaFormField:orgaName"
           @input="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.name"
           required>
@@ -53,7 +53,7 @@
           :id="organisation.id + 'addressStreet'"
           class="w-full u-mb-0_5"
           style="height: 27px;"
-          data-cy="addressStreet"
+          data-cy="orgaFormField:addressStreet"
           @input="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.street">
         <p
@@ -82,7 +82,7 @@
           :id="organisation.id + 'addressHouseNumber'"
           class="w-full u-mb-0_5"
           style="height: 27px;"
-          data-cy="addressJouseNumber"
+          data-cy="orgaFormField:addressHouseNumber"
           @input="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.houseNumber">
         <p
@@ -91,7 +91,31 @@
           {{ organisation.attributes.houseNumber }}
         </p>
       </div><!--
-   --><div class="u-1-of-2 layout__item">
+   -->
+      <div
+        v-if="canEdit('addressExtension') || organisation.attributes.addressExtension !== ''"
+        class="layout__item u-2-of-12">
+        <label
+          :for="organisation.id + 'addressExtension'"
+          class="u-mb-0_25">
+          {{ Translator.trans('address.extension') }}
+        </label>
+        <input
+          v-if="canEdit('addressExtension')"
+          type="text"
+          :id="organisation.id + 'addressExtension'"
+          class="w-full u-mb-0_5"
+          style="height: 27px;"
+          data-cy="orgaFormField:addressExtension"
+          @input="emitOrganisationUpdate"
+          v-model="localOrganisation.attributes.addressExtension">
+        <p
+          v-else-if="false === canEdit('addressExtension') && organisation.attributes.addressExtension !== ''"
+          class="color--grey u-mb-0_5">
+          {{ organisation.attributes.addressExtension }}
+        </p>
+      </div>
+      <div class="u-1-of-2 layout__item">
         <div class="layout">
           <div class="layout__item u-2-of-6">
             <label
@@ -105,14 +129,14 @@
               :id="organisation.id + ':addressPostalCode'"
               class="w-full"
               style="height: 27px;"
-              data-cy="addressPostalCode"
+              data-cy="orgaFormField:addressPostalCode"
               pattern="^[0-9]{5}$"
               @input="emitOrganisationUpdate"
               v-model="localOrganisation.attributes.postalcode">
             <p
               v-else-if="false === canEdit('postalcode') && organisation.attributes.postalcode !== ''"
               class="color--grey u-mb-0_5">
-              {{ organisation.attributes.postalCode }}
+              {{ organisation.attributes.postalcode }}
             </p>
             <p
               v-else-if="false === canEdit('postalcode') && organisation.attributes.postalcode === ''"
@@ -132,7 +156,7 @@
               :id="organisation.id + ':addressCity'"
               class="w-full"
               style="height: 27px;"
-              data-cy="addressCity"
+              data-cy="orgaFormField:addressCity"
               @input="emitOrganisationUpdate"
               v-model="localOrganisation.attributes.city">
             <p
@@ -162,7 +186,7 @@
           :id="organisation.id + ':addressPhone'"
           class="w-full u-mb-0_5"
           style="height: 27px;"
-          data-cy="addressPhone"
+          data-cy="orgaFormField:addressPhone"
           @input="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.phone">
         <p
@@ -176,6 +200,18 @@
           -
         </p>
       </div>
+
+      <addon-wrapper
+        hook-name="addon.additional.field"
+        :addon-props="{
+          class: 'ml-4',
+          relationshipId: this.organisationId,
+          relationshipKey: 'orga',
+          isValueRemovable: true
+        }"
+        class="w-1/2"
+        @selected="updateAddonPayload"
+        @blur="updateAddonPayload" />
 
       <div class="layout__item u-1-of-1 u-mt">
         <legend class="u-pb-0_5">
@@ -200,7 +236,7 @@
                   class="u-1-of-1"
                   :name="`type_${registrationStatus.type}:${organisation.id}`"
                   :id="`type_${registrationStatus.type}:${organisation.id}`"
-                  data-cy="editRegistrationStatus"
+                  data-cy="orgaFormField:editRegistrationStatus"
                   @change="emitOrganisationUpdate"
                   v-model="registrationStatuses[idx].status">
                   <option
@@ -240,7 +276,7 @@
             v-if="showAddStatusForm === false"
             class="btn btn--primary u-mt-0_25 u-mb-0_5"
             @click="showAddStatusForm = true"
-            data-cy="showAddStatusForm"
+            data-cy="orgaFormField:showAddStatusForm"
             type="button">
             {{ Translator.trans('permission.new') }}
           </button>
@@ -253,7 +289,7 @@
               <select
                 class="u-1-of-1"
                 :title="Translator.trans('organisation.type')"
-                data-cy="organisationType"
+                data-cy="orgaFormField:organisationType"
                 v-model="statusForm.type">
                 <option
                   v-for="type in availableRegistrationTypes"
@@ -267,7 +303,7 @@
               <select
                 class="u-1-of-1"
                 :title="Translator.trans('permission.status')"
-                data-cy="permissionStatus"
+                data-cy="orgaFormField:permissionStatus"
                 v-model="statusForm.status">
                 <option
                   v-for="typeStatus in typeStatuses"
@@ -283,7 +319,7 @@
               <button
                 class="btn btn--primary"
                 @click="saveNewRegistrationStatus"
-                data-cy="saveNewRegistrationStatus"
+                data-cy="orgaFormField:saveNewRegistrationStatus"
                 type="button">
                 {{ Translator.trans('permission.add') }}
               </button><!--
@@ -297,6 +333,18 @@
             </div>
           </div>
         </template>
+
+        <dp-checkbox
+          v-if="hasPermission('feature_manage_procedure_creation_permission')"
+          :id="`${organisation.id}:procedureCreatePermission`"
+          class="mt-2"
+          data-cy="orgaFormField:procedureCreatePermission"
+          :label="{
+            text: Translator.trans('procedure.canCreate'),
+            bold: true
+          }"
+          v-model="localOrganisation.attributes.canCreateProcedures"
+          @change="emitOrganisationUpdate" />
       </div>
 
       <div
@@ -306,14 +354,16 @@
           {{ Translator.trans('branding.label') }}
         </legend>
         <dp-text-area
-          data-cy="orgaStyling"
+          data-cy="orgaFormField:styling"
           :hint="Translator.trans('branding.styling.hint')"
           :id="`${organisation.id}:cssvars`"
           :label="Translator.trans('branding.styling.input')"
           reduced-height
           @input="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.cssvars" />
-        <dp-details :summary="Translator.trans('branding.styling.details')">
+        <dp-details
+          data-cy="organisationFormFields:brandingStyling"
+          :summary="Translator.trans('branding.styling.details')">
           <span v-html="Translator.trans('branding.styling.details.description')" />
         </dp-details>
       </div>
@@ -423,7 +473,7 @@
             :id="organisation.id + ':email2'"
             class="layout__item u-1-of-2 u-mb-0_5 u-pr-0_5"
             style="height: 27px;"
-            data-cy="emailParticipation"
+            data-cy="orgaFormField:emailParticipation"
             type="email"
             @input="emitOrganisationUpdate"
             v-model="localOrganisation.attributes.email2">
@@ -457,7 +507,7 @@
                 class="layout__item u-1-of-2"
                 style="height: 27px;"
                 type="email"
-                data-cy="emailCC"
+                data-cy="orgaFormField:emailCC"
                 @input="emitOrganisationUpdate"
                 v-model="localOrganisation.attributes.ccEmail2">
             </label>
@@ -520,7 +570,7 @@
             <input
               type="checkbox"
               :name="organisation.id + ':emailNotificationEndingPhase'"
-              data-cy="notificationEndingPhase"
+              data-cy="orgaFormField:notificationEndingPhase"
               @change="emitOrganisationUpdate"
               v-model="localOrganisation.attributes.emailNotificationEndingPhase">
             {{ Translator.trans('explanation.notification.ending.phase') }}
@@ -542,7 +592,7 @@
           <select
             class="bg-color--white"
             style="height: 27px;"
-            data-cy="organisationCopiesPaper"
+            data-cy="orgaFormField:organisationCopiesPaper"
             v-model="localOrganisation.attributes.copy"
             @change="emitOrganisationUpdate">
             <option
@@ -563,7 +613,7 @@
 
         <textarea
           class="h-9"
-          data-cy="copiesKind"
+          data-cy="orgaFormField:copiesKind"
           @input="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.copySpec" />
       </label>
@@ -578,7 +628,7 @@
 
       <textarea
         class="h-9"
-        data-cy="competence"
+        data-cy="orgaFormField:competence"
         @input="emitOrganisationUpdate"
         v-model="localOrganisation.attributes.competence" />
     </label>
@@ -620,7 +670,7 @@
         <label class="u-mb-0">
           <input
             type="checkbox"
-            data-cy="listShow"
+            data-cy="orgaFormField:listShow"
             :name="organisation.id + ':showlist'"
             @change="emitOrganisationUpdate"
             v-model="localOrganisation.attributes.showlist"
@@ -635,7 +685,7 @@
           </span>
           <textarea
             class="h-9"
-            data-cy="listShowChange"
+            data-cy="orgaFormField:listShowChange"
             @input="emitOrganisationUpdate"
             :name="organisation.id + ':showlistChangeReason'"
             v-model="localOrganisation.attributes.showlistChangeReason"
@@ -654,7 +704,7 @@
           <label>
             <input
               type="checkbox"
-              data-cy="agree"
+              data-cy="orgaFormField:agree"
               :name="organisation.id + ':showname'"
               @change="emitOrganisationUpdate"
               v-model="localOrganisation.attributes.showname">
@@ -685,7 +735,7 @@
         {{ Translator.trans('procedure.agency.imprint') }}
       </legend>
       <dp-editor
-        data-cy="imprint"
+        data-cy="orgaFormField:imprint"
         v-model="localOrganisation.attributes.imprint"
         @input="emitOrganisationUpdate"
         :toolbar-items="{
@@ -701,7 +751,7 @@
         {{ Translator.trans('data.protection.organisations') }}
       </legend>
       <dp-editor
-        data-cy="dataProtection"
+        data-cy="orgaFormField:dataProtection"
         v-model="localOrganisation.attributes.dataProtection"
         @input="emitOrganisationUpdate"
         :toolbar-items="{
@@ -714,15 +764,17 @@
 </template>
 
 <script>
-import { CleanHtml, DpDetails, DpEditor, DpLabel, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
   name: 'DpOrganisationFormFields',
 
   components: {
+    AddonWrapper,
+    DpCheckbox,
     DpDetails,
     DpEditor,
-    DpLabel,
     DpTextArea
   },
 
@@ -758,6 +810,8 @@ export default {
       default: () => {
         return {
           attributes: {
+            addressExtension: '',
+            canCreateProcedures: false,
             ccEmail2: '',
             city: '',
             dataProtection: '',
@@ -795,7 +849,7 @@ export default {
               data: [
                 {
                   id: '',
-                  type: 'customer'
+                  type: 'Customer'
                 }
               ]
             },
@@ -803,7 +857,7 @@ export default {
               data: [
                 {
                   id: '',
-                  type: 'department'
+                  type: 'Department'
                 }
               ]
             }
@@ -957,7 +1011,11 @@ export default {
       })
       this.emitOrganisationUpdate()
       this.resetRegistrationStatus()
-    }
+    },
+
+    updateAddonPayload (payload) {
+      this.$emit('addon-update', payload)
+    },
   },
 
   created () {

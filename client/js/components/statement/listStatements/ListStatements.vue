@@ -8,12 +8,11 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 w-full h-full fixed z-fixed bg-white': isFullscreen }">
-    <!-- Header -->
+  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
     <dp-sticky-element
       border
-      class="py-2"
-      :class="{ 'fixed top-0 left-0 w-full h-1/6 px-2': isFullscreen }">
+      class="pt-2 pb-3"
+      :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
       <div class="flex items-center justify-between mb-2">
         <div class="flex">
           <search-modal
@@ -43,41 +42,17 @@
         :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
         @reset-selection="resetSelection">
         <dp-button
+          data-cy="statementsBulkShare"
           variant="outline"
           @click.prevent="handleBulkShare"
           :text="Translator.trans('procedure.share_statements.bulk.share')" />
       </dp-bulk-edit-header>
-      <dp-flyout
-        ref="flyout"
+      <statement-export-modal
         data-cy="listStatements:export"
-        :align="'left'">
-        <template v-slot:trigger>
-          {{ Translator.trans('export.verb') }}
-          <i
-            class="fa fa-angle-down"
-            aria-hidden="true" />
-        </template>
-        <a
-          data-cy="listStatements:exportStatementsDocx"
-          href="#"
-          @click="showHintAndDoExport('dplan_statement_segments_export')">
-          {{ Translator.trans('export.statements.docx') }}
-        </a>
-        <a
-          data-cy="listStatements:exportStatementsZip"
-          href="#"
-          @click="showHintAndDoExport('dplan_statement_segments_export_packaged')">
-          {{ Translator.trans('export.statements.zip') }}
-        </a>
-        <a
-          v-if="hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')"
-          :href="exportRoute('dplan_statement_xls_export')"
-          data-cy="listStatements:exportStatementsXlsx"
-          rel="noopener">
-          {{ Translator.trans('export.statements.xlsx') }}
-        </a>
-      </dp-flyout>
-      <div class="flex mt-2">
+        @export="showHintAndDoExport" />
+      <div
+        v-if="items.length > 0"
+        class="flex mt-2">
         <dp-pager
           v-if="pagination.currentPage"
           :class="{ 'invisible': isLoading }"
@@ -90,10 +65,13 @@
           @size-change="handleSizeChange"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
         <div class="ml-auto flex items-center space-inline-xs">
-          <label class="u-mb-0">
+          <label
+            class="u-mb-0"
+            for="applySortSelection">
             {{ Translator.trans('sorting') }}
           </label>
           <dp-select
+            id="applySortSelection"
             :options="sortOptions"
             :selected="selectedSort"
             @select="applySort" />
@@ -101,13 +79,15 @@
       </div>
     </dp-sticky-element>
 
-    <dp-loading v-if="isLoading" />
+    <dp-loading
+      class="u-mt"
+      v-if="isLoading" />
 
-    <!-- Statement list -->
-    <template v-if="!isLoading && items.length > 0">
+    <template v-else>
       <dp-data-table
+        v-if="items.length > 0"
         data-cy="listStatements"
-        :class="{ 'px-2 overflow-y-scroll h-5/6': isFullscreen }"
+        :class="{ 'px-2 overflow-y-scroll grow': isFullscreen }"
         has-flyout
         :is-selectable="isSourceAndCoupledProcedure"
         :header-fields="headerFields"
@@ -160,6 +140,11 @@
             </li>
           </ul>
         </template>
+        <template v-slot:status="{ status }">
+          <status-badge
+            class="mt-0.5"
+            :status="status" />
+        </template>
         <template v-slot:internId="{ internId }">
           <div class="o-hellip__wrapper">
             <div
@@ -173,12 +158,12 @@
             class="line-clamp-3 c-styled-html"
             v-cleanhtml="text" />
         </template>
-        <template v-slot:flyout="{ assignee, id, originalPdf, segmentsCount, synchronized }">
+        <template v-slot:flyout="{ assignee, id, originalId, originalPdf, segmentsCount, synchronized }">
           <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
               v-if="hasPermission('area_statement_segmentation')"
-              data-cy="listStatements:statementSplit"
               :class="`${(segmentsCount > 0 && segmentsCount !== '-') ? 'is-disabled' : '' } btn--blank o-link--default`"
+              data-cy="listStatements:statementSplit"
               :disabled="segmentsCount > 0 && segmentsCount !== '-'"
               @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
               rel="noopener">
@@ -191,17 +176,25 @@
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
             <a
-              v-if="hasPermission('feature_read_source_statement_via_api')"
+              v-if="hasPermission('feature_read_source_statement_via_api') && hasPermission('area_admin_import')"
+              :class="{'is-disabled': !originalPdf}"
               data-cy="listStatements:originalPDF"
-              :class="{'is-disabled': originalPdf === null}"
               :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
               rel="noreferrer noopener"
               target="_blank">
               {{ Translator.trans('original.pdf') }}
             </a>
+            <a
+              v-if="hasPermission('area_admin_original_statement_list')"
+              :class="{'is-disabled': !originalId}"
+              data-cy="listStatements:originalStatement"
+              :href="Routing.generate('dplan_procedure_original_statement_list', { procedureId: procedureId })"
+              rel="noreferrer noopener">
+              {{ Translator.trans('statement.original') }}
+            </a>
             <button
-              data-cy="listStatements:statementDelete"
               :class="`${ !synchronized || assignee.id === currentUserId ? 'hover:underline--hover' : 'is-disabled' } btn--blank o-link--default`"
+              data-cy="listStatements:statementDelete"
               :disabled="synchronized || assignee.id !== currentUserId"
               type="button"
               @click="triggerStatementDeletion(id)">
@@ -289,12 +282,13 @@
           </div>
         </template>
       </dp-data-table>
-    </template>
 
-    <dp-inline-notification
-      v-else-if="!isLoading && items.length === 0"
-      :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
-      type="info" />
+      <dp-inline-notification
+        v-else
+        :class="{ 'mx-2': isFullscreen }"
+        :message="Translator.trans((this.searchValue === '' ? 'statements.none' : 'search.no.results'), {searchterm: this.searchValue})"
+        type="info" />
+    </template>
   </div>
 </template>
 
@@ -320,7 +314,9 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
+import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
+import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge.vue'
 
 export default {
   name: 'ListStatements',
@@ -337,7 +333,9 @@ export default {
     DpSelect,
     DpStickyElement,
     SearchModal,
-    StatementMetaData
+    StatementExportModal,
+    StatementMetaData,
+    StatusBadge
   },
 
   directives: {
@@ -385,6 +383,7 @@ export default {
       isFullscreen: false,
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
+        { field: 'status', label: Translator.trans('status') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
         { field: 'meta', label: Translator.trans('submitter.invitable_institution') },
         { field: 'text', label: Translator.trans('text') },
@@ -421,15 +420,15 @@ export default {
   },
 
   computed: {
-    ...mapState('assignableUser', {
+    ...mapState('AssignableUser', {
       assignableUsersObject: 'items'
     }),
 
-    ...mapState('orga', {
+    ...mapState('Orga', {
       orgaObject: 'items'
     }),
 
-    ...mapState('statement', {
+    ...mapState('Statement', {
       statementsObject: 'items',
       currentPage: 'currentPage',
       totalFiles: 'totalFiles',
@@ -447,22 +446,38 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute) => Routing.generate(exportRoute, {
-        filter: {
-          procedureId: {
-            condition: {
-              path: 'procedure.id',
-              value: this.procedureId
+      return (exportRoute, docxHeaders, fileNameTemplate) => {
+        const parameters = {
+          filter: {
+            procedureId: {
+              condition: {
+                path: 'procedure.id',
+                value: this.procedureId
+              }
             }
+          },
+          procedureId: this.procedureId,
+          search: {
+            value: this.searchValue,
+            ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
+          },
+          sort: this.selectedSort
+        }
+
+        if (docxHeaders) {
+          parameters.tableHeaders = {
+            col1: docxHeaders.col1,
+            col2: docxHeaders.col2,
+            col3: docxHeaders.col3
           }
-        },
-        procedureId: this.procedureId,
-        search: {
-          value: this.searchValue,
-          ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
-        },
-        sort: this.selectedSort
-      })
+        }
+
+        if (fileNameTemplate) {
+          parameters.fileNameTemplate = fileNameTemplate
+        }
+
+        return Routing.generate(exportRoute, parameters)
+      }
     },
 
     items () {
@@ -475,7 +490,7 @@ export default {
             assignee: this.getAssignee(statement),
             id: statement.id,
             segmentsCount: segmentsCount || '-',
-            originalPdf: originalPdf
+            originalPdf
           }
         })
     },
@@ -486,17 +501,17 @@ export default {
   },
 
   methods: {
-    ...mapActions('assignableUser', {
+    ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       deleteStatement: 'delete',
       fetchStatements: 'list',
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapMutations('statement', {
+    ...mapMutations('Statement', {
       setStatement: 'setItem'
     }),
 
@@ -563,13 +578,13 @@ export default {
       }
 
       if (isStatementClaimedByCurrentUser) {
-        window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
+        window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId, procedureId: this.procedureId })
       }
 
       if (!isStatementClaimed || (isStatementClaimedByOtherUser && dpconfirm(Translator.trans('warning.statement.needLock.generic')))) {
         this.claimStatement(statementId)
           .then(() => {
-            window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: statementId, procedureId: this.procedureId })
+            window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId, procedureId: this.procedureId })
           })
           .catch(err => {
             console.error(err)
@@ -693,6 +708,8 @@ export default {
         'internId',
         'isCitizen',
         'memo',
+        'originalId',
+        'status',
         'submitDate',
         'submitName',
         'submitType',
@@ -911,11 +928,10 @@ export default {
       }
     },
 
-    showHintAndDoExport (route) {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = this.exportRoute(route)
+        window.location.href = this.exportRoute(route, docxHeaders, fileNameTemplate)
       }
-      this.$refs.flyout.toggle()
     },
 
     triggerStatementDeletion (id) {

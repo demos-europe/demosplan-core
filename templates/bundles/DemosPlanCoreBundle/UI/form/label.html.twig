@@ -21,10 +21,6 @@
     mini: ' u-1-of-8'
 } %}
 
-{% if tooltip|default %}
-    {% set class = class|default ~ ' u-pr inline-block' %}
-{% endif %}
-
 {% set width = widthVars[size|default('full')] %}
 {% set class = class|default ~ ' o-form__label ' ~ width|default %}
 
@@ -51,11 +47,10 @@
             {{ dataCounterHint|wysiwyg('input') }}
         </p>
     {% endif %}
+
+    {% if tooltip|default %}
+        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+            helpText: tooltip|trans
+        } %}
+    {% endif %}
 </label>
-{% if tooltip|default %}
-    <i
-        class="{{ 'fa fa-question-circle absolute mt-0.5 top-0 right-0'|prefixClass(omitPrefix) }}"
-        :aria-label="Translator.trans('contextual.help')"
-        v-tooltip="'{{ tooltip|trans }}'">
-    </i>
-{% endif %}

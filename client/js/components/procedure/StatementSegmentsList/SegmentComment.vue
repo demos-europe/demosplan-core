@@ -53,7 +53,7 @@ export default {
   },
 
   computed: {
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 

@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Helpers;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
@@ -34,7 +33,6 @@ class Helpers
 
     public function __construct(
         private readonly CustomerRepository $customerRepository,
-        private readonly GlobalConfigInterface $globalConfig,
         private readonly RoleRepository $roleRepository
     ) {
         $this->helper = new QuestionHelper();
@@ -43,7 +41,7 @@ class Helpers
     /**
      * @return array<int, Role>
      */
-    public function askRoles(InputInterface $input, OutputInterface $output): array
+    public function askRoles(InputInterface $input, OutputInterface $output, array $rolesAllowed): array
     {
         $availableRolesCollection = collect($this->roleRepository->findAll());
         $rolesSelection = $availableRolesCollection
@@ -52,6 +50,10 @@ class Helpers
                 $code = $role->getCode();
 
                 return [$code => $name];
+            })
+            // filter roles that are not allowed
+            ->filter(static function (string $name, string $code) use ($rolesAllowed) {
+                return in_array($code, $rolesAllowed, true);
             })
             ->all();
         $questionRoles = new ChoiceQuestion(
@@ -77,6 +79,7 @@ class Helpers
 
             return [$subdomain => $name];
         })
+            ->sort()
             ->toArray();
         $questionCustomer = new ChoiceQuestion(
             'Please select a customer: ',

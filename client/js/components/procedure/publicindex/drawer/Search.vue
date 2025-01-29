@@ -44,6 +44,7 @@
       :aria-label="Translator.trans('search')"
       class="c-search__icon btn--blank absolute"
       :class="{ 'hidden': !changed }"
+      data-cy="search:searchButton"
       type="button"
       @click="submit">
       <i
@@ -104,7 +105,7 @@ export default {
   },
 
   computed: {
-    ...mapState('location', [
+    ...mapState('Location', [
       'locations'
     ]),
 
@@ -118,11 +119,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('location', {
+    ...mapActions('Location', {
       getLocationSuggestions: 'get'
     }),
 
-    ...mapActions('procedure', {
+    ...mapActions('Procedure', {
       getProcedures: 'get'
     }),
 
@@ -134,7 +135,7 @@ export default {
       this.selected = false
       this.query = query
       this.isLoading = true
-      this.getLocationSuggestions({ query: query })
+      this.getLocationSuggestions({ query })
         .then(() => { this.isLoading = false })
     }, 500),
 

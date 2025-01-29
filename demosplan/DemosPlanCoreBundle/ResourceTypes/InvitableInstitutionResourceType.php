@@ -130,7 +130,7 @@ final class InvitableInstitutionResourceType extends DplanResourceType
         if ($this->currentUser->hasPermission('feature_institution_tag_assign')
             || $this->currentUser->hasPermission('feature_institution_tag_read')
         ) {
-            $allowedProperties[] = $this->createAttribute($this->name)->readable(true);
+            $allowedProperties[] = $this->createAttribute($this->name)->readable(true)->setFilterable();
             $allowedProperties[] = $this->createAttribute($this->createdDate)->readable(true)->sortable();
             $assignedTags->readable(true)->filterable();
         }

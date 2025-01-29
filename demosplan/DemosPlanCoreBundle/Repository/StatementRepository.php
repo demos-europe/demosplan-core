@@ -38,15 +38,19 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\AdditionalStatementDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadyConnectedToGdprConsentRevokeTokenException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentStatementQuery;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -60,10 +64,10 @@ use EDT\Querying\FluentQueries\FluentQuery;
 use EDT\Querying\Pagination\PagePagination;
 use EDT\Querying\Utilities\Reindexer;
 use Exception;
+use Illuminate\Support\Collection;
 use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Tightenco\Collect\Support\Collection;
 
 use function array_combine;
 
@@ -78,7 +82,8 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         private readonly EventDispatcherInterface $eventDispatcher,
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
-        string $entityClass
+        string $entityClass,
+        private readonly CustomerService $customerService,
     ) {
         parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
     }
@@ -138,7 +143,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     /**
      * Add new ClusterStatement, what basically is a Statement with a cluster of Statements.
      *
-     * @return statement - headStatement of the created statement-cluster
+     * @return Statement - headStatement of the created statement-cluster
      *
      * @throws Exception
      */
@@ -190,6 +195,11 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             $manager->flush();
 
             return $statement;
+        } catch (UniqueConstraintViolationException $e) {
+            if (str_contains($e->getMessage(), 'internId_procedure')) {
+                throw DuplicateInternIdException::create('Eingangsnummer', $statement->getProcedureId());
+            }
+            throw $e;
         } catch (Exception $e) {
             $this->getLogger()->warning('Add StatementObject failed Message: ', [$e]);
             throw $e;
@@ -479,7 +489,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     /**
      * @return array<int, Statement|Segment>
      */
-    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, int $limit = null): array
+    public function getEntities(array $conditions, array $sortMethods, int $offset = 0, ?int $limit = null): array
     {
         return parent::getEntities($conditions, $sortMethods, $offset, $limit);
     }
@@ -1011,7 +1021,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
      * StatementVotes, which are not contained in $votesToSet, will be deleted.
      * StatementVotes, which are contained in $votesToSet, will be created if not existing, or updated.
      *
-     * @param statement        $statement  - related Statement
+     * @param Statement        $statement  - related Statement
      * @param array|Collection $votesToSet - StatementVotes to set on the given Statement
      *
      * @return Collection<int, StatementVote>
@@ -1783,8 +1793,8 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     public function copyOriginalStatement(
         Statement $originalToCopy,
         Procedure $targetProcedure,
-        GdprConsent $gdprConsentToSet = null,
-        $internIdToSet = null
+        ?GdprConsent $gdprConsentToSet = null,
+        $internIdToSet = null,
     ): Statement {
         if (!$originalToCopy->isOriginal()) {
             throw new InvalidArgumentException('Given Statement is not an OriginalStatement.');
@@ -1820,7 +1830,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         $newOriginalStatement->setSubmit($originalToCopy->getSubmitObject()->add(new DateInterval('PT1S')));
         $newStatementMeta = clone $originalToCopy->getMeta();
         $newOriginalStatement->setMeta($newStatementMeta);
-
+        $newOriginalStatement->setProcedure($targetProcedure);
         $newOriginalStatement->setChildren(null);
 
         /**
@@ -1869,7 +1879,6 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         }
 
         $newOriginalStatement->setExternId($newExternId);
-        $newOriginalStatement->setProcedure($targetProcedure);
 
         if ($originalToCopy->getProcedureId() !== $targetProcedure->getId()) {
             // remove all tags, because procedure specific -> impossible to keep:
@@ -1980,7 +1989,9 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     /**
      * Returns only original statements and these whose related procedure is not deleted.
      *
-     * @return Statement[]
+     * @return array<int, array<string, mixed>>
+     *
+     * @throws CustomerNotFoundException
      */
     public function getOriginalStatements(): array
     {
@@ -1993,14 +2004,17 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->addSelect('procedure.id as procedureId')
             ->from(Statement::class, 'statement')
             ->leftJoin('statement.procedure', 'procedure')
+            ->leftJoin('procedure.customer', 'customer')
             ->leftJoin('statement.meta', 'meta')
             ->leftJoin('statement.user', 'user')
             ->andWhere('statement.deleted = :deleted')
             ->andWhere('statement.original IS NULL')
             ->andWhere('procedure.deleted = :deleted')
             ->andWhere('procedure.master = :master')
+            ->andWhere('customer.id = :customerId')
             ->setParameter('deleted', false)
             ->setParameter('master', false)
+            ->setParameter('customerId', $this->customerService->getCurrentCustomer())
             ->getQuery()
             ->getResult();
     }
@@ -2057,7 +2071,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         return $statementFileContainer;
     }
 
-    private function copyFile(File $sourceFile, Statement $targetStatement): File
+    public function copyFile(File $sourceFile, Statement $targetStatement): File
     {
         $fileCopy = $this->getFileRepository()->copyFile($sourceFile);
         $fileCopy->setProcedure($targetStatement->getProcedure());

@@ -196,6 +196,7 @@ const createCreatorMenu = (view, anchor, head) => {
 
   const addBtn = document.createElement('button')
   addBtn.setAttribute('class', 'editor-menububble__button')
+  addBtn.setAttribute('data-cy', 'menuBubbleButton')
   const icon = document.createElement('i')
   icon.setAttribute('class', 'fa fa-plus')
   addBtn.appendChild(icon)
@@ -221,6 +222,11 @@ const createCreatorMenu = (view, anchor, head) => {
     // Remove tippy
     if (bubbleMenu) {
       bubbleMenu.destroy()
+    }
+
+    // Matomo Tracking Event Tagging & Slicing
+    if (window._paq) {
+      _paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('tag.new')])
     }
   })
 

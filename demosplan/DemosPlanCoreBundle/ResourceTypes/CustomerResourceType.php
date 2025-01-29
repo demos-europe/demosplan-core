@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -55,7 +56,7 @@ final class CustomerResourceType extends DplanResourceType
     public function __construct(
         protected readonly BrandingRepository $brandingRepository,
         protected readonly CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -83,6 +84,7 @@ final class CustomerResourceType extends DplanResourceType
             'feature_data_protection_text_customized_view',
             'feature_customer_terms_of_use_edit',
             'feature_customer_xplanning_edit',
+            'feature_organisation_user_list',
             'field_customer_accessibility_explanation_edit',
             'field_sign_language_overview_video_edit',
             'field_simple_language_overview_description_edit',
@@ -111,7 +113,8 @@ final class CustomerResourceType extends DplanResourceType
             'area_manage_orgas',
             'area_manage_orgas_all',
             'area_organisations',
-            'area_report_mastertoeblist'
+            'area_report_mastertoeblist',
+            'feature_organisation_user_list',
         );
     }
 
@@ -131,7 +134,8 @@ final class CustomerResourceType extends DplanResourceType
             'area_manage_orgas',
             'area_manage_orgas_all',
             'area_organisations',
-            'area_report_mastertoeblist'
+            'area_report_mastertoeblist',
+            'feature_organisation_user_list',
         )) {
             $configBuilder->id->filterable()->sortable();
             $configBuilder->name->readable(true)->filterable()->sortable();
@@ -263,7 +267,7 @@ final class CustomerResourceType extends DplanResourceType
 
     public function getUpdateValidationGroups(): array
     {
-        return [Customer::GROUP_UPDATE];
+        return [CustomerInterface::GROUP_UPDATE];
     }
 
     public function isUpdateAllowed(): bool

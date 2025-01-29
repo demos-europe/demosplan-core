@@ -54,16 +54,16 @@ export default {
   },
 
   computed: {
-    ...mapGetters('segmentSlidebar', [
+    ...mapGetters('SegmentSlidebar', [
       'commentsList',
       'currentCommentText'
     ]),
 
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
-    ...mapState('segmentSlidebar', [
+    ...mapState('SegmentSlidebar', [
       'isLoading'
     ]),
 
@@ -77,26 +77,26 @@ export default {
   },
 
   methods: {
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       listSegments: 'list',
       restoreSegmentAction: 'restoreFromInitial'
     }),
 
-    ...mapMutations('segmentSlidebar', [
+    ...mapMutations('SegmentSlidebar', [
       'setContent',
       'setProperty'
     ]),
 
-    ...mapMutations('statementSegment', {
+    ...mapMutations('StatementSegment', {
       updateSegment: 'update'
     }),
 
-    ...mapMutations('segmentComment', {
+    ...mapMutations('SegmentComment', {
       setComment: 'setItem'
     }),
 
     resetCurrentComment (show = true) {
-      this.setContent({ prop: 'commentsList', val: { ...this.commentsList, currentCommentText: '', showForm: false, show: show } })
+      this.setContent({ prop: 'commentsList', val: { ...this.commentsList, currentCommentText: '', showForm: false, show } })
       this.$refs.createComment.resetEditor()
     },
 
@@ -135,7 +135,7 @@ export default {
           const payloadRel = payload.relationships
           const newCommentData = {
             ...payload,
-            id: id,
+            id,
             attributes: {
               ...payload.attributes,
               creationDate: dayjs().toISOString() // Since we don't have the value from the Backend, this should be close enough for ordering
@@ -146,20 +146,20 @@ export default {
                 data: payloadRel.place?.data?.id
                   ? {
                       id: payloadRel.place.data.id,
-                      type: 'place'
+                      type: 'Place'
                     }
                   : null
               },
               segment: {
                 data: {
                   id: payloadRel.segment.data.id,
-                  type: 'statementSegment'
+                  type: 'StatementSegment'
                 }
               },
               submitter: {
                 data: {
                   id: payloadRel.submitter.data.id,
-                  type: 'user'
+                  type: 'User'
                 }
               }
             }
@@ -169,8 +169,8 @@ export default {
             relationship: 'comments',
             action: 'add',
             value: {
-              id: id,
-              type: 'segmentComment'
+              id,
+              type: 'SegmentComment'
             }
           }
 

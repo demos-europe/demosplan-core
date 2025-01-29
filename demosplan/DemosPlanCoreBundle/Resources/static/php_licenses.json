@@ -26,6 +26,11 @@
     },
     {
         "license": "MIT",
+        "package": "composer/composer",
+        "website": "https://github.com/composer/composer"
+    },
+    {
+        "license": "MIT",
         "package": "composer/package-versions-deprecated",
         "website": "https://github.com/composer/package-versions-deprecated"
     },
@@ -33,11 +38,6 @@
         "license": "MIT",
         "package": "demos-europe/demosplan-addon",
         "website": "https://github.com/demos-europe/demosplan-addon"
-    },
-    {
-        "license": "MIT",
-        "package": "demos-europe/edt-extra",
-        "website": "https://github.com/demos-europe/edt-extra"
     },
     {
         "license": "MIT",
@@ -93,6 +93,11 @@
         "license": "MIT",
         "package": "egulias/email-validator",
         "website": "https://github.com/egulias/EmailValidator"
+    },
+    {
+        "license": "MIT",
+        "package": "endroid/qr-code-bundle",
+        "website": "https://github.com/endroid/qr-code-bundle"
     },
     {
         "license": "MIT",
@@ -166,18 +171,13 @@
     },
     {
         "license": "MIT",
-        "package": "hslavich/oneloginsaml-bundle",
-        "website": "https://github.com/hslavich/OneloginSamlBundle"
+        "package": "illuminate/collections",
+        "website": "https://github.com/illuminate/collections"
     },
     {
         "license": "MIT",
         "package": "intervention/image",
         "website": "https://github.com/Intervention/image"
-    },
-    {
-        "license": "MIT",
-        "package": "intriro/csv-bundle",
-        "website": "https://github.com/intriro/csv-bundle"
     },
     {
         "license": "BSD-3-Clause",
@@ -196,6 +196,11 @@
     },
     {
         "license": "MIT",
+        "package": "khanamiryan/qrcode-detector-decoder",
+        "website": "https://github.com/khanamiryan/php-qrcode-detector-decoder"
+    },
+    {
+        "license": "MIT",
         "package": "knplabs/knp-menu-bundle",
         "website": "https://github.com/KnpLabs/KnpMenuBundle"
     },
@@ -203,6 +208,26 @@
         "license": "MIT",
         "package": "knpuniversity/oauth2-client-bundle",
         "website": "https://github.com/knpuniversity/oauth2-client-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "league/csv",
+        "website": "https://github.com/thephpleague/csv"
+    },
+    {
+        "license": "MIT",
+        "package": "league/flysystem-aws-s3-v3",
+        "website": "https://github.com/thephpleague/flysystem-aws-s3-v3"
+    },
+    {
+        "license": "MIT",
+        "package": "league/flysystem-bundle",
+        "website": "https://github.com/thephpleague/flysystem-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "league/flysystem-memory",
+        "website": "https://github.com/thephpleague/flysystem-memory"
     },
     {
         "license": "MIT",
@@ -252,17 +277,12 @@
     {
         "license": "MIT",
         "package": "nesbot/carbon",
-        "website": "https://github.com/briannesbitt/Carbon"
+        "website": "https://github.com/CarbonPHP/carbon"
     },
     {
         "license": "Apache-2.0",
         "package": "openlss/lib-array2xml",
         "website": "https://github.com/nullivex/lib-array2xml"
-    },
-    {
-        "license": "(Apache-2.0 or GPL-2.0)",
-        "package": "patchwork/utf8",
-        "website": "https://github.com/tchwork/utf8"
     },
     {
         "license": "MIT",
@@ -278,6 +298,11 @@
         "license": "MIT",
         "package": "phpdocumentor/reflection-docblock",
         "website": "https://github.com/phpDocumentor/ReflectionDocBlock"
+    },
+    {
+        "license": "MIT",
+        "package": "phpoffice/phpspreadsheet",
+        "website": "https://github.com/PHPOffice/PhpSpreadsheet"
     },
     {
         "license": "LGPL-3.0",
@@ -336,8 +361,18 @@
     },
     {
         "license": "MIT",
-        "package": "sensio/framework-extra-bundle",
-        "website": "https://github.com/sensiolabs/SensioFrameworkExtraBundle"
+        "package": "scheb/2fa-bundle",
+        "website": "https://github.com/scheb/2fa-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "scheb/2fa-email",
+        "website": "https://github.com/scheb/2fa-email"
+    },
+    {
+        "license": "MIT",
+        "package": "scheb/2fa-totp",
+        "website": "https://github.com/scheb/2fa-totp"
     },
     {
         "license": "MIT",
@@ -441,13 +476,13 @@
     },
     {
         "license": "MIT",
-        "package": "symfony/inflector",
-        "website": "https://github.com/symfony/inflector"
+        "package": "symfony/intl",
+        "website": "https://github.com/symfony/intl"
     },
     {
         "license": "MIT",
-        "package": "symfony/intl",
-        "website": "https://github.com/symfony/intl"
+        "package": "symfony/lock",
+        "website": "https://github.com/symfony/lock"
     },
     {
         "license": "MIT",
@@ -521,6 +556,11 @@
     },
     {
         "license": "MIT",
+        "package": "symfony/rate-limiter",
+        "website": "https://github.com/symfony/rate-limiter"
+    },
+    {
+        "license": "MIT",
         "package": "symfony/security-bundle",
         "website": "https://github.com/symfony/security-bundle"
     },
@@ -591,11 +631,6 @@
     },
     {
         "license": "MIT",
-        "package": "tightenco/collect",
-        "website": "https://github.com/tighten/collect"
-    },
-    {
-        "license": "MIT",
         "package": "timeweb/phpstan-enum",
         "website": "https://github.com/timeweb/phpstan-enum"
     },
@@ -633,11 +668,6 @@
         "license": "MIT",
         "package": "wsdltophp/packagegenerator",
         "website": "https://github.com/WsdlToPhp/PackageGenerator"
-    },
-    {
-        "license": "MIT",
-        "package": "yectep/phpspreadsheet-bundle",
-        "website": "https://github.com/eightyknots/phpspreadsheet-bundle"
     },
     {
         "license": "MIT",

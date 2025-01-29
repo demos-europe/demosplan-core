@@ -77,7 +77,7 @@ class DemosPlanStatementAPIController extends APIController
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
         MessageFormatter $messageFormatter,
-        SchemaPathProcessor $schemaPathProcessor
+        SchemaPathProcessor $schemaPathProcessor,
     ) {
         parent::__construct(
             $apiLogger,
@@ -398,7 +398,7 @@ class DemosPlanStatementAPIController extends APIController
         StatementService $statementService,
         UserService $userService,
         string $filterSetHash,
-        string $procedureId
+        string $procedureId,
     ): APIResponse {
         try {
             // @improve T14024
@@ -406,7 +406,7 @@ class DemosPlanStatementAPIController extends APIController
             $filterSetHash = $hashNew->getHash();
 
             $pagination = $paginationParser->parseApiPaginationProfile(
-                $this->request->query->get('page', []),
+                $this->request->query->all('page'),
                 $this->request->query->get('sort', ''),
                 25
             );
@@ -455,7 +455,7 @@ class DemosPlanStatementAPIController extends APIController
             }
 
             $collection = new Collection($paginator, $statementResourceType->getTransformer(), $statementResourceType::getName());
-            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator);
+            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator, $request);
             $collection->setPaginator($paginatorAdapter);
             $collection->setMeta($meta);
 

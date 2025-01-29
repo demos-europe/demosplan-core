@@ -17,17 +17,17 @@
             <td data-cy="paragraphStatusIcon" class="text-center">
                 {% if document.visible == 1 %}
                     <i class="fa fa-check color-message-success-fill" aria-hidden="true" title="{{ "released"|trans }}"></i>
-                    <span class="hide-visually">
+                    <span class="sr-only">
                         {{ "released"|trans }}
                     </span>
                 {% elseif document.visible == 0 %}
                     <i class="fa fa-ban color-message-severe-fill" aria-hidden="true" title="{{ "blocked"|trans }}"></i>
-                    <span class="hide-visually">
+                    <span class="sr-only">
                         {{ "blocked"|trans }}
                     </span>
                 {% elseif document.visible == 2 %}
                     <i class="fa fa-lock color-message-info-fill" aria-hidden="true" title="{{ "paragraph.locked"|trans }}"></i>
-                    <span class="hide-visually">
+                    <span class="sr-only">
                         {{ "paragraph.locked"|trans }}
                     </span>
                 {% endif %}
@@ -42,7 +42,7 @@
                     title="{% if loop.first %}{{ "move.upwards.disabled.firstitem"|trans }}{% else %}{{ "move.upwards"|trans }}{% endif %}"
                     {% if loop.first %} disabled{% endif %}>
                     <i class="fa fa-caret-up" aria-hidden="true"></i>
-                    <span class="hide-visually">
+                    <span class="sr-only">
                         {{ "move.upwards"|trans }}
                     </span>
                 </button>
@@ -56,7 +56,7 @@
                     {# disable button if this is last item #}
                     {% if loop.last %} disabled{% endif %}>
                     <i class="fa fa-caret-down" aria-hidden="true"></i>
-                    <span class="hide-visually">
+                    <span class="sr-only">
                         {{ "move.downwards"|trans }}
                     </span>
                 </button>

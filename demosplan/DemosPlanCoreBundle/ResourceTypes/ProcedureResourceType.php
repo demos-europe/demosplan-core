@@ -62,6 +62,8 @@ use EDT\PathBuilding\End;
  * @property-read End                                 $externalPhasePermissionset
  * @property-read End                                 $internalPhasePermissionset
  * @property-read CustomerResourceType                $customer
+ * @property-read PlanningDocumentCategoryDetailsResourceType                $availableElements
+ * @property-read PlanningDocumentCategoryDetailsResourceType                $elements
  */
 final class ProcedureResourceType extends DplanResourceType implements ProcedureResourceTypeInterface
 {
@@ -69,7 +71,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         private readonly PhasePermissionsetLoader $phasePermissionsetLoader,
         private readonly DraftStatementService $draftStatementService,
         private readonly ProcedureAccessEvaluator $accessEvaluator,
-        private readonly ProcedureExtension $procedureExtension
+        private readonly ProcedureExtension $procedureExtension,
     ) {
     }
 
@@ -176,6 +178,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             $invitedOrganisations,
         ];
 
+        $properties[] = $this->createToManyRelationship($this->availableElements)->readable()->sortable()->filterable()->aliasedPath($this->elements);
         if ($this->hasAdminPermissions()) {
             $owningOrganisation->readable()->sortable()->filterable();
             $invitedOrganisations->readable()->sortable()->filterable();
@@ -187,7 +190,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             $properties[] = $this->createToOneRelationship($this->procedureUiDefinition)->readable()->sortable()->filterable();
             $properties[] = $this->createToOneRelationship($this->statementFormDefinition)->readable()->sortable()->filterable();
         }
-        if ($this->currentUser->hasAnyPermissions('area_public_participation', 'area_admin_initial_map_view_page')) {
+        if ($this->currentUser->hasAnyPermissions('area_public_participation', 'area_admin_map')) {
             $properties[] = $this->createAttribute($this->coordinate)->readable()->aliasedPath(Paths::procedure()->settings->coordinate);
             $properties[] = $this->createToOneRelationship($this->mapSetting)->aliasedPath(Paths::procedure()->settings)->readable();
         }
@@ -195,6 +198,10 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         if ($this->currentUser->hasPermission('area_public_participation')) {
             $properties[] = $this->createAttribute($this->externalDescription)->readable()->aliasedPath($this->externalDesc);
             $properties[] = $this->createAttribute($this->statementSubmitted)->readable(false, function (Procedure $procedure): int {
+                // guests can not have any draft statements
+                if ($this->currentUser->getUser()->isGuestOnly()) {
+                    return 0;
+                }
                 $userFilter = new StatementListUserFilter();
                 $userFilter->setSubmitted(true)->setReleased(true);
                 $statementResult = $this->draftStatementService->getDraftStatementList(

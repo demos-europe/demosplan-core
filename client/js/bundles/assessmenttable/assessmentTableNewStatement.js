@@ -20,9 +20,9 @@ import StatementStore from '@DpJs/store/statement/Statement'
 import VoterStore from '@DpJs/store/statement/Voter'
 
 const stores = {
-  assessmentTable: AssessmentTableStore,
-  statement: StatementStore,
-  voter: VoterStore
+  AssessmentTable: AssessmentTableStore,
+  Statement: StatementStore,
+  Voter: VoterStore
 }
 
 const components = {

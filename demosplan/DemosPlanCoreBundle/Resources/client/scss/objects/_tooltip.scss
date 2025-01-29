@@ -134,26 +134,3 @@ $tooltip-width: 400px;
 
     @include keyboard-focus;
 }
-
-//  Tooltip trigger with question mark icon
-.o-tooltip--question-circle {
-    @extend .fa;
-    color: $dp-color-text-default;
-
-    &::before {
-        content: $fa-var-question-circle; // variable from font awesome core scss holding the question circle
-
-        font-size: $base-font-size;
-    }
-}
-
-.o-tooltip--exclamation-circle {
-    @extend .fa;
-    color: $dp-color-text-default;
-
-    &::before {
-        content: $fa-var-exclamation-circle; // variable from font awesome core scss holding the question circle
-
-        font-size: $base-font-size;
-    }
-}

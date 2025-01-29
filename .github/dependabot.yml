@@ -59,7 +59,7 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-      time: "09:00"
+      time: "09:01"
       timezone: Europe/Berlin
     open-pull-requests-limit: 10
     labels:
@@ -73,7 +73,24 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: friendsofsymfony/jsrouting-bundle
         update-types: [ "version-update:semver-major" ]
-
+    groups:
+      symfony:
+        patterns:
+          - "symfony/*"
+        exclude-patterns:
+          - "symfony/cache-contracts"
+          - "symfony/deprecation-contracts"
+          - "symfony/event-dispatcher-contracts"
+          - "symfony/flex"
+          - "symfony/http-client-contracts"
+          - "symfony/maker-bundle"
+          - "symfony/monolog-bundle"
+          - "symfony/phpunit-bridge"
+          - "symfony/polyfill*"
+          - "symfony/psr-http-message-bridge"
+          - "symfony/security-http"
+          - "symfony/service-contracts"
+          - "symfony/translation-contracts"
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"

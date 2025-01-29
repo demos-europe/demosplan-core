@@ -16,8 +16,10 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use GuzzleHttp\Exception\InvalidArgumentException;
+use Illuminate\Support\Collection;
+use Nelmio\SecurityBundle\EventListener\ContentSecurityPolicyListener;
+use Psr\Container\ContainerInterface;
 use RuntimeException;
-use Tightenco\Collect\Support\Collection;
 use Twig\TwigFunction;
 
 class WebpackBundleExtension extends ExtensionBase
@@ -56,6 +58,11 @@ class WebpackBundleExtension extends ExtensionBase
      * @var array
      */
     protected $legacyManifest = [];
+
+    public function __construct(ContainerInterface $container, private readonly ContentSecurityPolicyListener $cspListener)
+    {
+        parent::__construct($container);
+    }
 
     /**
      * Initially load manifests.
@@ -178,15 +185,15 @@ class WebpackBundleExtension extends ExtensionBase
      */
     protected function renderTag($bundleSrc, bool $legacy, string $bundleName, string $dataBundle): string
     {
-        $tagTemplate = '<script src="%s"></script>';
+        $tagTemplate = '<script src="%s" '.$this->addNonce('script').'></script>';
 
         if (!$legacy && !in_array($bundleName, self::NON_DATA_BUNDLES, true)) {
             $dataBundle = explode('.', $dataBundle)[0];
-            $tagTemplate = '<script src="%s" data-bundle="%s"></script>';
+            $tagTemplate = '<script src="%s" data-bundle="%s" '.$this->addNonce('script').'></script>';
         }
 
         if (strpos($bundleName, '.css') > 0) {
-            $tagTemplate = '<link rel="stylesheet" href="%s">';
+            $tagTemplate = '<link rel="stylesheet" href="%s" '.$this->addNonce('style').'>';
         }
 
         return sprintf($tagTemplate, $this->formatBundlePath($bundleSrc), $dataBundle);
@@ -202,8 +209,10 @@ class WebpackBundleExtension extends ExtensionBase
         $manifestFile = DemosPlanPath::getProjectPath("web/{$manifest}.manifest.json");
 
         $manifestArray = [];
+        // uses local file, no need for flysystem
         if (file_exists($manifestFile)) {
             try {
+                // uses local file, no need for flysystem
                 $manifestArray = Json::decodeToArray(file_get_contents($manifestFile));
             } catch (InvalidArgumentException) {
                 throw new RuntimeException(<<<ERR
@@ -250,5 +259,10 @@ ERR);
         // to avoid loading dependencies on every twig call
         // https://symfonycasts.com/screencast/symfony-doctrine/service-subscriber
         return $this->container->get(GlobalConfigInterface::class);
+    }
+
+    private function addNonce(string $type): string
+    {
+        return sprintf('nonce="%s"', $this->cspListener->getNonce($type));
     }
 }

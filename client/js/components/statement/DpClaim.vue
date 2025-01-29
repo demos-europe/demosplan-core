@@ -202,7 +202,7 @@ export default {
           delegator: this.currentUserName
         }
       )
-      return { text: status, icon: icon }
+      return { text: status, icon }
     }
   },
 
@@ -216,13 +216,13 @@ export default {
       if (this.assignedId !== this.currentUserId && this.assignedId !== '') {
         let transkey
         switch (this.entityType) {
-          case 'statement':
+          case 'Statement':
             transkey = 'warning.statement.needLock.generic'
             break
-          case 'fragment':
+          case 'Fragment':
             transkey = 'warning.fragment.needLock.generic'
             break
-          case 'segment':
+          case 'Segment':
             transkey = 'warning.segment.needLock.generic'
             break
         }

@@ -26,13 +26,15 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface as AddonUserInte
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\RoleAllowedConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\UserWithMatchingDepartmentInOrgaConstraint;
-use demosplan\DemosPlanCoreBundle\Logic\SAML\SamlAttributesParser;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
+use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as EmailTwoFactorInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface as TotpTwoFactorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use UnexpectedValueException;
 
@@ -49,7 +51,7 @@ use function in_array;
  *
  * @UserWithMatchingDepartmentInOrgaConstraint()
  */
-class User implements SamlUserInterface, AddonUserInterface
+class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactorInterface
 {
     public const HEARING_AUTHORITY_ROLES = [RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER];
     public const PLANNING_AGENCY_ROLES = [RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER];
@@ -352,6 +354,30 @@ class User implements SamlUserInterface, AddonUserInterface
      */
     private $providedByIdentityProvider = false;
 
+    /**
+     * Value used for two factor authentication via totp.
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private ?string $totpSecret;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false, options={"default": false})
+     */
+    private bool $totpEnabled = false;
+
+    /**
+     * Value used for two factor authentication via email.
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private ?string $authCode;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=false, options={"default": false})
+     */
+    private bool $authCodeEmailEnabled = false;
+
     public function __construct()
     {
         $this->addresses = new ArrayCollection();
@@ -540,9 +566,9 @@ class User implements SamlUserInterface, AddonUserInterface
     /**
      * Symfony > 6 needs getUserIdentifier() for auth system.
      */
-    public function getUserIdentifier(): ?string
+    public function getUserIdentifier(): string
     {
-        return $this->getLogin();
+        return $this->getLogin() ?? '';
     }
 
     public function setPassword(?string $password): void
@@ -1083,6 +1109,19 @@ class User implements SamlUserInterface, AddonUserInterface
         if ($this->departments instanceof Collection && $this->departments->contains($department)) {
             $this->departments->removeElement($department);
         }
+    }
+
+    public function removeRoleInCustomer(RoleInterface $role, CustomerInterface $customer): UserRoleInCustomerInterface
+    {
+        $roleInCustomer = $this->getRoleInCustomers()->filter(
+            function (UserRoleInCustomerInterface $roleInCustomer) use ($role, $customer) {
+                return $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId();
+            }
+        )->first();
+
+        $this->roleInCustomers->removeElement($roleInCustomer);
+
+        return $roleInCustomer;
     }
 
     /**
@@ -1725,17 +1764,6 @@ class User implements SamlUserInterface, AddonUserInterface
         return !$this->deleted;
     }
 
-    /**
-     * This method will be used to fill user properties from saml providers.
-     */
-    public function setSamlAttributes(array $attributes): void
-    {
-        // later on this could be a factory e.g to distinguish between akdb and osi
-        // identity provider
-        $parser = new SamlAttributesParser($this, $attributes);
-        $parser->parse();
-    }
-
     public function isDefaultGuestUser(): bool
     {
         return AddonUserInterface::ANONYMOUS_USER_ID === $this->id;
@@ -1754,5 +1782,66 @@ class User implements SamlUserInterface, AddonUserInterface
     private function hasInvalidRoleCache(): bool
     {
         return null === $this->rolesArrayCache || count($this->rolesArrayCache) !== $this->roleInCustomers->count();
+    }
+
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return $this->isTotpEnabled();
+    }
+
+    public function getTotpAuthenticationUsername(): string
+    {
+        return $this->getUserIdentifier();
+    }
+
+    public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
+    {
+        // period and digits are chosen to be compatible with Google Authenticator
+        return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
+    }
+
+    public function getTotpSecret(): ?string
+    {
+        return $this->totpSecret;
+    }
+
+    public function setTotpSecret(?string $totpSecret): void
+    {
+        $this->totpSecret = $totpSecret;
+    }
+
+    public function isTotpEnabled(): bool
+    {
+        return $this->totpEnabled;
+    }
+
+    public function setTotpEnabled(bool $totpEnabled): void
+    {
+        $this->totpEnabled = $totpEnabled;
+    }
+
+    public function isEmailAuthEnabled(): bool
+    {
+        return $this->authCodeEmailEnabled;
+    }
+
+    public function setAuthCodeEmailEnabled(bool $authCodeEmailEnabled): void
+    {
+        $this->authCodeEmailEnabled = $authCodeEmailEnabled;
+    }
+
+    public function getEmailAuthRecipient(): string
+    {
+        return $this->getEmail();
+    }
+
+    public function getEmailAuthCode(): string
+    {
+        return $this->authCode ?? '';
+    }
+
+    public function setEmailAuthCode(string $authCode): void
+    {
+        $this->authCode = $authCode;
     }
 }

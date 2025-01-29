@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Throwable;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class TransformMessageBagService
 {

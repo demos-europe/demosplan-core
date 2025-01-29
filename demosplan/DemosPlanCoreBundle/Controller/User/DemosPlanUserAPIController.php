@@ -73,7 +73,7 @@ class DemosPlanUserAPIController extends APIController
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
         MessageFormatter $messageFormatter,
-        SchemaPathProcessor $schemaPathProcessor
+        SchemaPathProcessor $schemaPathProcessor,
     ) {
         parent::__construct(
             $apiLogger,
@@ -134,11 +134,12 @@ class DemosPlanUserAPIController extends APIController
         JsonApiPaginationParser $paginationParser,
         PaginatorFactory $paginatorFactory,
         Request $request,
-        SortMethodFactory $sortMethodFactory
+        SortMethodFactory $sortMethodFactory,
     ): APIResponse {
         try {
             if ($request->query->has(UrlParameter::FILTER)) {
-                $filterArray = $request->query->get(UrlParameter::FILTER);
+                $filterArray = $request->query->all(UrlParameter::FILTER);
+                $filterArray = $filterParser->validateFilter($filterArray);
                 $conditions = $filterParser->parseFilter($filterArray);
             } else {
                 $conditions = [];
@@ -149,7 +150,7 @@ class DemosPlanUserAPIController extends APIController
                 $sortMethodFactory->propertyAscending($userType->firstname),
             ];
 
-            $searchParams = SearchParams::createOptional($request->query->get(JsonApiEsServiceInterface::SEARCH, []));
+            $searchParams = SearchParams::createOptional($request->query->all(JsonApiEsServiceInterface::SEARCH));
             if (!$searchParams instanceof SearchParams) {
                 $listResult = $jsonApiActionService->listObjects($userType, $conditions, $sortMethods);
             } else {
@@ -160,12 +161,12 @@ class DemosPlanUserAPIController extends APIController
             $adapter = new ArrayAdapter($users);
             $paginator = new DemosPlanPaginator($adapter);
             $pagination = $paginationParser->parseApiPaginationProfile(
-                $this->request->query->get(UrlParameter::PAGE, []),
+                $this->request->query->all(UrlParameter::PAGE),
                 $this->request->query->get(UrlParameter::SORT, ''),
                 25
             );
             $paginator->setCurrentPage($pagination->getNumber());
-            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator);
+            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator, $request);
 
             $transformer = $userType->getTransformer();
             $collection = new Collection($paginator, $transformer, 'User');

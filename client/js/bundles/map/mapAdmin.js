@@ -11,9 +11,11 @@
  * This is the entrypoint for map_admin.html.twig
  */
 
-import DpMapAdmin from '@DpJs/components/map/admin/DpMapAdmin'
 import { initialize } from '@DpJs/InitVue'
+import MapAdmin from '@DpJs/components/map/admin/MapAdmin'
+import procedureMapSettings from '@DpJs/store/map/ProcedureMapSettings'
 
-const components = { DpMapAdmin }
+const components = { MapAdmin }
+const stores = { procedureMapSettings }
 
-initialize(components)
+initialize(components, stores)

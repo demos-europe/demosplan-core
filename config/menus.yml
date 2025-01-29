@@ -313,7 +313,7 @@ submenu_procedures:
             'DemosPlan_singledocument_administration_new',
         ]
         path_params: ['procedure']
-        permission: ['area_admin_single_document', 'area_admin_paragraphed_document', 'area_admin_map']
+        permission: ['area_admin_single_document'] # Necessary if Project has Documents and Map Features
         link_attributes:
             data-cy: 'documentsAndMapSettings'
             data-extern-dataport: 'documentsAndMapSettings'
@@ -333,7 +333,7 @@ submenu_procedures:
     analysis:
         label: 'analysis'
         path: ~
-        permission: 'area_admin_assessmenttable'
+        permission: 'area_admin_subheading_analysis'
         list_item_attributes:
             class: 'knp-sub-heading'
     considerationtable:

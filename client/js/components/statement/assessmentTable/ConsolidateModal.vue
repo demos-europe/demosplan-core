@@ -23,7 +23,7 @@
         class="u-pb-0 u-mt"
         id="consolidationMethod">
         <legend
-          class="hide-visually"
+          class="sr-only"
           v-text="Translator.trans('action.choose')" />
         <input
           type="radio"
@@ -119,7 +119,7 @@
 
       <fieldset v-if="consolidationMethod === 'consolidateStatements'">
         <legend
-          class="hide-visually"
+          class="sr-only"
           v-text="Translator.trans('cluster.data')" />
         <label
           for="groupName"
@@ -175,7 +175,7 @@
       </fieldset>
       <fieldset v-if="consolidationMethod === 'mergeIntoCluster'">
         <legend
-          class="hide-visually"
+          class="sr-only"
           v-text="Translator.trans('cluster.choose')" />
         <label class="u-mt u-mb-0_25 inline-block">{{ Translator.trans('consolidate.add.to.cluster') }}</label>
         <div
@@ -259,11 +259,11 @@ export default {
   },
 
   computed: {
-    ...mapState('assessmentTable', [
+    ...mapState('AssessmentTable', [
       'currentUserId'
     ]),
 
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'selectedElements',
       'statements'
     ]),
@@ -323,16 +323,16 @@ export default {
   },
 
   methods: {
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'createClusterAction',
       'updateClusterAction'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setModalProperty'
     ]),
 
-    ...mapMutations('statement', [
+    ...mapMutations('Statement', [
       'addElementToSelection',
       'removeElementFromSelection',
       'replaceElementSelection'

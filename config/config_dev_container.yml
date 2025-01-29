@@ -7,7 +7,7 @@ parameters:
     database_user: "root"
     database_password: ""
 
-    elasticsearch_populate_workers: 4
+    elasticsearch_populate_workers: 3
     elasticsearch_urls:
         -   url: "http://search7:9200"
 
@@ -18,27 +18,6 @@ parameters:
     mailer_dsn: "smtp://mailpit:1025"
 
     https_only: false
-
-    demosplan_csp_script_src:
-        - 'self'
-        - 'unsafe-eval' # vue.js needs it if templates are not precompiled
-        - 'sg.geodatenzentrum.de'
-        - '*.demos-europe.eu'
-        - 'matomo' # local matomo
-        - '172.22.255.8' # local matomo
-    demosplan_csp_font_src:
-        - 'self'
-        - 'fonts.google.com'
-        - 'fonts.gstatic.com'
-        - '*.demos-europe.eu'
-        - 'data:'
-    demosplan_csp_style_src:
-        - 'unsafe-inline'
-        - 'self'
-        - 'fast.fonts.net'
-        - 'fonts.googleapis.com'
-        - '*.demos-europe.eu'
-        - 'cdnjs.cloudflare.com'
 
     rabbitmq_routing_disabled: true
     tex2pdf_url: "http://pdflatex_api_nginx:8080"

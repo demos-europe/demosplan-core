@@ -51,7 +51,7 @@
       :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
       :layers="layers"
       :unfolded="unfolded"
-      :class="[appearsAsLayer ? prefixClass('hide-visually') : prefixClass('c-map__group-item-child u-mr-0')]" />
+      :class="[appearsAsLayer ? prefixClass('sr-only') : prefixClass('c-map__group-item-child u-mr-0')]" />
   </li>
 </template>
 
@@ -110,7 +110,7 @@ export default {
       return this.elementListForLayerSidebar(this.group.id, this.layerType, true)
     },
 
-    ...mapGetters('layers', ['rootId', 'element', 'elementListForLayerSidebar'])
+    ...mapGetters('Layers', ['rootId', 'element', 'elementListForLayerSidebar'])
   },
 
   methods: {
@@ -131,7 +131,7 @@ export default {
 
       const visible = isVisible || this.isVisible
       this.$root.$emit('layer:toggleChildCategories', { categories: this.group.relationships.categories.data, isVisible: visible })
-      this.$root.$emit('layer:toggleChildLayer', { layer: this.group.relationships.gisLayers.data, isVisible: visible, visibilityGroupId: visibilityGroupId })
+      this.$root.$emit('layer:toggleChildLayer', { layer: this.group.relationships.gisLayers.data, isVisible: visible, visibilityGroupId })
     },
 
     // Toggle self and children

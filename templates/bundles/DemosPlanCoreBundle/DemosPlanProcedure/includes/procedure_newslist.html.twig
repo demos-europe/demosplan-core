@@ -30,7 +30,7 @@
                 class="{{ 'font-size-smaller float-right max-w-full'|prefixClass }}"
                 target="_blank"
                 rel="noopener"
-                href="{{ path("core_file", { 'hash': news.pdf|getFile('hash') }) }}"
+                href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': news.pdf|getFile('hash') }) }}"
                 title="Download {{ news.pdftitle|default(news.pdf|getFile('name')) }} {% if (news.pdf|getFile('size')|length > 0 or news.pdf|getFile('mimeType')|length > 0 ) %} ({{- news.pdf|getFile('size') }} {{ news.pdf|getFile('mimeType') -}}){% endif %}">
                 <i class="{{ 'fa fa-file'|prefixClass }}" aria-hidden="true"></i>
                 {{ news.pdftitle|default(news.pdf|getFile('name')) }}
@@ -45,7 +45,7 @@
         {# image is represented as css background image to keep square proportions in fluid context #}
         {% if news.picture is defined and news.picture != "" %}
             <div class="{{ 'o-box__thumbnail'|prefixClass }}"
-                 style="background-image: url( {{ path("core_logo", { 'hash': news.picture|getFile('hash') }) }} );">
+                 style="background-image: url( {{ path("core_logo", { 'hash': news.picture|getFile('hash') }) }} );" nonce="{{ csp_nonce('style') }}">
             </div>
         {% endif %}
 

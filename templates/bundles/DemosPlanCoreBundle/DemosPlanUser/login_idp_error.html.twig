@@ -31,7 +31,7 @@
             {% if templateVars.customerLoginSupport.title|default != '' %}
                 <div class="justify-center flex">
                     <dp-support-card
-                        class="u-pv-0_75 u-ph-0_75 text-left u-mt-2 w-full max-w-sm bg-gray-50"
+                        class="u-pv-0_75 u-ph-0_75 text-left u-mt-2 w-full max-w-sm bg-surface-light"
                         email="{{ templateVars.customerLoginSupport.eMailAddress|default }}"
                         phone-number="{{ templateVars.customerLoginSupport.phoneNumber|default }}"
                         :reachability="{ officeHours: '{{ templateVars.customerLoginSupport.text|default }}' }"

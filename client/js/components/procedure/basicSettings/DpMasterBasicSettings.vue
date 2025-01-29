@@ -8,13 +8,14 @@
 </license>
 
 <script>
+import { DpContextualHelp, DpMultiselect } from '@demos-europe/demosplan-ui'
 import DpEmailList from './DpEmailList'
-import { DpMultiselect } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpMasterBasicSettings',
 
   components: {
+    DpContextualHelp,
     DpEmailList,
     DpMultiselect,
     DpEditor: async () => {

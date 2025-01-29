@@ -10,83 +10,82 @@
 <template>
   <div class="flex space-inline-s">
     <div class="relative">
-      <dp-input
-        has-icon
-        :id="id"
-        v-model="currentSearchTerm"
-        @enter="$emit('search', currentSearchTerm)" />
-      <dp-flyout
-        align="left"
-        data-cy="customSearch:searchCustomLimitFields"
-        class="u-top-0 u-right-0 absolute p-0.5"
-        :has-menu="false"
-        :padded="false">
-        <template v-slot:trigger>
-          <dp-icon
-            :class="{ 'color-message-severe-fill': selectedFields.length > 0 }"
-            icon="settings" />
+      <dp-search-field
+        data-cy="customSearch:currentSearchTerm"
+        :placeholder="Translator.trans('searchterm')"
+        @search="term => handleSearch(term)"
+        @reset="$emit('reset')">
+        <template v-slot:default>
+          <dp-flyout
+            align="left"
+            data-cy="customSearch:searchCustomLimitFields"
+            class="top-px right-0 absolute"
+            :has-menu="false"
+            :padded="false">
+            <template v-slot:trigger>
+              <dp-icon
+                :class="{ 'color-message-severe-fill': selectedFields.length > 0 }"
+                icon="settings" />
+            </template>
+            <!-- Checkboxes to specify in which fields to search -->
+            <div class="space-stack-s space-inset-s w-14">
+              <div class="flex">
+                <span
+                  class="weight--bold"
+                  v-text="Translator.trans('search.custom.limit_fields')" />
+                <button
+                  class="btn--blank o-link--default ml-auto"
+                  data-cy="customSearch:searchCustomToggleAll"
+                  v-text="Translator.trans('search.custom.toggle_all')"
+                  @click="toggleAllFields(selectedFields.length < fields.length)" />
+              </div>
+              <div
+                class="o-list--col-3"
+                v-if="isLoading === false">
+                <dp-checkbox
+                  v-for="({label, value}, i) in fields"
+                  :data-cy="'customSearch:' + value"
+                  :id="value"
+                  :key="i"
+                  :checked="selectedFields.includes(value)"
+                  :label="{
+                    text: Translator.trans(label)
+                  }"
+                  @change="handleChange(value, !selectedFields.includes(value))" />
+              </div>
+              <div
+                class="font-size-small"
+                v-text="Translator.trans('search.custom.explanation')" />
+            </div>
+            <hr class="border--top u-m-0">
+            <!-- Explanation of search options and special characters -->
+            <div
+              class="space-stack-xs space-inset-s w-14 overflow-y-auto"
+              :style="maxHeight">
+              <dp-details
+                v-for="explanation in explanations"
+                :key="explanation.title"
+                :summary="explanation.title"
+                :data-cy="explanation.dataCy">
+                <span v-html="explanation.description" />
+              </dp-details>
+            </div>
+          </dp-flyout>
         </template>
-        <!-- Checkboxes to specify in which fields to search -->
-        <div class="space-stack-s space-inset-s w-14">
-          <div class="flex">
-            <span
-              class="weight--bold"
-              v-text="Translator.trans('search.custom.limit_fields')" />
-            <button
-              class="btn--blank o-link--default ml-auto"
-              data-cy="customSearch:searchCustomToggleAll"
-              v-text="Translator.trans('search.custom.toggle_all')"
-              @click="toggleAllFields(selectedFields.length < fields.length)" />
-          </div>
-          <div
-            class="o-list--col-3"
-            v-if="isLoading === false">
-            <dp-checkbox
-              v-for="({label, value}, i) in fields"
-              :data-cy="'customSearch:' + value"
-              :id="value"
-              :key="i"
-              :checked="selectedFields.includes(value)"
-              :label="{
-                text: Translator.trans(label)
-              }"
-              @change="handleChange(value, !selectedFields.includes(value))" />
-          </div>
-          <div
-            class="font-size-small"
-            v-text="Translator.trans('search.custom.explanation')" />
-        </div>
-        <hr class="border--top u-m-0">
-        <!-- Explanation of search options and special characters -->
-        <div
-          class="space-stack-xs space-inset-s w-14 overflow-y-auto"
-          :style="maxHeight">
-          <dp-details
-            v-for="explanation in explanations"
-            :key="explanation.title"
-            :summary="explanation.title">
-            <span v-html="explanation.description" />
-          </dp-details>
-        </div>
-      </dp-flyout>
+      </dp-search-field>
     </div>
-    <dp-button
-      :text="Translator.trans('searching')"
-      data-cy="customSearch:searching"
-      @click="$emit('search', currentSearchTerm)" />
   </div>
 </template>
 
 <script>
 import {
   checkResponse,
-  DpButton,
   DpCheckbox,
   DpDetails,
   DpFlyout,
   DpIcon,
-  DpInput,
   dpRpc,
+  DpSearchField,
   hasOwnProp
 } from '@demos-europe/demosplan-ui'
 import lscache from 'lscache'
@@ -95,12 +94,11 @@ export default {
   name: 'CustomSearch',
 
   components: {
-    DpButton,
     DpCheckbox,
     DpDetails,
     DpFlyout,
     DpIcon,
-    DpInput
+    DpSearchField
   },
 
   props: {
@@ -151,10 +149,12 @@ export default {
       explanations: [
         {
           title: Translator.trans('search.options'),
+          dataCy: 'searchOptions',
           description: Translator.trans('search.options.description')
         },
         {
           title: Translator.trans('search.special.characters'),
+          dataCy: 'searchSpecialCharacters',
           description: Translator.trans('search.special.characters.description')
         }
       ],
@@ -172,16 +172,21 @@ export default {
   methods: {
     broadcastChanges () {
       this.storeSelection && lscache.set(this.localStorageKey, this.selectedFields)
-      this.$emit('change-fields', this.selectedFields)
-    },
-
-    initializeStoredSelection () {
-      this.selectedFields = lscache.get(this.localStorageKey)
+      this.$emit('changeFields', this.selectedFields)
     },
 
     handleChange (field, selected = null) {
       this.toggleField(field, selected)
       this.broadcastChanges()
+    },
+
+    handleSearch (term) {
+      this.currentSearchTerm = term
+      this.$emit('search', this.currentSearchTerm)
+    },
+
+    initializeStoredSelection () {
+      this.selectedFields = lscache.get(this.localStorageKey)
     },
 
     reset () {
@@ -241,7 +246,7 @@ export default {
     this.setFields()
 
     // Emit selection in case there was something stored (if storage is enabled).
-    this.storeSelection && this.$emit('change-fields', this.selectedFields)
+    this.storeSelection && this.$emit('changeFields', this.selectedFields)
   }
 }
 </script>
