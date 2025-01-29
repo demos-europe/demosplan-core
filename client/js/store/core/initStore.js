@@ -73,43 +73,45 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             },
             successCallbacks: [
               async (success) => {
-                let response = success
+                // If the response body is empty, contentType will be null
+                const contentType = success.headers.get('Content-Type')
 
-                try {
-                  response = await success.json()
-                } catch (e) {
-                  console.warn('Could not parse response. It was already parsed', e)
+                if (contentType && contentType.includes('application/json')) {
+                  const response = await success.json()
+
+                  const meta = response.data?.meta
+                    ? response.data.meta
+                    : response.meta || null
+                  if (meta?.messages) {
+                    handleResponseMessages(meta)
+                  }
+
+                  return Promise.resolve(response)
                 }
 
-                const meta = response.data?.meta
-                  ? response.data.meta
-                  : response.meta || null
-                if (meta?.messages) {
-                  handleResponseMessages(meta)
-                }
-
-                return Promise.resolve(response)
+                return Promise.resolve(success)
               }
             ],
             errorCallbacks: [
               async (error) => {
-                let response = error
+                // If the response body is empty, contentType will be null
+                const contentType = error.headers.get('Content-Type')
 
-                try {
-                  response = await error.json()
-                } catch (e) {
-                  console.warn('Could not parse response. It was already parsed', e)
+                if (contentType && contentType.includes('application/json')) {
+                  const response = await error.json()
+
+                  const meta = response.data?.meta
+                    ? response.data.meta
+                    : response.meta || null
+
+                  if (meta?.messages) {
+                    handleResponseMessages(meta)
+                  }
+
+                  return Promise.reject(response)
                 }
 
-                const meta = response.data?.meta
-                  ? response.data.meta
-                  : response.meta || null
-
-                if (meta?.messages) {
-                  handleResponseMessages(meta)
-                }
-
-                return Promise.reject(response)
+                return Promise.reject(error)
               }
             ]
           }),

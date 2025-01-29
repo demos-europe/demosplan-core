@@ -91,7 +91,31 @@
           {{ organisation.attributes.houseNumber }}
         </p>
       </div><!--
-   --><div class="u-1-of-2 layout__item">
+   -->
+      <div
+        v-if="canEdit('addressExtension') || organisation.attributes.addressExtension !== ''"
+        class="layout__item u-2-of-12">
+        <label
+          :for="organisation.id + 'addressExtension'"
+          class="u-mb-0_25">
+          {{ Translator.trans('address.extension') }}
+        </label>
+        <input
+          v-if="canEdit('addressExtension')"
+          type="text"
+          :id="organisation.id + 'addressExtension'"
+          class="w-full u-mb-0_5"
+          style="height: 27px;"
+          data-cy="orgaFormField:addressExtension"
+          @input="emitOrganisationUpdate"
+          v-model="localOrganisation.attributes.addressExtension">
+        <p
+          v-else-if="false === canEdit('addressExtension') && organisation.attributes.addressExtension !== ''"
+          class="color--grey u-mb-0_5">
+          {{ organisation.attributes.addressExtension }}
+        </p>
+      </div>
+      <div class="u-1-of-2 layout__item">
         <div class="layout">
           <div class="layout__item u-2-of-6">
             <label
@@ -112,7 +136,7 @@
             <p
               v-else-if="false === canEdit('postalcode') && organisation.attributes.postalcode !== ''"
               class="color--grey u-mb-0_5">
-              {{ organisation.attributes.postalCode }}
+              {{ organisation.attributes.postalcode }}
             </p>
             <p
               v-else-if="false === canEdit('postalcode') && organisation.attributes.postalcode === ''"
@@ -786,6 +810,7 @@ export default {
       default: () => {
         return {
           attributes: {
+            addressExtension: '',
             canCreateProcedures: false,
             ccEmail2: '',
             city: '',

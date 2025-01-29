@@ -177,13 +177,6 @@ export default {
   },
 
   computed: {
-    /**
-     * Needed for entity === 'user'
-     */
-    ...mapState('Role', {
-      roles: 'items'
-    }),
-
     dynamicComponent () {
       return this.customComponent[this.entity].componentName
     },
@@ -197,8 +190,9 @@ export default {
     },
 
     itemResource () {
+      const type = this.entity === 'user' ? 'AdministratableUser' : this.entity
       return {
-        type: this.entity,
+        type,
         ...this.item
       }
     }
@@ -208,7 +202,7 @@ export default {
     ...mapActions('Orga', {
       createOrganisation: 'create'
     }),
-    ...mapActions('User', {
+    ...mapActions('AdministratableUser', {
       createUser: 'create'
     }),
 

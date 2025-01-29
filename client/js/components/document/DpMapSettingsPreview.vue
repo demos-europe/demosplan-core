@@ -72,7 +72,7 @@
             v-tooltip="Translator.trans(link.tooltipContent)"
             class="o-link"
             :class="{'color-status-complete-text': link.done()}"
-            :data-cy="`gisLayerLink:${index}`"
+            :data-cy="`gisLayerLink:${link.label}`"
             :href="href(link)">
             <i
               aria-hidden="true"

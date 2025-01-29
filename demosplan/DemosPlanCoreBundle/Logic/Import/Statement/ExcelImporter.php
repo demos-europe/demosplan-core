@@ -518,7 +518,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $this->addImportViolations($violations, $line, $currentWorksheetTitle);
         }
 
-        $statementText = $this->getValidatedStatementText($statementData[self::STATEMENT_TEXT], $line, $currentWorksheetTitle);
+        $statementText = $this->getValidatedStatementText($statementData[self::STATEMENT_TEXT] ?? '', $line, $currentWorksheetTitle);
         $newOriginalStatement->setText($statementText);
         $newOriginalStatement->setProcedure($currentProcedure);
         $newStatementMeta->setAuthorName($statementData['Name'] ?? '');
