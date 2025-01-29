@@ -398,7 +398,7 @@ class DynamicTransformerTest extends JsonApiTest
         array $attributes,
         array $toOneRelationships,
         array $toManyRelationships,
-        string $env = DemosPlanKernel::ENVIRONMENT_DEV
+        string $env = DemosPlanKernel::ENVIRONMENT_DEV,
     ): DynamicTransformer {
         $mockMethods = [
             new MockMethodDefinition('getKernelEnvironment', $env),

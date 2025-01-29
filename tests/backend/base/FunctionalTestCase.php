@@ -456,7 +456,7 @@ class FunctionalTestCase extends WebTestCase
     protected function checkIfArrayHasEqualDataToObject(
         array $objectAsArray,
         CoreEntity $object,
-        array $attributesToSkip = []
+        array $attributesToSkip = [],
     ): void {
         $class = get_class($object);
 
