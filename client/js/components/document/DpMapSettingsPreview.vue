@@ -387,7 +387,8 @@ export default {
 
     isNotEmptyFeatureCollection (string) {
       try {
-        return Object.keys(JSON.parse(string).features).length > 0
+        const parsedFeatures = JSON.parse(string).features
+        return Array.isArray(parsedFeatures) ? parsedFeatures.length > 0 : Object.keys(JSON.parse(string).features).length > 0
       } catch (e) {
         return true
       }
