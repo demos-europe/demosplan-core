@@ -73,12 +73,19 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             },
             successCallbacks: [
               async (success) => {
-                let response = success
+                let response
 
-                try {
-                  response = await success.json()
-                } catch (e) {
-                  console.warn('Could not parse response. It was already parsed', e)
+                const contentType = success.headers.get('Content-Type')
+
+                if (contentType && contentType.includes('application/json')) {
+                  try {
+                    response = await success.json()
+                  } catch (e) {
+                    console.warn('Could not parse response. It might have already been parsed.', e);
+                    response = success
+                  }
+                } else {
+                  response = success
                 }
 
                 const meta = response.data?.meta

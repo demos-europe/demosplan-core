@@ -47,7 +47,7 @@
     &__empty {
         position: relative;
 
-        padding-bottom: $inuit-base-spacing-unit;
+        padding-bottom: $inuit-base-spacing-unit * .75;
     }
 
     &__item {
