@@ -22,11 +22,11 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInterface, Stringable
 {
     private readonly string $keycloakGroupRoleString;
-    private const COMPANY_STREET_ADDRESS = 'UnternehmensanschritftStrasse';
+    private const COMPANY_STREET_ADDRESS = 'UnternehmensanschriftStrasse';
     private const COMPANY_ADDRESS_EXTENSION = 'UnternehmensanschriftAdressergaenzung';
-    private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschritftHausnummer';
-    private const COMPANY_STREET_POSTAL_CODE = 'UnternehmensanschritftPLZ';
-    private const COMPANY_CITY_ADDRESS = 'UnternehmensanschritftOrt';
+    private const COMPANY_HOUSE_NUMBER = 'UnternehmensanschriftHausnummer';
+    private const COMPANY_STREET_POSTAL_CODE = 'UnternehmensanschriftPLZ';
+    private const COMPANY_CITY_ADDRESS = 'UnternehmensanschriftOrt';
     protected string $addressExtension = '';
     protected string $city = '';
 
@@ -90,5 +90,14 @@ class OzgKeycloakUserData extends CommonUserData implements KeycloakUserDataInte
                 $this->customerRoleRelations[$subdomain][] = $subGroups[3];
             }
         }
+    }
+
+    public function __toString(): string
+    {
+        $parentString = parent::__toString();
+
+        return $parentString.
+            ', addressExtension: '.$this->addressExtension.
+            ', city: '.$this->city;
     }
 }

@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -26,11 +28,15 @@ use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryUser;
+use EDT\JsonApi\ApiDocumentation\DefaultField;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Elastica\Index;
 
 /**
@@ -144,77 +150,64 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder = $this->getConfig(UserResourceConfigBuilder::class);
 
         $configBuilder->id
-            ->readable()
-            ->sortable()
-            ->filterable();
+            ->setReadableByPath()
+            ->setSortable()
+            ->setFilterable();
 
         $configBuilder->firstname
-            ->readable(true)
-            ->sortable()
-            ->updatable()
-            ->initializable()
-            ->filterable();
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->addPathUpdateBehavior()
+            ->addPathCreationBehavior()
+            ->setFilterable();
 
         $configBuilder->lastname
-            ->readable(true)
-            ->sortable()
-            ->updatable()
-            ->initializable()
-            ->filterable();
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->addPathUpdateBehavior()
+            ->addPathCreationBehavior()
+            ->setFilterable();
 
         $configBuilder->email
-            ->readable(true)
-            ->sortable()
-            ->updatable([], function (User $user, string $email): array {
-                $user->setEmail($email);
-
-                return [];
-            })
-            ->initializable()
-            ->filterable();
+            ->setReadableByPath(DefaultField::YES)
+            ->setSortable()
+            ->addPathUpdateBehavior()
+            ->addPathCreationBehavior()
+            ->setFilterable();
 
         $configBuilder->profileCompleted
-            ->readable(true, static fn (User $user): bool => $user->isProfileCompleted())
-            ->sortable();
+            ->setReadableByCallable(static fn (User $user): bool => $user->isProfileCompleted(), DefaultField::YES)
+            ->setSortable();
 
         $configBuilder->accessConfirmed
-            ->readable(true, static fn (User $user): bool => $user->isAccessConfirmed())
-            ->sortable();
+            ->setReadableByCallable(static fn (User $user): bool => $user->isAccessConfirmed(), DefaultField::YES)
+            ->setSortable();
 
         $configBuilder->invited
-            ->readable(true, static fn (User $user): bool => $user->isInvited())
-            ->sortable();
+            ->setReadableByCallable(static fn (User $user): bool => $user->isInvited(), DefaultField::YES)
+            ->setSortable();
 
         $configBuilder->newsletter
-            ->readable(true, static fn (User $user): bool => $user->getNewsletter())
-            ->sortable();
+            ->setReadableByCallable(static fn (User $user): bool => $user->getNewsletter(), DefaultField::YES)
+            ->setSortable();
 
         $configBuilder->noPiwik
-            ->readable(true, static fn (User $user): bool => $user->getNoPiwik())
-            ->sortable();
+            ->setReadableByCallable(static fn (User $user): bool => $user->getNoPiwik(), DefaultField::YES)
+            ->setSortable();
 
         $configBuilder->roles
-            ->updatable([], [], function (User $user, array $newRoles): array {
-                $roles = $user->getDplanroles($this->currentCustomerService->getCurrentCustomer())->toArray();
+            ->addUpdateBehavior(
+                CallbackToManyRelationshipSetBehavior::createFactory(function (User $user, array $newRoles): array {
+                    $this->updateRoles($user, $newRoles);
 
-                // Remove roles that are not in the new roles array
-                $removedRoles = $this->getRemovedRoles($roles, $newRoles);
-                foreach ($removedRoles as $role) {
-                    $roleInCustomer = $user->removeRoleInCustomer($role, $this->currentCustomerService->getCurrentCustomer());
-                    $role->removeUserRoleInCustomer($roleInCustomer);
-                    $this->getTypes()->getUserRoleInCustomerResourceType()->deleteEntity($roleInCustomer->getId());
-                }
-
-                // Add new roles that the user does not already have
-                $addedRoles = $this->getAddedRoles($roles, $newRoles);
-                foreach ($addedRoles as $role) {
-                    $user->addDplanrole($role, $this->currentCustomerService->getCurrentCustomer());
-                }
-
-                return [];
-            })
+                    return [];
+                },
+                    [],
+                    OptionalField::YES,
+                    [])
+            )
             ->setRelationshipType($this->getTypes()->getRoleResourceType())
-            ->readable(true, function (User $user): array {
+            ->setReadableByCallable(function (User $user): array {
                 $currentCustomer = $this->currentCustomerService->getCurrentCustomer();
 
                 return $user->getRoleInCustomers()
@@ -226,66 +219,81 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                     )
                     ->getValues();
             })
-            ->sortable()
-            ->initializable(true, function (User $user, array $roles): array {
-                $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
+            ->setSortable()
+            ->addCreationBehavior(
+                CallbackToManyRelationshipSetBehavior::createFactory(function (User $user, array $roles): array {
+                    $user->setDplanroles($roles, $this->currentCustomerService->getCurrentCustomer());
 
-                return [];
-            });
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
 
         $configBuilder->roleInCustomers
             ->setRelationshipType($this->getTypes()->getUserRoleInCustomerResourceType())
-            ->readable();
+            ->setReadableByPath();
 
         $configBuilder->department
             ->setRelationshipType($this->getTypes()->getDepartmentResourceType())
-            ->readable(true, static fn (User $user): ?Department => $user->getDepartment())
-            ->updatable([], [], static function (User $user, Department $newDepartment): array {
-                // Special logic for moving users from one department into another
-                $originalDepartment = $user->getDepartment();
-                if ($originalDepartment instanceof Department) {
-                    $originalDepartment->setGwId(null);
-                    $originalDepartment->removeUser($user);
-                }
-                $user->setDepartment($newDepartment);
-                $newDepartment->addUser($user);
+            ->setReadableByCallable(static fn (User $user): ?Department => $user->getDepartment(), DefaultField::YES)
+            ->addUpdateBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Department $newDepartment): array {
+                    // Special logic for moving users from one department into another
+                    $originalDepartment = $user->getDepartment();
+                    if ($originalDepartment instanceof Department) {
+                        $originalDepartment->setGwId(null);
+                        $originalDepartment->removeUser($user);
+                    }
+                    $user->setDepartment($newDepartment);
+                    $newDepartment->addUser($user);
 
-                return [];
-            })
-            ->initializable(false, function (User $user, Department $department): array {
-                $user->setDepartment($department);
-                $department->addUser($user);
+                    return [];
+                },
+                    [],
+                    OptionalField::YES,
+                    [])
+            )
+            ->addCreationBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(static function (User $user, Department $department): array {
+                    $user->setDepartment($department);
+                    $department->addUser($user);
 
-                return [];
-            });
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
 
         $configBuilder->orga
             ->setRelationshipType($this->getTypes()->getOrgaResourceType())
-            ->readable(true, static fn (User $user): ?Orga => $user->getOrga())
-            ->updatable([], [], static function (User $user, Orga $newOrga): array {
-                // Special logic for moving users from one organization into another
-                $originalOrga = $user->getOrga();
-                if ($originalOrga instanceof Orga) {
-                    $originalOrga->setGwId(null);
-                    $originalOrga->removeUser($user);
-                }
-                $user->setOrga($newOrga);
-                $newOrga->addUser($user);
+            ->setReadableByCallable(static fn (User $user): ?Orga => $user->getOrga(), DefaultField::YES)
+            ->addUpdateBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(function (User $user, Orga $newOrga): array {
+                    // Special logic for moving users from one organization into another
+                    $originalOrga = $user->getOrga();
+                    if ($originalOrga instanceof Orga) {
+                        $originalOrga->setGwId(null);
+                        $originalOrga->removeUser($user);
+                    }
+                    $user->setOrga($newOrga);
+                    $newOrga->addUser($user);
 
-                return [];
-            })
-            ->initializable(false, function (User $user, Orga $orga): array {
-                $user->setOrga($orga);
-                $orga->addUser($user);
+                    return [];
+                },
+                    [],
+                    OptionalField::YES,
+                    [])
+            )
+            ->addCreationBehavior(
+                CallbackToOneRelationshipSetBehavior::createFactory(static function (UserInterface $user, OrgaInterface $orga): array {
+                    $user->setOrga($orga);
+                    $orga->addUser($user);
 
-                return [];
-            });
+                    return [];
+                }, [], OptionalField::NO, [])
+            );
 
-        $configBuilder->addPostConstructorBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
+        $configBuilder->addCreationBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
             $attributes = $entityData->getAttributes();
             $user->setLogin($attributes[$this->email->getAsNamesInDotNotation()]);
             $this->userRepository->persistEntities([$user]);
-
             $this->userHandler->inviteUser($user);
 
             return [];
@@ -316,5 +324,24 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         }
 
         return parent::updateEntity($entityId, $entityData);
+    }
+
+    private function updateRoles(UserInterface $user, array $newRoles): void
+    {
+        $roles = $user->getDplanroles($this->currentCustomerService->getCurrentCustomer())->toArray();
+
+        // Remove roles that are not in the new roles array
+        $removedRoles = $this->getRemovedRoles($roles, $newRoles);
+        foreach ($removedRoles as $role) {
+            $roleInCustomer = $user->removeRoleInCustomer($role, $this->currentCustomerService->getCurrentCustomer());
+            $role->removeUserRoleInCustomer($roleInCustomer);
+            $this->getTypes()->getUserRoleInCustomerResourceType()->deleteEntity($roleInCustomer->getId());
+        }
+
+        // Add new roles that the user does not already have
+        $addedRoles = $this->getAddedRoles($roles, $newRoles);
+        foreach ($addedRoles as $role) {
+            $user->addDplanrole($role, $this->currentCustomerService->getCurrentCustomer());
+        }
     }
 }
