@@ -149,11 +149,11 @@ trait ElasticsearchQueryTrait
                 $limit = 1;
             }
 
-            $paginator->setMaxPerPage($limit);
+            $paginator->setMaxPerPage((int)$limit);
 
             // try to paginate Result, check for validity
             try {
-                $paginator->setCurrentPage($page);
+                $paginator->setCurrentPage((int)$page);
             } catch (NotValidCurrentPageException $e) {
                 $paginator->setCurrentPage(1);
             }

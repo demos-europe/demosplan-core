@@ -883,8 +883,8 @@ class DemosPlanDocumentController extends BaseController
         $currentPage = $request->get('page', 1) > 0 ? $request->get('page', 1) : 1;
 
         try {
-            $documentlistPager->setMaxPerPage($request->get('r_limit', 3));
-            $documentlistPager->setCurrentPage($currentPage);
+            $documentlistPager->setMaxPerPage((int)$request->get('r_limit', 3));
+            $documentlistPager->setCurrentPage((int)$currentPage);
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not set paginate: ', [$e]);
 
