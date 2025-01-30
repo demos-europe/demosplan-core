@@ -49,7 +49,7 @@ class DemosPlanStatementFragmentUpdateAPIController extends APIController
     public function createAction(
         CurrentProcedureService $currentProcedureService,
         StatementFragmentService $statementFragmentService,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
     ): Response {
         if (!($this->requestData instanceof TopLevel)) {
             throw BadRequestException::normalizerFailed();

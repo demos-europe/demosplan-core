@@ -35,7 +35,7 @@ class TagTopicAPIController extends APIController
         CurrentProcedureService $currentProcedureService,
         PermissionsInterface $permissions,
         StatementHandler $statementHandler,
-        TagTopicResourceType $tagTopicResourceType
+        TagTopicResourceType $tagTopicResourceType,
     ): APIResponse {
         if (!($this->requestData instanceof TopLevel)) {
             throw BadRequestException::normalizerFailed();
