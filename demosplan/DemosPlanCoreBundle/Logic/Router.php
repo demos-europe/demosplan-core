@@ -146,20 +146,20 @@ class Router implements RouterInterface, WarmableInterface
         return $parameters;
     }
 
-    private function slugifyProcedureIdParam(string $procedureIdOrSlug): string
+    private function slugifyProcedureIdParam(string $procedureId): string
     {
         // the cache is only useful, when $procedureId is the slug
         // as otherwise doctrine will cache the query result itself
-        if (array_key_exists($procedureIdOrSlug, $this->procedureIdCache)) {
-            return $this->procedureIdCache[$procedureIdOrSlug];
+        if (array_key_exists($procedureId, $this->procedureIdCache)) {
+            return $this->procedureIdCache[$procedureId];
         }
 
-        $this->procedureIdCache[$procedureIdOrSlug] = $procedureIdOrSlug;
-        $slug = $procedureIdOrSlug;
-        $procedure = $this->procedureRepository->find($procedureIdOrSlug);
-        if ($procedure instanceof Procedure && '' !== $procedure->getShortUrl()) {
-            $this->procedureIdCache[$procedureIdOrSlug] = $procedure->getShortUrl();
-            $slug = $procedure->getShortUrl();
+        $this->procedureIdCache[$procedureId] = $procedureId;
+        $slug = $procedureId;
+        $shortUrl = $this->procedureRepository->findShortUrlById($procedureId);
+        if ($shortUrl) {
+            $this->procedureIdCache[$procedureId] = $shortUrl;
+            $slug = $shortUrl;
         }
 
         return $slug;
