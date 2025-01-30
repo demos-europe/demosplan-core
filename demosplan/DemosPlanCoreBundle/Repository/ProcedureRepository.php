@@ -1437,4 +1437,19 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     {
         return $this->getEntityManager()->getRepository(User::class);
     }
+
+    /**
+     * Extra method to get the shortUrl of a procedure by its id to avoid
+     * hydrating the whole procedure.
+     */
+    public function findShortUrlById(string $procedureId): string
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('p.shortUrl')
+            ->where('p.id = :id')
+            ->setParameter('id', $procedureId)
+            ->getQuery();
+
+        return $qb->getSingleScalarResult();
+    }
 }
