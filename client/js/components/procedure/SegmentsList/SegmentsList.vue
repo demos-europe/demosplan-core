@@ -26,15 +26,13 @@
           @changeFields="updateSearchFields"
           @search="term => updateSearchQuery(term)"
           @reset="handleResetSearch" />
-        <div class="bg-color--grey-light-2 rounded-md ml-2">
-          <span class="color--grey ml-1 align-middle">
-            {{ Translator.trans('filter') }}
-          </span>
+        <div class="ml-2 space-x-1 space-x-reverse">
           <filter-flyout
             v-for="(filter, idx) in Object.values(filters)"
             ref="filterFlyout"
             :additional-query-params="{ searchPhrase: searchTerm }"
             :category="{ id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }"
+            class="inline-block first:mr-1"
             :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             :groups-object="filter.groupsObject"
             :initial-query="queryIds"
