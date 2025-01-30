@@ -20,7 +20,6 @@
           :text="Translator.trans('tags.import')"
           for="uploadTags"
           :tooltip="Translator.trans('tags.import.help')" />
-
         <dp-upload
           id="uploadTags"
           name="r_importCsv"
@@ -30,9 +29,14 @@
           :translations="{ dropHereOr: Translator.trans('form.button.upload.csv', { browse: '{browse}', maxUploadSize: '10GB' }) }"
           :max-number-of-files="1"
           @upload-success="importCSVs" />
-
-        <input type="hidden" name="r_importCsv" :value="this.uploadedCSV" />
-        <input type="hidden" name="uploadedFiles" :value="this.uploadedFiles" />
+        <input
+          type="hidden"
+          name="r_importCsv"
+          :value="this.uploadedCSV" />
+        <input
+          type="hidden"
+          name="uploadedFiles"
+          :value="this.uploadedFiles" />
         <dp-button
           class="float-right mt-1"
           data-cy="listTags:tagsImport"
