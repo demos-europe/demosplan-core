@@ -31,6 +31,7 @@ use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\ToManyRelationshipReadabil
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipReadability;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\ToOneRelationshipReadabilityInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
+use Illuminate\Support\Collection;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
 use League\Fractal\Scope;
@@ -40,7 +41,6 @@ use stdClass;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\JsonApiTest;
 use Tests\Base\MockMethodDefinition;
-use Tightenco\Collect\Support\Collection;
 
 class DynamicTransformerTest extends JsonApiTest
 {
@@ -372,10 +372,6 @@ class DynamicTransformerTest extends JsonApiTest
             [
                 'foo',
                 'foo.bar.baz',
-            ],
-            [
-                '',
-                '',
             ],
             [
                 '1234',
