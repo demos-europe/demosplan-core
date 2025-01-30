@@ -10,14 +10,12 @@
       <div
         class="flex-1"
         v-text="nodeElement.attributes.title" />
-
       <div class="text-center w-9">
         <dp-contextual-help
           v-if="nodeElement.relationships?.boilerplate"
           icon="file"
           :text="nodeElement.relationships.boilerplate.attributes.title" />
       </div>
-
       <addon-wrapper
         hook-name="tag.edit.form"
         :addon-props="{
@@ -25,7 +23,7 @@
         }" />
     </template>
     <div class="flex-0 pl-2 w-8">
-      <template  v-if="isInEditState !== nodeElement.id">
+      <template v-if="isInEditState !== nodeElement.id">
         <button
           :aria-label="Translator.trans('item.edit')"
           class="btn--blank o-link--default"
