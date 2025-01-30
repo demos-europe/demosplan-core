@@ -13,7 +13,7 @@ const FilterFlyoutStore = {
      */
     initialFlyoutFilterIds: {},
     /**
-     * @type {boolean}
+     * @type {Object.<string, boolean>}
      * @description Indicates whether the filter flyout is expanded or not.
      * This state is used to control the visibility of the filter flyout.
      */
