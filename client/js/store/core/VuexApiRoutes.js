@@ -35,7 +35,7 @@ const api1_0Routes = [
   {
     module: 'role',
     action: 'list',
-    url: '/1.0/role/'
+    url: '/1.0/role'
   },
   {
     module: 'report',
@@ -92,7 +92,7 @@ const api1_0Routes = [
   {
     module: 'FaqCategory',
     action: 'list',
-    url: '/1.0/FaqCategory/'
+    url: '/1.0/FaqCategory'
   }
 ]
 
