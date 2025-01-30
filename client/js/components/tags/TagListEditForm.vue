@@ -1,6 +1,6 @@
 
 <template>
-  <div class="flex">
+  <div class="flex items-center">
     <dp-input
       v-if="isInEditState === nodeElement.id"
       :id="`edit-${type}-${nodeElement.id}`"
