@@ -202,7 +202,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     /**
      * @throws NoResultException
      */
-    public function getFirstUserInFhhnetByLogin(string $loginSuffix): User
+    public function getFirstUserInFhhnetByLogin(string $loginSuffix): UserInterface
     {
         return $this->userService->getFirstUserInFhhnetByLogin($loginSuffix);
     }
