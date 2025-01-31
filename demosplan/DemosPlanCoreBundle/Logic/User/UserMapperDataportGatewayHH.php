@@ -346,7 +346,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                     $masterToebEntries = [];
                     foreach ($unknownRoles as $unknownRole) {
                         if (null != ($masterToeb = $this->masterToebService->getMasterToebByGroupName($unknownRole))) {
-                            $masterToebEntries = array_merge($masterToebEntries, $masterToeb);
+                            $masterToebEntries[] = array_merge($masterToebEntries, $masterToeb);
                         }
                     }
                     // Wenn mehr als ein Eintrag existiert muss geprüft werden welcher der richtige ist.

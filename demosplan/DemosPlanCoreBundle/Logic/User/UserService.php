@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface;
@@ -819,7 +820,7 @@ class UserService extends CoreService implements UserServiceInterface
     /**
      * @throws NoResultException
      */
-    public function getFirstUserInFhhnetByLogin(string $loginSuffix): User
+    public function getFirstUserInFhhnetByLogin(string $loginSuffix): UserInterface
     {
         $user = $this->userRepository->getFirstUserInFhhnetByLogin($loginSuffix);
         $user->setCurrentCustomer($this->customerService->getCurrentCustomer());
