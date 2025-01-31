@@ -168,15 +168,17 @@ export default {
       return {
         type: resourceType,
         attributes,
-        relationships: url === 'api_resource_update' ? undefined : {
-          procedure: {
-            data: {
-              type: 'Procedure',
-              id: this.procedureId
-            }
-          }
-        },
-        ...(url === 'api_resource_update' ? { id } : {}),
+        relationships: url === 'api_resource_update'
+          ? undefined
+          : {
+              procedure: {
+                data: {
+                  type: 'Procedure',
+                  id: this.procedureId
+                }
+              }
+            },
+        ...(url === 'api_resource_update' ? { id } : {})
       }
     },
 
@@ -207,7 +209,7 @@ export default {
       return addonRequest
         .then(checkResponse)
         .catch(error => {
-          /** the 'is-invalid' class would be added to the addon field in case of an error */
+          /** The 'is-invalid' class would be added to the addon field in case of an error */
           const input = document.getElementById('addonAdditionalField')
           input.classList.add('is-invalid')
 
@@ -240,7 +242,7 @@ export default {
       }
     },
 
-    submitConfigForm() {
+    submitConfigForm () {
       this.dpValidateAction('configForm', () => {
         this.$refs.configForm.submit()
       }, false)

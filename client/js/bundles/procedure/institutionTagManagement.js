@@ -17,7 +17,7 @@ import { initialize } from '@DpJs/InitVue'
 const components = { InstitutionTagManagement }
 
 const stores = {
-  FilterFlyout: FilterFlyoutStore,
+  FilterFlyout: FilterFlyoutStore
 }
 
 const apiStores = [
