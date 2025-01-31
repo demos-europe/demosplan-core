@@ -37,6 +37,7 @@
               class="first:mr-1 first:mt-1 inline-block"
               :data-cy="`institutionListFilter:${filter.label}`"
               :initial-query="queryIds"
+              :member-of="filter.memberOf"
               :operator="filter.comparisonOperator"
               :path="filter.rootPath"
               @filterApply="(filtersToBeApplied) => applyFilterQuery(filtersToBeApplied, filter.id)"
@@ -234,13 +235,18 @@ export default {
 
     filters () {
       return this.institutionTagCategoriesValues.reduce((acc, category) => {
-        acc[category.id] = {
-          id: category.id,
+        const { id, attributes } = category
+        const groupKey = `${id}_group`
+
+        acc[id] = {
+          id,
           comparisonOperator: '=',
-          label: category.attributes.name,
+          label: attributes.name,
           rootPath: 'assignedTags',
-          selected: false
+          selected: false,
+          memberOf: groupKey
         }
+
         return acc
       }, {})
     },

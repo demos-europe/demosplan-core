@@ -160,6 +160,7 @@ const FilterFlyoutStore = {
      * {
      *   id: {
      *     condition: {
+     *       memberOf?: <String>,
      *       operator: <String>,
      *       path: <String>,
      *       value: <String>
@@ -168,12 +169,18 @@ const FilterFlyoutStore = {
      * }
      */
     updateFilterQuery (state, filter) {
-      if (Object.keys(filter).length) {
+      if (Object.keys(filter).length > 0) {
         const filterQuery = Object.values(filter)[0]
-        const value = !filterQuery.condition.value ? 'unassigned' : filterQuery.condition.value
+        const value = !filterQuery.condition?.value ? 'unassigned' : filterQuery.condition.value
+
         const queryIdx = Object.values(state.filterQuery).findIndex(el => {
           if (value === 'unassigned') {
             return el.condition.value === undefined
+          }
+
+          // Skip group objects
+          if (!el.condition) {
+            return false
           }
 
           return el.condition.value === value
@@ -181,8 +188,28 @@ const FilterFlyoutStore = {
 
         if (queryIdx < 0) {
           set(state.filterQuery, [value], filterQuery)
+
+          if (filterQuery.condition.memberOf) {
+            const groupKey = filterQuery.condition.memberOf
+
+            if (!state.filterQuery[groupKey]) {
+              state.filterQuery[groupKey] = {
+                group: {
+                  conjunction: 'OR'
+                }
+              }
+            }
+          }
         } else {
           del(state.filterQuery, [value])
+
+          if (filterQuery.condition?.memberOf) {
+            const groupKey = filterQuery.condition.memberOf
+
+            if (!Object.values(state.filterQuery).find(filter => filter.condition && filter.condition.memberOf === groupKey)) {
+              del(state.filterQuery, [groupKey])
+            }
+          }
         }
       } else {
         set(state, 'filterQuery', filter)
