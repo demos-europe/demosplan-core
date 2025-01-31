@@ -66,10 +66,10 @@
       :key="`pager1_${pagination.current_page}_${pagination.count}`"
       :limits="pagination.limits"
       :label-texts="{
-            multipleItems: Translator.trans('pager.amount.multiple.items'),
-            multipleLabel: Translator.trans('pager.amount.multiple.label',
-              {results: pagination.total, items: Translator.trans('pager.amount.multiple.items')}),
-            multipleOf: Translator.trans('pager.amount.multiple.of')
+          multipleItems: Translator.trans('pager.amount.multiple.items'),
+          multipleLabel: Translator.trans('pager.amount.multiple.label',
+            {results: pagination.total, items: Translator.trans('pager.amount.multiple.items')}),
+          multipleOf: Translator.trans('pager.amount.multiple.of')
           }"
       :total-pages="pagination.total_pages"
       :total-items="pagination.total"

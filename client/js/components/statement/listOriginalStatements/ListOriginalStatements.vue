@@ -16,10 +16,10 @@
         class="mt-4 mb-2"
         :current-page="pagination.currentPage"
         :label-texts="{
-            multipleItems: Translator.trans('pager.amount.multiple.items'),
-            multipleLabel: Translator.trans('pager.amount.multiple.label',
-              {results: pagination.total, items: Translator.trans('pager.amount.multiple.items')}),
-            multipleOf: Translator.trans('pager.amount.multiple.of')
+          multipleItems: Translator.trans('pager.amount.multiple.items'),
+          multipleLabel: Translator.trans('pager.amount.multiple.label',
+            {results: pagination.total, items: Translator.trans('pager.amount.multiple.items')}),
+          multipleOf: Translator.trans('pager.amount.multiple.of')
           }"
         :limits="pagination.limits"
         :per-page="pagination.perPage"
