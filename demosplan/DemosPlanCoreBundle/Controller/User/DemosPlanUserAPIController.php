@@ -126,7 +126,7 @@ class DemosPlanUserAPIController extends APIController
      *
      * @throws MessageBagException
      */
-    #[Route(path: '/api/1.0/user/', methods: ['GET'], name: 'dplan_api_users_get', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/user', methods: ['GET'], name: 'dplan_api_users_get', options: ['expose' => true])]
     public function listAction(
         AdministratableUserResourceType $userType,
         DrupalFilterParser $filterParser,
@@ -188,7 +188,7 @@ class DemosPlanUserAPIController extends APIController
      *
      * @deprecated Use `/api/2.0/User` instead ({@link GenericApiController::createAction()})
      */
-    #[Route(path: '/api/1.0/user/', methods: ['POST'], name: 'dplan_api_user_create', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/user', methods: ['POST'], name: 'dplan_api_user_create', options: ['expose' => true])]
     public function createAction(UserHandler $userHandler): APIResponse
     {
         try {
