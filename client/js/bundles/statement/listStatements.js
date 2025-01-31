@@ -12,8 +12,8 @@
  */
 
 import { initialize } from '@DpJs/InitVue'
-import ListStatements from '@DpJs/components/statement/listStatements/ListStatements'
 import ListOriginalStatements from '@DpJs/components/statement/listOriginalStatements/ListOriginalStatements.vue'
+import ListStatements from '@DpJs/components/statement/listStatements/ListStatements'
 
 const components = {
   ListStatements,
