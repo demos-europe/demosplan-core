@@ -334,7 +334,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                     if (!$publicAgencyUser instanceof User) {
                         $getUserContext = [
                             'foundUser' => $publicAgencyUser,
-                            'userData' => $this->data['user']
+                            'userData'  => $this->data['user'],
                         ];
                         $this->logger->info('Could not find user with data', $getUserContext);
                         $this->logger->info('User does not exist create with roles', ['roles' => $toebRoles]);
