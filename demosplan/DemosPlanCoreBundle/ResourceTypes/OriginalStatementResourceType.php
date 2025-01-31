@@ -38,6 +38,7 @@ use EDT\PathBuilding\End;
  * @property-read End                   $deleted
  * @property-read StatementResourceType $headStatement
  * @property-read StatementResourceType $movedStatement
+ * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
  */
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface
 {
@@ -74,16 +75,17 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
             return [$this->conditionFactory->false()];
         }
 
-        return [
+        $return = [
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyIsNull($this->original->id),
             $this->conditionFactory->propertyIsNull($this->headStatement->id),
             $this->conditionFactory->propertyIsNull($this->movedStatement),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
-            $this->conditionFactory->isTargetEntityNotInstanceOf(
-                basename(str_replace('\\', '/', Segment::class))
-            ),
+            // filter out segments
+            $this->conditionFactory->propertyIsNull($this->parentStatementOfSegment),
         ];
+
+        return $return;
     }
 
     public function isGetAllowed(): bool
