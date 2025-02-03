@@ -51,7 +51,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         ImageLinkConverter $imageLinkConverter,
         private readonly SegmentExporterFileNameGenerator $fileNameGenerator,
         Slugify $slugify,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         parent::__construct($currentUser, $htmlHelper, $imageManager, $imageLinkConverter, $slugify, $translator);
     }
@@ -137,7 +137,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      */
     private function updateRecommendationsWithTextReferences(
         array $segmentsOrStatements,
-        array $convertedSegments
+        array $convertedSegments,
     ): array {
         foreach ($segmentsOrStatements as $key => $segmentOrStatement) {
             $isNotSegment = !array_key_exists('recommendation', $segmentOrStatement);
