@@ -44,7 +44,7 @@
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx', 'zip'].includes(this.active)">
+      <fieldset v-if="['docx', 'docxCensored', 'zip'].includes(this.active)">
         <legend
           id="docxColumnTitles"
           class="o-form__label text-base float-left mr-1"
@@ -160,7 +160,14 @@ export default {
           label: 'export.docx',
           hint: '',
           exportPath: 'dplan_statement_segments_export',
-          dataCy: 'exportModal:export:docx'
+          dataCy: 'exportModal:export:docx',
+        },
+        docxCensored: {
+          label: 'export.docx.censored',
+          hint: '',
+          exportPath: 'dplan_statement_segments_export',
+          dataCy: 'exportModal:export:docx',
+          censor: true
         },
         zip: {
           label: 'export.zip',
@@ -232,8 +239,9 @@ export default {
 
       this.$emit('export', {
         route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
-        docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null,
-        fileNameTemplate: this.fileName || null
+        docxHeaders: ['docx', 'docxCensored', 'zip'].includes(this.active) ? columnTitles : null,
+        fileNameTemplate: this.fileName || null,
+        censorParameter: this.exportTypes[this.active].censor || false
       })
       this.closeModal()
     },
