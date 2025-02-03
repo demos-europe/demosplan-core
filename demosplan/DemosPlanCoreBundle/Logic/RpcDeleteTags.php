@@ -98,6 +98,7 @@ class RpcDeleteTags implements RpcMethodSolverInterface
 
         foreach ($rpcRequests as $rpcRequest) {
             try {
+                $itemType = 'NotG iven';
                 /** @var array<int, array{itemType: string, id: string}> $items */
                 $items = $rpcRequest->params->ids ?? null;
                 Assert::isIterable($items, 'expected params->ids to be a list of items');
