@@ -22,12 +22,14 @@ class PostNewProcedureCreatedEvent extends DPlanEvent implements PostNewProcedur
     /** @var Procedure */
     protected $procedure;
 
-    public function __construct(Procedure $procedure, /**
-     * Identifies a ProcedureCoupleToken, to allow to couple the procedures.
-     */
+    public function __construct(
+        Procedure $procedure,
+        /**
+         * Identifies a ProcedureCoupleToken, to allow to couple the procedures.
+         */
         private readonly ?string $token = null,
-        private readonly string $usedBluePrintId)
-    {
+        private readonly string $usedBluePrintId = '',
+    ) {
         $this->procedure = $procedure;
     }
 

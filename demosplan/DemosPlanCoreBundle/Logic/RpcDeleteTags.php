@@ -99,19 +99,20 @@ class RpcDeleteTags implements RpcMethodSolverInterface
         foreach ($rpcRequests as $rpcRequest) {
             try {
                 /** @var array<int, array{itemType: string, id: string}> $items */
-                $items = $rpcRequest->params->ids;
+                $items = $rpcRequest->params->ids ?? null;
+                Assert::isIterable($items, 'expected params->ids to be a list of items');
 
                 $wholeTopicIdsToDelete = [];
 
                 foreach ($items as $item) {
-                    $itemType = $item->type;
-                    $itemId = $item->id;
-                    Assert::stringNotEmpty($itemId, 'itemId is expected to be a string');
+                    $itemType = $item->type ?? 'Not Given';
                     Assert::inArray(
                         $itemType,
                         self::HANDLED_ITEM_TYPES,
                         'itemType is expected to be one of: '.implode(', ', self::HANDLED_ITEM_TYPES)
                     );
+                    $itemId = $item->id ?? '';
+                    Assert::stringNotEmpty($itemId, 'itemId is expected to be a string');
                     if (self::TAG_TYPE === $itemType) {
                         if ($this->statementHandler->isTagInUse($itemId)) {
                             throw new TagInUseException("$itemType with id: $itemId is in use and can not be deleted");
