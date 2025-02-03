@@ -8,7 +8,7 @@
 
 ### Features
 - Institution tag management: Add search field and filters to institution list
-## (2024-08-22)
+## (2025-02-03)
  - Add the possibility to export synopsis without personal data.
 
 ### Further changes
