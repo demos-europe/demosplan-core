@@ -329,6 +329,13 @@ export default {
       this.$emit('abort')
     },
 
+    // Matomo Tracking Event Tagging & Slicing
+    clickTrackerSaveButton(){
+      if (window._paq) {
+        _paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('tags.select')])
+      }
+    },
+
     save () {
       if (this.availablePlaces.length < 1) {
         dplan.notify.notify(
@@ -339,6 +346,8 @@ export default {
 
         return
       }
+
+      this.clickTrackerSaveButton()
 
       if (this.needsUpdate) {
         this.updateSegment()
