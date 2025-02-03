@@ -106,12 +106,25 @@ class SegmentsExportController extends BaseController
             $requestHandler->getObjectsByQueryParams($this->requestStack->getCurrentRequest()->query, $statementResourceType)->getList()
         );
 
-        $response = new StreamedResponse(
-            static function () use ($tableHeaders, $procedure, $statementEntities, $exporter) {
-                $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, ...$statementEntities);
-                $exportedDoc->save(self::OUTPUT_DESTINATION);
-            }
-        );
+        $censorParameter = $this->requestStack->getCurrentRequest()->query->get('censorParameter');
+
+        $censorParameter = filter_var($censorParameter, FILTER_VALIDATE_BOOLEAN);
+
+        if ($censorParameter) {
+            $response = new StreamedResponse(
+                static function () use ($tableHeaders, $procedure, $statementEntities, $exporter) {
+                    $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, true, ...$statementEntities);
+                    $exportedDoc->save(self::OUTPUT_DESTINATION);
+                }
+            );
+        } else {
+            $response = new StreamedResponse(
+                static function () use ($tableHeaders, $procedure, $statementEntities, $exporter) {
+                    $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, false, ...$statementEntities);
+                    $exportedDoc->save(self::OUTPUT_DESTINATION);
+                }
+            );
+        }
 
         $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx'));
 

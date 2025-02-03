@@ -64,7 +64,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     /**
      * @throws Exception
      */
-    public function exportAll(array $tableHeaders, Procedure $procedure, Statement ...$statements): WriterInterface
+    public function exportAll(array $tableHeaders, Procedure $procedure, bool $censored, Statement ...$statements): WriterInterface
     {
         Settings::setOutputEscapingEnabled(true);
 
@@ -74,7 +74,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             return $this->exportEmptyStatements($phpWord, $procedure);
         }
 
-        return $this->exportStatements($phpWord, $procedure, $statements, $tableHeaders);
+        return $this->exportStatements($phpWord, $procedure, $statements, $tableHeaders, $censored);
     }
 
     /**
@@ -172,14 +172,14 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @throws Exception
      */
-    private function exportStatements(PhpWord $phpWord, Procedure $procedure, array $statements, array $tableHeaders): WriterInterface
+    private function exportStatements(PhpWord $phpWord, Procedure $procedure, array $statements, array $tableHeaders, bool $censored): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
 
         foreach ($statements as $index => $statement) {
-            $this->exportStatement($section, $statement, $tableHeaders);
+            $this->exportStatement($section, $statement, $tableHeaders, $censored);
             $section = $this->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
         }
 
@@ -197,12 +197,12 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         return $phpWord;
     }
 
-    public function exportStatement(Section $section, Statement $statement, array $tableHeaders): void
+    public function exportStatement(Section $section, Statement $statement, array $tableHeaders, $censored = false): void
     {
-        $this->addStatementInfo($section, $statement);
+        $this->addStatementInfo($section, $statement, $censored);
         $this->addSimilarStatementSubmitters($section, $statement);
         $this->addSegments($section, $statement, $tableHeaders);
-        $this->addFooter($section, $statement);
+        $this->addFooter($section, $statement, $censored);
     }
 
     /**
