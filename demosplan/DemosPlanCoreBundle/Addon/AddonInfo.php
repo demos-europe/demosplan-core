@@ -23,10 +23,10 @@ class AddonInfo
     {
     }
 
-    public function isEnabled(): bool
+    public function isEnabled(bool $dynamicOverride = true): bool
     {
         // when the permissionInitializer of the addon has a method isEnabled, call it
-        if (method_exists($this->permissionInitializer, 'isEnabled')) {
+        if ($dynamicOverride && method_exists($this->permissionInitializer, 'isEnabled')) {
             return $this->permissionInitializer->isEnabled();
         }
 

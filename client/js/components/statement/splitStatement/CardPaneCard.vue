@@ -60,7 +60,7 @@
     <addon-wrapper
       :addon-props="{
         class: 'mt-1',
-        segmentStatus: segment.status
+        segmentStatus: segment.status ? segment.status : 'not confirmed'
       }"
       class="inline-block"
       hook-name="split.statement.buttons"

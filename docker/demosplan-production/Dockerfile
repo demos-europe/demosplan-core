@@ -50,7 +50,8 @@ WORKDIR /srv/www
 # Install composer and yarn before copying the project files to make use of the docker cache
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
 # do not use --no-scripts, as we do not need all the aws stuff
-RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,uid=33,gid=33 composer install -o --prefer-dist --no-dev --no-progress && \
+RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,uid=33,gid=33 \
+    composer install -o --prefer-dist --no-dev --no-progress && \
     yarn install --immutable && \
     yarn cache clean && \
     rm -rf /srv/www/.cache/*
@@ -78,6 +79,7 @@ USER www-data
 # during addon install the cache is deleted and the command "fails" because it does not find the cache
 # the command is executed with "|| true" to prevent the build from failing
 RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
+    --mount=type=cache,target=/var/www,uid=33,gid=33 \
     ACTIVE_PROJECT=$PROJECT_NAME bin/console dplan:addon:autoinstall -e prod --no-debug || true && \
      ./fe build $PROJECT_NAME --prod && \
     rm -rf /srv/www/node_modules && \
@@ -108,15 +110,17 @@ ENV PROJECT_PREFIX=$PROJECT_NAME \
 
 ENV TZ=Europe/Berlin
 RUN apt update -y && \
-    apt --no-install-recommends install acl bind9-host curl gettext-base  \
-    default-mysql-client php8.2 php8.2-apcu php8.2-bcmath php8.2-bz2 php8.2-cli  \
+    apt --no-install-recommends install acl bind9-host ca-certificates curl gettext-base  \
+    default-mysql-client lnav php8.2 php8.2-apcu php8.2-bcmath php8.2-bz2 php8.2-cli  \
     php8.2-common php8.2-curl php8.2-fpm php8.2-gd php8.2-intl php8.2-mbstring php8.2-mysqli  \
-    php8.2-soap php8.2-sqlite3 php8.2-xml php8.2-zip unzip -y && \
+    php8.2-soap php8.2-sqlite3 php8.2-xml php8.2-zip unzip vim-tiny -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get autoremove -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    mkdir -p /opt/config && \
+    chown -R www-data:www-data /opt/config
 
 COPY zzz-dplan.ini /etc/php/8.2/fpm/conf.d/zzz-dplan.ini
 COPY zzz-dplan-cli.ini /etc/php/8.2/cli/conf.d/zzz-dplan-cli.ini

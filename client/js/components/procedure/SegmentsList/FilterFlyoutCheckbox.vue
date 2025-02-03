@@ -20,12 +20,12 @@
       :class="{'weight--normal': highlight === false }"
       class="inline-block u-m-0"
       :for="`${instance}_id_${option.id}`">
-      {{ option.attributes.label }} <template v-if="showCount">({{ option.attributes.count }})</template>
+      {{ option.label }} <template v-if="showCount">({{ option.count }})</template>
     </label>
     <dp-contextual-help
-      v-if="option.attributes.description && instance !=='itemsSelected'"
+      v-if="option.description && instance !=='itemsSelected'"
       class="float-right mt-0.5"
-      :text="option.attributes.description" />
+      :text="option.description" />
   </li>
 </template>
 
@@ -66,7 +66,7 @@ export default {
     showCount: {
       type: Boolean,
       required: false,
-      default: true
+      default: false
     }
   },
 

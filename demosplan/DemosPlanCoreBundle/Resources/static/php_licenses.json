@@ -277,7 +277,7 @@
     {
         "license": "MIT",
         "package": "nesbot/carbon",
-        "website": "https://github.com/briannesbitt/Carbon"
+        "website": "https://github.com/CarbonPHP/carbon"
     },
     {
         "license": "Apache-2.0",

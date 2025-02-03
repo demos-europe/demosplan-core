@@ -7,7 +7,7 @@
 ## UNRELEASED
 
 ### Features
-- Institution tag management: Add search field to institution list
+- Institution tag management: Add search field and filters to institution list
 
 ### Further changes
 - Segments list: Use DpSearchField for custom search

@@ -34,7 +34,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         private readonly AccessControlService $accessControlPermissionService,
         private readonly OrgaService $orgaService,
         private readonly UserHandler $userHandler,
-        private readonly UserService $userService
+        private readonly UserService $userService,
     ) {
         parent::__construct($entityManager);
     }
@@ -85,7 +85,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
 
         // Create Orga
         $orga = new Orga();
-        $orga->setName('DEMOS E-Partizipation GmbH');
+        $orga->setName('DEMOS plan GmbH');
         $slug = new Slug('demos');
         $orga->addSlug($slug);
         $orga->setCurrentSlug($slug);
@@ -133,7 +133,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
     public function createAnonymousCitizenUser(
         ObjectManager $manager,
         OrgaType $orgaTypeOlauth,
-        Customer $customer
+        Customer $customer,
     ): void {
         // Create Department
         $department = new Department();

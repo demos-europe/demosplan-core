@@ -721,7 +721,16 @@ export default {
       this.ignoreProsemirrorUpdates = false
     },
 
+    // Matomo Tracking Event Tagging & Slicing
+    clickTrackerSaveButton(){
+      if (window._paq) {
+        _paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('statement.split.complete')])
+      }
+    },
+
     async saveAndFinish () {
+      this.clickTrackerSaveButton()
+
       if (this.segments.length > 0) {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
