@@ -7,10 +7,8 @@
 ## UNRELEASED
 
 ### Features
-- Procedure basic settings: Move procedure location up under the "internal" section
-
-### Features
 - Institution tag management: Add search field and filters to institution list
+- Procedure basic settings: Move procedure location up under the "internal" section
 
 ### Further changes
 - Segments list: Use DpSearchField for custom search
