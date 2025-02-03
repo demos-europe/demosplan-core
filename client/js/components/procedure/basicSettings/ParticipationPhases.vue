@@ -30,6 +30,7 @@
     </div>
 
     <dp-inline-notification
+      class="mt-3 mb-2"
       :message="permissionMessageText"
       type="warning" />
 

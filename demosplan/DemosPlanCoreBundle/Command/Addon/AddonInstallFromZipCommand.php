@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
-use Composer\Console\Input\InputOption;
 use Composer\Package\BasePackage;
 use Composer\Package\CompleteAliasPackage;
 use Composer\Package\CompletePackage;
@@ -38,6 +37,7 @@ use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -194,10 +194,16 @@ class AddonInstallFromZipCommand extends CoreCommand
             /** @var DemosPlanKernel $kernel */
             $activeProject = $kernel->getActiveProject();
 
-            $batchReturn = Batch::create($this->getApplication(), $output)
-                ->addShell(["bin/{$activeProject}", 'cache:clear', '-e', $environment])
-                ->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name, '-e', $environment])
-                ->run();
+            $batch = Batch::create($this->getApplication(), $output)
+                ->addShell(["bin/{$activeProject}", 'cache:clear', '-e', $environment]);
+            // if addon has a package.json, build the frontend assets
+            if (file_exists($this->zipCachePath.'package.json')) {
+                $batch->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name, '-e', $environment]);
+            }
+            $batchReturn = $batch->run();
+            if($batch->hasException()) {
+                $output->error($batch->getLastException()->getMessage());
+            }
 
             if (0 === $batchReturn) {
                 $output->success("Addon {$name} successfully installed. Please remember to ".
@@ -504,7 +510,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             $links = explode(',', $existingReposResponse->getHeaders()['link'][0]);
             foreach ($links as $link) {
                 if (str_contains($link, 'rel="next"')) {
-                    $nextLink = str_replace(['<', '>', 'rel="next"'], '', $link);
+                    $nextLink = trim(str_replace(['<', '>', 'rel="next"'], '', $link));
                     $nextRepositories = $this->fetchRepositories($ghOptions, $nextLink);
                 }
             }

@@ -64,6 +64,8 @@ class FileService extends CoreService implements FileServiceInterface
      */
     final public const VIRUSCHECK_NONE = 'none';
 
+    final public const ENTITY_FIELD_FILE = 'file';
+
     /**
      * @var string
      */
@@ -483,7 +485,7 @@ class FileService extends CoreService implements FileServiceInterface
             $fileContainer = new FileContainer();
             $fileContainer->setEntityClass($entityClass);
             $fileContainer->setEntityId($entityId);
-            $fileContainer->setEntityField('file');
+            $fileContainer->setEntityField(self::ENTITY_FIELD_FILE);
             $file = $this->getDoctrine()->getManager()->getReference(File::class, $fileId);
             $fileContainer->setFile($file);
             $fileContainer->setFileString($fileString);
@@ -751,6 +753,19 @@ class FileService extends CoreService implements FileServiceInterface
         $file = $this->getFileInfo($hash);
 
         return $this->ensureLocalFile($file->getAbsolutePath(), $hash, $path);
+    }
+
+    public function getFileContent(FileInfo $fileInfo): string
+    {
+        return $this->defaultStorage->read($fileInfo->getPath());
+    }
+
+    /**
+     * @return resource
+     */
+    public function getFileContentStream(FileInfo $fileInfo)
+    {
+        return $this->defaultStorage->readStream($fileInfo->getPath());
     }
 
     /**

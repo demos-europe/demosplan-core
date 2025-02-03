@@ -64,32 +64,53 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
         plugins: [
           initJsonApiPlugin({
             apiModules: apiStoreModules,
-            router: router,
-            baseUrl: baseUrl,
+            router,
+            baseUrl,
             headers: {
               'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
               'X-Demosplan-Procedure-Id': dplan.procedureId
             },
             successCallbacks: [
-              (response) => {
-                if (typeof response.data !== 'undefined' &&
-                typeof response.data.meta !== 'undefined' &&
-                typeof response.data.meta.messages !== 'undefined') {
-                  handleResponseMessages(response.data.meta)
+              async (success) => {
+                // If the response body is empty, contentType will be null
+                const contentType = success.headers.get('Content-Type')
+
+                if (contentType && contentType.includes('application/json')) {
+                  const response = await success.json()
+
+                  const meta = response.data?.meta
+                    ? response.data.meta
+                    : response.meta || null
+                  if (meta?.messages) {
+                    handleResponseMessages(meta)
+                  }
+
+                  return Promise.resolve(response)
                 }
-                return Promise.resolve(response)
+
+                return Promise.resolve(success)
               }
             ],
             errorCallbacks: [
-              (err) => {
-                const response = err.response
-                if (typeof response !== 'undefined' &&
-                typeof response.data !== 'undefined' &&
-                typeof response.data.meta !== 'undefined' &&
-                typeof response.data.meta.messages !== 'undefined') {
-                  handleResponseMessages(response.data.meta)
+              async (error) => {
+                // If the response body is empty, contentType will be null
+                const contentType = error.headers.get('Content-Type')
+
+                if (contentType && contentType.includes('application/json')) {
+                  const response = await error.json()
+
+                  const meta = response.data?.meta
+                    ? response.data.meta
+                    : response.meta || null
+
+                  if (meta?.messages) {
+                    handleResponseMessages(meta)
+                  }
+
+                  return Promise.reject(response)
                 }
-                return Promise.reject(err)
+
+                return Promise.reject(error)
               }
             ]
           }),

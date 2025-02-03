@@ -25,6 +25,7 @@ area_admin_analysis:
     loginRequired: true
     parent: area_admin
 area_admin_assessmenttable:
+    expose: true
     documentation: 'https://yaits.demos-deutschland.de/w/demosplan/functions/assessment_table/'
     label: 'Generally allows the user to view access / view the assessment table.'
     loginRequired: true
@@ -146,9 +147,19 @@ area_admin_statement_list:
     label: 'Shows a list with all Statements belonging to a Procedure'
     loginRequired: true
     parent: area_admin
+area_admin_original_statement_list:
+    description: 'New list with Original Statements belonging to a Procedure showing basic info for each Statement so the planner can have a quick overview of the status of the Procedure.'
+    label: 'Shows a list with all Original Statements belonging to a Procedure'
+    loginRequired: true
+    expose: true
+    parent: area_admin
 area_admin_statements_tag:
     label: 'Verwaltung der Schlagworte'
     loginRequired: true
+area_admin_subheading_analysis:
+    label: 'Zwischenüberschrift Auswertung'
+    loginRequired: true
+    parent: area_admin
 area_admin_submitters:
     description: 'Grants access to admin the users which have submitted Statements to a Procedure'
     label: 'Admin Statement submitters in a Procedure'
@@ -640,6 +651,11 @@ feature_admin_new_procedure:
     label: 'Neues Verfahren anlegen'
     loginRequired: true
     parent: feature_admin
+feature_allow_update_on_non_manual_statements:
+    description: 'Allow to update non-manual statements'
+    expose: false
+    label: 'Allow to update non-manual statements'
+    loginRequired: true
 feature_alternative_newsletter:
     description: 'Provides links to the service of the alternative (non-internal) newsletter and disables the internal newsletter.'
     expose: false
@@ -786,6 +802,11 @@ feature_customer_xplanning_edit:
     label: 'Permission to edit a xplanning page'
     loginRequired: true
     parent: area_main_xplanning
+feature_data_in_export:
+    description: 'This permission allows to configure which data of the statement should be included in the export.'
+    expose: true
+    label: 'Allow to configure which data of the statement should be included in the export.'
+    loginRequired: true
 feature_data_protection_text_customized_view:
     description: |-
         Each customer and each organisation has its own small text that is added to the overall text:
@@ -2278,6 +2299,11 @@ feature_statements_like_may_like:
     label: 'Stellungnahme als anonymer Nutzer liken (Aktion ausführen)'
     loginRequired: false
     parent: feature_statement
+feature_statements_location_and_document_refrence:
+    expose: true
+    label: 'Feature Statement with area und document reference'
+    loginRequired: true
+    parent: feature_statement
 feature_statements_manualsort:
     label: 'Manuelle Reihenfolge speichern'
     loginRequired: true
@@ -2310,6 +2336,11 @@ feature_statements_public_statement_recommendation_visible:
     expose: true
     label: 'Enables statement recommendations to be published in the public area.'
     loginRequired: false
+feature_statements_publication:
+    expose: true
+    label: 'Stellungnahme veroeffentlichen bereich'
+    loginRequired: true
+    parent: feature_statement
 feature_statements_publication_request_approval_or_rejection_notification_email:
     description: |-
         If citizens decided that one of their statements should be public, this still has to be verified by a planner,
@@ -2426,6 +2457,7 @@ feature_use_xplanbox:
     loginRequired: true
 feature_user_add:
     description: 'allows the user to create a new user'
+    expose: true
     label: 'add user'
     loginRequired: true
     parent: feature_user
@@ -2647,12 +2679,6 @@ field_segment_assignee_filter:
 field_send_final_email:
     label: 'Schlussmitteilung versenden'
     loginRequired: true
-field_show_internal_procedure_phases_in_dropdown:
-    description: 'Some roles may not see internal phases in dropdown. This permission helps to discriminate them.'
-    expose: true
-    label: 'Internal scope may filter for internal phase in procedure list'
-    loginRequired: true
-    parent: area_main_procedures
 field_sign_language_overview_video_edit:
     description: 'User with this permission are able to upload a video file for their current customer including a title and description.'
     expose: true
@@ -2780,6 +2806,7 @@ field_statement_phase:
     parent: field_statement
 field_statement_polygon:
     description: 'Enable drawing as a map reference for statement.'
+    expose: true
     label: 'statement location reference - drawing'
     loginRequired: true
     parent: field_statement

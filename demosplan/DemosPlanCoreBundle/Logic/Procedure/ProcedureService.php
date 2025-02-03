@@ -495,21 +495,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         return $this->procedureRepository->getProceduresWithEndedParticipation($writePhaseKeys, $internal);
     }
 
-    public function getAmountOfProcedures(): int
-    {
-        return $this->procedureRepository->getNumberOfProcedures();
-    }
-
-    protected function getOrgaService(): OrgaService
-    {
-        return $this->orgaService;
-    }
-
-    protected function getEntityContentChangeService(): EntityContentChangeService
-    {
-        return $this->entityContentChangeService;
-    }
-
     /**
      * Ruft alle Verfahren ab
      * Funktion benötigt die Rolle Verfahrenssupport (RTSUPP).
@@ -518,10 +503,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @throws Exception
      */
-    public function getProcedureFullList(string $search = '', bool $toLegacy = true)
+    public function getProcedureFullList(?Customer $customer = null, $search = '', bool $toLegacy = true)
     {
         try {
-            $procedures = $this->procedureRepository->getFullList(false);
+            $procedures = $this->procedureRepository->getFullList(false, false, $customer);
 
             if (!$toLegacy) {
                 return $procedures;
@@ -895,17 +880,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Mark a procedure as deleted to be purged by maintenancetask.
      *
-     * @param string|array $procedureIds
+     * @param array<string> $procedureIds
      *
      * @throws Exception
      */
     public function deleteProcedure($procedureIds): void
     {
+        $deletionCount = 0;
         try {
-            if (!\is_array($procedureIds)) {
-                $procedureIds = [$procedureIds];
-            }
-
             foreach ($procedureIds as $procedureId) {
                 $data = [
                     'ident'    => $procedureId,
@@ -913,13 +895,29 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     'deleted'  => true,
                 ];
 
+                $procedure = $this->getProcedure($procedureId);
+                if (null === $procedure) {
+                    throw ProcedureNotFoundException::createFromId($procedureId);
+                }
+                if ($procedure->isCustomerMasterBlueprint()) {
+                    $this->messageBag->add(
+                        'warning',
+                        'warning.customer.procedure.template.can.not.be.deleted'
+                    );
+                    continue;
+                }
+
                 try {
                     $this->updateProcedureWithoutReport($data);
                     $this->getLogger()->info('Procedure marked as deleted: '.\var_export($procedureId, true));
+                    ++$deletionCount;
                 } catch (Exception $e) {
                     $this->getLogger()->warning("Mark Procedure '$procedureId' as deleted failed Message: ", [$e]);
                     throw $e;
                 }
+            }
+            if ($deletionCount > 0) {
+                $this->messageBag->add('confirm', 'confirm.entries.marked.deleted');
             }
         } catch (Exception $e) {
             $this->getLogger()->warning('Mark Procedure as deleted failed Message: ', [$e]);
@@ -1558,8 +1556,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             return $this->boilerplateRepository->add($data, $addToCategories);
-        } catch (Exception) {
-            $this->logger->warning('Post boilerplate failed');
+        } catch (Exception $e) {
+            $this->logger->warning('Post boilerplate failed', [$e]);
         }
 
         return false;
@@ -2049,7 +2047,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     /**
      * Deletes the given institutionMail Entries.
      *
-     * @param institutionMail[] $institutionMails - list of institutionMail entries to delete
+     * @param InstitutionMail[] $institutionMails - list of institutionMail entries to delete
      *
      * @throws Exception
      */

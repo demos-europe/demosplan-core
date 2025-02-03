@@ -20,7 +20,7 @@
 
   ## Events
 
-  `@filter-apply` gets emitted after clicking "submit". as payload it sends an Object with the selected fitlers
+  `@filterApply` gets emitted after clicking "submit". as payload it sends an Object with the selected filters
 
   eg:
   ```
@@ -46,17 +46,18 @@
 
 <template>
   <dp-flyout
+    ref="flyout"
     align="left"
-    :data-cy="label"
+    :data-cy="category.label"
+    variant="dark"
     :padded="false"
-    @open="handleOpen"
     @close="handleClose"
-    ref="flyout">
+    @open="handleOpen">
     <template v-slot:trigger>
       <span :class="{ 'weight--bold' : (appliedQuery.length > 0) }">
-        {{ label }}
+        {{ category.label }}
         <span
-          class="o-badge o-badge--small o-badge--transparent"
+          class="o-badge o-badge--small o-badge--transparent mb-px"
           v-if="appliedQuery.length > 0">
           {{ appliedQuery.length }}
         </span>
@@ -86,32 +87,35 @@
         :style="maxHeight"
         class="w-full border--bottom overflow-y-scroll u-p-0_5">
         <ul
-          v-if="getUngroupedItems().length"
+          v-if="ungroupedOptions?.length > 0"
           class="o-list line-height--1_6">
           <filter-flyout-checkbox
-            v-for="item in getUngroupedItems()"
-            @change="updateQuery"
-            :checked="isChecked(item)"
-            :option="item"
+            v-for="option in searchedUngroupedOptions"
+            :key="option.id"
+            :checked="isChecked(option.id)"
             instance="ungrouped"
-            :key="item.id" />
+            :option="option"
+            :show-count="showCount.ungroupedOptions"
+            @change="updateQuery" />
         </ul>
         <ul
-          v-for="group in groups"
+          v-for="group in searchedGroupedOptions"
           class="o-list line-height--1_6"
           :key="`list_${group.id}}`">
           <span class="font-size-small">
-            {{ group.attributes.label }}
+            {{ group.label }}
           </span>
           <filter-flyout-checkbox
-            v-for="item in getItemsByGroup(group)"
+            v-for="option in group.options"
             @change="updateQuery"
-            :checked="isChecked(item)"
-            :option="item"
+            :checked="isChecked(option.id)"
+            :option="option"
             :instance="group.id"
-            :key="item.id" />
+            :key="option.id"
+            :show-count="showCount.groupedOptions" />
         </ul>
-        <span v-if="groups.length === 0 && getUngroupedItems().length === 0">
+
+        <span v-if="searchedGroupedOptions.length === 0 && searchedUngroupedOptions?.length === 0">
           {{ Translator.trans('search.results.none') }}
         </span>
       </div>
@@ -134,13 +138,12 @@
         class="o-list u-p-0_5 u-pt-0 line-height--1_6">
         <filter-flyout-checkbox
           v-for="item in itemsSelected"
-          @change="updateQuery"
-          :checked="true"
-          :show-count="false"
+          :key="`itemsSelected_${item.id}}`"
+          checked
           :highlight="appliedQuery.includes(item.id) === false"
-          :option="item"
           instance="itemsSelected"
-          :key="`itemsSelected_${item.id}}`" />
+          :option="item"
+          @change="updateQuery" />
       </ul>
       <div class="flow-root u-p-0_5 u-pt-0">
         <dp-button
@@ -161,13 +164,11 @@
 
 <script>
 import {
-  checkResponse,
   dataTableSearch,
   DpButton,
   DpFlyout,
   DpLoading,
   DpResettableInput,
-  dpRpc,
   hasOwnProp
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
@@ -191,15 +192,19 @@ export default {
       default: () => ({})
     },
 
+    category: {
+      type: Object,
+      required: true,
+      validator: prop => {
+        return hasOwnProp(prop, 'label') && hasOwnProp(prop, 'id')
+      }
+    },
+
     // Contains applied filters from this and the neighboring filterFlyouts
     initialQuery: {
       type: Array,
+      required: false,
       default: () => ([])
-    },
-
-    label: {
-      type: String,
-      required: true
     },
 
     operator: {
@@ -212,9 +217,19 @@ export default {
       required: true
     },
 
-    procedureId: {
-      type: String,
-      required: true
+    /**
+     * Define if count should be displayed behind each filter option
+     */
+    showCount: {
+      type: Object,
+      required: false,
+      default: () => ({
+        groupedOptions: false,
+        ungroupedOptions: false
+      }),
+      validator: prop => {
+        return Object.keys(prop).length === 2 && hasOwnProp(prop, 'groupedOptions') && hasOwnProp(prop, 'ungroupedOptions')
+      }
     }
   },
 
@@ -227,19 +242,23 @@ export default {
        * contains only ids
        */
       currentQuery: [],
-      groupsObject: {},
-      itemsObject: {},
-      isExpanded: false,
-      isLoading: true,
       searchTerm: ''
     }
   },
 
   computed: {
-    ...mapGetters('SegmentFilter', {
-      // All currently selected filters, in this as well as in (possible) neighboring filterFlyouts
-      getFilterQuery: 'filterQuery'
-    }),
+    ...mapGetters('FilterFlyout', [
+      'getFilterQuery',
+      'getGroupedOptionsByCategoryId',
+      'getInitialFlyoutFilterIdsByCategoryId',
+      'getIsExpandedByCategoryId',
+      'getIsLoadingByCategoryId',
+      'getUngroupedOptionsByCategoryId'
+    ]),
+
+    initialFlyoutFilterIds () {
+      return this.getInitialFlyoutFilterIdsByCategoryId(this.category.id)
+    },
 
     /**
      * Construct the query object to be passed into vuex-json-api call.
@@ -257,23 +276,31 @@ export default {
             }
           }
         } else {
-            filter[id] = {
-              condition: {
-                path: this.path,
-                value: id,
-                operator: this.operator
-              }
+          filter[id] = {
+            condition: {
+              path: this.path,
+              value: id,
+              operator: this.operator
             }
+          }
         }
       })
       return filter
+    },
+
+    groupedOptions () {
+      return this.getGroupedOptionsByCategoryId(this.category.id) || []
+    },
+
+    isLoading () {
+      return this.getIsLoadingByCategoryId(this.category.id) ?? false
     },
 
     /*
      * The maxHeight for the scrollable options is calculated to better match devices.
      */
     maxHeight () {
-      const offsetTop = this.$el.getBoundingClientRect().top + document.documentElement.scrollTop
+      const offsetTop = this.$el?.getBoundingClientRect().top + document.documentElement.scrollTop
       const searchFieldHeight = 58
       const buttonRowHeight = 58
       /*
@@ -285,41 +312,69 @@ export default {
       return `max-height: calc(100vh - ${subtractedHeight}px);min-height: 100px;`
     },
 
-    /**
-     * {Array of Objects} filterItems
-     * {
-     *   attributes: { count: <number>, label: <String>, selected: <Boole<n> },
-     *   id: <String>,
-     *   type: <String>
-     * }
-     */
-    items () {
-      return dataTableSearch(this.searchTerm, Object.values(this.itemsObject), ['attributes.label'])
+    isExpanded () {
+      return this.getIsExpandedByCategoryId(this.category.id) ?? false
     },
 
     /**
      * {Array of Objects} selected filterItems, same structure as items
      */
     itemsSelected () {
-      const items = Object.values(this.itemsObject)
-      return items.filter((item) => item.attributes.selected)
+      const items = [
+        ...this.ungroupedOptions,
+        ...this.groupedOptions.flatMap(group => group.options)
+      ]
+      return items.filter((item) => item.selected)
     },
 
-    // Contains only groups that contain at least 1 item
-    groups () {
-      const groups = Object.values(this.groupsObject)
-      return groups.filter(group => this.getItemsByGroup(group).length)
+    searchedGroupedOptions () {
+      return this.groupedOptions.map(group => ({
+        ...group,
+        options: dataTableSearch(this.searchTerm, group.options, ['label'])
+      })).filter(group => group.options.length > 0)
+    },
+
+    searchedUngroupedOptions () {
+      return dataTableSearch(this.searchTerm, this.ungroupedOptions, ['label'])
+    },
+
+    ungroupedOptions () {
+      return this.getUngroupedOptionsByCategoryId(this.category.id) || []
+    }
+  },
+
+  watch: {
+    /**
+     * Watcher for initialFlyoutFilterIds.
+     * Compares new and old values deeply and updates the current query if they differ.
+     *
+     * @param {Array} newIds - The new array of filter IDs.
+     * @param {Array} oldIds - The old array of filter IDs.
+     */
+    initialFlyoutFilterIds: {
+      handler (newIds, oldIds) {
+        if (JSON.stringify(newIds) !== JSON.stringify(oldIds)) {
+          this.setCurrentQuery(newIds)
+        }
+      },
+      deep: true
     }
   },
 
   methods: {
-    ...mapMutations('SegmentFilter', ['updateFilterQuery']),
+    ...mapMutations('FilterFlyout', {
+      setGroupedSelected: 'setGroupedOptionSelected',
+      setIsExpanded: 'setIsExpanded',
+      setIsLoading: 'setIsLoading',
+      setUngroupedSelected: 'setUngroupedOptionSelected',
+      updateFilters: 'updateFilterQuery'
+    }),
 
     /**
      * Emit event with currently selected filters as query object.
      */
     apply () {
-      this.$emit('filter-apply', this.filter)
+      this.$emit('filterApply', this.filter)
       this.appliedQuery = JSON.parse(JSON.stringify(this.currentQuery))
       this.$refs.flyout.close()
     },
@@ -332,106 +387,39 @@ export default {
       this.$refs.flyout.close()
     },
 
-    getItemsByGroup (group) {
-      if (hasOwnProp(group.relationships, 'aggregationFilterItems')) {
-        const currentItemIds = this.items.map(item => item.id)
-        return Object.values(group.relationships.aggregationFilterItems.data)
-          .filter(item => currentItemIds.includes(item.id))
-          .map(item => this.itemsObject[item.id])
-      } else {
-        // Return if the itemTopic has no items associated with it (for whatever reason)
-        return []
-      }
-    },
-
-    getUngroupedItems () {
-      return this.items.filter(item => item.ungrouped === true)
-    },
-
-    isChecked (item) {
-      return this.currentQuery.includes(item.id)
+    isChecked (id) {
+      return this.currentQuery.includes(id)
     },
 
     /**
-     * - resets filter flyout search
-     * - resets filters that were selected but not applied
-     * - updates facets
+     * - Resets filter flyout search
+     * - Resets filters that were selected but not applied
+     * - Updates facets
      */
     handleClose () {
-      this.isExpanded = false
+      this.setIsExpanded({ categoryId: this.category.id, isExpanded: false })
       this.resetSearch()
       this.restoreAppliedFilterQuery()
       this.currentQuery = JSON.parse(JSON.stringify(this.appliedQuery))
     },
 
     handleOpen () {
-      this.isLoading = true
-      this.isExpanded = true
-
-      this.requestNewFilterResults()
-        .then(() => {
-          this.isLoading = false
-          document.getElementById(`searchField_${this.path}`).focus()
-        })
+      this.setIsExpanded({ categoryId: this.category.id, isExpanded: true })
+      this.requestFilterOptions()
     },
 
-    requestNewFilterResults () {
-      const params = {
-        ...this.additionalQueryParams,
-        filter: {
-          ...this.getFilterQuery,
-          sameProcedure: {
-            condition: {
-              path: 'parentStatement.procedure.id',
-              value: this.procedureId
-            }
-          }
-        },
+    /**
+     * Emits a 'filterOptions:request' event with the provided query parameters.
+     *
+     * @param {boolean} [isInitialWithQuery=false] - Indicates if it is an initial request with query.
+     */
+    requestFilterOptions (isInitialWithQuery = false) {
+      this.$emit('filterOptions:request', {
+        additionalQueryParams: this.additionalQueryParams,
+        filter: this.getFilterQuery,
+        isInitialWithQuery,
         path: this.path
-      }
-      // We have to set the searchPhrase to null if its empty to satisfy the backend
-      if (params.searchPhrase === '') {
-        params.searchPhrase = null
-      }
-
-      return dpRpc('segments.facets.list', params, 'filterList')
-        .then(response => checkResponse(response))
-        .then(response => {
-          const result = (hasOwnProp(response, 0) && response[0].id === 'filterList') ? response[0].result : null
-          const currentFilterType = result.data.find(type => type.attributes.path === this.path)
-          if (currentFilterType && hasOwnProp(result, 'included')) {
-            result.included.forEach(el => {
-              if (el.type === 'AggregationFilterGroup' && typeof currentFilterType.relationships.aggregationFilterGroups.data.find(group => group.id === el.id) !== 'undefined') {
-                this.$set(this.groupsObject, el.id, el)
-                if (hasOwnProp(el.relationships, 'aggregationFilterItems') && el.relationships.aggregationFilterItems.data.length > 0) {
-                  el.relationships.aggregationFilterItems.data.forEach(item => {
-                    const filterItem = result.included.find(filterItem => filterItem.id === item.id)
-                    this.$set(this.itemsObject, filterItem.id, filterItem)
-                  })
-                }
-              } else if (el.type === 'AggregationFilterItem' && typeof currentFilterType.relationships.aggregationFilterItems.data.find(item => item.id === el.id) !== 'undefined') {
-                el.ungrouped = true
-                this.$set(this.itemsObject, el.id, el)
-              }
-            })
-
-            // If the current filter is assignee, display amount of Segments that have assignee as null. That is given by the field missingResourcesSum
-             if (result.data[0].attributes.path === 'assignee') {
-              this.$set(this.itemsObject, 'unassigned', {
-                attributes: {
-                  count: result.data[0].attributes.missingResourcesSum,
-                  label: Translator.trans('not.assigned'),
-                  ungrouped: true,
-                  selected: result.meta.unassigned_selected
-                },
-                id: 'unassigned',
-                type: 'AggregationFilterItem',
-                ungrouped: true
-              })
-            }
-          }
-        })
-        .catch(err => console.log(err))
+      })
     },
 
     reset () {
@@ -450,7 +438,7 @@ export default {
       Object.values(this.filter).forEach(el => {
         const query = {}
         query[el.condition.value] = el
-        this.updateFilterQuery(query)
+        this.updateFilters(query)
       })
     },
 
@@ -468,7 +456,7 @@ export default {
           if (typeof this.appliedQuery.find(queryId => queryId === filter.condition.value) === 'undefined') {
             const query = {}
             query[filter.condition.value] = filter
-            this.updateFilterQuery(query)
+            this.updateFilters(query)
           }
         })
       }
@@ -479,34 +467,41 @@ export default {
       this.appliedQuery = JSON.parse(JSON.stringify(query))
     },
 
-    updateQuery (value, option) {
-      if (value === true) {
+    updateQuery (isSelected, option) {
+      if (isSelected) {
         this.currentQuery.push(option.id)
         const query = {}
         query[option.id] = this.filter[option.id]
-        this.updateFilterQuery(query)
-      } else if (value === false) {
+        this.updateFilters(query)
+      } else if (!isSelected) {
         const query = {}
         query[option.id] = this.filter[option.id]
-        this.updateFilterQuery(query)
+        this.updateFilters(query)
         this.currentQuery.splice(this.currentQuery.indexOf(option.id), 1)
       }
 
-      this.itemsObject[option.id].attributes.selected = value
-      return this.requestNewFilterResults()
+      // Update ungroupedOptions
+      if (option.ungrouped) {
+        this.setUngroupedSelected({ categoryId: this.category.id, optionId: option.id, value: isSelected })
+      } else {
+        // Update groupedOptions
+        const group = this.groupedOptions.find(group => group.options.some(item => item.id === option.id))
+
+        if (group) {
+          this.setGroupedSelected({ categoryId: this.category.id, groupId: group.id, optionId: option.id, value: isSelected })
+        }
+      }
+
+      this.requestFilterOptions()
     }
   },
 
   mounted () {
+    this.setIsLoading({ categoryId: this.category.id, isLoading: true })
+    this.setIsExpanded({ categoryId: this.category.id, isExpanded: false })
     if (this.initialQuery.length) {
-      this.requestNewFilterResults()
-        .then(() => {
-          const currentFlyoutFilterIds = this.initialQuery.filter(queryId => {
-            const item = this.items.find(item => item.id === queryId)
-            return item ? item.id : null
-          })
-          this.setCurrentQuery(currentFlyoutFilterIds)
-        })
+      const isInitialWithQuery = true
+      this.requestFilterOptions(isInitialWithQuery)
     }
   }
 }

@@ -136,7 +136,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @throws Exception
      */
-    public function getFullList(?bool $master = null, bool $idsOnly = false): array
+    public function getFullList(?bool $master = null, bool $idsOnly = false, ?Customer $customer = null): array
     {
         try {
             $em = $this->getEntityManager();
@@ -150,6 +150,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->orderBy('o.name', 'asc')
                 ->andWhere('p.deleted = :deleted')
                 ->setParameter('deleted', false);
+
+            if (null !== $customer) {
+                $queryBuilder->andWhere('p.customer = :customer')->setParameter('customer', $customer);
+            }
 
             if (!is_null($master)) {
                 $queryBuilder->andWhere('p.master = :master')
@@ -1242,22 +1246,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
     }
 
-    public function getNumberOfProcedures(): int
-    {
-        $qb = $this->getEntityManager()->createQueryBuilder();
-        $queryResult = $qb
-            ->select('procedure.id')
-            ->from(Procedure::class, 'procedure')
-            ->andWhere('procedure.deleted = :deleted')
-            ->andWhere('procedure.master = :master')
-            ->setParameter('deleted', false)
-            ->setParameter('master', false)
-            ->getQuery()
-            ->getResult();
-
-        return is_countable($queryResult) ? count($queryResult) : 0;
-    }
-
     /**
      * @return array<int, string>
      */
@@ -1448,5 +1436,20 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     private function getUserRepository(): UserRepository
     {
         return $this->getEntityManager()->getRepository(User::class);
+    }
+
+    /**
+     * Extra method to get the shortUrl of a procedure by its id to avoid
+     * hydrating the whole procedure.
+     */
+    public function findShortUrlById(string $procedureId): string
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('p.shortUrl')
+            ->where('p.id = :id')
+            ->setParameter('id', $procedureId)
+            ->getQuery();
+
+        return $qb->getSingleScalarResult();
     }
 }

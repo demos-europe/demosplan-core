@@ -67,6 +67,7 @@
       </header>
 
       <dp-inline-notification
+        :class="prefixClass('mt-3 mb-2')"
         dismissible
         dismissible-key="statementModalCloseExplanation"
         :message="Translator.trans('explanation.statement.autosave')"
@@ -76,18 +77,20 @@
       <section
         v-show="step === 0"
         data-dp-validate="statementForm">
-          <dp-inline-notification
-            v-if="loggedIn === false"
-            type="info">
-            <p
-              v-if="statementFormHintStatement"
-              v-cleanhtml="statementFormHintStatement" />
-            <p v-cleanhtml="Translator.trans('statement.modal.step.write.privacy_policy')" />
-            <p>{{ Translator.trans('error.mandatoryfields') }}</p>
-          </dp-inline-notification>
+        <dp-inline-notification
+          v-if="loggedIn === false"
+          :class="prefixClass('mt-3')"
+          type="info">
+          <p
+            v-if="statementFormHintStatement"
+            v-cleanhtml="statementFormHintStatement" />
+          <p v-cleanhtml="Translator.trans('statement.modal.step.write.privacy_policy')" />
+          <p>{{ Translator.trans('error.mandatoryfields') }}</p>
+        </dp-inline-notification>
 
         <dp-inline-notification
           v-if="dpValidate.statementForm === false"
+          :class="prefixClass('mt-3 mb-2')"
           id="statementFormErrors"
           aria-labelledby="statementFormErrorsContent"
           tabindex="0">
@@ -440,18 +443,19 @@
         autocomplete="on"
         v-show="step === 1"
         data-dp-validate="submitterForm">
-      <dp-inline-notification
-        type="info">
-        <p
-          v-if="statementFormHintPersonalData"
-          v-cleanhtml="statementFormHintPersonalData" />
-        <p>
-          {{ Translator.trans('error.mandatoryfields') }}
-        </p>
-        <p v-if="extraPersonalHint !== ''">
-          {{ extraPersonalHint }}
-        </p>
-      </dp-inline-notification>
+        <dp-inline-notification
+          :class="prefixClass('mt-3 mb-2')"
+          type="info">
+          <p
+            v-if="statementFormHintPersonalData"
+            v-cleanhtml="statementFormHintPersonalData" />
+          <p>
+            {{ Translator.trans('error.mandatoryfields') }}
+          </p>
+          <p v-if="extraPersonalHint !== ''">
+            {{ extraPersonalHint }}
+          </p>
+        </dp-inline-notification>
 
         <div
           v-show="dpValidate.submitterForm === false"
@@ -492,7 +496,7 @@
               }"
               name="r_useName"
               value="1"
-              @change="val => setPrivacyPreference({r_useName: '1'})"  />
+              @change="val => setPrivacyPreference({r_useName: '1'})" />
             <div
               v-show="formData.r_useName === '1'"
               :class="prefixClass('layout mb-3 ml-2')">

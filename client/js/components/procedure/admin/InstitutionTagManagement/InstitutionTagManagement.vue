@@ -17,21 +17,24 @@
       id="institutionList"
       :label="Translator.trans('invitable_institution.group')">
       <slot>
-        <InstitutionList />
+        <institution-list />
       </slot>
     </dp-tab>
     <dp-tab
       id="tagList"
       :label="Translator.trans('tag.administrate')">
       <slot>
-        <TagList v-on:tagIsRemoved="institutionListReset" />
+        <tag-list @tagIsRemoved="institutionListReset" />
       </slot>
     </dp-tab>
   </dp-tabs>
 </template>
 
 <script>
-import { DpTab, DpTabs } from '@demos-europe/demosplan-ui'
+import {
+  DpTab,
+  DpTabs
+} from '@demos-europe/demosplan-ui'
 import InstitutionList from './InstitutionList'
 import { mapActions } from 'vuex'
 import TagList from './TagList'
@@ -63,7 +66,7 @@ export default {
 
   methods: {
     ...mapActions('InvitableInstitution', {
-      listInvitableInstitution: 'list',
+      listInvitableInstitution: 'list'
     }),
 
     getInstitutionsByPage (page) {
@@ -78,8 +81,8 @@ export default {
         }
       })
         .then(() => {
-        this.needToReset = false
-      })
+          this.needToReset = false
+        })
     },
 
     setActiveTabId (id) {
@@ -98,6 +101,3 @@ export default {
   }
 }
 </script>
-
-
-

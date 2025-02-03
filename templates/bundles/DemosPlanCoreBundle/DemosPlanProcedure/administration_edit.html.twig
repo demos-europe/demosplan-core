@@ -108,8 +108,10 @@
         :init-procedure-categories="JSON.parse('{{ selectedProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
         init-procedure-phase-internal="{{ proceduresettings.phase }}"
         init-procedure-phase-public="{{ proceduresettings.publicParticipationPhase }}"
-        :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')">
+        :init-similar-recommendation-procedures="JSON.parse('{{ selectedAllowedSegmentAccessProcedures|json_encode|e('js', 'utf-8') }}')"
+        procedure-id="{{ proceduresettings.id|default }}">
         <form
+            ref="configForm"
             name="configForm"
             enctype="multipart/form-data"
             data-procedure="{{ proceduresettings.ident }}"
@@ -156,7 +158,7 @@
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.edit.planning_agency'|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
 
@@ -184,7 +186,7 @@
                             {% endif %}
 
                             <div class="u-mb">
-                                <label class="inline-block u-mb-0 u-11-of-12" for="{{ form.agencyMainEmailAddress.vars.id }}">
+                                <label class="inline-block u-mb-0" for="{{ form.agencyMainEmailAddress.vars.id }}">
                                     {{ "email.procedure.agency"|trans }}*
                                     <p class="weight--normal">
                                         {{ "explanation.organisation.email.procedure.agency"|trans|wysiwyg }}
@@ -192,7 +194,7 @@
                                 </label>
                                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                     helpText: 'email.procedure.agency.help'|trans,
-                                    cssClasses:'u-mt-0_125',
+                                    cssClasses:'mb-1',
                                     showPlainHint: true
                                 } %}
                                 {{ form_errors(form.agencyMainEmailAddress) }}
@@ -214,7 +216,7 @@
                                 </label>
                                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                     helpText: 'email.address.more.explanation.help'|trans,
-                                    cssClasses:'u-mt-0_125',
+                                    cssClasses:'mb-1',
                                     showPlainHint: true
                                 } %}
 
@@ -243,7 +245,7 @@
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.edit.data_input_orgas'|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
 
@@ -276,7 +278,7 @@
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.edit.authorized.users'|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
 
@@ -328,7 +330,7 @@
                                 </label>
                                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                     helpText: 'text.procedure.edit.note'|trans,
-                                    cssClasses:'u-mt-0_125',
+                                    cssClasses:'mb-1',
                                     showPlainHint: true
                                 } %}
                                 {# Bei textareas muss der Inhalt ohne Leerzeichen zwischen den Tags stehen, sonst werden die Leerzeichen ausgegeben und multiplizieren sich im Frontend. #}
@@ -400,7 +402,7 @@
                                         }]) %}
                                     {% endfor %}
                                     <participation-phases
-                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.internal.evaluating'|trans }) }}"
+                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.internal.analysis'|trans }) }}"
                                         data-cy="internalPhase"
                                         field-name="r_phase"
                                         help-text="{{ 'text.procedure.edit.internal.change_phase'|trans }}"
@@ -426,7 +428,7 @@
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.internal.legalNotice'|trans,
-                                            cssClasses:'u-mt-0_125',
+                                            cssClasses:'mb-1',
                                             showPlainHint: true
                                         } %}
                                         <p class="lbl__hint">
@@ -453,7 +455,7 @@
                                     {% endif %}
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: helpTextInternalStartDate|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
 
@@ -476,7 +478,7 @@
                                 {# Change Procedure Step Institutions #}
                                 {% if hasPermission('feature_auto_switch_procedure_phase') %}
                                     <auto-switch-procedure-phase-form
-                                        :available-phases="JSON.parse('{{ templateVars.internalPhases|map(internalPhase => {
+                                        :available-procedure-phases="JSON.parse('{{ templateVars.internalPhases|map(internalPhase => {
                                             label: internalPhase.name,
                                             permission: internalPhase.permissionset,
                                             value: internalPhase.key
@@ -580,7 +582,7 @@
 
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: helpTextExternalStartDate|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
                                     <dp-date-range-picker
@@ -602,7 +604,7 @@
                                 {# Change Procedure Step public participation #}
                                 {% if hasPermission('feature_auto_switch_procedure_phase') %}
                                     <auto-switch-procedure-phase-form
-                                        :available-phases="JSON.parse('{{ templateVars.externalPhases|map(externalPhase => {
+                                        :available-procedure-phases="JSON.parse('{{ templateVars.externalPhases|map(externalPhase => {
                                             label: externalPhase.name,
                                             permission: externalPhase.permissionset,
                                             value: externalPhase.key
@@ -679,7 +681,7 @@
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.name'|trans,
-                                            cssClasses:'u-mt-0_125',
+                                            cssClasses:'mb-1',
                                             showPlainHint: true
                                         } %}
                                         <p class="lbl__hint">
@@ -705,7 +707,7 @@
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.name.public'|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
                                     <p class="lbl__hint">
@@ -723,6 +725,17 @@
                                 </div>
                             {% endif %}
 
+                            <addon-wrapper
+                                class="mb-4"
+                                hook-name="addon.additional.field"
+                                :addon-props="{
+                                    relationshipId: '{{ proceduresettings.id }}',
+                                    relationshipKey: 'procedure',
+                                    isInput: true
+                                }"
+                                @blur="updateAddonPayload">
+                            </addon-wrapper>
+
                             {% if hasPermission('feature_short_url') %}
                                 <div>
                                     <label class="inline-block u-mb-0" for="r_shortUrl">
@@ -730,7 +743,7 @@
                                     </label>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'explanation.shorturl'|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
                                     <p class="lbl__hint">
@@ -815,7 +828,7 @@
                                             </label>
                                             {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                                 helpText: 'text.procedure.description.wizard'|trans,
-                                                cssClasses:'u-mt-0_125',
+                                                cssClasses:'mb-1',
                                                 showPlainHint: true
                                             } %}
 
@@ -841,7 +854,7 @@
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.external.contact_person'|trans,
-                                            cssClasses:'u-mt-0_125',
+                                            cssClasses:'mb-1',
                                             showPlainHint: true
                                         } %}
                                         <p class="lbl__hint">
@@ -864,13 +877,8 @@
                                 {% if hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation') %}
                                     <div class="u-mb">
                                         <label class="inline-block u-mb-0" for="r_pictogram">
-                                            {{ 'procedure.pictogram'|trans }}
+                                            {{ 'procedure.pictogram'|trans }}*
                                         </label>
-                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                            helpText: 'text.procedure.edit.external.pictogram'|trans,
-                                            cssClasses:'u-mt-0_125',
-                                            showPlainHint: true
-                                        } %}
                                         {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                                             <br><br>
                                             <img class="layout__item u-1-of-6 u-pl-0 u-mb" src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"><!--
@@ -888,16 +896,42 @@
                                             {{  fileupload(
                                                 "r_pictogram",
                                                 '<p class="lbl__hint">'
-                                                ~ "explanation.procedure.pictogram.missing"|trans
-                                                ~ "explanation.procedure.pictogram.dimensions"|trans
+                                                ~ "text.procedure.edit.external.pictogram"|trans
                                                 ~ '</p>',
                                                 "img",
                                                 "form.button.upload.file",
                                                 1,
+                                                true,
+                                                false,
                                                 true
                                             )
                                             }}
                                         {% endif %}
+
+                                        <dp-input
+                                            id="r_pictogramCopyright"
+                                            class="my-2"
+                                            data-cy="procedure:pictogramCopyright"
+                                            name="r_pictogramCopyright"
+                                            :label="{
+                                                text: Translator.trans('procedure.pictogram.copyright')
+                                            }"
+                                            value="{{ proceduresettings.pictogramCopyright|default }}"
+                                            required>
+                                        </dp-input>
+
+                                        <dp-input
+                                            id="r_pictogramAltText"
+                                            class="my-2"
+                                            data-cy="procedure:pictogramAltText"
+                                            name="r_pictogramAltText"
+                                            :label="{
+                                                text: Translator.trans('procedure.pictogram.altText'),
+                                                tooltip: Translator.trans('procedure.pictogram.altText.toolTipp')
+                                            }"
+                                            value="{{ proceduresettings.pictogramAltText|default }}"
+                                            required>
+                                        </dp-input>
                                     </div>
                                 {% endif %}
 
@@ -936,7 +970,7 @@
                                         </label>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.link_box'|trans,
-                                            cssClasses:'u-mt-0_125',
+                                            cssClasses:'mb-1',
                                             showPlainHint: true
                                         } %}
                                         <dp-editor
@@ -1011,7 +1045,7 @@
                                                 {% endif %}
                                                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                                     helpText: location_name_trans_help,
-                                                    cssClasses:'u-mt-0_125',
+                                                    cssClasses:'mb-1',
                                                     showPlainHint: true
                                                 } %}
                                                 <label class="layout__item u-1-of-6 u-pl-0 u-mb-0">
@@ -1041,7 +1075,7 @@
                                         </div>
                                         {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                             helpText: 'text.procedure.edit.external.coordinates'|trans,
-                                            cssClasses:'u-mt-0_125',
+                                            cssClasses:'mb-1',
                                             showPlainHint: true
                                         } %}
                                         <p class="lbl__hint">
@@ -1095,6 +1129,7 @@
                 {% endif %}
                 {# end wizard item: Verortung des Verfahrens #}
 
+                {% if hasPermission('feature_data_in_export') %}
                 {# wizard item: Daten im Export #}
                 <fieldset
                     name="settingsForm"
@@ -1141,6 +1176,7 @@
                     </button>
                 </fieldset>
                 {# end wizard item: Daten im Export #}
+                {% endif %}
 
                 {# wizard item: Erweiterte Einstellungen #}
                 {% if hasPermission('feature_statement_notify_counties') %}
@@ -1169,11 +1205,16 @@
                                     </div>
                                     {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
                                         helpText: 'text.procedure.edit.additional.notifyCounty.hint'|trans,
-                                        cssClasses:'u-mt-0_125',
+                                        cssClasses:'mb-1',
                                         showPlainHint: true
                                     } %}
                                     <div class="layout__item u-pl-0">
-                                        <input id="sendMailsToCounties" type="checkbox" name="r_sendMailsToCounties" {% if proceduresettings.settings.sendMailsToCounties|default == true %}checked{% endif %}>
+                                        <input
+                                            data-cy="sendMailsToCounties"
+                                            id="sendMailsToCounties"
+                                            type="checkbox"
+                                            name="r_sendMailsToCounties"
+                                            {% if proceduresettings.settings.sendMailsToCounties|default == true %}checked{% endif %}>
                                         <label for="sendMailsToCounties" class="u-mb-0 inline-block weight--normal">
                                             {{ "text.procedure.edit.additional.notifyCounty"|trans }}
                                         </label>
@@ -1277,13 +1318,20 @@
 
             {# form controls when not in wizard mode #}
             <div class="text-right space-inline-s">
+                {# A hidden input is used here to prevent the form from being submitted in wizard mode when the next button is clicked #}
                 <input
+                    type="submit"
+                    class="hidden"
+                    value="{{ "save"|trans }}">
+                <button
                     class="btn btn--primary"
                     id="saveConfig"
                     name="saveConfig"
                     data-cy="saveConfig"
-                    type="submit"
-                    value="{{ "save"|trans }}">
+                    type="button"
+                    @click="submit">
+                    {{ "save"|trans }}
+                </button>
                 <a
                     class="btn btn--secondary"
                     data-cy="abortConfig"

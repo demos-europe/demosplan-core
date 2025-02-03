@@ -3,6 +3,7 @@ bamarni/composer-bin-plugin: MIT
 beberlei/doctrineextensions: BSD-3-Clause
 cebe/php-openapi: MIT
 cocur/slugify: MIT
+composer/composer: MIT
 composer/package-versions-deprecated: MIT
 demos-europe/demosplan-addon: MIT
 doctrine/annotations: MIT
@@ -33,13 +34,13 @@ goetas-webservices/xsd2php-runtime: MIT
 guzzlehttp/guzzle: MIT
 illuminate/collections: MIT
 intervention/image: MIT
-intriro/csv-bundle: MIT
 jfcherng/php-diff: BSD-3-Clause
 jmikola/geojson: MIT
 jms/serializer-bundle: MIT
 khanamiryan/qrcode-detector-decoder: MIT
 knplabs/knp-menu-bundle: MIT
 knpuniversity/oauth2-client-bundle: MIT
+league/csv: MIT
 league/flysystem-aws-s3-v3: MIT
 league/flysystem-bundle: MIT
 league/flysystem-memory: MIT
@@ -54,10 +55,10 @@ myclabs/php-enum: MIT
 nelmio/security-bundle: MIT
 nesbot/carbon: MIT
 openlss/lib-array2xml: Apache-2.0
-patchwork/utf8: (Apache-2.0 or GPL-2.0)
 php-amqplib/rabbitmq-bundle: MIT
 php-parallel-lint/php-console-highlighter: MIT
 phpdocumentor/reflection-docblock: MIT
+phpoffice/phpspreadsheet: MIT
 phpoffice/phpword: LGPL-3.0
 phpspec/prophecy: MIT
 phpspec/prophecy-phpunit: MIT
@@ -131,7 +132,6 @@ willdurand/geocoder-bundle: MIT
 willdurand/js-translation-bundle: MIT
 wrep/daemonizable-command: MIT
 wsdltophp/packagegenerator: MIT
-yectep/phpspreadsheet-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 11.11.2024 07:02
+As of 23.01.2025 07:02

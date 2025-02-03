@@ -413,7 +413,8 @@ class DemosPlanProcedureController extends BaseController
 
         // collect for each status their priority aggregations
         // therefore several Elasticsearch requests needs to be fired
-        if (!$permissions->hasPermission('feature_statements_statistic_state_and_priority')) {
+        // Permission 'area_statement_segmentation' is required for the "Splitting statement box" in the dashboard.
+        if (!$permissions->hasPermissions(['feature_statements_statistic_state_and_priority', 'area_statement_segmentation'], 'OR')) {
             return null;
         }
 
@@ -660,6 +661,8 @@ class DemosPlanProcedureController extends BaseController
                 'r_oldSlug',
                 'r_phase',
                 'r_pictogram',
+                'r_pictogramCopyright',
+                'r_pictogramAltText',
                 'r_procedure_categories',
                 'r_publicParticipation',
                 'r_publicParticipationContact',
@@ -1647,8 +1650,12 @@ class DemosPlanProcedureController extends BaseController
         }
 
         // check procedure permissions
-        if (!$this->mayEnterProcedure()) {
-            throw new AccessDeniedException('Thou shall not pass!');
+        try {
+            $this->canAccessProcedure();
+        } catch (AccessDeniedException $e) {
+            $this->logger->error('This user '.$currentUser->getUser()->getId().' should not access procedure '.$procedureId, [$e]);
+
+            return $this->redirectToRoute('core_home');
         }
 
         $templateVars = [
@@ -2422,7 +2429,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @DplanPermissions("area_manage_segment_places")
      */
-    #[Route(name: 'DemosPlan_procedure_places_list', path: '/verfahren/{procedureId}/schritte')]
+    #[Route(name: 'DemosPlan_procedure_places_list', path: '/verfahren/{procedureId}/schritte', options: ['expose' => true])]
     #[Route(name: 'DemosPlan_procedure_template_places_list', path: '/verfahren/blaupause/{procedureId}/schritte')]
     public function showProcedurePlacesAction(string $procedureId)
     {
@@ -2652,22 +2659,17 @@ class DemosPlanProcedureController extends BaseController
     /**
      * Is User allowed to enter procedure e.g by using a deeplink.
      */
-    protected function mayEnterProcedure(): bool
+    protected function canAccessProcedure(): void
     {
-        $permissions = $this->permissions;
-        if (!$permissions instanceof Permissions) {
-            return false;
+        if ($this->permissions->ownsProcedure()) {
+            return;
         }
 
-        if ($permissions->ownsProcedure()) {
-            return true;
+        if ($this->permissions->isMember() && $this->permissions->hasPermissionsetRead()) {
+            return;
         }
 
-        if ($permissions->isMember() && $permissions->hasPermissionsetRead()) {
-            return true;
-        }
-
-        return false;
+        throw new AccessDeniedException('Access denied to the procedure.');
     }
 
     /**

@@ -87,10 +87,10 @@ export default {
       default: () => ({})
     },
 
-  procedureId: {
-    type: String,
-    required: true
-  }
+    procedureId: {
+      type: String,
+      required: true
+    }
   },
 
   data () {
