@@ -94,7 +94,7 @@ export default {
             const procedureMapSettings = {
               attributes: {
                 availableScales: data.availableScales.map(scale => ({ label: `1:${scale.toLocaleString('de-DE')}`, value: scale })) ?? [],
-                coordinate: convertExtentToFlatArray(data.coordinate) ?? '',
+                coordinate: convertExtentToFlatArray(data.coordinate) ?? [],
                 copyright: data.copyright ?? '',
                 defaultBoundingBox,
                 defaultMapExtent,
@@ -111,7 +111,11 @@ export default {
             }
 
             commit('setItem', { key: 'procedureMapSettings', value: procedureMapSettings })
+
             return procedureMapSettings
+          })
+          .catch(() => {
+            dplan.notify.error(Translator.trans('error.api.generic'))
           })
       } catch (e) {
         console.error(e)
