@@ -67,10 +67,8 @@
         </template>
         <template
           v-slot:expandedContent="{
-            authorName,
             fullText,
             id,
-            isSubmittedByCitizen,
             polygon,
             shortText,
             textIsTruncated
@@ -237,7 +235,6 @@ import {
   formatDate as _formatDate,
   CleanHtml,
   dpApi,
-  DpButton,
   DpDataTable,
   DpFlyout,
   DpInlineNotification,
@@ -252,7 +249,6 @@ export default {
   name: 'ListOriginalStatements',
 
   components: {
-    DpButton,
     DpDataTable,
     DpFlyout,
     DpInlineNotification,

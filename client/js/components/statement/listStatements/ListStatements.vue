@@ -316,7 +316,7 @@ import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
-import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge.vue'
+import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
 
 export default {
   name: 'ListStatements',
