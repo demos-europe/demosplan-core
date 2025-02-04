@@ -19,9 +19,6 @@ use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
 
 /**
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $email
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $city
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $postcode
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, StatementVote> $name
  */
 class StatementVoteResourceConfigBuilder extends BaseStatementVoteResourceConfigBuilder
 {
