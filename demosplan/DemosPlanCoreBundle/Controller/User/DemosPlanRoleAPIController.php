@@ -25,7 +25,7 @@ class DemosPlanRoleAPIController extends APIController
     /**
      * @DplanPermissions("area_manage_users")
      */
-    #[Route(path: '/api/1.0/role/', methods: ['GET'], name: 'dplan_api_role_list', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/role', methods: ['GET'], name: 'dplan_api_role_list', options: ['expose' => true])]
     public function listAction(RoleService $roleService, OrgaService $orgaService, CurrentUserInterface $currentUser): APIResponse
     {
         try {
