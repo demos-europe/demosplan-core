@@ -55,7 +55,7 @@
         <div class="flex justify-end mt-4">
           <dp-column-selector
             data-cy="institutionList:selectableColumns"
-            :initial-selection="currentSelection"
+            :initial-selection="initialSelection"
             local-storage-key="institutionList"
             :selectable-columns="selectableColumns"
             use-local-storage
@@ -201,6 +201,7 @@ export default {
       editingInstitutionId: null,
       editingInstitution: null,
       editingInstitutionTags: {},
+      initialSelection: [],
       isLoading: true,
       searchTerm: ''
     }
@@ -448,7 +449,7 @@ export default {
       })
     },
 
-    getInstitutionsByPage (page, categoryId = null) {
+    getInstitutionsByPage (page, categoryId = null, isInitial = false) {
       const args = {
         page: {
           number: page,
@@ -496,13 +497,18 @@ export default {
           if (categoryId) {
             this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
           }
+          // We need to call getInstitutionTagCategories again to get all available tags for the filter,
+          // because fetchInvitableInstitution will update the institutionTagCategory store with the filtered tags
+          if (!isInitial) {
+            this.getInstitutionTagCategories()
+          }
         })
         .catch(err => {
           console.error(err)
         })
     },
 
-    getInstitutionTagCategories () {
+    getInstitutionTagCategories (isInitial = false) {
       return this.fetchInstitutionTagCategories({
         fields: {
           InstitutionTagCategory: [
@@ -521,7 +527,9 @@ export default {
         ].join()
       })
         .then(() => {
-          this.setInitialSelection()
+          if (isInitial) {
+            this.setInitialSelection()
+          }
         })
         .catch(err => {
           console.error(err)
@@ -607,7 +615,7 @@ export default {
     },
 
     setInitialSelection () {
-      this.currentSelection = this.institutionTagCategoriesValues
+      this.initialSelection = this.institutionTagCategoriesValues
         .slice(0, 7)
         .map(category => category.attributes.name)
     }
@@ -617,8 +625,10 @@ export default {
     this.isLoading = true
 
     const promises = [
-      this.getInstitutionsByPage(1),
-      this.getInstitutionTagCategories()
+      this.getInstitutionsByPage(1, null, true),
+      // Initial fetch here instead of in getInstitutionsByPage, because otherwise the initialSelection is not ready
+      // when the column selector is mounted
+      this.getInstitutionTagCategories(true)
     ]
 
     Promise.allSettled(promises)
