@@ -93,7 +93,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *
      * @return APIResponse
      */
-    #[Route(path: '/api/1.0/organisation/', name: 'dplan_api_organisation_list', options: ['expose' => true], methods: ['GET'])]
+    #[Route(path: '/api/1.0/organisation', name: 'dplan_api_organisation_list', options: ['expose' => true], methods: ['GET'])]
     public function listAction(
         CustomerHandler $customerHandler,
         OrgaResourceType $orgaResourceType,
@@ -294,7 +294,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *
      * @throws MessageBagException
      */
-    #[Route(path: '/api/1.0/organisation/', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
+    #[Route(path: '/api/1.0/organisation', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
     public function createOrgaAction(Request $request,
         UserHandler $userHandler,
         CustomerHandler $customerHandler,

@@ -79,7 +79,7 @@ class DemosPlanProcedureAPIController extends APIController
     /**
      * @DplanPermissions("area_public_participation")
      */
-    #[Route(path: '/api/1.0/procedure/', methods: ['GET'], name: 'dplan_api_procedure_')]
+    #[Route(path: '/api/1.0/procedure', methods: ['GET'], name: 'dplan_api_procedure_')]
     public function listAction(Request $request): APIResponse
     {
         $rawData = $this->forward(
