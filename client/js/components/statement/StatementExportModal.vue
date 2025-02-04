@@ -28,23 +28,25 @@
           class="o-form__label text-base"
           v-text="Translator.trans('export.type')" />
         <div class="flex flex-row mb-5 mt-1 gap-3">
-          <dp-radio
-            v-for="(exportType, key) in exportTypes"
-            :key="key"
-            :id="key"
-            class="max-w-[70%]"
-            :data-cy="`exportType:${key}`"
-            :label="{
-              hint: active === key ? exportType.hint : '',
-              text: Translator.trans(exportType.label)
-            }"
-            :value="key"
-            :checked="active === key"
-            @change="active = key" />
+          <div v-for="(typeDetail, typeKey) in exportTypes" :key="typeKey">
+              <dp-radio
+                v-for="(subTypeDetail, subTypeKey) in typeDetail"
+                :key="subTypeKey"
+                :id="`${typeKey}-${subTypeKey}`"
+                class="max-w-[70%]"
+                :data-cy="`exportType:${typeKey}-${subTypeKey}`"
+                :label="{
+                    hint: active === `${typeKey}-${subTypeKey}` ? subTypeDetail.hint : '',
+                    text: Translator.trans(subTypeDetail.label)
+                }"
+                :value="`${typeKey}-${subTypeKey}`"
+                :checked="active === `${typeKey}-${subTypeKey}`"
+                @change="active = `${typeKey}-${subTypeKey}`" />
+            </div>
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx', 'docxCensored', 'zip'].includes(this.active)">
+      <fieldset v-if="['docx-normal', 'docx-censored', 'zip-normal', 'zip-censored', 'xlsx-normal'].includes(this.active)">
         <legend
           id="docxColumnTitles"
           class="o-form__label text-base float-left mr-1"
@@ -134,7 +136,7 @@ export default {
 
   data () {
     return {
-      active: 'docx',
+      active: 'docx-normal',
       docxColumns: {
         col1: {
           width: 'col-span-1',
@@ -157,29 +159,42 @@ export default {
       },
       exportTypes: {
         docx: {
-          label: 'export.docx',
-          hint: '',
-          exportPath: 'dplan_statement_segments_export',
-          dataCy: 'exportModal:export:docx',
-        },
-        docxCensored: {
-          label: 'export.docx.censored',
-          hint: '',
-          exportPath: 'dplan_statement_segments_export',
-          dataCy: 'exportModal:export:docx',
-          censor: true
+          normal: {
+            label: 'export.docx',
+            hint: '',
+            exportPath: 'dplan_statement_segments_export',
+            dataCy: 'exportModal:export:docx',
+          },
+          censored: {
+            label: 'export.docx.censored',
+            hint: '',
+            exportPath: 'dplan_statement_segments_export',
+            dataCy: 'exportModal:export:docx',
+            censor: true
+          },
         },
         zip: {
-          label: 'export.zip',
-          hint: '',
-          exportPath: 'dplan_statement_segments_export_packaged',
-          dataCy: 'exportModal:export:zip'
+          normal: {
+            label: 'export.zip',
+            hint: '',
+            exportPath: 'dplan_statement_segments_export_packaged',
+            dataCy: 'exportModal:export:zip'
+          },
+          censored: {
+            label: 'export.zip',
+            hint: '',
+            exportPath: 'dplan_statement_segments_export_packaged',
+            dataCy: 'exportModal:export:zip',
+            censor: true
+          }
         },
         xlsx: {
-          label: 'export.xlsx',
-          hint: Translator.trans('export.xlsx.hint'),
-          exportPath: 'dplan_statement_xls_export',
-          dataCy: 'exportModal:export:xlsx'
+          normal: {
+            label: 'export.xlsx',
+            hint: Translator.trans('export.xlsx.hint'),
+            exportPath: 'dplan_statement_xls_export',
+            dataCy: 'exportModal:export:xlsx'
+          }
         }
       },
       fileName: '',
@@ -217,6 +232,11 @@ export default {
   },
 
   methods: {
+    getActiveTypeDetail() {
+      const [typeKey, subTypeKey] = this.active.split('-');
+
+      return this.exportTypes[typeKey][subTypeKey];
+    },
     closeModal () {
       this.$refs.exportModalInner.toggle()
     },
@@ -238,10 +258,10 @@ export default {
       })
 
       this.$emit('export', {
-        route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
-        docxHeaders: ['docx', 'docxCensored', 'zip'].includes(this.active) ? columnTitles : null,
+        route: this.isSingleStatementExport ? this.singleStatementExportPath : this.getActiveTypeDetail().exportPath,
+        docxHeaders: ['docx-normal', 'docx-censored', 'zip-normal', 'zip-censored', 'xlsx-normal'].includes(this.active) ? columnTitles : null,
         fileNameTemplate: this.fileName || null,
-        censorParameter: this.exportTypes[this.active].censor || false
+        censorParameter: this.getActiveTypeDetail().censor || false
       })
       this.closeModal()
     },
