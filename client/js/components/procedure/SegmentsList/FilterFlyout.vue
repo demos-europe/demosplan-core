@@ -300,7 +300,7 @@ export default {
             }
           }
 
-          if (this.memberOf !== '') {
+          if (this.memberOf) {
             filter[id].condition = {
               ...filter[id].condition,
               memberOf: this.memberOf
