@@ -202,6 +202,9 @@ class SegmentsExportController extends BaseController
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
+        $censorParameter = $this->requestStack->getCurrentRequest()->query->get('censorParameter');
+
+        $censorParameter = filter_var($censorParameter, FILTER_VALIDATE_BOOLEAN);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // This method applies mostly the same restrictions as the generic API access to retrieve statements.
         // It validates filter and search parameters and limits the returned statement entities to those
@@ -213,17 +216,17 @@ class SegmentsExportController extends BaseController
         );
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
-        $statements = $exporter->mapStatementsToPathInZip($statements, $fileNameTemplate);
+        $statements = $exporter->mapStatementsToPathInZip($statements, $fileNameTemplate, $censorParameter);
 
         return $zipExportService->buildZipStreamResponse(
             $exporter->getSynopseFileName($procedure, 'zip'),
-            static function (ZipStream $zipStream) use ($statements, $exporter, $zipExportService, $procedure, $tableHeaders): void {
+            static function (ZipStream $zipStream) use ($statements, $exporter, $zipExportService, $procedure, $tableHeaders, $censorParameter): void {
                 array_map(
                     static function (
                         Statement $statement,
                         string $filePathInZip,
-                    ) use ($exporter, $zipExportService, $zipStream, $procedure, $tableHeaders): void {
-                        $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure, $tableHeaders);
+                    ) use ($exporter, $zipExportService, $zipStream, $procedure, $tableHeaders, $censorParameter): void {
+                        $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure, $tableHeaders, $censorParameter);
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(
                             $writer,

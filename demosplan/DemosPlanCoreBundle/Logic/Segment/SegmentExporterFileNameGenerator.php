@@ -29,6 +29,8 @@ class SegmentExporterFileNameGenerator
 
     public const DEFAULT_TEMPLATE_NAME = self::PLACEHOLDER_ID.'-'.self::PLACEHOLDER_NAME.'-'.self::PLACEHOLDER_EINGANGSNR;
 
+    public const DEFAULT_TEMPLATE_NAME_CENSORED = self::PLACEHOLDER_ID;
+
     public function __construct(
         Slugify $slugify,
         TranslatorInterface $translator)
@@ -37,9 +39,9 @@ class SegmentExporterFileNameGenerator
         $this->slugify = $slugify;
     }
 
-    public function getFileName(Statement $statement, string $templateName = ''): string
+    public function getFileName(Statement $statement, string $templateName = '', bool $censor = false): string
     {
-        $defaultTemplateName = self::DEFAULT_TEMPLATE_NAME;
+        $defaultTemplateName = $censor? self::DEFAULT_TEMPLATE_NAME_CENSORED :self::DEFAULT_TEMPLATE_NAME;
         $templateName = $templateName ?: $defaultTemplateName;
 
         $externalId = $this->getExternalId($statement);

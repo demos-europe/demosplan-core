@@ -49,7 +49,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     public function testMapStatementsToPathInZipWithTrueDuplicate(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->sut->mapStatementsToPathInZip([$this->testStatement->_real(),  $this->testStatement->_real()]);
+        $this->sut->mapStatementsToPathInZip([$this->testStatement->_real(),  $this->testStatement->_real()],'',false);
     }
 
     public function testMapStatementsToPathInZipWithSuperficialDuplicate(): void
@@ -57,7 +57,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $statementA = $this->createMinimalTestStatement('a', 'a', 'a');
         $statementB = $this->createMinimalTestStatement('b', 'a', 'a');
 
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()]);
+        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()], '', false);
 
         $expectedAKey = 'statement-extern-id-a-statement-author-name-a-statement-intern-id-a.docx';
         self::assertArrayHasKey($expectedAKey, $statements);
@@ -72,7 +72,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $statementA = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
         $statementB = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
 
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()]);
+        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()],'', false);
 
         $expectedAKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementA->getId().'.docx';
         self::assertArrayHasKey($expectedAKey, $statements);

@@ -186,13 +186,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         return IOFactory::createWriter($phpWord);
     }
 
-    public function exportStatementSegmentsInSeparateDocx(Statement $statement, Procedure $procedure, array $tableHeaders): PhpWord
+    public function exportStatementSegmentsInSeparateDocx(Statement $statement, Procedure $procedure, array $tableHeaders, bool $censor): PhpWord
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
-        $this->exportStatement($section, $statement, $tableHeaders);
+        $this->exportStatement($section, $statement, $tableHeaders, $censor);
 
         return $phpWord;
     }
@@ -219,12 +219,12 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @return array<string, Statement>
      */
-    public function mapStatementsToPathInZip(array $statements, string $fileNameTemplate = ''): array
+    public function mapStatementsToPathInZip(array $statements, string $fileNameTemplate = '', bool $censor): array
     {
         $pathedStatements = [];
         $previousKeysOfReaddedDuplicates = [];
         foreach ($statements as $statement) {
-            $pathInZip = $this->getPathInZip($statement, false, $fileNameTemplate);
+            $pathInZip = $this->getPathInZip($statement, false, $fileNameTemplate, $censor);
             // in case of a duplicate, add the database ID to the name
             if (array_key_exists($pathInZip, $pathedStatements)) {
                 $duplicate = $pathedStatements[$pathInZip];
@@ -263,12 +263,12 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * the case that the extern ID is an empty string and the database ID is included in
      * the result.
      */
-    private function getPathInZip(Statement $statement, bool $withDbId, string $fileNameTemplate = ''): string
+    private function getPathInZip(Statement $statement, bool $withDbId, string $fileNameTemplate = '', bool $censor = false): string
     {
         // prepare needed variables
         $dbId = $statement->getId();
 
-        $fileName = $this->fileNameGenerator->getFileName($statement, $fileNameTemplate);
+        $fileName = $this->fileNameGenerator->getFileName($statement, $fileNameTemplate, $censor);
 
         return $withDbId
             ? "$fileName-$dbId.docx"
