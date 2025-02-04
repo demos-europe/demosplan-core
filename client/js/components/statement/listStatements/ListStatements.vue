@@ -162,7 +162,8 @@
           <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
               v-if="hasPermission('area_statement_segmentation')"
-              :class="`${(segmentsCount > 0 && segmentsCount !== '-') ? 'is-disabled' : '' } btn--blank o-link--default`"
+              :class="`${(segmentsCount > 0 && segmentsCount !== '-') ? 'is-disabled' : '' }
+              btn--blank o-link--default hover:underline active:underline`"
               data-cy="listStatements:statementSplit"
               :disabled="segmentsCount > 0 && segmentsCount !== '-'"
               @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
@@ -193,7 +194,8 @@
               {{ Translator.trans('statement.original') }}
             </a>
             <button
-              :class="`${ !synchronized || assignee.id === currentUserId ? 'hover:underline--hover' : 'is-disabled' } btn--blank o-link--default`"
+              :class="`${ !synchronized || assignee.id === currentUserId ? 'hover:underline--hover' : 'is-disabled' }
+              btn--blank o-link--default hover:underline active:underline`"
               data-cy="listStatements:statementDelete"
               :disabled="synchronized || assignee.id !== currentUserId"
               type="button"
