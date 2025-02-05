@@ -171,6 +171,7 @@ import SegmentationEditor from './SegmentationEditor'
 import SideBar from './SideBar'
 import StatementMeta from '@DpJs/components/procedure/StatementSegmentsList/StatementMeta/StatementMeta'
 import StatementMetaTooltip from '../StatementMetaTooltip'
+import mockData from '../mocks/segmentedStatement.json'
 import { v4 as uuid } from 'uuid'
 /**
  * This function merges ranges with their corresponding segments.
@@ -444,8 +445,8 @@ export default {
       }
 
       this.ignoreProsemirrorUpdates = true
-      const { rangeTrackerKey, editingDecorationsKey } = this.prosemirror.keyAccess
-      setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(this.editingSegment.id, false)
+      // const { rangeTrackerKey, editingDecorationsKey } = this.prosemirror.keyAccess
+      // setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(this.editingSegment.id, false)
       this.ignoreProsemirrorUpdates = false
       this.setProperty({ prop: 'editingSegment', val: null })
       this.setProperty({ prop: 'editModeActive', val: false })
@@ -466,14 +467,14 @@ export default {
       this.setProperty({ prop: 'editModeActive', val: true })
 
       this.ignoreProsemirrorUpdates = true
-      setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(id, true)
-      activateRangeEdit(
-        this.prosemirror.view,
-        rangeTrackerKey,
-        editStateTrackerKey,
-        id,
-        { active: this.editingSegment.charEnd, fixed: this.editingSegment.charStart }
-      )
+      // setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(id, true)
+      // activateRangeEdit(
+      //   this.prosemirror.view,
+      //   rangeTrackerKey,
+      //   editStateTrackerKey,
+      //   id,
+      //   { active: this.editingSegment.charEnd, fixed: this.editingSegment.charStart }
+      // )
       this.ignoreProsemirrorUpdates = false
     },
 
@@ -521,12 +522,13 @@ export default {
       if (!addonsLoaded.includes('SplitStatementPreprocessor')) {
         this.fetchStatementSegmentDraftList(this.statementId)
           .then(({ data }) => {
-            if (data.data.attributes.segmentDraftList) {
+            console.log('fetchStatementSegmentDraftList', data)
+            // if (data.data.attributes.segmentDraftList) {
               this.fetchInitialData()
-            } else {
-              this.setInitialData()
-              this.fetchTags()
-            }
+            // } else {
+            //   this.setInitialData()
+            //   this.fetchTags()
+            // }
 
             this.segmentationStatus = 'inUserSegmentation'
           })

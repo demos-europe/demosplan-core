@@ -9,6 +9,7 @@
 
 import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { del, set } from 'vue'
+import mockData from '../../components/statement/mocks/segmentedStatement.json'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
 import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
 
@@ -217,6 +218,7 @@ const SplitStatementStore = {
 
     async fetchInitialData ({ state, commit, dispatch }, doUpdate = true) {
       await dispatch('fetchStatement')
+      console.log('fetchInitialData')
 
       const segments = dpApi.get(Routing.generate('api_resource_get', {
         resourceType: 'Statement',
@@ -228,34 +230,36 @@ const SplitStatementStore = {
         }
       }))
         .then(({ data }) => {
-          if (!hasOwnProp(data.data.attributes.segmentDraftList, 'data')) {
-            return []
-          }
-          const initialData = data.data.attributes.segmentDraftList.data
+          // if (!hasOwnProp(data.data.attributes.segmentDraftList, 'data')) {
+          //   return []
+          // }
+
+          // const initialData = data.data.attributes.segmentDraftList.data
+          const initialData = mockData.data
           let segments = initialData.attributes.segments
             /*
              * Filter out segments with less than 10 characters as those may lead the frontend to crash
              * (because often that are closing or opening tags)
              * and should probably not be needed in a real world scenario.
              */
-            .filter(segment => (segment.charEnd - segment.charStart) > 10)
+            // .filter(segment => (segment.charEnd - segment.charStart) > 10)
 
           // Check if we are getting overlapping segments from pipeline that would cause errors
-          if (doUpdate) {
-            for (let i = 0; i < segments.length; i++) {
-              for (let j = i + 1; j < segments.length; j++) {
-                // Check for overlap
-                if (
-                  (segments[i].charStart > segments[j].charStart && segments[i].charStart < segments[j].charEnd) ||
-                  (segments[j].charStart > segments[i].charStart && segments[j].charStart < segments[i].charEnd)
-                ) {
-                  // Overlapping segments found
-                  segments = []
-                  dplan.notify.notify('error', Translator.trans('error.split_statement.segments'))
-                }
-              }
-            }
-          }
+          // if (doUpdate) {
+          //   for (let i = 0; i < segments.length; i++) {
+          //     for (let j = i + 1; j < segments.length; j++) {
+          //       // Check for overlap
+          //       if (
+          //         (segments[i].charStart > segments[j].charStart && segments[i].charStart < segments[j].charEnd) ||
+          //         (segments[j].charStart > segments[i].charStart && segments[j].charStart < segments[i].charEnd)
+          //       ) {
+          //         // Overlapping segments found
+          //         segments = []
+          //         dplan.notify.notify('error', Translator.trans('error.split_statement.segments'))
+          //       }
+          //     }
+          //   }
+          // }
 
           commit('setProperty', { prop: 'initialData', val: initialData })
           commit('setProperty', { prop: 'initialSegments', val: segments })
@@ -366,6 +370,7 @@ const SplitStatementStore = {
         }
       }))
         .then((response) => {
+          console.log('fetch Statemetn', response)
           commit('setProperty', { prop: 'statement', val: response.data.data })
         })
     },
