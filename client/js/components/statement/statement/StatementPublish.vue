@@ -86,7 +86,6 @@
 
 <script>
 import { defineAsyncComponent } from 'vue'
-import { DpInlineNotification } from '@demos-europe/demosplan-ui'
 import VotingStatus from './VotingStatus'
 
 

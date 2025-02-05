@@ -26,15 +26,13 @@
 </template>
 
 <script>
-import { DpCheckbox, DpLabel, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { DpCheckbox } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'StatementReplySelect',
 
   components: {
-    DpCheckbox,
-    DpLabel,
-    DpMultiselect
+    DpCheckbox
   },
 
   props: {

@@ -26,8 +26,8 @@ import { defineAsyncComponent } from 'vue'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
-import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
 import saveAndReturn from '@DpJs/directives/saveAndReturn'
+import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
 
 export default {
   name: 'DpDetailView',

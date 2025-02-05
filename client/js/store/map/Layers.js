@@ -212,7 +212,7 @@ const LayersStore = {
             'name',
             'layerWithChildrenHidden',
             'parentId',
-            'treeOrder',
+            'treeOrder'
           ].join(),
           GisLayer: [
             'canUserToggleVisibility',

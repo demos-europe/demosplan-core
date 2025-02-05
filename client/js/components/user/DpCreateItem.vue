@@ -49,7 +49,7 @@
 
 <script>
 import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
-import { mapActions, mapState } from 'vuex'
+import { mapActions } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 
 export default {

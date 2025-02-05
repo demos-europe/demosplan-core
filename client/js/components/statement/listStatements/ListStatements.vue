@@ -162,7 +162,10 @@
           <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
               v-if="hasPermission('area_statement_segmentation')"
-              :class="`${(segmentsCount > 0 && segmentsCount !== '-') ? 'is-disabled' : '' } btn--blank o-link--default`"
+              class="btn--blank o-link--default"
+              :class="{
+                'is-disabled': segmentsCount > 0 && segmentsCount !== '-',
+                'hover:underline active:underline': segmentsCount <= 0 || segmentsCount === '-' }"
               data-cy="listStatements:statementSplit"
               :disabled="segmentsCount > 0 && segmentsCount !== '-'"
               @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
@@ -193,7 +196,10 @@
               {{ Translator.trans('statement.original') }}
             </a>
             <button
-              :class="`${ !synchronized || assignee.id === currentUserId ? 'hover:underline--hover' : 'is-disabled' } btn--blank o-link--default`"
+              class="btn--blank o-link--default"
+              :class="{
+                'is-disabled': synchronized || assignee.id !== currentUserId,
+                'hover:underline active:underline': !(synchronized || assignee.id !== currentUserId) }"
               data-cy="listStatements:statementDelete"
               :disabled="synchronized || assignee.id !== currentUserId"
               type="button"
@@ -316,7 +322,7 @@ import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
-import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge.vue'
+import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
 
 export default {
   name: 'ListStatements',

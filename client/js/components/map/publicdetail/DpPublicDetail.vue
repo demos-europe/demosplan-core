@@ -8,6 +8,7 @@
 </license>
 
 <script>
+import { DpContextualHelp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
 import CustomLayer from '@DpJs/components/map/publicdetail/controls/CustomLayer'
 import { defineAsyncComponent } from 'vue'
@@ -17,7 +18,6 @@ import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/DpUnfoldToolbarControl'
 import Map from '@DpJs/components/map/publicdetail/Map'
 import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
-import { DpContextualHelp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
 
 export default {

@@ -100,7 +100,11 @@ class AddonAutoinstallCommand extends CoreCommand
                     '--tag'    => $addonConfig['version'],
                     '--github' => true,
                 ];
-                $this->runCommand($this->addonInstallCommand, $arguments, $output);
+                try {
+                    $this->runCommand($this->addonInstallCommand, $arguments, $output);
+                } catch (\Exception $e) {
+                    $output->error("Failed to install addon {$name} in Version {$addonConfig['version']}. {$e->getMessage()}");
+                }
             }
         }
     }

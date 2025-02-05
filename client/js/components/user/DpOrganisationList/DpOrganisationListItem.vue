@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButtonRow, DpIcon, dpValidateMixin} from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -175,15 +175,17 @@ export default {
       return {
         type: this.addonPayload.resourceType,
         attributes: this.addonPayload.attributes,
-        relationships: this.addonPayload.url === 'api_resource_update' ? undefined : {
-          orga: {
-            data: {
-              type: 'Orga',
-              id: this.organisation.id
-            }
-          }
-        },
-        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {}),
+        relationships: this.addonPayload.url === 'api_resource_update'
+          ? undefined
+          : {
+              orga: {
+                data: {
+                  type: 'Orga',
+                  id: this.organisation.id
+                }
+              }
+            },
+        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {})
       }
     },
 
@@ -230,7 +232,6 @@ export default {
         } else {
           this.submitOrganisationForm()
         }
-
       } else {
         dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
       }

@@ -178,7 +178,6 @@
 import {
   checkResponse,
   dpApi,
-  DpButton,
   DpFlyout,
   DpSlidebar,
   DpStickyElement
@@ -194,14 +193,13 @@ import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatementSegmentsEdit from './StatementSegmentsEdit'
-import StatusBadge from '../Shared/StatusBadge.vue'
+import StatusBadge from '../Shared/StatusBadge'
 
 export default {
   name: 'StatementSegmentsList',
 
   components: {
     DpClaim,
-    DpButton,
     DpFlyout,
     DpSlidebar,
     DpStickyElement,

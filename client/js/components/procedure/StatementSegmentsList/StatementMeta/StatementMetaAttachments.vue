@@ -148,7 +148,6 @@
 import {
   checkResponse,
   dpApi,
-  DpButton,
   DpButtonRow,
   DpIcon,
   DpLabel,
@@ -160,7 +159,6 @@ export default {
   name: 'StatementMetaAttachments',
 
   components: {
-    DpButton,
     DpButtonRow,
     DpIcon,
     DpLabel,
@@ -173,7 +171,7 @@ export default {
       type: Object,
       required: true,
       validator (value) {
-        return value.hasOwnProperty('originalAttachment') && value.hasOwnProperty('additionalAttachments')
+        return Object.hasOwn(value, 'originalAttachment') && Object.hasOwn('additionalAttachments')
       }
     },
 
