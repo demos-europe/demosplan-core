@@ -940,7 +940,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             }
         } else {
             // Give devs a hint that the permissions here need to be reworked
-            $this->logger->info('This area has no explicit permission specified! '
+            $this->logger->debug('This area has no explicit permission specified! '
                         .'Please provide a permission to be checked using the attribute #[DplanPermissions] or annotation @DplanPermissions.', \debug_backtrace(0, 4));
         }
     }

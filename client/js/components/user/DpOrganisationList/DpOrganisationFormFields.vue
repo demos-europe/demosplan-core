@@ -1015,7 +1015,7 @@ export default {
 
     updateAddonPayload (payload) {
       this.$emit('addon-update', payload)
-    },
+    }
   },
 
   created () {

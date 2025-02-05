@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
-import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal.vue'
+import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('ExportModal', () => {
