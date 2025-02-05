@@ -194,6 +194,7 @@ class DefaultTwigVariablesService
 
         return array_map(fn (array $data) => $data['url'], $filtered);
     }
+
     private function getLocale(Request $request): string
     {
         $languageKey = $request->getSession()->get('_locale');

@@ -1806,6 +1806,7 @@ class GlobalConfig implements GlobalConfigInterface
     private function addCustomerToUrl(array $projectURLData): array
     {
         $projectURLData['url'] = str_replace(self::CUSTOMER_PLACEHOLFER, $this->subdomain, $projectURLData['url']);
+
         return $projectURLData;
     }
 }
