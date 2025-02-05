@@ -124,7 +124,6 @@ export default {
       fileList: 'item'
     }),
 
-
     branding: {
       get () {
         return this.brandingList[this.brandingId].attributes || { styling: '', logoHash: null }
