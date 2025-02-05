@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\TagResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseTagResourceConfigBuilder;
@@ -25,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
-use EDT\JsonApi\ApiDocumentation\DefaultInclude;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
@@ -34,7 +34,6 @@ use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use Exception;
 use InvalidArgumentException;
-use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 
 /**
  * @template-extends DplanResourceType<Tag>
@@ -116,7 +115,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                     [],
                     function (
                         TagInterface $tag,
-                        ?string $title
+                        ?string $title,
                     ): array {
                         try {
                             $this->checkTitle($title);
@@ -170,7 +169,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
             new FixedSetBehavior(
                 function (
                     Tag $tag,
-                    EntityDataInterface $entityData
+                    EntityDataInterface $entityData,
                 ): array {
                     try {
                         // check Tag
@@ -215,7 +214,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
     private function checkTitleUnique(string $title, Collection $tagsOfProcedure): void
     {
         if (1 < count(
-                $tagsOfProcedure->filter(fn (TagInterface $t) => $t->getTitle() === $title))
+            $tagsOfProcedure->filter(fn (TagInterface $t) => $t->getTitle() === $title))
         ) {
             $this->logger->error(
                 'TagResourceType tried to set non-unique title for a tag',
@@ -230,7 +229,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
     private function checkTopicIdInProcedure(string $topicId, Collection $topicsOfProcedure): void
     {
         if (1 < count(
-                $topicsOfProcedure->filter(fn (TagTopic $t) => $t->getId() === $topicId))
+            $topicsOfProcedure->filter(fn (TagTopic $t) => $t->getId() === $topicId))
         ) {
             $this->logger->error(
                 'TagResourceType tried to create a tag for a topic that does not belong to the current procedure',
@@ -248,8 +247,8 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
             'Error handling Tag via TagResourceType',
             [
                 'ExceptionMessage:' => $e->getMessage(),
-                'Exception:' => $e::class,
-                'ExceptionTrace:' => $e->getTraceAsString(),
+                'Exception:'        => $e::class,
+                'ExceptionTrace:'   => $e->getTraceAsString(),
             ]
         );
     }

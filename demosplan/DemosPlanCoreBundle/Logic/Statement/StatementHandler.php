@@ -111,7 +111,6 @@ use Doctrine\ORM\Query\QueryException;
 use Exception;
 use Illuminate\Support\Collection;
 use League\Csv\Reader;
-use League\Csv\UnableToProcessCsv;
 use ReflectionException;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints\Email;
@@ -125,8 +124,8 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-
 use Webmozart\Assert\Assert;
+
 use function array_key_exists;
 use function is_string;
 
@@ -236,16 +235,16 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         ServiceOutput $procedureOutput,
         private readonly SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
         private readonly SingleDocumentService $singleDocumentService,
-        StatementClusterService                $statementClusterService,
-        StatementCopyAndMoveService            $statementCopyAndMoveService,
-        StatementFragmentService               $statementFragmentService,
-        StatementService                       $statementService,
-        TagService                             $tagService,
-        private readonly TranslatorInterface   $translator,
-        UserService                            $userService,
-        private readonly StatementCopier       $statementCopier,
-        private readonly ValidatorInterface    $validator,
-        private readonly StatementDeleter      $statementDeleter, private readonly TagRepository $tagRepository, private readonly TagTopicRepository $tagTopicRepository,
+        StatementClusterService $statementClusterService,
+        StatementCopyAndMoveService $statementCopyAndMoveService,
+        StatementFragmentService $statementFragmentService,
+        StatementService $statementService,
+        TagService $tagService,
+        private readonly TranslatorInterface $translator,
+        UserService $userService,
+        private readonly StatementCopier $statementCopier,
+        private readonly ValidatorInterface $validator,
+        private readonly StatementDeleter $statementDeleter, private readonly TagRepository $tagRepository, private readonly TagTopicRepository $tagTopicRepository,
     ) {
         parent::__construct($messageBag);
         $this->assignService = $assignService;
