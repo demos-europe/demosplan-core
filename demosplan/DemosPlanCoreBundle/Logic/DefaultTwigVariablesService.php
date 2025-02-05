@@ -176,10 +176,24 @@ class DefaultTwigVariablesService
             'urlPathPrefix'                    => $this->globalConfig->getUrlPathPrefix(),
             'urlScheme'                        => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
             'useOpenGeoDb'                     => $this->globalConfig->getUseOpenGeoDb(),
-            'externalLinks'                    => $this->globalConfig->getExternalLinks(),
+            'externalLinks'                    => $this->getFilteredExternalLinks(),
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
+    private function getFilteredExternalLinks(): array
+    {
+        $filtered = $this->globalConfig->getExternalLinks();
+        if (!$this->currentUser->hasPermission('feature_show_restricted_external_links')) {
+            $filtered = array_filter($this->globalConfig->getExternalLinks(), function ($link) {
+                return !isset($link['restricted']) || !$link['restricted'];
+            });
+        }
+
+        return array_map(fn (array $data) => $data['url'], $filtered);
+    }
     private function getLocale(Request $request): string
     {
         $languageKey = $request->getSession()->get('_locale');

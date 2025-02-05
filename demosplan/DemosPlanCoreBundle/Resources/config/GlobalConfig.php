@@ -18,8 +18,10 @@ use Exception;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -1771,9 +1773,17 @@ class GlobalConfig implements GlobalConfigInterface
             new Type('array'),
             new NotNull(),
             new All([
-                new Type('string'),
-                new NotBlank(null, null, false),
-                new Url(),
+                new Type('array'),
+                new NotNull(),
+                new AtLeastOneOf([
+                    new Type('string'),
+                    new NotBlank(null, null, false),
+                    new Url(),
+                ]),
+                new Optional([
+                    new Type('bool'),
+                    new NotBlank(null, null, false),
+                ]),
             ]),
         ]);
         if (0 !== $violations->count()) {
@@ -1793,8 +1803,9 @@ class GlobalConfig implements GlobalConfigInterface
         return $externalLinks;
     }
 
-    private function addCustomerToUrl(string $url): string
+    private function addCustomerToUrl(array $projectURLData): array
     {
-        return str_replace(self::CUSTOMER_PLACEHOLFER, $this->subdomain, $url);
+        $projectURLData['url'] = str_replace(self::CUSTOMER_PLACEHOLFER, $this->subdomain, $projectURLData['url']);
+        return $projectURLData;
     }
 }
