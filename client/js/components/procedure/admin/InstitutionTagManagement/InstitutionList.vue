@@ -248,7 +248,7 @@ export default {
 
         acc[id] = {
           id,
-          comparisonOperator: '=',
+          comparisonOperator: 'ARRAY_CONTAINS_VALUE',
           label: attributes.name,
           rootPath: 'assignedTags',
           selected: false,
