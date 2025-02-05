@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace Tests\Core\Core\Unit\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
@@ -13,7 +21,7 @@ use Tests\Base\RpcApiTest;
 
 /**
  * Class RpcTagAndTopicDeleterTest
- * this class tests {{ @link RpcTagAndTopicDeleter }}
+ * this class tests {{ @see RpcTagAndTopicDeleter }}.
  */
 class RpcTagAndTopicDeleterTest extends RpcApiTest
 {
@@ -24,13 +32,13 @@ class RpcTagAndTopicDeleterTest extends RpcApiTest
         $tag->_save();
         $user = UserFactory::createOne();
 
-//        $userRoleInCustomer = new UserRoleInCustomer();
-//        $fpaRole = new Role();
-//        $fpaRole->setCode(RoleInterface::PLANNING_AGENCY_ADMIN)
-//            ->setName('Planning Agency Admin')->setGroupName('planner');
-//        $userRoleInCustomer->setRole($fpaRole)->setUser($user->_real())->setCustomer($user->getCurrentCustomer());
-//        $userRolesInCustomer = new ArrayCollection([$userRoleInCustomer]);
-//        $user->setRoleInCustomers($userRolesInCustomer);
+        //        $userRoleInCustomer = new UserRoleInCustomer();
+        //        $fpaRole = new Role();
+        //        $fpaRole->setCode(RoleInterface::PLANNING_AGENCY_ADMIN)
+        //            ->setName('Planning Agency Admin')->setGroupName('planner');
+        //        $userRoleInCustomer->setRole($fpaRole)->setUser($user->_real())->setCustomer($user->getCurrentCustomer());
+        //        $userRolesInCustomer = new ArrayCollection([$userRoleInCustomer]);
+        //        $user->setRoleInCustomers($userRolesInCustomer);
 
         $tagsOfProcedure = $procedure->getTags();
         self::assertContains($tag->_real(), $tagsOfProcedure);
@@ -41,7 +49,7 @@ class RpcTagAndTopicDeleterTest extends RpcApiTest
             [
                 'ids' => [
                     [
-                        'id' => $tag->getId(),
+                        'id'   => $tag->getId(),
                         'type' => 'Tag',
                     ],
                 ],
@@ -53,5 +61,4 @@ class RpcTagAndTopicDeleterTest extends RpcApiTest
         self::assertArrayHasKey('result', $responseBody[0]);
         self::assertTrue($responseBody[0]['result']);
     }
-
 }
