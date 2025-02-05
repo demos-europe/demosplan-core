@@ -7,6 +7,7 @@
     <dp-tree-list
       v-if="transformedCategories"
       class="mb-4"
+      align-toggle="center"
       :tree-data="transformedCategories"
       :options="{
         branchesSelectable: false,
@@ -129,17 +130,6 @@ export default {
       TagTopic: 'items'
     }),
 
-    topicsAsOptions () {
-      return Object.values(this.TagTopic).map(category => {
-        const { attributes, id } = { ...category }
-
-        return {
-          label: attributes.title,
-          value: id
-        }
-      })
-    },
-
     transformedCategories () {
       return Object.values(this.TagTopic).map(category => {
         const { attributes, id, relationships, type } = category
@@ -235,8 +225,8 @@ export default {
     deleteItem (item) {
       dpRpc('bulk.delete.tags.and.topics', { ids: [item] })
         .then(checkResponse)
-        .then(response => {
-          console.log(response, 'response delete')
+        .then(() => {
+          this.loadTagsAndTopics()
         })
     },
 
@@ -263,6 +253,8 @@ export default {
         },
         include: 'tags,tags.boilerplate',
         sort: 'title'
+      }).then(() => {
+        this.dataIsRequested = false
       })
     },
 

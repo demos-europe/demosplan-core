@@ -76,7 +76,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
                 // If the response body is empty, contentType will be null
                 const contentType = success.headers.get('Content-Type')
 
-                if (contentType && contentType.includes('application/json')) {
+                if (contentType && contentType.includes('json')) {
                   const response = await success.json()
 
                   const meta = response.data?.meta
@@ -97,7 +97,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
                 // If the response body is empty, contentType will be null
                 const contentType = error.headers.get('Content-Type')
 
-                if (contentType && contentType.includes('application/json')) {
+                if (contentType && contentType.includes('json')) {
                   const response = await error.json()
 
                   const meta = response.data?.meta

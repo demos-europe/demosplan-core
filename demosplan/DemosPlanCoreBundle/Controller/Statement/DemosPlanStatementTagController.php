@@ -130,82 +130,27 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     }
 
     /**
-     * Create Tag for one procedure.
-     *
-     * @DplanPermissions("area_admin_statements_tag")
-     *
-     * @return RedirectResponse|Response
-     *
-     * @throws Exception
-     */
-    #[Route(name: 'DemosPlan_statement_administration_tag_create', path: '/verfahren/{procedure}/schlagwort/erstellen', defaults: ['master' => false], options: ['expose' => true])]
-    public function tagCreateAction(
-        TranslatorInterface $translator,
-        string $procedure,
-    ): Response {
-        $templateVars = [];
-
-        $templateVars['procedure'] = $procedure;
-        // todo need title and template for tag create
-        $title = $translator->trans('tag.administration');
-
-        return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanStatement/list_tags.html.twig',
-            [
-                'templateVars' => $templateVars,
-                'title'        => $title,
-                'procedure'    => $procedure,
-            ]
-        );
-    }
-
-    /**
-     * Create TagTopic for one procedure.
-     *
-     * @DplanPermissions("area_admin_statements_tag")
-     *
-     * @return RedirectResponse|Response
-     *
-     * @throws Exception
-     */
-    #[Route(name: 'DemosPlan_statement_administration_tagTopic_create', path: '/verfahren/{procedure}/thema/erstellen', defaults: ['master' => false], options: ['expose' => true])]
-    public function tagTopicCreateAction(
-        TranslatorInterface $translator,
-        string $procedure,
-    ): Response {
-        $templateVars = [];
-
-        $templateVars['procedure'] = $procedure;
-        // todo need title and template for tagTopic create
-        $title = $translator->trans('tag.administration');
-
-        return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanStatement/list_tags.html.twig',
-            [
-                'templateVars' => $templateVars,
-                'title'        => $title,
-                'procedure'    => $procedure,
-            ]
-        );
-    }
-
-    /**
      * Creates a list of Tags for the given procedure by
      * parsing a csv import file.
      *
      * @DplanPermissions("area_admin_statements_tag")
      *
-     * @return RedirectResponse|Response
+     * @return RedirectResponse
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_statement_administration_tags_csv_import', path: '/verfahren/{procedure}/schlagworte/import/csv', defaults: ['master' => false], options: ['expose' => true])]
+    #[Route(
+        path: '/verfahren/{procedureId}/schlagworte/import/csv',
+        name: 'DemosPlan_statement_administration_tags_csv_import',
+        options: ['expose' => true],
+        defaults: ['master' => false]
+    )]
     public function tagListCsvImportAction(
         FileService $fileService,
         FileUploadService $fileUploadService,
         Request $request,
         StatementHandler $statementHandler,
-        string $procedure,
+        string $procedureId,
     ): Response {
         $anchor = '';
         $requestPost = $this->transformRequestVariables($request->request->all());
@@ -216,7 +161,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
             if ('' !== $requestPost['r_importCsv']) {
                 try {
                     $fileInfo = $fileService->getFileInfoFromFileString($requestPost['r_importCsv']);
-                    $statementHandler->importTags($procedure, $fileService->getFileContentStream($fileInfo));
+                    $statementHandler->importTags($procedureId, $fileService->getFileContentStream($fileInfo));
                     $this->getMessageBag()->add('confirm', 'explanation.import.topicsAndTags');
                 } catch (DuplicatedTagTitleException $e) {
                     $this->getMessageBag()->add('error', 'error.import.tag.name.taken', ['tagTitle' => $e->getTagTitle(), 'topicName' => $e->getTopic()->getTitle()]);
@@ -232,7 +177,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         return $this->redirect(
             $this->generateUrl(
                 'DemosPlan_statement_administration_tags',
-                ['procedure' => $procedure]
+                ['procedure' => $procedureId]
             ).'#'.$anchor
         );
     }

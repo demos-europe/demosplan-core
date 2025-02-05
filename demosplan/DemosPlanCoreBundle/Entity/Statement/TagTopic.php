@@ -81,7 +81,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
     /**
      * * Necessary to set Type of $this->tags.
      */
-    public function __construct(string $title = '', ProcedureInterface $procedure)
+    public function __construct(string $title, ProcedureInterface $procedure)
     {
         $this->tags = new ArrayCollection();
         $this->title = $title;
