@@ -185,14 +185,21 @@ class DefaultTwigVariablesService
      */
     private function getFilteredExternalLinks(): array
     {
-        $filtered = $this->globalConfig->getExternalLinks();
+        $externalLinks = $this->globalConfig->getExternalLinks();
+
+        // simple list of urls are given, without intention to filter
+        if (!is_array(array_values($externalLinks)[0])) {
+            return $externalLinks;
+        }
+
+        // In case of current user has no permission to see restricted external links, execute filtering
         if (!$this->currentUser->hasPermission('feature_show_restricted_external_links')) {
-            $filtered = array_filter($this->globalConfig->getExternalLinks(), function ($link) {
+            $externalLinks = array_filter($this->globalConfig->getExternalLinks(), function ($link) {
                 return !isset($link['restricted']) || !$link['restricted'];
             });
         }
 
-        return array_map(fn (array $data) => $data['url'], $filtered);
+        return array_map(fn (array $data) => $data['url'], $externalLinks);
     }
 
     private function getLocale(Request $request): string

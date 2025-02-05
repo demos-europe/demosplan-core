@@ -1769,25 +1769,41 @@ class GlobalConfig implements GlobalConfigInterface
      */
     private function getValidatedExternalLinks(array $externalLinks): array
     {
-        $violations = $this->validator->validate($externalLinks, [
-            new Type('array'),
-            new NotNull(),
-            new All([
+        // Validation for extended externalLinks
+        if (is_array(array_values($externalLinks)[0])) {
+            $violations = $this->validator->validate($externalLinks, [
                 new Type('array'),
                 new NotNull(),
-                new AtLeastOneOf([
+                new All([
+                    new Type('array'),
+                    new NotNull(),
+                    new AtLeastOneOf([
+                        new Type('string'),
+                        new NotBlank(null, null, false),
+                        new Url(),
+                    ]),
+                    new Optional([
+                        new Type('bool'),
+                        new NotBlank(null, null, false),
+                    ]),
+                ]),
+            ]);
+            if (0 !== $violations->count()) {
+                throw ViolationsException::fromConstraintViolationList($violations);
+            }
+        } else {
+            $violations = $this->validator->validate($externalLinks, [
+                new Type('array'),
+                new NotNull(),
+                new All([
                     new Type('string'),
                     new NotBlank(null, null, false),
                     new Url(),
                 ]),
-                new Optional([
-                    new Type('bool'),
-                    new NotBlank(null, null, false),
-                ]),
-            ]),
-        ]);
-        if (0 !== $violations->count()) {
-            throw ViolationsException::fromConstraintViolationList($violations);
+            ]);
+            if (0 !== $violations->count()) {
+                throw ViolationsException::fromConstraintViolationList($violations);
+            }
         }
 
         $violations->addAll($this->validator->validate(array_keys($externalLinks), [
@@ -1803,8 +1819,12 @@ class GlobalConfig implements GlobalConfigInterface
         return $externalLinks;
     }
 
-    private function addCustomerToUrl(array $projectURLData): array
+    private function addCustomerToUrl(array|string $projectURLData): array|string
     {
+        if (is_string($projectURLData )) {
+            return str_replace(self::CUSTOMER_PLACEHOLFER, $this->subdomain, $projectURLData);
+        }
+
         $projectURLData['url'] = str_replace(self::CUSTOMER_PLACEHOLFER, $this->subdomain, $projectURLData['url']);
 
         return $projectURLData;
