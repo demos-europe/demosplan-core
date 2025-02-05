@@ -722,9 +722,9 @@ export default {
     },
 
     // Matomo Tracking Event Tagging & Slicing
-    clickTrackerSaveButton(){
+    clickTrackerSaveButton () {
       if (window._paq) {
-        _paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('statement.split.complete')])
+        window._paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('statement.split.complete')])
       }
     },
 

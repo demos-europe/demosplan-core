@@ -7,12 +7,12 @@
  * All rights reserved
  */
 
+import { api1_0Routes, generateApi2_0Routes } from './VuexApiRoutes'
 import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { initJsonApiPlugin, prepareModuleHashMap, Route, StaticRoute, StaticRouter } from '@efrane/vuex-json-api'
 import notify from './Notify'
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { api1_0Routes, generateApi2_0Routes } from './VuexApiRoutes'
 
 function registerPresetModules (store, presetStoreModules) {
   if (Object.keys(presetStoreModules).length > 0) {
