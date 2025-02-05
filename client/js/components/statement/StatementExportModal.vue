@@ -181,7 +181,7 @@ export default {
             dataCy: 'exportModal:export:zip'
           },
           censored: {
-            label: 'export.zip',
+            label: 'export.zip.censored',
             hint: '',
             exportPath: 'dplan_statement_segments_export_packaged',
             dataCy: 'exportModal:export:zip',
