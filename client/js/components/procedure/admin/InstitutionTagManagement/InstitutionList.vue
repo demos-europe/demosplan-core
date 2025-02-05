@@ -56,7 +56,7 @@
         <div class="flex justify-end mt-4">
           <dp-column-selector
             data-cy="institutionList:selectableColumns"
-            :initial-selection="currentSelection"
+            :initial-selection="initialSelection"
             local-storage-key="institutionList"
             :selectable-columns="selectableColumns"
             use-local-storage
@@ -83,7 +83,7 @@
             </ul>
           </template>
           <template
-            v-for="(category, idx) in institutionTagCategories"
+            v-for="(category, idx) in institutionTagCategoriesCopy"
             v-slot:[category.attributes.name]="institution">
             <dp-multiselect
               v-if="institution.edit"
@@ -192,6 +192,12 @@ export default {
     initialFilter: {
       type: [Object, Array],
       default: () => ({})
+    },
+
+    isActive: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
 
@@ -202,6 +208,8 @@ export default {
       editingInstitutionId: null,
       editingInstitution: null,
       editingInstitutionTags: {},
+      initialSelection: [],
+      institutionTagCategoriesCopy: {},
       isLoading: true,
       searchTerm: ''
     }
@@ -307,7 +315,7 @@ export default {
     },
 
     institutionTagCategoriesValues () {
-      return Object.values(this.institutionTagCategories)
+      return Object.values(this.institutionTagCategoriesCopy)
     },
 
     selectableColumns () {
@@ -324,6 +332,14 @@ export default {
           category: relationships?.category?.data
         }
       })
+    }
+  },
+
+  watch: {
+    isActive (newValue) {
+      if (newValue) {
+        this.getInstitutionTagCategories()
+      }
     }
   },
 
@@ -403,7 +419,7 @@ export default {
     },
 
     createFilterOptions (categoryId) {
-      let filterOptions = this.institutionTagCategories[categoryId]?.relationships?.tags?.data.length > 0 ? this.institutionTagCategories[categoryId].relationships.tags.list() : []
+      let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0 ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
 
       if (Object.keys(filterOptions).length > 0) {
         filterOptions = Object.values(filterOptions).map(option => {
@@ -444,7 +460,7 @@ export default {
     },
 
     getCategoryTags (categoryId) {
-      const tags = this.institutionTagCategories[categoryId].relationships?.tags?.data.length > 0 ? this.institutionTagCategories[categoryId].relationships.tags.list() : []
+      const tags = this.institutionTagCategoriesCopy[categoryId].relationships?.tags?.data.length > 0 ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
 
       return Object.values(tags).map(tag => {
         return {
@@ -508,7 +524,7 @@ export default {
         })
     },
 
-    getInstitutionTagCategories () {
+    getInstitutionTagCategories (isInitial = false) {
       return this.fetchInstitutionTagCategories({
         fields: {
           InstitutionTagCategory: [
@@ -526,12 +542,16 @@ export default {
           'tags.category'
         ].join()
       })
-        .then(() => {
+      .then(() => {
+        // Copy the object to avoid issues with filter requests that update the categories in the store
+        this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
+        if (isInitial) {
           this.setInitialSelection()
-        })
-        .catch(err => {
-          console.error(err)
-        })
+        }
+      })
+      .catch(err => {
+        console.error(err)
+      })
     },
 
     getTagById (tagId) {
@@ -613,7 +633,7 @@ export default {
     },
 
     setInitialSelection () {
-      this.currentSelection = this.institutionTagCategoriesValues
+      this.initialSelection = this.institutionTagCategoriesValues
         .slice(0, 7)
         .map(category => category.attributes.name)
     }
@@ -624,7 +644,7 @@ export default {
 
     const promises = [
       this.getInstitutionsByPage(1),
-      this.getInstitutionTagCategories()
+      this.getInstitutionTagCategories(true)
     ]
 
     Promise.allSettled(promises)
