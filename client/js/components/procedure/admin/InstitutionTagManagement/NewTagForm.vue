@@ -14,7 +14,7 @@ All rights reserved
       overlay />
     <div class="border rounded space-stack-m space-inset-m">
       <div class="relative u-pb-0_5 font-size-large">
-        {{ Translator.trans('tag.new.create') }}
+        {{ Translator.trans('entity.create', { entity: Translator.trans('tag') }) }}
         <button
           class="btn--blank o-link--default float-right"
           @click="handleCloseForm">

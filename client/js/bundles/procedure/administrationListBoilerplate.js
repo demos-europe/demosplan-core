@@ -11,11 +11,11 @@
  * This is the entrypoint for administration_list_boilerplate.html.twig
  */
 
-import { DpFlyout, DpSplitButton } from '@demos-europe/demosplan-ui'
+import { DpFlyout, DpButton } from '@demos-europe/demosplan-ui'
 import AnimateById from '@DpJs/lib/shared/AnimateById'
 import { initialize } from '@DpJs/InitVue'
 
-const components = { DpFlyout, DpSplitButton }
+const components = { DpFlyout, DpButton }
 
 initialize(components).then(() => {
   AnimateById()

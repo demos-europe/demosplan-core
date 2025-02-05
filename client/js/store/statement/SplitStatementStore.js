@@ -155,7 +155,7 @@ const SplitStatementStore = {
 
     /**
      */
-    createTagAction ({ state, commit }, { tag, topicId }) {
+    async createTagAction ({ state, commit }, { tag, topicId }) {
       const payload = JSON.parse(JSON.stringify({
         data: {
           type: 'Tag',
@@ -173,7 +173,19 @@ const SplitStatementStore = {
         }
       }))
 
-      return dpApi.post(Routing.generate('api_resource_create', { resourceType: 'Tag' }), {}, { data: payload.data })
+      const response = await dpApi.post(Routing.generate('api_resource_create', { resourceType: 'Tag' }), {}, { data: payload.data })
+
+      return {
+        ...response,
+        relationship: {
+          topic: {
+            data: {
+              id: topicId,
+              type: 'TagTopic'
+            }
+          }
+        }
+      }
     },
 
     createTopicAction ({ state, dispatch }, topic) {
