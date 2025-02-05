@@ -83,7 +83,7 @@
             </ul>
           </template>
           <template
-            v-for="(category, idx) in institutionTagCategories"
+            v-for="(category, idx) in institutionTagCategoriesCopy"
             v-slot:[category.attributes.name]="institution">
             <dp-multiselect
               v-if="institution.edit"
@@ -192,6 +192,12 @@ export default {
     initialFilter: {
       type: [Object, Array],
       default: () => ({})
+    },
+
+    isActive: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
 
@@ -203,6 +209,7 @@ export default {
       editingInstitution: null,
       editingInstitutionTags: {},
       initialSelection: [],
+      institutionTagCategoriesCopy: {},
       isLoading: true,
       searchTerm: ''
     }
@@ -308,7 +315,7 @@ export default {
     },
 
     institutionTagCategoriesValues () {
-      return Object.values(this.institutionTagCategories)
+      return Object.values(this.institutionTagCategoriesCopy)
     },
 
     selectableColumns () {
@@ -325,6 +332,14 @@ export default {
           category: relationships?.category?.data
         }
       })
+    }
+  },
+
+  watch: {
+    isActive (newValue) {
+      if (newValue) {
+        this.getInstitutionTagCategories()
+      }
     }
   },
 
@@ -404,7 +419,7 @@ export default {
     },
 
     createFilterOptions (categoryId) {
-      let filterOptions = this.institutionTagCategories[categoryId]?.relationships?.tags?.data.length > 0 ? this.institutionTagCategories[categoryId].relationships.tags.list() : []
+      let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0 ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
 
       if (Object.keys(filterOptions).length > 0) {
         filterOptions = Object.values(filterOptions).map(option => {
@@ -445,7 +460,7 @@ export default {
     },
 
     getCategoryTags (categoryId) {
-      const tags = this.institutionTagCategories[categoryId].relationships?.tags?.data.length > 0 ? this.institutionTagCategories[categoryId].relationships.tags.list() : []
+      const tags = this.institutionTagCategoriesCopy[categoryId].relationships?.tags?.data.length > 0 ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
 
       return Object.values(tags).map(tag => {
         return {
@@ -455,7 +470,7 @@ export default {
       })
     },
 
-    getInstitutionsByPage (page, categoryId = null, isInitial = false) {
+    getInstitutionsByPage (page, categoryId = null) {
       const args = {
         page: {
           number: page,
@@ -503,11 +518,6 @@ export default {
           if (categoryId) {
             this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
           }
-          // We need to call getInstitutionTagCategories again to get all available tags for the filter,
-          // because fetchInvitableInstitution will update the institutionTagCategory store with the filtered tags
-          if (!isInitial) {
-            this.getInstitutionTagCategories()
-          }
         })
         .catch(err => {
           console.error(err)
@@ -532,14 +542,16 @@ export default {
           'tags.category'
         ].join()
       })
-        .then(() => {
-          if (isInitial) {
-            this.setInitialSelection()
-          }
-        })
-        .catch(err => {
-          console.error(err)
-        })
+      .then(() => {
+        // Copy the object to avoid issues with filter requests that update the categories in the store
+        this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
+        if (isInitial) {
+          this.setInitialSelection()
+        }
+      })
+      .catch(err => {
+        console.error(err)
+      })
     },
 
     getTagById (tagId) {
@@ -631,9 +643,7 @@ export default {
     this.isLoading = true
 
     const promises = [
-      this.getInstitutionsByPage(1, null, true),
-      // Initial fetch here instead of in getInstitutionsByPage, because otherwise the initialSelection is not ready
-      // when the column selector is mounted
+      this.getInstitutionsByPage(1),
       this.getInstitutionTagCategories(true)
     ]
 
