@@ -46,6 +46,8 @@ module.exports = {
     }
   ],
   ignorePatterns: [
+    '**/addons/**/*',
+    '**/local_modules/**/*',
     '**/node_modules/**/*',
     '**/vendor/**/*',
     'client/js/legacy/**/*.js',
