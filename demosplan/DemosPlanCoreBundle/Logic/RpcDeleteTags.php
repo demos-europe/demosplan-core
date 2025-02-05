@@ -20,19 +20,20 @@ use DemosEurope\DemosplanAddon\Logic\Rpc\RpcErrorGeneratorInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Event\Tag\DeleteTagEvent;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
+use demosplan\DemosPlanCoreBundle\Exception\TagInUseException;
+use demosplan\DemosPlanCoreBundle\Exception\TagNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\TagTopicNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManager;
 use Exception;
 use Psr\Log\LoggerInterface;
+use stdClass;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Webmozart\Assert\Assert;
-use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
-use demosplan\DemosPlanCoreBundle\Exception\TagInUseException;
-use demosplan\DemosPlanCoreBundle\Exception\TagNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
-use stdClass;
+
 use function sprintf;
 
 class RpcDeleteTags implements RpcMethodSolverInterface
@@ -43,20 +44,20 @@ class RpcDeleteTags implements RpcMethodSolverInterface
     private const HANDLED_ITEM_TYPES = [self::TAG_TYPE, self::TAG_TOPIC_TYPE];
 
     public function __construct(
-        private readonly MessageBagInterface        $messageBag,
-        private readonly LoggerInterface            $logger,
+        private readonly MessageBagInterface $messageBag,
+        private readonly LoggerInterface $logger,
         private readonly RpcErrorGeneratorInterface $rpcErrorGenerator,
-        private readonly StatementHandler           $statementHandler,
-        private readonly TransactionService         $transactionService,
-        private readonly CurrentUserInterface       $currentUser,
-        private readonly EventDispatcherInterface   $eventDispatcher,
-        private readonly TagService                 $tagService,
+        private readonly StatementHandler $statementHandler,
+        private readonly TransactionService $transactionService,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly TagService $tagService,
     ) {
     }
 
     public function supports(string $method): bool
     {
-        return $method === self::DELETE_TAGS_METHOD;
+        return self::DELETE_TAGS_METHOD === $method;
     }
 
     /**
@@ -67,7 +68,7 @@ class RpcDeleteTags implements RpcMethodSolverInterface
     {
         try {
             return $this->transactionService->executeAndFlushInTransaction(
-                fn(EntityManager $entityManager): array => $this->handleExecute($procedure, $rpcRequests)
+                fn (EntityManager $entityManager): array => $this->handleExecute($procedure, $rpcRequests)
             );
         } catch (Exception $e) {
             $this->logger->error(
@@ -78,16 +79,15 @@ class RpcDeleteTags implements RpcMethodSolverInterface
 
             return [$this->rpcErrorGenerator->internalError($rpcRequests)];
         }
-
     }
 
     /**
-     * this Method is responsible for deleting { @link TagTopic } as well as { @link Tag } entities
-     * When a { @link TagTopic } is deleted, all { @link Tag } entities that are related to it
+     * this Method is responsible for deleting { @see TagTopic } as well as { @see Tag } entities
+     * When a { @see TagTopic } is deleted, all { @see Tag } entities that are related to it
      * are also deleted via cascade remove.
-     * handle the { @link Tag } entites included in the request first to prevent an exception when trying to delete an
-     * already deleted { @link Tag } entity previously cascade removed by
-     * its also in the request included { @link TagTopic }.
+     * handle the { @see Tag } entites included in the request first to prevent an exception when trying to delete an
+     * already deleted { @see Tag } entity previously cascade removed by
+     * its also in the request included { @see TagTopic }.
      */
     private function handleExecute(?ProcedureInterface $procedure, $rpcRequests): array
     {
@@ -110,13 +110,11 @@ class RpcDeleteTags implements RpcMethodSolverInterface
                     Assert::inArray(
                         $itemType,
                         self::HANDLED_ITEM_TYPES,
-                        'itemType is expected to be one of: ' . implode(', ', self::HANDLED_ITEM_TYPES)
+                        'itemType is expected to be one of: '.implode(', ', self::HANDLED_ITEM_TYPES)
                     );
                     if (self::TAG_TYPE === $itemType) {
                         if ($this->statementHandler->isTagInUse($itemId)) {
-                            throw new TagInUseException(
-                                "$itemType with id: $itemId is in use and can not be deleted"
-                            );
+                            throw new TagInUseException("$itemType with id: $itemId is in use and can not be deleted");
                         }
                         $this->sendTagDeleteAddonNotification($itemId);
                         if (false === $this->statementHandler->deleteTag($itemId)) {
@@ -160,6 +158,7 @@ class RpcDeleteTags implements RpcMethodSolverInterface
 
     /**
      * This method deletes a topic and all its related tags via cascade remove.
+     *
      * @param array<int, string> $topicIds
      *
      * @throws TagTopicNotFoundException
@@ -170,13 +169,7 @@ class RpcDeleteTags implements RpcMethodSolverInterface
         try {
             foreach ($topicIds as $topicId) {
                 if ($this->statementHandler->isTopicInUse($topicId)) {
-                    throw new TagInUseException(
-                        sprintf(
-                            '%s with id: %s is in use and can not be deleted',
-                            self::TAG_TOPIC_TYPE,
-                            $topicId
-                        )
-                    );
+                    throw new TagInUseException(sprintf('%s with id: %s is in use and can not be deleted', self::TAG_TOPIC_TYPE, $topicId));
                 }
                 $tagsOfTopic = $this->tagService->getTopic($topicId)?->getTags() ?? new ArrayCollection();
                 foreach ($tagsOfTopic as $tag) {
@@ -184,13 +177,7 @@ class RpcDeleteTags implements RpcMethodSolverInterface
                 }
 
                 if (false === $this->statementHandler->deleteTopic($topicId)) {
-                    throw new TagTopicNotFoundException(
-                        sprintf(
-                            "%s with id: %s and its related tag(s) could not be deleted.",
-                            self::TAG_TOPIC_TYPE,
-                            $topicId
-                        )
-                    );
+                    throw new TagTopicNotFoundException(sprintf('%s with id: %s and its related tag(s) could not be deleted.', self::TAG_TOPIC_TYPE, $topicId));
                 }
             }
         } catch (TagInUseException|TagTopicNotFoundException $e) {
@@ -211,9 +198,7 @@ class RpcDeleteTags implements RpcMethodSolverInterface
     {
         $event = $this->eventDispatcher->dispatch(new DeleteTagEvent($tagId), DeleteTagEventInterface::class);
         if (!$event->hasBeenHandledSuccessfully()) {
-            throw new TagNotFoundException(
-                "Tag with id: $tagId not deleted - an existing additional relation could not be deleted"
-            );
+            throw new TagNotFoundException("Tag with id: $tagId not deleted - an existing additional relation could not be deleted");
         }
     }
 

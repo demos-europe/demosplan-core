@@ -13,14 +13,13 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
-use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseTagTopicResourceConfigBuilder;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseTagTopicResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
@@ -111,7 +110,7 @@ final class TagTopicResourceType extends DplanResourceType
                     [],
                     function (
                         TagTopicInterface $tag,
-                        ?string $title
+                        ?string $title,
                     ): array {
                         try {
                             $this->checkTitleNotEmpty($title);
@@ -195,7 +194,7 @@ final class TagTopicResourceType extends DplanResourceType
             new FixedSetBehavior(
                 function (
                     TagTopic $tagTopic,
-                    EntityDataInterface $entityData
+                    EntityDataInterface $entityData,
                 ): array {
                     try {
                         // check Procedure relation
@@ -235,8 +234,8 @@ final class TagTopicResourceType extends DplanResourceType
             'Error creating new TagTopic via TagTopicResourceType',
             [
                 'ExceptionMessage:' => $e->getMessage(),
-                'Exception:' => $e::class,
-                'ExceptionTrace:' => $e->getTraceAsString(),
+                'Exception:'        => $e::class,
+                'ExceptionTrace:'   => $e->getTraceAsString(),
             ]
         );
     }

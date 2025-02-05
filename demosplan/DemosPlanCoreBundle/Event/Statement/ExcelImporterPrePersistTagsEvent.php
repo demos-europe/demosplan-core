@@ -16,6 +16,7 @@ class ExcelImporterPrePersistTagsEvent implements ExcelImporterPrePersistTagsEve
 {
     protected array $segments;
     protected array $tags;
+
     public function __construct(array $segments = [], array $tags = [])
     {
         $this->segments = $segments;
