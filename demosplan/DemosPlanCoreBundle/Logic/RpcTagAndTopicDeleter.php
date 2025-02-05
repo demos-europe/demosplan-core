@@ -36,9 +36,9 @@ use Webmozart\Assert\Assert;
 
 use function sprintf;
 
-class RpcDeleteTags implements RpcMethodSolverInterface
+class RpcTagAndTopicDeleter implements RpcMethodSolverInterface
 {
-    private const DELETE_TAGS_METHOD = 'bulk.delete.tags.and.topics';
+    public const DELETE_TAGS_METHOD = 'bulk.delete.tags.and.topics';
     private const TAG_TYPE = 'Tag';
     private const TAG_TOPIC_TYPE = 'TagTopic';
     private const HANDLED_ITEM_TYPES = [self::TAG_TYPE, self::TAG_TOPIC_TYPE];
