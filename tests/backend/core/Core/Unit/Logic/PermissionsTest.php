@@ -288,7 +288,6 @@ class PermissionsTest extends FunctionalTestCase
                     'area_admin_procedures',
                     'area_data_protection_text',
                     'area_demosplan',
-                    'area_demosplan',
                     'area_portal_user',
                     'area_preferences',
                     'feature_admin_export_procedure',
