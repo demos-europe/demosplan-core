@@ -33,6 +33,7 @@
           <dp-organisation-list-item
             v-for="(item, idx) in pendingOrgs"
             :key="`pendingOrganisation:${idx}`"
+            :additional-field-options="additionalFieldOptions"
             :available-orga-types="availableOrgaTypes"
             class="o-list__item"
             data-cy="pendingOrganisationListBlk"
