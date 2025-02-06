@@ -52,12 +52,14 @@
       data-dp-validate="organisationForm">
       <!-- Form fields -->
       <dp-organisation-form-fields
+        :additional-field-options="additionalFieldOptions"
         :available-orga-types="availableOrgaTypes"
         :initial-organisation="initialOrganisation"
         :organisation="organisation"
         :organisation-id="organisation.id"
-        @organisation-update="updateOrganisation"
-        @addon-update="updateAddonPayload" />
+        @addon-update="updateAddonPayload"
+        @addonOptions:loaded="setAdditionalFieldOptions"
+        @organisation-update="updateOrganisation" />
 
       <!-- Button row -->
       <dp-button-row
@@ -92,6 +94,12 @@ export default {
   ],
 
   props: {
+    additionalFieldOptions: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     availableOrgaTypes: {
       type: Array,
       required: false,
@@ -251,6 +259,10 @@ export default {
             this.$root.$emit('get-items')
           }
         })
+    },
+
+    setAdditionalFieldOptions (options) {
+      this.$emit('addonOptions:loaded', options)
     },
 
     setItem (payload) {
