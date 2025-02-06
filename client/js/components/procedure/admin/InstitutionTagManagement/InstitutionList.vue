@@ -609,7 +609,10 @@ export default {
         })
       } else {
         if (isReset) {
-          this.appliedFilterQuery = Object.keys(this.filterQuery).length ? this.filterQuery : []
+          const filtersWithConditions = Object.fromEntries(
+            Object.entries(this.filterQuery).filter(([key, value]) => value.condition)
+          )
+          this.appliedFilterQuery = Object.keys(filtersWithConditions).length ? filtersWithConditions : []
         } else {
           this.appliedFilterQuery = filter
         }
