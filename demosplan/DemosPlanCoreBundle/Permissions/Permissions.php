@@ -251,6 +251,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     protected function setGlobalPermissions(): void
     {
+        if ($this->user->hasAnyOfRoles([Role::PLANNING_AGENCY_ADMIN, Role::PLANNING_AGENCY_WORKER, Role::PRIVATE_PLANNING_AGENCY])) {
+            $this->enablePermissions([
+                'feature_list_restricted_external_links',
+            ]);
+        }
+
         if ($this->user->hasAnyOfRoles(
             [
                 Role::PUBLIC_AGENCY_COORDINATION,
@@ -370,12 +376,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 $this->disablePermissions([
                     'feature_procedure_filter_internal_phase',  // filter for internal phases in procedure list
                     'feature_procedure_filter_internal_phase_permissionset',  // filter for internal phases permissionset in procedure list
-                ]);
-            }
-
-            if ($this->user->hasAnyOfRoles([Role::PLANNING_AGENCY_ADMIN, Role::PLANNING_AGENCY_WORKER, Role::PRIVATE_PLANNING_AGENCY])) {
-                $this->enablePermissions([
-                    'feature_list_restricted_external_links',
                 ]);
             }
         }
