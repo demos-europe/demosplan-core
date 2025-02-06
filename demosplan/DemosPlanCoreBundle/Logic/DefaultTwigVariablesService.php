@@ -193,7 +193,7 @@ class DefaultTwigVariablesService
         }
 
         // In case of current user has no permission to see restricted external links, execute filtering
-        if (!$this->currentUser->hasPermission('feature_show_restricted_external_links')) {
+        if (!$this->currentUser->hasPermission('feature_list_restricted_external_links')) {
             $externalLinks = array_filter($this->globalConfig->getExternalLinks(), function ($link) {
                 return !isset($link['restricted']) || !$link['restricted'];
             });
