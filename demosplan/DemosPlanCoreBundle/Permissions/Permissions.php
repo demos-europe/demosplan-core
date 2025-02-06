@@ -372,6 +372,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                     'feature_procedure_filter_internal_phase_permissionset',  // filter for internal phases permissionset in procedure list
                 ]);
             }
+
+            if ($this->user->hasAnyOfRoles([Role::PLANNING_AGENCY_ADMIN, Role::PLANNING_AGENCY_WORKER, Role::PRIVATE_PLANNING_AGENCY])) {
+                $this->enablePermissions([
+                    'feature_list_restricted_external_links',
+                ]);
+            }
         }
 
         if ($this->user->hasAnyOfRoles([
