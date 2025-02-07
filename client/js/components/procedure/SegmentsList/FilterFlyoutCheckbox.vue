@@ -58,6 +58,9 @@ export default {
       default: 'list'
     },
 
+    /**
+     * { id: string, label: string, selected: boolean }
+     */
     option: {
       type: Object,
       required: true

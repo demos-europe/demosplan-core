@@ -2523,6 +2523,12 @@ field_imprint_text_customized_edit_orga:
     label: 'Edit customized imprint text for orga'
     parent: feature_imprint_text_customized_view
     expose: true
+feature_list_restricted_external_links:
+    description: |-
+        Some external links (lead to external platforms) are restricted to be shown only to specific user-roles.
+        This is used to reduce the load of information for users who not been able access the site behind the URL.
+    label: 'Some external links should only be shown to specific user-roles'
+    loginRequired: true
 field_municipality_list:
     label: 'betroffene Vorranggebiete'
     loginRequired: true

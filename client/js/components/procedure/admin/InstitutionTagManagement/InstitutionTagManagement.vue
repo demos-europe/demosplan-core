@@ -17,7 +17,7 @@
       id="institutionList"
       :label="Translator.trans('invitable_institution.group')">
       <slot>
-        <institution-list />
+        <institution-list :is-active="isInstitutionListActive" />
       </slot>
     </dp-tab>
     <dp-tab
@@ -53,6 +53,12 @@ export default {
     return {
       activeTabId: 'institutionList',
       needToReset: false
+    }
+  },
+
+  computed: {
+    isInstitutionListActive () {
+      return this.activeTabId === 'institutionList'
     }
   },
 
