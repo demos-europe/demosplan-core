@@ -66,6 +66,15 @@ class RpcTagAndTopicDeleter implements RpcMethodSolverInterface
      */
     public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
+        if (!$this->currentUser->hasAnyPermissions(
+            'feature_statements_tag',
+            'area_admin_statements_tag',
+        )) {
+            $this->logger->error('User does not have permission to delete tags or topics');
+
+            return [$this->rpcErrorGenerator->internalError()];
+        }
+
         try {
             return $this->transactionService->executeAndFlushInTransaction(
                 fn (EntityManager $entityManager): array => $this->handleExecute($procedure, $rpcRequests)
