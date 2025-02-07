@@ -17,7 +17,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\IsOriginalStatementAvailableEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\OriginalStatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
@@ -38,6 +37,7 @@ use EDT\PathBuilding\End;
  * @property-read End                   $deleted
  * @property-read StatementResourceType $headStatement
  * @property-read StatementResourceType $movedStatement
+ * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
  */
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface
 {
@@ -80,9 +80,8 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
             $this->conditionFactory->propertyIsNull($this->headStatement->id),
             $this->conditionFactory->propertyIsNull($this->movedStatement),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
-            $this->conditionFactory->isTargetEntityNotInstanceOf(
-                basename(str_replace('\\', '/', Segment::class))
-            ),
+            // filter out segments
+            $this->conditionFactory->propertyIsNull($this->parentStatementOfSegment),
         ];
     }
 
