@@ -74,7 +74,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
             return [$this->conditionFactory->false()];
         }
 
-        $return = [
+        return [
             $this->conditionFactory->propertyHasValue(false, $this->deleted),
             $this->conditionFactory->propertyIsNull($this->original->id),
             $this->conditionFactory->propertyIsNull($this->headStatement->id),
@@ -83,8 +83,6 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
             // filter out segments
             $this->conditionFactory->propertyIsNull($this->parentStatementOfSegment),
         ];
-
-        return $return;
     }
 
     public function isGetAllowed(): bool
