@@ -42,7 +42,6 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
-use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -108,7 +107,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         private readonly ProcedureReportEntryFactory $procedureReportEntryFactory,
         private readonly ProcedureService $procedureService,
         private readonly ProcedureTypeService $procedureTypeService,
-        ParameterBagInterface $parameterBag,
+        private readonly ParameterBagInterface $parameterBag,
         private readonly ReportService $reportService,
         private readonly TranslatorInterface $translator,
         private readonly FilesystemOperator $defaultStorage,
@@ -117,7 +116,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $this->contentService = $contentService;
         $this->customerService = $customerService;
         $this->eventDispatcher = $eventDispatcher;
-        $this->masterProcedurePhase = $parameterBag->get('master_procedure_phase');
+        $this->masterProcedurePhase = $this->parameterBag->get('master_procedure_phase');
         $this->procedureCategoryService = $procedureCategoryService;
         $this->procedureHandler = $procedureHandler;
     }
@@ -665,28 +664,26 @@ class ServiceStorage implements ProcedureServiceStorageInterface
     private function validatePictogram(string $fileString): void
     {
         try {
-            $pictogram = $this->fileService->getFileInfoFromFileString($fileString);
+            $pictogramFileInfo = $this->fileService->getFileInfoFromFileString($fileString);
 
-            $file = $this->defaultStorage->readStream($pictogram->getPath());
+            $path = $this->fileService->ensureLocalFile($pictogramFileInfo->getAbsolutePath());
+            $imageInfo = getimagesize($path);
 
-            $fileSize = $this->defaultStorage->fileSize($pictogram->getPath());
-
-            // Temporäre lokale Datei für getimagesize() erstellen
-            $tempFilePath = tempnam(sys_get_temp_dir(), 'img');
-            file_put_contents($tempFilePath, stream_get_contents($file));
-        } catch (FilesystemException|Exception $e) {
+        } catch (Exception $e) {
             throw new InvalidArgumentException($e->getMessage());
         }
-
-        $imageInfo = getimagesize($tempFilePath);
         Assert::isArray($imageInfo);
         Assert::keyExists($imageInfo, 0, 'Unable to get pictogram image width');
         Assert::keyExists($imageInfo, 1, 'Unable to get pictogram image height');
         $width = $imageInfo[0] ?? 0;
         $height = $imageInfo[1] ?? 0;
-        unlink($tempFilePath); // temporäre Datei löschen
+        $this->fileService->deleteLocalFile($path);
 
-        if ($width < 300 || $height < 500 || $fileSize > 5000000) {
+        $maxFileSize = $this->parameterBag->get('pictogram_max_file_size');
+        $minWidth = $this->parameterBag->get('pictogram_min_width');
+        $minHeight = $this->parameterBag->get('pictogram_min_height');
+
+        if ($width < $minWidth || $height < $minHeight || $pictogramFileInfo->getFileSize() > $maxFileSize) {
             $this->messageBag->add('error', 'procedure.pictogram.resolution.tooLow');
             throw new InvalidArgumentException('Pictogram resolution too low or file size too big');
         }

@@ -238,6 +238,11 @@ parameters:
     # Set at least to num cpu cores / 2 to gain a massive speedup
     elasticsearch_populate_workers: 1
 
+    # Piktogram file restrictions for enabled feature_procedure_pictogram_resolution_restriction
+    pictogram_max_file_size: 5000000
+    pictogram_min_width: 300
+    pictogram_min_height: 500
+
     # Karten
 
     # Maximale Boundingbox für das Projekt. Standard ist deutschlandweit
