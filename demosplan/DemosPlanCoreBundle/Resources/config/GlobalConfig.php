@@ -1769,6 +1769,11 @@ class GlobalConfig implements GlobalConfigInterface
      */
     private function getValidatedExternalLinks(array $externalLinks): array
     {
+        if (empty($externalLinks)) {
+            // Validation not needed
+            return $externalLinks;
+        }
+
         // Validation for extended externalLinks
         if (is_array(array_values($externalLinks)[0])) {
             $violations = $this->validator->validate($externalLinks, [
