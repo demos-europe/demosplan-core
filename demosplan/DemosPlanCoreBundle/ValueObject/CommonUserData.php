@@ -78,7 +78,10 @@ class CommonUserData extends ValueObject
             ', organisationId: '.$this->organisationId.
             ', organisationName: '.$this->organisationName.
             ', emailAddress: '.$this->emailAddress.
-            ', roles: '.$customerRoleRelationString;
+            ', roles: '.$customerRoleRelationString.
+            ', street: '.$this->street.
+            ', houseNumber: '.$this->houseNumber.
+            ', postalCode: '.$this->postalCode;
     }
 
     /**
