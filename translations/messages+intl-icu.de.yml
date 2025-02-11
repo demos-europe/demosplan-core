@@ -2743,7 +2743,7 @@ procedure.phases.external.earlyparticipation: "Frühzeitige Beteiligung Öffentl
 procedure.phases.external.participation: "Öffentliche Auslegung"
 procedure.phases.external.closed: "Beschlussfassung Öffentlichkeit"
 procedure.pictogram: "Übersichtskarte/Bild"
-procedure.pictogram.resolution.tooLow: "Bitte laden Sie ein Bild mit min. 300 x 500 px hoch."
+procedure.pictogram.resolution.tooLow: "Bitte laden Sie ein Bild mit min. 300 x 500 px und einer maximal Größe von 5MB hoch."
 procedure.pictogram.altText: "Alternativtext des Bildes"
 procedure.pictogram.altText.toolTipp: "Geben Sie eine kurze Beschreibung des Bildinhalts ein, um die Barrierefreiheit zu gewährleisten."
 procedure.pictogram.copyright: "Urheberrecht des Bildes"
