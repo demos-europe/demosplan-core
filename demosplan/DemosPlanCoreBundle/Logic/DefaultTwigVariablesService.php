@@ -188,7 +188,7 @@ class DefaultTwigVariablesService
         $externalLinks = $this->globalConfig->getExternalLinks();
 
         // simple list of urls are given, without intention to filter
-        if (!is_array(array_values($externalLinks)[0])) {
+        if (empty($externalLinks) || !is_array(array_values($externalLinks)[0])) {
             return $externalLinks;
         }
 

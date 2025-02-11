@@ -3,20 +3,21 @@
 
     requires:
         DpUploadFiles.vue and var uploadPath (uploader endpoint set in base.html.twig)
+        Params need to be passeed in this order:
     params:
         field_name:         used for ids + fieldname    default: "r_file"
         field_label:        label for upload field      default: "pdf.document"|trans, set to "hide" to hide label
-        chunksize: set chunk size when uploading large files, defaults to "0" (disable chunked uploads)
         type:      sets mime_types             possible values: pdf (default), pdf-img, pdf-zip, img, import, all, zip, antragx,
         label:     button label                default: "form.button.upload.pdf"|trans({ maxUploadSize: human_max_upload_size })
-        maxfiles   limit max uploadable files  default: 1
-                            linked to multi_selection   default: not set, will be set to true if maxfiles > 1
-        maxfilesize: Max file size if other than `ini_get('upload_max_filesize')`
-        multi_instance      use for multiple instances  default: false
-                            of uploader in one form
-        field_hint:         additional hint below label default: false
+        maxfiles:   limit max uploadable files    default: 1
+                        linked to multi_selection    default: not set, will be set to true if maxfiles > 1
+        multi_instance:      use for multiple instances  default: false
+                                    of uploader in one form
+        field_hint:         additional hint below label     default: false
         field_required:     is this field required to fill out (needed for frontend validation)
         callback:           function to execute in FileUploaded
+        chunksize: set chunk size when uploading large files,   defaults to "0" (disable chunked uploads)
+        maxfilesize: Max file size if other than `ini_get('upload_max_filesize')`
 
 #}
 
