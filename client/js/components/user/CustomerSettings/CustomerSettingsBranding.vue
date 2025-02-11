@@ -37,8 +37,8 @@
           :tus-endpoint="dplan.paths.tusEndpoint"
           @file-remove="unsetFile"
           @upload-success="setFile" />
-      </div>
-      <div
+      </div><!--
+   --><div
         v-if="uploadedFileId && uploadedFileId !== ''"
         class="layout__item u-1-of-2">
         <p
