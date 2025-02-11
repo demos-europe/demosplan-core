@@ -629,8 +629,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 // this permission can be set dynamically as a access control permission
                 if ($this->permissions->hasPermission('feature_procedure_pictogram_resolution_restriction')) {
                     $this->isValidatePictogramResolution($data['r_pictogram']);
-                    $procedure['settings']['pictogram'] = $data['r_pictogram'];
                 }
+                $procedure['settings']['pictogram'] = $data['r_pictogram'];
             }
             if (array_key_exists('r_deletePictogram', $data)) {
                 $procedure['settings']['pictogram'] = '';
