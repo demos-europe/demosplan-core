@@ -625,8 +625,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         if ($this->permissions->hasPermission('field_procedure_pictogram')) {
             if (array_key_exists('r_pictogram', $data)
              && '' !== $data['r_pictogram']) {
-                if ($this->permissions->hasPermission('field_procedure_pictogram_resolution_restriction'))
-                {
+                if ($this->permissions->hasPermission('field_procedure_pictogram_resolution_restriction')) {
                     $result = $this->isValidatePictogramResolution($data['r_pictogram']);
                 }
                 if ($result) {
@@ -657,14 +656,12 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $this->contentService->setProcedureFieldCompletions($procedure['ident'], $data['fieldCompletions']);
 
         if ($result) {
-
             return $this->procedureService->updateProcedure($procedure);
-        }else{
+        } else {
             $this->messageBag->add('error', 'procedure.pictogram.resolution.tooLow');
 
             return false;
         }
-
     }
 
     /**
@@ -685,8 +682,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $imageInfo = getimagesize($tempFilePath);
         unlink($tempFilePath); // temporäre Datei löschen
 
-        if ($imageInfo[0] < 300 || $imageInfo[1] < 500 || $fileSize > 5000000)
-        {
+        if ($imageInfo[0] < 300 || $imageInfo[1] < 500 || $fileSize > 5000000) {
             return false;
         }
 
