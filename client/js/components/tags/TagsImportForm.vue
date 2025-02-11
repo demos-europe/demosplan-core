@@ -1,7 +1,7 @@
 <template>
   <div>
     <form
-      :action="Routing.generate('DemosPlan_statement_administration_tags_csv_import', { procedure: this.procedureId })"
+      :action="Routing.generate('DemosPlan_statement_administration_tags_csv_import', { procedureId: this.procedureId })"
       method="POST"
       name="tag_edit">
 
