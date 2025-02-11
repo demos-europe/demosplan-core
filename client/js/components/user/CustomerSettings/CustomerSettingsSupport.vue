@@ -35,11 +35,11 @@
             v-model="customerContact.title"
             class="u-mb-0_75"
             data-cy="contactTitle"
-            :pattern="titlesInUsePattern"
             :data-dp-validate-error="Translator.trans(customerContact.title === '' ? 'error.name.required' : 'error.name.unique')"
             :label="{
               text: Translator.trans('contact.name')
             }"
+            :pattern="titlesInUsePattern"
             required
             type="text" />
           <dp-input
@@ -67,8 +67,8 @@
             type="email" />
           <dp-editor
             id="supportText"
-            class="u-mb-0_75"
             v-model="customerContact.text"
+            class="u-mb-0_75"
             hidden-input="supportText"
             :toolbar-items="{
               fullscreenButton: true,
