@@ -21,7 +21,6 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceStorageInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PreNewProcedureCreatedEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\ContentMandatoryFieldsException;
@@ -43,14 +42,16 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
+use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-
+use Webmozart\Assert\Assert;
 use function is_string;
+use function array_key_exists;
 
 /**
  * Speicherung von Planverfahren.
@@ -625,10 +626,9 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         if ($this->permissions->hasPermission('field_procedure_pictogram')) {
             if (array_key_exists('r_pictogram', $data)
              && '' !== $data['r_pictogram']) {
+                // this permission can be set dynamically as a access control permission
                 if ($this->permissions->hasPermission('feature_procedure_pictogram_resolution_restriction')) {
-                    $result = $this->isValidatePictogramResolution($data['r_pictogram']);
-                }
-                if ($result) {
+                    $this->isValidatePictogramResolution($data['r_pictogram']);
                     $procedure['settings']['pictogram'] = $data['r_pictogram'];
                 }
             }
@@ -655,38 +655,41 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         // Set flags, which indicates status of field of procedure.
         $this->contentService->setProcedureFieldCompletions($procedure['ident'], $data['fieldCompletions']);
 
-        if ($result) {
-            return $this->procedureService->updateProcedure($procedure);
-        } else {
-            $this->messageBag->add('error', 'procedure.pictogram.resolution.tooLow');
-
-            return false;
-        }
+        return $this->procedureService->updateProcedure($procedure);
     }
 
     /**
-     * @throws Exception
+     * @throws InvalidArgumentException
      */
-    private function isValidatePictogramResolution(string $fileString): bool
+    private function isValidatePictogramResolution(string $fileString): void
     {
-        $pictogram = $this->fileService->getFileInfoFromFileString($fileString);
+        try {
+            $pictogram = $this->fileService->getFileInfoFromFileString($fileString);
 
-        $file = $this->defaultStorage->readStream($pictogram->getPath());
+            $file = $this->defaultStorage->readStream($pictogram->getPath());
 
-        $fileSize = $this->defaultStorage->fileSize($pictogram->getPath());
+            $fileSize = $this->defaultStorage->fileSize($pictogram->getPath());
 
-        // Temporäre lokale Datei für getimagesize() erstellen
-        $tempFilePath = tempnam(sys_get_temp_dir(), 'img');
-        file_put_contents($tempFilePath, stream_get_contents($file));
-
-        $imageInfo = getimagesize($tempFilePath);
-        unlink($tempFilePath); // temporäre Datei löschen
-
-        if ($imageInfo[0] < 300 || $imageInfo[1] < 500 || $fileSize > 5000000) {
-            return false;
+            // Temporäre lokale Datei für getimagesize() erstellen
+            $tempFilePath = tempnam(sys_get_temp_dir(), 'img');
+            file_put_contents($tempFilePath, stream_get_contents($file));
+        } catch (FilesystemException|Exception $e) {
+            throw new InvalidArgumentException($e->getMessage());
         }
 
-        return true;
+
+        $imageInfo = getimagesize($tempFilePath);
+        Assert::isArray($imageInfo);
+        Assert::keyExists($imageInfo, 0, 'Unable to get pictogram image width');
+        Assert::keyExists($imageInfo, 1, 'Unable to get pictogram image height');
+        $width = $imageInfo[0] ?? 0;
+        $height = $imageInfo[1] ?? 0;
+        unlink($tempFilePath); // temporäre Datei löschen
+
+        if ($width < 300 || $height < 500 || $fileSize > 5000000) {
+            $this->messageBag->add('error', 'procedure.pictogram.resolution.tooLow');
+            throw new InvalidArgumentException('Pictogram resolution too low or file size too big');
+        }
     }
 
     /**
