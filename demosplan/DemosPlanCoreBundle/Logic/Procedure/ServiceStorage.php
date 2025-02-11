@@ -50,8 +50,9 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
-use function is_string;
+
 use function array_key_exists;
+use function is_string;
 
 /**
  * Speicherung von Planverfahren.
@@ -676,7 +677,6 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         } catch (FilesystemException|Exception $e) {
             throw new InvalidArgumentException($e->getMessage());
         }
-
 
         $imageInfo = getimagesize($tempFilePath);
         Assert::isArray($imageInfo);
