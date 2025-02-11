@@ -120,13 +120,13 @@ export default {
       brandingList: 'items'
     }),
 
-    ...mapState('file', {
-      fileList: 'item'
+    ...mapState('File', {
+      fileList: 'items'
     }),
 
     branding: {
       get () {
-        return this.brandingList[this.brandingId].attributes || { styling: '', logoHash: null }
+        return this.brandingList[this.brandingId].attributes || { styling: '' }
       },
       set ({ key, value }) {
         this.updateBranding({
@@ -163,8 +163,7 @@ export default {
         id: this.brandingId,
         type: 'Branding',
         attributes: {
-          ...this.branding,
-          logoHash: null
+          ...this.branding
         },
         relationships: {
           logo: {
@@ -174,12 +173,12 @@ export default {
       }
       this.updateBranding(payload)
       this.saveBranding(this.brandingId).then(() => {
+        this.unsetFile({ fileId: this.uploadedFileId })
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
       })
     },
 
     setFile (file) {
-      this.branding = { key: 'logoHash', value: file.hash }
       this.updateFile({ id: file.fileId, attributes: { hash: file.hash } })
       this.uploadedFileId = file.fileId
     },
@@ -209,11 +208,11 @@ export default {
         }
       }
 
+      this.updateBranding(payload)
       this.saveBranding(this.brandingId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
         this.isBusy = false
         this.isLogoDeletable = false
-        this.updateBranding(payload)
 
         if (payload.relationships?.logo?.data === null) {
           this.unsetFile({ fileId: this.uploadedFileId })

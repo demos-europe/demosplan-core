@@ -232,6 +232,7 @@ export default {
 
     this.$on('delete', (id) => {
       this.deleteContact(id).then(() => {
+        this.getContacts()
         dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
       })
     })
