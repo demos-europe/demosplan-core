@@ -629,7 +629,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
              && '' !== $data['r_pictogram']) {
                 // this permission can be set dynamically as a access control permission
                 if ($this->permissions->hasPermission('feature_procedure_pictogram_resolution_restriction')) {
-                    $this->isValidatePictogramResolution($data['r_pictogram']);
+                    $this->validatePictogram($data['r_pictogram']);
                 }
                 $procedure['settings']['pictogram'] = $data['r_pictogram'];
             }
@@ -662,7 +662,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
     /**
      * @throws InvalidArgumentException
      */
-    private function isValidatePictogramResolution(string $fileString): void
+    private function validatePictogram(string $fileString): void
     {
         try {
             $pictogram = $this->fileService->getFileInfoFromFileString($fileString);
