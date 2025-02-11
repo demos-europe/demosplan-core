@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PreNewProcedureCreatedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -42,6 +43,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -107,6 +109,8 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         ParameterBagInterface $parameterBag,
         private readonly ReportService $reportService,
         private readonly TranslatorInterface $translator,
+        private readonly FilesystemOperator $defaultStorage,
+        private readonly FileServiceInterface $fileService,
     ) {
         $this->contentService = $contentService;
         $this->customerService = $customerService;
@@ -288,6 +292,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
      */
     public function administrationEditHandler($data, $checkMandatoryErrors = true)
     {
+        $result = true;
         $procedure = [];
         $procedure['settings'] = [];
 
@@ -620,7 +625,13 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         if ($this->permissions->hasPermission('field_procedure_pictogram')) {
             if (array_key_exists('r_pictogram', $data)
              && '' !== $data['r_pictogram']) {
-                $procedure['settings']['pictogram'] = $data['r_pictogram'];
+                if ($this->permissions->hasPermission('field_procedure_pictogram_resolution_restriction'))
+                {
+                    $result = $this->isValidatePictogramResolution($data['r_pictogram']);
+                }
+                if ($result) {
+                    $procedure['settings']['pictogram'] = $data['r_pictogram'];
+                }
             }
             if (array_key_exists('r_deletePictogram', $data)) {
                 $procedure['settings']['pictogram'] = '';
@@ -645,7 +656,41 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         // Set flags, which indicates status of field of procedure.
         $this->contentService->setProcedureFieldCompletions($procedure['ident'], $data['fieldCompletions']);
 
-        return $this->procedureService->updateProcedure($procedure);
+        if ($result) {
+
+            return $this->procedureService->updateProcedure($procedure);
+        }else{
+            $this->messageBag->add('error', 'procedure.pictogram.resolution.tooLow');
+
+            return false;
+        }
+
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function isValidatePictogramResolution(string $fileString): bool
+    {
+        $pictogram = $this->fileService->getFileInfoFromFileString($fileString);
+
+        $file = $this->defaultStorage->readStream($pictogram->getPath());
+
+        $fileSize = $this->defaultStorage->fileSize($pictogram->getPath());
+
+        // Temporäre lokale Datei für getimagesize() erstellen
+        $tempFilePath = tempnam(sys_get_temp_dir(), 'img');
+        file_put_contents($tempFilePath, stream_get_contents($file));
+
+        $imageInfo = getimagesize($tempFilePath);
+        unlink($tempFilePath); // temporäre Datei löschen
+
+        if ($imageInfo[0] < 300 || $imageInfo[1] < 500 || $fileSize > 5000000)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /**
