@@ -625,7 +625,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         if ($this->permissions->hasPermission('field_procedure_pictogram')) {
             if (array_key_exists('r_pictogram', $data)
              && '' !== $data['r_pictogram']) {
-                if ($this->permissions->hasPermission('field_procedure_pictogram_resolution_restriction')) {
+                if ($this->permissions->hasPermission('feature_procedure_pictogram_resolution_restriction')) {
                     $result = $this->isValidatePictogramResolution($data['r_pictogram']);
                 }
                 if ($result) {
