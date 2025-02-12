@@ -41,7 +41,7 @@ class SegmentExporterFileNameGenerator
 
     public function getFileName(Statement $statement, string $templateName = '', bool $censored = false): string
     {
-        $defaultTemplateName = $censored? self::DEFAULT_TEMPLATE_NAME_CENSORED :self::DEFAULT_TEMPLATE_NAME;
+        $defaultTemplateName = $censored ? self::DEFAULT_TEMPLATE_NAME_CENSORED : self::DEFAULT_TEMPLATE_NAME;
         $templateName = $templateName ?: $defaultTemplateName;
 
         $externalId = $this->getExternalId($statement);
