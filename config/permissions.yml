@@ -2660,6 +2660,10 @@ field_procedure_pictogram:
     label: Verfahrenspiktogramm
     loginRequired: false
     parent: field_procedure
+feature_procedure_pictogram_resolution_restriction:
+    label: 'restrict resolution of procedure pictogram'
+    loginRequired: true
+    parent: field_procedure
 field_procedure_recommendation_version:
     label: 'ältere Abwägungsempfehlungen'
     loginRequired: true

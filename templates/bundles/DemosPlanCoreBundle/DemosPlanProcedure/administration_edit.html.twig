@@ -1017,19 +1017,15 @@
                                             </a>
                                         {% else %}
                                             {{  fileupload(
-                                                "r_pictogram",
-                                                '<p class="lbl__hint">'
+                                                fieldName: "r_pictogram",
+                                                fieldLabel: '<p class="lbl__hint">'
                                                 ~ "text.procedure.edit.external.pictogram"|trans
                                                 ~ '</p>',
-                                                "img",
-                                                "form.button.upload.file",
-                                                1,
-                                                true,
-                                                false,
-                                                true,
-                                                false,
-                                                0,
-                                                5242880
+                                                type: "img",
+                                                label: "form.button.upload.file",
+                                                required: true,
+                                                multiInstance: true,
+                                                maxFileSize: 5242880
                                             )
                                             }}
                                         {% endif %}
