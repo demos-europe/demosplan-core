@@ -110,7 +110,6 @@ import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
 import { extend } from 'ol/extent'
-import { fromExtent } from 'ol/geom/Polygon'
 
 export default {
   name: 'SegmentLocationMap',

@@ -5,11 +5,12 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
-
+- Allow flag on external links to indicate this URL should only be shown for user(roles) with a specific permission
+- Add the possibility to export synopsis without personal data.
+- 
 ### Features
 - Institution tag management: Add search field and filters to institution list
-## (2025-02-03)
- - Add the possibility to export synopsis without personal data.
+- Procedure basic settings: Move procedure location up under the "internal" section
 
 ### Further changes
 - Segments list: Use DpSearchField for custom search

@@ -212,7 +212,7 @@ const LayersStore = {
             'name',
             'layerWithChildrenHidden',
             'parentId',
-            'treeOrder',
+            'treeOrder'
           ].join(),
           GisLayer: [
             'canUserToggleVisibility',
@@ -379,7 +379,10 @@ const LayersStore = {
       }
 
       return dpApi.delete(Routing.generate('api_resource_delete', { resourceType: currentType, resourceId: id }))
-        .then(this.api.checkResponse)
+        .then(response => this.api.checkResponse(response, { 204: {
+            text: Translator.trans('confirm.gislayer.delete'),
+            type: 'confirm'
+          },}))
         .then(() => {
           commit('removeElement', {
             id: element.id,

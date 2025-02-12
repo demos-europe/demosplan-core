@@ -85,7 +85,6 @@
 </template>
 
 <script>
-import { DpInlineNotification } from '@demos-europe/demosplan-ui'
 import VotingStatus from './VotingStatus'
 
 export default {
