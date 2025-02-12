@@ -70,7 +70,7 @@ class DemosPlanReportController extends BaseController
         NameGenerator $nameGenerator,
         PermissionsInterface $permissions,
         ProcedureHandler $procedureHandler,
-                              $procedureId
+        $procedureId,
     ): Response {
         $slugify = new Slugify();
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
