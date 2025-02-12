@@ -219,7 +219,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @return array<string, Statement>
      */
-    public function mapStatementsToPathInZip(array $statements, string $fileNameTemplate = '', bool $censored): array
+    public function mapStatementsToPathInZip(array $statements, bool $censored, string $fileNameTemplate = ''): array
     {
         $pathedStatements = [];
         $previousKeysOfReaddedDuplicates = [];
