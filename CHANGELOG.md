@@ -7,7 +7,7 @@
 ## UNRELEASED
 - Allow flag on external links to indicate this URL should only be shown for user(roles) with a specific permission
 - Add the possibility to export synopsis without personal data.
-- 
+
 ### Features
 - Institution tag management: Add search field and filters to institution list
 - Procedure basic settings: Move procedure location up under the "internal" section
