@@ -156,10 +156,10 @@ export default {
       },
       exportTypes: {
         docx_normal: {
-            label: 'export.docx',
-            hint: '',
-            exportPath: 'dplan_statement_segments_export',
-            dataCy: 'exportModal:export:docx',
+          label: 'export.docx',
+          hint: '',
+          exportPath: 'dplan_statement_segments_export',
+          dataCy: 'exportModal:export:docx',
         },
         zip_normal: {
           label: 'export.zip',
@@ -181,11 +181,11 @@ export default {
           censor: true
         },
         zip_censored: {
-            label: 'export.zip.censored',
-            hint: '',
-            exportPath: 'dplan_statement_segments_export_packaged',
-            dataCy: 'exportModal:export:zip',
-            censor: true
+          label: 'export.zip.censored',
+          hint: '',
+          exportPath: 'dplan_statement_segments_export_packaged',
+          dataCy: 'exportModal:export:zip',
+          censor: true
         }
       },
       fileName: '',
