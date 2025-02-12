@@ -2286,7 +2286,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $reader->setDelimiter(';');
         $reader->setEnclosure('"');
         $records = $reader->getRecords();
-
+        $records->rewind();
         $columnTitles = [];
         if ($records->valid()) {
             $columnTitles = $records->current();
