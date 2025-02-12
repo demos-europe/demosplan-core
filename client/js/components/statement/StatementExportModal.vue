@@ -27,12 +27,11 @@
         <legend
           class="o-form__label text-base"
           v-text="Translator.trans('export.type')" />
-        <div class="flex flex-row mb-5 mt-1 gap-3">
+        <div class="grid grid-cols-3 mt-2 mb-5 gap-x-2 gap-y-5">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
             :key="key"
             :id="key"
-            class="max-w-[70%]"
             :data-cy="`exportType:${key}`"
             :label="{
               hint: active === key ? exportType.hint : '',
@@ -161,33 +160,33 @@ export default {
             hint: '',
             exportPath: 'dplan_statement_segments_export',
             dataCy: 'exportModal:export:docx',
-          },
-        docx_censored: {
-            label: 'export.docx.censored',
-            hint: '',
-            exportPath: 'dplan_statement_segments_export',
-            dataCy: 'exportModal:export:docx',
-            censor: true
-          },
+        },
         zip_normal: {
-            label: 'export.zip',
-            hint: '',
-            exportPath: 'dplan_statement_segments_export_packaged',
-            dataCy: 'exportModal:export:zip'
-          },
+          label: 'export.zip',
+          hint: '',
+          exportPath: 'dplan_statement_segments_export_packaged',
+          dataCy: 'exportModal:export:zip'
+        },
+        xlsx_normal: {
+          label: 'export.xlsx',
+          hint: Translator.trans('export.xlsx.hint'),
+          exportPath: 'dplan_statement_xls_export',
+          dataCy: 'exportModal:export:xlsx'
+        },
+        docx_censored: {
+          label: 'export.docx.censored',
+          hint: '',
+          exportPath: 'dplan_statement_segments_export',
+          dataCy: 'exportModal:export:docx',
+          censor: true
+        },
         zip_censored: {
             label: 'export.zip.censored',
             hint: '',
             exportPath: 'dplan_statement_segments_export_packaged',
             dataCy: 'exportModal:export:zip',
             censor: true
-          },
-        xlsx_normal: {
-            label: 'export.xlsx',
-            hint: Translator.trans('export.xlsx.hint'),
-            exportPath: 'dplan_statement_xls_export',
-            dataCy: 'exportModal:export:xlsx'
-          }
+        }
       },
       fileName: '',
       singleStatementExportPath: 'dplan_segments_export' /** Used in the statements detail page */
