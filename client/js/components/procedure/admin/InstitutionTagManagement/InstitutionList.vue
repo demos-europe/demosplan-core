@@ -262,13 +262,20 @@ export default {
     headerFields () {
       const institutionField = {
         field: 'name',
-        label: Translator.trans('institution')
+        label: Translator.trans('institution'),
+        colClass: 'w-1/4'
       }
 
-      const categoryFields = this.categoryFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
+      const categoryFields = this.categoryFieldsAvailable
+        .filter(headerField => this.currentSelection.includes(headerField.field))
+        .map(headerField => ({
+          ...headerField,
+          colClass: `w-1/5`
+        }))
 
       const actionField = {
-        field: 'action'
+        field: 'action',
+        colClass: 'w-[12%]'
       }
 
       return [institutionField, ...categoryFields, actionField]
