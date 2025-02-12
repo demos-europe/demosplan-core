@@ -75,7 +75,7 @@ class DemosPlanReportController extends BaseController
         $slugify = new Slugify();
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
 
-        $currentTime = Carbon::now();
+        $currentTime = Carbon::now()->setTimezone('Europe/Berlin');
         $reportMeta = [
             'name'       => $procedure->getName(),
             'exportDate' => $currentTime->format('d.m.Y'),
