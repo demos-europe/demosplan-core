@@ -159,7 +159,7 @@ export default {
           label: 'export.docx',
           hint: '',
           exportPath: 'dplan_statement_segments_export',
-          dataCy: 'exportModal:export:docx',
+          dataCy: 'exportModal:export:docx'
         },
         zip_normal: {
           label: 'export.zip',
