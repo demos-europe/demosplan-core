@@ -28,25 +28,23 @@
           class="o-form__label text-base"
           v-text="Translator.trans('export.type')" />
         <div class="flex flex-row mb-5 mt-1 gap-3">
-          <div v-for="(typeDetail, typeKey) in exportTypes" :key="typeKey">
-              <dp-radio
-                v-for="(subTypeDetail, subTypeKey) in typeDetail"
-                :key="subTypeKey"
-                :id="`${typeKey}-${subTypeKey}`"
-                class="max-w-[70%]"
-                :data-cy="`exportType:${typeKey}-${subTypeKey}`"
-                :label="{
-                    hint: active === `${typeKey}-${subTypeKey}` ? subTypeDetail.hint : '',
-                    text: Translator.trans(subTypeDetail.label)
-                }"
-                :value="`${typeKey}-${subTypeKey}`"
-                :checked="active === `${typeKey}-${subTypeKey}`"
-                @change="active = `${typeKey}-${subTypeKey}`" />
-            </div>
+          <dp-radio
+            v-for="(exportType, key) in exportTypes"
+            :key="key"
+            :id="key"
+            class="max-w-[70%]"
+            :data-cy="`exportType:${key}`"
+            :label="{
+              hint: active === key ? exportType.hint : '',
+              text: Translator.trans(exportType.label)
+            }"
+            :value="key"
+            :checked="active === key"
+            @change="active = key" />
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx-normal', 'docx-censored', 'zip-normal', 'zip-censored', 'xlsx-normal'].includes(this.active)">
+      <fieldset v-if="['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored', 'xlsx_normal'].includes(this.active)">
         <legend
           id="docxColumnTitles"
           class="o-form__label text-base float-left mr-1"
@@ -136,7 +134,7 @@ export default {
 
   data () {
     return {
-      active: 'docx-normal',
+      active: 'docx_normal',
       docxColumns: {
         col1: {
           width: 'col-span-1',
@@ -158,44 +156,38 @@ export default {
         }
       },
       exportTypes: {
-        docx: {
-          normal: {
+        docx_normal: {
             label: 'export.docx',
             hint: '',
             exportPath: 'dplan_statement_segments_export',
             dataCy: 'exportModal:export:docx',
           },
-          censored: {
+        docx_censored: {
             label: 'export.docx.censored',
             hint: '',
             exportPath: 'dplan_statement_segments_export',
             dataCy: 'exportModal:export:docx',
             censor: true
           },
-        },
-        zip: {
-          normal: {
+        zip_normal: {
             label: 'export.zip',
             hint: '',
             exportPath: 'dplan_statement_segments_export_packaged',
             dataCy: 'exportModal:export:zip'
           },
-          censored: {
+        zip_censored: {
             label: 'export.zip.censored',
             hint: '',
             exportPath: 'dplan_statement_segments_export_packaged',
             dataCy: 'exportModal:export:zip',
             censor: true
-          }
-        },
-        xlsx: {
-          normal: {
+          },
+        xlsx_normal: {
             label: 'export.xlsx',
             hint: Translator.trans('export.xlsx.hint'),
             exportPath: 'dplan_statement_xls_export',
             dataCy: 'exportModal:export:xlsx'
           }
-        }
       },
       fileName: '',
       singleStatementExportPath: 'dplan_segments_export' /** Used in the statements detail page */
@@ -232,11 +224,6 @@ export default {
   },
 
   methods: {
-    getActiveTypeDetail() {
-      const [typeKey, subTypeKey] = this.active.split('-');
-
-      return this.exportTypes[typeKey][subTypeKey];
-    },
     closeModal () {
       this.$refs.exportModalInner.toggle()
     },
@@ -258,10 +245,10 @@ export default {
       })
 
       this.$emit('export', {
-        route: this.isSingleStatementExport ? this.singleStatementExportPath : this.getActiveTypeDetail().exportPath,
-        docxHeaders: ['docx-normal', 'docx-censored', 'zip-normal', 'zip-censored', 'xlsx-normal'].includes(this.active) ? columnTitles : null,
+        route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
+        docxHeaders: ['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored', 'xlsx_normal'].includes(this.active) ? columnTitles : null,
         fileNameTemplate: this.fileName || null,
-        censorParameter: this.getActiveTypeDetail().censor || false
+        censorParameter: this.exportTypes[this.active].censor || false
       })
       this.closeModal()
     },
