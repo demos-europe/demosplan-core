@@ -23,8 +23,8 @@ class DoctrineLoggerListener
     public function postUpdate(PostUpdateEventArgs $eventArgs): void
     {
         $entity = $eventArgs->getObject();
-        if (($entity instanceof User) &&
-            (!$entity->isProvidedByIdentityProvider() && ('' === $entity->getPassword() || null === $entity->getPassword()))) {
+        if (($entity instanceof User)
+            && (!$entity->isProvidedByIdentityProvider() && ('' === $entity->getPassword() || null === $entity->getPassword()))) {
             $this->logger->info('User has no password ', ['backtrace' => debug_backtrace()]);
         }
     }
