@@ -225,7 +225,7 @@ export default {
 
     transformTagsAndCategories () {
       return Object.values(this.institutionTagCategories)
-        .sort((a, b) => new Date(b.attributes.creationDate) - new Date(a.attributes.creationDate))
+        .sort((a, b) => new Date(a.attributes.creationDate) - new Date(b.attributes.creationDate))
         .map(category => {
           const { attributes, id, type } = category
           const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
@@ -234,7 +234,7 @@ export default {
             id,
             name: attributes.name,
             children: Object.values(tags)
-              .sort((a, b) => new Date(b.attributes.creationDate) - new Date(a.attributes.creationDate))
+              .sort((a, b) => new Date(a.attributes.creationDate) - new Date(b.attributes.creationDate))
               .map(tag => {
                 const { id, attributes, type } = tag
 

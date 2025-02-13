@@ -316,7 +316,7 @@ export default {
 
     institutionTagCategoriesValues () {
       return Object.values(this.institutionTagCategoriesCopy)
-        .sort((a, b) => new Date(b.attributes.creationDate) - new Date(a.attributes.creationDate))
+        .sort((a, b) => new Date(a.attributes.creationDate) - new Date(b.attributes.creationDate))
     },
 
     selectableColumns () {
