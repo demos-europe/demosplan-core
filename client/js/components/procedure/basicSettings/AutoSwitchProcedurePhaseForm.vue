@@ -13,7 +13,7 @@
       :id="checkboxId"
       v-model="autoSwitchPhase"
       :data-cy="`autoSwitchPhase:${checkboxId}`"
-      :disabled="hasPermission('feature_auto_switch_to_procedure_end_phase') && isParticipationPhaseSelected"
+      :disabled="!hasPermission('feature_auto_switch_to_procedure_end_phase') || (hasPermission('feature_auto_switch_to_procedure_end_phase') && !isParticipationPhaseSelected)"
       :label="{
         text: Translator.trans('procedure.public.phase.autoswitch')
       }"
@@ -23,7 +23,7 @@
       name="slide-fade"
       mode="out-in">
       <div
-        v-if="!hasPermission('feature_auto_switch_to_procedure_end_phase') || (hasPermission('feature_auto_switch_to_procedure_end_phase') && !isParticipationPhaseSelected)"
+        v-if="hasPermission('feature_auto_switch_to_procedure_end_phase') && isParticipationPhaseSelected"
         class="layout u-mt-0_25 u-pl">
         <dp-select
           class="layout__item u-1-of-3 u-1-of-1-lap-down"
