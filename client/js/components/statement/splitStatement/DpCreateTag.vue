@@ -55,6 +55,13 @@
       v-model="tagTopic.title"
       required />
 
+    <addon-wrapper
+      class="block mb-4"
+      hook-name="tag.create.form"
+      :addon-props="{
+        hasInlineNotification: false
+      }" />
+
     <dp-button-row
       align="left"
       primary
@@ -66,6 +73,7 @@
 </template>
 
 <script>
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import {
   DpButtonRow,
   DpInput,
@@ -80,6 +88,7 @@ export default {
   name: 'DpCreateTag',
 
   components: {
+    AddonWrapper,
     DpButtonRow,
     DpInput,
     DpLabel,
@@ -254,6 +263,7 @@ export default {
                     }
                   }
                   this.updateTags(tagResource)
+                  this.$root.$emit('tag:created', tagResource.id)
                 })
                 .catch(() => {
                   // Reset tags in store
@@ -271,6 +281,7 @@ export default {
             .then((response) => {
               const updatedAvailableTag = response.data.data
               this.updateTags(updatedAvailableTag)
+              this.$root.$emit('tag:created', updatedAvailableTag.id)
             })
             .catch(() => {
               // Reset tags in store
