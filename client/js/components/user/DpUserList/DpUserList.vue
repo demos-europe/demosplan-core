@@ -18,24 +18,16 @@
     <!-- search -->
     <div class="layout u-mt">
       <div class="layout__item u-1-of-1">
-        <input
-          type="text"
-          v-model="searchValue"
-          class="o-form__control-input u-mb-0_5"
-          style="height: 28px;"
-          data-cy="userList:searchUser"
-          @keypress.enter.prevent="getFilteredItems"
-          :placeholder="Translator.trans('search')"><!--
-     --><dp-button
-          class="u-ml-0_5"
-          data-cy="userList:searchUserBtn"
-          :text="Translator.trans('searching')"
-          @click="getFilteredItems" />
-        <dp-contextual-help
-          class="float-right"
-          :text="tooltipContent" />
+        <dp-search-field
+          data-cy="search:currentSearchTerm"
+          :placeholder="Translator.trans('searchterm')"
+          @search="handleSearch"
+          @reset="handleReset" />
       </div>
     </div>
+    <dp-contextual-help
+      class="float-right"
+      :text="tooltipContent" />
 
     <dp-loading
       v-if="isLoading"
@@ -108,7 +100,7 @@
 </template>
 
 <script>
-import { debounce, DpButton, DpContextualHelp, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { debounce, DpButton, DpContextualHelp, DpLoading, DpSearchField, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 
 export default {
@@ -118,6 +110,7 @@ export default {
     DpButton,
     DpContextualHelp,
     DpLoading,
+    DpSearchField,
     DpSlidingPagination: async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
       return DpSlidingPagination
@@ -262,6 +255,16 @@ export default {
         .then(() => {
           this.isLoading = false
         })
+    },
+
+    handleSearch (term) {
+      this.searchValue = term
+      this.getFilteredItems()
+    },
+
+    handleReset () {
+      this.searchValue = ''
+      this.getFilteredItems()
     },
 
     hasOwnProp (obj, prop) {
