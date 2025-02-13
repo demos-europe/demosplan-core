@@ -36,9 +36,8 @@ class StatementValidator
         array $validationGroups = [
             ResourceTypeService::VALIDATION_GROUP_DEFAULT,
             StatementInterface::BASE_STATEMENT_CLASS_VALIDATION,
-        ]
-    ): ConstraintViolationListInterface
-    {
+        ],
+    ): ConstraintViolationListInterface {
         return $this->validator->validate($statement, null, $validationGroups);
     }
 }

@@ -51,7 +51,7 @@ class StatementSynchronizer
         private readonly StatementRepository $statementRepository,
         private readonly StatementService $statementService,
         private readonly TransactionService $transactionService,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -141,7 +141,7 @@ class StatementSynchronizer
      */
     private function copyAsOriginalStatement(
         Statement $sourceStatement,
-        Procedure $targetProcedure
+        Procedure $targetProcedure,
     ): array {
         if ($sourceStatement->isOriginal()) {
             throw new InvalidArgumentException('Given statement is an original statement.');
@@ -252,7 +252,7 @@ class StatementSynchronizer
      */
     private function copyFileContainersBetweenStatements(
         Statement $sourceStatement,
-        Statement $newOriginalStatement
+        Statement $newOriginalStatement,
     ): array {
         $sourceFileContainers = $this->statementService->getFileContainersForStatement($sourceStatement->getId());
 
@@ -268,7 +268,7 @@ class StatementSynchronizer
      */
     private function copyFileContainersToStatement(
         array $fileContainers,
-        Statement $targetStatement
+        Statement $targetStatement,
     ): array {
         $fileContainerCopies = [];
         foreach ($fileContainers as $fileContainer) {
@@ -298,7 +298,7 @@ class StatementSynchronizer
      */
     public function cloneFileContainersToStatement(
         array $originalfileContainers,
-        Statement $newStatement
+        Statement $newStatement,
     ): void {
         $fileStrings = [];
         foreach ($originalfileContainers as $oldFileContainer) {
@@ -381,7 +381,7 @@ class StatementSynchronizer
             StatementInterface::DEFAULT_VALIDATION,
             StatementInterface::MANUAL_CREATE_VALIDATION,
             StatementInterface::IMPORT_VALIDATION,
-            StatementInterface::BASE_STATEMENT_CLASS_VALIDATION
+            StatementInterface::BASE_STATEMENT_CLASS_VALIDATION,
         ]);
         if (0 !== $statementViolations->count()) {
             throw ViolationsException::fromConstraintViolationList($statementViolations);
