@@ -316,6 +316,7 @@ export default {
 
     institutionTagCategoriesValues () {
       return Object.values(this.institutionTagCategoriesCopy)
+        .sort((a, b) => new Date(b.attributes.creationDate) - new Date(a.attributes.creationDate))
     },
 
     selectableColumns () {
@@ -528,10 +529,12 @@ export default {
       return this.fetchInstitutionTagCategories({
         fields: {
           InstitutionTagCategory: [
+            'creationDate',
             'name',
             'tags'
           ].join(),
           InstitutionTag: [
+            'creationDate',
             'isUsed',
             'name',
             'category'
@@ -542,16 +545,17 @@ export default {
           'tags.category'
         ].join()
       })
-      .then(() => {
-        // Copy the object to avoid issues with filter requests that update the categories in the store
-        this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
-        if (isInitial) {
-          this.setInitialSelection()
-        }
-      })
-      .catch(err => {
-        console.error(err)
-      })
+        .then(() => {
+          // Copy the object to avoid issues with filter requests that update the categories in the store
+          this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
+
+          if (isInitial) {
+            this.setInitialSelection()
+          }
+        })
+        .catch(err => {
+          console.error(err)
+        })
     },
 
     getTagById (tagId) {
@@ -637,7 +641,7 @@ export default {
 
     setInitialSelection () {
       this.initialSelection = this.institutionTagCategoriesValues
-        .slice(0, 7)
+        .slice(0, 5)
         .map(category => category.attributes.name)
     }
   },
