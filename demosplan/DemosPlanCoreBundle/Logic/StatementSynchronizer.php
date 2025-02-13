@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DateInterval;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EntitySyncLink;
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -377,9 +378,10 @@ class StatementSynchronizer
     private function validateStatement(Statement $statement): void
     {
         $statementViolations = $this->validator->validate($statement, null, [
-            Statement::DEFAULT_VALIDATION,
-            Statement::MANUAL_CREATE_VALIDATION,
-            Statement::IMPORT_VALIDATION,
+            StatementInterface::DEFAULT_VALIDATION,
+            StatementInterface::MANUAL_CREATE_VALIDATION,
+            StatementInterface::IMPORT_VALIDATION,
+            StatementInterface::BASE_STATEMENT_CLASS_VALIDATION
         ]);
         if (0 !== $statementViolations->count()) {
             throw ViolationsException::fromConstraintViolationList($statementViolations);

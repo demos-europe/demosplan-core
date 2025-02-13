@@ -120,7 +120,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @ORM\JoinColumn(name="segment_statement_fk", referencedColumnName="_st_id", nullable=true)
      */
-    #[Assert\IsNull()]
+    #[Assert\IsNull(groups:[StatementInterface::BASE_STATEMENT_CLASS_VALIDATION])]
     protected $parentStatementOfSegment;
 
     /**

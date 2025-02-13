@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Validator;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
@@ -30,7 +31,13 @@ class StatementValidator
      * @param Statement|DraftStatement $statement
      * @param string[]                 $validationGroups
      */
-    public function validate($statement, array $validationGroups = [ResourceTypeService::VALIDATION_GROUP_DEFAULT]): ConstraintViolationListInterface
+    public function validate(
+        $statement,
+        array $validationGroups = [
+            ResourceTypeService::VALIDATION_GROUP_DEFAULT,
+            StatementInterface::BASE_STATEMENT_CLASS_VALIDATION,
+        ]
+    ): ConstraintViolationListInterface
     {
         return $this->validator->validate($statement, null, $validationGroups);
     }
