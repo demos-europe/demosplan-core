@@ -107,7 +107,6 @@ export default {
   name: 'DpUserList',
 
   components: {
-    DpButton,
     DpContextualHelp,
     DpLoading,
     DpSearchField,
