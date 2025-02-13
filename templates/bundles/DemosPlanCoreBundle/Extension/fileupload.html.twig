@@ -7,7 +7,8 @@ requires:
 params:
     field_name:         used for ids + fieldname    default: "r_file"
     field_label:        label for upload field      default: null, usually you may use "pdf.document"|trans, set to "hide" to hide label
-    type:               sets mime_types             possible values: pdf (default), pdf-img, pdf-zip, img, import, all, zip, antragx
+    type:               sets mime_types             default: pdf
+                                                    possible values: see FileInfo.js in demosplan-ui
     label:              button label                default: "form.button.upload.pdf"|trans({ maxUploadSize: human_max_upload_size })
     maxfiles:           limit max uploadable files  default: 1
                         linked to multi_instance    default: false (set to true if maxfiles > 1)
