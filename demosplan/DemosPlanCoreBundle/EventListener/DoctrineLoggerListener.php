@@ -11,7 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Psr\Log\LoggerInterface;
 
 class DoctrineLoggerListener
@@ -20,11 +20,11 @@ class DoctrineLoggerListener
     {
     }
 
-    public function postUpdate(LifecycleEventArgs $eventArgs)
+    public function postUpdate(PostUpdateEventArgs $eventArgs): void
     {
-        $entity = $eventArgs->getEntity();
+        $entity = $eventArgs->getObject();
         if (($entity instanceof User) &&
-            ('' === $entity->getPassword() || null === $entity->getPassword())) {
+            (!$entity->isProvidedByIdentityProvider() && ('' === $entity->getPassword() || null === $entity->getPassword()))) {
             $this->logger->info('User has no password ', ['backtrace' => debug_backtrace()]);
         }
     }
