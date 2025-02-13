@@ -19,7 +19,7 @@ jobs:
                 access_token: ${{ secrets.GITHUB_TOKEN }}
 
   reviewdog:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
     steps:
       - uses: actions/checkout@v4
