@@ -28,7 +28,6 @@
     <dp-contextual-help
       class="float-right"
       :text="tooltipContent" />
-
     <dp-loading
       v-if="isLoading"
       class="u-ml u-mt" />
