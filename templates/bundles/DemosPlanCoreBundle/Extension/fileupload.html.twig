@@ -29,16 +29,16 @@ Examples:
     {{ fileupload() }}
 
     Custom field name and label
-    {{ fileupload(field_name:'r_custom_file', field_label:'Custom File') }}
+    {{ fileupload(field_name: 'r_custom_file', field_label: 'Custom File') }}
 
     Setting a specific file type and max files
-    {{ fileupload(type:'img', maxfiles:5) }}
+    {{ fileupload(type: 'img', maxfiles: 5) }}
 
     Setting chunk size (should be 'Infinity' for almost all cases)
-    {{ fileupload(chunksize:'2MB') }}
+    {{ fileupload(chunksize: '2MB') }}
 
     Setting max file size and making the field required
-    {{ fileupload(maxfilesize:10485760, field_required:true) }}
+    {{ fileupload(maxfilesize: 10485760, field_required: true) }}
 #}
 
     {%  set omitPrefix = omit_css_class_prefix ?? true %}
