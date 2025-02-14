@@ -112,9 +112,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 if ($permissions->hasPermission('feature_organisation_own_users_list')) {
                     $orga = $currentUser->getUser()->getOrga();
                     if (null === $orga) {
-                        throw new AccessDeniedException(
-                            'User has no orga and no access rights to get $orgalist.'
-                        );
+                        throw new AccessDeniedException('User has no orga and no access rights to get $orgalist.');
                     }
                     $orgaList = [$orga];
                 } else {
