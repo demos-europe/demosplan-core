@@ -295,7 +295,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             if ($this->currentUser->hasPermission('feature_organisation_own_users_list')) {
                 $orgaToSet = $entityData->getToOneRelationships()[$this->orga->getAsNamesInDotNotation()];
                 if ($this->currentUser->getUser()->getOrga()->getId() !== $orgaToSet['id']) {
-                    $this->messageBag->add('error', 'Sie dürfen nur Nutzer der eigenen Organisation verwalten.');
+                    $this->messageBag->add('error', 'error.user.administration.limited.to.own.organisation');
                     throw new InvalidArgumentException('User is only allowed to administrate users of their own organisation.');
                 }
             }
