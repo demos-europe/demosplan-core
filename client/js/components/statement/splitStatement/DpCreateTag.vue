@@ -68,7 +68,7 @@
       secondary
       variant="outline"
       @primary-action="dpValidateAction('createTag', save, false)"
-      @secondary-action="abort" />
+      @secondary-action="closeForm" />
   </div>
 </template>
 
@@ -143,7 +143,7 @@ export default {
       'updateProperty'
     ]),
 
-    abort () {
+    closeForm () {
       this.$emit('close-create-form')
     },
 
@@ -210,8 +210,6 @@ export default {
       const isNewTopic = this.tagTopic.id === ''
 
       if (!hasError) {
-        this.$emit('close-create-form')
-
         // Prepare payload for tagTopics update
         const topic = {
           attributes: {
@@ -264,10 +262,12 @@ export default {
                   }
                   this.updateTags(tagResource)
                   this.$root.$emit('tag:created', tagResource.id)
+                  this.closeForm()
                 })
                 .catch(() => {
                   // Reset tags in store
                   this.updateTags(newTag)
+                  this.closeForm()
                 })
             })
             .catch(() => {
@@ -275,6 +275,7 @@ export default {
               this.updateTags(newTag)
               // Reset tagTopics in store
               this.updateProperty({ prop: 'tagTopics', obj: topic })
+              this.closeForm()
             })
         } else {
           this.createTagAction({ tag: this.tag, topicId: this.tagTopic.id })
@@ -282,10 +283,12 @@ export default {
               const updatedAvailableTag = response.data.data
               this.updateTags(updatedAvailableTag)
               this.$root.$emit('tag:created', updatedAvailableTag.id)
+              this.closeForm()
             })
             .catch(() => {
               // Reset tags in store
               this.updateTags(newTag)
+              this.closeForm()
             })
         }
       }
