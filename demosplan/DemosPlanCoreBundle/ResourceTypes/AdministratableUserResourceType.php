@@ -38,6 +38,7 @@ use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Elastica\Index;
+use InvalidArgumentException;
 
 /**
  * @template-implements ReadableEsResourceTypeInterface<User>
@@ -291,6 +292,13 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             );
 
         $configBuilder->addCreationBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
+            if ($this->currentUser->hasPermission('feature_organisation_own_users_list')) {
+                $orgaToSet = $entityData->getToOneRelationships()[$this->orga->getAsNamesInDotNotation()];
+                if ($this->currentUser->getUser()->getOrga()->getId() !== $orgaToSet['id']) {
+                    $this->messageBag->add('error', 'Sie dürfen nur Nutzer der eigenen Organisation verwalten.');
+                    throw new InvalidArgumentException('User is only allowed to administrate users of their own organisation.');
+                }
+            }
             $attributes = $entityData->getAttributes();
             $user->setLogin($attributes[$this->email->getAsNamesInDotNotation()]);
             $this->userRepository->persistEntities([$user]);

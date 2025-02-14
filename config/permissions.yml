@@ -1370,6 +1370,11 @@ feature_organisation_set_showlist:
     label: 'Anzeigen der Organisation in der Institutionen-Liste'
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
+feature_organisation_own_users_list:
+    description: 'used for organisation administration users to limit their access scope to their own organisation'
+    expose: false
+    label: 'allows to load the organisation and their users of the current organisation only'
+    loginRequired: true
 feature_organisation_user_list:
     description: 'allows to show Organisations list but does not allow access to the Organisation area in the menu'
     expose: true

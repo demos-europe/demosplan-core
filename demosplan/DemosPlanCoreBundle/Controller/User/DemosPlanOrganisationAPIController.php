@@ -101,6 +101,7 @@ class DemosPlanOrganisationAPIController extends APIController
         PaginatorFactory $paginatorFactory,
         PermissionsInterface $permissions,
         Request $request,
+        CurrentUserService $currentUser,
         JsonApiPaginationParser $paginationParser,
     ) {
         try {
@@ -108,7 +109,17 @@ class DemosPlanOrganisationAPIController extends APIController
                 || $permissions->hasPermission('area_manage_orgas_all')
             ) {
                 $currentCustomer = $customerHandler->getCurrentCustomer();
-                $orgaList = $orgaService->getOrgasInCustomer($currentCustomer);
+                if ($permissions->hasPermission('feature_organisation_own_users_list')) {
+                    $orga = $currentUser->getUser()->getOrga();
+                    if (null === $orga) {
+                        throw new AccessDeniedException(
+                            'User has no orga and no access rights to get $orgalist.'
+                        );
+                    }
+                    $orgaList = [$orga];
+                } else {
+                    $orgaList = $orgaService->getOrgasInCustomer($currentCustomer);
+                }
                 $filter = $request->query->has('filter') ? $request->query->get('filter') : [];
                 $filterRegisterStatus = $filter['registerStatus'] ?? '';
                 $orgaSubdomain = $currentCustomer->getSubdomain();
