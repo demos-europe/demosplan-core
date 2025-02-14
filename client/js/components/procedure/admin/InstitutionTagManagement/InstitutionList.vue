@@ -23,28 +23,64 @@
       <template v-else>
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
           <dp-search-field
-            class="h-fit mt-1 col-span-1 sm:col-span-3"
+            class="h-fit mt-1 col-span-3"
             data-cy="institutionList:searchField"
             input-width="u-1-of-1"
             @reset="handleReset"
             @search="val => handleSearch(val)" />
-          <div class="flex flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-2">
+
+          <div class="flex flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-6 ml-2">
             <filter-flyout
-              v-for="filter in filters"
-              :key="`filter_${filter.label}`"
+              v-for="category in filterCategoriesToBeDisplayed"
+              :key="`filter_${category.label}`"
               ref="filterFlyout"
-              :category="{ id: filter.id, label: filter.label }"
+              :category="{ id: category.id, label: category.label }"
               class="first:mr-1 first:mt-1 inline-block"
-              :data-cy="`institutionListFilter:${filter.label}`"
+              :data-cy="`institutionListFilter:${category.label}`"
               :initial-query="queryIds"
-              :member-of="filter.memberOf"
-              :operator="filter.comparisonOperator"
-              :path="filter.rootPath"
-              @filterApply="(filtersToBeApplied) => applyFilterQuery(filtersToBeApplied, filter.id)"
-              @filterOptions:request="createFilterOptions(filter.id)" />
+              :member-of="category.memberOf"
+              :operator="category.comparisonOperator"
+              :path="category.rootPath"
+              @filterApply="(filtersToBeApplied) => applyFilterQuery(filtersToBeApplied, category.id)"
+              @filterOptions:request="createFilterOptions(category.id)" />
           </div>
+
+          <div class="col-span-1">
+            <dp-flyout
+              align="left"
+              data-cy="institutionList:filterCategories">
+              <template v-slot:trigger>
+                <dp-icon
+                  :class="{ 'color-message-severe-fill': false }"
+                  icon="dots-three" />
+              </template>
+              <!-- Checkboxes to specify in which fields to search -->
+              <div>
+                <button
+                  class="btn--blank o-link--default ml-auto"
+                  data-cy=""
+                  v-text="Translator.trans('search.custom.toggle_all')"
+                  @click="toggleAllSelectedFilterCategories" />
+                <div
+                  class="o-list--col-3"
+                  v-if="isLoading === false">
+                  <dp-checkbox
+                    v-for="filter in filters"
+                    :key="filter.id"
+                    :id="`filterCategorySelect:${filter.label}`"
+                    :data-cy="`institutionList:filterCategoriesSelect:${filter.label}`"
+                    :checked="selectedFilterCategories.includes(filter.label)"
+                    :label="{
+                        text: filter.label
+                      }"
+                    @change="handleChange(filter.label, !selectedFilterCategories.includes(filter.label))" />
+                </div>
+              </div>
+            </dp-flyout>
+          </div>
+
           <dp-button
-            class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
+            class="h-fit col-span-1 sm:col-span-2  mt-1 justify-center"
             data-cy="institutionList:resetFilter"
             :disabled="!isQueryApplied"
             :text="Translator.trans('reset')"
@@ -56,11 +92,11 @@
         <div class="flex justify-end mt-4">
           <dp-column-selector
             data-cy="institutionList:selectableColumns"
-            :initial-selection="initialSelection"
+            :initial-selection="initiallySelectedColumns"
             local-storage-key="institutionList"
             :selectable-columns="selectableColumns"
             use-local-storage
-            @selection-changed="setCurrentSelection" />
+            @selection-changed="setCurrentlySelectedColumns" />
         </div>
 
         <dp-data-table
@@ -156,8 +192,10 @@
 <script>
 import {
   DpButton,
+  DpCheckbox,
   DpColumnSelector,
   DpDataTable,
+  DpFlyout,
   DpIcon,
   DpInlineNotification,
   DpLoading,
@@ -175,9 +213,11 @@ export default {
 
   components: {
     DpButton,
+    DpCheckbox,
     DpColumnSelector,
     DpDataTable,
     DpMultiselect,
+    DpFlyout,
     DpIcon,
     DpInlineNotification,
     DpLoading,
@@ -204,11 +244,13 @@ export default {
   data () {
     return {
       appliedFilterQuery: this.initialFilter,
-      currentSelection: [],
+      currentlySelectedColumns: [],
+      currentlySelectedFilterCategories: [],
       editingInstitutionId: null,
       editingInstitution: null,
       editingInstitutionTags: {},
-      initialSelection: [],
+      initiallySelectedColumns: [],
+      initiallySelectedFilterCategories: [],
       institutionTagCategoriesCopy: {},
       isLoading: true,
       searchTerm: ''
@@ -234,11 +276,19 @@ export default {
       totalPages: 'totalPages'
     }),
 
+    selectedFilterCategories () {
+      return this.currentlySelectedFilterCategories
+    },
+
     categoryFieldsAvailable () {
       return this.institutionTagCategoriesValues.map(category => ({
         field: category.attributes.name,
         label: category.attributes.name
       }))
+    },
+
+    filterCategoriesToBeDisplayed () {
+      return Object.values(this.filters).filter(filter => this.currentlySelectedFilterCategories.includes(filter.label))
     },
 
     filters () {
@@ -265,7 +315,7 @@ export default {
         label: Translator.trans('institution')
       }
 
-      const categoryFields = this.categoryFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
+      const categoryFields = this.categoryFieldsAvailable.filter(headerField => this.currentlySelectedColumns.includes(headerField.field))
 
       const actionField = {
         field: 'action'
@@ -545,17 +595,19 @@ export default {
           'tags.category'
         ].join()
       })
-        .then(() => {
-          // Copy the object to avoid issues with filter requests that update the categories in the store
-          this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
+      .then(() => {
+        // Copy the object to avoid issues with filter requests that update the categories in the store
+        this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
 
-          if (isInitial) {
-            this.setInitialSelection()
-          }
-        })
-        .catch(err => {
-          console.error(err)
-        })
+        if (isInitial) {
+          this.setInitiallySelectedColumns()
+          this.setInitiallySelectedFilterCategories()
+          this.setCurrentlySelectedFilterCategories(this.initiallySelectedFilterCategories)
+        }
+      })
+      .catch(err => {
+        console.error(err)
+      })
     },
 
     getTagById (tagId) {
@@ -566,6 +618,14 @@ export default {
       return this.tagList
         .filter(el => el.id === tagId)
         .map(el => el.name)
+    },
+
+    handleChange (filterCategoryName, isSelected) {
+      if (isSelected) {
+        this.currentlySelectedFilterCategories.push(filterCategoryName)
+      } else {
+        this.currentlySelectedFilterCategories = this.currentlySelectedFilterCategories.filter(category => category !== filterCategoryName)
+      }
     },
 
     handleReset () {
@@ -635,14 +695,28 @@ export default {
       return tagsLabels.join(', ')
     },
 
-    setCurrentSelection (selection) {
-      this.currentSelection = selection
+    setCurrentlySelectedColumns (selectedColumns) {
+      this.currentlySelectedColumns = selectedColumns
     },
 
-    setInitialSelection () {
-      this.initialSelection = this.institutionTagCategoriesValues
+    setCurrentlySelectedFilterCategories (selectedCategories) {
+      this.currentlySelectedFilterCategories = selectedCategories
+    },
+
+    setInitiallySelectedColumns () {
+      this.initiallySelectedColumns = this.institutionTagCategoriesValues
         .slice(0, 5)
         .map(category => category.attributes.name)
+    },
+
+    setInitiallySelectedFilterCategories () {
+      this.initiallySelectedFilterCategories = this.initiallySelectedColumns
+    },
+
+    toggleAllSelectedFilterCategories () {
+      const allSelected = this.currentlySelectedFilterCategories.length === Object.keys(this.filters).length
+
+      this.currentlySelectedFilterCategories = allSelected ? [] : Object.values(this.filters).map(filter => filter.label)
     }
   },
 
