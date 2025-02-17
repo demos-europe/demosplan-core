@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\SimpleType\Jc;
+use Psr\Log\LoggerInterface;
 
 class ImageManager
 {
@@ -24,7 +25,10 @@ class ImageManager
     private const MAX_WIDTH_INCH = 10.69;
     private const MAX_HEIGHT_INCH = 5.42;
 
-    public function __construct(private readonly ImageLinkConverter $imageLinkConverter)
+    public function __construct(
+        private readonly ImageLinkConverter $imageLinkConverter,
+        private readonly LoggerInterface $logger
+    )
     {
     }
 
@@ -69,6 +73,12 @@ class ImageManager
 
     private function addImage(Section $section, ImageReference $imageReference, float $imageSpaceCurrentlyUsed): float
     {
+        // check whether file exists. At this point the images need to be present locally, not via flysystem
+        if (!file_exists($imageReference->getImagePath())) {
+            $this->logger->error('Image could not be loaded', ['image' => $imageReference->getImagePath()]);
+            return $imageSpaceCurrentlyUsed;
+        }
+
         [$width, $height] = getimagesize($imageReference->getImagePath());
         [$maxWidth, $maxHeight] = $this->getMaxWidthAndHeight();
 
