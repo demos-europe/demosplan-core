@@ -91,6 +91,17 @@
       :total-pages="statementsTotalPages"
       :is-loading="statementsLoading"
       @page-change="handlePageChange('statements', $event)" />
+
+    <dp-report-group
+      v-if="hasPermission('feature_procedure_report_documents')"
+      group="documents"
+      group-label="plandocuments"
+      content-label="document"
+      :items="documentsItems"
+      :current-page="documentsCurrentPage"
+      :total-pages="documentsTotalPages"
+      :is-loading="documentsLoading"
+      @page-change="handlePageChange('documents', $event)" />
   </div>
 </template>
 
@@ -117,7 +128,14 @@ export default {
 
   data () {
     return {
-      isFirstLoad: true
+      isFirstLoad: true,
+
+      // Testdaten
+      documentsItems: [
+      ],
+      documentsCurrentPage: 1,
+      documentsTotalPages: 1,
+      documentsLoading: false
     }
   },
 
@@ -157,6 +175,12 @@ export default {
       statementsCurrentPage: 'currentPage',
       statementsTotalPages: 'totalPages',
       statementsLoading: 'loading'
+    }),
+    ...mapState('report/documents', {
+      documentsItems: 'items',
+      documentsCurrentPage: 'currentPage',
+      documentsTotalPages: 'totalPages',
+      documentsLoading: 'loading'
     })
   },
 
@@ -167,7 +191,8 @@ export default {
       listInvitations: 'report/invitations/list',
       listRegisterInvitations: 'report/registerInvitations/list',
       listFinalMails: 'report/finalMails/list',
-      listStatements: 'report/statements/list'
+      listStatements: 'report/statements/list',
+      listDocuments: 'report/documents/list'
     }),
 
     handlePageChange (group, page) {
@@ -194,7 +219,8 @@ export default {
       'invitations',
       'register_invitations',
       'final_mails',
-      'statements']
+      'statements',
+      'documents']
       .filter(groupName => {
         /*
          * This returns one of those permissions:
@@ -203,6 +229,7 @@ export default {
          * - feature_procedure_report_register_invitations
          * - feature_procedure_report_final_mails
          * - feature_procedure_report_statements
+         * - feature_procedure_report_documents
          */
         return hasPermission('feature_procedure_report_' + groupName)
       })
