@@ -160,7 +160,8 @@ export default {
     }),
 
     ...mapActions('TagTopic', {
-      createTagTopic: 'create'
+      createTagTopic: 'create',
+      saveTagTopic: 'save'
     }),
 
     closeForm () {
@@ -207,17 +208,24 @@ export default {
             id: this.newTag.topic,
             type: 'TagTopic',
             attributes: parentTopic.attributes,
-            relationships: {
-              ...parentTopic.relationships,
-              tags: {
-                data: parentTopic.relationships.tags.data.concat({
-                  type: 'Tag',
-                  id: newTagId
-                })
+            relationships: parentTopic.relationships
+              ? {
+                ...parentTopic.relationships,
+                tags: {
+                  data: parentTopic.relationships.tags.data.concat({
+                    type: 'Tag',
+                    id: newTagId
+                  })
+                }
               }
-            }
+              : {
+                tags: {
+                  data: [{ type: 'Tag', id: newTagId }]
+                }
+              }
           })
 
+          this.saveTagTopic(this.newTag.topic)
           this.$root.$emit('tag:created', newTagId)
           this.closeForm()
         })
