@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "89657fd4c0aaa3ebe9cb02e56b682b09",
+    "content-hash": "8b060b1610505997afc28087b71dee03",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1637,16 +1637,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "dev-f_DPLAN-12013_add-missing-interfaces-and-or-methods",
+            "version": "v0.49",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "3fb4112cbfe55a8c8ef5b90bb2823331a125f8a7"
+                "reference": "c1651aa5f40e80e155d5725bf21282f94c5fbe1f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/3fb4112cbfe55a8c8ef5b90bb2823331a125f8a7",
-                "reference": "3fb4112cbfe55a8c8ef5b90bb2823331a125f8a7",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/c1651aa5f40e80e155d5725bf21282f94c5fbe1f",
+                "reference": "c1651aa5f40e80e155d5725bf21282f94c5fbe1f",
                 "shasum": ""
             },
             "require": {
@@ -1712,9 +1712,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/f_DPLAN-12013_add-missing-interfaces-and-or-methods"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.49"
             },
-            "time": "2025-01-24T13:00:52+00:00"
+            "time": "2025-02-17T15:48:01+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
