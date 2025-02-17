@@ -27,9 +27,8 @@ class ImageManager
 
     public function __construct(
         private readonly ImageLinkConverter $imageLinkConverter,
-        private readonly LoggerInterface $logger
-    )
-    {
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     public function addImages(Section $section): void
@@ -76,6 +75,7 @@ class ImageManager
         // check whether file exists. At this point the images need to be present locally, not via flysystem
         if (!file_exists($imageReference->getImagePath())) {
             $this->logger->error('Image could not be loaded', ['image' => $imageReference->getImagePath()]);
+
             return $imageSpaceCurrentlyUsed;
         }
 
