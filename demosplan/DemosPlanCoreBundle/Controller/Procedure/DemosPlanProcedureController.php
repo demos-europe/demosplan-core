@@ -183,13 +183,14 @@ class DemosPlanProcedureController extends BaseController
      *
      * @DplanPermissions("area_demosplan")
      *
-     * @return RedirectResponse|Response
-     *
      * @throws MessageBagException
      */
     #[Route(path: '/plan/{slug}', name: 'core_procedure_slug')]
-    public function procedureSlugAction(CurrentUserInterface $currentUser, ProcedureServiceOutput $procedureOutput, string $slug = '')
-    {
+    public function procedureSlugAction(
+        CurrentUserInterface $currentUser,
+        ProcedureServiceOutput $procedureOutput,
+        string $slug = ''
+    ): RedirectResponse|Response {
         try {
             $slugify = new Slugify();
             $slug = $slugify->slugify($slug);
