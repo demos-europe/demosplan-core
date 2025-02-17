@@ -14,6 +14,8 @@
 ### Further changes
 - Segments list: Use DpSearchField for custom search
 - DpInlineNotification: Set margin from outside the component (instead of inside)
+- Rework Tags-Lists: Now works with APi2.0 and is extendable by addons.
+
 
 ## 2.20.0
 

@@ -175,6 +175,7 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
             $topics = $this->findBy(['procedure' => $sourceProcedureId]);
 
             if (0 < sizeof($topics)) {
+                $newProcedure->detachAllTopics();
                 /** @var TagTopic $singletopic */
                 foreach ($topics as $singletopic) {
                     $newTopic = new TagTopic($singletopic->getTitle(), $newProcedure);
@@ -189,6 +190,7 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
 
                     $this->getEntityManager()->persist($newTopic);
                 }
+                $newProcedure->addTagTopic($newTopic);
             }
 
             $this->getEntityManager()->flush();
