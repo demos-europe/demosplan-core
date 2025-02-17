@@ -31,7 +31,7 @@ import Vuex from 'vuex'
  */
 const DPVueCorePlugin = {
   install: function (VueCore) {
-    VueCore.prototype.dplan = window.dplan
+    VueCore.prototype.dplan = <window className="dplan"></window>
     VueCore.prototype.hasPermission = window.hasPermission
   }
 }
