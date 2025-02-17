@@ -65,15 +65,15 @@
                   class="o-list--col-3"
                   v-if="isLoading === false">
                   <dp-checkbox
-                    v-for="filter in filters"
-                    :key="filter.id"
-                    :id="`filterCategorySelect:${filter.label}`"
-                    :data-cy="`institutionList:filterCategoriesSelect:${filter.label}`"
-                    :checked="selectedFilterCategories.includes(filter.label)"
+                    v-for="category in allFilterCategories"
+                    :key="category.id"
+                    :id="`filterCategorySelect:${category.label}`"
+                    :data-cy="`institutionList:filterCategoriesSelect:${category.label}`"
+                    :checked="selectedFilterCategories.includes(category.label)"
                     :label="{
-                        text: filter.label
+                        text: category.label
                       }"
-                    @change="handleChange(filter.label, !selectedFilterCategories.includes(filter.label))" />
+                    @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
                 </div>
               </div>
             </dp-flyout>
@@ -276,22 +276,7 @@ export default {
       totalPages: 'totalPages'
     }),
 
-    selectedFilterCategories () {
-      return this.currentlySelectedFilterCategories
-    },
-
-    categoryFieldsAvailable () {
-      return this.institutionTagCategoriesValues.map(category => ({
-        field: category.attributes.name,
-        label: category.attributes.name
-      }))
-    },
-
-    filterCategoriesToBeDisplayed () {
-      return Object.values(this.filters).filter(filter => this.currentlySelectedFilterCategories.includes(filter.label))
-    },
-
-    filters () {
+    allFilterCategories () {
       return this.institutionTagCategoriesValues.reduce((acc, category) => {
         const { id, attributes } = category
         const groupKey = `${id}_group`
@@ -307,6 +292,17 @@ export default {
 
         return acc
       }, {})
+    },
+
+    categoryFieldsAvailable () {
+      return this.institutionTagCategoriesValues.map(category => ({
+        field: category.attributes.name,
+        label: category.attributes.name
+      }))
+    },
+
+    filterCategoriesToBeDisplayed () {
+      return Object.values(this.allFilterCategories).filter(filter => this.currentlySelectedFilterCategories.includes(filter.label))
     },
 
     headerFields () {
@@ -329,16 +325,6 @@ export default {
       const isSearchApplied = this.searchTerm !== ''
 
       return isFilterApplied || isSearchApplied
-    },
-
-    queryIds () {
-      let ids = []
-
-      if (!Array.isArray(this.appliedFilterQuery) && Object.values(this.appliedFilterQuery).length > 0) {
-        ids = Object.values(this.appliedFilterQuery).map(el => el.condition.value)
-      }
-
-      return ids
     },
 
     institutionList () {
@@ -369,8 +355,22 @@ export default {
         .sort((a, b) => new Date(a.attributes.creationDate) - new Date(b.attributes.creationDate))
     },
 
+    queryIds () {
+      let ids = []
+
+      if (!Array.isArray(this.appliedFilterQuery) && Object.values(this.appliedFilterQuery).length > 0) {
+        ids = Object.values(this.appliedFilterQuery).map(el => el.condition.value)
+      }
+
+      return ids
+    },
+
     selectableColumns () {
       return this.categoryFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+    },
+
+    selectedFilterCategories () {
+      return this.currentlySelectedFilterCategories
     },
 
     tagList () {
@@ -395,6 +395,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('FilterFlyout', [
+      'updateFilterQuery'
+    ]),
+
     ...mapActions('InstitutionTagCategory', {
       fetchInstitutionTagCategories: 'list'
     }),
@@ -407,8 +411,7 @@ export default {
 
     ...mapMutations('FilterFlyout', {
       setIsFilterFlyoutLoading: 'setIsLoading',
-      setUngroupedFilterOptions: 'setUngroupedOptions',
-      updateFilterQuery: 'updateFilterQuery'
+      setUngroupedFilterOptions: 'setUngroupedOptions'
     }),
 
     ...mapMutations('InvitableInstitution', {
@@ -645,8 +648,25 @@ export default {
 
     resetQuery () {
       this.searchTerm = ''
-      Object.keys(this.filters).forEach((filter, idx) => {
-        this.$refs.filterFlyout[idx].reset()
+      Object.keys(this.allFilterCategories).forEach((filterCategoryId, idx) => {
+        const filterFlyoutComponentExists = typeof this.$refs.filterFlyout[idx] !== 'undefined'
+        const hasFilterCategorySelectedOption = !!Object.values(this.filterQuery).find(el => el.condition?.memberOf === `${filterCategoryId}_group`)
+
+        if (filterFlyoutComponentExists) {
+          this.$refs.filterFlyout[idx].reset()
+          const isFilterFlyoutVisible = this.currentlySelectedFilterCategories.includes(this.allFilterCategories[filterCategoryId].label)
+
+          if (!isFilterFlyoutVisible && hasFilterCategorySelectedOption) {
+            const selectedFilterOptions = Object.values(this.filterQuery).filter(el => el.condition?.memberOf === `${filterCategoryId}_group`)
+            const payload = selectedFilterOptions.reduce((acc, el) => {
+              acc[el.condition.value] = el
+
+              return acc
+            }, {})
+
+            this.updateFilterQuery(payload)
+          }
+        }
       })
       this.appliedFilterQuery = []
       this.getInstitutionsByPage(1)
@@ -714,9 +734,9 @@ export default {
     },
 
     toggleAllSelectedFilterCategories () {
-      const allSelected = this.currentlySelectedFilterCategories.length === Object.keys(this.filters).length
+      const allSelected = this.currentlySelectedFilterCategories.length === Object.keys(this.allFilterCategories).length
 
-      this.currentlySelectedFilterCategories = allSelected ? [] : Object.values(this.filters).map(filter => filter.label)
+      this.currentlySelectedFilterCategories = allSelected ? [] : Object.values(this.allFilterCategories).map(filter => filter.label)
     }
   },
 
