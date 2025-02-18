@@ -15,17 +15,14 @@
       :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
       <div class="flex items-center justify-between mb-2">
         <div class="flex">
-          <search-modal
+          <custom-search-statements
+            @search="(term) => applySearch(term)"
+            @reset="resetSearchByPageReload"
+          />
+          <!--search-modal
             :search-in-fields="searchFields"
             @search="(term, selectedFields) => applySearch(term, selectedFields)"
-            ref="searchModal" />
-          <dp-button
-            class="ml-2"
-            variant="outline"
-            data-cy="listStatements:searchReset"
-            :href="Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })"
-            :disabled="searchValue === ''"
-            :text="Translator.trans('search.reset')" />
+            ref="searchModal" /-->
         </div>
         <dp-button
           data-cy="editorFullscreen"
@@ -317,6 +314,7 @@ import {
   tableSelectAllItems
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import CustomSearchStatements from './CustomSearchStatements'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
@@ -328,6 +326,7 @@ export default {
   name: 'ListStatements',
 
   components: {
+    CustomSearchStatements,
     DpBulkEditHeader,
     DpButton,
     DpClaim,
@@ -911,6 +910,10 @@ export default {
     resetSearch () {
       this.searchValue = ''
       this.getItemsByPage(1)
+    },
+
+    resetSearchByPageReload () {
+      window.location=Routing.generate('dplan_procedure_statement_list', { procedureId: this.procedureId })
     },
 
     /**
