@@ -34,10 +34,12 @@ use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Elastica\Index;
+use InvalidArgumentException;
 
 /**
  * @template-implements ReadableEsResourceTypeInterface<User>
@@ -289,6 +291,44 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                     return [];
                 }, [], OptionalField::NO, [])
             );
+
+        $configBuilder->deleted->addUpdateBehavior(
+            new CallbackAttributeSetBehaviorFactory(
+                [],
+                function (UserInterface $user, ?bool $deleted): array {
+                    if (true === $deleted) {
+                        if (!$this->currentUser->hasPermission('area_manage_users')) {
+                            $this->logger->warning(
+                                'User with id: '.$this->currentUser->getUser()->getId().
+                                'tried to wipe some user with id: '.$user->getId().
+                                ' via api despite owning the needed permission'
+                            );
+                            $this->messageBag->add('error', 'error.delete.user');
+                            throw new InvalidArgumentException(
+                                'User without permission tried to wipe some user via api'
+                            );
+                        }
+                        $nullEqualsSucceed = $this->userHandler->wipeUsersById([$user->getId()]);
+                        if (null !== $nullEqualsSucceed) {
+                            // messageBag for errors has been filled already
+                            throw new InvalidArgumentException(
+                                sprintf(
+                                    'Soft-deleting user with id %s failed via AdministratableUserResourceType',
+                                    $user->getId()
+                                )
+                            );
+                        }
+                        $user->setDeleted(true);
+                        // messageBag with confirmation has been filled already
+                        return [];
+                    }
+                    $user->setDeleted(false);
+
+                    return [];
+                },
+                OptionalField::YES,
+            )
+        );
 
         $configBuilder->addCreationBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
             $attributes = $entityData->getAttributes();
