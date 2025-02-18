@@ -17,17 +17,17 @@
   <div class="u-mt">
     <!-- search -->
     <div class="layout u-mt">
-      <div class="layout__item u-1-of-1">
+      <div class="layout__item u-1-of-1 flex">
         <dp-search-field
           data-cy="search:currentSearchTerm"
           :placeholder="Translator.trans('searchterm')"
           @search="handleSearch"
           @reset="handleReset" />
+        <dp-contextual-help
+          class="float-right"
+          :text="tooltipContent" />
       </div>
     </div>
-    <dp-contextual-help
-      class="float-right"
-      :text="tooltipContent" />
     <dp-loading
       v-if="isLoading"
       class="u-ml u-mt" />
