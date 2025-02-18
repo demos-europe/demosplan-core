@@ -95,7 +95,7 @@
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_documents')"
       group="documents"
-      group-label="plandocuments"
+      group-label="plandocument.and.drawing"
       content-label="document"
       :items="documentsItems"
       :current-page="documentsCurrentPage"
@@ -128,14 +128,7 @@ export default {
 
   data () {
     return {
-      isFirstLoad: true,
-
-      // Testdaten
-      documentsItems: [
-      ],
-      documentsCurrentPage: 1,
-      documentsTotalPages: 1,
-      documentsLoading: false
+      isFirstLoad: true
     }
   },
 
