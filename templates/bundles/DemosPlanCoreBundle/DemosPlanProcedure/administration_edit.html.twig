@@ -370,6 +370,129 @@
                 </fieldset>
                 {# end wizard item: Intern #}
 
+                {# wizard item: Verortung des Verfahrens #}
+                {% if hasPermission('area_public_participation') %}
+                    {% if hasPermission('area_procedure_adjustments_general_location') %}
+                        <fieldset
+                            name="locationForm"
+                            {% if proceduresettings.locationComplete is defined %}data-wizard-finished="true"{% endif %}
+                            data-wizard-topic="{{ 'wizard.topic.location'|trans }}"
+                            class="o-wizard"
+                            data-dp-validate="locationForm">
+
+                            <legend
+                                data-toggle-id="procedureLocation"
+                                data-cy="procedureLocation"
+                                class="js__toggleAnything">
+                                <i class="caret"></i>
+                                {{ 'wizard.topic.location'|trans }}
+                                <i class="fa fa-check"></i>
+                            </legend>
+
+                            <div
+                                data-toggle-id="procedureLocation"
+                                class="o-wizard__content"
+                            >
+                                <div class="o-wizard__main">
+
+                                    {% if not hasPermission('feature_procedures_located_by_maintenance_service') %}
+                                        {% block location %}
+                                            <div class="u-mb">
+                                                <div class="inline-block weight--bold u-mb-0">
+                                                    {{ "public.participation.relation"|trans }}
+                                                </div>
+                                                {# different wording if autocomplete via openGeoDb is enabled #}
+                                                {% if useOpenGeoDb == true %}
+                                                    {% set location_name_trans_help = 'text.procedure.edit.external.location_name'|trans ~ 'text.procedure.edit.external.location_name.autocomplete'|trans %}
+                                                {% else %}
+                                                    {% set location_name_trans_help = 'text.procedure.edit.external.location_name'|trans %}
+                                                {% endif %}
+                                                {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                                    helpText: location_name_trans_help,
+                                                    cssClasses:'mb-1',
+                                                    showPlainHint: true
+                                                } %}
+                                                <label class="layout__item u-1-of-6 u-pl-0 u-mb-0">
+                                                    {{ "postalcode"|trans }}
+                                                    {# Atm broken (was not reimplemented after removing jQuery autocomplete) #}
+                                                    <input
+                                                        class="o-form__control-input w-full js__locationName"
+                                                        type="text"
+                                                        value="{% if proceduresettings.locationPostCode is defined %}{{ proceduresettings.locationPostCode }}{% else %}{{ "notspecified"|trans }}{% endif %}"
+                                                        name="r_locationPostCode">
+                                                </label><!--
+                                             --><label class="layout__item u-5-of-6 u-mb-0">
+                                                    {{ "public.participation.location"|trans }}
+                                                    <input
+                                                        class="o-form__control-input w-full"
+                                                        type="text"
+                                                        value="{% if proceduresettings.locationName is defined %}{{ proceduresettings.locationName }}{% else %}{{ "notspecified"|trans }}{% endif %}"
+                                                        name="r_locationName">
+                                                </label>
+                                            </div>
+                                        {% endblock location %}
+                                    {% endif %}
+
+                                    <div class="u-mb">
+                                        <div class="inline-block weight--bold u-mb-0">
+                                            {{ "public.participation.relation.map"|trans }}*
+                                        </div>
+                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                            helpText: 'text.procedure.edit.external.coordinates'|trans,
+                                            cssClasses:'mb-1',
+                                            showPlainHint: true
+                                        } %}
+                                        <p class="lbl__hint">
+                                            {{ "explanation.coordinate.desc"|trans }}
+                                            {% if hasPermission('feature_procedure_coordinate_alternative_input') %}
+                                                {{ "explanation.procedure.coordinate.alternative.input"|trans }}
+                                            {% endif %}
+                                            {% if hasPermission('feature_procedures_located_by_maintenance_service') %}
+                                                {{ "explanation.procedure.located.by.coordinate"|trans }}
+                                            {% endif %}
+                                        </p>
+
+                                        <dp-procedure-coordinate
+                                            procedure-coordinate="{{ proceduresettings.settings.coordinate|default }}"
+                                            procedure-id="{{ proceduresettings.ident }}"
+                                            :procedure-location="JSON.parse('{{ {
+                                                locationPostalCode: templateVars.procedure.locationPostcode,
+                                                locationName: templateVars.procedure.locationName,
+                                                municipalCode: templateVars.procedure.municipalCode,
+                                                ars: templateVars.procedure.ars
+                                            }|e('js')|json_encode }}')"
+                                            :use-opengeodb="Boolean({{ useOpenGeoDb == true }})"
+                                        >
+                                            {# Noscript fallback #}
+                                            <input type="hidden" name="r_coordinate" value="{{ proceduresettings.settings.coordinate|default }}">
+                                        </dp-procedure-coordinate>
+                                    </div>
+
+                                </div>
+
+                                <label class="o-wizard__mark u-mb-0">
+                                    <input
+                                        data-wizard-cb
+                                        data-cy="fieldProcedureLocationCompletions"
+                                        name="fieldCompletions[]"
+                                        value="locationComplete"
+                                        type="checkbox"
+                                        {% if proceduresettings.locationComplete is defined %}checked="checked"{% endif %}/>
+                                    {{ "wizard.mark_as_done"|trans }}
+                                </label>
+                            </div>
+                            <button
+                                type="button"
+                                data-cy="wizardNext"
+                                data-dp-validate-capture-click
+                                class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
+                                {{ "wizard.next"|trans }}
+                            </button>
+                        </fieldset>
+                    {% endif %}
+                {% endif %}
+                {# end wizard item: Verortung des Verfahrens #}
+
                 {# wizard item: Verfahrensschritt / Zeitraum Institutionen #}
                 {% if hasPermission('feature_institution_participation') %}
                     <fieldset
@@ -894,16 +1017,15 @@
                                             </a>
                                         {% else %}
                                             {{  fileupload(
-                                                "r_pictogram",
-                                                '<p class="lbl__hint">'
+                                                fieldName: "r_pictogram",
+                                                fieldLabel: '<p class="lbl__hint">'
                                                 ~ "text.procedure.edit.external.pictogram"|trans
                                                 ~ '</p>',
-                                                "img",
-                                                "form.button.upload.file",
-                                                1,
-                                                true,
-                                                false,
-                                                true
+                                                type: "img",
+                                                label: "form.button.upload.file",
+                                                required: true,
+                                                multiInstance: true,
+                                                maxFileSize: 5242880
                                             )
                                             }}
                                         {% endif %}
@@ -1004,130 +1126,6 @@
                     </fieldset>
                 {% endif %}
                 {# end wizard item: Informationen zum Verfahren #}
-
-
-                {# wizard item: Verortung des Verfahrens #}
-                {% if hasPermission('area_public_participation') %}
-                    {% if hasPermission('area_procedure_adjustments_general_location') %}
-                        <fieldset
-                            name="locationForm"
-                            {% if proceduresettings.locationComplete is defined %}data-wizard-finished="true"{% endif %}
-                            data-wizard-topic="{{ 'wizard.topic.location'|trans }}"
-                            class="o-wizard"
-                            data-dp-validate="locationForm">
-
-                            <legend
-                                data-toggle-id="procedureLocation"
-                                data-cy="procedureLocation"
-                                class="js__toggleAnything">
-                                <i class="caret"></i>
-                                {{ 'wizard.topic.location'|trans }}
-                                <i class="fa fa-check"></i>
-                            </legend>
-
-                            <div
-                                data-toggle-id="procedureLocation"
-                                class="o-wizard__content"
-                            >
-                                <div class="o-wizard__main">
-
-                                    {% if not hasPermission('feature_procedures_located_by_maintenance_service') %}
-                                        {% block location %}
-                                            <div class="u-mb">
-                                                <div class="inline-block weight--bold u-mb-0">
-                                                    {{ "public.participation.relation"|trans }}
-                                                </div>
-                                                {# different wording if autocomplete via openGeoDb is enabled #}
-                                                {% if useOpenGeoDb == true %}
-                                                    {% set location_name_trans_help = 'text.procedure.edit.external.location_name'|trans ~ 'text.procedure.edit.external.location_name.autocomplete'|trans %}
-                                                {% else %}
-                                                    {% set location_name_trans_help = 'text.procedure.edit.external.location_name'|trans %}
-                                                {% endif %}
-                                                {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                                    helpText: location_name_trans_help,
-                                                    cssClasses:'mb-1',
-                                                    showPlainHint: true
-                                                } %}
-                                                <label class="layout__item u-1-of-6 u-pl-0 u-mb-0">
-                                                    {{ "postalcode"|trans }}
-                                                    {# Atm broken (was not reimplemented after removing jQuery autocomplete) #}
-                                                    <input
-                                                        class="o-form__control-input w-full js__locationName"
-                                                        type="text"
-                                                        value="{% if proceduresettings.locationPostCode is defined %}{{ proceduresettings.locationPostCode }}{% else %}{{ "notspecified"|trans }}{% endif %}"
-                                                        name="r_locationPostCode">
-                                                </label><!--
-                                             --><label class="layout__item u-5-of-6 u-mb-0">
-                                                    {{ "public.participation.location"|trans }}
-                                                    <input
-                                                        class="o-form__control-input w-full"
-                                                        type="text"
-                                                        value="{% if proceduresettings.locationName is defined %}{{ proceduresettings.locationName }}{% else %}{{ "notspecified"|trans }}{% endif %}"
-                                                        name="r_locationName">
-                                                </label>
-                                            </div>
-                                        {% endblock location %}
-                                    {% endif %}
-
-                                    <div class="u-mb">
-                                        <div class="inline-block weight--bold u-mb-0">
-                                            {{ "public.participation.relation.map"|trans }}*
-                                        </div>
-                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                            helpText: 'text.procedure.edit.external.coordinates'|trans,
-                                            cssClasses:'mb-1',
-                                            showPlainHint: true
-                                        } %}
-                                        <p class="lbl__hint">
-                                            {{ "explanation.coordinate.desc"|trans }}
-                                            {% if hasPermission('feature_procedure_coordinate_alternative_input') %}
-                                                {{ "explanation.procedure.coordinate.alternative.input"|trans }}
-                                            {% endif %}
-                                            {% if hasPermission('feature_procedures_located_by_maintenance_service') %}
-                                                {{ "explanation.procedure.located.by.coordinate"|trans }}
-                                            {% endif %}
-                                        </p>
-
-                                        <dp-procedure-coordinate
-                                            procedure-coordinate="{{ proceduresettings.settings.coordinate|default }}"
-                                            procedure-id="{{ proceduresettings.ident }}"
-                                            :procedure-location="JSON.parse('{{ {
-                                                locationPostalCode: templateVars.procedure.locationPostcode,
-                                                locationName: templateVars.procedure.locationName,
-                                                municipalCode: templateVars.procedure.municipalCode,
-                                                ars: templateVars.procedure.ars
-                                            }|e('js')|json_encode }}')"
-                                            :use-opengeodb="Boolean({{ useOpenGeoDb == true }})"
-                                        >
-                                            {# Noscript fallback #}
-                                            <input type="hidden" name="r_coordinate" value="{{ proceduresettings.settings.coordinate|default }}">
-                                        </dp-procedure-coordinate>
-                                    </div>
-
-                                </div>
-
-                                <label class="o-wizard__mark u-mb-0">
-                                    <input
-                                        data-wizard-cb
-                                        data-cy="fieldProcedureLocationCompletions"
-                                        name="fieldCompletions[]"
-                                        value="locationComplete"
-                                        type="checkbox"
-                                        {% if proceduresettings.locationComplete is defined %}checked="checked"{% endif %}/>
-                                    {{ "wizard.mark_as_done"|trans }}
-                                </label>
-                            </div>
-                            <button
-                                type="button"
-                                data-cy="wizardNext"
-                                data-dp-validate-capture-click
-                                class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
-                                {{ "wizard.next"|trans }}
-                            </button>
-                        </fieldset>
-                    {% endif %}
-                {% endif %}
-                {# end wizard item: Verortung des Verfahrens #}
 
                 {% if hasPermission('feature_data_in_export') %}
                 {# wizard item: Daten im Export #}

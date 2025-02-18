@@ -5,9 +5,12 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Allow flag on external links to indicate this URL should only be shown for user(roles) with a specific permission
+- Extend safelist for purge css to include all plyr classes
 
 ### Features
-- Institution tag management: Add search field to institution list
+- Institution tag management: Add search field and filters to institution list
+- Procedure basic settings: Move procedure location up under the "internal" section
 
 ### Further changes
 - Segments list: Use DpSearchField for custom search

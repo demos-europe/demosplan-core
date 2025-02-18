@@ -28,6 +28,7 @@
           role="menu">
           <li
             v-for="entry in filteredMenuEntries"
+            :key="entry.id"
             :class="{
               'bg-selected': activeItem === entry.id
             }"
@@ -117,15 +118,7 @@
 
 <script>
 import {
-  DpButton,
-  DpButtonRow,
-  DpContextualHelp,
-  DpDatepicker,
   DpIcon,
-  DpInput,
-  DpLabel,
-  DpSelect,
-  DpTextArea,
   dpValidateMixin,
   hasAnyPermissions
 } from '@demos-europe/demosplan-ui'
@@ -141,15 +134,7 @@ export default {
   name: 'StatementMeta',
 
   components: {
-    DpButton,
-    DpButtonRow,
-    DpContextualHelp,
-    DpDatepicker,
     DpIcon,
-    DpInput,
-    DpLabel,
-    DpSelect,
-    DpTextArea,
     StatementEntry,
     StatementMetaAttachments,
     StatementMetaLocationAndDocumentReference,

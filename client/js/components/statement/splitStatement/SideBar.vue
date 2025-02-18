@@ -169,17 +169,15 @@
 import {
   DpButtonRow,
   DpContextualHelp,
-  DpIcon,
   DpLabel,
   DpMultiselect,
-  DpSelect,
   hasOwnProp,
   Tooltip
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import AssignedTags from './AssignedTags.vue'
+import AssignedTags from './AssignedTags'
 import DpCreateTag from './DpCreateTag'
-import FloatingContextButton from './FloatingContextButton.vue'
+import FloatingContextButton from './FloatingContextButton'
 import SearchSelect from './SearchSelect'
 import TagSelect from './TagSelect'
 
@@ -191,10 +189,8 @@ export default {
     DpButtonRow,
     DpCreateTag,
     DpContextualHelp,
-    DpIcon,
     DpLabel,
     DpMultiselect,
-    DpSelect,
     FloatingContextButton,
     SearchSelect,
     TagSelect
@@ -329,6 +325,13 @@ export default {
       this.$emit('abort')
     },
 
+    // Matomo Tracking Event Tagging & Slicing
+    clickTrackerSaveButton () {
+      if (window._paq) {
+        window._paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('tags.select')])
+      }
+    },
+
     save () {
       if (this.availablePlaces.length < 1) {
         dplan.notify.notify(
@@ -339,6 +342,8 @@ export default {
 
         return
       }
+
+      this.clickTrackerSaveButton()
 
       if (this.needsUpdate) {
         this.updateSegment()
