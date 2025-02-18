@@ -272,18 +272,18 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
     private function escapeDisallowedTags(string $input_string): string
     {
-        $allowed_tags ="<!DOCTYPE><a></a><abbr></abbr><address></address><area><article></article><aside></aside><audio></audio><b></b><base><bdi></bdi><bdo></bdo><blockquote></blockquote><body></body><br><button></button><canvas></canvas><caption></caption><cite></cite><code></code><col><colgroup></colgroup><data></data><datalist></datalist><dd></dd><del></del><details></details><dfn></dfn><dialog></dialog><div></div><dl></dl><dt></dt><em></em><embed><fieldset></fieldset><figcaption></figcaption><figure></figure><footer></footer><form></form><h1></h1><h2></h2><h3></h3><h4></h4><h5></h5><h6></h6><head></head><header></header><hr><html></html><i></i><iframe></iframe><img><input><ins></ins><kbd></kbd><label></label><legend></legend><li></li><link><main></main><map></map><mark></mark><meta><meter></meter><nav></nav><noscript></noscript><object></object><ol></ol><optgroup></optgroup><option></option><output></output><p></p><param><picture></picture><pre></pre><progress></progress><q></q><rp></rp><rt></rt><ruby></ruby><s></s><samp></samp><script></script><section></section><select></select><small></small><source><span></span><strong></strong><style></style><sub></sub><summary></summary><sup></sup><table></table><tbody></tbody><td></td><template></template><textarea></textarea><tfoot></tfoot><th></th><thead></thead><time></time><title></title><tr></tr><track><u></u><ul></ul><var></var><video></video><wbr>";      // Bold text
+        $allowed_tags = '<!DOCTYPE><a></a><abbr></abbr><address></address><area><article></article><aside></aside><audio></audio><b></b><base><bdi></bdi><bdo></bdo><blockquote></blockquote><body></body><br><button></button><canvas></canvas><caption></caption><cite></cite><code></code><col><colgroup></colgroup><data></data><datalist></datalist><dd></dd><del></del><details></details><dfn></dfn><dialog></dialog><div></div><dl></dl><dt></dt><em></em><embed><fieldset></fieldset><figcaption></figcaption><figure></figure><footer></footer><form></form><h1></h1><h2></h2><h3></h3><h4></h4><h5></h5><h6></h6><head></head><header></header><hr><html></html><i></i><iframe></iframe><img><input><ins></ins><kbd></kbd><label></label><legend></legend><li></li><link><main></main><map></map><mark></mark><meta><meter></meter><nav></nav><noscript></noscript><object></object><ol></ol><optgroup></optgroup><option></option><output></output><p></p><param><picture></picture><pre></pre><progress></progress><q></q><rp></rp><rt></rt><ruby></ruby><s></s><samp></samp><script></script><section></section><select></select><small></small><source><span></span><strong></strong><style></style><sub></sub><summary></summary><sup></sup><table></table><tbody></tbody><td></td><template></template><textarea></textarea><tfoot></tfoot><th></th><thead></thead><time></time><title></title><tr></tr><track><u></u><ul></ul><var></var><video></video><wbr>';      // Bold text
 
         $input_string = htmlspecialchars($input_string, ENT_NOQUOTES, 'UTF-8');
 
         // Convert the $allowed_tags string to an array of original HTML tags
         $allowed_tags_array = explode('><', trim($allowed_tags, '<>'));
-        $allowed_tags_array = array_map(function($tag) {
-            return "<" . $tag . ">";
+        $allowed_tags_array = array_map(function ($tag) {
+            return '<'.$tag.'>';
         }, $allowed_tags_array);
 
         // Create a map of encoded tags to decoded tags
-        $encoded_to_decoded_map = array();
+        $encoded_to_decoded_map = [];
         foreach ($allowed_tags_array as $tag) {
             $encoded_tag = htmlspecialchars($tag);
             $encoded_to_decoded_map[$encoded_tag] = $tag;
