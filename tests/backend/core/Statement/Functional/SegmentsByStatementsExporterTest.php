@@ -49,30 +49,44 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     public function testMapStatementsToPathInZipWithTrueDuplicate(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->sut->mapStatementsToPathInZip([$this->testStatement->_real(),  $this->testStatement->_real()]);
+        $this->sut->mapStatementsToPathInZip([$this->testStatement->_real(),  $this->testStatement->_real()], false, '');
     }
 
-    public function testMapStatementsToPathInZipWithSuperficialDuplicate(): void
+    /**
+     * @dataProvider getCensorParams
+     */
+    public function testMapStatementsToPathInZipWithSuperficialDuplicate(bool $censored): void
     {
         $statementA = $this->createMinimalTestStatement('a', 'a', 'a');
         $statementB = $this->createMinimalTestStatement('b', 'a', 'a');
 
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()]);
+        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()], $censored, '');
 
-        $expectedAKey = 'statement-extern-id-a-statement-author-name-a-statement-intern-id-a.docx';
+        if ($censored) {
+            $expectedAKey = 'statement-extern-id-a.docx';
+        } else {
+            $expectedAKey = 'statement-extern-id-a-statement-author-name-a-statement-intern-id-a.docx';
+        }
         self::assertArrayHasKey($expectedAKey, $statements);
         self::assertSame($statementA->_real(), $statements[$expectedAKey]);
-        $expectedBKey = 'statement-extern-id-b-statement-author-name-a-statement-intern-id-a.docx';
+        if ($censored) {
+            $expectedBKey = 'statement-extern-id-b.docx';
+        } else {
+            $expectedBKey = 'statement-extern-id-b-statement-author-name-a-statement-intern-id-a.docx';
+        }
         self::assertArrayHasKey($expectedBKey, $statements);
         self::assertSame($statementB->_real(), $statements[$expectedBKey]);
     }
 
-    public function testMapStatementsToPathInZipWithoutDuplicate(): void
+    /**
+     * @dataProvider getCensorParams
+     */
+    public function testMapStatementsToPathInZipWithoutDuplicate(bool $censored): void
     {
         $statementA = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
         $statementB = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
 
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()]);
+        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()], $censored, '');
 
         $expectedAKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementA->getId().'.docx';
         self::assertArrayHasKey($expectedAKey, $statements);
@@ -95,5 +109,13 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $statement->_save();
 
         return $statement;
+    }
+
+    public function getCensorParams(): array
+    {
+        return [
+            [true],
+            [false],
+        ];
     }
 }
