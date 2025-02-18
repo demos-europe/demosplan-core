@@ -258,7 +258,7 @@ export default {
     },
 
     setInitialValues () {
-      this.active = 'docx'
+      this.active = 'docx_normal'
 
       Object.keys(this.docxColumns).forEach(key => {
         const storageKey = `exportModal:docxCol:${key}`
