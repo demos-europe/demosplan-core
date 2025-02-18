@@ -21,21 +21,53 @@
         class="mt-4" />
 
       <template v-else>
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-1">
           <dp-search-field
-            class="h-fit mt-1 col-span-3"
+            class="h-fit mt-1 col-span-1 sm:col-span-3"
             data-cy="institutionList:searchField"
             input-width="u-1-of-1"
             @reset="handleReset"
             @search="val => handleSearch(val)" />
 
-          <div class="flex flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-6 ml-2">
+          <div class="sm:relative flex flex-col sm:flex-row flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-0 pl-0 sm:ml-2 sm:pl-5">
+            <div class="sm:absolute sm:top-0 sm:left-0">
+              <dp-flyout
+                align="left"
+                data-cy="institutionList:filterCategories">
+                <template v-slot:trigger>
+                  <dp-icon
+                    :class="{ 'color-message-severe-fill': false }"
+                    icon="dots-three" />
+                </template>
+                <!-- Checkboxes to specify in which fields to search -->
+                <div>
+                  <button
+                    class="btn--blank o-link--default ml-auto"
+                    data-cy=""
+                    v-text="Translator.trans('search.custom.toggle_all')"
+                    @click="toggleAllSelectedFilterCategories" />
+                  <div v-if="!isLoading">
+                    <dp-checkbox
+                      v-for="category in allFilterCategories"
+                      :key="category.id"
+                      :id="`filterCategorySelect:${category.label}`"
+                      :data-cy="`institutionList:filterCategoriesSelect:${category.label}`"
+                      :checked="selectedFilterCategories.includes(category.label)"
+                      :label="{
+                        text: category.label
+                      }"
+                      @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
+                  </div>
+                </div>
+              </dp-flyout>
+            </div>
+
             <filter-flyout
               v-for="category in filterCategoriesToBeDisplayed"
               :key="`filter_${category.label}`"
               ref="filterFlyout"
               :category="{ id: category.id, label: category.label }"
-              class="first:mr-1 first:mt-1 inline-block"
+              class="inline-block"
               :data-cy="`institutionListFilter:${category.label}`"
               :initial-query="queryIds"
               :member-of="category.memberOf"
@@ -45,40 +77,8 @@
               @filterOptions:request="createFilterOptions(category.id)" />
           </div>
 
-          <div class="col-span-1">
-            <dp-flyout
-              align="left"
-              data-cy="institutionList:filterCategories">
-              <template v-slot:trigger>
-                <dp-icon
-                  :class="{ 'color-message-severe-fill': false }"
-                  icon="dots-three" />
-              </template>
-              <!-- Checkboxes to specify in which fields to search -->
-              <div>
-                <button
-                  class="btn--blank o-link--default ml-auto"
-                  data-cy=""
-                  v-text="Translator.trans('search.custom.toggle_all')"
-                  @click="toggleAllSelectedFilterCategories" />
-                <div v-if="!isLoading">
-                  <dp-checkbox
-                    v-for="category in allFilterCategories"
-                    :key="category.id"
-                    :id="`filterCategorySelect:${category.label}`"
-                    :data-cy="`institutionList:filterCategoriesSelect:${category.label}`"
-                    :checked="selectedFilterCategories.includes(category.label)"
-                    :label="{
-                        text: category.label
-                      }"
-                    @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
-                </div>
-              </div>
-            </dp-flyout>
-          </div>
-
           <dp-button
-            class="h-fit col-span-1 sm:col-span-2  mt-1 justify-center"
+            class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
             data-cy="institutionList:resetFilter"
             :disabled="!isQueryApplied"
             :text="Translator.trans('reset')"
@@ -138,7 +138,7 @@
               <template v-if="institution.edit">
                 <button
                   :aria-label="Translator.trans('save')"
-                  class="btn--blank o-link--default u-mr-0_25"
+                  class="btn--blank o-link--default mr-1"
                   data-cy="institutionList:saveTag"
                   @click="addTagsToInstitution(institution.id)">
                   <dp-icon
@@ -179,7 +179,7 @@
 
     <dp-sliding-pagination
       v-if="totalPages > 1"
-      class="u-mr-0_25 u-ml-0_5 u-mt-0_5"
+      class="mr-1 ml-2 mt-2"
       :current="currentPage"
       :total="totalPages"
       :non-sliding-size="50"
