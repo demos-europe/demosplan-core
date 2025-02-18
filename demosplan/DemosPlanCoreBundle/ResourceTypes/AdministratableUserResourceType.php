@@ -304,21 +304,15 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                                 ' via api despite owning the needed permission'
                             );
                             $this->messageBag->add('error', 'error.delete.user');
-                            throw new InvalidArgumentException(
-                                'User without permission tried to wipe some user via api'
-                            );
+                            throw new InvalidArgumentException('User without permission tried to wipe some user via api');
                         }
                         $nullEqualsSucceed = $this->userHandler->wipeUsersById([$user->getId()]);
                         if (null !== $nullEqualsSucceed) {
                             // messageBag for errors has been filled already
-                            throw new InvalidArgumentException(
-                                sprintf(
-                                    'Soft-deleting user with id %s failed via AdministratableUserResourceType',
-                                    $user->getId()
-                                )
-                            );
+                            throw new InvalidArgumentException(sprintf('Soft-deleting user with id %s failed via AdministratableUserResourceType', $user->getId()));
                         }
                         $user->setDeleted(true);
+
                         // messageBag with confirmation has been filled already
                         return [];
                     }

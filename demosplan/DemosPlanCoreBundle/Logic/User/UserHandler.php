@@ -808,7 +808,6 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             && 0 < (is_countable($requestData->get('elementsToAdminister')) ? count($requestData->get('elementsToAdminister')) : 0)) {
             $usersToDelete = $requestData->get('elementsToAdminister');
             $this->wipeUsersById($usersToDelete);
-
         } else {
             // wenn keine ausgewählt wurden, gebe eine info raus
             $this->getMessageBag()->add('warning', 'explanation.entries.noneselected');
@@ -818,7 +817,6 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     }
 
     /**
-     * @param array<int, string> $userIds
      * @return string|null will return a userId on Failure
      */
     public function wipeUsersById(array $userIdsToDelete): ?string
