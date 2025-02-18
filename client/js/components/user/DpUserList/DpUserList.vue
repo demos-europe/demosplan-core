@@ -23,9 +23,7 @@
           :placeholder="Translator.trans('searchterm')"
           @search="handleSearch"
           @reset="handleReset" />
-        <dp-contextual-help
-          class="float-right"
-          :text="tooltipContent" />
+        <dp-contextual-help :text="tooltipContent" />
       </div>
     </div>
     <dp-loading
