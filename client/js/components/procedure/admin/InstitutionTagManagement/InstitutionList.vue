@@ -61,9 +61,7 @@
                   data-cy=""
                   v-text="Translator.trans('search.custom.toggle_all')"
                   @click="toggleAllSelectedFilterCategories" />
-                <div
-                  class="o-list--col-3"
-                  v-if="isLoading === false">
+                <div v-if="!isLoading">
                   <dp-checkbox
                     v-for="category in allFilterCategories"
                     :key="category.id"
