@@ -596,19 +596,19 @@ export default {
           'tags.category'
         ].join()
       })
-      .then(() => {
-        // Copy the object to avoid issues with filter requests that update the categories in the store
-        this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
+        .then(() => {
+          // Copy the object to avoid issues with filter requests that update the categories in the store
+          this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
 
-        if (isInitial) {
-          this.setInitiallySelectedColumns()
-          this.setInitiallySelectedFilterCategories()
-          this.setCurrentlySelectedFilterCategories(this.initiallySelectedFilterCategories)
-        }
-      })
-      .catch(err => {
-        console.error(err)
-      })
+          if (isInitial) {
+            this.setInitiallySelectedColumns()
+            this.setInitiallySelectedFilterCategories()
+            this.setCurrentlySelectedFilterCategories(this.initiallySelectedFilterCategories)
+          }
+        })
+        .catch(err => {
+          console.error(err)
+        })
     },
 
     getTagById (tagId) {
