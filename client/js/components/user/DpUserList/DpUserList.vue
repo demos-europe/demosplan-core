@@ -205,7 +205,7 @@ export default {
       if (!isConfirmed) return
 
       const deletePromises = ids.map(id => {
-        this.updateAndSaveUser(id)
+        this.markUserAsDeleted(id)
           .then(() => {
             delete this.itemSelections[id]
             dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
@@ -289,7 +289,7 @@ export default {
         })
     },
 
-    updateAndSaveUser (id) {
+    markUserAsDeleted (id) {
       this.updateAdministratableUser({
         attributes: { ...this.items[id].attributes, deleted: true },
         id,
