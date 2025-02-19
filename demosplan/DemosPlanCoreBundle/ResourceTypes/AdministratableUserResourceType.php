@@ -323,9 +323,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                             ' tried to undelete some user with id: '.$user->getId().
                             ' via api despite it being unsuported'
                         );
-                        throw new InvalidArgumentException(
-                            'undeleting users is not supported by this resourceType'
-                        );
+                        throw new InvalidArgumentException('undeleting users is not supported by this resourceType');
                     }
                     $user->setDeleted(false);
 
