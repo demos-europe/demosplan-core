@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\DocumentReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FinalMailReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\GeneralReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitationReportEntryResourceType;
@@ -59,6 +60,7 @@ class DemosPlanReportAPIController extends APIController
     ): APIResponse {
         $resourceTypeName = match ($group) {
             'general'             => GeneralReportEntryResourceType::getName(),
+            'documents'           => DocumentReportEntryResourceType::getName(),
             'statements'          => StatementReportEntryResourceType::getName(),
             'publicPhase'         => PublicPhaseReportEntryResourceType::getName(),
             'invitations'         => InvitationReportEntryResourceType::getName(),
