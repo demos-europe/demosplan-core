@@ -278,7 +278,6 @@ export default {
     },
 
     save ({ id, attributes, type, isTitleChanged }) {
-      console.log('{ id, attributes, type, hasTitleChanged }', { id, attributes, type, isTitleChanged })
       if (!id || !isTitleChanged) {
         this.closeEditForm()
 
