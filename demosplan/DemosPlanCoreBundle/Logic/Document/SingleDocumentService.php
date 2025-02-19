@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\Report\DocumentReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\SingleDocumentReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
@@ -40,7 +40,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
         FileService $fileService,
         private readonly SingleDocumentRepository $singleDocumentRepository,
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
-        private readonly DocumentReportEntryFactory $reportEntryFactory,
+        private readonly SingleDocumentReportEntryFactory $reportEntryFactory,
         private readonly ReportService $reportService,
     ) {
         $this->fileService = $fileService;
@@ -238,7 +238,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     {
         $singleDocument = $this->singleDocumentRepository->add($data);
 
-        $report = $this->reportEntryFactory->createDocumentCreateEntry($singleDocument);
+        $report = $this->reportEntryFactory->createSingleDocumentCreateEntry($singleDocument);
         $this->reportService->persistAndFlushReportEntries($report);
 
         $singleDocument = $this->entityHelper->toArray($singleDocument);
@@ -265,7 +265,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
             foreach ($idents as $documentId) {
                 try {
                     $documentToDelete = $this->getSingleDocument($documentId, false);
-                    $report = $this->reportEntryFactory->createDocumentDeleteEntry($documentToDelete);
+                    $report = $this->reportEntryFactory->createSingleDocumentDeleteEntry($documentToDelete);
                     $this->singleDocumentRepository->delete($documentId);
                     $this->reportService->persistAndFlushReportEntries($report);
                 } catch (Exception $e) {
@@ -292,7 +292,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     {
         $updatedDocument = $this->singleDocumentRepository->update($data['ident'], $data);
 
-        $report = $this->reportEntryFactory->createDocumentUpdateEntry($updatedDocument);
+        $report = $this->reportEntryFactory->createSingleDocumentUpdateEntry($updatedDocument);
         $this->reportService->persistAndFlushReportEntries($report);
 
         $updatedDocument = $this->entityHelper->toArray($updatedDocument);

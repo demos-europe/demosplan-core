@@ -6,7 +6,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -15,7 +15,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 
-class DocumentReportEntryFactory extends AbstractReportEntryFactory
+class ParagraphReportEntryFactory extends AbstractReportEntryFactory
 {
     public function __construct(
         CurrentUserInterface $currentUserProvider,
@@ -27,11 +27,11 @@ class DocumentReportEntryFactory extends AbstractReportEntryFactory
     /**
      * @throws JsonException
      */
-    private function createDocumentReportEntry(string $procedureId, array $data): ReportEntry
+    private function createParagraphReportEntry(string $procedureId, array $data): ReportEntry
     {
         $entry = $this->createReportEntry();
         $entry->setUser($this->getCurrentUser());
-        $entry->setGroup(ReportEntry::GROUP_DOCUMENT);
+        $entry->setGroup(ReportEntry::GROUP_PARAGRAPH);
         $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
         $entry->setIdentifier($procedureId);
         $entry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
@@ -39,28 +39,28 @@ class DocumentReportEntryFactory extends AbstractReportEntryFactory
         return $entry;
     }
 
-    private function createData(SingleDocument $singleDocument): array
+    private function createData(Paragraph $paragraph): array
     {
         return [
-            'documentId'  => $singleDocument->getId(),
-            'documentTitle' => $singleDocument->getTitle(),
-            'documentCategory' => $singleDocument->getCategory(), //eg. file, e_unterlagen, arbeitskreis, informationen,...
-            'elementCategory' => $singleDocument->getElement()->getCategory(), //eg map, file, statement, paragraph, ..
-            'elementTitle' => $singleDocument->getElement()->getTitle(), //eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
-            'visible' => $singleDocument->getVisible(),
-            'statement_enabled' => $singleDocument->isStatementEnabled(),
-            'procedurePhase' => $singleDocument->getProcedure()->getPhase(),
+            'documentId'  => $paragraph->getId(),
+            'documentTitle' => $paragraph->getTitle(),
+            'documentCategory' => $paragraph->getCategory(), //eg. file, e_unterlagen, arbeitskreis, informationen,...
+            'elementCategory' => $paragraph->getElement()->getCategory(), //eg map, file, statement, paragraph, ..
+            'elementTitle' => $paragraph->getElement()->getTitle(), //eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
+            'visible' => $paragraph->getVisible(),
+            'statement_enabled' => $paragraph->isStatementEnabled(),
+            'procedurePhase' => $paragraph->getProcedure()->getPhase(),
         ];
     }
 
     /**
      * @throws JsonException
      */
-    public function createDocumentCreateEntry(SingleDocument $singleDocument): ReportEntry
+    public function createParagraphCreateEntry(Paragraph $paragraph): ReportEntry
     {
-        $data = $this->createData($singleDocument);
-        $data['date'] = $singleDocument->getCreateDate()->getTimestamp();
-        $reportEntry = $this->createDocumentReportEntry($singleDocument->getProcedure()->getId(), $data);
+        $data = $this->createData($paragraph);
+        $data['date'] = $paragraph->getCreateDate()->getTimestamp();
+        $reportEntry = $this->createParagraphReportEntry($paragraph->getProcedure()->getId(), $data);
         $reportEntry->setCategory(ReportEntry::CATEGORY_ADD);
 
         return $reportEntry;
@@ -69,11 +69,11 @@ class DocumentReportEntryFactory extends AbstractReportEntryFactory
     /**
      * @throws JsonException
      */
-    public function createDocumentUpdateEntry(SingleDocument $singleDocument): ReportEntry
+    public function createParagraphUpdateEntry(Paragraph $paragraph): ReportEntry
     {
-        $data = $this->createData($singleDocument);
-        $data['date'] = $singleDocument->getModifyDate()->getTimestamp();
-        $reportEntry = $this->createDocumentReportEntry($singleDocument->getProcedure()->getId(), $data);
+        $data = $this->createData($paragraph);
+        $data['date'] = $paragraph->getModifyDate()->getTimestamp();
+        $reportEntry = $this->createParagraphReportEntry($paragraph->getProcedure()->getId(), $data);
         $reportEntry->setCategory(ReportEntry::CATEGORY_UPDATE);
 
         return $reportEntry;
@@ -82,11 +82,11 @@ class DocumentReportEntryFactory extends AbstractReportEntryFactory
     /**
      * @throws JsonException
      */
-    public function createDocumentDeleteEntry(SingleDocument $singleDocument): ReportEntry
+    public function createParagraphDeleteEntry(Paragraph $paragraph): ReportEntry
     {
-        $data = $this->createData($singleDocument);
+        $data = $this->createData($paragraph);
         $data['date'] = Carbon::now()->getTimestamp();
-        $reportEntry = $this->createDocumentReportEntry($singleDocument->getProcedure()->getId(), $data);
+        $reportEntry = $this->createParagraphReportEntry($paragraph->getProcedure()->getId(), $data);
         $reportEntry->setCategory(ReportEntry::CATEGORY_DELETE);
 
         return $reportEntry;
@@ -96,7 +96,7 @@ class DocumentReportEntryFactory extends AbstractReportEntryFactory
     protected function createReportEntry(): ReportEntry
     {
         $reportEntry = parent::createReportEntry();
-        $reportEntry->setGroup(ReportEntry::GROUP_DOCUMENT);
+        $reportEntry->setGroup(ReportEntry::GROUP_PARAGRAPH);
 
         return $reportEntry;
     }

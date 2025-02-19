@@ -14,16 +14,16 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 
-final class DocumentReportEntryResourceType extends ReportEntryResourceType
+final class ParagraphReportEntryResourceType extends ReportEntryResourceType
 {
     public static function getName(): string
     {
-        return 'DocumentReport';
+        return 'ParagraphReport';
     }
 
     protected function getGroups(): array
     {
-        return [ReportEntry::GROUP_DOCUMENT];
+        return [ReportEntry::GROUP_PARAGRAPH];
     }
 
     protected function getCategories(): array
