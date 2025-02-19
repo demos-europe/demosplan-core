@@ -1,5 +1,6 @@
 <script>
 import { h, resolveComponent } from 'vue'
+import DomPurify from 'dompurify'
 import { DpLoading } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -44,8 +45,10 @@ export default {
    * @return {*}
    */
   render () {
+    const sanitizedText = DomPurify.sanitize(this.text)
+
     const immediateComponent = {
-      template: `<div class='text-wrapper w-fit' data-cy='textWrapper'>${this.text}</div>`,
+      template: `<div class='text-wrapper w-fit' data-cy='textWrapper'>${sanitizedText}</div>`,
       data () {
         return this.dataText
       }

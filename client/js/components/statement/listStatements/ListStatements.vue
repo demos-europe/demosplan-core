@@ -934,9 +934,10 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
-      if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = this.exportRoute(route, docxHeaders, fileNameTemplate)
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm }) {
+      const url = this.exportRoute(route, docxHeaders, fileNameTemplate)
+      if (!shouldConfirm || window.dpconfirm(Translator.trans('export.statements.hint'))) {
+        window.location.href = url
       }
     },
 

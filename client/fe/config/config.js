@@ -61,7 +61,7 @@ class Config {
           /a1-.+/,
           /data-enhance-url-field/,
           /ol-.+/,
-          /plyr-.+/,
+          /plyr.+/,
           /uppy-.+/,
           /^color-.+/
         ],

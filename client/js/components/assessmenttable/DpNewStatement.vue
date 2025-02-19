@@ -268,8 +268,6 @@ export default {
     submit () {
       if (this.dpValidate.newStatementForm) {
         document.querySelector('[data-dp-validate="newStatementForm"]').submit()
-      } else {
-        dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
       }
     },
 

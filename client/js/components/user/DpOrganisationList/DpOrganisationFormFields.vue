@@ -204,12 +204,14 @@
       <addon-wrapper
         hook-name="addon.additional.field"
         :addon-props="{
+          additionalFieldOptions,
           class: 'ml-4',
+          isValueRemovable: true,
           relationshipId: this.organisationId,
-          relationshipKey: 'orga',
-          isValueRemovable: true
+          relationshipKey: 'orga'
         }"
         class="w-1/2"
+        @resourceList:loaded="setAdditionalFieldOptions"
         @selected="updateAddonPayload"
         @blur="updateAddonPayload" />
 
@@ -797,6 +799,12 @@ export default {
   ],
 
   props: {
+    additionalFieldOptions: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     availableOrgaTypes: {
       type: Array,
       required: true
@@ -969,6 +977,17 @@ export default {
       return hasPermission('feature_orga_edit_all_fields') && this.writableFields.includes(field)
     },
 
+    /**
+     * On this event DpOrganisationListItem will call the set mutation to update the store so that on save the saveAction
+     * can use the data from the store
+     */
+    emitOrganisationUpdate () {
+      // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
+      Vue.nextTick(() => {
+        this.$emit('organisation-update', this.localOrganisation)
+      })
+    },
+
     hasChanged (field) {
       if (typeof this.initialOrganisation.attributes !== 'undefined') {
         return hasOwnProp(this.initialOrganisation.attributes, field)
@@ -1019,6 +1038,10 @@ export default {
       })
       this.emitOrganisationUpdate()
       this.resetRegistrationStatus()
+    },
+
+    setAdditionalFieldOptions (options) {
+      this.$emit('addonOptions:loaded', options)
     },
 
     updateAddonPayload (payload) {

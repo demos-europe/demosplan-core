@@ -70,12 +70,12 @@ class DemosPlanReportController extends BaseController
         NameGenerator $nameGenerator,
         PermissionsInterface $permissions,
         ProcedureHandler $procedureHandler,
-                              $procedureId
+        $procedureId,
     ): Response {
         $slugify = new Slugify();
         $procedure = $procedureHandler->getProcedureWithCertainty($procedureId);
 
-        $currentTime = Carbon::now();
+        $currentTime = Carbon::now()->setTimezone('Europe/Berlin');
         $reportMeta = [
             'name'       => $procedure->getName(),
             'exportDate' => $currentTime->format('d.m.Y'),

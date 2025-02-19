@@ -124,7 +124,7 @@
           <template v-else>
             <button
               :aria-label="Translator.trans('save')"
-              class="btn--blank o-link--default u-mr-0_25"
+              class="btn--blank o-link--default u-mr-0_25 inline-block"
               data-cy="places:saveEdit"
               @click="dpValidateAction('placesTable', () => updatePlace(rowData), false)">
               <dp-icon
@@ -132,7 +132,7 @@
                 aria-hidden="true" />
             </button>
             <button
-              class="btn--blank o-link--default"
+              class="btn--blank o-link--default inline-block"
               data-cy="places:abortEdit"
               @click="abort(rowData)"
               :aria-label="Translator.trans('abort')">

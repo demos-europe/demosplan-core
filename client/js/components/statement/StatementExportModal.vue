@@ -216,6 +216,7 @@ export default {
 
     handleExport () {
       const columnTitles = {}
+      const shouldConfirm = ['docx', 'zip'].includes(this.active)
 
       Object.keys(this.docxColumns).forEach(key => {
         const columnTitle = this.docxColumns[key].title
@@ -233,7 +234,8 @@ export default {
       this.$emit('export', {
         route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
         docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null,
-        fileNameTemplate: this.fileName || null
+        fileNameTemplate: this.fileName || null,
+        shouldConfirm
       })
       this.closeModal()
     },
