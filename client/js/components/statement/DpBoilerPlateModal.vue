@@ -29,7 +29,7 @@
         </a>
         <dp-button-row
           class="ml-auto"
-          :disabled-primary="textToBeAdded === ''"
+          :disabled="{ primary: textToBeAdded === '' }"
           primary
           :primary-text="Translator.trans('insert')"
           secondary

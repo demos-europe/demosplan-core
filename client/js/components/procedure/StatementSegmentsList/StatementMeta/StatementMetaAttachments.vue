@@ -67,8 +67,7 @@
             <dp-button-row
               :busy="isProcessingSourceAttachment"
               data-cy="statementMetaAttachments:saveSourceAttachment"
-              :disabled-primary="fileIdSourceAttachment === '' && isSourceAttachmentMarkedForDeletion === false"
-              :disabled-secondary="fileIdSourceAttachment === '' && isSourceAttachmentMarkedForDeletion === false"
+              :disabled="fileIdSourceAttachment === '' && isSourceAttachmentMarkedForDeletion === false"
               primary
               secondary
               @primary-action="saveSourceAttachment"
@@ -133,8 +132,7 @@
             <dp-button-row
               :busy="isProcessingGenericAttachments"
               data-cy="statementMetaAttachments:saveGenericAttachments"
-              :disabled-primary="fileIds.length === 0 && genericAttachmentsMarkedForDeletion.length === 0"
-              :disabled-secondary="fileIds.length === 0 && genericAttachmentsMarkedForDeletion.length === 0"
+              :disabled="fileIds.length === 0 && genericAttachmentsMarkedForDeletion.length === 0"
               primary
               secondary
               @primary-action="saveGenericAttachments"

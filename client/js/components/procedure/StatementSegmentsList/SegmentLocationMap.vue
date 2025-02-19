@@ -94,7 +94,7 @@
       </dp-ol-map>
       <dp-button-row
         class="u-mt"
-        :disabled-primary="!hasChanges"
+        :disabled="{ primary: !hasChanges }"
         primary
         secondary
         @primary-action="save"
