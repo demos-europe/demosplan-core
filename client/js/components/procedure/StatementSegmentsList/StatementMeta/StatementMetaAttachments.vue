@@ -67,7 +67,8 @@
             <dp-button-row
               :busy="isProcessingSourceAttachment"
               data-cy="statementMetaAttachments:saveSourceAttachment"
-              :disabled="fileIdSourceAttachment === '' && isSourceAttachmentMarkedForDeletion === false"
+              :disabled-primary="buttonsDisabled"
+              :disabled-secondary="buttonsDisabled"
               primary
               secondary
               @primary-action="saveSourceAttachment"
@@ -132,7 +133,8 @@
             <dp-button-row
               :busy="isProcessingGenericAttachments"
               data-cy="statementMetaAttachments:saveGenericAttachments"
-              :disabled="fileIds.length === 0 && genericAttachmentsMarkedForDeletion.length === 0"
+              :disabled-primary="buttonsDisabled"
+              :disabled-secondary="buttonsDisabled"
               primary
               secondary
               @primary-action="saveGenericAttachments"
@@ -215,6 +217,12 @@ export default {
       previousSourceAttachment: {},
       // Used for deleting the source attachment
       sourceAttachmentMarkedForDeletion: {}
+    }
+  },
+
+  computed: {
+    buttonsDisabled () {
+      return this.fileIdSourceAttachment === '' && this.isSourceAttachmentMarkedForDeletion === false
     }
   },
 

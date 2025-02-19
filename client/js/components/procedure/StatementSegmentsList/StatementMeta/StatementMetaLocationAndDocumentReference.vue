@@ -98,7 +98,8 @@
         v-if="editable"
         class="w-full"
         data-cy="statementLocationAndDocumentReference:buttonRow"
-        :disabled="isButtonRowDisabled"
+        :disabled-primary="isButtonRowDisabled"
+        :disabled-secondary="isButtonRowDisabled"
         primary
         secondary
         @primary-action="dpValidateAction('statementLocationAndDocumentReference', save, false)"
