@@ -97,8 +97,8 @@
 </template>
 
 <script>
-import { debounce, DpContextualHelp, DpLoading, DpSearchField, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { mapActions, mapState } from 'vuex'
+import { debounce, DpContextualHelp, DpLoading, DpSearchField, dpSelectAllMixin, hasOwnProp, dpApi } from '@demos-europe/demosplan-ui'
+import { mapActions, mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'DpUserList',
@@ -187,24 +187,32 @@ export default {
     }),
     ...mapActions('AdministratableUser', {
       userList: 'list',
-      deleteUser: 'delete'
+      saveAdministratableUser: 'save'
+    }),
+    ...mapMutations('AdministratableUser', {
+      updateAdministratableUser: 'setItem'
     }),
 
     deleteItems (ids) {
-      if (this.selectedItems.length === 0) {
-        dplan.notify.notify('warning', Translator.trans('warning.select.entries'))
-      } else {
-        if (window.dpconfirm(Translator.trans('check.user.delete', { count: this.selectedItems.length }))) {
-          ids.forEach(id => {
-            this.deleteUser(id)
-              .then(() => {
-                // Remove deleted item from itemSelections
-                delete this.itemSelections[id]
-                dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
-              })
-          })
-        }
+      if (!this.selectedItems.length) {
+        return dplan.notify.notify('warning', Translator.trans('warning.select.entries'))
       }
+
+      const isConfirmed = window.dpconfirm(
+        Translator.trans('check.user.delete', { count: this.selectedItems.length })
+      )
+
+      if (!isConfirmed) return
+
+      const deletePromises = ids.map(id => {
+        this.updateAndSaveUser(id)
+          .then(() => {
+            delete this.itemSelections[id]
+            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+          })
+      })
+
+      Promise.all(deletePromises).then(() => this.loadItems())
     },
 
     getFilteredItems: debounce(function () {
@@ -279,6 +287,16 @@ export default {
         .then(() => {
           this.getItemsByPage()
         })
+    },
+
+    updateAndSaveUser (id) {
+      this.updateAdministratableUser({
+        attributes: { ...this.items[id].attributes, deleted: true },
+        id,
+        type: 'AdministratableUser',
+      })
+
+      return this.saveAdministratableUser(id)
     }
   },
 
