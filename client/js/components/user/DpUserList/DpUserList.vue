@@ -293,7 +293,7 @@ export default {
       this.updateAdministratableUser({
         attributes: { ...this.items[id].attributes, deleted: true },
         id,
-        type: 'AdministratableUser',
+        type: 'AdministratableUser'
       })
 
       return this.saveAdministratableUser(id)
