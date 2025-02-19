@@ -1740,6 +1740,7 @@ filter.saveFilterSet.load.error: "Beim Laden der gespeicherten Filterkombination
 filter.saveFilterSet.load.success: "Die Filterkombination wurde erfolgreich geladen."
 filter.searchterm.active: "Aktive Filter und Suchbegriff"
 filter.verb: "Filtern"
+filters.more: "Weitere Filter"
 following: "folgendes"
 following.email.sent: "An folgende E-Mail-Adresse verschickt"
 format: "Format"

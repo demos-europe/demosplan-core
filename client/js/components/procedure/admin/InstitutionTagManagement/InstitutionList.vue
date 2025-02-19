@@ -29,15 +29,20 @@
             @reset="handleReset"
             @search="val => handleSearch(val)" />
 
-          <div class="sm:relative flex flex-col sm:flex-row flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-0 pl-0 sm:ml-2 sm:pl-5">
-            <div class="sm:absolute sm:top-0 sm:left-0">
+          <div class="sm:relative flex flex-col sm:flex-row flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-0 pl-0 sm:ml-2 sm:pl-[38px]">
+            <div class="sm:absolute sm:top-0 sm:left-0 mt-1">
               <dp-flyout
                 align="left"
+                :aria-label="Translator.trans('filters.more')"
+                class="bg-surface-medium rounded pb-1 pt-[4px]"
                 data-cy="institutionList:filterCategories">
                 <template v-slot:trigger>
-                  <dp-icon
-                    :class="{ 'color-message-severe-fill': false }"
-                    icon="dots-three" />
+                  <span :title="Translator.trans('filters.more')">
+                    <dp-icon
+                      aria-hidden="true"
+                      class="inline"
+                      icon="faders" />
+                  </span>
                 </template>
                 <!-- Checkboxes to specify in which fields to search -->
                 <div>
