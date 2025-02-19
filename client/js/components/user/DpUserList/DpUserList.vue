@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import { debounce, DpContextualHelp, DpLoading, DpSearchField, dpSelectAllMixin, hasOwnProp, dpApi } from '@demos-europe/demosplan-ui'
+import { debounce, DpContextualHelp, DpLoading, DpSearchField, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 
 export default {
