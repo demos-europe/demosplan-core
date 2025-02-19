@@ -367,25 +367,6 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     }
 
     /**
-     * Given a SingleDocument object, returns its File Info.
-     * If there is no file info in the SingleDocument object, returns an associative array keeping its keys
-     * ['name','hash', 'size', 'mimeType'] but with empty values.
-     */
-    public function getSingleDocumentInfo(SingleDocument $singleDocument): array
-    {
-        $fileInfo = ['name' => '', 'hash' => '', 'size' => '', 'mimeType' => ''];
-        $documentStringParts = \explode(':', (string) $singleDocument->getDocument());
-        if (count($documentStringParts) >= 4) {
-            $fileInfo['name'] = $documentStringParts[0];
-            $fileInfo['hash'] = $documentStringParts[1];
-            $fileInfo['size'] = $documentStringParts[2];
-            $fileInfo['mimeType'] = $documentStringParts[3];
-        }
-
-        return $fileInfo;
-    }
-
-    /**
      * Given an array of SingleDocument ids and a Procedure id, returns all SingleDocument's ids not belonging to the
      * project or empty array if they all belong to it.
      */
