@@ -1,5 +1,21 @@
 import { del, set } from 'vue'
 
+function getPositionInStateFilterQuery (value) {
+
+  return Object.values(FilterFlyoutStore.state.filterQuery).findIndex(el => {
+    if (value === 'unassigned') {
+      return el.condition.value === undefined
+    }
+
+    // Skip group objects
+    if (!el.condition) {
+      return false
+    }
+
+    return el.condition.value === value
+  })
+}
+
 const FilterFlyoutStore = {
   namespaced: true,
 
@@ -39,6 +55,49 @@ const FilterFlyoutStore = {
   },
 
   mutations: {
+    addGroupIfNeeded (state, updatePayload) {
+      const payloadFilterRequiresGroup = !!updatePayload.condition.memberOf
+
+      if (payloadFilterRequiresGroup) {
+        const groupKey = updatePayload.condition.memberOf
+
+        const groupExits = state.filterQuery[groupKey]
+
+        if (!groupExits) {
+          state.filterQuery[groupKey] = {
+            group: {
+              conjunction: 'OR'
+            }
+          }
+        }
+      }
+    },
+
+    addToFilterQuery (state, data) {
+      set(state.filterQuery, [data.value], data.updatePayload)
+    },
+
+    removeGroupIfNoLongerNeeded (state, updatePayload) {
+      const payloadFilterIsInGroup = !!updatePayload.condition?.memberOf
+
+      if (payloadFilterIsInGroup) {
+        const groupKey = updatePayload.condition.memberOf
+        const groupHasFiltersLeft = !!Object.values(state.filterQuery).find(filter => filter.condition && filter.condition.memberOf === groupKey)
+
+        if (!groupHasFiltersLeft) {
+          del(state.filterQuery, [groupKey])
+        }
+      }
+    },
+
+    removeFromFilterQuery (state, value) {
+      del(state.filterQuery, [value])
+    },
+
+    setFilterQuery (state, filterQuery) {
+      set(state, 'filterQuery', filterQuery)
+    },
+
     /**
      * Sets the initial flyout filter IDs for a given category.
      *
@@ -152,10 +211,13 @@ const FilterFlyoutStore = {
           option.selected = value
         }
       }
-    },
+    }
+  },
 
+  actions: {
     /**
      * Adds or removes filters from the filterQuery
+     * @param commit
      * @param filter {Object} with the following structure:
      * {
      *   id: {
@@ -168,51 +230,26 @@ const FilterFlyoutStore = {
      *   }
      * }
      */
-    updateFilterQuery (state, filter) {
-      if (Object.keys(filter).length > 0) {
-        const filterQuery = Object.values(filter)[0]
-        const value = !filterQuery.condition?.value ? 'unassigned' : filterQuery.condition.value
+    updateFilterQuery ({ commit }, filter) {
+      const isEmptyPayload = Object.keys(filter).length === 0
 
-        const queryIdx = Object.values(state.filterQuery).findIndex(el => {
-          if (value === 'unassigned') {
-            return el.condition.value === undefined
-          }
+      if (isEmptyPayload) {
+        commit('setFilterQuery', filter)
+      }
 
-          // Skip group objects
-          if (!el.condition) {
-            return false
-          }
+      if (!isEmptyPayload) {
+        const updatePayload = Object.values(filter)[0]
+        const value = !updatePayload.condition?.value ? 'unassigned' : updatePayload.condition.value
+        const payloadFilterPositionInState = getPositionInStateFilterQuery(value)
+        const payloadFilterIsNotInState = payloadFilterPositionInState < 0
 
-          return el.condition.value === value
-        })
-
-        if (queryIdx < 0) {
-          set(state.filterQuery, [value], filterQuery)
-
-          if (filterQuery.condition.memberOf) {
-            const groupKey = filterQuery.condition.memberOf
-
-            if (!state.filterQuery[groupKey]) {
-              state.filterQuery[groupKey] = {
-                group: {
-                  conjunction: 'OR'
-                }
-              }
-            }
-          }
+        if (payloadFilterIsNotInState) {
+          commit('addToFilterQuery', { value, updatePayload })
+          commit('addGroupIfNeeded', updatePayload)
         } else {
-          del(state.filterQuery, [value])
-
-          if (filterQuery.condition?.memberOf) {
-            const groupKey = filterQuery.condition.memberOf
-
-            if (!Object.values(state.filterQuery).find(filter => filter.condition && filter.condition.memberOf === groupKey)) {
-              del(state.filterQuery, [groupKey])
-            }
-          }
+          commit('removeFromFilterQuery', value)
+          commit('removeGroupIfNoLongerNeeded', updatePayload)
         }
-      } else {
-        set(state, 'filterQuery', filter)
       }
     }
   },

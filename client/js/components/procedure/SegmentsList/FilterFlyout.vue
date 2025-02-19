@@ -171,7 +171,7 @@ import {
   DpResettableInput,
   hasOwnProp
 } from '@demos-europe/demosplan-ui'
-import { mapGetters, mapMutations } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
 
 export default {
@@ -386,12 +386,15 @@ export default {
   },
 
   methods: {
+    ...mapActions('FilterFlyout', {
+      updateFilters: 'updateFilterQuery'
+    }),
+
     ...mapMutations('FilterFlyout', {
       setGroupedSelected: 'setGroupedOptionSelected',
       setIsExpanded: 'setIsExpanded',
       setIsLoading: 'setIsLoading',
-      setUngroupedSelected: 'setUngroupedOptionSelected',
-      updateFilters: 'updateFilterQuery'
+      setUngroupedSelected: 'setUngroupedOptionSelected'
     }),
 
     /**

@@ -500,20 +500,23 @@ export default {
       fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('StatementSegment', {
-      listSegments: 'list'
-    }),
+    ...mapActions('FilterFlyout', [
+      'updateFilterQuery'
+    ]),
 
     ...mapActions('Place', {
       fetchPlaces: 'list'
+    }),
+
+    ...mapActions('StatementSegment', {
+      listSegments: 'list'
     }),
 
     ...mapMutations('FilterFlyout', {
       setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
       setIsLoadingFilterFlyout: 'setIsLoading',
       setGroupedFilterOptions: 'setGroupedOptions',
-      setUngroupedFilterOptions: 'setUngroupedOptions',
-      updateFilterQuery: 'updateFilterQuery'
+      setUngroupedFilterOptions: 'setUngroupedOptions'
     }),
 
     applyQuery (page) {

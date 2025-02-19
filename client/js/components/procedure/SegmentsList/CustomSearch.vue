@@ -36,7 +36,7 @@
                 <button
                   class="btn--blank o-link--default ml-auto"
                   data-cy="customSearch:searchCustomToggleAll"
-                  v-text="Translator.trans('search.custom.toggle_all')"
+                  v-text="Translator.trans('toggle_all')"
                   @click="toggleAllFields(selectedFields.length < fields.length)" />
               </div>
               <div
