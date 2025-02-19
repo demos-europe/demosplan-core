@@ -195,11 +195,9 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
      *
      * @param string $id
      *
-     * @return Elements|mixed
-     *
      * @throws Exception
      */
-    public function update($id, array $data)
+    public function update($id, array $data): Elements
     {
         try {
             $em = $this->getEntityManager();

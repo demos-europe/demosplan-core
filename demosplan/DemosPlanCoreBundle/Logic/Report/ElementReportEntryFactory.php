@@ -42,7 +42,15 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
     private function createData(Elements $element): array
     {
         return [
-            //fixme
+            'elementId'  => $element->getId(),
+            'elementTitle' => $element->getTitle(),
+            'elementText' => $element->getText(),
+            'elementCategory' => $element->getCategory(), //eg. file, e_unterlagen, arbeitskreis, informationen,...
+            'parentCategory' => $element->getParent()?->getCategory(), //eg map, file, statement, paragraph, ..
+            'parentTitle' => $element->getParent()?->getTitle(), //eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
+            'enabled' => $element->getEnabled(),
+            'procedurePhase' => $element->getProcedure()->getPhase(),
+            'organisations' => $element->getOrganisationNames(true)
         ];
     }
 
