@@ -27,8 +27,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProcedureReportEntryFactory extends AbstractReportEntryFactory
 {
-    public function __construct(CurrentUserInterface $currentUserProvider, CustomerService $currentCustomerProvider, private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        CurrentUserInterface $currentUserProvider,
+        CustomerService $currentCustomerProvider,
+        private readonly TranslatorInterface $translator
+    ) {
         parent::__construct($currentUserProvider, $currentCustomerProvider);
     }
 

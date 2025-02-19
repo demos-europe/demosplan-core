@@ -311,8 +311,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
      */
     public function getMapElements(string $procedureId)
     {
-        return $this->getElementsRepository()
-            ->getOneBy(['pId' => $procedureId, 'category' => 'map']);
+        return $this->getElementsRepository()->getOneBy(['pId' => $procedureId, 'category' => 'map']);
     }
 
     /**
