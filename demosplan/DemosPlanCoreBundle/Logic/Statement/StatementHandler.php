@@ -2305,6 +2305,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $dataset = $records->current();
                 // Do not use line if all fields are empty
                 if (array_reduce($dataset, static fn ($carry, $item) => $carry && '' === $item, true)) {
+                    $records->next();
                     continue;
                 }
                 $newTagData = [
