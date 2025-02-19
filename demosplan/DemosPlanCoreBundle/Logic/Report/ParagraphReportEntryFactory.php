@@ -42,13 +42,13 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
     private function createData(Paragraph $paragraph): array
     {
         return [
-            'documentId'  => $paragraph->getId(),
-            'documentTitle' => $paragraph->getTitle(),
-            'documentCategory' => $paragraph->getCategory(), //eg. file, e_unterlagen, arbeitskreis, informationen,...
+            'paragraphId'  => $paragraph->getId(),
+            'paragraphTitle' => $paragraph->getTitle(),
+            'paragraphText' => $paragraph->getText(),
+            'paragraphCategory' => $paragraph->getCategory(), //eg. file, e_unterlagen, arbeitskreis, informationen,...
             'elementCategory' => $paragraph->getElement()->getCategory(), //eg map, file, statement, paragraph, ..
             'elementTitle' => $paragraph->getElement()->getTitle(), //eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
             'visible' => $paragraph->getVisible(),
-            'statement_enabled' => $paragraph->isStatementEnabled(),
             'procedurePhase' => $paragraph->getProcedure()->getPhase(),
         ];
     }
