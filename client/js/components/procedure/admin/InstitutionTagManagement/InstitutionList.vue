@@ -43,7 +43,7 @@
                 <div>
                   <button
                     class="btn--blank o-link--default ml-auto"
-                    data-cy=""
+                    data-cy="institutionList:toggleAllFilterCategories"
                     v-text="Translator.trans('search.custom.toggle_all')"
                     @click="toggleAllSelectedFilterCategories" />
                   <div v-if="!isLoading">
