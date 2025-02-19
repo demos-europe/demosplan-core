@@ -809,7 +809,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $usersToDelete = $requestData->get('elementsToAdminister');
             $this->wipeUsersById($usersToDelete);
         } else {
-            // wenn keine ausgewählt wurden, gebe eine info raus
+            // if nothing was selected - put out a warning
             $this->getMessageBag()->add('warning', 'explanation.entries.noneselected');
         }
 
