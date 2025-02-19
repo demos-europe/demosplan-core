@@ -737,8 +737,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
             $this->getMessageBag()->add('confirm', 'confirm.users.invited', ['count' => $invitedUsersCount]);
         } else {
-            // wenn keine ausgewählt wurden, gebe eine info raus
-            $this->getMessageBag()->add('warning', 'explanation.entries.noneselected');
+            // if none were chosen - put out a warning
+            $this->getMessageBag()->add('warning', 'warning.select.entries');
         }
     }
 
@@ -810,7 +810,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $this->wipeUsersById($usersToDelete);
         } else {
             // if nothing was selected - put out a warning
-            $this->getMessageBag()->add('warning', 'explanation.entries.noneselected');
+            $this->getMessageBag()->add('warning', 'warning.select.entries');
         }
 
         return null;
