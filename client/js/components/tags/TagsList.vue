@@ -44,7 +44,7 @@
           :is-in-edit-state="isInEditState"
           :procedure-id="procedureId"
           type="TagTopic"
-          @abort="abort"
+          @abort="closeEditForm"
           @delete="deleteItem"
           @edit="setEditState"
           @save="save" />
@@ -55,7 +55,7 @@
           :is-in-edit-state="isInEditState"
           :procedure-id="procedureId"
           type="Tag"
-          @abort="abort"
+          @abort="closeEditForm"
           @delete="deleteItem"
           @edit="setEditState"
           @save="save" />
@@ -177,7 +177,7 @@ export default {
       saveTagTopic: 'save'
     }),
 
-    abort () {
+    closeEditForm () {
       this.isInEditState = ''
     },
 
@@ -277,23 +277,31 @@ export default {
       this.saveTagTopic(oldParent.id)
     },
 
-    save ({ id, attributes, type }) {
-      if (id === '') {
+    save ({ id, attributes, type, isTitleChanged }) {
+      console.log('{ id, attributes, type, hasTitleChanged }', { id, attributes, type, isTitleChanged })
+      if (!id || !isTitleChanged) {
+        this.closeEditForm()
+
         return
       }
 
-      console.log('save', { id, attributes, type })
+      const updateMethod = `update${type}`
+      const saveMethod = `save${type}`
 
-      this[`update${type}`]({
-        attributes,
-        id,
-        relationships: this[type][id].relationships,
-        type
-      })
-      this[`save${type}`](id)
-        .then(() => {
-          this.isInEditState = ''
+      if (typeof this[updateMethod] === 'function' && typeof this[saveMethod] === 'function') {
+        this[updateMethod]({
+          attributes,
+          id,
+          relationships: this[type][id]?.relationships,
+          type
         })
+        this[saveMethod](id)
+          .then(() => {
+            this.closeEditForm()
+          })
+      } else {
+        console.error(`Methods ${updateMethod} or ${saveMethod} do not exist`)
+      }
     },
 
     setEditState ({ id }) {
