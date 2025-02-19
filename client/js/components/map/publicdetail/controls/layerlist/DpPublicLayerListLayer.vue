@@ -100,6 +100,18 @@ export default {
     }
   },
 
+  emits: [
+    'layer:hideOtherCategories',
+    'layer:showParent',
+    'layer:showVisibiltyGroupLayer',
+    'layer:toggle',
+    'layer:toggleLegend',
+    'layer:toggleOtherBaselayers',
+    'layer:toggleVisibiltyGroup',
+    'layer-opacity:change',
+    'layer-opacity:changed',
+  ],
+
   data () {
     return {
       isVisible: true,

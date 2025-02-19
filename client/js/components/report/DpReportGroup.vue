@@ -107,6 +107,10 @@ export default {
     }
   },
 
+  emits: [
+    'page-change'
+  ],
+
   data () {
     return {
       fields: [

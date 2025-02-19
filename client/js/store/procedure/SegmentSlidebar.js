@@ -6,9 +6,6 @@
  *
  * All rights reserved
  */
-
-import { set } from 'vue'
-
 const SegmentSlidebarStore = {
   namespaced: true,
 
@@ -34,11 +31,11 @@ const SegmentSlidebarStore = {
 
   mutations: {
     setContent (state, data) {
-      set(state, data.prop, data.val)
+      state[data.prop] = data.val
     },
 
     setProperty (state, data) {
-      set(state, [data.prop], data.val)
+      state[data.prop] = data.val
     }
   },
 

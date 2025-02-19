@@ -11,6 +11,7 @@
 import { addFormHiddenField, removeFormHiddenField } from '../../lib/core/libs/FormActions'
 import { DpButton, DpContextualHelp, DpModal, dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
 import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
@@ -25,16 +26,16 @@ export default {
     DpModal,
     DpPublicSurvey,
     DpPublicStatementList,
-    DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
-    DpSelect: async () => {
+    DpMapModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpMapModal')),
+    DpSelect: defineAsyncComponent(async () => {
       const { DpSelect } = await import('@demos-europe/demosplan-ui')
       return DpSelect
-    },
-    DpVideoPlayer: async () => {
+    }),
+    DpVideoPlayer: defineAsyncComponent(async () => {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
       return DpVideoPlayer
-    },
-    ElementsList: () => import('@DpJs/components/document/ElementsList')
+    }),
+    ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList'))
   },
 
   mixins: [dpValidateMixin, prefixClassMixin],

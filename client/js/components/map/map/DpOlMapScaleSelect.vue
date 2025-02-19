@@ -52,8 +52,11 @@ export default {
    * should not be necessary
    */
   watch: {
-    olMapState () {
-      this.init()
+    olMapState: {
+      handler () {
+        this.init()
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
