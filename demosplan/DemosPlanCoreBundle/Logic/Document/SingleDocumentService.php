@@ -103,8 +103,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
 
         $i = 1;
         foreach ($documents as $document) {
-            $this->singleDocumentRepository
-                ->update($document, ['order' => $i++]);
+            $this->singleDocumentRepository->update($document, ['order' => $i++]);
         }
 
         return true;

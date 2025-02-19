@@ -430,7 +430,11 @@ class ElementsService extends CoreService implements ElementsServiceInterface
      */
     public function addEntity(Elements $element): Elements
     {
-        return $this->getElementsRepository()->updateObject($element);
+        $element = $this->getElementsRepository()->updateObject($element);
+        $report = $this->reportEntryFactory->createElementCreateEntry($element);
+        $this->reportService->persistAndFlushReportEntries($report);
+
+        return $element;
     }
 
     public function getNextFreeOrderIndex(Procedure $procedure): int
