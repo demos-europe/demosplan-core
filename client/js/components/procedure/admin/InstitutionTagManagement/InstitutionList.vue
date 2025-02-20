@@ -472,6 +472,7 @@ export default {
      */
     applyFilterQuery (filter, categoryId) {
       this.setAppliedFilterQuery(filter)
+      this.setFilterQueryInLocalStorage('filterQuery', JSON.stringify(this.filterQuery))
       this.getInstitutionsByPage(1, categoryId)
     },
 
@@ -616,6 +617,12 @@ export default {
         })
     },
 
+    getFilterQueryFromLocalStorage () {
+      const filterQueryInStorage = localStorage.getItem('filterQuery')
+
+      return filterQueryInStorage && filterQueryInStorage !== 'undefined' ? JSON.parse(filterQueryInStorage) : {}
+    },
+
     getTagById (tagId) {
       return this.tagList.find(el => el.id === tagId) ?? null
     },
@@ -726,6 +733,25 @@ export default {
       this.currentlySelectedFilterCategories = selectedCategories
     },
 
+    setFilterQueryFromStorage () {
+      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
+      const filterIds = Object.keys(filterQueryFromStorage)
+
+      if (filterIds.length > 0) {
+        filterIds.forEach(id => {
+          const payload = { [id]: filterQueryFromStorage[id] }
+
+          if (filterQueryFromStorage[id].condition) {
+            this.updateFilterQuery(payload)
+          }
+        })
+      }
+    },
+
+    setFilterQueryInLocalStorage () {
+      localStorage.setItem('filterQuery', JSON.stringify(this.filterQuery))
+    },
+
     setInitiallySelectedColumns () {
       this.initiallySelectedColumns = this.institutionTagCategoriesValues
         .slice(0, 5)
@@ -745,6 +771,7 @@ export default {
 
   mounted () {
     this.isLoading = true
+    this.setFilterQueryFromStorage()
 
     const promises = [
       this.getInstitutionsByPage(1),
