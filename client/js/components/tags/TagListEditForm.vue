@@ -22,7 +22,7 @@
           tag: nodeElement
         }" />
     </template>
-    <div class="flex-0 pl-2 w-8">
+    <div class="flex-0 pl-4 w-8">
       <template v-if="isInEditState !== nodeElement.id">
         <button
           :aria-label="Translator.trans('item.edit')"
@@ -42,19 +42,6 @@
             icon="delete"
             aria-hidden="true" />
         </button>
-        <dp-flyout
-          v-if="nodeElement.type === 'Tag'"
-          data-cy="tagItem:flyoutEditMenu">
-          <a
-            :href="Routing.generate('DemosPlan_statement_administration_tag', {
-              tag: nodeElement.id,
-              procedure: procedureId
-            })"
-            data-cy="tag:editPage"
-            rel="noopener">
-            {{ Translator.trans('edit') }}
-          </a>
-        </dp-flyout>
       </template>
       <template v-else>
         <button
@@ -83,7 +70,6 @@
 <script>
 import {
   DpContextualHelp,
-  DpFlyout,
   DpIcon,
   DpInput
 } from '@demos-europe/demosplan-ui'
@@ -95,7 +81,6 @@ export default {
   components: {
     AddonWrapper,
     DpContextualHelp,
-    DpFlyout,
     DpIcon,
     DpInput
   },
@@ -122,7 +107,7 @@ export default {
     }
   },
 
-  data() {
+  data () {
     return {
       unsavedItem: {
         title: ''
@@ -140,8 +125,15 @@ export default {
     },
 
     editItem () {
-      this.unsavedItem = { ...this.nodeElement.attributes }
-      this.$emit('edit', { id: this.nodeElement.id, type: this.nodeElement.type })
+      if (this.nodeElement.type === 'Tag') {
+        window.location.href = Routing.generate('DemosPlan_statement_administration_tag', {
+          tag: this.nodeElement.id,
+          procedure: this.procedureId
+        })
+      } else {
+        this.unsavedItem = { ...this.nodeElement.attributes }
+        this.$emit('edit', { id: this.nodeElement.id, type: this.nodeElement.type })
+      }
     },
 
     saveItem () {
