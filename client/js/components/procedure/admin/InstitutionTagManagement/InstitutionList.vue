@@ -74,12 +74,12 @@
               :category="{ id: category.id, label: category.label }"
               class="inline-block"
               :data-cy="`institutionListFilter:${category.label}`"
-              :initial-query="queryIds"
+              :initial-query-ids="queryIds"
               :member-of="category.memberOf"
               :operator="category.comparisonOperator"
               :path="category.rootPath"
               @filterApply="(filtersToBeApplied) => applyFilterQuery(filtersToBeApplied, category.id)"
-              @filterOptions:request="createFilterOptions(category.id)" />
+              @filterOptions:request="(params) => createFilterOptions({ ...params, categoryId: category.id})" />
           </div>
 
           <dp-button
@@ -413,6 +413,7 @@ export default {
     }),
 
     ...mapMutations('FilterFlyout', {
+      setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
       setIsFilterFlyoutLoading: 'setIsLoading',
       setUngroupedFilterOptions: 'setUngroupedOptions'
     }),
@@ -476,24 +477,32 @@ export default {
       this.getInstitutionsByPage(1, categoryId)
     },
 
-    createFilterOptions (categoryId) {
+    createFilterOptions (params) {
+      const { categoryId, isInitialWithQuery } = params
       let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0 ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
+      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
+      const selectedFilterOptionIds = Object.keys(filterQueryFromStorage).filter(id => !id.includes('_group'))
 
       if (Object.keys(filterOptions).length > 0) {
         filterOptions = Object.values(filterOptions).map(option => {
           const { id, attributes } = option
           const { name } = attributes
+          const selected = selectedFilterOptionIds.includes(id)
 
           return {
             id,
             label: name,
-            selected: false
+            selected
           }
         })
       }
 
       this.setUngroupedFilterOptions({ categoryId, options: filterOptions })
       this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
+
+      if (isInitialWithQuery) {
+        this.setFilterOptionsFromFilterQuery()
+      }
     },
 
     date (d) {
@@ -695,11 +704,12 @@ export default {
      * }
      */
     setAppliedFilterQuery (filter) {
-      const isReset = Object.keys(filter).length === 0
+      const selectedFilterOptions = Object.values(filter).filter(el => el.condition)
+      const isReset = Object.keys(selectedFilterOptions).length === 0
 
       if (!isReset && !Array.isArray(this.appliedFilterQuery) && Object.keys(this.appliedFilterQuery).length === 0) {
-        Object.values(filter).forEach(el => {
-          this.$set(this.appliedFilterQuery, el.condition.value, el)
+        Object.values(selectedFilterOptions).forEach(option => {
+          this.$set(this.appliedFilterQuery, option.condition.value, option)
         })
       } else {
         if (isReset) {
@@ -708,7 +718,7 @@ export default {
           )
           this.appliedFilterQuery = Object.keys(filtersWithConditions).length ? filtersWithConditions : []
         } else {
-          this.appliedFilterQuery = filter
+          this.appliedFilterQuery = selectedFilterOptions
         }
       }
     },
@@ -731,6 +741,36 @@ export default {
 
     setCurrentlySelectedFilterCategories (selectedCategories) {
       this.currentlySelectedFilterCategories = selectedCategories
+    },
+
+    setFilterOptionsFromFilterQuery () {
+      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
+      const categoryIdsWithSelectedFilterOptions = Object.keys(filterQueryFromStorage)
+        .filter(id => id.includes('_group'))
+        .map(id => id.replace('_group', ''))
+
+      categoryIdsWithSelectedFilterOptions.forEach(id => {
+        const selectedFilterOptionIds = Object.values(filterQueryFromStorage)
+          .filter(el => el.condition?.memberOf === `${id}_group`)
+          .map(el => el.condition.value)
+
+        this.setInitialFlyoutFilterIds({ categoryId: id, filterIds: selectedFilterOptionIds })
+      })
+    },
+
+    /**
+     * Sets appliedFilterQuery if a filterQuery is stored in localStorage
+     * appliedFilterQuery is then used to create querIds
+     * queryIds are passed as initialQueryIds to FilterFlyout
+     * on mounted of the FilterFlyout, the filterOptions are then requested and created
+     * The selected filter option ids are written to the store
+     * the watcher in FilterFlyout is triggered and updates the currentQuery
+     * with the selected filter option ids from localStorage
+     */
+    setAppliedFilterQueryFromStorage () {
+      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
+
+      this.setAppliedFilterQuery(filterQueryFromStorage)
     },
 
     setFilterQueryFromStorage () {
@@ -772,6 +812,7 @@ export default {
   mounted () {
     this.isLoading = true
     this.setFilterQueryFromStorage()
+    this.setAppliedFilterQueryFromStorage()
 
     const promises = [
       this.getInstitutionsByPage(1),
