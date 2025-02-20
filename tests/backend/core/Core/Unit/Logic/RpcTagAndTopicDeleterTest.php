@@ -2,9 +2,12 @@
 
 namespace Tests\Core\Core\Unit\Logic;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\SlugFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\RpcTagAndTopicDeleter;
 use Tests\Base\RpcApiTest;
 
@@ -80,6 +83,19 @@ class RpcTagAndTopicDeleterTest extends RpcApiTest
         self::assertArrayHasKey('result', $responseBody[0]);
         self::assertTrue($responseBody[0]['result']);
 
+    }
+
+    public function testMeeting(): void
+    {
+        // this works but why
+        $procedure = ProcedureFactory::createOne();
+        $procedureId = $procedure->getId();
+//        $all = $this->getEntityManager()->getRepository(Procedure::class)->findAll();
+        $procedure = $this->getEntityManager()->find(Procedure::class, $procedureId);
+        $this->getEntityManager()->persist($procedure);
+        $this->getEntityManager()->flush();
+
+        $reicht = 5;
     }
 
 }
