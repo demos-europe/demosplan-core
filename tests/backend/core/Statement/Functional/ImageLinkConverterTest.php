@@ -150,7 +150,6 @@ class ImageLinkConverterTest extends FunctionalTestCase
 
     private function createTestSegment(): Segment
     {
-
         $segment = SegmentFactory::createOne();
         $link1 = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
             '" href="path/to/image1.jpg">Darstellung_Stell_001</a>';
