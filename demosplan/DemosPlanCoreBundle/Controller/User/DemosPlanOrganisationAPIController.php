@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
@@ -48,6 +49,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use UnexpectedValueException;
+use Webmozart\Assert\Assert;
 
 class DemosPlanOrganisationAPIController extends APIController
 {
@@ -105,38 +107,36 @@ class DemosPlanOrganisationAPIController extends APIController
         JsonApiPaginationParser $paginationParser,
     ) {
         try {
-            if ($permissions->hasPermission('area_organisations_view_of_customer')
-                || $permissions->hasPermission('area_manage_orgas_all')
-            ) {
-                $currentCustomer = $customerHandler->getCurrentCustomer();
-                if ($permissions->hasPermission('feature_organisation_own_users_list')) {
-                    $orga = $currentUser->getUser()->getOrga();
-                    if (null === $orga) {
-                        throw new AccessDeniedException('User has no orga and no access rights to get $orgalist.');
-                    }
-                    $orgaList = [$orga];
-                } else {
-                    $orgaList = $orgaService->getOrgasInCustomer($currentCustomer);
-                }
-                $filter = $request->query->has('filter') ? $request->query->get('filter') : [];
-                $filterRegisterStatus = $filter['registerStatus'] ?? '';
-                $orgaSubdomain = $currentCustomer->getSubdomain();
-                if (OrgaStatusInCustomer::STATUS_PENDING === $filterRegisterStatus) {
-                    $orgaList = $this->getPendingOrgas($orgaList, $orgaSubdomain);
-                } else {
-                    // consider a rejected or accepted orga (considering their status for different orga types and subdomains)
-                    $orgaList = $this->getRegisteredOrgas($orgaList, $orgaSubdomain);
-                }
-                $filterNameContains = $this->getFilterOrgaNameContains($filter);
-                if ('' !== $filterNameContains) {
-                    $orgaList = array_filter(
-                        $orgaList,
-                        static fn (Orga $orga) => false !== stripos($orga->getName(), (string) $filterNameContains)
-                    );
-                }
-            } else {
+            if (false === $permissions->hasPermissions(
+                ['area_organisations_view_of_customer', 'area_manage_orgas_all'],
+                'OR'
+            )) {
                 // The orgalist is required. If it's not loaded, there's no point in having this route.
                 throw new AccessDeniedException('User has no access rights to get $orgalist.');
+            }
+
+            $currentCustomer = $customerHandler->getCurrentCustomer();
+            $currentUserOrga = $currentUser->getUser()->getOrga();
+            Assert::notNull($currentUserOrga);
+
+            $orgaList = $permissions->hasPermission('feature_organisation_own_users_list') ?
+                [$currentUserOrga] : $orgaService->getOrgasInCustomer($currentCustomer);
+
+            $filter = $request->query->has('filter') ? $request->query->get('filter') : [];
+            $filterRegisterStatus = $filter['registerStatus'] ?? '';
+            $orgaSubdomain = $currentCustomer->getSubdomain();
+            if (OrgaStatusInCustomerInterface::STATUS_PENDING === $filterRegisterStatus) {
+                $orgaList = $this->getPendingOrgas($orgaList, $orgaSubdomain);
+            } else {
+                // consider a rejected or accepted orga (considering their status for different orga types and subdomains)
+                $orgaList = $this->getRegisteredOrgas($orgaList, $orgaSubdomain);
+            }
+            $filterNameContains = $this->getFilterOrgaNameContains($filter);
+            if ('' !== $filterNameContains) {
+                $orgaList = array_filter(
+                    $orgaList,
+                    static fn (Orga $orga) => false !== stripos($orga->getName(), (string) $filterNameContains)
+                );
             }
 
             // pagination
