@@ -136,7 +136,17 @@ export default {
     },
 
     deleteItem () {
-      this.$emit('delete', { id: this.nodeElement.id, type: this.nodeElement.type })
+      const { type, attributes, children, id } = this.nodeElement
+      const isTagTopic = type === 'TagTopic'
+      const topicConfirmMessage = isTagTopic && children?.length === 0 ? 'check.topic.delete' : 'check.topic.delete.tags'
+
+      const confirmMessage = isTagTopic
+        ? Translator.trans(topicConfirmMessage, { topic: attributes.title })
+        : Translator.trans('check.tag.delete', { tag: attributes.title })
+
+      if (window.dpconfirm(confirmMessage)) {
+        this.$emit('delete', { id, type })
+      }
     },
 
     editItem () {
