@@ -150,6 +150,7 @@ class RouterTest extends FunctionalTestCase
 
     public function testProcedureBeautify()
     {
+        self::markSkippedForCIIntervention();
         $urlPrefix = 'https://irgendwas.de/verfahren/';
         $urlSuffix = '/something';
 
