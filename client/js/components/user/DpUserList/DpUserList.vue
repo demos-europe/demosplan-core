@@ -98,7 +98,7 @@
 
 <script>
 import { debounce, DpContextualHelp, DpLoading, DpSearchField, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { mapActions, mapMutations, mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 
 export default {
   name: 'DpUserList',
@@ -187,14 +187,10 @@ export default {
     }),
     ...mapActions('AdministratableUser', {
       userList: 'list',
-      saveAdministratableUser: 'save',
       deleteAdministratableUser: 'delete'
     }),
-    ...mapMutations('AdministratableUser', {
-      updateAdministratableUser: 'setItem'
-    }),
 
-    deleteItems (ids) {
+    async deleteItems (ids) {
       if (!this.selectedItems.length) {
         return dplan.notify.notify('warning', Translator.trans('warning.select.entries'))
       }
@@ -205,16 +201,22 @@ export default {
 
       if (!isConfirmed) return
 
-      const deletePromises = ids.map(id => {
-        this.deleteAdministratableUser(id)
-        //this.markUserAsDeleted(id)
-          .then(() => {
+      const deleteResults = await Promise.allSettled( /* ensures all deletions attempt to execute, even if one fails. Each deletion resolves to { status: 'fulfilled' | 'rejected', value | reason } */
+        ids.map(async id => {
+          try {
+            await this.deleteAdministratableUser(id)
             delete this.itemSelections[id]
             dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
-          })
-      })
+          } catch (error) {
+            console.error(`Failed to delete user with ID ${id}:`, error)
+          }
+        })
+      )
 
-      Promise.all(deletePromises).then(() => this.loadItems())
+      // Reload items only if at least one deletion was successful
+      if (deleteResults.some(result => result.status === 'fulfilled')) {
+        this.loadItems()
+      }
     },
 
     getFilteredItems: debounce(function () {
@@ -289,16 +291,6 @@ export default {
         .then(() => {
           this.getItemsByPage()
         })
-    },
-
-    markUserAsDeleted (id) {
-      this.updateAdministratableUser({
-        attributes: { ...this.items[id].attributes, deleted: true },
-        id,
-        type: 'AdministratableUser'
-      })
-
-      return this.saveAdministratableUser(id)
     }
   },
 
