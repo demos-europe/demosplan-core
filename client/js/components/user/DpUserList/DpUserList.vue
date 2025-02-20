@@ -187,7 +187,8 @@ export default {
     }),
     ...mapActions('AdministratableUser', {
       userList: 'list',
-      saveAdministratableUser: 'save'
+      saveAdministratableUser: 'save',
+      deleteAdministratableUser: 'delete'
     }),
     ...mapMutations('AdministratableUser', {
       updateAdministratableUser: 'setItem'
@@ -205,7 +206,8 @@ export default {
       if (!isConfirmed) return
 
       const deletePromises = ids.map(id => {
-        this.markUserAsDeleted(id)
+        this.deleteAdministratableUser(id)
+        //this.markUserAsDeleted(id)
           .then(() => {
             delete this.itemSelections[id]
             dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
