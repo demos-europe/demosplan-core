@@ -15,11 +15,11 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Router;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 use Tests\Base\FunctionalTestCase;
 use Tests\Base\MockMethodDefinition;
-use Prophecy\PhpUnit\ProphecyTrait;
 
 class RouterTest extends FunctionalTestCase
 {
@@ -237,7 +237,7 @@ class RouterTest extends FunctionalTestCase
         string $pathPrefix = '',
         string $urlScheme = 'http',
         ?Procedure $procedure = null,
-        array $params = []
+        array $params = [],
     ): Router {
         $mock = $this->prophesize(RouterInterface::class);
         $mock->generate('dummyNameInputViaMock', $params, RouterInterface::ABSOLUTE_PATH)
@@ -252,8 +252,8 @@ class RouterTest extends FunctionalTestCase
         $mockGlobalConfig->getUrlPathPrefix()
             ->willReturn($pathPrefix);
         $mockMethods = [
-                new MockMethodDefinition('find', $procedure),
-                new MockMethodDefinition('getProcedureBySlug', $procedure),
+            new MockMethodDefinition('find', $procedure),
+            new MockMethodDefinition('getProcedureBySlug', $procedure),
         ];
         $mockProcedureRepository = $this->getMock(ProcedureRepository::class, $mockMethods);
 
