@@ -338,7 +338,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $nullEqualsSucceed = $this->userHandler->wipeUsersById([$userId]);
         if (null !== $nullEqualsSucceed) {
             // messageBag for errors has been filled already
-            throw new InvalidArgumentException(sprintf('Soft-deleting user with id %s failed via AdministratableUserResourceType', $user->getId()));
+            throw new InvalidArgumentException(sprintf('Soft-deleting user with id %s failed via AdministratableUserResourceType', $userId));
         }
         // messageBag with confirmation has been filled already
     }
