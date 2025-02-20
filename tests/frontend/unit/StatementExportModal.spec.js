@@ -80,7 +80,8 @@ describe('StatementExportModal', () => {
         col2: null,
         col3: null
       },
-      fileNameTemplate: null
+      fileNameTemplate: null,
+      shouldConfirm: true
     })
   })
 
@@ -100,7 +101,8 @@ describe('StatementExportModal', () => {
         col2: 'Test Column Title',
         col3: null
       },
-      fileNameTemplate: null
+      fileNameTemplate: null,
+      shouldConfirm: true
     })
   })
 
@@ -112,7 +114,8 @@ describe('StatementExportModal', () => {
     expect(emitSpy).toHaveBeenCalledWith('export', {
       route: 'dplan_statement_xls_export',
       docxHeaders: null,
-      fileNameTemplate: null
+      fileNameTemplate: null,
+      shouldConfirm: false
     })
   })
 
