@@ -91,6 +91,11 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         return $this->currentUser->hasPermission('feature_user_edit');
     }
 
+    public function isDeleteAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('area_manage_users');
+    }
+
     protected function getAccessConditions(): array
     {
         $conditions = [
@@ -292,47 +297,6 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                 }, [], OptionalField::NO, [])
             );
 
-        $configBuilder->deleted->addUpdateBehavior(
-            new CallbackAttributeSetBehaviorFactory(
-                [],
-                function (UserInterface $user, ?bool $deleted): array {
-                    if (true === $deleted) {
-                        if (!$this->currentUser->hasPermission('area_manage_users')) {
-                            $this->logger->warning(
-                                'User with id: '.$this->currentUser->getUser()->getId().
-                                'tried to wipe some user with id: '.$user->getId().
-                                ' via api despite owning the needed permission'
-                            );
-                            $this->messageBag->add('error', 'error.delete.user');
-                            throw new InvalidArgumentException('User without permission tried to wipe some user via api');
-                        }
-                        $nullEqualsSucceed = $this->userHandler->wipeUsersById([$user->getId()]);
-                        if (null !== $nullEqualsSucceed) {
-                            // messageBag for errors has been filled already
-                            throw new InvalidArgumentException(sprintf('Soft-deleting user with id %s failed via AdministratableUserResourceType', $user->getId()));
-                        }
-                        $user->setDeleted(true);
-
-                        // messageBag with confirmation has been filled already
-                        return [];
-                    }
-                    // prevent undeleting a user - despite the access-conditions checks - safety first.
-                    if ($user->isDeleted()) {
-                        $this->logger->warning(
-                            'User with id: '.$this->currentUser->getUser()->getId().
-                            ' tried to undelete some user with id: '.$user->getId().
-                            ' via api despite it being unsuported'
-                        );
-                        throw new InvalidArgumentException('undeleting users is not supported by this resourceType');
-                    }
-                    $user->setDeleted(false);
-
-                    return [];
-                },
-                OptionalField::YES,
-            )
-        );
-
         $configBuilder->addCreationBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
             $attributes = $entityData->getAttributes();
             $user->setLogin($attributes[$this->email->getAsNamesInDotNotation()]);
@@ -367,6 +331,16 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         }
 
         return parent::updateEntity($entityId, $entityData);
+    }
+
+    public function deleteEntity(string $userId): void
+    {
+        $nullEqualsSucceed = $this->userHandler->wipeUsersById([$userId]);
+        if (null !== $nullEqualsSucceed) {
+            // messageBag for errors has been filled already
+            throw new InvalidArgumentException(sprintf('Soft-deleting user with id %s failed via AdministratableUserResourceType', $user->getId()));
+        }
+        // messageBag with confirmation has been filled already
     }
 
     private function updateRoles(UserInterface $user, array $newRoles): void
