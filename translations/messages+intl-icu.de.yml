@@ -1395,6 +1395,7 @@ error.user.password.not.allowed: 'Das Passwort darf nicht gesetzt werden. Nutzer
 error.user.password.not.identical: 'Die Eingaben sind nicht identisch.'
 error.user.registration.password: "Bei der Registrierung ist ein Fehler aufgetreten. Bitte wenden Sie sich an den Support."
 error.user.update: "Die/der Nutzer*in {firstName} {lastName} konnte nicht aktualisiert werden."
+error.user.administration.limited.to.own.organisation: "Sie dürfen nur Nutzer der eigenen Organisation verwalten."
 error.userStory.voting.offline: "Die Punkte vor Ort konnten nicht gespeichert werden."
 error.userStory.voting.reset: "Ihre Bewertung konnte nicht zurückgesetzt werden."
 error.userStory.voting: "Die Bewertung konnte nicht gespeichert werden."
