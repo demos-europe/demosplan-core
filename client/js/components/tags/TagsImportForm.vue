@@ -80,10 +80,6 @@ export default {
     availableEntity () {
       return {
         exampleFile: '/files/tag_topics_import_template.csv',
-        label: 'statements.import',
-        key: 'statements',
-        permission: 'feature_statements_import_excel',
-        uploadPath: 'DemosPlan_statement_import'
       }
     },
   },
