@@ -5,22 +5,16 @@
       :id="`edit-${type}-${nodeElement.id}`"
       class="flex-1"
       v-model="unsavedItem.title" />
-    <template v-else>
-      <div
-        class="flex-1"
-        v-text="nodeElement.attributes.title" />
-      <div class="text-center w-9">
-        <dp-contextual-help
-          v-if="nodeElement.relationships?.boilerplate"
-          icon="file"
-          :text="nodeElement.relationships.boilerplate.attributes.title" />
-      </div>
-      <addon-wrapper
-        hook-name="tag.edit.form"
-        :addon-props="{
-          tag: nodeElement
-        }" />
-    </template>
+    <div v-else class="flex-1" v-text="nodeElement.attributes.title" />
+    <div class="text-center w-9">
+      <dp-contextual-help
+        v-if="nodeElement.relationships?.boilerplate"
+        icon="file"
+        :text="nodeElement.relationships.boilerplate.attributes.title" />
+    </div>
+    <addon-wrapper
+      hook-name="tag.edit.form"
+      :addon-props="{ tag: nodeElement }" />
     <div class="flex-0 pl-4 w-8">
       <template v-if="isInEditState !== nodeElement.id">
         <button
@@ -28,18 +22,14 @@
           class="btn--blank o-link--default"
           :data-cy="`tags:edit${type}`"
           @click="editItem">
-          <dp-icon
-            icon="edit"
-            aria-hidden="true" />
+          <dp-icon icon="edit" aria-hidden="true" />
         </button>
         <button
           class="btn--blank o-link--default"
           :data-cy="`tags:abortEdit${type}`"
           @click="deleteItem"
           :aria-label="Translator.trans('delete')">
-          <dp-icon
-            icon="delete"
-            aria-hidden="true" />
+          <dp-icon icon="delete" aria-hidden="true" />
         </button>
       </template>
       <template v-else>
@@ -48,18 +38,14 @@
           class="btn--blank o-link--default u-mr-0_25"
           :data-cy="`tags:save${type}`"
           @click="saveItem">
-          <dp-icon
-            icon="check"
-            aria-hidden="true" />
+          <dp-icon icon="check" aria-hidden="true" />
         </button>
         <button
           class="btn--blank o-link--default"
           :data-cy="`tags:abortEdit${type}`"
           @click="abort"
           :aria-label="Translator.trans('abort')">
-          <dp-icon
-            icon="xmark"
-            aria-hidden="true" />
+          <dp-icon icon="xmark" aria-hidden="true" />
         </button>
       </template>
     </div>
