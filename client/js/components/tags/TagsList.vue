@@ -287,20 +287,16 @@ export default {
       const updateMethod = `update${type}`
       const saveMethod = `save${type}`
 
-      if (typeof this[updateMethod] === 'function' && typeof this[saveMethod] === 'function') {
-        this[updateMethod]({
-          attributes,
-          id,
-          relationships: this[type][id]?.relationships,
-          type
+      this[updateMethod]({
+        attributes,
+        id,
+        relationships: this[type][id]?.relationships,
+        type
+      })
+      this[saveMethod](id)
+        .then(() => {
+          this.closeEditForm()
         })
-        this[saveMethod](id)
-          .then(() => {
-            this.closeEditForm()
-          })
-      } else {
-        console.error(`Methods ${updateMethod} or ${saveMethod} do not exist`)
-      }
     },
 
     setEditState ({ id }) {
