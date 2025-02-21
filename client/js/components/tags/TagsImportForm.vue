@@ -20,6 +20,7 @@
           :text="Translator.trans('tags.import')"
           for="uploadTags"
           :tooltip="Translator.trans('tags.import.help')" />
+        <a download :href="availableEntity.exampleFile" target="_blank">{{ Translator.trans('example.file') }}</a>
         <dp-upload
           id="uploadTags"
           name="r_importCsv"
@@ -73,6 +74,18 @@ export default {
       uploadedCSV: null,
       uploadedFiles: ''
     }
+  },
+
+  computed: {
+    availableEntity () {
+      return {
+        exampleFile: '/files/tag_topics_import_template.csv',
+        label: 'statements.import',
+        key: 'statements',
+        permission: 'feature_statements_import_excel',
+        uploadPath: 'DemosPlan_statement_import'
+      }
+    },
   },
 
   methods: {
