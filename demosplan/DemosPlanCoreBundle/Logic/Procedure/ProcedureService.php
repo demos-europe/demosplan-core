@@ -259,12 +259,16 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function switchPhasesOfProceduresUntilNow(): array
     {
         $proceduresToSwitch = $this->getProceduresToSwitchUntilNow();
+        $this->logger->debug('Found '.\count($proceduresToSwitch).' procedures to switch phases');
 
         $externalProcedureCounter = 0;
         $internalProcedureCounter = 0;
         $entitiesToPersist = [];
 
         foreach ($proceduresToSwitch as $procedure) {
+
+            $this->logger->info('Switching phase of procedure '.$procedure->getName().' ('.$procedure->getId().')');
+
             // determine user; needs to be done before the phase change as it is lost afterwards
             $changeUserInternal = $procedure->getSettings()->getDesignatedPhaseChangeUser();
             $changeUserExternal = $procedure->getSettings()->getDesignatedPublicPhaseChangeUser();
@@ -281,6 +285,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $internalPhaseSwitched = $this->switchToDesignatedPhase($procedure);
             $procedureAfterExternalAndInternalChange = $this->cloneProcedure($procedure);
             $fallbackReportUserName = $this->translator->trans('user.deleted');
+
+            $this->logger->info('Result of changes for phase switch (not persisted): external: ',
+                ['external' => $externalPhaseSwitched, 'internal' => $internalPhaseSwitched]
+            );
 
             // create either a single report entry if the same user did both changes or two separate
             // changes for separate users
@@ -1942,7 +1950,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $procedureSettings = $procedure->getSettings();
 
         if (!$this->isAutoSwitchOfPhasePossible($procedure)) {
-            $this->logger->info('Automatic phase switch prevented because of incomplete settings.', [$procedure->getId()]);
+            $this->logger->info('Automatic phase switch prevented because of incomplete settings.',
+                [
+                    'id' => $procedure->getId(),
+                    'switchDate' => $procedure->getPhaseObject()->getDesignatedSwitchDate(),
+                    'phase' => $procedure->getPhaseObject()->getDesignatedPhase(),
+                    'endDate' => $procedure->getPhaseObject()->getDesignatedEndDate(),
+                ]
+            );
 
             $this->resetDesignatedPhaseSwitch($procedureSettings);
 
@@ -1951,6 +1966,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         $switchDate = $procedureSettings->getDesignatedSwitchDate();
         if (Carbon::now()->lessThan($switchDate)) {
+            $this->logger->info('Did not switch phase because switch date is in the future.', [$procedure->getId()]);
             // do not reset phase switch as public and internal phase switch may
             // have different timestamps. In that case one of them would be deleted
             // silently
@@ -1988,11 +2004,21 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $procedureSettings = $procedure->getSettings();
 
         if (!$this->isAutoSwitchOfPublicPhasePossible($procedure)) {
+            $this->logger->info('Auto switch public phase is not possible',
+                [
+                    'id' => $procedure->getId(),
+                    'switchDate' => $procedure->getPhaseObject()->getDesignatedSwitchDate(),
+                    'phase' => $procedure->getPhaseObject()->getDesignatedPhase(),
+                    'endDate' => $procedure->getPhaseObject()->getDesignatedEndDate(),
+                ]
+            );
+
             return false;
         }
 
         $publicSwitchDate = $procedureSettings->getDesignatedPublicSwitchDate();
         if (Carbon::now()->lessThan($publicSwitchDate)) {
+            $this->logger->info('Did not switch public phase because switch date is in the future.', [$procedure->getId(), $publicSwitchDate, Carbon::now()]);
             // do not reset phase switch as public and internal phase switch may
             // have different timestamps. In that case one of them would be deleted
             // silently
