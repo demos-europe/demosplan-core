@@ -329,7 +329,9 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             }
 
             if ($internalPhaseSwitched || $externalPhaseSwitched) {
-                $entitiesToPersist[] = $procedure;
+                // directly update procedure in loop to create report entries
+                // and dispatch events
+                $this->updateProcedureObject($procedure);
             }
         }
 
