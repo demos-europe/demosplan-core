@@ -90,6 +90,11 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         return $this->currentUser->hasPermission('feature_user_edit');
     }
 
+    public function isDeleteAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('area_manage_users');
+    }
+
     protected function getAccessConditions(): array
     {
         $conditions = [
@@ -332,6 +337,16 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         }
 
         return parent::updateEntity($entityId, $entityData);
+    }
+
+    public function deleteEntity(string $userId): void
+    {
+        $nullEqualsSucceed = $this->userHandler->wipeUsersById([$userId]);
+        if (null !== $nullEqualsSucceed) {
+            // messageBag for errors has been filled already
+            throw new InvalidArgumentException(sprintf('Soft-deleting user with id %s failed via AdministratableUserResourceType', $userId));
+        }
+        // messageBag with confirmation has been filled already
     }
 
     private function updateRoles(UserInterface $user, array $newRoles): void
