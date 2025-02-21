@@ -12,13 +12,10 @@
         :value="dplan.csrfToken">
 
       <fieldset class="flow-root pb-1">
-        <dp-contextual-help
-          class="float-right"
-          :text="Translator.trans('tags.import.help')"
-        ></dp-contextual-help>
         <dp-label
           :text="Translator.trans('tags.import')"
           for="uploadTags"
+          :hint="Translator.trans('tags.import.hint')"
           :tooltip="Translator.trans('tags.import.help')" />
         <a download :href="availableEntity.exampleFile" target="_blank">{{ Translator.trans('example.file') }}</a>
         <dp-upload
