@@ -266,7 +266,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $entitiesToPersist = [];
 
         foreach ($proceduresToSwitch as $procedure) {
-
             $this->logger->info('Switching phase of procedure '.$procedure->getName().' ('.$procedure->getId().')');
 
             // determine user; needs to be done before the phase change as it is lost afterwards
@@ -1919,6 +1918,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function isAutoSwitchOfPublicPhasePossible(Procedure $procedure): bool
     {
         $participationPhase = $procedure->getPublicParticipationPhaseObject();
+
         return null !== $participationPhase->getDesignatedSwitchDate()
             && null !== $participationPhase->getDesignatedPhase()
             && null !== $participationPhase->getDesignatedEndDate();
@@ -1932,6 +1932,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     public function isAutoSwitchOfPhasePossible(Procedure $procedure): bool
     {
         $institutionPhase = $procedure->getPhaseObject();
+
         return null !== $institutionPhase->getDesignatedSwitchDate()
             && null !== $institutionPhase->getDesignatedPhase()
             && null !== $institutionPhase->getDesignatedEndDate();
@@ -1952,10 +1953,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         if (!$this->isAutoSwitchOfPhasePossible($procedure)) {
             $this->logger->info('Automatic phase switch prevented because of incomplete settings.',
                 [
-                    'id' => $procedure->getId(),
+                    'id'         => $procedure->getId(),
                     'switchDate' => $procedure->getPhaseObject()->getDesignatedSwitchDate(),
-                    'phase' => $procedure->getPhaseObject()->getDesignatedPhase(),
-                    'endDate' => $procedure->getPhaseObject()->getDesignatedEndDate(),
+                    'phase'      => $procedure->getPhaseObject()->getDesignatedPhase(),
+                    'endDate'    => $procedure->getPhaseObject()->getDesignatedEndDate(),
                 ]
             );
 
@@ -2006,10 +2007,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         if (!$this->isAutoSwitchOfPublicPhasePossible($procedure)) {
             $this->logger->info('Auto switch public phase is not possible',
                 [
-                    'id' => $procedure->getId(),
+                    'id'         => $procedure->getId(),
                     'switchDate' => $procedure->getPhaseObject()->getDesignatedSwitchDate(),
-                    'phase' => $procedure->getPhaseObject()->getDesignatedPhase(),
-                    'endDate' => $procedure->getPhaseObject()->getDesignatedEndDate(),
+                    'phase'      => $procedure->getPhaseObject()->getDesignatedPhase(),
+                    'endDate'    => $procedure->getPhaseObject()->getDesignatedEndDate(),
                 ]
             );
 
