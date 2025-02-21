@@ -436,7 +436,7 @@ check.survey.comment.disapprove: "Sind Sie sicher, dass Sie die Veröffentlichun
 check.tag.delete: "Sind Sie sicher, dass Sie das Schlagwort \"{tag}\" löschen möchten?"
 check.tag_is_used.delete: "Sind Sie sicher, dass Sie das Schlagwort löschen möchten? Es ist aktuell an mindestens eine Institution vergeben. Wenn Sie das Schlagwort löschen, wird es von den Institutionen entfernt."
 check.topic.delete.tags: "Sind Sie sicher, daß Sie das Thema \"{topic}\" und alle zugeordneten Schlagworte löschen möchten?"
-check.topic.delete: "Sind Sie sicher, daß Sie das Thema und alle Beiträge dazu löschen möchten?"
+check.topic.delete: "Sind Sie sicher, daß Sie das Thema \"{topic}\" löschen möchten?"
 check.user.delete: |
     {count, plural,
         =1 { Sind Sie sicher, dass Sie diese*n Nutzer*in löschen möchten? }
