@@ -1,5 +1,6 @@
 <script>
 import { DpLoading } from '@demos-europe/demosplan-ui'
+import DomPurify from 'dompurify'
 
 export default {
   name: 'TextContentRenderer',
@@ -41,8 +42,10 @@ export default {
    * @return {*}
    */
   render (h, context) {
+    const sanitizedText = DomPurify.sanitize(context.props.text)
+
     const immediateComponent = {
-      template: `<div class='text-wrapper w-fit' data-cy='textWrapper'>${context.props.text}</div>`,
+      template: `<div class='text-wrapper w-fit' data-cy='textWrapper'>${sanitizedText}</div>`,
       data () {
         return context.props.data
       }
