@@ -574,6 +574,12 @@ feature_admin_assessmenttable_export_docx_condensed:
     label: 'Abwägungstabelle in kompaktem Docx-Format exportieren'
     loginRequired: true
     parent: feature_admin
+feature_admin_assessmenttable_export_potential_areas_xlsx:
+    label: 'Export of potential areas in xlsx format'
+    description: 'Permission to enable the export of potential areas in xlsx format.'
+    expose: true
+    loginRequired: true
+    parent: feature_admin
 feature_admin_assessmenttable_export_statement_generic_xlsx:
     label: 'Enable Excel Export'
     description: 'Permission to enable excel export for statement(s) with all data from assessmenttable.'
