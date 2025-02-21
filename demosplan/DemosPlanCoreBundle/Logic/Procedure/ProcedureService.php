@@ -1910,11 +1910,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     public function isAutoSwitchOfPublicPhasePossible(Procedure $procedure): bool
     {
-        $procedureSettings = $procedure->getSettings();
-
-        return null !== $procedureSettings->getDesignatedPublicSwitchDate()
-            && null !== $procedureSettings->getDesignatedPublicPhase()
-            && null !== $procedureSettings->getDesignatedPublicEndDate();
+        $participationPhase = $procedure->getPublicParticipationPhaseObject();
+        return null !== $participationPhase->getDesignatedSwitchDate()
+            && null !== $participationPhase->getDesignatedPhase()
+            && null !== $participationPhase->getDesignatedEndDate();
     }
 
     /**
@@ -1924,11 +1923,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      */
     public function isAutoSwitchOfPhasePossible(Procedure $procedure): bool
     {
-        $procedureSettings = $procedure->getSettings();
-
-        return null !== $procedureSettings->getDesignatedSwitchDate()
-            && null !== $procedureSettings->getDesignatedPhase()
-            && null !== $procedureSettings->getDesignatedEndDate();
+        $institutionPhase = $procedure->getPhaseObject();
+        return null !== $institutionPhase->getDesignatedSwitchDate()
+            && null !== $institutionPhase->getDesignatedPhase()
+            && null !== $institutionPhase->getDesignatedEndDate();
     }
 
     /**
