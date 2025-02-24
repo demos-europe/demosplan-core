@@ -117,20 +117,20 @@ class ReportMessageConverter
             } elseif (ReportEntry::GROUP_ELEMENT === $group) { // Planungsdokumentenkategorien
                 if (ReportEntry::CATEGORY_ADD === $category) {
                     $message = $this->translator->trans('report.add.element', [
-                        'elementTitle'    => $reportEntryMessage['title'],
-                        'elementText'     => $reportEntryMessage['text'],
-                        'elementCategory' => $reportEntryMessage['category'],
+                        'elementTitle'        => $reportEntryMessage['title'],
+                        'elementText'         => $reportEntryMessage['text'],
+                        'elementCategory'     => $reportEntryMessage['category'],
                         'fileName'            => $reportEntryMessage['fileName'],
-                        'enabled'         => $reportEntryMessage['enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
+                        'enabled'             => $reportEntryMessage['enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
                     ]);
                 }
                 if (ReportEntry::CATEGORY_UPDATE === $category) {
                     $message = $this->translator->trans('report.update.element', [
-                        'elementTitle'    => $reportEntryMessage['title'],
-                        'elementText'     => $reportEntryMessage['text'],
-                        'elementCategory' => $reportEntryMessage['category'],
+                        'elementTitle'        => $reportEntryMessage['title'],
+                        'elementText'         => $reportEntryMessage['text'],
+                        'elementCategory'     => $reportEntryMessage['category'],
                         'fileName'            => $reportEntryMessage['fileName'],
-                        'enabled'         => $reportEntryMessage['enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
+                        'enabled'             => $reportEntryMessage['enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
                     ]);
                 }
                 if (ReportEntry::CATEGORY_DELETE === $category) {
