@@ -574,6 +574,12 @@ feature_admin_assessmenttable_export_docx_condensed:
     label: 'Abwägungstabelle in kompaktem Docx-Format exportieren'
     loginRequired: true
     parent: feature_admin
+feature_admin_assessmenttable_export_potential_areas_xlsx:
+    label: 'Export of potential areas in xlsx format'
+    description: 'Permission to enable the export of potential areas in xlsx format.'
+    expose: true
+    loginRequired: true
+    parent: feature_admin
 feature_admin_assessmenttable_export_statement_generic_xlsx:
     label: 'Enable Excel Export'
     description: 'Permission to enable excel export for statement(s) with all data from assessmenttable.'
@@ -1370,6 +1376,11 @@ feature_organisation_set_showlist:
     label: 'Anzeigen der Organisation in der Institutionen-Liste'
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
+feature_organisation_own_users_list:
+    description: 'used for organisation administration users to limit their access scope to their own organisation'
+    expose: false
+    label: 'allows to load the organisation and their users of the current organisation only'
+    loginRequired: true
 feature_organisation_user_list:
     description: 'allows to show Organisations list but does not allow access to the Organisation area in the menu'
     expose: true

@@ -112,7 +112,7 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
             'area_organisations',
             'area_report_mastertoeblist',
             'feature_organisation_user_list'
-        );
+        ) && !$this->currentUser->hasAnyPermissions('feature_organisation_own_users_list');
 
         $mandatoryConditions = $this->getMandatoryConditions();
 
