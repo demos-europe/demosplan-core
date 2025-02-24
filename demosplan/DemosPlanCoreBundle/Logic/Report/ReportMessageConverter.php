@@ -120,6 +120,7 @@ class ReportMessageConverter
                         'elementTitle'    => $reportEntryMessage['title'],
                         'elementText'     => $reportEntryMessage['text'],
                         'elementCategory' => $reportEntryMessage['category'],
+                        'fileName'            => $reportEntryMessage['fileName'],
                         'enabled'         => $reportEntryMessage['enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
                     ]);
                 }
@@ -128,6 +129,7 @@ class ReportMessageConverter
                         'elementTitle'    => $reportEntryMessage['title'],
                         'elementText'     => $reportEntryMessage['text'],
                         'elementCategory' => $reportEntryMessage['category'],
+                        'fileName'            => $reportEntryMessage['fileName'],
                         'enabled'         => $reportEntryMessage['enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
                     ]);
                 }
@@ -164,6 +166,7 @@ class ReportMessageConverter
                         'documentTitle'     => $reportEntryMessage['title'],
                         'documentText'      => $reportEntryMessage['text'],
                         'documentCategory'  => $this->translator->trans($reportEntryMessage['category']),
+                        'fileName'          => $reportEntryMessage['fileName'],
                         'visible'           => $reportEntryMessage['visible'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
                         'statement_enabled' => $reportEntryMessage['statement_enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
                     ]);
@@ -173,6 +176,7 @@ class ReportMessageConverter
                         'documentTitle'     => $reportEntryMessage['title'],
                         'documentText'      => $reportEntryMessage['text'],
                         'documentCategory'  => $this->translator->trans($reportEntryMessage['category']),
+                        'fileName'          => $reportEntryMessage['fileName'],
                         'visible'           => $reportEntryMessage['visible'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
                         'statement_enabled' => $reportEntryMessage['statement_enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
                     ]);

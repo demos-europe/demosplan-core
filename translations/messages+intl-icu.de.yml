@@ -4259,12 +4259,14 @@ report.add.element: |
     Titel: {title}
     Text: {text}
     Kategorie: {category}
+    Planungsdokument als Datei: {fileName}
     Veröffentlicht: {enabled}
 report.update.element: |
     Eine Planungsdokumentenkategorie wurde geändert zu:
     Titel: {title}
     Text: {text}
     Kategorie: {category}
+    Planungsdokument als Datei: {fileName}
     Veröffentlicht: {enabled}
 report.delete.element: "Das Planungsdokumentenkategorie {title} wurde gelöscht."
 report.add.paragraph: |
@@ -4285,7 +4287,7 @@ report.add.singleDocument: |
     Titel: {title}
     Text: {text}
     Kategorie: {category}
-    Datei: {relatedFile}
+    Datei: {fileName}
     Sichtbar: {visible}
     Stellungnahme möglich: {statement_enabled}
 report.update.singleDocument: |
@@ -4293,7 +4295,7 @@ report.update.singleDocument: |
     Titel: {title}
     Text: {text}
     Kategorie: {category}
-    Datei: {relatedFile}
+    Datei: {fileName}
     Sichtbar: {visible}
     Stellungnahme möglich: {statement_enabled}
 report.delete.singleDocument: "Das Planungsdokument {title} wurde gelöscht."
