@@ -18,8 +18,7 @@ import { initialize } from '@DpJs/InitVue'
 const stores = {}
 const components = { DpReportListing }
 
-const presetModules = ['general', 'public_phase', 'invitations', 'register_invitations', 'final_mails', 'statements', 'documents']
-  .filter(name => hasPermission('feature_procedure_report_' + name))
+const presetModules = ['general', 'public_phase', 'invitations', 'register_invitations', 'final_mails', 'statements', 'elements', 'singleDocuments', 'paragraphs']
   .map(name => {
     const camelName = name.replace(/_([a-z])/g, (match, p1) => p1.toUpperCase())
     return {

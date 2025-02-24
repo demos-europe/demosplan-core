@@ -1,16 +1,16 @@
 <license>
-  (c) 2010-present DEMOS plan GmbH.
+(c) 2010-present DEMOS plan GmbH.
 
-  This file is part of the package demosplan,
-  for more information see the license file.
+This file is part of the package demosplan,
+for more information see the license file.
 
-  All rights reserved
+All rights reserved
 </license>
 
 <template>
   <dp-loading
     v-if="isFirstLoad"
-    class="u-mt-2" />
+    class="u-mt-2"/>
 
   <div v-else>
     <div
@@ -21,7 +21,7 @@
         :href="Routing.generate('dplan_export_report', { procedureId })">
         <i
           class="fa fa-share-square"
-          aria-hidden="true" />
+          aria-hidden="true"/>
         {{ Translator.trans('export.trigger.pdf') }}
       </a>
     </div>
@@ -92,16 +92,38 @@
       :is-loading="statementsLoading"
       @page-change="handlePageChange('statements', $event)" />
 
+    <h2>{{ Translator.trans('plandocument.and.drawing') }}:</h2>
+    <hr>
+
     <dp-report-group
-      v-if="hasPermission('feature_procedure_report_documents')"
-      group="documents"
-      group-label="plandocument.and.drawing"
-      content-label="document"
-      :items="documentsItems"
-      :current-page="documentsCurrentPage"
-      :total-pages="documentsTotalPages"
-      :is-loading="documentsLoading"
-      @page-change="handlePageChange('documents', $event)" />
+      group="elements"
+      group-label="documents"
+      content-label="element"
+      :items="elementsItems"
+      :current-page="elementsCurrentPage"
+      :total-pages="elementsTotalPages"
+      :is-loading="elementsLoading"
+      @page-change="handlePageChange('elements', $event)" />
+
+    <dp-report-group
+      group="singleDocuments"
+      group-label="files"
+      content-label="files"
+      :items="singleDocumentsItems"
+      :current-page="singleDocumentsCurrentPage"
+      :total-pages="singleDocumentsTotalPages"
+      :is-loading="singleDocumentsLoading"
+      @page-change="handlePageChange('singleDocuments', $event)" />
+
+    <dp-report-group
+      group="paragraphs"
+      group-label="categories"
+      content-label="category"
+      :items="paragraphsItems"
+      :current-page="paragraphsCurrentPage"
+      :total-pages="paragraphsTotalPages"
+      :is-loading="paragraphsLoading"
+      @page-change="handlePageChange('paragraphs', $event)" />
   </div>
 </template>
 
@@ -169,11 +191,23 @@ export default {
       statementsTotalPages: 'totalPages',
       statementsLoading: 'loading'
     }),
-    ...mapState('report/documents', {
-      documentsItems: 'items',
-      documentsCurrentPage: 'currentPage',
-      documentsTotalPages: 'totalPages',
-      documentsLoading: 'loading'
+    ...mapState('report/elements', {
+      elementsItems: 'items',
+      elementsCurrentPage: 'currentPage',
+      elementsTotalPages: 'totalPages',
+      elementsLoading: 'loading'
+    }),
+    ...mapState('report/singleDocuments', {
+      singleDocumentsItems: 'items',
+      singleDocumentsCurrentPage: 'currentPage',
+      singleDocumentsTotalPages: 'totalPages',
+      singleDocumentsLoading: 'loading'
+    }),
+    ...mapState('report/paragraphs', {
+      paragraphsItems: 'items',
+      paragraphsCurrentPage: 'currentPage',
+      paragraphsTotalPages: 'totalPages',
+      paragraphsLoading: 'loading'
     })
   },
 
@@ -185,7 +219,9 @@ export default {
       listRegisterInvitations: 'report/registerInvitations/list',
       listFinalMails: 'report/finalMails/list',
       listStatements: 'report/statements/list',
-      listDocuments: 'report/documents/list'
+      listElements: 'report/elements/list',
+      listSingleDocuments: 'report/singleDocuments/list',
+      listParagraphs: 'report/paragraphs/list'
     }),
 
     handlePageChange (group, page) {
@@ -206,29 +242,32 @@ export default {
   },
 
   mounted () {
-    Promise.all([
-      'general',
-      'public_phase',
-      'invitations',
-      'register_invitations',
-      'final_mails',
-      'statements',
-      'documents']
-      .filter(groupName => {
-        /*
-         * This returns one of those permissions:
-         * - feature_procedure_report_general
-         * - feature_procedure_report_public_phase
-         * - feature_procedure_report_register_invitations
-         * - feature_procedure_report_final_mails
-         * - feature_procedure_report_statements
-         * - feature_procedure_report_documents
-         */
-        return hasPermission('feature_procedure_report_' + groupName)
+    // Promise.all([
+    //   'general',
+    //   'public_phase',
+    //   'invitations',
+    //   'register_invitations',
+    //   'final_mails',
+    //   'statements']
+    //   .filter(groupName => {
+    //     /*
+    //      * This returns one of those permissions:
+    //      * - feature_procedure_report_general
+    //      * - feature_procedure_report_public_phase
+    //      * - feature_procedure_report_register_invitations
+    //      * - feature_procedure_report_final_mails
+    //      * - feature_procedure_report_statements
+    //      * - feature_procedure_report_documents
+    //      */
+    //     return hasPermission('feature_procedure_report_' + groupName)
+    //   })
+    //   .map(groupName => {
+    //     return this.handlePageChange(groupName, 1)
+    //   })).then(() => { this.isFirstLoad = false })
+    this.handlePageChange('statements', 1)
+      .then(() => {
+        this.isFirstLoad = false
       })
-      .map(groupName => {
-        return this.handlePageChange(groupName, 1)
-      })).then(() => { this.isFirstLoad = false })
   }
 }
 </script>
