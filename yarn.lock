@@ -2430,9 +2430,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:^0.3.45":
-  version: 0.3.45
-  resolution: "@demos-europe/demosplan-ui@npm:0.3.45"
+"@demos-europe/demosplan-ui@npm:^0.3.48":
+  version: 0.3.48
+  resolution: "@demos-europe/demosplan-ui@npm:0.3.48"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.4.5"
@@ -2507,7 +2507,7 @@ __metadata:
       optional: true
     prosemirror-view:
       optional: true
-  checksum: 10c0/4020148687840a4a75e55afe20df041a861a4ef2786518b5a61afd7a3f9ec2323fea6450945936ea31dd0c591e0732ceb7c89897db997cb84268b8a7bac987c2
+  checksum: 10c0/356215567e4cda45ec905a452132267113147b8217a847f52db34fcc5ea425573269cba3065a93d1a165c9a0aa32c41dee1e326e53563e6514dd0ba2fb1b6629
   languageName: node
   linkType: hard
 
@@ -2525,9 +2525,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@efrane/vuex-json-api@npm:^0.1.2":
-  version: 0.1.2
-  resolution: "@efrane/vuex-json-api@npm:0.1.2"
+"@efrane/vuex-json-api@npm:^0.1.3":
+  version: 0.1.3
+  resolution: "@efrane/vuex-json-api@npm:0.1.3"
   dependencies:
     deep-object-diff: "npm:^1.1.9"
     json-api-normalizer: "npm:^1.0"
@@ -2535,7 +2535,7 @@ __metadata:
   peerDependencies:
     "@vue/compat": 3.2.0
     vuex: ^4.0.2
-  checksum: 10c0/45ed234fc41eaba627461b8746cdb85d5a4fffe4779ebda4a44eff06ae2011a56d7220b34c4aa50b188d2e9823d41118cc309c467893911c39909ccccb7b9168
+  checksum: 10c0/a9db989d13ea0557822b6b25efcd7296201c7b9bee987047ba2f19224f14fc93ac4ee6a55760b66aa0719ab11a7adc101e29e6af65b13fb60bb52aed3f32a977
   languageName: node
   linkType: hard
 
@@ -13318,9 +13318,9 @@ __metadata:
     "@babel/plugin-transform-runtime": "npm:^7.25.9"
     "@babel/preset-env": "npm:^7.26.0"
     "@babel/runtime": "npm:^7.26.0"
-    "@demos-europe/demosplan-ui": "npm:^0.3.45"
+    "@demos-europe/demosplan-ui": "npm:^0.3.48"
     "@demos-europe/dp-consent": "npm:^1.3"
-    "@efrane/vuex-json-api": "npm:^0.1.2"
+    "@efrane/vuex-json-api": "npm:^0.1.3"
     "@fullhuman/postcss-purgecss": "npm:^6.0.0"
     "@masterportal/masterportalapi": "npm:2.40.0"
     "@sentry/browser": "npm:^8.51.0"

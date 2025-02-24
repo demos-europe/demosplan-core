@@ -6,14 +6,19 @@
 
 ## UNRELEASED
 - Allow flag on external links to indicate this URL should only be shown for user(roles) with a specific permission
+- Extend safelist for purge css to include all plyr classes
 
 ### Features
 - Institution tag management: Add search field and filters to institution list
 - Procedure basic settings: Move procedure location up under the "internal" section
+- TagsListEditForm: add a confirmation message before deleting the Tag or Topic
 
 ### Further changes
 - Segments list: Use DpSearchField for custom search
 - DpInlineNotification: Set margin from outside the component (instead of inside)
+- Rework Tags-Lists: Now works with APi2.0 and is extendable by addons.
+- Enable the DELETE method for the AdministratableUser resource type
+- TagsList: trigger an update request only when the title is modified
 
 ## 2.20.0
 
