@@ -724,7 +724,7 @@ export default {
         'textIsTruncated',
         // Relationships:
         'assignee',
-        'attachments',
+        'genericAttachments',
         'segments'
       ]
       if (this.isSourceAndCoupledProcedure) {
@@ -754,8 +754,8 @@ export default {
         include: [
           'segments',
           'assignee',
-          'attachments',
-          'attachments.file'
+          'genericAttachments',
+          'genericAttachments.file'
         ].join(),
         fields: {
           Statement: statementFields.join(),
@@ -778,8 +778,8 @@ export default {
      * Returns the hash of the original statement attachment
      */
     getOriginalPdfAttachmentHash (el) {
-      if (el.hasRelationship('attachments')) {
-        const originalAttachment = Object.values(el.relationships.attachments.list())
+      if (el.hasRelationship('genericAttachments')) {
+        const originalAttachment = Object.values(el.relationships.genericAttachments.list())
           .filter(attachment => attachment.attributes.attachmentType === 'source_statement')
         if (originalAttachment.length === 1) {
           return originalAttachment[0].relationships.file.get().attributes.hash
