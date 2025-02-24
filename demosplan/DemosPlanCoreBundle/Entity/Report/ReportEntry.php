@@ -39,6 +39,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntryInterface
 {
     final public const GROUP_PROCEDURE = 'procedure';
+    final public const GROUP_SINGLE_DOCUMENT = 'singleDocument';
+    final public const GROUP_PARAGRAPH = 'paragraph';
+    final public const GROUP_ELEMENT = 'element';
     final public const GROUP_STATEMENT = 'statement';
     final public const GROUP_MASTER_PUBLIC_AGENCY = 'mastertoeb';
     final public const GROUP_ORGA = 'orga';

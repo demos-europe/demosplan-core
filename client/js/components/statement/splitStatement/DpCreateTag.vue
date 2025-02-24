@@ -55,17 +55,25 @@
       v-model="tagTopic.title"
       required />
 
+    <addon-wrapper
+      class="block mb-4"
+      hook-name="tag.create.form"
+      :addon-props="{
+        hasInlineNotification: false
+      }" />
+
     <dp-button-row
       align="left"
       primary
       secondary
       variant="outline"
       @primary-action="dpValidateAction('createTag', save, false)"
-      @secondary-action="abort" />
+      @secondary-action="closeForm" />
   </div>
 </template>
 
 <script>
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import {
   DpButtonRow,
   DpInput,
@@ -80,6 +88,7 @@ export default {
   name: 'DpCreateTag',
 
   components: {
+    AddonWrapper,
     DpButtonRow,
     DpInput,
     DpLabel,
@@ -134,7 +143,7 @@ export default {
       'updateProperty'
     ]),
 
-    abort () {
+    closeForm () {
       this.$emit('close-create-form')
     },
 
@@ -201,8 +210,6 @@ export default {
       const isNewTopic = this.tagTopic.id === ''
 
       if (!hasError) {
-        this.$emit('close-create-form')
-
         // Prepare payload for tagTopics update
         const topic = {
           attributes: {
@@ -254,10 +261,13 @@ export default {
                     }
                   }
                   this.updateTags(tagResource)
+                  this.$root.$emit('tag:created', tagResource.id)
+                  this.closeForm()
                 })
                 .catch(() => {
                   // Reset tags in store
                   this.updateTags(newTag)
+                  this.closeForm()
                 })
             })
             .catch(() => {
@@ -265,16 +275,20 @@ export default {
               this.updateTags(newTag)
               // Reset tagTopics in store
               this.updateProperty({ prop: 'tagTopics', obj: topic })
+              this.closeForm()
             })
         } else {
           this.createTagAction({ tag: this.tag, topicId: this.tagTopic.id })
             .then((response) => {
               const updatedAvailableTag = response.data.data
               this.updateTags(updatedAvailableTag)
+              this.$root.$emit('tag:created', updatedAvailableTag.id)
+              this.closeForm()
             })
             .catch(() => {
               // Reset tags in store
               this.updateTags(newTag)
+              this.closeForm()
             })
         }
       }

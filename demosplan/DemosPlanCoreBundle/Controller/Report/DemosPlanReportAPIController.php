@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitationReportEntryResourceTyp
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PublicPhaseReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\RegisterInvitationReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ReportEntryResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\SingleDocumentReportEntryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementReportEntryResourceType;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
 use Exception;
@@ -44,7 +45,13 @@ class DemosPlanReportAPIController extends APIController
      *
      * @param string $group
      */
-    #[Route(path: '/api/1.0/reports/{procedureId}/{group}', methods: ['GET'], name: 'dplan_api_report_procedure_list', defaults: ['group' => null], options: ['expose' => true])]
+    #[Route(
+        path: '/api/1.0/reports/{procedureId}/{group}',
+        methods: ['GET'],
+        name: 'dplan_api_report_procedure_list',
+        defaults: ['group' => null],
+        options: ['expose' => true]
+    )]
     public function listProcedureReportsAction(
         JsonApiPaginationParser $paginationParser,
         PaginatorFactory $paginatorFactory,
@@ -53,6 +60,7 @@ class DemosPlanReportAPIController extends APIController
     ): APIResponse {
         $resourceTypeName = match ($group) {
             'general'             => GeneralReportEntryResourceType::getName(),
+            'documents'           => SingleDocumentReportEntryResourceType::getName(),
             'statements'          => StatementReportEntryResourceType::getName(),
             'publicPhase'         => PublicPhaseReportEntryResourceType::getName(),
             'invitations'         => InvitationReportEntryResourceType::getName(),

@@ -552,6 +552,23 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     }
 
     /**
+     * @return array<>|string
+     */
+    public function getOrganisationNames($asString): array|string
+    {
+        $organisations = collect($this->getOrganisations())->map(
+            function ($item) {
+                return $item->getName();
+            })->sort();
+
+        if ($asString) {
+            return $organisations->implode(', ');
+        }
+
+        return $organisations->toArray();
+    }
+
+    /**
      * @param Collection<int, Orga> $organisations
      */
     public function setOrganisations(Collection $organisations): void
