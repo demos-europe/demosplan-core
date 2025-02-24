@@ -132,7 +132,7 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         ProcedureRepository $procedureRepository,
         private readonly ProcedureService $procedureService,
         StatementService $statementService,
-        $name = null
+        $name = null,
     ) {
         parent::__construct($name);
 
@@ -335,7 +335,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         $this->logger->info('Finished Addon Maintenance.');
     }
 
-
     /**
      * Get postalcode, gemeindekennzahl etc for procedures in queue.
      * - First we need to transform the coordinate, because it's using a different system.
@@ -486,12 +485,11 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         // Success notice
         if ($internalProcedureCounter > 0 || $externalProcedureCounter > 0) {
             $switchedStr = 'Switched phases of ';
-            $this->logger->info($switchedStr .$internalProcedureCounter.' internal/public agency procedures.');
-            $this->logger->info($switchedStr .$externalProcedureCounter.' external/citizen procedures.');
-            $output->writeln($switchedStr .$internalProcedureCounter.' internal/public agency procedures.');
-            $output->writeln($switchedStr .$externalProcedureCounter.' external/citizen procedures.');
+            $this->logger->info($switchedStr.$internalProcedureCounter.' internal/public agency procedures.');
+            $this->logger->info($switchedStr.$externalProcedureCounter.' external/citizen procedures.');
+            $output->writeln($switchedStr.$internalProcedureCounter.' internal/public agency procedures.');
+            $output->writeln($switchedStr.$externalProcedureCounter.' external/citizen procedures.');
         }
-
     }
 
     /**
