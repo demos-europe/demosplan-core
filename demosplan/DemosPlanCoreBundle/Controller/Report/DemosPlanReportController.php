@@ -59,8 +59,6 @@ class DemosPlanReportController extends BaseController
      *
      * @DplanPermissions({"area_admin_protocol", "feature_export_protocol"})
      *
-     * @param string $procedureId
-     *
      * @throws Exception
      */
     #[Route(

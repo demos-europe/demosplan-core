@@ -1,19 +1,27 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
-
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use DemosEurope\DemosplanAddon\Exception\JsonException;
-use DemosEurope\DemosplanAddon\Utilities\Json;
 
 class ElementReportEntryFactory extends AbstractReportEntryFactory
 {
@@ -42,15 +50,15 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
     private function createData(Elements $element): array
     {
         return [
-            'elementId'  => $element->getId(),
-            'elementTitle' => $element->getTitle(),
-            'elementText' => $element->getText(),
-            'elementCategory' => $element->getCategory(), //eg. file, e_unterlagen, arbeitskreis, informationen,...
-            'parentCategory' => $element->getParent()?->getCategory(), //eg map, file, statement, paragraph, ..
-            'parentTitle' => $element->getParent()?->getTitle(), //eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
-            'enabled' => $element->getEnabled(),
-            'procedurePhase' => $element->getProcedure()->getPhase(),
-            'organisations' => $element->getOrganisationNames(true)
+            'elementId'       => $element->getId(),
+            'elementTitle'    => $element->getTitle(),
+            'elementText'     => $element->getText(),
+            'elementCategory' => $element->getCategory(), // eg. file, e_unterlagen, arbeitskreis, informationen,...
+            'parentCategory'  => $element->getParent()?->getCategory(), // eg map, file, statement, paragraph, ..
+            'parentTitle'     => $element->getParent()?->getTitle(), // eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
+            'enabled'         => $element->getEnabled(),
+            'procedurePhase'  => $element->getProcedure()->getPhase(),
+            'organisations'   => $element->getOrganisationNames(true),
         ];
     }
 
@@ -92,7 +100,6 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
 
         return $reportEntry;
     }
-
 
     protected function createReportEntry(): ReportEntry
     {

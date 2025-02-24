@@ -500,7 +500,6 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                     $report = $this->reportEntryFactory->createElementDeleteEntry($elementToDelete);
                     $this->getElementsRepository()->delete($elementId);
                     $this->reportService->persistAndFlushReportEntries($report);
-
                 } catch (Exception $e) {
                     $this->logger->error('An error occurred while deleting an element: ', [$e]);
                     $success = false;

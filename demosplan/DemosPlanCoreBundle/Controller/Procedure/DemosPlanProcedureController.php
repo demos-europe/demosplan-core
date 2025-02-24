@@ -189,7 +189,7 @@ class DemosPlanProcedureController extends BaseController
     public function procedureSlugAction(
         CurrentUserInterface $currentUser,
         ProcedureServiceOutput $procedureOutput,
-        string $slug = ''
+        string $slug = '',
     ): RedirectResponse|Response {
         try {
             $slugify = new Slugify();

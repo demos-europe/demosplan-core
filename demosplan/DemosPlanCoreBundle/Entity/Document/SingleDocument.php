@@ -458,7 +458,7 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface, Uuid
     {
         $fileInfo = ['name' => '', 'hash' => '', 'size' => '', 'mimeType' => ''];
 
-        $documentStringParts = explode(':',$this->getDocument());
+        $documentStringParts = explode(':', $this->getDocument());
         if (count($documentStringParts) >= 4) {
             $fileInfo['name'] = $documentStringParts[0];
             $fileInfo['hash'] = $documentStringParts[1];

@@ -84,9 +84,8 @@ class ExportReportService extends CoreService
         string $procedureId,
         array $reportInfo,
         array $reportMeta,
-        string $format = 'PDF'
+        string $format = 'PDF',
     ): PDF {
-
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection();
         $procedureUrl = $this->urlGenerator->generate(

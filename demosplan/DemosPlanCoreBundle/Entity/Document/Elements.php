@@ -552,8 +552,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     }
 
     /**
-     * @param $asString
-     *
      * @return array<>|string
      */
     public function getOrganisationNames($asString): array|string
@@ -569,7 +567,6 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
 
         return $organisations->toArray();
     }
-
 
     /**
      * @param Collection<int, Orga> $organisations

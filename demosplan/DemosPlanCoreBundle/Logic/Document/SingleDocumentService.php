@@ -18,8 +18,8 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\Report\SingleDocumentReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\SingleDocumentReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -361,6 +361,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     public function convertSingleDocumentTitle($title)
     {
         $documentParts = \explode(':', $title);
+
         // set somehow misleading title 'title.pdf' to avoid missing docType in Windows
         return $documentParts[0] ?? 'title.pdf';
     }
