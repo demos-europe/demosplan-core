@@ -16,6 +16,7 @@
       <div class="flex items-center justify-between mb-2">
         <div class="flex">
           <custom-search-statements
+            :search-in-fields="searchFields"
             @search="(term) => applySearch(term)"
             @reset="resetSearchByPageReload"
           />

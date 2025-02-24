@@ -16,24 +16,23 @@
             <dp-icon
               icon="settings" />
           </template>
-          <h2>{{ Translator.trans('search.advanced') }}</h2>
+          <div class="space-stack-s space-inset-s w-14">
+            <h2>{{ Translator.trans('search.advanced') }}</h2>
 
-          <!-- Search options and special characters -->
-          <div class="space-stack-s">
-            <dp-details
-              v-for="(explanation, index) in explanations"
-              :key="index"
-              :summary="explanation.title">
-              <span v-html="explanation.description" />
-            </dp-details>
-          </div>
+            <!-- Search options and special characters -->
+            <div class="space-stack-s">
+              <dp-details
+                v-for="(explanation, index) in explanations"
+                :key="index"
+                :summary="explanation.title">
+                <span v-html="explanation.description" />
+              </dp-details>
+            </div>
 
-          <!-- Checkboxes -->
-          <h3 class="u-mt-0_25">
-            {{ Translator.trans('search.in') }}
-          </h3>
-
-          <div class="max-h-12 w-full align-top overflow-auto u-mb">
+            <!-- Checkboxes -->
+            <h3 class="u-mt-0_25">
+              {{ Translator.trans('search.in') }}
+            </h3>
             <div class="layout--flush">
               <dp-checkbox
                 v-for="checkbox in filterCheckBoxesItems"
@@ -42,9 +41,7 @@
                 :key="'checkbox_' + checkbox.id"
                 v-model="checkbox.checked"
                 class="layout__item u-1-of-2"
-                :label="{
-                text: Translator.trans(checkbox.label)
-              }"
+                :label="{ text: Translator.trans(checkbox.label) }"
                 name="search_fields[]" />
 
               <!-- department is added as hidden field when organisation is selected -->
@@ -129,24 +126,23 @@
                 value="fragments_consideration"
                 checked="checked">
             </div>
-          </div>
 
-          <!-- Button row -->
-          <div class="text-right">
-            <button
-              class="btn btn--primary u-mr"
-              type="button"
-              data-cy="searchModal:submitSearchAdvanced"
-              @click="submit">
-              {{ Translator.trans('apply') }}
-            </button><!--
-
-       --><button
-            class="btn btn--secondary"
-            data-cy="searchModal:resetSearchAdvanced"
-            @click.prevent="reset">
-            {{ Translator.trans('reset') }}
-          </button>
+            <!-- Button row -->
+            <div class="text-right">
+              <button
+                class="btn btn--primary u-mr"
+                type="button"
+                data-cy="searchModal:submitSearchAdvanced"
+                @click="submit">
+                {{ Translator.trans('apply') }}
+              </button>
+              <button
+                class="btn btn--secondary"
+                data-cy="searchModal:resetSearchAdvanced"
+                @click.prevent="reset">
+                {{ Translator.trans('reset') }}
+              </button>
+            </div>
           </div>
         </dp-flyout>
       </template>
@@ -174,6 +170,34 @@ export default {
     DpIcon,
     DpSearchField
   },
+
+  props: {
+    searchInFields: {
+      required: false,
+      type: Array,
+      default: () => [
+        'authorName',
+        'clusterName',
+        'consideration',
+        'department',
+        'fragmentText',
+        'internId',
+        'memo',
+        'municipalitiesNames',
+        'orgaCity',
+        'organisationName',
+        'orgaPostalCode',
+        'planDocument',
+        'potentialAreas',
+        'statementId',
+        'statementText',
+        'topics',
+        'typeOfSubmission',
+        'voters'
+      ]
+    }
+  },
+
   data: () => ({
     currentSearchTerm: '',
     explanations: [
@@ -207,16 +231,20 @@ export default {
       this.currentSearchTerm = term
       this.$emit('search', this.currentSearchTerm)
     },
+
     reset () {
       this.currentSearchTerm = ''
       this.$emit('reset')
-      // this.availableFilterFields.forEach(checkbox => {
-      //   checkbox.checked = false
-      // })
-      // localStorage.removeItem('selectedCheckboxes')
+      this.availableFilterFields.forEach(checkbox => {
+        checkbox.checked = false
+      })
+      localStorage.removeItem('selectedCheckboxes')
+    },
+
+    submit () {
+      // Add logic for submit action
+      this.$emit('submit', this.selectedFields)
     }
   }
 }
 </script>
-
-
