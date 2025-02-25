@@ -64,8 +64,8 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      *
      * @ORM\JoinTable(
      *     name="predefined_texts_categories",
-     *     joinColumns={@ORM\JoinColumn(name="_pt_id", referencedColumnName="_pt_id", onDelete="CASCADE")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_ptc_id", referencedColumnName="ptc_id", onDelete="CASCADE")}
+     *     joinColumns={@ORM\JoinColumn(name="_pt_id", referencedColumnName="_pt_id")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="_ptc_id", referencedColumnName="ptc_id")}
      * )
      */
     protected $categories;
