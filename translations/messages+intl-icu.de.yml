@@ -2525,6 +2525,9 @@ places.edit.infoProcedureTemplate: "Die Anpassungen werden in die auswählbaren 
 plandocument: "Planungsdokument"
 plandocument.add: "Planungsdokument hinzufügen"
 plandocument.and.drawing: 'Planungsdokumente und Planzeichnung'
+plandocument.and.drawing.documents: "Planungsdokumente und Planzeichnung - Dokumente"
+plandocument.and.drawing.paragraphs: "Planungsdokumente und Planzeichnung - Kapitel"
+plandocument.and.drawing.categories: "Planungsdokumente und Planzeichnung - Kategorien"
 plandocument.and.chapter: "Planungsdokument und -kapitel"
 plandocument.edit: "Planungsdokument bearbeiten"
 plandocument.file.attach: "Planungsdokument als Datei anhängen"
