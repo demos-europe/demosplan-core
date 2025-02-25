@@ -147,6 +147,63 @@ export default {
       this.$emit('close-create-form')
     },
 
+    createTag (topicId, tagPayload) {
+      this.createTagAction({ tag: this.tag, topicId})
+        .then((response) => {
+          const newTag = response.data.data
+
+          newTag.relationships = {
+            topic: {
+              data: {
+                id: topicId,
+                type: 'TagTopic'
+              }
+            }
+          }
+
+          // Update tags in store
+          this.updateTags(newTag)
+          this.$root.$emit('tag:created', newTag.id)
+          this.closeForm()
+        })
+        .catch(() => {
+          // Reset tags in store
+          this.updateTags(tagPayload)
+          this.closeForm()
+        })
+    },
+
+    createTopicAndTag (tagPayload) {
+      // Prepare payload for tagTopics update
+      const topicPayload = {
+        attributes: { title: this.tagTopic.title },
+        id: '',
+        type: 'TagTopic'
+      }
+
+      this.createTopicAction(this.tagTopic)
+        .then(({ data }) => {
+          const { id, attributes } = data.data
+
+          // const newTopic = response.data.data
+
+          // Add id to tagTopic in store
+          this.updateProperty({
+            prop: 'tagTopics',
+            obj: { attributes: { title: attributes.title }, id, type: 'TagTopic' }
+          })
+
+          this.createTag(id, tagPayload)
+        })
+        .catch(() => {
+          // Reset tags in store
+          this.updateTags(tagPayload)
+          // Reset tagTopics in store
+          this.updateProperty({ prop: 'tagTopics', obj: topicPayload })
+          this.closeForm()
+        })
+    },
+
     /**
      * When user clicks outside of tagTopic input, display multi select instead again
      */
@@ -204,93 +261,34 @@ export default {
       return hasError
     },
 
-    save () {
+    save: function () {
       // Check if tag or tagTopic exists
       const hasError = this.handleError()
       const isNewTopic = this.tagTopic.id === ''
 
-      if (!hasError) {
-        // Prepare payload for tagTopics update
-        const topic = {
-          attributes: {
-            title: this.tagTopic.title
-          },
-          id: '',
-          type: 'TagTopic'
-        }
+      if (hasError) return
 
-        // Prepare payload for availableTags update
-        const newTag = {
-          attributes: {
-            title: this.tag.title
-          },
-          relationships: {
-            topic: {
-              data: {
-                id: this.tagTopic.id,
-                type: 'TagTopic'
-              }
+      // Prepare payload for availableTags update
+      const tagPayload = {
+        attributes: {
+          title: this.tag.title
+        },
+        relationships: {
+          topic: {
+            data: {
+              id: this.tagTopic.id,
+              type: 'TagTopic'
             }
-          },
-          id: '',
-          type: 'Tag'
-        }
+          }
+        },
+        id: '',
+        type: 'Tag'
+      }
 
-        // Optimistic update: add tag to store
-        this.updateTags(newTag)
-
-        // If topic doesn't exist yet, create it
-        if (isNewTopic) {
-          // Optimistic update: add tagTopic to store
-          this.updateProperty({ prop: 'tagTopics', obj: topic })
-
-          this.createTopicAction(this.tagTopic)
-            .then((response) => {
-              const topicId = response.data.data.id
-              // Add id to tagTopic in store
-              this.updateProperty({ prop: 'tagTopics', obj: { attributes: { title: response.data.data.attributes.title }, id: topicId, type: 'TagTopic' } })
-              this.createTagAction({ tag: this.tag, topicId })
-                .then((response) => {
-                  const tagResource = response.data.data
-                  tagResource.relationships = {
-                    topic: {
-                      data: {
-                        id: topicId,
-                        type: 'TagTopic'
-                      }
-                    }
-                  }
-                  this.updateTags(tagResource)
-                  this.$root.$emit('tag:created', tagResource.id)
-                  this.closeForm()
-                })
-                .catch(() => {
-                  // Reset tags in store
-                  this.updateTags(newTag)
-                  this.closeForm()
-                })
-            })
-            .catch(() => {
-              // Reset tags in store
-              this.updateTags(newTag)
-              // Reset tagTopics in store
-              this.updateProperty({ prop: 'tagTopics', obj: topic })
-              this.closeForm()
-            })
-        } else {
-          this.createTagAction({ tag: this.tag, topicId: this.tagTopic.id })
-            .then((response) => {
-              const updatedAvailableTag = response.data.data
-              this.updateTags(updatedAvailableTag)
-              this.$root.$emit('tag:created', updatedAvailableTag.id)
-              this.closeForm()
-            })
-            .catch(() => {
-              // Reset tags in store
-              this.updateTags(newTag)
-              this.closeForm()
-            })
-        }
+      if (isNewTopic) {
+        this.createTopicAndTag(tagPayload)
+      } else {
+        this.createTag(this.tagTopic.id, tagPayload)
       }
     },
 
