@@ -140,7 +140,7 @@ RUN rm -rf /srv/www/var/cache/* && \
     # link the custom squid root ca to the system that is mounted as a secret \
     # use a dummy file during link creation to prevent the error if the secret is not mounted \
     touch /srv/www/var/certs/ca.crt && \
-    ln -s /srv/www/var/certs/ca.crt /etc/ssl/certs/squid-root-ca.pem
+    ln -s /srv/www/var/certs/ca.crt /usr/local/share/ca-certificates/ca.crt
 
 # run as rootless container
 USER www-data
