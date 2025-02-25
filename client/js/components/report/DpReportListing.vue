@@ -1,16 +1,16 @@
 <license>
-(c) 2010-present DEMOS plan GmbH.
+  (c) 2010-present DEMOS plan GmbH.
 
-This file is part of the package demosplan,
-for more information see the license file.
+  This file is part of the package demosplan,
+  for more information see the license file.
 
-All rights reserved
+  All rights reserved
 </license>
 
 <template>
   <dp-loading
     v-if="isFirstLoad"
-    class="u-mt-2"/>
+    class="u-mt-2" />
 
   <div v-else>
     <div
@@ -21,7 +21,7 @@ All rights reserved
         :href="Routing.generate('dplan_export_report', { procedureId })">
         <i
           class="fa fa-share-square"
-          aria-hidden="true"/>
+          aria-hidden="true" />
         {{ Translator.trans('export.trigger.pdf') }}
       </a>
     </div>
@@ -242,28 +242,33 @@ export default {
   },
 
   mounted () {
-    // Promise.all([
-    //   'general',
-    //   'public_phase',
-    //   'invitations',
-    //   'register_invitations',
-    //   'final_mails',
-    //   'statements']
-    //   .filter(groupName => {
-    //     /*
-    //      * This returns one of those permissions:
-    //      * - feature_procedure_report_general
-    //      * - feature_procedure_report_public_phase
-    //      * - feature_procedure_report_register_invitations
-    //      * - feature_procedure_report_final_mails
-    //      * - feature_procedure_report_statements
-    //      * - feature_procedure_report_documents
-    //      */
-    //     return hasPermission('feature_procedure_report_' + groupName)
-    //   })
-    //   .map(groupName => {
-    //     return this.handlePageChange(groupName, 1)
-    //   })).then(() => { this.isFirstLoad = false })
+    Promise.all([
+      'general',
+      'public_phase',
+      'invitations',
+      'register_invitations',
+      'final_mails',
+      'statements',
+      'elements',
+      'single_documents',
+      'paragraphs']
+      .filter(groupName => {
+        /*
+         * This returns one of those permissions:
+         * - feature_procedure_report_general
+         * - feature_procedure_report_public_phase
+         * - feature_procedure_report_register_invitations
+         * - feature_procedure_report_final_mails
+         * - feature_procedure_report_statements
+         * - feature_procedure_report_elements
+         * - feature_procedure_report_single_documents
+         * - feature_procedure_report_paragraphs
+         */
+        return hasPermission('feature_procedure_report_' + groupName)
+      })
+      .map(groupName => {
+        return this.handlePageChange(groupName, 1)
+      })).then(() => { this.isFirstLoad = false })
     this.handlePageChange('statements', 1)
       .then(() => {
         this.isFirstLoad = false
