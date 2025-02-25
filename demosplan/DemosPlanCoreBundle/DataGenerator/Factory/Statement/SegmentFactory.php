@@ -35,7 +35,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static Segment[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
  * @method static Segment[]|Proxy[]                          randomSet(int $number, array $attributes = [])
  */
-final class SegmentFactoryX extends StatementFactory
+final class SegmentFactory extends StatementFactory
 {
     public static function class(): string
     {
