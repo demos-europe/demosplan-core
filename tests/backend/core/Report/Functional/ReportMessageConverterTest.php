@@ -10,7 +10,6 @@
 
 namespace Tests\Core\Report\Functional;
 
-
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
@@ -284,14 +283,14 @@ class ReportMessageConverterTest extends FunctionalTestCase
         $reportEntry->setGroup(ReportEntry::GROUP_STATEMENT)
             ->setCategory(ReportEntry::CATEGORY_FINAL_MAIL)
             ->setMessage(
-                '{"procedureId":"' .
-                $procedure->getId() .
-                '","statementId":"' .
-                $statement->getId() .
-                '","externId":"' .
-                $statement->getExternId() .
-                '","ident":"' .
-                $procedure->getId() . '"}');
+                '{"procedureId":"'.
+                $procedure->getId().
+                '","statementId":"'.
+                $statement->getId().
+                '","externId":"'.
+                $statement->getExternId().
+                '","ident":"'.
+                $procedure->getId().'"}');
         $message = $this->sut->convertMessage($reportEntry);
 
         self::assertEquals($this->translator->trans('text.protocol.procedure.finalMail', [
