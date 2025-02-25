@@ -97,8 +97,8 @@
 
     <dp-report-group
       group="elements"
-      group-label="documents"
-      content-label="element"
+      group-label="categories"
+      content-label="category"
       :items="elementsItems"
       :current-page="elementsCurrentPage"
       :total-pages="elementsTotalPages"
@@ -107,8 +107,8 @@
 
     <dp-report-group
       group="singleDocuments"
-      group-label="files"
-      content-label="files"
+      group-label="plandocuments"
+      content-label="plandocument"
       :items="singleDocumentsItems"
       :current-page="singleDocumentsCurrentPage"
       :total-pages="singleDocumentsTotalPages"
@@ -117,8 +117,8 @@
 
     <dp-report-group
       group="paragraphs"
-      group-label="categories"
-      content-label="category"
+      group-label="paragraph"
+      content-label="paragraph"
       :items="paragraphsItems"
       :current-page="paragraphsCurrentPage"
       :total-pages="paragraphsTotalPages"
