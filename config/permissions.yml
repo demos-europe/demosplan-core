@@ -1646,6 +1646,11 @@ feature_procedure_preview:
     label: 'Show preview of precedures'
     loginRequired: true
     parent: area_main_procedures
+feature_procedure_report_elements:
+    description: 'Enables ''elements'' section in Protokoll (report).'
+    expose: true
+    label: 'Show the elements procedure reports'
+    loginRequired: false
 feature_procedure_report_final_mails:
     description: 'Enables ''final mail'' section in Protokoll (report).'
     expose: true
@@ -1661,6 +1666,11 @@ feature_procedure_report_invitations:
     expose: true
     label: 'Show the invitations procedure reports'
     loginRequired: false
+feature_procedure_report_paragraphs:
+    description: 'Enables ''paragraphs'' section in Protokoll (report).'
+    expose: true
+    label: 'Show the paragraphs procedure reports'
+    loginRequired: false
 feature_procedure_report_public_phase:
     description: 'Enables ''public phase'' section in Protokoll (report).'
     expose: true
@@ -1670,6 +1680,11 @@ feature_procedure_report_register_invitations:
     description: 'Enables ''register invitations'' section in Protokoll (report).'
     expose: true
     label: 'Show the register invitations procedure reports'
+    loginRequired: false
+feature_procedure_report_single_documents:
+    description: 'Enables ''single documents'' section in Protokoll (report).'
+    expose: true
+    label: 'Show the single documents procedure reports'
     loginRequired: false
 feature_procedure_report_statements:
     description: 'Enables ''statements'' section in Protokoll (report).'
