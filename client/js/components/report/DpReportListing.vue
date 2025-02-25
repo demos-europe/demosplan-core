@@ -269,10 +269,6 @@ export default {
       .map(groupName => {
         return this.handlePageChange(groupName, 1)
       })).then(() => { this.isFirstLoad = false })
-    this.handlePageChange('statements', 1)
-      .then(() => {
-        this.isFirstLoad = false
-      })
   }
 }
 </script>
