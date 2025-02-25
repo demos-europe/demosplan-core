@@ -321,7 +321,7 @@
               value="topicsAndTags"
               @change="exportChoice.xlsx.exportType = 'topicsAndTags'" />
             <dp-radio
-              id="xlsxExportTypePotentialAreas"
+              v-if="hasPermission('feature_admin_assessmenttable_export_potential_areas_xlsx')"id="xlsxExportTypePotentialAreas"
               :checked="exportChoice.xlsx.exportType === 'potentialAreas'"
               :class="{'mb-1': hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')}"
               data-cy="exportModal:xlsxExportTypePotentialAreas"

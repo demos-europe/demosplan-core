@@ -34,6 +34,7 @@ $fa-border-color:     #eee !default;
 $fa-inverse:          #fff !default;
 $fa-li-width:         math.div(30em, 14) !default;
 
+/* stylelint-disable scss/load-no-partial-leading-underscore */
 @import '~font-awesome/scss/_mixins';
 @import '~font-awesome/scss/_path';
 @import '~font-awesome/scss/_core';
