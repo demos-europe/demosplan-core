@@ -239,38 +239,33 @@ export default {
   },
 
   mounted () {
-    // Promise.all([
-    //   'general',
-    //   'public_phase',
-    //   'invitations',
-    //   'register_invitations',
-    //   'final_mails',
-    //   'statements',
-    //   'elements',
-    //   'single_documents',
-    //   'paragraphs']
-    //   .filter(groupName => {
-    //     /*
-    //      * This returns one of those permissions:
-    //      * - feature_procedure_report_general
-    //      * - feature_procedure_report_public_phase
-    //      * - feature_procedure_report_register_invitations
-    //      * - feature_procedure_report_final_mails
-    //      * - feature_procedure_report_statements
-    //      * - feature_procedure_report_elements
-    //      * - feature_procedure_report_single_documents
-    //      * - feature_procedure_report_paragraphs
-    //      */
-    //     return hasPermission('feature_procedure_report_' + groupName)
-    //   })
-    //   .map(groupName => {
-    //     return this.handlePageChange(groupName, 1)
-    //   })).then(() => { this.isFirstLoad = false })
-    const groups = ['elements', 'single_documents', 'paragraphs'];
-    groups.forEach(groupName => {
-      this.handlePageChange(groupName, 1);
-    });
-    this.isFirstLoad = false;
+    Promise.all([
+      'general',
+      'public_phase',
+      'invitations',
+      'register_invitations',
+      'final_mails',
+      'statements',
+      'elements',
+      'single_documents',
+      'paragraphs']
+      .filter(groupName => {
+        /*
+         * This returns one of those permissions:
+         * - feature_procedure_report_general
+         * - feature_procedure_report_public_phase
+         * - feature_procedure_report_register_invitations
+         * - feature_procedure_report_final_mails
+         * - feature_procedure_report_statements
+         * - feature_procedure_report_elements
+         * - feature_procedure_report_single_documents
+         * - feature_procedure_report_paragraphs
+         */
+        return hasPermission('feature_procedure_report_' + groupName)
+      })
+      .map(groupName => {
+        return this.handlePageChange(groupName, 1)
+      })).then(() => { this.isFirstLoad = false })
   }
 }
 </script>
