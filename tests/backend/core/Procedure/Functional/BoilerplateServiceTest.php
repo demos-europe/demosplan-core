@@ -349,5 +349,4 @@ class BoilerplateServiceTest extends FunctionalTestCase
         static::assertCount(0, $deletedCategory);
         static::assertCount(0, $deletedBoilerplate);
     }
-
 }
