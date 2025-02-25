@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v2.26.0 (2025-02-25)
 - Allow flag on external links to indicate this URL should only be shown for user(roles) with a specific permission
 - Extend safelist for purge css to include all plyr classes
 
