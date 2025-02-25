@@ -76,7 +76,7 @@ export default {
   computed: {
     availableEntity () {
       return {
-        exampleFile: '/files/tag_topics_import_template.csv',
+        exampleFile: '/files/Beispieldatei_Schlagwortimport.csv',
       }
     },
   },
