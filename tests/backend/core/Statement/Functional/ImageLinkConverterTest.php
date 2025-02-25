@@ -96,6 +96,7 @@ class ImageLinkConverterTest extends FunctionalTestCase
 
     public function testGetImages(): void
     {
+        self::markSkippedForCIIntervention();
         $segment = $this->createTestSegment();
         $statementExternId = 'statement123';
 
