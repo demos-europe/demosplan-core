@@ -10,6 +10,9 @@
 
 namespace Tests\Core\Report\Functional;
 
+
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportMessageConverter;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -269,27 +272,34 @@ class ReportMessageConverterTest extends FunctionalTestCase
 
     public function testConvertStatementFinalMailMessage()
     {
+        $procedure = ProcedureFactory::createOne();
+        $procedure->setShortUrl($procedure->getId());
+        $procedure->_save();
+
+        $statement = StatementFactory::createOne([
+            'procedure' => $procedure,
+        ]);
+
         $reportEntry = new ReportEntry();
         $reportEntry->setGroup(ReportEntry::GROUP_STATEMENT)
             ->setCategory(ReportEntry::CATEGORY_FINAL_MAIL)
-            ->setMessage('{"procedureId":"5ef12c9e-bb34-11e8-b87f-4f2df2384097","statementId":"4e738b76-bb36-11e8-b87f-4f2df2384097","externId":"1001","ident":"5ef12c9e-bb34-11e8-b87f-4f2df2384097"}');
+            ->setMessage(
+                '{"procedureId":"' .
+                $procedure->getId() .
+                '","statementId":"' .
+                $statement->getId() .
+                '","externId":"' .
+                $statement->getExternId() .
+                '","ident":"' .
+                $procedure->getId() . '"}');
         $message = $this->sut->convertMessage($reportEntry);
-        self::assertEquals($this->translator->trans('text.protocol.procedure.finalMail', [
-            '%url%'      => $this->router->generate('dplan_assessmenttable_view_table', [
-                'procedureId' => '5ef12c9e-bb34-11e8-b87f-4f2df2384097',
-                '_fragment'   => '4e738b76-bb36-11e8-b87f-4f2df2384097',
-            ]),
-            '%externId%' => '1001', ]),
-            $message);
 
-        $reportEntry->setMessage('{"procedureId":"ae77f796-0c86-11e6-ab27-0050568a1238","statementId":"8eb1a209-6fca-11e8-8aac-0050568a1238","externId":"M5270","ident":"ae77f796-0c86-11e6-ab27-0050568a1238"}');
-        $message = $this->sut->convertMessage($reportEntry);
         self::assertEquals($this->translator->trans('text.protocol.procedure.finalMail', [
-            '%url%'      => $this->router->generate('dplan_assessmenttable_view_table', [
-                'procedureId' => 'ae77f796-0c86-11e6-ab27-0050568a1238',
-                '_fragment'   => '8eb1a209-6fca-11e8-8aac-0050568a1238',
+            'url'      => $this->router->generate('dplan_assessmenttable_view_table', [
+                'procedureId' => $procedure->getId(),
+                '_fragment'   => $statement->getId(),
             ]),
-            '%externId%' => 'M5270', ]),
+            'externId' => $statement->getExternId(), ]),
             $message);
     }
 
