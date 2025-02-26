@@ -63,7 +63,7 @@
       }" />
 
     <dp-button-row
-      align="left"
+      alignment="left"
       primary
       secondary
       variant="outline"
@@ -73,7 +73,6 @@
 </template>
 
 <script>
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import {
   DpButtonRow,
   DpInput,
@@ -83,6 +82,7 @@ import {
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
   name: 'DpCreateTag',
@@ -150,7 +150,7 @@ export default {
     createTag (topicId) {
       const tagPayload = this.prepareTagPayload()
 
-      this.createTagAction({ tag: this.tag, topicId})
+      this.createTagAction({ tag: this.tag, topicId })
         .then((response) => {
           const newTag = response.data.data
 
