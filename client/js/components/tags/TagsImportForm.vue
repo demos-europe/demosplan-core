@@ -47,14 +47,12 @@
 </template>
 
 <script>
-import { DpButton, DpContextualHelp, DpInput, DpLabel, DpUpload } from '@demos-europe/demosplan-ui'
+import { DpButton, DpLabel, DpUpload } from '@demos-europe/demosplan-ui'
 export default {
   name: 'TagsImportForm',
 
   components: {
     DpButton,
-    DpContextualHelp,
-    DpInput,
     DpLabel,
     DpUpload
   },
@@ -76,9 +74,9 @@ export default {
   computed: {
     availableEntity () {
       return {
-        exampleFile: '/files/Beispieldatei_Schlagwortimport.csv',
+        exampleFile: '/files/Beispieldatei_Schlagwortimport.csv'
       }
-    },
+    }
   },
 
   methods: {
