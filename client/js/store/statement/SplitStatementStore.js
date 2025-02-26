@@ -98,8 +98,8 @@ const SplitStatementStore = {
       state.segments = state.initialSegments
     },
 
-    setProperty (state, data) {
-      state.data.prop = data.val
+    setProperty (state, {prop, val}) {
+      state[prop] = val
     },
 
     setStatementSegmentDraftList (state, segmentDraftList) {
@@ -111,19 +111,19 @@ const SplitStatementStore = {
      * Add, replace or delete a property
      * @param data  {Object}  needs this format: { prop: 'propToUpdate', obj: { resourceObject } }
      */
-    updateProperty (state, data) {
-      const titleIdx = state[data.prop].findIndex(el => el.attributes.title === data.obj.attributes.title)
-      const idIdx = state[data.prop].findIndex(el => el.id === data.obj.id)
+    updateProperty (state, { prop, obj }) {
+      const titleIdx = state[prop].findIndex(el => el.attributes.title === obj.attributes.title)
+      const idIdx = state[prop].findIndex(el => el.id === obj.id)
 
       // If neither id nor title exist, add element
       if (idIdx < 0 && titleIdx < 0) {
-        state[data.prop][state[data.prop].length] = data.obj
+        state[prop][state[prop].length] = obj
       } else if (idIdx < 0 && titleIdx >= 0) {
         // If title exists, but id doesn't, replace element
-        state[data.prop][titleIdx] = data.obj
+        state[prop][titleIdx] = obj
       } else if (idIdx >= 0 && titleIdx >= 0) {
         // If id and title exist, delete element
-        delete state[data.prop][idIdx]
+        delete state[prop][idIdx]
       }
     }
   },
