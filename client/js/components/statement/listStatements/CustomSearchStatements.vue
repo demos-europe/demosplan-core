@@ -1,139 +1,139 @@
 <template>
-    <dp-search-field
-      data-cy="customSearchStatements:search"
-      :placeholder="Translator.trans('searchterm')"
-      @reset="$emit('reset')"
-      @search="term => handleSearch(term)">
-      <template v-slot:default>
-        <dp-flyout
-          align="left"
-          class="top-px right-0 absolute"
-          data-cy="customSearch:searchCustomLimitFields"
-          :has-menu="false"
-          :padded="false">
-          <template v-slot:trigger>
-            <dp-icon icon="settings" />
-          </template>
-          <div class="space-stack-s space-inset-s w-14">
-            <div class="flex">
-              <span
-                class="weight--bold"
-                v-text="Translator.trans('search.custom.limit_fields')" />
-              <button
-                class="btn--blank o-link--default ml-auto"
-                data-cy="customSearch:searchCustomToggleAll"
-                v-text="Translator.trans('toggle_all')"
-                @click="toggleAllFields(selectedFields.length < filterCheckBoxesItems.length)" />
-            </div>
-
-            <!-- Checkboxes -->
-            <div class="layout--flush">
-              <dp-checkbox
-                v-for="({label, value}, i) in filterCheckBoxesItems"
-                :checked="selectedFields.includes(value)"
-                class="layout__item u-1-of-2"
-                :data-cy="`searchModal:${value}`"
-                :id="'filteredCheckbox' + i"
-                :key="i"
-                :label="{ text: Translator.trans(label) }"
-                @change="handleChange(value, !selectedFields.includes(value))" />
-
-              <!-- department is added as hidden field when organisation is selected -->
-              <input
-                v-if="selectedFields.includes('oName') && hasPermission('feature_institution_participation')"
-                checked="checked"
-                class="hidden"
-                name="search_fields[]"
-                type="hidden"
-                value="dName">
-              <!-- last name is added as hidden field if submitter is selected -->
-              <input
-                v-if="selectedFields.includes('uName')"
-                checked="checked"
-                class="hidden"
-                name="search_fields[]"
-                type="hidden"
-                value="meta_submitLastName">
-              <!-- sachbearbeiter is added as hidden field if submitter is selected -->
-              <input
-                v-if="selectedFields.includes('uName')"
-                class="hidden"
-                type="hidden"
-                name="search_fields[]"
-                value="meta_caseWorkerLastName"
-                checked="checked">
-              <!-- group name is added as hidden field if submitter is selected - this is probably the author of the head statement (so the main STN in cluster) -->
-              <input
-                class="hidden"
-                type="hidden"
-                v-if="selectedFields.includes('uName')"
-                name="search_fields[]"
-                value="cluster_uName"
-                checked="checked">
-              <!-- paragraph is added as hidden field if document is selected -->
-              <input
-                class="hidden"
-                type="hidden"
-                v-if="selectedFields.includes('documentTitle')"
-                name="search_fields[]"
-                value="paragraphTitle"
-                checked="checked">
-              <!-- element title is added as hidden field if document is selected -->
-              <input
-                class="hidden"
-                type="hidden"
-                v-if="selectedFields.includes('documentTitle')"
-                name="search_fields[]"
-                value="elementTitle"
-                checked="checked">
-              <!-- public/external id of group is added as hidden field if statement id is selected -->
-              <input
-                class="hidden"
-                type="hidden"
-                v-if="selectedFields.includes('externId')"
-                name="search_fields[]"
-                value="cluster_externId"
-                checked="checked">
-              <!-- counties is added as hidden field if municipalities is selected -->
-              <input
-                class="hidden"
-                type="hidden"
-                v-if="selectedFields.includes('municipalityNames') && hasPermission('field_statement_municipality')"
-                name="search_fields[]"
-                value="countyNames"
-                checked="checked">
-              <!-- tags is added as hidden field if topics is selected -->
-              <input
-                class="hidden"
-                type="hidden"
-                v-if="selectedFields.includes('topicNames') && hasPermission('feature_statements_tag') || hasPermission('feature_statement_fragments_tag')"
-                name="search_fields[]"
-                value="tagNames"
-                checked="checked">
-              <!-- fragment consideration is added as hidden field if consideration is selected -->
-              <input
-                class="hidden"
-                type="hidden"
-                v-if="selectedFields.includes('recommendation')"
-                name="search_fields[]"
-                value="fragments_consideration"
-                checked="checked">
-            </div>
-
-            <!-- Search options and special characters -->
-            <div class="space-stack-s">
-              <hr class="border--top u-m-0">
-              <dp-details
-                v-for="(explanation, index) in explanations"
-                :key="index"
-                :summary="explanation.title">
-                <span v-html="explanation.description" />
-              </dp-details>
-            </div>
+  <dp-search-field
+    data-cy="customSearchStatements:search"
+    :placeholder="Translator.trans('searchterm')"
+    @reset="$emit('reset')"
+    @search="term => handleSearch(term)">
+    <template v-slot:default>
+      <dp-flyout
+        align="left"
+        class="top-px right-0 absolute"
+        data-cy="customSearch:searchCustomLimitFields"
+        :has-menu="false"
+        :padded="false">
+        <template v-slot:trigger>
+          <dp-icon icon="settings" />
+        </template>
+        <div class="space-stack-s space-inset-s w-14">
+          <div class="flex">
+            <span
+              class="weight--bold"
+              v-text="Translator.trans('search.custom.limit_fields')" />
+            <button
+              class="btn--blank o-link--default ml-auto"
+              data-cy="customSearch:searchCustomToggleAll"
+              v-text="Translator.trans('toggle_all')"
+              @click="toggleAllFields(selectedFields.length < filterCheckBoxesItems.length)" />
           </div>
-        </dp-flyout>
-      </template>
-    </dp-search-field>
+
+          <!-- Checkboxes -->
+          <div class="layout--flush">
+            <dp-checkbox
+              v-for="({label, value}, i) in filterCheckBoxesItems"
+              :checked="selectedFields.includes(value)"
+              class="layout__item u-1-of-2"
+              :data-cy="`searchModal:${value}`"
+              :id="'filteredCheckbox' + i"
+              :key="i"
+              :label="{ text: Translator.trans(label) }"
+              @change="handleChange(value, !selectedFields.includes(value))" />
+
+            <!-- department is added as hidden field when organisation is selected -->
+            <input
+              v-if="selectedFields.includes('oName') && hasPermission('feature_institution_participation')"
+              checked="checked"
+              class="hidden"
+              name="search_fields[]"
+              type="hidden"
+              value="dName">
+            <!-- last name is added as hidden field if submitter is selected -->
+            <input
+              v-if="selectedFields.includes('uName')"
+              checked="checked"
+              class="hidden"
+              name="search_fields[]"
+              type="hidden"
+              value="meta_submitLastName">
+            <!-- sachbearbeiter is added as hidden field if submitter is selected -->
+            <input
+              v-if="selectedFields.includes('uName')"
+              class="hidden"
+              type="hidden"
+              name="search_fields[]"
+              value="meta_caseWorkerLastName"
+              checked="checked">
+            <!-- group name is added as hidden field if submitter is selected - this is probably the author of the head statement (so the main STN in cluster) -->
+            <input
+              class="hidden"
+              type="hidden"
+              v-if="selectedFields.includes('uName')"
+              name="search_fields[]"
+              value="cluster_uName"
+              checked="checked">
+            <!-- paragraph is added as hidden field if document is selected -->
+            <input
+              class="hidden"
+              type="hidden"
+              v-if="selectedFields.includes('documentTitle')"
+              name="search_fields[]"
+              value="paragraphTitle"
+              checked="checked">
+            <!-- element title is added as hidden field if document is selected -->
+            <input
+              class="hidden"
+              type="hidden"
+              v-if="selectedFields.includes('documentTitle')"
+              name="search_fields[]"
+              value="elementTitle"
+              checked="checked">
+            <!-- public/external id of group is added as hidden field if statement id is selected -->
+            <input
+              class="hidden"
+              type="hidden"
+              v-if="selectedFields.includes('externId')"
+              name="search_fields[]"
+              value="cluster_externId"
+              checked="checked">
+            <!-- counties is added as hidden field if municipalities is selected -->
+            <input
+              class="hidden"
+              type="hidden"
+              v-if="selectedFields.includes('municipalityNames') && hasPermission('field_statement_municipality')"
+              name="search_fields[]"
+              value="countyNames"
+              checked="checked">
+            <!-- tags is added as hidden field if topics is selected -->
+            <input
+              class="hidden"
+              type="hidden"
+              v-if="selectedFields.includes('topicNames') && hasPermission('feature_statements_tag') || hasPermission('feature_statement_fragments_tag')"
+              name="search_fields[]"
+              value="tagNames"
+              checked="checked">
+            <!-- fragment consideration is added as hidden field if consideration is selected -->
+            <input
+              class="hidden"
+              type="hidden"
+              v-if="selectedFields.includes('recommendation')"
+              name="search_fields[]"
+              value="fragments_consideration"
+              checked="checked">
+          </div>
+
+          <!-- Search options and special characters -->
+          <div class="space-stack-s">
+            <hr class="border--top u-m-0">
+            <dp-details
+              v-for="(explanation, index) in explanations"
+              :key="index"
+              :summary="explanation.title">
+              <span v-html="explanation.description" />
+            </dp-details>
+          </div>
+        </div>
+      </dp-flyout>
+    </template>
+  </dp-search-field>
 </template>
 <script>
 
