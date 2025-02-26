@@ -7,24 +7,23 @@
       @reset="$emit('reset')">
       <template v-slot:default>
         <dp-flyout
-          align="left"
           data-cy="customSearch:searchCustomLimitFields"
           class="top-px right-0 absolute"
           :has-menu="false"
           :padded="false">
           <template v-slot:trigger>
-            <dp-icon icon="settings"/>
+            <dp-icon icon="settings" />
           </template>
           <div class="space-stack-s space-inset-s w-14">
             <div class="flex">
                 <span
                   class="weight--bold"
-                  v-text="Translator.trans('search.custom.limit_fields')"/>
+                  v-text="Translator.trans('search.custom.limit_fields')" />
               <button
                 class="btn--blank o-link--default ml-auto"
                 data-cy="customSearch:searchCustomToggleAll"
                 v-text="Translator.trans('toggle_all')"
-                @click="toggleAllFields(selectedFields.length < filterCheckBoxesItems.length)"/>
+                @click="toggleAllFields(selectedFields.length < filterCheckBoxesItems.length)" />
             </div>
 
             <!-- Checkboxes -->
@@ -37,7 +36,7 @@
                 :checked="selectedFields.includes(value)"
                 class="layout__item u-1-of-2"
                 :label="{ text: Translator.trans(label) }"
-                @change="handleChange(value, !selectedFields.includes(value))"/>
+                @change="handleChange(value, !selectedFields.includes(value))" />
 
               <!-- department is added as hidden field when organisation is selected -->
               <input
@@ -110,7 +109,7 @@
                 v-if="selectedFields.includes('topicNames') && hasPermission('feature_statements_tag') || hasPermission('feature_statement_fragments_tag')"
                 name="search_fields[]"
                 value="tagNames"
-                checked="checked" >
+                checked="checked">
               <!-- fragment consideration is added as hidden field if consideration is selected -->
               <input
                 class="hidden"
@@ -128,7 +127,7 @@
                 v-for="(explanation, index) in explanations"
                 :key="index"
                 :summary="explanation.title">
-                <span v-html="explanation.description"/>
+                <span v-html="explanation.description" />
               </dp-details>
             </div>
           </div>
