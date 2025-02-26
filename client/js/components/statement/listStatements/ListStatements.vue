@@ -315,17 +315,14 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import CustomSearchStatements from './CustomSearchStatements'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
-import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
-import CustomSearch from '../../procedure/SegmentsList/CustomSearch.vue'
 
 export default {
   name: 'ListStatements',
 
   components: {
-    CustomSearch,
     CustomSearchStatements,
     DpBulkEditHeader,
     DpButton,
@@ -337,7 +334,6 @@ export default {
     DpPager,
     DpSelect,
     DpStickyElement,
-    SearchModal,
     StatementExportModal,
     StatementMetaData,
     StatusBadge
@@ -913,7 +909,7 @@ export default {
     },
 
     resetSearchByPageReload () {
-      window.location=Routing.generate('dplan_procedure_statement_list', { procedureId: this.procedureId })
+      window.location = Routing.generate('dplan_procedure_statement_list', { procedureId: this.procedureId })
     },
 
     /**
@@ -962,7 +958,7 @@ export default {
 
     updateSearchFields (selectedFields) {
       this.searchFieldsSelected = selectedFields
-      console.log("selectedFields", this.searchFieldsSelected)
+      console.log('selectedFields', this.searchFieldsSelected)
     }
   },
 
