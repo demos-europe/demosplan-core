@@ -3,8 +3,8 @@
     <dp-search-field
       data-cy="customSearchStatements:search"
       :placeholder="Translator.trans('searchterm')"
-      @search="term => handleSearch(term)"
-      @reset="$emit('reset')">
+      @reset="$emit('reset')"
+      @search="term => handleSearch(term)">
       <template v-slot:default>
         <dp-flyout
           align="left"
@@ -24,24 +24,24 @@
                 class="btn--blank o-link--default ml-auto"
                 data-cy="customSearch:searchCustomToggleAll"
                 v-text="Translator.trans('toggle_all')"
-                @click="toggleAllFields(selectedFields.size < filterCheckBoxesItems.length)" />
+                @click="toggleAllFields(selectedFields.length < filterCheckBoxesItems.length)" />
             </div>
 
             <!-- Checkboxes -->
             <div class="layout--flush">
               <dp-checkbox
                 v-for="({label, value}, i) in filterCheckBoxesItems"
-                :checked="selectedFields.has(value)"
+                :checked="selectedFields.includes(value)"
                 class="layout__item u-1-of-2"
                 :data-cy="`searchModal:${value}`"
                 :id="'filteredCheckbox' + i"
                 :key="i"
                 :label="{ text: Translator.trans(label) }"
-                @change="handleChange(value, !selectedFields.has(value))" />
+                @change="handleChange(value, !selectedFields.includes(value))" />
 
               <!-- department is added as hidden field when organisation is selected -->
               <input
-                v-if="selectedFields.has('oName') && hasPermission('feature_institution_participation')"
+                v-if="selectedFields.includes('oName') && hasPermission('feature_institution_participation')"
                 checked="checked"
                 class="hidden"
                 name="search_fields[]"
@@ -49,7 +49,7 @@
                 value="dName">
               <!-- last name is added as hidden field if submitter is selected -->
               <input
-                v-if="selectedFields.has('uName')"
+                v-if="selectedFields.includes('uName')"
                 checked="checked"
                 class="hidden"
                 name="search_fields[]"
@@ -57,68 +57,68 @@
                 value="meta_submitLastName">
               <!-- sachbearbeiter is added as hidden field if submitter is selected -->
               <input
-                v-if="selectedFields.has('uName')"
-                checked="checked"
+                v-if="selectedFields.includes('uName')"
                 class="hidden"
-                name="search_fields[]"
                 type="hidden"
-                value="meta_caseWorkerLastName">
+                name="search_fields[]"
+                value="meta_caseWorkerLastName"
+                checked="checked">
               <!-- group name is added as hidden field if submitter is selected - this is probably the author of the head statement (so the main STN in cluster) -->
               <input
-                v-if="selectedFields.has('uName')"
-                checked="checked"
                 class="hidden"
-                name="search_fields[]"
                 type="hidden"
-                value="cluster_uName">
+                v-if="selectedFields.includes('uName')"
+                name="search_fields[]"
+                value="cluster_uName"
+                checked="checked">
               <!-- paragraph is added as hidden field if document is selected -->
               <input
-                v-if="selectedFields.has('documentTitle')"
-                checked="checked"
                 class="hidden"
-                name="search_fields[]"
                 type="hidden"
-                value="paragraphTitle">
+                v-if="selectedFields.includes('documentTitle')"
+                name="search_fields[]"
+                value="paragraphTitle"
+                checked="checked">
               <!-- element title is added as hidden field if document is selected -->
               <input
-                v-if="selectedFields.has('documentTitle')"
-                checked="checked"
                 class="hidden"
-                name="search_fields[]"
                 type="hidden"
-                value="elementTitle">
+                v-if="selectedFields.includes('documentTitle')"
+                name="search_fields[]"
+                value="elementTitle"
+                checked="checked">
               <!-- public/external id of group is added as hidden field if statement id is selected -->
               <input
-                v-if="selectedFields.has('externId')"
-                checked="checked"
                 class="hidden"
-                name="search_fields[]"
                 type="hidden"
-                value="cluster_externId">
+                v-if="selectedFields.includes('externId')"
+                name="search_fields[]"
+                value="cluster_externId"
+                checked="checked">
               <!-- counties is added as hidden field if municipalities is selected -->
               <input
-                v-if="selectedFields.has('municipalityNames') && hasPermission('field_statement_municipality')"
-                checked="checked"
                 class="hidden"
-                name="search_fields[]"
                 type="hidden"
-                value="countyNames">
+                v-if="selectedFields.includes('municipalityNames') && hasPermission('field_statement_municipality')"
+                name="search_fields[]"
+                value="countyNames"
+                checked="checked">
               <!-- tags is added as hidden field if topics is selected -->
               <input
-                v-if="selectedFields.has('topicNames') && hasPermission('feature_statements_tag') || hasPermission('feature_statement_fragments_tag')"
-                checked="checked"
                 class="hidden"
-                name="search_fields[]"
                 type="hidden"
-                value="tagNames">
+                v-if="selectedFields.includes('topicNames') && hasPermission('feature_statements_tag') || hasPermission('feature_statement_fragments_tag')"
+                name="search_fields[]"
+                value="tagNames"
+                checked="checked">
               <!-- fragment consideration is added as hidden field if consideration is selected -->
               <input
-                v-if="selectedFields.has('recommendation')"
-                checked="checked"
                 class="hidden"
-                name="search_fields[]"
                 type="hidden"
-                value="fragments_consideration">
+                v-if="selectedFields.includes('recommendation')"
+                name="search_fields[]"
+                value="fragments_consideration"
+                checked="checked">
             </div>
 
             <!-- Search options and special characters -->
@@ -137,8 +137,8 @@
     </dp-search-field>
   </div>
 </template>
-
 <script>
+
 import {
   DpCheckbox,
   DpDetails,
@@ -200,7 +200,7 @@ export default {
     ],
     availableFilterFields,
     fields,
-    selectedFields: new Set()
+    selectedFields: []
   }),
 
   computed: {
@@ -212,6 +212,7 @@ export default {
         return allowedToShow && showInView
       })
     },
+
     storeSelection () {
       return this.localStorageKey !== ''
     }
@@ -219,10 +220,8 @@ export default {
 
   methods: {
     broadcastChanges () {
-      const selectedFieldsArray =  Array.from(this.selectedFields)
-
-      this.storeSelection && lscache.set(this.localStorageKey, selectedFieldsArray)
-      this.$emit('changeFields', selectedFieldsArray)
+      this.storeSelection && lscache.set(this.localStorageKey, this.selectedFields)
+      this.$emit('changeFields', this.selectedFields)
     },
 
     handleChange (field, selected = null) {
@@ -237,15 +236,17 @@ export default {
     },
 
     toggleAllFields (selectAll) {
-      this.filterCheckBoxesItems.forEach(({ value: field }) => this.toggleField(field, selectAll))
+      this.selectedFields = selectAll ? this.filterCheckBoxesItems.map(({ value }) => value) : []
       this.broadcastChanges()
+      this.handleSearch(this.currentSearchTerm)
     },
 
+    // Check or uncheck single field. To prevent duplication, the array is checked for the field.
     toggleField (field, selectField) {
-      if (selectField === true) {
-        this.selectedFields.add(field)
+      if (selectField === true && !this.selectedFields.includes(field)) {
+        this.selectedFields.push(field)
       } else if (selectField === false) {
-        this.selectedFields.delete(field)
+        this.selectedFields = this.selectedFields.filter(f => f !== field)
       }
     }
   }

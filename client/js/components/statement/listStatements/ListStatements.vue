@@ -27,8 +27,8 @@
           :icon="isFullscreen ? 'compress' : 'expand'"
           icon-size="medium"
           hide-text
-          variant="outline"
           :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
+          variant="outline"
           @click="handleFullscreenMode()" />
       </div>
       <dp-bulk-edit-header
@@ -38,9 +38,9 @@
         @reset-selection="resetSelection">
         <dp-button
           data-cy="statementsBulkShare"
+          :text="Translator.trans('procedure.share_statements.bulk.share')"
           variant="outline"
-          @click.prevent="handleBulkShare"
-          :text="Translator.trans('procedure.share_statements.bulk.share')" />
+          @click.prevent="handleBulkShare" />
       </dp-bulk-edit-header>
       <statement-export-modal
         data-cy="listStatements:export"
@@ -52,13 +52,13 @@
           v-if="pagination.currentPage"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
+          :limits="pagination.limits"
+          :per-page="pagination.perPage"
           :total-pages="pagination.totalPages"
           :total-items="pagination.total"
-          :per-page="pagination.perPage"
-          :limits="pagination.limits"
           @page-change="getItemsByPage"
-          @size-change="handleSizeChange"
-          :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
+          @size-change="handleSizeChange" />
         <div class="ml-auto flex items-center space-inline-xs">
           <label
             class="u-mb-0"
@@ -75,8 +75,8 @@
     </dp-sticky-element>
 
     <dp-loading
-      class="u-mt"
-      v-if="isLoading" />
+      v-if="isLoading"
+      class="u-mt" />
 
     <template v-else>
       <dp-data-table
