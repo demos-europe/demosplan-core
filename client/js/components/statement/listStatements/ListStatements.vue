@@ -20,7 +20,7 @@
             :search-in-fields="searchFields"
             @changeFields="updateSearchFields"
             @search="(term) => applySearch(term)"
-            @reset="resetSearchByPageReload"
+            @reset="resetSearch"
           />
         </div>
         <dp-button
@@ -905,11 +905,6 @@ export default {
     },
 
     resetSearch () {
-      this.searchValue = ''
-      this.getItemsByPage(1)
-    },
-
-    resetSearchByPageReload () {
       this.searchValue = ''
       this.getItemsByPage(1)
       this.$refs.customSearchStatements.toggleAllFields(false)
