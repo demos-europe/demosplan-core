@@ -1,5 +1,4 @@
 <template>
-  <div>
     <dp-search-field
       data-cy="customSearchStatements:search"
       :placeholder="Translator.trans('searchterm')"
@@ -135,7 +134,6 @@
         </dp-flyout>
       </template>
     </dp-search-field>
-  </div>
 </template>
 <script>
 
