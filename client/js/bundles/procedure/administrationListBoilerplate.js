@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_list_boilerplate.html.twig
  */
 
-import { DpFlyout, DpButton } from '@demos-europe/demosplan-ui'
+import { DpButton, DpFlyout } from '@demos-europe/demosplan-ui'
 import AnimateById from '@DpJs/lib/shared/AnimateById'
 import { initialize } from '@DpJs/InitVue'
 

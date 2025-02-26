@@ -1,4 +1,5 @@
 bin/console
+CHANGELOG.md
 client
 config
 demosplan

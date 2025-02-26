@@ -88,8 +88,6 @@
 </template>
 
 <script>
-import { mapActions, mapMutations, mapState } from 'vuex'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import {
   DpButton,
   DpButtonRow,
@@ -98,6 +96,8 @@ import {
   DpSelect,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
+import { mapActions, mapMutations, mapState } from 'vuex'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
   name: 'TagsCreateForm',
@@ -108,7 +108,7 @@ export default {
     DpButtonRow,
     DpInput,
     DpLabel,
-    DpSelect,
+    DpSelect
   },
 
   mixins: [dpValidateMixin],
@@ -210,19 +210,19 @@ export default {
             attributes: parentTopic.attributes,
             relationships: parentTopic.relationships
               ? {
-                ...parentTopic.relationships,
-                tags: {
-                  data: parentTopic.relationships.tags.data.concat({
-                    type: 'Tag',
-                    id: newTagId
-                  })
+                  ...parentTopic.relationships,
+                  tags: {
+                    data: parentTopic.relationships.tags.data.concat({
+                      type: 'Tag',
+                      id: newTagId
+                    })
+                  }
                 }
-              }
               : {
-                tags: {
-                  data: [{ type: 'Tag', id: newTagId }]
+                  tags: {
+                    data: [{ type: 'Tag', id: newTagId }]
+                  }
                 }
-              }
           })
 
           this.saveTagTopic(this.newTag.topic)
@@ -249,7 +249,6 @@ export default {
         .then(() => {
           this.closeForm()
         })
-
     },
 
     updateForm (value) {
