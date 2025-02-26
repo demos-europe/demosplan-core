@@ -17,13 +17,10 @@
         <div class="flex">
           <custom-search-statements
             :search-in-fields="searchFields"
+            @changeFields="updateSearchFields"
             @search="(term) => applySearch(term)"
             @reset="resetSearchByPageReload"
           />
-          <!--search-modal
-            :search-in-fields="searchFields"
-            @search="(term, selectedFields) => applySearch(term, selectedFields)"
-            ref="searchModal" /-->
         </div>
         <dp-button
           data-cy="editorFullscreen"
@@ -322,11 +319,13 @@ import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
+import CustomSearch from '../../procedure/SegmentsList/CustomSearch.vue'
 
 export default {
   name: 'ListStatements',
 
   components: {
+    CustomSearch,
     CustomSearchStatements,
     DpBulkEditHeader,
     DpButton,
@@ -598,9 +597,8 @@ export default {
       }
     },
 
-    applySearch (term, selectedFields) {
+    applySearch (term) {
       this.searchValue = term
-      this.searchFieldsSelected = selectedFields
       this.getItemsByPage(1)
     },
 
@@ -733,6 +731,7 @@ export default {
       if (hasPermission('area_statement_segmentation')) {
         statementFields.push('segmentDraftList')
       }
+      console.log("searchfields getItemsPage", this.searchFieldsSelected)
       this.fetchStatements({
         page: {
           number: page,
@@ -959,6 +958,11 @@ export default {
       const statement = this.statementsObject[statementId]
       const isFulltext = statement.attributes.isFulltextDisplayed
       this.setStatement({ ...{ ...statement, attributes: { ...statement.attributes, isFulltextDisplayed: !isFulltext }, id: statementId } })
+    },
+
+    updateSearchFields (selectedFields) {
+      this.searchFieldsSelected = selectedFields
+      console.log("selectedFields", this.searchFieldsSelected)
     }
   },
 

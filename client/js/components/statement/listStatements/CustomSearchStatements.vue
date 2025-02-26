@@ -13,36 +13,31 @@
           :has-menu="false"
           :padded="false">
           <template v-slot:trigger>
-            <dp-icon
-              icon="settings" />
+            <dp-icon icon="settings"/>
           </template>
           <div class="space-stack-s space-inset-s w-14">
-            <h2>{{ Translator.trans('search.advanced') }}</h2>
-
-            <!-- Search options and special characters -->
-            <div class="space-stack-s">
-              <dp-details
-                v-for="(explanation, index) in explanations"
-                :key="index"
-                :summary="explanation.title">
-                <span v-html="explanation.description" />
-              </dp-details>
+            <div class="flex">
+                <span
+                  class="weight--bold"
+                  v-text="Translator.trans('search.custom.limit_fields')"/>
+              <button
+                class="btn--blank o-link--default ml-auto"
+                data-cy="customSearch:searchCustomToggleAll"
+                v-text="Translator.trans('toggle_all')"
+                @click="toggleAllFields(selectedFields.length < filterCheckBoxesItems.length)"/>
             </div>
 
             <!-- Checkboxes -->
-            <h3 class="u-mt-0_25">
-              {{ Translator.trans('search.in') }}
-            </h3>
             <div class="layout--flush">
               <dp-checkbox
-                v-for="checkbox in filterCheckBoxesItems"
-                :data-cy="`searchModal:${checkbox.id}`"
-                :id="checkbox.id"
-                :key="'checkbox_' + checkbox.id"
-                v-model="checkbox.checked"
+                v-for="({label, value}, i) in filterCheckBoxesItems"
+                :data-cy="`searchModal:${value}`"
+                :id="'filteredCheckbox' + i"
+                :key="i"
+                :checked="selectedFields.includes(value)"
                 class="layout__item u-1-of-2"
-                :label="{ text: Translator.trans(checkbox.label) }"
-                name="search_fields[]" />
+                :label="{ text: Translator.trans(label) }"
+                @change="handleChange(value, !selectedFields.includes(value))"/>
 
               <!-- department is added as hidden field when organisation is selected -->
               <input
@@ -115,8 +110,7 @@
                 v-if="selectedFields.includes('topicNames') && hasPermission('feature_statements_tag') || hasPermission('feature_statement_fragments_tag')"
                 name="search_fields[]"
                 value="tagNames"
-                checked="checked"
-                aria-hidden="true">
+                checked="checked" >
               <!-- fragment consideration is added as hidden field if consideration is selected -->
               <input
                 class="hidden"
@@ -127,21 +121,15 @@
                 checked="checked">
             </div>
 
-            <!-- Button row -->
-            <div class="text-right">
-              <button
-                class="btn btn--primary u-mr"
-                type="button"
-                data-cy="searchModal:submitSearchAdvanced"
-                @click="submit">
-                {{ Translator.trans('apply') }}
-              </button>
-              <button
-                class="btn btn--secondary"
-                data-cy="searchModal:resetSearchAdvanced"
-                @click.prevent="reset">
-                {{ Translator.trans('reset') }}
-              </button>
+            <!-- Search options and special characters -->
+            <div class="space-stack-s">
+              <hr class="border--top u-m-0">
+              <dp-details
+                v-for="(explanation, index) in explanations"
+                :key="index"
+                :summary="explanation.title">
+                <span v-html="explanation.description"/>
+              </dp-details>
             </div>
           </div>
         </dp-flyout>
@@ -160,9 +148,24 @@ import {
   hasAnyPermissions
 } from '@demos-europe/demosplan-ui'
 import availableFilterFields from './availableFilterFields.json'
+import lscache from 'lscache'
+
+const fields = [
+  'authorName',
+  'department',
+  'internId',
+  'memo',
+  'municipalitiesNames',
+  'orgaCity',
+  'organisationName',
+  'orgaPostalCode',
+  'statementId',
+  'statementText',
+  'typeOfSubmission']
 
 export default {
   name: 'CustomSearchStatements',
+
   components: {
     DpCheckbox,
     DpDetails,
@@ -172,29 +175,14 @@ export default {
   },
 
   props: {
-    searchInFields: {
+    /**
+     * Which key is used when storing current selection.
+     * If omitted, the selection is not stored at all.
+     */
+    localStorageKey: {
+      type: String,
       required: false,
-      type: Array,
-      default: () => [
-        'authorName',
-        'clusterName',
-        'consideration',
-        'department',
-        'fragmentText',
-        'internId',
-        'memo',
-        'municipalitiesNames',
-        'orgaCity',
-        'organisationName',
-        'orgaPostalCode',
-        'planDocument',
-        'potentialAreas',
-        'statementId',
-        'statementText',
-        'topics',
-        'typeOfSubmission',
-        'voters'
-      ]
+      default: ''
     }
   },
 
@@ -210,40 +198,57 @@ export default {
         description: Translator.trans('search.special.characters.description')
       }
     ],
-    availableFilterFields
+    availableFilterFields,
+    fields,
+    selectedFields: []
   }),
 
   computed: {
     filterCheckBoxesItems () {
       return this.availableFilterFields.filter(checkbox => {
         const allowedToShow = typeof checkbox.permissions === 'undefined' || hasAnyPermissions(checkbox.permissions)
-        const showInView = this.searchInFields.includes(checkbox.id)
+        const showInView = fields.includes(checkbox.id)
         return allowedToShow && showInView
       })
     },
-    selectedFields () {
-      return this.availableFilterFields.filter(checkbox => checkbox.checked).map(checkbox => checkbox.value)
+    storeSelection () {
+      return this.localStorageKey !== ''
     }
   },
 
   methods: {
+    broadcastChanges () {
+      this.storeSelection && lscache.set(this.localStorageKey, this.selectedFields)
+      this.$emit('changeFields', this.selectedFields)
+    },
+
+    handleChange (field, selected = null) {
+      this.toggleField(field, selected)
+      this.broadcastChanges()
+      this.handleSearch(this.currentSearchTerm)
+    },
+
     handleSearch (term) {
       this.currentSearchTerm = term
       this.$emit('search', this.currentSearchTerm)
     },
 
-    reset () {
-      this.currentSearchTerm = ''
-      this.$emit('reset')
-      this.availableFilterFields.forEach(checkbox => {
-        checkbox.checked = false
-      })
-      localStorage.removeItem('selectedCheckboxes')
+    // Check or uncheck single field. To prevent duplication, the array is changed into a Set on the fly.
+    toggleAllFields (selectAll) {
+      this.filterCheckBoxesItems.forEach(({ value: field }) => this.toggleField(field, selectAll))
+      this.broadcastChanges()
     },
 
-    submit () {
-      // Add logic for submit action
-      this.$emit('submit', this.selectedFields)
+    toggleField (field, selectField) {
+      if (selectField === true) {
+        const set = new Set(this.selectedFields)
+        set.add(field)
+        this.selectedFields = [...set]
+      } else if (selectField === false) {
+        const set = new Set(this.selectedFields)
+        set.delete(field)
+        this.selectedFields = [...set]
+      }
     }
   }
 }
