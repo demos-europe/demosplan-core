@@ -6,8 +6,6 @@
  *
  * All rights reserved
  */
-
-import { del, set } from 'vue'
 import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const Filter = {
@@ -51,7 +49,7 @@ const Filter = {
 
   mutations: {
     loadAppliedFilterOptions (state, options) {
-      set(state, 'appliedOptions', options)
+      state.appliedOptions = options
     },
 
     /**
@@ -61,10 +59,10 @@ const Filter = {
     loadAvailableFilterListOptions (state, updatedFilters) {
       if (updatedFilters.length) {
         updatedFilters.forEach(filter => {
-          set(state.filterListOptions, filter.id, filter.attributes.options)
+          state.filterListOptions[filter.id] = filter.attributes.options
         })
       } else {
-        set(state, 'filterListOptions', {})
+        state.filterListOptions = {}
       }
     },
 
@@ -74,7 +72,7 @@ const Filter = {
      * @param options
      */
     loadSelectedFilterOptions (state, options) {
-      set(state, 'selectedOptions', options)
+      state.selectedOptions = options
     },
 
     /**
@@ -86,8 +84,10 @@ const Filter = {
     removeUserFilterSet (state, userFilterSetId) {
       if (hasOwnProp(state.userFilterSets, 'data')) {
         const filterIndex = state.userFilterSets.data.findIndex(el => el.id === userFilterSetId)
+
         if (filterIndex >= 0) {
           state.userFilterSets.data.splice(filterIndex, 1)
+
           return true
         } else {
           return false
@@ -99,9 +99,9 @@ const Filter = {
 
     resetSelectedOptions (state, optionsToKeep) {
       if (state.appliedOptions.length) {
-        set(state, 'selectedOptions', optionsToKeep)
+        state.selectedOptions = optionsToKeep
       } else {
-        set(state, 'selectedOptions', [])
+        state.selectedOptions = []
       }
     },
 
@@ -138,8 +138,10 @@ const Filter = {
 
         // Currently, the empty value is not the same for all options, it can be either "keinezuordnung" or "no_value"
         const emptyOptionIndex = optionsToSort.findIndex(opt => opt.value === 'keinezuordnung' || opt.value === 'no_value')
+
         if (emptyOptionIndex > -1) {
           const emptyOption = optionsToSort[emptyOptionIndex]
+
           optionsToSort.splice(emptyOptionIndex, 1)
           optionsToSort.unshift(emptyOption)
         }
@@ -174,33 +176,34 @@ const Filter = {
 
     /**
      * Add or remove an option to/from selectedOptions
-     * @param selectedOption
-     * @param filterId
+     * @param {Object} selectedOption option to add to or remove from selectedOptions
+     * @param {String} filterId
      */
     updateSelectedOptions (state, { selectedOption, filterId }) {
       // @improve send filterId with every option from BE
       if (hasOwnProp(selectedOption, 'filterId') === false) {
         selectedOption.filterId = filterId
       }
-      if (state.selectedOptions.length) {
-        const optionsForCurrentFilter = state.selectedOptions.filter(option => option.filterId === filterId)
-        if (optionsForCurrentFilter.length) {
-          const idx = state.selectedOptions.findIndex(option => option.value === selectedOption.value)
-          if (idx < 0) {
-            state.selectedOptions.splice(state.selectedOptions.length, 0, selectedOption)
-          } else {
-            del(state.selectedOptions, idx)
-          }
+
+      const optionsForCurrentFilter = state.selectedOptions.filter(option => option.filterId === filterId)
+      const idx = state.selectedOptions.findIndex(option => option.value === selectedOption.value)
+      const currentOptionIsNotInSelectedOptions = idx < 0
+      const hasSelectedOptionsForCurrentFilter = state.selectedOptions.length && optionsForCurrentFilter.length
+
+      if (hasSelectedOptionsForCurrentFilter) {
+        if (currentOptionIsNotInSelectedOptions) {
+          state.selectedOptions.push(selectedOption)
         } else {
-          state.selectedOptions.splice(state.selectedOptions.length, 0, selectedOption)
+          state.selectedOptions.splice(idx, 1)
         }
       } else {
-        state.selectedOptions.splice(state.selectedOptions.length, 0, selectedOption)
+        state.selectedOptions.push(selectedOption)
       }
     },
 
     /**
      * Update count for selected options with data from BE (e.g. after updating selected filter options in FE)
+     * @param {Array} updatedFilters
      */
     updateSelectedOptionsCount (state, updatedFilters) {
       if (updatedFilters.length) {
@@ -209,9 +212,11 @@ const Filter = {
           state.selectedOptions.forEach(option => {
             if (option.filterId === filter.id) {
               const idx = state.selectedOptions.findIndex(opt => opt.filterId === filter.id && opt.value === option.value)
+
               if (idx >= 0) {
                 const newCount = filter.attributes.options.find(opt => opt.value === option.value).count
-                set(state.selectedOptions[idx], 'count', newCount)
+
+                state.selectedOptions[idx].count = newCount
               }
             }
           })
@@ -247,8 +252,8 @@ const Filter = {
         .then(data => {
           commit('updateFilterList', data.data)
         })
-        .catch(data => {
-          console.log('Something happened', data)
+        .catch(error => {
+          console.error('An error occurred:', error)
         })
         .then(() => {
           performance.mark('end')
@@ -282,11 +287,12 @@ const Filter = {
             // Update options for all selected filters
             filtersToUpdateInStore = response.data
           }
+
           commit('loadAvailableFilterListOptions', filtersToUpdateInStore)
           commit('updateSelectedOptionsCount', filtersToUpdateInStore)
         })
-        .catch(response => {
-          console.log('Something happened', response)
+        .catch(error => {
+          console.error('An error occurred:', error)
         })
         .then(() => {
           performance.mark('end')
@@ -311,7 +317,7 @@ const Filter = {
         .then(this.api.checkResponse)
         .then(data => commit('updateUserFilterSets', data))
         .catch((err) => {
-          console.error('filter.saveFilterSet.load.error', err)
+          console.error(Translator.trans('filter.saveFilterSet.load.error'), err)
         })
     },
 
@@ -332,8 +338,8 @@ const Filter = {
         .then(() => {
           commit('removeUserFilterSet', userFilterSetId)
         })
-        .catch(data => {
-          console.log('Something happened', data)
+        .catch(error => {
+          console.error('An error occurred', error)
         })
     },
 
@@ -353,6 +359,7 @@ const Filter = {
     // Get all selected filter options with corresponding filterName, needed for updateFilterHash
     allSelectedFilterOptionsWithFilterName: state => {
       const optionsForFilterHash = []
+
       if (state.selectedOptions.length) {
         state.selectedOptions.forEach(option => {
           state.filterList.forEach(filterItem => {
@@ -365,6 +372,7 @@ const Filter = {
           })
         })
       }
+
       return optionsForFilterHash
     },
 
@@ -375,6 +383,7 @@ const Filter = {
     filterByType: state => type => {
       const filter = JSON.parse(JSON.stringify(state.filterList.filter(filter => filter.attributes.type === type)))
       let i = 0
+
       if (typeof filter !== 'undefined') {
         for (; i < filter.length; i++) {
           filter[i].attributes.options = filter[i].attributes.options.filter(option => {
@@ -382,6 +391,7 @@ const Filter = {
           })
         }
       }
+
       return filter
     },
 
@@ -403,6 +413,7 @@ const Filter = {
     filterOptionsByFilter: state => filterId => {
       if (Object.keys(state.filterListOptions).length) {
         const allOptions = state.filterListOptions[filterId]
+
         if (typeof allOptions !== 'undefined') {
           return Object.values(allOptions).filter(option => option.count !== 0)
         }
@@ -428,6 +439,7 @@ const Filter = {
     selectedFilterOptionsByFilter: state => filterId => {
       if (state.selectedOptions.length) {
         const selectedFilterOptions = state.selectedOptions.filter(option => option.filterId === filterId)
+
         return selectedFilterOptions.length ? selectedFilterOptions : []
       }
       return []
@@ -441,6 +453,7 @@ const Filter = {
     userFilterSetFilterHash: state => userFilterSet => {
       if (hasOwnProp(userFilterSet, 'relationships') && hasOwnProp(userFilterSet.relationships, 'filterSet')) {
         const filter = state.userFilterSets.included.filter(filterSet => filterSet.id === userFilterSet.relationships.filterSet.data.id)
+
         return filter[0].attributes.hash
       } else {
         return ''

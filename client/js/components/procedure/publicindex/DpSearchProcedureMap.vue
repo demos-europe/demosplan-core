@@ -125,14 +125,13 @@
           data-cy="searchProcedureMapForm:municipalCode"
           name="municipalCode"
           @change="setValueAndSubmitForm($event, 'municipalCode')">
-          <template v-for="municipalityGroups in municipalities">
+          <template v-for="municipalityGroup in municipalities">
             <optgroup
-              v-if="hasOwnProp(municipalityGroups,'options')"
-              :key="'group_' + municipalityGroups.label"
-              :label="municipalityGroups.label">
+              v-if="hasOwnProp(municipalityGroup,'options')"
+              :key="`group_${municipalityGroup.label}`"
+              :label="municipalityGroup.label">
               <option
-                v-for="county in municipalityGroups.options"
-                :key="'group_opt_' + county.value"
+                v-for="county in municipalityGroup.options"
                 :selected="county.value === form.municipalCode"
                 :value="county.value">
                 {{ county.title }}
@@ -140,18 +139,19 @@
             </optgroup>
             <option
               v-else
-              :key="'opt_' + municipalityGroups.value"
-              :value="municipalityGroups.value">
-              {{ municipalityGroups.label }}
+              :key="`opt_${municipalityGroup.value}`"
+              :value="municipalityGroup.value">
+              {{ municipalityGroup.label }}
             </option>
           </template>
         </select>
       </div>
 
       <!-- All other filters -->
-      <template v-for="(filter, idx) in filters">
+      <template
+        v-for="(filter, idx) in filters"
+        :key="'label_' + idx">
         <label
-          :key="'label_' + idx"
           :for="filter.name"
           :class="prefixClass('c-proceduresearch__filter-label layout__item u-mb-0_25 u-1-of-1')">
           {{ filter.title }}
@@ -160,9 +160,7 @@
             class="u-ml-0_25"
             :text="filter.contextHelp" />
         </label><!--
-     --><div
-          :key="'select_' + filter.name"
-          :class="prefixClass('layout__item u-1-of-1 u-mb')">
+     --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
           <select
             :id="filter.name"
             :ref="'filter_' + idx"
