@@ -17,9 +17,9 @@
           </template>
           <div class="space-stack-s space-inset-s w-14">
             <div class="flex">
-                <span
-                  class="weight--bold"
-                  v-text="Translator.trans('search.custom.limit_fields')" />
+              <span
+                class="weight--bold"
+                v-text="Translator.trans('search.custom.limit_fields')" />
               <button
                 class="btn--blank o-link--default ml-auto"
                 data-cy="customSearch:searchCustomToggleAll"
