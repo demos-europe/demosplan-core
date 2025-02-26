@@ -960,7 +960,7 @@ class DocxExporter
 
     /**
      * Used for non original statement and more?!
-     * For OriginalStatements AssessmentTableServiceOutput::addHtml is used. - which calls this method
+     * For OriginalStatements AssessmentTableServiceOutput::addHtml is used. - which calls this method.
      *
      * @param Cell    $cell
      * @param string  $text
