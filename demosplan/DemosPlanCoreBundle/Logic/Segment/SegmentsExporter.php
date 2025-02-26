@@ -352,6 +352,8 @@ class SegmentsExporter
 
     private function addSegmentHtmlCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
     {
+        // remove STX (start of text) EOT (end of text) special chars
+        $text = str_replace([chr(2), chr(3)], '', $text);
         $cell = $row->addCell(
             $cellExportStyle->getWidth(),
             $cellExportStyle->getCellStyle()
