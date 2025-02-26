@@ -975,8 +975,8 @@ class DocxExporter
         }
         try {
             $text = self::replaceTags($text);
-            // remove STX (start of text) special chars
-            $text = str_replace(chr(2), '', $text);
+            // remove STX (start of text) EOT (end of text) special chars
+            $text = str_replace([chr(2), chr(3)], '', $text);
 
             Html::addHtml($cell, $text, false);
         } catch (Exception $e) {
