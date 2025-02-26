@@ -19,6 +19,7 @@
 - Rework Tags-Lists: Now works with APi2.0 and is extendable by addons.
 - Enable the DELETE method for the AdministratableUser resource type
 - TagsList: trigger an update request only when the title is modified
+- DpCreateTag: Ensure the new tag retains its relationship to the Topic after creation
 
 ## 2.20.0
 
