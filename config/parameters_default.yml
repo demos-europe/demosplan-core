@@ -427,6 +427,8 @@ parameters:
     # try to create procedures from the messages
     enable_xta_communication: false
 
+    enable_rabbitmq_communication: false
+
 
     ## Robobsh
     geo_wfs_statement_linien: ''
