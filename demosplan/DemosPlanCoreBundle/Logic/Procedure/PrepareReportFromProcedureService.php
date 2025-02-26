@@ -388,7 +388,12 @@ class PrepareReportFromProcedureService extends CoreService
             }
         }
 
-        $elementsList = $this->elementsService->getElementsListObjects($procedureId, $sourceProcedure->getOrgaId());
+        $elementsList = $this->elementsService->getElementsListObjects(
+            $procedureId,
+            $sourceProcedure->getOrgaId(),
+            true
+        );
+
         $elements = [];
         $paragraphs = [];
 
