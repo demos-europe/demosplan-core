@@ -362,12 +362,12 @@ class DocumentBundleImporterTest extends FunctionalTestCase
             'category'   => 'paragraph',
             'paragraphs' => $paragraphs,
         ];
-        $paragraphService = static::getContainer()->get(ParagraphService::class);
+        $paragraphService = $this->getContainer()->get(ParagraphService::class);
         $this->sut->createParagraphsFromImportResult($importResult, $procedureId);
 
         $procedureParagraphsAfter = $paragraphService->getParaDocumentObjectList($procedureId, $elementId);
         // check only for the width and height as the hash always differs
-        $expectedPart = '/file/procedure1slug';
+        $expectedPart = "width='0' height='0'";
         static::assertStringContainsString($expectedPart, $procedureParagraphsAfter[count($procedureParagraphsAfter) - 1]->getText());
     }
 }

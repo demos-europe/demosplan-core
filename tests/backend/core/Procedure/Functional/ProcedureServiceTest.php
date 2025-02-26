@@ -987,8 +987,9 @@ class ProcedureServiceTest extends FunctionalTestCase
 
     public function testDeleteProcedure(): void
     {
+        $testProcedure = $this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2);
         $procedure = $this->sut->getSingleProcedure(
-            $this->testProcedure->getId()
+            $testProcedure->getId()
         );
         static::assertArrayHasKey('orgaId', $procedure);
         static::assertIsString($procedure['orgaId']);
