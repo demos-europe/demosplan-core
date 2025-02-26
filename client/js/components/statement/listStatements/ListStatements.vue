@@ -16,6 +16,7 @@
       <div class="flex items-center justify-between mb-2">
         <div class="flex">
           <custom-search-statements
+            ref="customSearchStatements"
             :search-in-fields="searchFields"
             @changeFields="updateSearchFields"
             @search="(term) => applySearch(term)"
@@ -727,7 +728,7 @@ export default {
       if (hasPermission('area_statement_segmentation')) {
         statementFields.push('segmentDraftList')
       }
-      console.log('searchfields getItemsPage', this.searchFieldsSelected)
+
       this.fetchStatements({
         page: {
           number: page,
@@ -909,7 +910,9 @@ export default {
     },
 
     resetSearchByPageReload () {
-      window.location = Routing.generate('dplan_procedure_statement_list', { procedureId: this.procedureId })
+      this.searchValue = ''
+      this.getItemsByPage(1)
+      this.$refs.customSearchStatements.toggleAllFields(false)
     },
 
     /**
@@ -958,7 +961,6 @@ export default {
 
     updateSearchFields (selectedFields) {
       this.searchFieldsSelected = selectedFields
-      console.log('selectedFields', this.searchFieldsSelected)
     }
   },
 
