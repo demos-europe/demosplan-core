@@ -219,8 +219,10 @@ export default {
 
   methods: {
     broadcastChanges () {
-      this.storeSelection && lscache.set(this.localStorageKey, Array.from(this.selectedFields))
-      this.$emit('changeFields', Array.from(this.selectedFields))
+      const selectedFieldsArray =  Array.from(this.selectedFields)
+
+      this.storeSelection && lscache.set(this.localStorageKey, selectedFieldsArray)
+      this.$emit('changeFields', selectedFieldsArray)
     },
 
     handleChange (field, selected = null) {
