@@ -47,12 +47,7 @@
         & > li {
             & > a {
                 display: block;
-                padding: {
-                    top: $inuit-base-spacing-unit--small;
-                    bottom: $inuit-base-spacing-unit--small;
-                    right: $inuit-base-spacing-unit;
-                    left: $inuit-base-spacing-unit;
-                }
+                padding: $inuit-base-spacing-unit--small $inuit-base-spacing-unit $inuit-base-spacing-unit--small $inuit-base-spacing-unit;
             }
 
             &.current_ancestor,
@@ -99,6 +94,7 @@
             a {
                 font-size: $dp-font-size-medium;
             }
+
             &.o-toggle {
                 ul {
                     padding: {
