@@ -427,6 +427,7 @@ parameters:
     # try to create procedures from the messages
     enable_xta_communication: false
 
+    # Enable communication to RabbitMQ through the XBeteiligung Addon
     enable_rabbitmq_communication: false
 
 
