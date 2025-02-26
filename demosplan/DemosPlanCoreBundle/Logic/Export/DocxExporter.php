@@ -960,7 +960,7 @@ class DocxExporter
 
     /**
      * Used for non original statement and more?!
-     * For OriginalStatements AssessmentTableServiceOutput::addHtml is used.
+     * For OriginalStatements AssessmentTableServiceOutput::addHtml is used. - which calls this method
      *
      * @param Cell    $cell
      * @param string  $text
@@ -975,6 +975,9 @@ class DocxExporter
         }
         try {
             $text = self::replaceTags($text);
+            // remove STX (start of text) special chars
+            $text = str_replace(chr(2), '', $text);
+
             Html::addHtml($cell, $text, false);
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not parse HTML in Export', [$e, $text, $e->getTraceAsString()]);
@@ -1555,6 +1558,7 @@ class DocxExporter
                 $cell2 = $assessmentTable->addCell($styles['cellWidth'], $cellTop);
                 // T6679:
                 $statementText = $this->editorService->handleObscureTags($statement->getText(), $anonym);
+                $statementText = str_replace(chr(2), '', $statementText);
                 $this->addHtml($cell2, $statementText, $styles);
                 $cell3 = $assessmentTable->addCell($styles['cellWidth'], $cellTop);
                 if (true === $permissions->hasPermission(

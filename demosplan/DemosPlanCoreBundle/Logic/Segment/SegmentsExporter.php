@@ -309,6 +309,7 @@ class SegmentsExporter
 
     private function addSegmentHtmlCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
     {
+        $text = str_replace(chr(2), '', $text);
         $cell = $row->addCell(
             $cellExportStyle->getWidth(),
             $cellExportStyle->getCellStyle()
