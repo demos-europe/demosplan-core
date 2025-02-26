@@ -19,9 +19,8 @@
             ref="customSearchStatements"
             :search-in-fields="searchFields"
             @changeFields="updateSearchFields"
-            @search="(term) => applySearch(term)"
             @reset="resetSearch"
-          />
+            @search="(term) => applySearch(term)" />
         </div>
         <dp-button
           data-cy="editorFullscreen"
