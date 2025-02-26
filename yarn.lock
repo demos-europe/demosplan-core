@@ -1961,9 +1961,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@portal:/srv/www/local_modules/demosplan-ui::locator=root-workspace-0b6124%40workspace%3A.":
-  version: 0.0.0-use.local
-  resolution: "@demos-europe/demosplan-ui@portal:/srv/www/local_modules/demosplan-ui::locator=root-workspace-0b6124%40workspace%3A."
+"@demos-europe/demosplan-ui@npm:^0.4.4":
+  version: 0.4.4
+  resolution: "@demos-europe/demosplan-ui@npm:0.4.4"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.4.5"
@@ -2014,8 +2014,9 @@ __metadata:
     vue-multiselect: "npm:^3.1.0"
     vue-omnibox: "npm:^0.3.7"
     vue-sliding-pagination: "npm:^1.3.2"
+  checksum: 10c0/045f4c3fd877dc396c36e13498ed5a1eac5e42677eb4ae0586734334bb15e05ea40ac56ce996af0c57ef52733494e0d0b943304ac56e46cb6456d015e6573dbf
   languageName: node
-  linkType: soft
+  linkType: hard
 
 "@demos-europe/dp-consent@npm:^1.3":
   version: 1.3.0
@@ -12303,7 +12304,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.26.0"
     "@babel/preset-flow": "npm:^7.25.9"
     "@babel/runtime": "npm:^7.26.0"
-    "@demos-europe/demosplan-ui": "npm:^0.4.3"
+    "@demos-europe/demosplan-ui": "npm:^0.4.4"
     "@demos-europe/dp-consent": "npm:^1.3"
     "@efrane/vuex-json-api": "npm:^0.1.3"
     "@fullhuman/postcss-purgecss": "npm:^6.0.0"
