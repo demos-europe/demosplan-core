@@ -43,14 +43,14 @@ describe('StatementExportModal', () => {
   })
 
   it('sets the initial values correctly', () => {
-    expect(wrapper.vm.$data.active).toBe('docx')
+    expect(wrapper.vm.$data.active).toBe('docx_normal')
     expect(wrapper.vm.docxColumns.col1.title).toBe(sessionStorageValue)
     expect(wrapper.vm.docxColumns.col2.title).toBe(null)
     expect(wrapper.vm.docxColumns.col3.title).toBe(null)
   })
 
   it('renders input fields when export type is docx or zip', () => {
-    const exportTypes = ['docx', 'zip']
+    const exportTypes = ['docx_normal', 'zip_normal']
 
     exportTypes.map(async exportType => {
       await wrapper.setData({ active: exportType })
@@ -63,7 +63,7 @@ describe('StatementExportModal', () => {
   })
 
   it('does not render input fields when export type is not docx or zip', async () => {
-    await wrapper.setData({ active: 'xlsx' })
+    await wrapper.setData({ active: 'xlsx_normal' })
     const inputs = wrapper.findAllComponents({ name: 'DpInput' })
 
     expect(inputs.length).toBe(0)
@@ -81,7 +81,8 @@ describe('StatementExportModal', () => {
         col3: null
       },
       fileNameTemplate: null,
-      shouldConfirm: true
+      shouldConfirm: true,
+      censorParameter: false
     })
   })
 
@@ -102,20 +103,22 @@ describe('StatementExportModal', () => {
         col3: null
       },
       fileNameTemplate: null,
-      shouldConfirm: true
+      shouldConfirm: true,
+      censorParameter: false
     })
   })
 
   it('emits export event with null docxHeaders for xlsx export type', () => {
     const emitSpy = jest.spyOn(wrapper.vm, '$emit')
-    wrapper.setData({ active: 'xlsx' })
+    wrapper.setData({ active: 'xlsx_normal' })
     wrapper.vm.handleExport()
 
     expect(emitSpy).toHaveBeenCalledWith('export', {
       route: 'dplan_statement_xls_export',
       docxHeaders: null,
       fileNameTemplate: null,
-      shouldConfirm: false
+      shouldConfirm: false,
+      censorParameter: false
     })
   })
 
