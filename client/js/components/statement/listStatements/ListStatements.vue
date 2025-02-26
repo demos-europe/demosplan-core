@@ -727,7 +727,7 @@ export default {
       if (hasPermission('area_statement_segmentation')) {
         statementFields.push('segmentDraftList')
       }
-      console.log("searchfields getItemsPage", this.searchFieldsSelected)
+      console.log('searchfields getItemsPage', this.searchFieldsSelected)
       this.fetchStatements({
         page: {
           number: page,
