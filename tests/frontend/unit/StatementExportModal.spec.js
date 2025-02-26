@@ -50,7 +50,7 @@ describe('StatementExportModal', () => {
   })
 
   it('renders input fields when export type is docx or zip', () => {
-    const exportTypes = ['docx_normal', 'zip_normal']
+    const exportTypes = ['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored']
 
     exportTypes.map(async exportType => {
       await wrapper.setData({ active: exportType })
@@ -119,6 +119,24 @@ describe('StatementExportModal', () => {
       fileNameTemplate: null,
       shouldConfirm: false,
       censorParameter: false
+    })
+  })
+
+  it('emits export event with censorParameter true for docx_censored export type', () => {
+    const emitSpy = jest.spyOn(wrapper.vm, '$emit')
+    wrapper.setData({ active: 'docx_censored' })
+    wrapper.vm.handleExport()
+
+    expect(emitSpy).toHaveBeenCalledWith('export', {
+      route: 'dplan_statement_segments_export',
+      docxHeaders: {
+        col1: sessionStorageValue,
+        col2: 'Test Column Title',
+        col3: null
+      },
+      fileNameTemplate: null,
+      shouldConfirm: true,
+      censorParameter: true
     })
   })
 
