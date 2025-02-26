@@ -73,37 +73,25 @@
 <script>
 import {
   checkResponse,
-  DpButton,
-  DpIcon,
-  DpInput,
   DpLoading,
-  DpModal,
   dpRpc,
-  DpTreeList,
-  DpUpload
+  DpTreeList
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import TagListEditForm from './TagListEditForm'
 import TagsCreateForm from './TagsCreateForm'
 import TagsImportForm from './TagsImportForm'
-import TagListBulkControls from './TagListBulkControls'
-import TagListEditForm from './TagListEditForm'
 import TagsListHeader from './TagsListHeader'
 export default {
   name: 'TagsList',
 
   components: {
     AddonWrapper,
-    DpButton,
-    DpIcon,
-    DpInput,
     DpLoading,
-    DpModal,
-    DpUpload,
     DpTreeList,
     TagsCreateForm,
     TagsImportForm,
-    TagListBulkControls,
     TagListEditForm,
     TagsListHeader
   },
@@ -115,7 +103,7 @@ export default {
     }
   },
 
-  data() {
+  data () {
     return {
       dataIsRequested: false,
       isInEditState: ''

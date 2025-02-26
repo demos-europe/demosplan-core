@@ -73,7 +73,6 @@
 </template>
 
 <script>
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import {
   DpButtonRow,
   DpInput,
@@ -83,6 +82,7 @@ import {
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
   name: 'DpCreateTag',

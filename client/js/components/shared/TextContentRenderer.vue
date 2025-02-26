@@ -1,6 +1,6 @@
 <script>
-import { DpLoading } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
+import { DpLoading } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'TextContentRenderer',
