@@ -147,7 +147,9 @@ export default {
       this.$emit('close-create-form')
     },
 
-    createTag (topicId, tagPayload) {
+    createTag (topicId) {
+      const tagPayload = this.prepareTagPayload()
+
       this.createTagAction({ tag: this.tag, topicId})
         .then((response) => {
           const newTag = response.data.data
@@ -173,19 +175,13 @@ export default {
         })
     },
 
-    createTopicAndTag (tagPayload) {
-      // Prepare payload for tagTopics update
-      const topicPayload = {
-        attributes: { title: this.tagTopic.title },
-        id: '',
-        type: 'TagTopic'
-      }
+    createTopicAndTag () {
+      const tagPayload = this.prepareTagPayload()
+      const topicPayload = this.prepareTopicPayload()
 
       this.createTopicAction(this.tagTopic)
         .then(({ data }) => {
           const { id, attributes } = data.data
-
-          // const newTopic = response.data.data
 
           // Add id to tagTopic in store
           this.updateProperty({
@@ -261,15 +257,8 @@ export default {
       return hasError
     },
 
-    save: function () {
-      // Check if tag or tagTopic exists
-      const hasError = this.handleError()
-      const isNewTopic = this.tagTopic.id === ''
-
-      if (hasError) return
-
-      // Prepare payload for availableTags update
-      const tagPayload = {
+    prepareTagPayload () {
+      return {
         attributes: {
           title: this.tag.title
         },
@@ -284,11 +273,27 @@ export default {
         id: '',
         type: 'Tag'
       }
+    },
+
+    prepareTopicPayload () {
+      return {
+        attributes: {
+          title: this.tagTopic.title
+        },
+        id: '',
+        type: 'TagTopic'
+      }
+    },
+
+    save () {
+      if (this.handleError()) return
+
+      const isNewTopic = this.tagTopic.id === ''
 
       if (isNewTopic) {
-        this.createTopicAndTag(tagPayload)
+        this.createTopicAndTag()
       } else {
-        this.createTag(this.tagTopic.id, tagPayload)
+        this.createTag(this.tagTopic.id)
       }
     },
 
