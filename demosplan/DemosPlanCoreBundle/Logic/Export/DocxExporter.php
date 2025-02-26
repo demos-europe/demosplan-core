@@ -1558,7 +1558,6 @@ class DocxExporter
                 $cell2 = $assessmentTable->addCell($styles['cellWidth'], $cellTop);
                 // T6679:
                 $statementText = $this->editorService->handleObscureTags($statement->getText(), $anonym);
-                $statementText = str_replace(chr(2), '', $statementText);
                 $this->addHtml($cell2, $statementText, $styles);
                 $cell3 = $assessmentTable->addCell($styles['cellWidth'], $cellTop);
                 if (true === $permissions->hasPermission(
