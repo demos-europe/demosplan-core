@@ -241,9 +241,9 @@ export default {
 
     // Check or uncheck single field. To prevent duplication, the array is checked for the field.
     toggleField (field, selectField) {
-      if (selectField === true && !this.selectedFields.includes(field)) {
+      if (selectField && !this.selectedFields.includes(field)) {
         this.selectedFields.push(field)
-      } else if (selectField === false) {
+      } else if (!selectField) {
         this.selectedFields = this.selectedFields.filter(f => f !== field)
       }
     }
