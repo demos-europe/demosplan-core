@@ -163,11 +163,13 @@ class FileController extends BaseController
     private function getStreamedResponse(FileInfo $file): StreamedResponse
     {
         // check whether file exists using Default storage
+        $this->logger->debug('Default storage: ', [$this->defaultStorage::class]);
         if ($this->defaultStorage->fileExists($file->getAbsolutePath())) {
             $storage = $this->defaultStorage;
         }
         // as a fallback check whether file exists using Local storage
         elseif ($this->localStorage->fileExists($file->getAbsolutePath())) {
+            $this->logger->info('Found file in fallback local storage only');
             $storage = $this->localStorage;
         } else {
             $this->getLogger()->info('Could not find file', [$file->getAbsolutePath()]);

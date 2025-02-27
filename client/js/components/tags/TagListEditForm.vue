@@ -1,4 +1,3 @@
-
 <template>
   <div class="flex items-center">
     <dp-input
@@ -122,7 +121,7 @@ export default {
     }
   },
 
-  data() {
+  data () {
     return {
       unsavedItem: {
         title: ''
@@ -136,7 +135,17 @@ export default {
     },
 
     deleteItem () {
-      this.$emit('delete', { id: this.nodeElement.id, type: this.nodeElement.type })
+      const { type, attributes, children, id } = this.nodeElement
+      const isTagTopic = type === 'TagTopic'
+      const topicConfirmMessage = isTagTopic && children?.length === 0 ? 'check.topic.delete' : 'check.topic.delete.tags'
+
+      const confirmMessage = isTagTopic
+        ? Translator.trans(topicConfirmMessage, { topic: attributes.title })
+        : Translator.trans('check.tag.delete', { tag: attributes.title })
+
+      if (window.dpconfirm(confirmMessage)) {
+        this.$emit('delete', { id, type })
+      }
     },
 
     editItem () {
@@ -145,7 +154,8 @@ export default {
     },
 
     saveItem () {
-      this.$emit('save', { id: this.nodeElement.id, attributes: this.unsavedItem, type: this.nodeElement.type })
+      const isTitleChanged = this.nodeElement.attributes.title !== this.unsavedItem.title
+      this.$emit('save', { id: this.nodeElement.id, attributes: this.unsavedItem, type: this.nodeElement.type, isTitleChanged })
     }
   }
 }
