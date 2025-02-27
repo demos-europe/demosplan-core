@@ -63,7 +63,7 @@ final class SingleDocumentResourceType extends DplanResourceType
 
     protected function getAccessConditions(): array
     {
-        //SingleDocuments get soft-deleted only if a statement references it SingleDocumentRepository::delete
+        // SingleDocuments get soft-deleted only if a statement references it SingleDocumentRepository::delete
         $accessConditions = [$this->conditionFactory->propertyHasValue(false, $this->deleted)];
         if ($this->currentUser->hasPermission('area_admin_single_document')) {
             return $accessConditions;
