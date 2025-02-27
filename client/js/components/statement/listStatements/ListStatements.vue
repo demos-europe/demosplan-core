@@ -663,7 +663,6 @@ export default {
       if (assigneeId !== this.currentUserId) {
         this.claimStatement(statementId)
       } else {
-        console.log('unclaim')
         this.unclaimStatement(statementId)
       }
     },
@@ -945,10 +944,13 @@ export default {
     triggerStatementDeletion (id) {
       if (window.confirm(Translator.trans('check.statement.delete'))) {
         this.deleteStatement(id)
-          .then(response => checkResponse(response, {
-            200: { type: 'confirm', text: 'confirm.statement.deleted' },
-            204: { type: 'confirm', text: 'confirm.statement.deleted' }
-          }))
+          .then(response => {
+            this.getItemsByPage(this.pagination.currentPage)
+            checkResponse(response, {
+              200: { type: 'confirm', text: 'confirm.statement.deleted' },
+              204: { type: 'confirm', text: 'confirm.statement.deleted' }
+            })
+          })
       }
     },
 
