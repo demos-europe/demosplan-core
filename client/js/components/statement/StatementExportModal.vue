@@ -43,7 +43,7 @@
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored', 'xlsx_normal'].includes(this.active)">
+      <fieldset v-if="['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored'].includes(this.active)">
         <legend
           id="docxColumnTitles"
           class="o-form__label text-base float-left mr-1"
@@ -229,7 +229,7 @@ export default {
 
     handleExport () {
       const columnTitles = {}
-      const shouldConfirm = ['docx', 'zip'].includes(this.active)
+      const shouldConfirm = /^(docx|zip)_/.test(this.active)
 
       Object.keys(this.docxColumns).forEach(key => {
         const columnTitle = this.docxColumns[key].title
@@ -246,7 +246,7 @@ export default {
 
       this.$emit('export', {
         route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
-        docxHeaders: ['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored', 'xlsx_normal'].includes(this.active) ? columnTitles : null,
+        docxHeaders: ['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored'].includes(this.active) ? columnTitles : null,
         fileNameTemplate: this.fileName || null,
         shouldConfirm,
         censorParameter: this.exportTypes[this.active].censor || false
