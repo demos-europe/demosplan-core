@@ -64,60 +64,60 @@
               checked="checked">
             <!-- group name is added as hidden field if submitter is selected - this is probably the author of the head statement (so the main STN in cluster) -->
             <input
-              class="hidden"
-              type="hidden"
               v-if="selectedFields.includes('uName')"
+              checked="checked"
+              class="hidden"
               name="search_fields[]"
-              value="cluster_uName"
-              checked="checked">
+              type="hidden"
+              value="cluster_uName">
             <!-- paragraph is added as hidden field if document is selected -->
             <input
-              class="hidden"
-              type="hidden"
               v-if="selectedFields.includes('documentTitle')"
+              checked="checked"
+              class="hidden"
               name="search_fields[]"
-              value="paragraphTitle"
-              checked="checked">
+              type="hidden"
+              value="paragraphTitle">
             <!-- element title is added as hidden field if document is selected -->
             <input
-              class="hidden"
-              type="hidden"
               v-if="selectedFields.includes('documentTitle')"
+              checked="checked"
+              class="hidden"
               name="search_fields[]"
-              value="elementTitle"
-              checked="checked">
+              type="hidden"
+              value="elementTitle">
             <!-- public/external id of group is added as hidden field if statement id is selected -->
             <input
-              class="hidden"
-              type="hidden"
               v-if="selectedFields.includes('externId')"
+              checked="checked"
+              class="hidden"
               name="search_fields[]"
-              value="cluster_externId"
-              checked="checked">
+              type="hidden"
+              value="cluster_externId">
             <!-- counties is added as hidden field if municipalities is selected -->
             <input
-              class="hidden"
-              type="hidden"
               v-if="selectedFields.includes('municipalityNames') && hasPermission('field_statement_municipality')"
+              checked="checked"
+              class="hidden"
               name="search_fields[]"
-              value="countyNames"
-              checked="checked">
+              type="hidden"
+              value="countyNames">
             <!-- tags is added as hidden field if topics is selected -->
             <input
-              class="hidden"
-              type="hidden"
               v-if="selectedFields.includes('topicNames') && hasPermission('feature_statements_tag') || hasPermission('feature_statement_fragments_tag')"
+              checked="checked"
+              class="hidden"
               name="search_fields[]"
-              value="tagNames"
-              checked="checked">
+              type="hidden"
+              value="tagNames">
             <!-- fragment consideration is added as hidden field if consideration is selected -->
             <input
-              class="hidden"
-              type="hidden"
               v-if="selectedFields.includes('recommendation')"
+              checked="checked"
+              class="hidden"
               name="search_fields[]"
-              value="fragments_consideration"
-              checked="checked">
+              type="hidden"
+              value="fragments_consideration">
           </div>
 
           <!-- Search options and special characters -->
