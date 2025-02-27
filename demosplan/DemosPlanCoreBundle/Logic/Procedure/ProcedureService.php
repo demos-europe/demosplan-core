@@ -339,6 +339,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 // directly update procedure in loop to create report entries
                 // and dispatch events
                 $this->updateProcedureObject($procedure);
+
+                // unfortunately php/doctrine is not able to fetch the unmodified procedure
+                // from the database **before** the update of the modified object in updateProcedureObject,
+                // so we need to dispatch the event here again
+                $this->eventDispatcher->dispatch(
+                    new PostProcedureUpdatedEvent($originalProcedure, $procedure),
+                    PostProcedureUpdatedEventInterface::class
+                );
             }
         }
 
