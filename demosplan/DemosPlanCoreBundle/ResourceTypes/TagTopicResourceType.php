@@ -144,6 +144,7 @@ final class TagTopicResourceType extends DplanResourceType
         $configBuilder->procedure
             ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
             ->setReadableByPath()->setSortable()->setFilterable()->initializable();
+
         $configBuilder->addConstructorBehavior(
             new FixedConstructorBehavior(
                 Paths::tagTopic()->procedure->getAsNamesInDotNotation(),
