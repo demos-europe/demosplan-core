@@ -14,7 +14,7 @@
     position: relative;
 }
 
-.a1-p.visuallyhidden:not(:focus):not(:active) {
+.a1-p.visuallyhidden:not(:focus, :active) {
     position: absolute;
 
     width: 1px;

@@ -44,7 +44,7 @@
           :is-in-edit-state="isInEditState"
           :procedure-id="procedureId"
           type="TagTopic"
-          @abort="abort"
+          @abort="closeEditForm"
           @delete="deleteItem"
           @edit="setEditState"
           @save="save" />
@@ -55,7 +55,7 @@
           :is-in-edit-state="isInEditState"
           :procedure-id="procedureId"
           type="Tag"
-          @abort="abort"
+          @abort="closeEditForm"
           @delete="deleteItem"
           @edit="setEditState"
           @save="save" />
@@ -73,37 +73,25 @@
 <script>
 import {
   checkResponse,
-  DpButton,
-  DpIcon,
-  DpInput,
   DpLoading,
-  DpModal,
   dpRpc,
-  DpTreeList,
-  DpUpload
+  DpTreeList
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import TagListEditForm from './TagListEditForm'
 import TagsCreateForm from './TagsCreateForm'
 import TagsImportForm from './TagsImportForm'
-import TagListBulkControls from './TagListBulkControls'
-import TagListEditForm from './TagListEditForm'
 import TagsListHeader from './TagsListHeader'
 export default {
   name: 'TagsList',
 
   components: {
     AddonWrapper,
-    DpButton,
-    DpIcon,
-    DpInput,
     DpLoading,
-    DpModal,
-    DpUpload,
     DpTreeList,
     TagsCreateForm,
     TagsImportForm,
-    TagListBulkControls,
     TagListEditForm,
     TagsListHeader
   },
@@ -115,7 +103,7 @@ export default {
     }
   },
 
-  data() {
+  data () {
     return {
       dataIsRequested: false,
       isInEditState: ''
@@ -177,7 +165,7 @@ export default {
       saveTagTopic: 'save'
     }),
 
-    abort () {
+    closeEditForm () {
       this.isInEditState = ''
     },
 
@@ -277,22 +265,25 @@ export default {
       this.saveTagTopic(oldParent.id)
     },
 
-    save ({ id, attributes, type }) {
-      if (id === '') {
+    save ({ id, attributes, type, isTitleChanged }) {
+      if (!id || !isTitleChanged) {
+        this.closeEditForm()
+
         return
       }
 
-      console.log('save', { id, attributes, type })
+      const updateMethod = `update${type}`
+      const saveMethod = `save${type}`
 
-      this[`update${type}`]({
+      this[updateMethod]({
         attributes,
         id,
-        relationships: this[type][id].relationships,
+        relationships: this[type][id]?.relationships,
         type
       })
-      this[`save${type}`](id)
+      this[saveMethod](id)
         .then(() => {
-          this.isInEditState = ''
+          this.closeEditForm()
         })
     },
 

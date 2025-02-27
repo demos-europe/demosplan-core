@@ -537,6 +537,9 @@ class OzgKeycloakUserDataMapper
             throw ViolationsException::fromConstraintViolationList($violations);
         }
 
+        // user is provided by the identity provider
+        $dplanUser->setProvidedByIdentityProvider(true);
+
         $this->entityManager->persist($dplanUser);
         $this->entityManager->flush();
 
