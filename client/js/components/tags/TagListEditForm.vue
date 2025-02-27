@@ -2,10 +2,13 @@
   <div class="flex items-center">
     <dp-input
       v-if="isInEditState === nodeElement.id"
-      :id="`edit-${type}-${nodeElement.id}`"
       class="flex-1"
+      :id="`edit-${type}-${nodeElement.id}`"
       v-model="unsavedItem.title" />
-    <div v-else class="flex-1" v-text="nodeElement.attributes.title" />
+    <div
+      v-else
+      class="flex-1"
+      v-text="nodeElement.attributes.title" />
     <div class="text-center w-9">
       <dp-contextual-help
         v-if="nodeElement.relationships?.boilerplate"
@@ -13,27 +16,40 @@
         :text="nodeElement.relationships.boilerplate.attributes.title" />
     </div>
     <addon-wrapper
-      hook-name="tag.edit.form"
-      :addon-props="{ tag: nodeElement }" />
+      :addon-props="{ tag: nodeElement }"
+      hook-name="tag.edit.form" />
     <div class="flex-0 text-center w-8">
       <template v-if="isInEditState !== nodeElement.id">
+        <template v-if="nodeElement.type !== 'Tag'">
+          <button
+            :aria-label="Translator.trans('item.edit')"
+            class="btn--blank o-link--default"
+            :data-cy="`tags:edit${type}`"
+            @click="editItem">
+            <dp-icon
+              aria-hidden="true"
+              icon="edit" />
+          </button>
+        </template>
+        <template v-else>
+          <a
+            :aria-label="Translator.trans('item.edit')"
+            class="btn--blank o-link--default"
+            :data-cy="`tags:edit${type}`"
+            :href="Routing.generate('DemosPlan_statement_administration_tag', { tag: nodeElement.id, procedure: procedureId })">
+            <dp-icon
+              aria-hidden="true"
+              icon="edit" />
+          </a>
+        </template>
         <button
-          :aria-label="Translator.trans('item.edit')"
-          class="btn--blank o-link--default"
-          :data-cy="`tags:edit${type}`"
-          @click="editItem">
-          <dp-icon
-            icon="edit"
-            aria-hidden="true" />
-        </button>
-        <button
+          :aria-label="Translator.trans('delete')"
           class="btn--blank o-link--default"
           :data-cy="`tags:abortEdit${type}`"
-          @click="deleteItem"
-          :aria-label="Translator.trans('delete')">
+          @click="deleteItem">
           <dp-icon
-            icon="delete"
-            aria-hidden="true" />
+            aria-hidden="true"
+            icon="delete" />
         </button>
       </template>
       <template v-else>
@@ -43,8 +59,8 @@
           :data-cy="`tags:save${type}`"
           @click="saveItem">
           <dp-icon
-            icon="check"
-            aria-hidden="true" />
+            aria-hidden="true"
+            icon="check" />
         </button>
         <button
           class="btn--blank o-link--default"
@@ -52,8 +68,8 @@
           @click="abort"
           :aria-label="Translator.trans('abort')">
           <dp-icon
-            icon="xmark"
-            aria-hidden="true" />
+            aria-hidden="true"
+            icon="xmark" />
         </button>
       </template>
     </div>
@@ -118,15 +134,8 @@ export default {
     },
 
     editItem () {
-      if (this.nodeElement.type === 'Tag') {
-        window.location.href = Routing.generate('DemosPlan_statement_administration_tag', {
-          tag: this.nodeElement.id,
-          procedure: this.procedureId
-        })
-      } else {
-        this.unsavedItem = { ...this.nodeElement.attributes }
-        this.$emit('edit', { id: this.nodeElement.id, type: this.nodeElement.type })
-      }
+      this.unsavedItem = { ...this.nodeElement.attributes }
+      this.$emit('edit', { id: this.nodeElement.id, type: this.nodeElement.type })
     },
 
     saveItem () {
