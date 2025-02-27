@@ -3860,7 +3860,8 @@ text.profile.edit: "Hier können Sie Ihre Daten bearbeiten. Der Nutzendenname is
 text.protocol.drawing: "Planzeichnungs-WMS \"{layerName}\""
 text.protocol.finalMails: "Schlussmitteilungen"
 text.protocol.no.entries: "Noch keine Protokolleinträge vorhanden"
-text.protocol.phase: "Institutionsbeteiligung: Verfahrensschritt von \"{oldPhase} {oldIteration}\" auf \"{newPhase} {newIteration}\" verändert"
+text.protocol.phase: |
+    <u>Institutionsbeteiligung:</u><br> "{oldPhase} {oldIteration}" zu "{newPhase} {newIteration}" geändert.
 text.protocol.phase.date: "Zeitraum von {oldPhaseStart} bis {oldPhaseEnd} auf {newPhaseStart} bis {newPhaseEnd} geändert"
 text.protocol.phase.system: "Institutionsbeteiligung: Verfahrensschritt automatisch von \"{oldPhase} {oldIteration}\" auf \"{newPhase} {newIteration}\" verändert"
 text.protocol.procedure.changed.generic: "Das Verfahren wurde verändert"
@@ -3882,9 +3883,13 @@ text.protocol.procedure.coupled.targetProcedure: "Dieses Verfahren wurde mit dem
 text.protocol.procedure.time.changed: "Zeitraum geändert von {oldStartDate} - {oldEndDate} in {newStartDate} - {newEndDate}"
 text.protocol.procedure.time.set: "Zeitraum gesetzt auf {startDate} - {endDate}"
 text.protocol.procedure.finalMail: "Eine Schlussmitteilung wurde zu der Stellungnahme <a href=\"{url}\">{externId}</a> versendet."
-text.protocol.publicphase: "Öffentlichkeitsbeteiligung: Verfahrensschritt von \"{oldPublicPhase} {oldPublicPhaseIteration}\" auf \"{newPublicPhase} {newPublicPhaseIteration}\" verändert"
+text.protocol.publicphase: |
+    <u>Öffentlichkeitsbeteiligung:</u><br>
+    "{oldPublicPhase} {oldPublicPhaseIteration}" zu "{newPublicPhase} {newPublicPhaseIteration}"
+    geändert.
 text.protocol.publicphase.system: "Öffentlichkeitsbeteiligung: Verfahrensschritt automatisch von \"{oldPublicPhase} {oldPublicPhaseIteration}\" auf \"{newPublicPhase} {newPublicPhaseIteration}\" verändert"
-text.protocol.published.documents: "Bei der Umstellung eingestellte Unterlagen:"
+text.protocol.published.documents: |
+    <u>Bei der Umstellung eingestellte Unterlagen:</u>
 text.recommend.project: "> {projectname} kann ab sofort von Verfahrensträgern und den beteiligten Behörden und sonstigen Trägern öffentlicher Belange eingesetzt werden. Über das folgende Formular können Sie auf die Online-Beteiligung aufmerksam machen, indem Sie Kolleg*innen, Verfahrensträgern und zu beteiligenden Stellen die offizielle {projectname} Webseite empfehlen."
 text.servicemode: |
     Die Plattform befindet sich zur Zeit im Wartungsmodus.

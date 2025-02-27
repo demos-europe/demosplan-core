@@ -494,127 +494,75 @@ class ReportMessageConverter
 
         // phase changed
         if (array_key_exists('oldPhase', $message) && array_key_exists('newPhase', $message)) {
-            $phaseChangeMessageData = [
-                'oldPhase'     => $message['oldPhase'],
-                'newPhase'     => $message['newPhase'],
-                'oldIteration' => $message['oldPhaseIteration'] ?? 0,
-                'newIteration' => $message['newPhaseIteration'] ?? 0,
-            ];
-
-            if ($createdBySystem) {
-                $returnMessage[] = $translator->trans('text.protocol.phase.system', $phaseChangeMessageData);
-
-                // Only show in case of a phase change by the system, as some customers
-                // think the start and end date does not refer to a phase but the
-                // procedure as a whole instead. Customers using the designated phase
-                // change know better, thus it is ok to add the following line.
-                if (isset($message['oldPhaseStart'], $message['newPhaseStart'],
-                    $message['oldPhaseEnd'], $message['newPhaseEnd'])) {
-                    $visibilityMessage = $translator->trans('invitable_institution.participation');
-                    $dateChangeMessage = $translator->trans('text.protocol.phase.date', [
-                        '%oldPhaseStart%' => $this->dateExtension->dateFilter($message['oldPhaseStart']),
-                        '%newPhaseStart%' => $this->dateExtension->dateFilter($message['newPhaseStart']),
-                        '%oldPhaseEnd%'   => $this->dateExtension->dateFilter($message['oldPhaseEnd']),
-                        '%newPhaseEnd%'   => $this->dateExtension->dateFilter($message['newPhaseEnd']),
-                    ]);
-
-                    $returnMessage[] = "$visibilityMessage: $dateChangeMessage";
-                }
-            } else {
-                $returnMessage[] = $translator->trans('text.protocol.phase', $phaseChangeMessageData);
-            }
+            $returnMessageSections['internalPhaseChangeMessage'] = $this->createInternalPhaseChangeMessage($message, $createdBySystem);
         }
+
         if (array_key_exists('oldPublicPhase', $message) && array_key_exists('newPublicPhase', $message)) {
-            if ($createdBySystem) {
-                $returnMessage[] = $translator->trans('text.protocol.publicphase.system', [
-                    'oldPublicPhase'          => $message['oldPublicPhase'],
-                    'newPublicPhase'          => $message['newPublicPhase'],
-                    'oldPublicPhaseIteration' => $message['oldPublicPhaseIteration'] ?? 0,
-                    'newPublicPhaseIteration' => $message['newPublicPhaseIteration'] ?? 0,
-                ]);
-
-                // Only show in case of a phase change by the system, as some customers
-                // think the start and end date does not refer to a phase but the
-                // procedure as a whole instead. Customers using the designated phase
-                // change know better, thus it is ok to add the following line.
-                if (isset($message['oldPublicPhaseStart'], $message['newPublicPhaseStart'],
-                    $message['oldPublicPhaseEnd'], $message['newPublicPhaseEnd'])) {
-                    $visibilityMessage = $translator->trans('public.participation');
-                    $dateChangeMessage = $translator->trans('text.protocol.phase.date', [
-                        '%oldPhaseStart%' => $this->dateExtension->dateFilter($message['oldPublicPhaseStart']),
-                        '%newPhaseStart%' => $this->dateExtension->dateFilter($message['newPublicPhaseStart']),
-                        '%oldPhaseEnd%'   => $this->dateExtension->dateFilter($message['oldPublicPhaseEnd']),
-                        '%newPhaseEnd%'   => $this->dateExtension->dateFilter($message['newPublicPhaseEnd']),
-                    ]);
-
-                    $returnMessage[] = "$visibilityMessage: $dateChangeMessage";
-                }
-            } else {
-                $returnMessage[] = $translator->trans('text.protocol.publicphase', [
-                    'oldPublicPhase'     => $message['oldPublicPhase'],
-                    'newPublicPhase'     => $message['newPublicPhase'],
-                    'oldPublicPhaseIteration' => $message['oldPublicPhaseIteration'] ?? 0,
-                    'newPublicPhaseIteration' => $message['newPublicPhaseIteration'] ?? 0,
-                ]);
-            }
+            $returnMessageSections['externalPhaseChangeMessage'] = $this->createExternalPhaseChangeMessage($message, $createdBySystem);
         }
 
-        $returnMessage[] = $translator->trans('text.protocol.published.documents');
+        //Abschnitt: Planungsdokume(ntenkategorien) ("Bei der Umstellung eingestellte Unterlagen")
+        $categoriesSectionStartMessage = $translator->trans('text.protocol.published.documents').'<br>';
+        $returnMessageSections['publishedCategories'] = $categoriesSectionStartMessage;
 
         $documents = [];
         // has publishedDocuments
         // should html be added here? use template? really?
+        // elememts aka planungsdokumentenkategorie
         if (array_key_exists('publishedDocuments', $message) && 0 < (is_countable($message['publishedDocuments']) ? count($message['publishedDocuments']) : 0)) {
             foreach ($message['publishedDocuments'] as $document) {
-                $documents[] = '<strong>'.$document.'</strong>';
+                $returnMessageSections['publishedCategories'] .= '<b>'.$document.'</b><br>';
             }
         }
         // has categories
         if (array_key_exists('categories', $message) && 0 < (is_countable($message['categories']) ? count($message['categories']) : 0)) {
             foreach ($message['categories'] as $category) {
                 // category has limited orga access
-                $documents[] = '<strong>'.$category['name'].'</strong>';
+                $returnMessageSections['publishedCategories'] .= '<b>'.$category['name'].'</b>';
+
                 if (array_key_exists('access', $category) && null !== $category['access']) {
-                    $documents[] = $translator->trans('access.for').' '.
-                        implode(', ', $category['access']);
+                    $returnMessageSections['publishedCategories'] .= ' <i>'.$translator->trans('access.for').' '.
+                        implode(', ', $category['access']).'</i>';
                 }
                 if (array_key_exists('documents', $category) && 0 < (is_countable($category['documents']) ? count($category['documents']) : 0)) {
                     $categoryDocumentsString = '';
-                    foreach ($category['documents'] as $categoryDocument) {
-                        $categoryDocumentsString .= '<li>'.
-                            $categoryDocument['name'].' ('.$categoryDocument['fileName'].')</li>';
+                    foreach ($category['documents'] as $categoryDocument) { //singleDocuments
+                        $categoryDocumentsString .= '<li> - '.$categoryDocument['name'].' ('.$categoryDocument['fileName'].')</li>';
                     }
-                    $documents[] = '<ul>'.$categoryDocumentsString.'</ul>';
+                    $returnMessageSections['publishedCategories'] .= '<ul>'.$categoryDocumentsString.'</ul>';
                 }
 
                 if (array_key_exists('existingParagraphs', $category) && 0 < (is_countable($category['existingParagraphs']) ? count($category['existingParagraphs']) : 0)) {
                     $categoryParagraphsString = '';
 
                     foreach ($category['existingParagraphs'] as $categoryParagraph) {
-                        $categoryParagraphsString .= '<li>'.$categoryParagraph.'</li>';
+                        $categoryParagraphsString .= '<li> - '.$categoryParagraph.'</li>';
                     }
 
-                    $documents[] = '<ul>'.$categoryParagraphsString.'</ul>';
+                    $returnMessageSections['publishedCategories'] .= '<ul>'.$categoryParagraphsString.'</ul>';
                 }
+                $returnMessageSections['publishedCategories'] .= '</li>';
+
             }
         } elseif (array_key_exists('elements', $message) && 0 < (is_countable($message['elements']) ? count($message['elements']) : 0)) {
             foreach ($message['elements'] as $elementTitle => $element) {
-                $documents[] = '<strong>'.$elementTitle.'</strong>';
+                $returnMessageSections['publishedCategories'] .= '<li> - '.$elementTitle.'</li>';
+
                 $fileTitles = '';
                 foreach ($element['files'] as $fileTitle => $file) {
-                    $fileTitles .= '<li>'.$fileTitle.'</li>';
+                    $fileTitles .= '<li> - '.$fileTitle.'</li>';
                 }
-                $documents[] = '<ul>'.$fileTitles.'</ul>';
+                $returnMessageSections['publishedCategories'] .= $fileTitles.'</ul>';
             }
         }
 
-        if (0 === count($documents)) {
-            $documents[] = $translator->trans('none');
+        if ($categoriesSectionStartMessage === trim($returnMessageSections['publishedCategories'])) {
+            $returnMessageSections['publishedCategories'] = $translator->trans('text.protocol.published.documents').$translator->trans('none');
+        } else {
+            $returnMessageSections['publishedCategories'] .= '</ul>';
         }
 
-        $returnMessage = array_merge($returnMessage, $documents);
-
-        return $this->toHtmlLines($returnMessage);
+        return $this->toHtmlLines($returnMessageSections);
     }
 
     /**
@@ -764,7 +712,7 @@ class ReportMessageConverter
      */
     protected function toHtmlLines(array $lines): string
     {
-        return implode('<br />', $lines);
+        return implode('<br><br>', $lines);
     }
 
     protected function getSubjectLine(string $subject): string
@@ -802,5 +750,79 @@ class ReportMessageConverter
         ]);
 
         return "$visibilityMessage: $mainMessage";
+
+    }
+
+    private function createInternalPhaseChangeMessage(array $messageData, bool $createdBySystem): string
+    {
+        $phaseChangeMessageData = [
+            'oldPhase'     => $messageData['oldPhase'],
+            'newPhase'     => $messageData['newPhase'],
+            'oldIteration' => $messageData['oldPhaseIteration'] ?? 0,
+            'newIteration' => $messageData['newPhaseIteration'] ?? 0,
+        ];
+
+        if ($createdBySystem) {
+            $internalPhaseChangeMessage = $this->translator->trans('text.protocol.phase.system', $phaseChangeMessageData);
+
+            // Only show in case of a phase change by the system, as some customers
+            // think the start and end date does not refer to a phase but the
+            // procedure as a whole instead. Customers using the designated phase
+            // change know better, thus it is ok to add the following line.
+            if (isset($messageData['oldPhaseStart'], $messageData['newPhaseStart'],
+                $messageData['oldPhaseEnd'], $messageData['newPhaseEnd'])) {
+                $visibilityMessage = $this->translator->trans('invitable_institution.participation');
+                $dateChangeMessage = $this->translator->trans('text.protocol.phase.date', [
+                    '%oldPhaseStart%' => $this->dateExtension->dateFilter($messageData['oldPhaseStart']),
+                    '%newPhaseStart%' => $this->dateExtension->dateFilter($messageData['newPhaseStart']),
+                    '%oldPhaseEnd%'   => $this->dateExtension->dateFilter($messageData['oldPhaseEnd']),
+                    '%newPhaseEnd%'   => $this->dateExtension->dateFilter($messageData['newPhaseEnd']),
+                ]);
+
+                $internalPhaseChangeMessage .= "$visibilityMessage: $dateChangeMessage";
+            }
+        } else {
+            $internalPhaseChangeMessage = $this->translator->trans('text.protocol.phase', $phaseChangeMessageData);
+        }
+
+        return $internalPhaseChangeMessage;
+    }
+
+    private function createExternalPhaseChangeMessage(array $message, mixed $createdBySystem): string
+    {
+        $externalPhaseChangeMessage = '';
+        if ($createdBySystem) {
+            $externalPhaseChangeMessage .= $this->translator->trans('text.protocol.publicphase.system', [
+                'oldPublicPhase'          => $message['oldPublicPhase'],
+                'newPublicPhase'          => $message['newPublicPhase'],
+                'oldPublicPhaseIteration' => $message['oldPublicPhaseIteration'] ?? 0,
+                'newPublicPhaseIteration' => $message['newPublicPhaseIteration'] ?? 0,
+            ]);
+
+            // Only show in case of a phase change by the system, as some customers
+            // think the start and end date does not refer to a phase but the
+            // procedure as a whole instead. Customers using the designated phase
+            // change know better, thus it is ok to add the following line.
+            if (isset($message['oldPublicPhaseStart'], $message['newPublicPhaseStart'],
+                $message['oldPublicPhaseEnd'], $message['newPublicPhaseEnd'])) {
+                $visibilityMessage = $this->translator->trans('public.participation');
+                $dateChangeMessage = $this->translator->trans('text.protocol.phase.date', [
+                    '%oldPhaseStart%' => $this->dateExtension->dateFilter($message['oldPublicPhaseStart']),
+                    '%newPhaseStart%' => $this->dateExtension->dateFilter($message['newPublicPhaseStart']),
+                    '%oldPhaseEnd%'   => $this->dateExtension->dateFilter($message['oldPublicPhaseEnd']),
+                    '%newPhaseEnd%'   => $this->dateExtension->dateFilter($message['newPublicPhaseEnd']),
+                ]);
+
+                $externalPhaseChangeMessage .= "$visibilityMessage: $dateChangeMessage";
+            }
+        } else {
+            $externalPhaseChangeMessage .= $this->translator->trans('text.protocol.publicphase', [
+                'oldPublicPhase'     => $message['oldPublicPhase'],
+                'newPublicPhase'     => $message['newPublicPhase'],
+                'oldPublicPhaseIteration' => $message['oldPublicPhaseIteration'] ?? 0,
+                'newPublicPhaseIteration' => $message['newPublicPhaseIteration'] ?? 0,
+            ]);
+        }
+        return $externalPhaseChangeMessage;
     }
 }
