@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementEmailSender;
 use Exception;
 use Psr\Log\LoggerInterface;
 use stdClass;
@@ -28,8 +29,8 @@ class RpcStatementEmailSender implements RpcMethodSolverInterface
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
-        protected readonly LoggerInterface $logger,
-        protected RpcErrorGenerator $errorGenerator,
+        protected readonly LoggerInterface    $logger,
+        protected RpcErrorGenerator           $errorGenerator, private readonly StatementEmailSender $statementEmailSender,
     ) {
     }
 
@@ -51,9 +52,15 @@ class RpcStatementEmailSender implements RpcMethodSolverInterface
         foreach ($rpcRequests as $rpcRequest) {
             try {
                 $params = $rpcRequest->params;
-                $params->subject;
-                $params->body;
-                $params->emailCC;
+                $ident = $params->ident;
+                $subject = $params->subject;
+                $body = $params->body;
+                $emailCC[] = $params->emailCC;
+                $sendEmailCC = $params->sendEmailCC;
+                $emailAttachments = $params->emailAttachments;
+
+                $this->statementEmailSender->sendStatementMail($ident, $subject, $body, $emailCC, $sendEmailCC, $emailAttachments);
+
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, true);
             } catch (Exception $exception) {
                 $this->logger->error('Error while sending Email for Statement ', ['exception' => $exception]);
