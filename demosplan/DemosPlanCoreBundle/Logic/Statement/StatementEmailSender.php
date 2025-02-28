@@ -46,7 +46,7 @@ class StatementEmailSender extends CoreService
     ) {
     }
 
-    public function sendStatementMail($rParams, $body)
+    public function sendStatementMail($rParams, $subject, $body)
     {
         try {
             $error = false;
@@ -59,8 +59,8 @@ class StatementEmailSender extends CoreService
                 $vars['mailbody'] = $body;
             }
 
-            if (array_key_exists('send_title', $rParams['request'])) {
-                $vars['mailsubject'] = $rParams['request']['send_title'];
+            if (!empty($subject)) {
+                $vars['mailsubject'] = $subject;
             }
 
             if (array_key_exists('ident', $rParams['request'])) {
@@ -121,7 +121,7 @@ class StatementEmailSender extends CoreService
                         $this->statementService->setSentAssessment($statement->getId());
                         $this->prepareReportFromProcedureService->addReportFinalMail(
                             $statement,
-                            $rParams['request']['send_title'] ?? '',
+                            $subject ?? '',
                             $attachmentNames
                         );
                     }
@@ -141,7 +141,7 @@ class StatementEmailSender extends CoreService
                     $this->statementService->setSentAssessment($statement->getId());
                     $this->prepareReportFromProcedureService->addReportFinalMail(
                         $statement,
-                        $rParams['request']['send_title'] ?? '',
+                        $subject ?? '',
                         $attachmentNames
                     );
                 } else {
@@ -178,7 +178,7 @@ class StatementEmailSender extends CoreService
                         foreach ($recipients as $email) {
                             $this->prepareReportFromProcedureService->addReportFinalMail(
                                 $statement,
-                                $rParams['request']['send_title'] ?? '',
+                                $subject ?? '',
                                 $attachmentNames
                             );
                         }
@@ -200,7 +200,7 @@ class StatementEmailSender extends CoreService
                             $this->statementService->setSentAssessment($statement->getId());
                             $this->prepareReportFromProcedureService->addReportFinalMail(
                                 $statement,
-                                $rParams['request']['send_title'] ?? '',
+                                $subject ?? '',
                                 $attachmentNames
                             );
                         }
@@ -224,7 +224,7 @@ class StatementEmailSender extends CoreService
                             $this->statementService->setSentAssessment($statement->getId());
                             $this->prepareReportFromProcedureService->addReportFinalMail(
                                 $statement,
-                                $rParams['request']['send_title'] ?? '',
+                                $subject ?? '',
                                 $attachmentNames
                             );
                         }
