@@ -46,7 +46,7 @@ class StatementEmailSender extends CoreService
     ) {
     }
 
-    public function sendStatementMail($rParams, $ident, $subject, $body, $emailCC, $sendEmailCC)
+    public function sendStatementMail($rParams, $ident, $subject, $body, $emailCC, $sendEmailCC, $emailAttachments)
     {
         try {
             $error = false;
@@ -97,7 +97,7 @@ class StatementEmailSender extends CoreService
             $from = $procedure->getAgencyMainEmailAddress();
 
             if (null !== $statement) {
-                $attachments = array_map($this->createSendableAttachment(...), $rParams['emailAttachments'] ?? []);
+                $attachments = array_map($this->createSendableAttachment(...), $emailAttachments);
                 $attachmentNames = array_column($attachments, 'name');
                 // Bürger Stellungnahmen
                 if (Statement::EXTERNAL === $statement->getPublicStatement()) {
