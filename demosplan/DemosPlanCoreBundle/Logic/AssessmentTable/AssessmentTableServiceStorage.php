@@ -537,7 +537,6 @@ class AssessmentTableServiceStorage
      */
     public function sendStatementMail($rParams)
     {
-
         $body = '';
         if (array_key_exists('send_body', $rParams['request'])) {
             $body = $rParams['request']['send_body'];
