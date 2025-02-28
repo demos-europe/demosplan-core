@@ -523,7 +523,6 @@ class AssessmentTableServiceStorage
         return $statementToUpdate;
     }
 
-
     /**
      * Mails zu Stellungnahmen versenden
      * Es gibt unterschiedliche Rückmeldevarianten bei den Bürgern und Toeb
