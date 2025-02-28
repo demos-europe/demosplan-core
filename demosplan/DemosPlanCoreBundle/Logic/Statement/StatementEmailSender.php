@@ -12,55 +12,37 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use DemosEurope\DemosplanAddon\Contracts\Events\StatementPreDeleteEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
-use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Event\Statement\StatementPreDeleteEvent;
-use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
-use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
-use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceStorage;
 use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PrepareReportFromProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
-use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
-use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
-use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
-use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class StatementEmailSender extends CoreService
 {
     public function __construct(
-        protected AssignService                            $assignService,
-        protected PermissionsInterface                     $permissions,
-        protected StatementFragmentService                 $statementFragmentService,
-        protected ConsultationTokenService                 $consultationTokenService,
-        protected StatementAttachmentService               $statementAttachmentService,
-        protected CurrentProcedureService                  $currentProcedureService,
-        protected StatementService                         $statementService,
+        protected AssignService $assignService,
+        protected PermissionsInterface $permissions,
+        protected StatementFragmentService $statementFragmentService,
+        protected ConsultationTokenService $consultationTokenService,
+        protected StatementAttachmentService $statementAttachmentService,
+        protected CurrentProcedureService $currentProcedureService,
+        protected StatementService $statementService,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
-        private readonly UserService                       $userService,
-        private readonly MessageBagInterface               $messageBag, private readonly MailService $mailService, private readonly FileService $fileService
+        private readonly UserService $userService,
+        private readonly MessageBagInterface $messageBag, private readonly MailService $mailService, private readonly FileService $fileService,
     ) {
     }
 
@@ -143,7 +125,7 @@ class StatementEmailSender extends CoreService
                             $attachmentNames
                         );
                     }
-                    // manuell eingegebene Stellungnahme
+                // manuell eingegebene Stellungnahme
                 } elseif ('' != $statement->getMeta()->getOrgaEmail()) {
                     $successMessageTranslationParams['sent_to'] = 'institution_only';
                     $this->sendDmSchlussmitteilung(
@@ -308,7 +290,7 @@ class StatementEmailSender extends CoreService
     {
         $file = $this->fileService->getFileFromFileString($fileString);
         if (null === $file) {
-            throw new \demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException("File not found for ID: $fileString");
+            throw new InvalidArgumentException("File not found for ID: $fileString");
         }
 
         return [

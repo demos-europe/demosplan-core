@@ -20,12 +20,9 @@ use demosplan\DemosPlanCoreBundle\Controller\AssessmentTable\DemosPlanAssessment
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNameTooLongException;
@@ -45,7 +42,6 @@ use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use demosplan\DemosPlanCoreBundle\ValueObject\BulkDeleteResult;
 use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
-use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Container;
 
 class AssessmentTableServiceStorage
@@ -95,17 +91,17 @@ class AssessmentTableServiceStorage
         private readonly CurrentUserService $currentUser,
         private readonly ElementsService $elementsService,
         GlobalConfigInterface $config,
-        IndexManager                                       $indexManager,
-        MailService                                        $mailService,
-        MessageBagInterface                                $messageBag,
-        private readonly PermissionsInterface              $permissions,
+        IndexManager $indexManager,
+        MailService $mailService,
+        MessageBagInterface $messageBag,
+        private readonly PermissionsInterface $permissions,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
-        private readonly StatementAttachmentService        $statementAttachmentService,
-        StatementHandler                                   $statementHandler,
-        StatementService                                   $statementService,
-        private readonly StatementDeleter                  $statementDeleter,
-        FileService                                        $fileService,
-        UserService                                        $userService, private readonly StatementEmailSender $statementEmailSender
+        private readonly StatementAttachmentService $statementAttachmentService,
+        StatementHandler $statementHandler,
+        StatementService $statementService,
+        private readonly StatementDeleter $statementDeleter,
+        FileService $fileService,
+        UserService $userService, private readonly StatementEmailSender $statementEmailSender,
     ) {
         $this->config = $config;
         $this->mailService = $mailService;
@@ -708,7 +704,7 @@ class AssessmentTableServiceStorage
 
         $prepareAction = $this->prepareAction($rParams);
 
-        if ('send' === $prepareAction['action']) { //HERE is where email is sent
+        if ('send' === $prepareAction['action']) { // HERE is where email is sent
             $this->sendStatementMail($rParams);
         }
         if ('update' === $prepareAction['action']) {
