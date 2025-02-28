@@ -945,8 +945,8 @@ export default {
       if (window.confirm(Translator.trans('check.statement.delete'))) {
         this.deleteStatement(id)
           .then(response => checkResponse(response, {
-              200: { type: 'confirm', text: 'confirm.statement.deleted' },
-              204: { type: 'confirm', text: 'confirm.statement.deleted' }
+            200: { type: 'confirm', text: 'confirm.statement.deleted' },
+            204: { type: 'confirm', text: 'confirm.statement.deleted' }
           }))
           .then(() => {
             this.getItemsByPage(this.pagination.currentPage)
