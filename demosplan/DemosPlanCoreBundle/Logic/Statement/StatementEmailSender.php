@@ -46,7 +46,7 @@ class StatementEmailSender extends CoreService
     ) {
     }
 
-    public function sendStatementMail($rParams, $ident, $subject, $body)
+    public function sendStatementMail($rParams, $ident, $subject, $body, $emailCC)
     {
         try {
             $error = false;
@@ -62,8 +62,8 @@ class StatementEmailSender extends CoreService
                 $vars['mailsubject'] = $subject;
             }
 
-            if (array_key_exists('emailCC', $rParams)) {
-                $emailcc[] = $rParams['emailCC'];
+            if (!empty($emailCC)) {
+                $emailcc = $emailCC;
             }
 
             // Überprüfe, ob E-Mails im CC-Feld eingetragen wurden
