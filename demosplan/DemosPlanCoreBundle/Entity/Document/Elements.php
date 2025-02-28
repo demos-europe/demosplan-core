@@ -552,6 +552,23 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     }
 
     /**
+     * @return array<>|string
+     */
+    public function getOrganisationNames($asString): array|string
+    {
+        $organisations = collect($this->getOrganisations())->map(
+            function ($item) {
+                return $item->getName();
+            })->sort();
+
+        if ($asString) {
+            return $organisations->implode(', ');
+        }
+
+        return $organisations->toArray();
+    }
+
+    /**
      * @param Collection<int, Orga> $organisations
      */
     public function setOrganisations(Collection $organisations): void
@@ -627,5 +644,26 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     public function setPermission(string $permission): void
     {
         $this->permission = '' === $permission ? null : $permission;
+    }
+
+    /**
+     *  If there is no file info in this element, returns an associative array keeping its keys
+     *  ['name','hash', 'size', 'mimeType'] but with empty values.
+     *
+     * @return array<string, string>
+     */
+    public function getFileInfo(): array
+    {
+        $fileInfo = ['name' => '', 'hash' => '', 'size' => '', 'mimeType' => ''];
+
+        $fileStringParts = explode(':', $this->getFile());
+        if (count($fileStringParts) >= 4) {
+            $fileInfo['name'] = $fileStringParts[0];
+            $fileInfo['hash'] = $fileStringParts[1];
+            $fileInfo['size'] = $fileStringParts[2];
+            $fileInfo['mimeType'] = $fileStringParts[3];
+        }
+
+        return $fileInfo;
     }
 }

@@ -447,4 +447,25 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface, Uuid
     {
         return $this->deleteDate;
     }
+
+    /**
+     *  If there is no file info in the SingleDocument object, returns an associative array keeping its keys
+     *  ['name','hash', 'size', 'mimeType'] but with empty values.
+     *
+     * @return array<string, string>
+     */
+    public function getSingleDocumentInfo(): array
+    {
+        $fileInfo = ['name' => '', 'hash' => '', 'size' => '', 'mimeType' => ''];
+
+        $documentStringParts = explode(':', $this->getDocument());
+        if (count($documentStringParts) >= 4) {
+            $fileInfo['name'] = $documentStringParts[0];
+            $fileInfo['hash'] = $documentStringParts[1];
+            $fileInfo['size'] = $documentStringParts[2];
+            $fileInfo['mimeType'] = $documentStringParts[3];
+        }
+
+        return $fileInfo;
+    }
 }

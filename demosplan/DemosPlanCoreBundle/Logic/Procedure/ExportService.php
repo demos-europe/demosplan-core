@@ -744,7 +744,7 @@ class ExportService
             Settings::setPdfRendererPath($this->rendererPath);
             Settings::setPdfRendererName($this->rendererName);
             $reportInfo = $this->exportReportService->getReportInfo($procedureId, $this->permissions);
-            $pdfReport = $this->exportReportService->generateProcedureReport($reportInfo, $reportMeta);
+            $pdfReport = $this->exportReportService->generateProcedureReport($procedureId, $reportInfo, $reportMeta);
             $this->zipExportService->addWriterToZipStream(
                 $pdfReport,
                 $procedureName.'/Verfahrensprotokoll.pdf',

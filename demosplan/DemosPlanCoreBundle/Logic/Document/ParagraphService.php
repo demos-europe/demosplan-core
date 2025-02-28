@@ -17,6 +17,8 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ParagraphReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
 use Doctrine\Common\Collections\Criteria;
@@ -32,7 +34,9 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
         private readonly DateHelper $dateHelper,
         private readonly EntityHelper $entityHelper,
         private readonly ParagraphRepository $paragraphRepository,
-        private readonly ParagraphVersionRepository $paragraphVersionRepository
+        private readonly ParagraphVersionRepository $paragraphVersionRepository,
+        private readonly ParagraphReportEntryFactory $reportEntryFactory,
+        private readonly ReportService $reportService,
     ) {
     }
 
@@ -201,7 +205,7 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
      *
      * @return Paragraph|null
      */
-    public function getParaDocumentObject($ident)
+    public function getParaDocumentObject($ident): Paragraph
     {
         return $this->paragraphRepository->find($ident);
     }
@@ -393,6 +397,8 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
     public function addParaDocument(array $data, bool $convertToLegacy = true)
     {
         $paragraph = $this->paragraphRepository->add($data);
+        $report = $this->reportEntryFactory->createParagraphCreateEntry($paragraph);
+        $this->reportService->persistAndFlushReportEntries($report);
 
         if (!$convertToLegacy) {
             return $paragraph;
@@ -418,7 +424,10 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
 
             foreach ($idents as $paragraphId) {
                 try {
+                    $paragraphToDelete = $this->getParaDocumentObject($paragraphId);
+                    $report = $this->reportEntryFactory->createParagraphDeleteEntry($paragraphToDelete);
                     $this->paragraphRepository->delete($paragraphId);
+                    $this->reportService->persistAndFlushReportEntries($report);
                 } catch (Exception $e) {
                     $this->logger->error('Fehler beim Löschen eines Paragrphs: ', [$e]);
                     $success = false;
@@ -443,6 +452,8 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
     public function updateParaDocument($data)
     {
         $paragraph = $this->paragraphRepository->update($data['ident'], $data);
+        $report = $this->reportEntryFactory->createParagraphUpdateEntry($paragraph);
+        $this->reportService->persistAndFlushReportEntries($report);
 
         $res = $this->entityHelper->toArray($paragraph);
 
