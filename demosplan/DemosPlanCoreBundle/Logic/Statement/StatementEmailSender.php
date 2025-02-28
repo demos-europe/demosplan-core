@@ -46,7 +46,7 @@ class StatementEmailSender extends CoreService
     ) {
     }
 
-    public function sendStatementMail($rParams, $ident, $subject, $body, $emailCC, $sendEmailCC, $emailAttachments)
+    public function sendStatementMail($ident, $subject, $body, $emailCC, $sendEmailCC, $emailAttachments)
     {
         try {
             $error = false;

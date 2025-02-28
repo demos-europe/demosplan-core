@@ -564,7 +564,7 @@ class AssessmentTableServiceStorage
 
         $emailAttachments = $rParams['emailAttachments'] ?? [];
 
-        $this->statementEmailSender->sendStatementMail($rParams, $ident, $subject, $body, $emailcc, $sendEmailCC, $emailAttachments);
+        $this->statementEmailSender->sendStatementMail($ident, $subject, $body, $emailcc, $sendEmailCC, $emailAttachments);
     }
 
     /**
