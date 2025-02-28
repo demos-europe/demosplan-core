@@ -527,48 +527,6 @@ class AssessmentTableServiceStorage
         return $statementToUpdate;
     }
 
-    /**
-     * @param string|array         $to
-     * @param string|array         $from
-     * @param string|array         $emailcc
-     * @param array                $vars
-     * @param array<string,string> $attachments
-     *
-     * @throws Exception
-     */
-    protected function sendDmSchlussmitteilung($to, $from, $emailcc, $vars, array $attachments): void
-    {
-        $this->mailService->sendMail(
-            'dm_schlussmitteilung',
-            'de_DE',
-            $to,
-            $from,
-            $emailcc,
-            '',
-            'extern',
-            $vars,
-            $attachments
-        );
-    }
-
-    /**
-     * @return array<string,string> An array consisting of two keys: `name` and `content`. The
-     *                              former contains the name of the file. The latter contains the
-     *                              file content loaded from the file system. This format is needed
-     *                              by {@link MailService::sendMail}.
-     */
-    protected function createSendableAttachment(string $fileString): array
-    {
-        $file = $this->fileService->getFileFromFileString($fileString);
-        if (null === $file) {
-            throw new \demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException("File not found for ID: $fileString");
-        }
-
-        return [
-            'name'    => $file->getFilename(),
-            'content' => $this->fileService->getContent($file),
-        ];
-    }
 
     /**
      * Mails zu Stellungnahmen versenden
