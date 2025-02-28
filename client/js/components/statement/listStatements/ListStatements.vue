@@ -657,7 +657,6 @@ export default {
       if (assigneeId !== this.currentUserId) {
         this.claimStatement(statementId)
       } else {
-        console.log('unclaim')
         this.unclaimStatement(statementId)
       }
     },
@@ -945,6 +944,9 @@ export default {
             200: { type: 'confirm', text: 'confirm.statement.deleted' },
             204: { type: 'confirm', text: 'confirm.statement.deleted' }
           }))
+          .then(() => {
+            this.getItemsByPage(this.pagination.currentPage)
+          })
       }
     },
 
