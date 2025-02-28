@@ -546,7 +546,12 @@ class AssessmentTableServiceStorage
         if (array_key_exists('send_title', $rParams['request'])) {
             $subject = $rParams['request']['send_title'];
         }
-        $this->statementEmailSender->sendStatementMail($rParams, $subject, $body);
+
+        $ident = '';
+        if (array_key_exists('ident', $rParams['request'])) {
+            $ident = $rParams['request']['ident'];
+        }
+        $this->statementEmailSender->sendStatementMail($rParams, $ident, $subject, $body);
     }
 
     /**

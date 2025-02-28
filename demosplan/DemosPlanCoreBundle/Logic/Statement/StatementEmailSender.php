@@ -46,12 +46,11 @@ class StatementEmailSender extends CoreService
     ) {
     }
 
-    public function sendStatementMail($rParams, $subject, $body)
+    public function sendStatementMail($rParams, $ident, $subject, $body)
     {
         try {
             $error = false;
             $vars = [];
-            $ident = '';
             $emailcc = [];
             $successMessageTranslationParams = [];
 
@@ -61,10 +60,6 @@ class StatementEmailSender extends CoreService
 
             if (!empty($subject)) {
                 $vars['mailsubject'] = $subject;
-            }
-
-            if (array_key_exists('ident', $rParams['request'])) {
-                $ident = $rParams['request']['ident'];
             }
 
             if (array_key_exists('emailCC', $rParams)) {
