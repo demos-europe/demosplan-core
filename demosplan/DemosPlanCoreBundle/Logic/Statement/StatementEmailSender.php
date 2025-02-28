@@ -46,7 +46,7 @@ class StatementEmailSender extends CoreService
     ) {
     }
 
-    public function sendStatementMail($rParams, $ident, $subject, $body, $emailCC)
+    public function sendStatementMail($rParams, $ident, $subject, $body, $emailCC, $sendEmailCC)
     {
         try {
             $error = false;
@@ -68,9 +68,9 @@ class StatementEmailSender extends CoreService
 
             // Überprüfe, ob E-Mails im CC-Feld eingetragen wurden
             $syntaxEmailErrors = [];
-            if (array_key_exists('send_emailCC', $rParams['request']) && 0 !== strlen((string) $rParams['request']['send_emailCC'])) {
+            if (!empty($sendEmailCC) && 0 !== strlen((string) $sendEmailCC)) {
                 // zerlege den string in die einzelnen E-Mail-Adressen
-                $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', (string) $rParams['request']['send_emailCC']);
+                $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $sendEmailCC);
                 // überprüfe jede dieser mails
                 foreach ($mailsCC as $mail) {
                     // lösche alle Freizeichen am Anfang und Ende

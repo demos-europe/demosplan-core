@@ -557,7 +557,12 @@ class AssessmentTableServiceStorage
             $emailcc[] = $rParams['emailCC'];
         }
 
-        $this->statementEmailSender->sendStatementMail($rParams, $ident, $subject, $body, $emailcc);
+        $sendEmailCC = '';
+        if (array_key_exists('send_emailCC', $rParams['request'])) {
+            $sendEmailCC = $rParams['request']['send_emailCC'];
+        }
+
+        $this->statementEmailSender->sendStatementMail($rParams, $ident, $subject, $body, $emailcc, $sendEmailCC);
     }
 
     /**
