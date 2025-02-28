@@ -29,7 +29,7 @@ class RpcStatementEmailSender implements RpcMethodSolverInterface
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         protected readonly LoggerInterface $logger,
-        protected RpcErrorGenerator $errorGenerator
+        protected RpcErrorGenerator $errorGenerator,
     ) {
     }
 
@@ -85,5 +85,4 @@ class RpcStatementEmailSender implements RpcMethodSolverInterface
             throw new AccessDeniedException();
         }
     }
-
 }
