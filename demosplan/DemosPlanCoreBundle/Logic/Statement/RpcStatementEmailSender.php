@@ -17,7 +17,6 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementEmailSender;
 use Exception;
 use Psr\Log\LoggerInterface;
 use stdClass;
@@ -29,8 +28,8 @@ class RpcStatementEmailSender implements RpcMethodSolverInterface
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
-        protected readonly LoggerInterface    $logger,
-        protected RpcErrorGenerator           $errorGenerator, private readonly StatementEmailSender $statementEmailSender,
+        protected readonly LoggerInterface $logger,
+        protected RpcErrorGenerator $errorGenerator, private readonly StatementEmailSender $statementEmailSender,
     ) {
     }
 
