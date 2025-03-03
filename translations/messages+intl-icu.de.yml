@@ -4259,47 +4259,47 @@ yes: "Ja"
 zoomwindow: "Zoom-Fenster"
 keinezuordnung: "Keine Zuordnung"
 report.add.element: |
-    Eine Planungsdokumentenkategorie wurde hinzugefügt:
-    Titel: {title}
-    Text: {text}
-    Kategorie: {category}
-    Planungsdokument als Datei: {fileName}
-    Veröffentlicht: {enabled}
+    Eine Planungsdokumentenkategorie wurde hinzugefügt:<br>
+    Titel: {title}<br>
+    Text: {text}<br>
+    Kategorie: {category}<br>
+    Planungsdokument als Datei: {fileName}<br>
+    Veröffentlicht: {enabled}<br>
 report.update.element: |
-    Eine Planungsdokumentenkategorie wurde geändert zu:
-    Titel: {title}
-    Text: {text}
-    Kategorie: {category}
-    Planungsdokument als Datei: {fileName}
-    Veröffentlicht: {enabled}
+    Eine Planungsdokumentenkategorie wurde geändert zu:<br>
+    Titel: {title}<br>
+    Text: {text}<br>
+    Kategorie: {category}<br>
+    Planungsdokument als Datei: {fileName}<br>
+    Veröffentlicht: {enabled}<br>
 report.delete.element: "Das Planungsdokumentenkategorie {title} wurde gelöscht."
 report.add.paragraph: |
-    Eine Kapitel wurde hinzugefügt:
-    Titel: {title}
-    Text: {text}
-    Kategorie: {category}
-    Sichtbar: {visible}
+    Eine Kapitel wurde hinzugefügt:<br>
+    Titel: {title}<br>
+    Text: {text}<br>
+    Kategorie: {category}<br>
+    Sichtbar: {visible}<br>
 report.update.paragraph: |
-    Eine Kapitel wurde geändert zu:
-    Titel: {title}
-    Text: {text}
-    Kategorie: {category}
-    Sichtbar: {visible}
+    Eine Kapitel wurde geändert zu:<br>
+    Titel: {title}<br>
+    Text: {text}<br>
+    Kategorie: {category}<br>
+    Sichtbar: {visible}<br>
 report.delete.paragraph: "Das Kapitel {title} wurde gelöscht."
 report.add.singleDocument: |
-    Eine Planungsdokument wurde hinzugefügt:
-    Titel: {title}
-    Text: {text}
-    Kategorie: {category}
-    Datei: {fileName}
-    Sichtbar: {visible}
-    Stellungnahme möglich: {statement_enabled}
+    Eine Planungsdokument wurde hinzugefügt:<br>
+    Titel: {title}<br>
+    Text: {text}<br>
+    Kategorie: {category}<br>
+    Datei: {fileName}<br>
+    Sichtbar: {visible}<br>
+    Stellungnahme möglich: {statement_enabled}<br>
 report.update.singleDocument: |
-    Eine Planungsdokument wurde geändert zu:
-    Titel: {title}
-    Text: {text}
-    Kategorie: {category}
-    Datei: {fileName}
-    Sichtbar: {visible}
-    Stellungnahme möglich: {statement_enabled}
+    Eine Planungsdokument wurde geändert zu:<br>
+    Titel: {title}<br>
+    Text: {text}<br>
+    Kategorie: {category}<br>
+    Datei: {fileName}<br>
+    Sichtbar: {visible}<br>
+    Stellungnahme möglich: {statement_enabled}<br>
 report.delete.singleDocument: "Das Planungsdokument {title} wurde gelöscht."
