@@ -50,7 +50,12 @@ class StatementEmailSender extends CoreService
     public function sendStatementMail($ident, $subject, $body, $sendEmailCC, $emailAttachments)
     {
         try {
-            $error = false;
+            $statement = $this->statementService->getStatement($ident);
+            if (null === $statement) {
+                $this->messageBag->add('error', 'error.statement.final.send');
+                return;
+            }
+
             $vars = [];
             $emailcc = [];
             $successMessageTranslationParams = [];
@@ -73,40 +78,16 @@ class StatementEmailSender extends CoreService
                 $emailcc = array_merge($emailcc, $this->extractAndValidateCcEmails($sendEmailCC));
             }
 
-
-            $statement = $this->statementService->getStatement($ident);
-
             $procedure = $this->currentProcedureService->getProcedureWithCertainty();
 
             $from = $procedure->getAgencyMainEmailAddress();
 
-            if (null !== $statement) {
-                $attachments = array_map($this->createSendableAttachment(...), $emailAttachments);
-                $attachmentNames = array_column($attachments, 'name');
-                // Bürger Stellungnahmen
-                if (Statement::EXTERNAL === $statement->getPublicStatement()) {
-                    if ('email' === $statement->getFeedback()) {
-                        $successMessageTranslationParams['sent_to'] = 'citizen_only';
-                        $this->sendDmSchlussmitteilung(
-                            $statement->getMeta()->getOrgaEmail(),
-                            $from,
-                            $emailcc,
-                            $vars,
-                            $attachments
-                        );
-                        // wenn die Mail einmal im CC verschickt wird, muss sie es später nicht mehr
-                        $emailcc = [''];
-                        // speicher ab, wann die Schlussmitteilung verschickt wurde
-                        $this->statementService->setSentAssessment($statement->getId());
-                        $this->prepareReportFromProcedureService->addReportFinalMail(
-                            $statement,
-                            $subject ?? '',
-                            $attachmentNames
-                        );
-                    }
-                // manuell eingegebene Stellungnahme
-                } elseif ('' != $statement->getMeta()->getOrgaEmail()) {
-                    $successMessageTranslationParams['sent_to'] = 'institution_only';
+            $attachments = array_map($this->createSendableAttachment(...), $emailAttachments);
+            $attachmentNames = array_column($attachments, 'name');
+            // Bürger Stellungnahmen
+            if (Statement::EXTERNAL === $statement->getPublicStatement()) {
+                if ('email' === $statement->getFeedback()) {
+                    $successMessageTranslationParams['sent_to'] = 'citizen_only';
                     $this->sendDmSchlussmitteilung(
                         $statement->getMeta()->getOrgaEmail(),
                         $from,
@@ -116,117 +97,129 @@ class StatementEmailSender extends CoreService
                     );
                     // wenn die Mail einmal im CC verschickt wird, muss sie es später nicht mehr
                     $emailcc = [''];
-                    // speicher ab, wann die Schlussmitteilung verschickt
+                    // speicher ab, wann die Schlussmitteilung verschickt wurde
                     $this->statementService->setSentAssessment($statement->getId());
                     $this->prepareReportFromProcedureService->addReportFinalMail(
                         $statement,
                         $subject ?? '',
                         $attachmentNames
                     );
-                } else {
-                    // regulär eingereichte Stellungnahme (ToeB)
-                    if ('' === $statement->getUId()) {
-                        throw new InvalidArgumentException('UserId must be set');
+                }
+            // manuell eingegebene Stellungnahme
+            } elseif ('' != $statement->getMeta()->getOrgaEmail()) {
+                $successMessageTranslationParams['sent_to'] = 'institution_only';
+                $this->sendDmSchlussmitteilung(
+                    $statement->getMeta()->getOrgaEmail(),
+                    $from,
+                    $emailcc,
+                    $vars,
+                    $attachments
+                );
+                // wenn die Mail einmal im CC verschickt wird, muss sie es später nicht mehr
+                $emailcc = [''];
+                // speicher ab, wann die Schlussmitteilung verschickt
+                $this->statementService->setSentAssessment($statement->getId());
+                $this->prepareReportFromProcedureService->addReportFinalMail(
+                    $statement,
+                    $subject ?? '',
+                    $attachmentNames
+                );
+            } else {
+                // regulär eingereichte Stellungnahme (ToeB)
+                if ('' === $statement->getUId()) {
+                    throw new InvalidArgumentException('UserId must be set');
+                }
+
+                /** @var User $user */
+                $user = $this->userService->getSingleUser($statement->getUId());
+
+                // Mail an Beteiligungs-E-Mail-Adresse
+                // Die Rollen brauchen keine Mail an ihre Organisation
+                if (!$user->hasAnyOfRoles([Role::GUEST, Role::CITIZEN])) {
+                    $successMessageTranslationParams['sent_to'] = 'institution_only';
+                    $recipients = [];
+                    if (0 < strlen($user->getOrga()->getEmail2())) {
+                        $recipients[] = $user->getOrga()->getEmail2();
                     }
-
-                    /** @var User $user */
-                    $user = $this->userService->getSingleUser($statement->getUId());
-
-                    // Mail an Beteiligungs-E-Mail-Adresse
-                    // Die Rollen brauchen keine Mail an ihre Organisation
-                    if (!$user->hasAnyOfRoles([Role::GUEST, Role::CITIZEN])) {
-                        $successMessageTranslationParams['sent_to'] = 'institution_only';
-                        $recipients = [];
-                        if (0 < strlen($user->getOrga()->getEmail2())) {
-                            $recipients[] = $user->getOrga()->getEmail2();
-                        }
-                        // Gibt es auch noch eingetragenede BeteiligungsEmail in CC
-                        if (null !== $user->getOrga()->getCcEmail2()) {
-                            $ccUsersEmail = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $user->getOrga()->getCcEmail2());
-                            $recipients = array_merge($recipients, $ccUsersEmail);
-                        }
+                    // Gibt es auch noch eingetragenede BeteiligungsEmail in CC
+                    if (null !== $user->getOrga()->getCcEmail2()) {
+                        $ccUsersEmail = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $user->getOrga()->getCcEmail2());
+                        $recipients = array_merge($recipients, $ccUsersEmail);
+                    }
+                    $this->sendDmSchlussmitteilung(
+                        $recipients,
+                        $from,
+                        $emailcc,
+                        $vars,
+                        $attachments
+                    );
+                    // speicher ab, wann die Schlussmitteilung verschickt wurde
+                    $this->statementService->setSentAssessment($statement->getId());
+                    foreach ($recipients as $email) {
+                        $this->prepareReportFromProcedureService->addReportFinalMail(
+                            $statement,
+                            $subject ?? '',
+                            $attachmentNames
+                        );
+                    }
+                }
+                // Mail an die einreichende Institutions-K, falls nicht identisch mit Einreicher*in
+                if (null !== $statement->getMeta()->getSubmitUId()) {
+                    $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
+                    $submitUserEmail = $submitUser->getEmail();
+                    if (false === stripos($user->getEmail(), $submitUserEmail)) {
+                        $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
                         $this->sendDmSchlussmitteilung(
-                            $recipients,
+                            $submitUserEmail,
                             $from,
-                            $emailcc,
+                            '',
                             $vars,
                             $attachments
                         );
                         // speicher ab, wann die Schlussmitteilung verschickt wurde
                         $this->statementService->setSentAssessment($statement->getId());
-                        foreach ($recipients as $email) {
-                            $this->prepareReportFromProcedureService->addReportFinalMail(
-                                $statement,
-                                $subject ?? '',
-                                $attachmentNames
-                            );
-                        }
-                    }
-                    // Mail an die einreichende Institutions-K, falls nicht identisch mit Einreicher*in
-                    if (null !== $statement->getMeta()->getSubmitUId()) {
-                        $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
-                        $submitUserEmail = $submitUser->getEmail();
-                        if (false === stripos($user->getEmail(), $submitUserEmail)) {
-                            $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
-                            $this->sendDmSchlussmitteilung(
-                                $submitUserEmail,
-                                $from,
-                                '',
-                                $vars,
-                                $attachments
-                            );
-                            // speicher ab, wann die Schlussmitteilung verschickt wurde
-                            $this->statementService->setSentAssessment($statement->getId());
-                            $this->prepareReportFromProcedureService->addReportFinalMail(
-                                $statement,
-                                $subject ?? '',
-                                $attachmentNames
-                            );
-                        }
+                        $this->prepareReportFromProcedureService->addReportFinalMail(
+                            $statement,
+                            $subject ?? '',
+                            $attachmentNames
+                        );
                     }
                 }
-                if (!$statement->getVotes()->isEmpty()) {
-                    /** @var StatementVote $vote */
-                    foreach ($statement->getVotes() as $vote) {
-                        $voteEmailAddress = $vote->getUserMail();
-                        if (null !== $voteEmailAddress) {
-                            $this->sendDmSchlussmitteilung(
-                                $voteEmailAddress,
-                                $from,
-                                $emailcc,
-                                $vars,
-                                $attachments
-                            );
-                            // wenn die Mail einmal im CC verschickt wird, muss sie es später nicht mehr
-                            $emailcc = [];
-                            // speicher ab, wann die Schlussmitteilung verschickt wurde
-                            $this->statementService->setSentAssessment($statement->getId());
-                            $this->prepareReportFromProcedureService->addReportFinalMail(
-                                $statement,
-                                $subject ?? '',
-                                $attachmentNames
-                            );
-                        }
-                    }
-
-                    $successMessageTranslationParams['voters_count'] = count($statement->getVotes());
-                    if (Statement::EXTERNAL === $statement->getPublicStatement() && 'email' === $statement->getFeedback()) {
-                        $successMessageTranslationParams['sent_to'] = 'citizen_and_voters';
-                    } else {
-                        $successMessageTranslationParams['sent_to'] = 'voters_only';
-                    }
-                }
-            } else {
-                $error = true;
             }
+            if (!$statement->getVotes()->isEmpty()) {
+                /** @var StatementVote $vote */
+                foreach ($statement->getVotes() as $vote) {
+                    $voteEmailAddress = $vote->getUserMail();
+                    if (null !== $voteEmailAddress) {
+                        $this->sendDmSchlussmitteilung(
+                            $voteEmailAddress,
+                            $from,
+                            $emailcc,
+                            $vars,
+                            $attachments
+                        );
+                        // wenn die Mail einmal im CC verschickt wird, muss sie es später nicht mehr
+                        $emailcc = [];
+                        // speicher ab, wann die Schlussmitteilung verschickt wurde
+                        $this->statementService->setSentAssessment($statement->getId());
+                        $this->prepareReportFromProcedureService->addReportFinalMail(
+                            $statement,
+                            $subject ?? '',
+                            $attachmentNames
+                        );
+                    }
+                }
+
+                $successMessageTranslationParams['voters_count'] = count($statement->getVotes());
+                if (Statement::EXTERNAL === $statement->getPublicStatement() && 'email' === $statement->getFeedback()) {
+                    $successMessageTranslationParams['sent_to'] = 'citizen_and_voters';
+                } else {
+                    $successMessageTranslationParams['sent_to'] = 'voters_only';
+                }
+            }
+
         } catch (InvalidArgumentException) {
             $this->messageBag->add('error', 'error.statement.final.send.noemail');
-
-            return;
-        }
-
-        if (true === $error) {
-            $this->messageBag->add('error', 'error.statement.final.send');
 
             return;
         }
