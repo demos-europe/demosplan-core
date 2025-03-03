@@ -349,6 +349,10 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
                     return $fileContainers;
                 });
+
+            $configBuilder->feedback->setReadableByPath();
+
+
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
