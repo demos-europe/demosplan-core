@@ -226,9 +226,9 @@ class StatementEmailSender extends CoreService
         }
     }
 
-    private function sendFinalStatementEmail ($statement, $subject, $from, $emailcc, $vars, $attachments, $attachmentNames, $voteEmailAddress) {
+    private function sendFinalStatementEmail ($statement, $subject, $from, $emailcc, $vars, $attachments, $attachmentNames, $recipientEmailAddress) {
         $this->sendDmSchlussmitteilung(
-            $voteEmailAddress,
+            $recipientEmailAddress,
             $from,
             $emailcc,
             $vars,
