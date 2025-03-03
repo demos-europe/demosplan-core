@@ -47,10 +47,10 @@ class StatementEmailSender extends CoreService
     ) {
     }
 
-    public function sendStatementMail($ident, $subject, $body, $sendEmailCC, $emailAttachments)
+    public function sendStatementMail($statementId, $subject, $body, $sendEmailCC, $emailAttachments)
     {
         try {
-            $statement = $this->statementService->getStatement($ident);
+            $statement = $this->statementService->getStatement($statementId);
             if (null === $statement) {
                 $this->messageBag->add('error', 'error.statement.final.send');
                 return;
