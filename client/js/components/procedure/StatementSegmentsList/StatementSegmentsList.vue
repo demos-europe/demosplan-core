@@ -572,13 +572,10 @@ export default {
         'priorityAreas',
         'priorityAreas',
         'procedurePhase',
-        'publicStatement',
         'publicVerified',
         'publicVerifiedTranslation',
         'recommendation',
         'segmentDraftList',
-        'sentAssessment',
-        'sentAssessmentDate',
         'sourceAttachment',
         'submitDate',
         'submitName',
@@ -599,6 +596,10 @@ export default {
 
       if (hasPermission('feature_similar_statement_submitter')) {
         statementFields.push('similarStatementSubmitters')
+      }
+
+      if (hasPermission('field_send_final_email')) {
+        statementFields.push('feedback', 'publicStatement', 'sentAssessment', 'sentAssessmentDate')
       }
 
       const allFields = {

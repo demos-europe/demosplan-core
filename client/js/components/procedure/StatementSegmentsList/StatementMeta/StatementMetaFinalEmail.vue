@@ -106,7 +106,6 @@ export default {
       ccEmail2: '',
       emailSubject: Translator.trans('statement.final.email.subject', { procedureName: this.procedure.name }),
       emailsCC: '',
-      finalEmailOnlyToVoters: false,
       initTextEmailBody: ''
     }
   },
@@ -124,21 +123,36 @@ export default {
     },
 
     explanationNoSendingEmail () {
-      const sendFinalEmail = false
+      let sendFinalEmail = false
+      const authorFeedback = false
+      if ((this.statement.attributes.feedback === 'snailmail' && this.statement.relationships.votes.data) ||
+          this.statement.attributes.feedback === 'email') {
+        sendFinalEmail = true
+      }
       const statementExternal = false // Konstante, muss über twig kommen
       const email2 = false
-      if (sendFinalEmail) {
+
+      if (!sendFinalEmail) {
 
         return Translator.trans('explanation.no.statement.final.sent')
-      } else if (statementExternal) {
+      } else if (statementExternal && !authorFeedback) {
 
         return Translator.trans('explanation.no.statement.final.no.feedback.wanted')
-      } else if (email2) {
+      } else if (!email2) {
 
         return Translator.trans('explanation.no.statement.final.no.email')
       }
 
       return ''
+    },
+
+    finalEmailOnlyToVoters () {
+      let finalEmailOnlyToVoters = false
+      if (this.statement.attributes.feedback === 'snailmail' && this.statement.relationships.votes.data) {
+        finalEmailOnlyToVoters = true
+      }
+
+      return finalEmailOnlyToVoters
     },
 
     formatedSentAssessmentDate () {
