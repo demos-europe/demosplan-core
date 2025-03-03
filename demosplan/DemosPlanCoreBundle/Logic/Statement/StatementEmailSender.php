@@ -103,22 +103,17 @@ class StatementEmailSender extends CoreService
             // manuell eingegebene Stellungnahme
             } elseif ('' != $statement->getMeta()->getOrgaEmail()) {
                 $successMessageTranslationParams['sent_to'] = 'institution_only';
-                $this->sendDmSchlussmitteilung(
-                    $statement->getMeta()->getOrgaEmail(),
+                $this->sendFinalStatementEmail(
+                    $statement,
+                    $subject,
                     $from,
                     $emailcc,
                     $vars,
-                    $attachments
+                    $attachments,
+                    $attachmentNames,
+                    $statement->getMeta()->getOrgaEmail()
                 );
-                // wenn die Mail einmal im CC verschickt wird, muss sie es später nicht mehr
-                $emailcc = [''];
-                // speicher ab, wann die Schlussmitteilung verschickt
-                $this->statementService->setSentAssessment($statement->getId());
-                $this->prepareReportFromProcedureService->addReportFinalMail(
-                    $statement,
-                    $subject ?? '',
-                    $attachmentNames
-                );
+
             } else {
                 // regulär eingereichte Stellungnahme (ToeB)
                 if ('' === $statement->getUId()) {
