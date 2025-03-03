@@ -33,7 +33,7 @@
                             title="{{ 'password.change'|trans }}"
                             class="u-mb u-mt-0_75">
                             <change-password
-                                :csrf-token="{{ csrf_token('csrf')|json_encode }}"
+                                csrf-token="{{ csrf_token('csrf')|json_encode }}"
                                 class="u-mv"
                                 user-id="{{ user.id|default }}">
                             </change-password>
