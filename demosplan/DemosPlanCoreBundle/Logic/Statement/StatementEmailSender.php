@@ -136,19 +136,16 @@ class StatementEmailSender extends CoreService
                     $submitUserEmail = $submitUser->getEmail();
                     if (false === stripos($user->getEmail(), $submitUserEmail)) {
                         $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
-                        $this->sendDmSchlussmitteilung(
-                            $submitUserEmail,
-                            $from,
-                            '',
-                            $vars,
-                            $attachments
-                        );
-                        // speicher ab, wann die Schlussmitteilung verschickt wurde
-                        $this->statementService->setSentAssessment($statement->getId());
-                        $this->prepareReportFromProcedureService->addReportFinalMail(
+
+                        $this->sendFinalStatementEmail(
                             $statement,
-                            $subject ?? '',
-                            $attachmentNames
+                            $subject,
+                            $from,
+                            $emailcc,
+                            $vars,
+                            $attachments,
+                            $attachmentNames,
+                            $submitUserEmail
                         );
                     }
                 }
@@ -172,6 +169,7 @@ class StatementEmailSender extends CoreService
         $this->messageBag->add('confirm', 'confirm.statement.final.sent', $successMessageTranslationParams);
         $this->messageBag->add('confirm', 'confirm.statement.final.sent.emailCC');
     }
+
 
     private function sendEmailToInstitution($user, $statement, $subject, $from, $emailcc, $vars, $attachments, $attachmentNames) {
         // Mail an Beteiligungs-E-Mail-Adresse
