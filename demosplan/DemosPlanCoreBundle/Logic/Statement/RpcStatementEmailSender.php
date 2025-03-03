@@ -54,11 +54,10 @@ class RpcStatementEmailSender implements RpcMethodSolverInterface
                 $ident = $params->ident;
                 $subject = $params->subject;
                 $body = $params->body;
-                $emailCC[] = $params->emailCC;
                 $sendEmailCC = $params->sendEmailCC;
                 $emailAttachments = $params->emailAttachments;
 
-                $this->statementEmailSender->sendStatementMail($ident, $subject, $body, $emailCC, $sendEmailCC, $emailAttachments);
+                $this->statementEmailSender->sendStatementMail($ident, $subject, $body, $sendEmailCC, $emailAttachments);
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, true);
             } catch (Exception $exception) {

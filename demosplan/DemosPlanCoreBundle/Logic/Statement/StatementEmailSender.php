@@ -27,26 +27,27 @@ use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PrepareReportFromProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Doctrine\DBAL\Exception;
 
 class StatementEmailSender extends CoreService
 {
     public function __construct(
-        protected AssignService $assignService,
-        protected PermissionsInterface $permissions,
-        protected StatementFragmentService $statementFragmentService,
-        protected ConsultationTokenService $consultationTokenService,
-        protected StatementAttachmentService $statementAttachmentService,
-        protected CurrentProcedureService $currentProcedureService,
-        protected StatementService $statementService,
+        protected AssignService                            $assignService,
+        protected PermissionsInterface                     $permissions,
+        protected StatementFragmentService                 $statementFragmentService,
+        protected ConsultationTokenService                 $consultationTokenService,
+        protected StatementAttachmentService               $statementAttachmentService,
+        protected CurrentProcedureService                  $currentProcedureService,
+        protected StatementService                         $statementService,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
-        private readonly UserService $userService,
-        private readonly MessageBagInterface $messageBag, private readonly MailService $mailService, private readonly FileService $fileService,
+        private readonly UserService                       $userService,
+        private readonly MessageBagInterface               $messageBag, private readonly MailService $mailService, private readonly FileService $fileService, private readonly CurrentUserService $currentUserService,
     ) {
     }
 
-    public function sendStatementMail($ident, $subject, $body, $emailCC, $sendEmailCC, $emailAttachments)
+    public function sendStatementMail($ident, $subject, $body, $sendEmailCC, $emailAttachments)
     {
         try {
             $error = false;
@@ -62,8 +63,8 @@ class StatementEmailSender extends CoreService
                 $vars['mailsubject'] = $subject;
             }
 
-            if (!empty($emailCC)) {
-                $emailcc = $emailCC;
+            if ($this->permissions->hasPermission('feature_send_final_email_cc_to_self')) {
+                $emailcc[] = $this->currentUserService->getUser()->getEmail();
             }
 
             // Überprüfe, ob E-Mails im CC-Feld eingetragen wurden
