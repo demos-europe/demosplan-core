@@ -185,23 +185,17 @@ class StatementEmailSender extends CoreService
             $ccUsersEmail = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $user->getOrga()->getCcEmail2());
             $recipients = array_merge($recipients, $ccUsersEmail);
         }
-        $this->sendDmSchlussmitteilung(
-            $recipients,
+
+        $this->sendFinalStatementEmail(
+            $statement,
+            $subject,
             $from,
             $emailcc,
             $vars,
-            $attachments
+            $attachments,
+            $attachmentNames,
+            $recipients
         );
-        // speicher ab, wann die Schlussmitteilung verschickt wurde
-        $this->statementService->setSentAssessment($statement->getId());
-        foreach ($recipients as $email) {
-            $this->prepareReportFromProcedureService->addReportFinalMail(
-                $statement,
-                $subject ?? '',
-                $attachmentNames
-            );
-        }
-
     }
 
     private function sendEmailToVoters($statement, $subject, $from, $emailcc, $vars, $attachments, $attachmentNames) {
@@ -236,11 +230,23 @@ class StatementEmailSender extends CoreService
         $emailcc = [];
         // speicher ab, wann die Schlussmitteilung verschickt wurde
         $this->statementService->setSentAssessment($statement->getId());
-        $this->prepareReportFromProcedureService->addReportFinalMail(
-            $statement,
-            $subject ?? '',
-            $attachmentNames
-        );
+
+        if (is_array($recipientEmailAddress)) {
+            foreach ($recipientEmailAddress as $email) {
+                $this->prepareReportFromProcedureService->addReportFinalMail(
+                    $statement,
+                    $subject ?? '',
+                    $attachmentNames
+                );
+            }
+        } else {
+            $this->prepareReportFromProcedureService->addReportFinalMail(
+                $statement,
+                $subject ?? '',
+                $attachmentNames
+            );
+        }
+
     }
 
     private function extractAndValidateCcEmails($sendEmailCC): array {
