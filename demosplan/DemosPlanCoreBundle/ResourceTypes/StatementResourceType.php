@@ -354,6 +354,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->sentAssessmentDate->setReadableByPath();
             $configBuilder->sentAssessment->setReadableByPath();
             $configBuilder->publicStatement->setReadableByPath();
+            $configBuilder->user
+                ->setRelationshipType($this->resourceTypeStore->getUserResourceType())
+                ->setReadableByPath();
 
         }
 
