@@ -57,18 +57,9 @@ class StatementEmailSender extends CoreService
             }
 
             $emailVariables = $this->populateEmailVariables($subject, $body);
-            $emailcc = [];
+            $emailcc = $this->detectCCEmailAddresses($sendEmailCC);
             $successMessageTranslationParams = [];
 
-            if ($this->permissions->hasPermission('feature_send_final_email_cc_to_self')) {
-                $emailcc[] = $this->currentUserService->getUser()->getEmail();
-            }
-
-            // Überprüfe, ob E-Mails im CC-Feld eingetragen wurden
-
-            if (!empty($sendEmailCC) && 0 !== strlen((string) $sendEmailCC)) {
-                $emailcc = array_merge($emailcc, $this->extractAndValidateCcEmails($sendEmailCC));
-            }
 
             $attachments = array_map($this->createSendableAttachment(...), $emailAttachments);
             $attachmentNames = array_column($attachments, 'name');
@@ -234,6 +225,22 @@ class StatementEmailSender extends CoreService
             );
         }
 
+    }
+
+    private function detectCCEmailAddresses($sendEmailCC): array {
+        $ccEmailAddresses = [];
+
+        if ($this->permissions->hasPermission('feature_send_final_email_cc_to_self')) {
+            $ccEmailAddresses[] = $this->currentUserService->getUser()->getEmail();
+        }
+
+        // Check if emails are entered in the CC field
+
+        if (!empty($sendEmailCC) && 0 !== strlen((string) $sendEmailCC)) {
+            $ccEmailAddresses = array_merge($ccEmailAddresses, $this->extractAndValidateCcEmails($sendEmailCC));
+        }
+
+        return $ccEmailAddresses;
     }
 
     private function populateEmailVariables($subject, $body): array
