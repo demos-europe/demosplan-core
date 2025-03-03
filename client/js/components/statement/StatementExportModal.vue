@@ -40,10 +40,16 @@
             :value="key"
             :checked="active === key"
             @change="active = key" />
+          <dp-checkbox
+            v-model="isObscure"
+            :label="{
+              text: Translator.trans('export.docx.obscured')
+            }"
+          />
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored'].includes(this.active)">
+      <fieldset v-if="['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored', 'docx_obscured', 'zip_obscured'].includes(this.active)">
         <legend
           id="docxColumnTitles"
           class="o-form__label text-base float-left mr-1"
@@ -102,6 +108,7 @@
 import {
   DpButton,
   DpButtonRow,
+  DpCheckbox,
   DpContextualHelp,
   DpInput,
   DpModal,
@@ -115,6 +122,7 @@ export default {
   components: {
     DpButton,
     DpButtonRow,
+    DpCheckbox,
     DpContextualHelp,
     DpInput,
     DpModal,
@@ -243,6 +251,11 @@ export default {
           columnTitles[key] = null /** Setting the value to null will trigger the display of the default column titles */
         }
       })
+
+      let exportPath = this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath
+      if (this.isObscure) {
+        exportPath += '_obscure'
+      }
 
       this.$emit('export', {
         route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,

@@ -56,7 +56,7 @@
             <template v-slot:edit>
               <dp-editor
                 class="u-mr u-pt-0_25"
-                :toolbar-items="{ linkButton: true }"
+                :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
                 :value="segment.attributes.text"
                 @input="(val) => updateSegmentText(segment.id, val)" />
             </template>
@@ -71,7 +71,7 @@
         <dp-editor
           hidden-input="statementText"
           required
-          :toolbar-items="{ linkButton: true }"
+          :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
           :value="statement.attributes.fullText || ''"
           @input="updateStatementText" />
         <dp-button-row
