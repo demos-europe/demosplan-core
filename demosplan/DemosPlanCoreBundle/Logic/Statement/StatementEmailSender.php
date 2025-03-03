@@ -68,24 +68,8 @@ class StatementEmailSender extends CoreService
             }
 
             // Überprüfe, ob E-Mails im CC-Feld eingetragen wurden
-            $syntaxEmailErrors = [];
-            if (!empty($sendEmailCC) && 0 !== strlen((string) $sendEmailCC)) {
-                // zerlege den string in die einzelnen E-Mail-Adressen
-                $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $sendEmailCC);
-                // überprüfe jede dieser mails
-                foreach ($mailsCC as $mail) {
-                    // lösche alle Freizeichen am Anfang und Ende
-                    $mailForCc = trim((string) $mail);
-                    // Überprüfe, ob die E-Mail-Adresse korrekt ist
-                    if (filter_var($mailForCc, FILTER_VALIDATE_EMAIL)) {
-                        // wenn ja, gebe sie weiter
-                        $emailcc[] = $mailForCc;
-                    } else {
-                        // wennn nicht, gebe eine Fehlermeldung aus
-                        $syntaxEmailErrors[] = $mailForCc;
-                    }
-                }
-            }
+            $syntaxEmailErrors = $this->validateCcEmails($sendEmailCC);
+
             // wenn E-Mail-Adressen falsch sind, generiere eine Fehlermeldung
             if (0 < count($syntaxEmailErrors)) {
                 throw new InvalidDataException('Invalid Emails provided in CC field.');
@@ -250,6 +234,28 @@ class StatementEmailSender extends CoreService
 
         $this->messageBag->add('confirm', 'confirm.statement.final.sent', $successMessageTranslationParams);
         $this->messageBag->add('confirm', 'confirm.statement.final.sent.emailCC');
+    }
+
+    private function validateCcEmails($sendEmailCC): array {
+        if (!empty($sendEmailCC) && 0 !== strlen((string) $sendEmailCC)) {
+            // zerlege den string in die einzelnen E-Mail-Adressen
+            $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $sendEmailCC);
+            // überprüfe jede dieser mails
+            foreach ($mailsCC as $mail) {
+                // lösche alle Freizeichen am Anfang und Ende
+                $mailForCc = trim((string) $mail);
+                // Überprüfe, ob die E-Mail-Adresse korrekt ist
+                if (filter_var($mailForCc, FILTER_VALIDATE_EMAIL)) {
+                    // wenn ja, gebe sie weiter
+                    $emailcc[] = $mailForCc;
+                } else {
+                    // wennn nicht, gebe eine Fehlermeldung aus
+                    $syntaxEmailErrors[] = $mailForCc;
+                }
+            }
+        }
+
+        return $syntaxEmailErrors;
     }
 
     /**
