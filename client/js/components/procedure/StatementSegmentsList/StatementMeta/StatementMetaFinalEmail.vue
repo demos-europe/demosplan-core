@@ -24,7 +24,7 @@ All rights reserved
         :message="Translator.trans('explanation.statement.final.sent.only.voters')"
         type="info" />
       <dp-inline-notification
-        v-if="sentAssessment"
+        v-if="statement.attributes.sentAssessment"
         :message="Translator.trans('confirm.statement.final.sent.date', { date: formatedSentAssessmentDate })"
         type="info" />
       <dp-inline-notification
@@ -33,6 +33,7 @@ All rights reserved
         type="info" />
       <dp-input
         v-if="hasPermission('field_organisation_email2_cc')"
+        id="email2"
         :label="{
           text: Translator.trans('email.recipient')
         }"
@@ -40,12 +41,14 @@ All rights reserved
         :value="email2" />
       <dp-input
         v-if="ccEmail2"
+        id="email2cc"
         :label="{
           text: Translator.trans('recipients.additional')
         }"
         read-only
         :value="ccEmail2" />
       <dp-input
+        id="emailCC"
         v-model="emailsCC"
         :disabled="!editable"
         :label="{
@@ -53,6 +56,7 @@ All rights reserved
           hint: Translator.trans('explanation.email.cc')
         }" />
       <dp-input
+        id="emailSubject"
         v-model="emailSubject"
         :disabled="!editable"
         :label="{
@@ -103,17 +107,14 @@ export default {
       emailSubject: Translator.trans('statement.final.email.subject', { procedureName: this.procedure.name }),
       emailsCC: '',
       finalEmailOnlyToVoters: false,
-      initTextEmailBody: '',
-      sentAssessment: false,
-      sentAssessmentDate: ''
+      initTextEmailBody: ''
     }
   },
 
   computed: {
     email2 () {
-      const publicStatement = ''
       const email2 = ''
-      if (publicStatement === 'external') {
+      if (this.statement.attributes.publicStatement === 'external') {
 
         return Translator.trans('explanation.statement.final.citizen.email.hidden')
       } else {
@@ -141,7 +142,7 @@ export default {
     },
 
     formatedSentAssessmentDate () {
-      return formatDate(this.sentAssessmentDate, 'DD.MM.YYYY HH:mm')
+      return formatDate(this.statement.attributes.sentAssessmentDate, 'DD.MM.YYYY HH:mm')
     }
   }
 }
