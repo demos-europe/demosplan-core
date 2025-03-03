@@ -78,10 +78,6 @@ class StatementEmailSender extends CoreService
                 $emailcc = array_merge($emailcc, $this->extractAndValidateCcEmails($sendEmailCC));
             }
 
-            $procedure = $this->currentProcedureService->getProcedureWithCertainty();
-
-            $from = $procedure->getAgencyMainEmailAddress();
-
             $attachments = array_map($this->createSendableAttachment(...), $emailAttachments);
             $attachmentNames = array_column($attachments, 'name');
             // Bürger Stellungnahmen
@@ -91,7 +87,6 @@ class StatementEmailSender extends CoreService
                     $this->sendFinalStatementEmail(
                         $statement,
                         $subject,
-                        $from,
                         $emailcc,
                         $vars,
                         $attachments,
@@ -106,7 +101,6 @@ class StatementEmailSender extends CoreService
                 $this->sendFinalStatementEmail(
                     $statement,
                     $subject,
-                    $from,
                     $emailcc,
                     $vars,
                     $attachments,
@@ -126,7 +120,7 @@ class StatementEmailSender extends CoreService
 
                 if (!$user->hasAnyOfRoles([Role::GUEST, Role::CITIZEN])) {
                     $successMessageTranslationParams['sent_to'] = 'institution_only';
-                    $this->sendEmailToInstitution($user, $statement, $subject, $from, $emailcc, $vars, $attachments, $attachmentNames);
+                    $this->sendEmailToInstitution($user, $statement, $subject, $emailcc, $vars, $attachments, $attachmentNames);
                 }
 
 
@@ -140,7 +134,6 @@ class StatementEmailSender extends CoreService
                         $this->sendFinalStatementEmail(
                             $statement,
                             $subject,
-                            $from,
                             $emailcc,
                             $vars,
                             $attachments,
@@ -151,7 +144,7 @@ class StatementEmailSender extends CoreService
                 }
             }
             if (!$statement->getVotes()->isEmpty()) {
-                $this->sendEmailToVoters($statement, $subject, $from, $emailcc, $vars, $attachments, $attachmentNames);
+                $this->sendEmailToVoters($statement, $subject, $emailcc, $vars, $attachments, $attachmentNames);
                 $successMessageTranslationParams['voters_count'] = count($statement->getVotes());
                 if (Statement::EXTERNAL === $statement->getPublicStatement() && 'email' === $statement->getFeedback()) {
                     $successMessageTranslationParams['sent_to'] = 'citizen_and_voters';
@@ -171,7 +164,7 @@ class StatementEmailSender extends CoreService
     }
 
 
-    private function sendEmailToInstitution($user, $statement, $subject, $from, $emailcc, $vars, $attachments, $attachmentNames) {
+    private function sendEmailToInstitution($user, $statement, $subject, $emailcc, $vars, $attachments, $attachmentNames) {
         // Mail an Beteiligungs-E-Mail-Adresse
         // Die Rollen brauchen keine Mail an ihre Organisation
 
@@ -189,7 +182,6 @@ class StatementEmailSender extends CoreService
         $this->sendFinalStatementEmail(
             $statement,
             $subject,
-            $from,
             $emailcc,
             $vars,
             $attachments,
@@ -198,7 +190,7 @@ class StatementEmailSender extends CoreService
         );
     }
 
-    private function sendEmailToVoters($statement, $subject, $from, $emailcc, $vars, $attachments, $attachmentNames) {
+    private function sendEmailToVoters($statement, $subject, $emailcc, $vars, $attachments, $attachmentNames) {
         /** @var StatementVote $vote */
         foreach ($statement->getVotes() as $vote) {
             $voteEmailAddress = $vote->getUserMail();
@@ -206,7 +198,6 @@ class StatementEmailSender extends CoreService
                 $this->sendFinalStatementEmail(
                     $statement,
                     $subject,
-                    $from,
                     $emailcc,
                     $vars,
                     $attachments,
@@ -218,7 +209,11 @@ class StatementEmailSender extends CoreService
         }
     }
 
-    private function sendFinalStatementEmail ($statement, $subject, $from, $emailcc, $vars, $attachments, $attachmentNames, $recipientEmailAddress) {
+    private function sendFinalStatementEmail ($statement, $subject, $emailcc, $vars, $attachments, $attachmentNames, $recipientEmailAddress) {
+
+        $procedure = $this->currentProcedureService->getProcedureWithCertainty();
+        $from = $procedure->getAgencyMainEmailAddress();
+
         $this->sendDmSchlussmitteilung(
             $recipientEmailAddress,
             $from,
