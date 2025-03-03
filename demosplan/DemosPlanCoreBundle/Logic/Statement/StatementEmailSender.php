@@ -88,22 +88,17 @@ class StatementEmailSender extends CoreService
             if (Statement::EXTERNAL === $statement->getPublicStatement()) {
                 if ('email' === $statement->getFeedback()) {
                     $successMessageTranslationParams['sent_to'] = 'citizen_only';
-                    $this->sendDmSchlussmitteilung(
-                        $statement->getMeta()->getOrgaEmail(),
+                    $this->sendFinalStatementEmail(
+                        $statement,
+                        $subject,
                         $from,
                         $emailcc,
                         $vars,
-                        $attachments
+                        $attachments,
+                        $attachmentNames,
+                        $statement->getMeta()->getOrgaEmail()
                     );
-                    // wenn die Mail einmal im CC verschickt wird, muss sie es später nicht mehr
-                    $emailcc = [''];
-                    // speicher ab, wann die Schlussmitteilung verschickt wurde
-                    $this->statementService->setSentAssessment($statement->getId());
-                    $this->prepareReportFromProcedureService->addReportFinalMail(
-                        $statement,
-                        $subject ?? '',
-                        $attachmentNames
-                    );
+
                 }
             // manuell eingegebene Stellungnahme
             } elseif ('' != $statement->getMeta()->getOrgaEmail()) {
