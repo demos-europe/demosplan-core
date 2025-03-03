@@ -116,75 +116,33 @@ class ReportMessageConverter
                 }
             } elseif (ReportEntry::GROUP_ELEMENT === $group) { // Planungsdokumentenkategorien
                 if (ReportEntry::CATEGORY_ADD === $category) {
-                    $message = $this->translator->trans('report.add.element', [
-                        'title'               => $reportEntryMessage['elementTitle'],
-                        'text'                => $reportEntryMessage['elementText'],
-                        'category'            => $reportEntryMessage['elementCategory'],
-                        'fileName'            => $reportEntryMessage['fileName'],
-                        'enabled'             => $reportEntryMessage['enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
-                    ]);
+                    $message = $this->createAddElementMessage($reportEntryMessage);
                 }
                 if (ReportEntry::CATEGORY_UPDATE === $category) {
-                    $message = $this->translator->trans('report.update.element', [
-                        'title'               => $reportEntryMessage['elementTitle'],
-                        'text'                => $reportEntryMessage['elementText'],
-                        'category'            => $reportEntryMessage['elementCategory'],
-                        'fileName'            => $reportEntryMessage['fileName'],
-                        'enabled'             => $reportEntryMessage['enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
-                    ]);
+                    $message = $this->createUpdateElementMessage($reportEntryMessage);
                 }
                 if (ReportEntry::CATEGORY_DELETE === $category) {
-                    $message = $this->translator->trans('report.delete.element', [
-                        'title' => $reportEntryMessage['title'],
-                    ]);
+                    $message = $this->createDeleteElementMessage($reportEntryMessage['title']);
                 }
             } elseif (ReportEntry::GROUP_PARAGRAPH === $group) { // Kapitel
                 if (ReportEntry::CATEGORY_ADD === $category) {
-                    $message = $this->translator->trans('report.add.paragraph', [
-                        'title'             => $reportEntryMessage['paragraphTitle'],
-                        'text'              => $reportEntryMessage['paragraphText'],
-                        'category'          => $this->translator->trans($reportEntryMessage['paragraphCategory']),
-                        'visible'           => $reportEntryMessage['visible'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
-                    ]);
+                    $message = $this->createAddParagraphMessage($reportEntryMessage);
                 }
                 if (ReportEntry::CATEGORY_UPDATE === $category) {
-                    $message = $this->translator->trans('report.update.paragraph', [
-                        'title'             => $reportEntryMessage['paragraphTitle'],
-                        'text'              => $reportEntryMessage['paragraphText'],
-                        'category'          => $this->translator->trans($reportEntryMessage['paragraphCategory']),
-                        'visible'           => $reportEntryMessage['visible'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
-                    ]);
+                    $message = $this->createUpdateParagraphMessage($reportEntryMessage);
                 }
                 if (ReportEntry::CATEGORY_DELETE === $category) {
-                    $message = $this->translator->trans('report.delete.paragraph', [
-                        'title' => $reportEntryMessage['title'],
-                    ]);
+                    $message = $this->createDeleteParagraphMessage($reportEntryMessage['title']);
                 }
             } elseif (ReportEntry::GROUP_SINGLE_DOCUMENT === $group) { // Planungsdokumente
                 if (ReportEntry::CATEGORY_ADD === $category) {
-                    $message = $this->translator->trans('report.add.singleDocument', [
-                        'title'             => $reportEntryMessage['documentTitle'],
-                        'text'              => $reportEntryMessage['documentText'],
-                        'category'          => $this->translator->trans($reportEntryMessage['documentCategory']),
-                        'fileName'          => $reportEntryMessage['relatedFile'],
-                        'visible'           => $reportEntryMessage['visible'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
-                        'statement_enabled' => $reportEntryMessage['statement_enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
-                    ]);
+                    $message = $this->createAddSingleDocumentMessage($reportEntryMessage);
                 }
                 if (ReportEntry::CATEGORY_UPDATE === $category) {
-                    $message = $this->translator->trans('report.update.singleDocument', [
-                        'title'             => $reportEntryMessage['documentTitle'],
-                        'text'              => $reportEntryMessage['documentText'],
-                        'category'          => $this->translator->trans($reportEntryMessage['documentCategory']),
-                        'fileName'          => $reportEntryMessage['relatedFile'],
-                        'visible'           => $reportEntryMessage['visible'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
-                        'statement_enabled' => $reportEntryMessage['statement_enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
-                    ]);
+                    $message = $this->createUpdateSingleDocumentMessage($reportEntryMessage);
                 }
                 if (ReportEntry::CATEGORY_DELETE === $category) {
-                    $message = $this->translator->trans('report.delete.singleDocument', [
-                        'title' => $reportEntryMessage['documentTitle'],
-                    ]);
+                    $message = $this->createDeleteSingleDocumentMessage($reportEntryMessage['documentTitle']);
                 }
             }
         } catch (Exception $e) {
@@ -874,5 +832,107 @@ class ReportMessageConverter
         ]);
 
         return "$visibilityMessage: $mainMessage";
+    }
+
+    /**
+     * @param array $reportEntryMessage
+     *
+     * @return string
+     */
+    private function createAddElementMessage(array $reportEntryMessage): string
+    {
+        return $this->translator->trans('report.add.element', [
+            'title' => $reportEntryMessage['elementTitle'],
+            'text' => substr($reportEntryMessage['elementText'], 0, 25).'...',
+            'category' => $reportEntryMessage['elementCategory'],
+            'fileName' => $reportEntryMessage['fileName'],
+            'enabled' => $reportEntryMessage['enabled'] ? $this->translator->trans(
+                'yes'
+            ) : $this->translator->trans('no'),
+        ]);
+    }
+
+    private function createUpdateElementMessage(array $reportEntryMessage): string
+    {
+        return $this->translator->trans('report.update.element', [
+            'title' => $reportEntryMessage['elementTitle'],
+            'text' => substr($reportEntryMessage['elementText'], 0, 25).'...',
+            'category' => $reportEntryMessage['elementCategory'],
+            'fileName' => $reportEntryMessage['fileName'],
+            'enabled' => $reportEntryMessage['enabled'] ? $this->translator->trans(
+                'yes'
+            ) : $this->translator->trans('no'),
+        ]);
+    }
+
+    private function createAddParagraphMessage(array $reportEntryMessage): string
+    {
+        return $this->translator->trans('report.add.paragraph', [
+            'title' => $reportEntryMessage['paragraphTitle'],
+            'text' => substr($reportEntryMessage['paragraphText'], 0, 25).'...',
+            'category' => $this->translator->trans($reportEntryMessage['paragraphCategory']),
+            'visible' => $reportEntryMessage['visible'] ? $this->translator->trans(
+                'yes'
+            ) : $this->translator->trans('no'),
+        ]);
+    }
+
+    private function createUpdateParagraphMessage(array $reportEntryMessage): string
+    {
+        return $this->translator->trans('report.update.paragraph', [
+            'title' => $reportEntryMessage['paragraphTitle'],
+            'text' => substr($reportEntryMessage['paragraphText'], 0, 25).'...',
+            'category' => $this->translator->trans($reportEntryMessage['paragraphCategory']),
+            'visible' => $reportEntryMessage['visible'] ? $this->translator->trans(
+                'yes'
+            ) : $this->translator->trans('no'),
+        ]);
+    }
+
+    private function createAddSingleDocumentMessage(array $reportEntryMessage): string
+    {
+        return $this->translator->trans('report.add.singleDocument', [
+            'title' => $reportEntryMessage['documentTitle'],
+            'text' => substr($reportEntryMessage['documentText'], 0, 25).'...',
+            'category' => $this->translator->trans($reportEntryMessage['documentCategory']),
+            'fileName' => $reportEntryMessage['relatedFile'],
+            'visible' => $reportEntryMessage['visible'] ? $this->translator->trans(
+                'yes'
+            ) : $this->translator->trans('no'),
+            'statement_enabled' => $reportEntryMessage['statement_enabled'] ? $this->translator->trans(
+                'yes'
+            ) : $this->translator->trans('no'),
+        ]);
+    }
+
+    private function createUpdateSingleDocumentMessage(array $reportEntryMessage): string
+    {
+        return $this->translator->trans('report.update.singleDocument', [
+            'title' => $reportEntryMessage['documentTitle'],
+            'text' => substr($reportEntryMessage['documentText'], 0, 25).'...',
+            'category' => $this->translator->trans($reportEntryMessage['documentCategory']),
+            'fileName' => $reportEntryMessage['relatedFile'],
+            'visible' => $reportEntryMessage['visible'] ? $this->translator->trans(
+                'yes'
+            ) : $this->translator->trans('no'),
+            'statement_enabled' => $reportEntryMessage['statement_enabled'] ? $this->translator->trans(
+                'yes'
+            ) : $this->translator->trans('no'),
+        ]);
+    }
+
+    private function createDeleteElementMessage($title): string
+    {
+        return $this->translator->trans('report.delete.element', ['title' => $title]);
+    }
+
+    private function createDeleteParagraphMessage($title): string
+    {
+        return $this->translator->trans('report.delete.paragraph', ['title' => $title]);
+    }
+
+    private function createDeleteSingleDocumentMessage($documentTitle): string
+    {
+        return $this->translator->trans('report.delete.singleDocument', ['title' => $documentTitle]);
     }
 }
