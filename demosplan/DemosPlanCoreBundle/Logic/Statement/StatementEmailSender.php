@@ -211,24 +211,38 @@ class StatementEmailSender extends CoreService
         foreach ($statement->getVotes() as $vote) {
             $voteEmailAddress = $vote->getUserMail();
             if (null !== $voteEmailAddress) {
-                $this->sendDmSchlussmitteilung(
-                    $voteEmailAddress,
+                $this->sendFinalStatementEmail(
+                    $statement,
+                    $subject,
                     $from,
                     $emailcc,
                     $vars,
-                    $attachments
+                    $attachments,
+                    $attachmentNames,
+                    $voteEmailAddress
                 );
-                // wenn die Mail einmal im CC verschickt wird, muss sie es später nicht mehr
-                $emailcc = [];
-                // speicher ab, wann die Schlussmitteilung verschickt wurde
-                $this->statementService->setSentAssessment($statement->getId());
-                $this->prepareReportFromProcedureService->addReportFinalMail(
-                    $statement,
-                    $subject ?? '',
-                    $attachmentNames
-                );
+
             }
         }
+    }
+
+    private function sendFinalStatementEmail ($statement, $subject, $from, $emailcc, $vars, $attachments, $attachmentNames, $voteEmailAddress) {
+        $this->sendDmSchlussmitteilung(
+            $voteEmailAddress,
+            $from,
+            $emailcc,
+            $vars,
+            $attachments
+        );
+        // wenn die Mail einmal im CC verschickt wird, muss sie es später nicht mehr
+        $emailcc = [];
+        // speicher ab, wann die Schlussmitteilung verschickt wurde
+        $this->statementService->setSentAssessment($statement->getId());
+        $this->prepareReportFromProcedureService->addReportFinalMail(
+            $statement,
+            $subject ?? '',
+            $attachmentNames
+        );
     }
 
     private function extractAndValidateCcEmails($sendEmailCC): array {
