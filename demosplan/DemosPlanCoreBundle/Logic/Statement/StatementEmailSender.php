@@ -56,17 +56,9 @@ class StatementEmailSender extends CoreService
                 return;
             }
 
-            $vars = [];
+            $emailVariables = $this->populateEmailVariables($subject, $body);
             $emailcc = [];
             $successMessageTranslationParams = [];
-
-            if (!empty($body)) {
-                $vars['mailbody'] = $body;
-            }
-
-            if (!empty($subject)) {
-                $vars['mailsubject'] = $subject;
-            }
 
             if ($this->permissions->hasPermission('feature_send_final_email_cc_to_self')) {
                 $emailcc[] = $this->currentUserService->getUser()->getEmail();
@@ -88,7 +80,7 @@ class StatementEmailSender extends CoreService
                         $statement,
                         $subject,
                         $emailcc,
-                        $vars,
+                        $emailVariables,
                         $attachments,
                         $attachmentNames,
                         $statement->getMeta()->getOrgaEmail()
@@ -102,7 +94,7 @@ class StatementEmailSender extends CoreService
                     $statement,
                     $subject,
                     $emailcc,
-                    $vars,
+                    $emailVariables,
                     $attachments,
                     $attachmentNames,
                     $statement->getMeta()->getOrgaEmail()
@@ -120,7 +112,7 @@ class StatementEmailSender extends CoreService
 
                 if (!$user->hasAnyOfRoles([Role::GUEST, Role::CITIZEN])) {
                     $successMessageTranslationParams['sent_to'] = 'institution_only';
-                    $this->sendEmailToInstitution($user, $statement, $subject, $emailcc, $vars, $attachments, $attachmentNames);
+                    $this->sendEmailToInstitution($user, $statement, $subject, $emailcc, $emailVariables, $attachments, $attachmentNames);
                 }
 
 
@@ -135,7 +127,7 @@ class StatementEmailSender extends CoreService
                             $statement,
                             $subject,
                             $emailcc,
-                            $vars,
+                            $emailVariables,
                             $attachments,
                             $attachmentNames,
                             $submitUserEmail
@@ -144,7 +136,7 @@ class StatementEmailSender extends CoreService
                 }
             }
             if (!$statement->getVotes()->isEmpty()) {
-                $this->sendEmailToVoters($statement, $subject, $emailcc, $vars, $attachments, $attachmentNames);
+                $this->sendEmailToVoters($statement, $subject, $emailcc, $emailVariables, $attachments, $attachmentNames);
                 $successMessageTranslationParams['voters_count'] = count($statement->getVotes());
                 if (Statement::EXTERNAL === $statement->getPublicStatement() && 'email' === $statement->getFeedback()) {
                     $successMessageTranslationParams['sent_to'] = 'citizen_and_voters';
@@ -242,6 +234,20 @@ class StatementEmailSender extends CoreService
             );
         }
 
+    }
+
+    private function populateEmailVariables($subject, $body): array
+    {
+        $emailVariables = [];
+        if (!empty($body)) {
+            $emailVariables['mailbody'] = $body;
+        }
+
+        if (!empty($subject)) {
+            $emailVariables['mailsubject'] = $subject;
+        }
+
+        return $emailVariables;
     }
 
     private function extractAndValidateCcEmails($sendEmailCC): array {
