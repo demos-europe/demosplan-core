@@ -123,36 +123,13 @@ class StatementEmailSender extends CoreService
                 /** @var User $user */
                 $user = $this->userService->getSingleUser($statement->getUId());
 
-                // Mail an Beteiligungs-E-Mail-Adresse
-                // Die Rollen brauchen keine Mail an ihre Organisation
+
                 if (!$user->hasAnyOfRoles([Role::GUEST, Role::CITIZEN])) {
                     $successMessageTranslationParams['sent_to'] = 'institution_only';
-                    $recipients = [];
-                    if (0 < strlen($user->getOrga()->getEmail2())) {
-                        $recipients[] = $user->getOrga()->getEmail2();
-                    }
-                    // Gibt es auch noch eingetragenede BeteiligungsEmail in CC
-                    if (null !== $user->getOrga()->getCcEmail2()) {
-                        $ccUsersEmail = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $user->getOrga()->getCcEmail2());
-                        $recipients = array_merge($recipients, $ccUsersEmail);
-                    }
-                    $this->sendDmSchlussmitteilung(
-                        $recipients,
-                        $from,
-                        $emailcc,
-                        $vars,
-                        $attachments
-                    );
-                    // speicher ab, wann die Schlussmitteilung verschickt wurde
-                    $this->statementService->setSentAssessment($statement->getId());
-                    foreach ($recipients as $email) {
-                        $this->prepareReportFromProcedureService->addReportFinalMail(
-                            $statement,
-                            $subject ?? '',
-                            $attachmentNames
-                        );
-                    }
+                    $this->sendEmailToInstitution($user, $statement, $subject, $from, $emailcc, $vars, $attachments, $attachmentNames);
                 }
+
+
                 // Mail an die einreichende Institutions-K, falls nicht identisch mit Einreicher*in
                 if (null !== $statement->getMeta()->getSubmitUId()) {
                     $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
@@ -194,6 +171,39 @@ class StatementEmailSender extends CoreService
 
         $this->messageBag->add('confirm', 'confirm.statement.final.sent', $successMessageTranslationParams);
         $this->messageBag->add('confirm', 'confirm.statement.final.sent.emailCC');
+    }
+
+    private function sendEmailToInstitution($user, $statement, $subject, $from, $emailcc, $vars, $attachments, $attachmentNames) {
+        // Mail an Beteiligungs-E-Mail-Adresse
+        // Die Rollen brauchen keine Mail an ihre Organisation
+
+
+        $recipients = [];
+        if (0 < strlen($user->getOrga()->getEmail2())) {
+            $recipients[] = $user->getOrga()->getEmail2();
+        }
+        // Gibt es auch noch eingetragenede BeteiligungsEmail in CC
+        if (null !== $user->getOrga()->getCcEmail2()) {
+            $ccUsersEmail = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $user->getOrga()->getCcEmail2());
+            $recipients = array_merge($recipients, $ccUsersEmail);
+        }
+        $this->sendDmSchlussmitteilung(
+            $recipients,
+            $from,
+            $emailcc,
+            $vars,
+            $attachments
+        );
+        // speicher ab, wann die Schlussmitteilung verschickt wurde
+        $this->statementService->setSentAssessment($statement->getId());
+        foreach ($recipients as $email) {
+            $this->prepareReportFromProcedureService->addReportFinalMail(
+                $statement,
+                $subject ?? '',
+                $attachmentNames
+            );
+        }
+
     }
 
     private function sendEmailToVoters($statement, $subject, $from, $emailcc, $vars, $attachments, $attachmentNames) {
