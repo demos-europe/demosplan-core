@@ -47,7 +47,7 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
         return $entry;
     }
 
-    private function createData(Paragraph $paragraph): array
+    private function createMessageData(Paragraph $paragraph): array
     {
         return [
             'paragraphId'       => $paragraph->getId(),
@@ -66,7 +66,7 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
      */
     public function createParagraphCreateEntry(Paragraph $paragraph): ReportEntry
     {
-        $data = $this->createData($paragraph);
+        $data = $this->createMessageData($paragraph);
         $data['date'] = $paragraph->getCreateDate()->getTimestamp();
         $reportEntry = $this->createParagraphReportEntry($paragraph->getProcedure()->getId(), $data);
         $reportEntry->setCategory(ReportEntry::CATEGORY_ADD);
@@ -79,7 +79,7 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
      */
     public function createParagraphUpdateEntry(Paragraph $paragraph): ReportEntry
     {
-        $data = $this->createData($paragraph);
+        $data = $this->createMessageData($paragraph);
         $data['date'] = $paragraph->getModifyDate()->getTimestamp();
         $reportEntry = $this->createParagraphReportEntry($paragraph->getProcedure()->getId(), $data);
         $reportEntry->setCategory(ReportEntry::CATEGORY_UPDATE);
@@ -92,7 +92,7 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
      */
     public function createParagraphDeleteEntry(Paragraph $paragraph): ReportEntry
     {
-        $data = $this->createData($paragraph);
+        $data = $this->createMessageData($paragraph);
         $data['date'] = Carbon::now()->getTimestamp();
         $reportEntry = $this->createParagraphReportEntry($paragraph->getProcedure()->getId(), $data);
         $reportEntry->setCategory(ReportEntry::CATEGORY_DELETE);

@@ -47,7 +47,7 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
         return $entry;
     }
 
-    private function createData(Elements $element): array
+    private function createMessageData(Elements $element): array
     {
         return [
             'elementId'           => $element->getId(),
@@ -68,7 +68,7 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
      */
     public function createElementCreateEntry(Elements $element): ReportEntry
     {
-        $data = $this->createData($element);
+        $data = $this->createMessageData($element);
         $data['date'] = $element->getCreateDate()->getTimestamp();
         $reportEntry = $this->createElementReportEntry($element->getProcedure()->getId(), $data);
         $reportEntry->setCategory(ReportEntry::CATEGORY_ADD);
@@ -81,7 +81,7 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
      */
     public function createElementUpdateEntry(Elements $element): ReportEntry
     {
-        $data = $this->createData($element);
+        $data = $this->createMessageData($element);
         $data['date'] = $element->getModifyDate()->getTimestamp();
         $reportEntry = $this->createElementReportEntry($element->getProcedure()->getId(), $data);
         $reportEntry->setCategory(ReportEntry::CATEGORY_UPDATE);
@@ -94,7 +94,7 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
      */
     public function createElementDeleteEntry(Elements $element): ReportEntry
     {
-        $data = $this->createData($element);
+        $data = $this->createMessageData($element);
         $data['date'] = Carbon::now()->getTimestamp();
         $reportEntry = $this->createElementReportEntry($element->getProcedure()->getId(), $data);
         $reportEntry->setCategory(ReportEntry::CATEGORY_DELETE);

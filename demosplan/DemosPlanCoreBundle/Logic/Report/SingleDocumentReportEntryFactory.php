@@ -47,7 +47,7 @@ class SingleDocumentReportEntryFactory extends AbstractReportEntryFactory
         return $entry;
     }
 
-    private function createData(SingleDocument $singleDocument): array
+    private function createMessageData(SingleDocument $singleDocument): array
     {
         return [
             'documentId'        => $singleDocument->getId(),
@@ -68,7 +68,7 @@ class SingleDocumentReportEntryFactory extends AbstractReportEntryFactory
      */
     public function createSingleDocumentCreateEntry(SingleDocument $singleDocument): ReportEntry
     {
-        $data = $this->createData($singleDocument);
+        $data = $this->createMessageData($singleDocument);
         $data['date'] = $singleDocument->getCreateDate()->getTimestamp();
         $reportEntry = $this->createSingleDocumentReportEntry($singleDocument->getProcedure()->getId(), $data);
         $reportEntry->setCategory(ReportEntry::CATEGORY_ADD);
@@ -81,7 +81,7 @@ class SingleDocumentReportEntryFactory extends AbstractReportEntryFactory
      */
     public function createSingleDocumentUpdateEntry(SingleDocument $singleDocument): ReportEntry
     {
-        $data = $this->createData($singleDocument);
+        $data = $this->createMessageData($singleDocument);
         $data['date'] = $singleDocument->getModifyDate()->getTimestamp();
         $reportEntry = $this->createSingleDocumentReportEntry($singleDocument->getProcedure()->getId(), $data);
         $reportEntry->setCategory(ReportEntry::CATEGORY_UPDATE);
@@ -94,7 +94,7 @@ class SingleDocumentReportEntryFactory extends AbstractReportEntryFactory
      */
     public function createSingleDocumentDeleteEntry(SingleDocument $singleDocument): ReportEntry
     {
-        $data = $this->createData($singleDocument);
+        $data = $this->createMessageData($singleDocument);
         $data['date'] = Carbon::now()->getTimestamp();
         $reportEntry = $this->createSingleDocumentReportEntry($singleDocument->getProcedure()->getId(), $data);
         $reportEntry->setCategory(ReportEntry::CATEGORY_DELETE);
