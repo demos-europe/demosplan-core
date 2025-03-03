@@ -113,7 +113,10 @@
           @change="(value) => emitInput('attachments', value)" />
 
         <statement-meta-final-email
-          v-if="hasPermission('field_send_final_email')" />
+          v-if="hasPermission('field_send_final_email')"
+          :editable="editable"
+          :procedure="procedure"
+          :statement="statement" />
       </form>
     </div>
   </div>
