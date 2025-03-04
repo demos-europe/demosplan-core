@@ -926,4 +926,13 @@ class ReportMessageConverter
     {
         return $this->translator->trans('report.delete.singleDocument', ['title' => $documentTitle]);
     }
+
+    private function shortenText(string $text, int $length = 50): string
+    {
+        if ('' === $text) {
+            return '';
+        }
+
+        return substr($text, 0, $length).'...';
+    }
 }
