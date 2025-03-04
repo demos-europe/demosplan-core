@@ -67,6 +67,8 @@ class StatementEmailSender extends CoreService
             if (Statement::EXTERNAL === $statement->getPublicStatement()) {
                 if ('email' === $statement->getFeedback()) {
                     $successMessageTranslationParams['sent_to'] = 'citizen_only';
+                    $recipientEmailAddress =  $statement->getMeta()->getOrgaEmail();
+
                     $this->sendFinalStatementEmail(
                         $statement,
                         $subject,
@@ -74,13 +76,14 @@ class StatementEmailSender extends CoreService
                         $emailVariables,
                         $attachments,
                         $attachmentNames,
-                        $statement->getMeta()->getOrgaEmail()
+                        $recipientEmailAddress
                     );
 
                 }
             // manuell eingegebene Stellungnahme
             } elseif ('' != $statement->getMeta()->getOrgaEmail()) {
                 $successMessageTranslationParams['sent_to'] = 'institution_only';
+                $recipientEmailAddress =  $statement->getMeta()->getOrgaEmail();
                 $this->sendFinalStatementEmail(
                     $statement,
                     $subject,
@@ -88,7 +91,7 @@ class StatementEmailSender extends CoreService
                     $emailVariables,
                     $attachments,
                     $attachmentNames,
-                    $statement->getMeta()->getOrgaEmail()
+                    $recipientEmailAddress
                 );
 
             } else {
@@ -110,8 +113,8 @@ class StatementEmailSender extends CoreService
                 // Mail an die einreichende Institutions-K, falls nicht identisch mit Einreicher*in
                 if (null !== $statement->getMeta()->getSubmitUId()) {
                     $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
-                    $submitUserEmail = $submitUser->getEmail();
-                    if (false === stripos($user->getEmail(), $submitUserEmail)) {
+                    $recipientEmailAddress = $submitUser->getEmail();
+                    if (false === stripos($user->getEmail(), $recipientEmailAddress)) {
                         $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
 
                         $this->sendFinalStatementEmail(
@@ -121,7 +124,7 @@ class StatementEmailSender extends CoreService
                             $emailVariables,
                             $attachments,
                             $attachmentNames,
-                            $submitUserEmail
+                            $recipientEmailAddress
                         );
                     }
                 }
@@ -152,15 +155,7 @@ class StatementEmailSender extends CoreService
         // Die Rollen brauchen keine Mail an ihre Organisation
 
 
-        $recipients = [];
-        if (0 < strlen($user->getOrga()->getEmail2())) {
-            $recipients[] = $user->getOrga()->getEmail2();
-        }
-        // Gibt es auch noch eingetragenede BeteiligungsEmail in CC
-        if (null !== $user->getOrga()->getCcEmail2()) {
-            $ccUsersEmail = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $user->getOrga()->getCcEmail2());
-            $recipients = array_merge($recipients, $ccUsersEmail);
-        }
+        $recipients = $this->detectRecipientEmailAddress($user);
 
         $this->sendFinalStatementEmail(
             $statement,
@@ -171,6 +166,19 @@ class StatementEmailSender extends CoreService
             $attachmentNames,
             $recipients
         );
+    }
+
+    private function detectRecipientEmailAddress($user): array {
+        $recipients = [];
+        if (0 < strlen($user->getOrga()->getEmail2())) {
+            $recipients[] = $user->getOrga()->getEmail2();
+        }
+        // Gibt es auch noch eingetragenede BeteiligungsEmail in CC
+        if (null !== $user->getOrga()->getCcEmail2()) {
+            $ccUsersEmail = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $user->getOrga()->getCcEmail2());
+            $recipients = array_merge($recipients, $ccUsersEmail);
+        }
+        return $recipients;
     }
 
     private function sendEmailToVoters($statement, $subject, $emailcc, $vars, $attachments, $attachmentNames) {
