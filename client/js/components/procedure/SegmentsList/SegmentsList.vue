@@ -35,7 +35,7 @@
             class="inline-block first:mr-1"
             :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             :groups-object="filter.groupsObject"
-            :initial-query="queryIds"
+            :initial-query-ids="queryIds"
             :items-object="filter.itemsObject"
             :key="`filter_${filter.labelTranslationKey}`"
             :operator="filter.comparisonOperator"
@@ -701,6 +701,7 @@ export default {
      * @param params.additionalQueryParams {Object}
      * @param params.category {Object} id, label
      * @param params.filter {Object}
+     * @param params.isInitialWithQuery {Boolean}
      * @param params.path {String}
      * @param params.searchPhrase {String}
      */

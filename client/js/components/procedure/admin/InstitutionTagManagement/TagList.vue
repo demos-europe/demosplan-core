@@ -245,7 +245,7 @@ export default {
                   name: attributes.name,
                   type
                 }
-            }),
+              }),
             type
           }
         })

@@ -1,7 +1,6 @@
 import { del, set } from 'vue'
 
 function getPositionInStateFilterQuery (value) {
-
   return Object.values(FilterFlyoutStore.state.filterQuery).findIndex(el => {
     if (value === 'unassigned') {
       return el.condition.value === undefined

@@ -200,8 +200,8 @@ export default {
       }
     },
 
-    // Contains applied filters from this and the neighboring filterFlyouts
-    initialQuery: {
+    // Contains ids of applied filters from this and the neighboring filterFlyouts
+    initialQueryIds: {
       type: Array,
       required: false,
       default: () => ([])
@@ -534,7 +534,7 @@ export default {
     this.setIsLoading({ categoryId: this.category.id, isLoading: true })
     this.setIsExpanded({ categoryId: this.category.id, isExpanded: false })
 
-    if (this.initialQuery.length) {
+    if (this.initialQueryIds.length) {
       const isInitialWithQuery = true
 
       this.requestFilterOptions(isInitialWithQuery)
