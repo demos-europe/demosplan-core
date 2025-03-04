@@ -103,21 +103,17 @@ class StatementEmailSender extends CoreService
     {
         $recipientEmailAddress = '';
         // Bürger Stellungnahmen
-        if (Statement::EXTERNAL === $statement->getPublicStatement()) {
-            if ('email' === $statement->getFeedback()) {
-                $successMessageTranslationParams['sent_to'] = 'citizen_only';
-                $recipientEmailAddress = $statement->getMeta()->getOrgaEmail();
-            }
-
+        if (Statement::EXTERNAL === $statement->getPublicStatement() && 'email' === $statement->getFeedback()) {
+            $successMessageTranslationParams['sent_to'] = 'citizen_only';
+            $recipientEmailAddress = $statement->getMeta()->getOrgaEmail();
             return $recipientEmailAddress;
 
         }
 
         // manuell eingegebene Stellungnahme
-        if ('' != $statement->getMeta()->getOrgaEmail()) {
+        if (Statement::EXTERNAL !== $statement->getPublicStatement() && '' != $statement->getMeta()->getOrgaEmail()) {
             $successMessageTranslationParams['sent_to'] = 'institution_only';
             return  $statement->getMeta()->getOrgaEmail();
-
         }
 
 
