@@ -155,7 +155,7 @@ class StatementEmailSender extends CoreService
         // Die Rollen brauchen keine Mail an ihre Organisation
 
 
-        $recipients = $this->detectRecipientEmailAddress($user);
+        $recipients = $this->detectInstitutionRecipientEmailAddress($user);
 
         $this->sendFinalStatementEmail(
             $statement,
@@ -168,7 +168,7 @@ class StatementEmailSender extends CoreService
         );
     }
 
-    private function detectRecipientEmailAddress($user): array {
+    private function detectInstitutionRecipientEmailAddress($user): array {
         $recipients = [];
         if (0 < strlen($user->getOrga()->getEmail2())) {
             $recipients[] = $user->getOrga()->getEmail2();
