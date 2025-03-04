@@ -1,10 +1,5 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 
-{% block javascripts %}
-    {{ parent() }}
-    {{ webpackBundles(['assessmenttable-assessmentTableNewStatement.js']) }}
-{% endblock javascripts %}
-
 {% block component_part %}
 
     {# Header #}
@@ -29,19 +24,56 @@
         {% set usedInternIds = templateVars.table.usedInternIds|default([]) %}
     {% endif %}
 
+    {% if getFormOption('statement_submit_types.values', true)|length > 1 %}
+        {% set submitTypeOptions = [] %}
+        {% set selectedSubmitType = 'unknown' %}
+        {% for key, translated in getFormOption('statement_submit_types.values', true)|filter(key => key != 'system') %}
+            {% if key == getFormOption('statement_submit_types.default')|first or key == app.request.get('r_submit_type') %}
+                {% set submitTypeOptions = submitTypeOptions|merge([{ label: translated, value: key }]) %}
+                {% set selectedSubmitType = key %}
+            {% else %}
+                {% set submitTypeOptions = submitTypeOptions|merge([{ label: translated, value: key }]) %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    {% set clusters = [] %}
+    {% if templateVars.table.procedure.clusterStatements is defined %}
+        {% for key, clusterStatement in templateVars.table.procedure.clusterStatements %}
+            {% set assignee = {'id': clusterStatement.assignee.id|default(''), 'name': clusterStatement.assignee.firstname|default('') ~ ' ' ~ clusterStatement.assignee.lastname|default(''), 'organisation': clusterStatement.assignee.orgaName|default('') } %}
+            {% set clusterStatement = {'id': clusterStatement.id|default(''), 'externId': clusterStatement.externId|default(''), 'assignee': assignee, 'name': clusterStatement.name|default} %}
+            {% set clusters = clusters|merge([clusterStatement]) %}
+        {% endfor %}
+    {% endif %}
+
     <dp-new-statement
         inline-template
-        procedure-id="{{ templateVars.table.procedure.ident }}"
-        default-submit-type="{{ getFormOption('statement_submit_types.default')|first }}"
         current-external-phase="{{ templateVars.table.procedure.publicParticipationPhase|default }}"
         current-internal-phase="{{  templateVars.table.procedure.phase|default }}"
+        csrf-token="{{ csrf_token('csrf')|json_encode }}"
+        default-submit-type="{{ getFormOption('statement_submit_types.default')|first }}"
         :internal-phases="JSON.parse('{{ templateVars.internalPhases|default({})|json_encode|e('js', 'utf-8') }}')"
         :external-phases="JSON.parse('{{ templateVars.externalPhases|default({})|json_encode|e('js', 'utf-8') }}')"
+        :form-definitions="JSON.parse('{{ formDefinitions|json_encode|e('js', 'utf-8') }}')"
+        :participation-guest-only="JSON.parse('{{ participationGuestOnly|json_encode|e('js', 'utf-8') }}')"
+        procedure-id="{{ templateVars.table.procedure.ident }}"
         request-text="{{ app.request.get('r_text')|default('') }}"
         request-head-statement="{{ app.request.get('r_head_statement')|default('') }}"
+        :request="{
+          role: '{{ app.request.get("r_role") }}',
+          organisation: '{{ app.request.get("r_orga_name") }}',
+          department: '{{ app.request.get("r_orga_department_name") }}',
+          name: '{{ app.request.get("r_author_name") }}',
+          email:'{{ app.request.get("r_orga_email") }}',
+          street: '{{ app.request.get("r_orga_street") }}',
+          nr: '{{ app.request.get("r_houseNumber") }}',
+          postalCode: '{{ app.request.get("r_orga_postalcode") }}',
+          city: '{{ app.request.get("r_orga_city") }}'
+        }"
         :request-municipalities="JSON.parse('{{ app.request.get('r_municipalities')|default([])|json_encode|e('js', 'utf-8') }}')"
         :request-counties="JSON.parse('{{ app.request.get('r_counties')|default([])|json_encode|e('js', 'utf-8') }}')"
         :request-priority-areas="JSON.parse('{{ app.request.get('r_priorityAreas')|default([])|json_encode|e('js', 'utf-8') }}')"
+        :submitters="JSON.parse('{{ templateVars.submitters|default|e('js', 'utf-8') }}')"
         used-intern-ids-pattern="{{ usedInternIds|length > 0 ? '^(?!(?:' ~ usedInternIds|join('|') ~ '+)$)[0-9a-zA-Z-_ ]{1,}$' : '^[0-9a-zA-Z-_ ]{1,}$' }}"
     >
         <form
@@ -54,7 +86,7 @@
             data-dp-validate="newStatementForm"
         >
             {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
-            <input type="hidden" name="r_ident" value="{{ templateVars.table.procedure.ident }}">
+            <input type="hidden" name="r_ident" :value="procedureId">
             <input type="hidden" name="r_action" value="new">
 
             <fieldset class="u-pb-0 u-mv">
@@ -66,15 +98,15 @@
                     {% apply spaceless %}
 
                         <dp-autofill-submitter-data
-                            :request='{"role":"{{ app.request.get('r_role') }}","organisation":"{{ app.request.get('r_orga_name') }}","department":"{{ app.request.get('r_orga_department_name') }}","name":"{{ app.request.get('r_author_name') }}","email":"{{ app.request.get('r_orga_email') }}","street":"{{ app.request.get('r_orga_street') }}","nr":"{{ app.request.get('r_houseNumber') }}", "postalCode":"{{ app.request.get('r_orga_postalcode') }}","city":"{{ app.request.get('r_orga_city') }}"}'
-                            :submitters="JSON.parse('{{ templateVars.submitters|default|e('js', 'utf-8') }}')"
-                            procedure-id="{{ templateVars.table.procedure.id|default }}"
+                            :request='request'
+                            :submitters="submitters"
+                            :procedure-id="procedureId"
                             :init-submitter="values.submitter"
                             ref="submitter"
                             @submitter:chosen="addLocationPrompt"
                             @role-changed="handleRoleChange"
-                            :form-definitions="JSON.parse('{{ formDefinitions|json_encode|e('js', 'utf-8') }}')"
-                            :participation-guest-only="JSON.parse('{{ participationGuestOnly|json_encode|e('js', 'utf-8') }}')"
+                            :form-definitions="formDefinitions"
+                            :participation-guest-only="participationGuestOnly"
                         ></dp-autofill-submitter-data>
 
 
@@ -119,18 +151,17 @@
                         </div>
 
                         <div class="layout">
-                            {% if hasPermission('field_statement_user_organisation') and formDefinitions.citizenXorOrgaAndOrgaName.enabled == true %}
-                                <dp-input
-                                    id="r_userOrganisation"
-                                    class="layout__item u-1-of-2 u-mb-0_75"
-                                    :label="{
-                                        text: Translator.trans('organisation.name')
-                                    }"
-                                    name="r_userOrganisation"
-                                    :required="institutionSelected"
-                                    value="{{ templateVars.request.r_userOrganisation|default }}">
-                                </dp-input>
-                            {% endif %}
+                            <dp-input
+                                v-if="hasPermission('field_statement_user_organisation') && formDefinitions.citizenXorOrgaAndOrgaName.enabled"
+                                id="r_userOrganisation"
+                                class="layout__item u-1-of-2 u-mb-0_75"
+                                :label="{
+                                    text: Translator.trans('organisation.name')
+                                }"
+                                name="r_userOrganisation"
+                                :required="institutionSelected"
+                                value="{{ templateVars.request.r_userOrganisation|default }}">
+                            </dp-input>
 
                             {% if hasPermission('field_statement_user_position') %}
                                 {% set positionOptions = [ { label: '---', value: '' } ] %}
@@ -176,24 +207,11 @@
                 <div class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 flow-root">
 
                     {% apply spaceless -%}{# start row #}
-                        {% if getFormOption('statement_submit_types.values', true)|length > 1 %}
-                            {% set submitTypeOptions = [] %}
-                            {% set selectedSubmitType = 'unknown' %}
-                            {% for key, translated in getFormOption('statement_submit_types.values', true)|filter(key => key != 'system') %}
-                                {% if key == getFormOption('statement_submit_types.default')|first or key == app.request.get('r_submit_type') %}
-                                    {% set submitTypeOptions = submitTypeOptions|merge([{ label: translated, value: key }]) %}
-                                    {% set selectedSubmitType = key %}
-                                {% else %}
-                                    {% set submitTypeOptions = submitTypeOptions|merge([{ label: translated, value: key }]) %}
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-
                         <div class="layout u-mb-0_75">
                             <div class="u-1-of-4 layout__item">
                                 <dp-label
-                                    text="{{ 'statement.date.submitted'|trans }}"
-                                    tooltip="{{ 'explanation.statement.date'|trans }}"
+                                    :text="Translator.trans('statement.date.submitted')"
+                                    :tooltip="Translator.trans('explanation.statement.date')"
                                     for="r_submitted_date"></dp-label>
                                 <dp-datepicker
                                     class="o-form__control-wrapper"
@@ -208,8 +226,8 @@
                             </div>
                             <div class="u-1-of-4 layout__item">
                                 <dp-label
-                                    text="{{ 'statement.date.authored'|trans }}"
-                                    tooltip="{{ 'explanation.statement.date.authored'|trans }}"
+                                    :text="Translator.trans('statement.date.authored')"
+                                    :tooltip="Translator.trans('explanation.statement.date.authored')"
                                     for="r_authored_date"></dp-label>
                                 <dp-datepicker
                                     class="o-form__control-wrapper"
@@ -233,11 +251,13 @@
                                     :options="JSON.parse('{{ submitTypeOptions|json_encode|e('js') }}')"
                                     selected="{{ selectedSubmitType }}"></dp-select>
                             </div>
-                            <div class="u-1-of-4 layout__item" v-if="hasPermission('field_statement_intern_id')">
+                            <div
+                                v-if="hasPermission('field_statement_intern_id')"
+                                class="u-1-of-4 layout__item">
                                 <dp-input
                                     id="r_internId"
                                     aria-describedby="lastUsedDescription"
-                                    data-dp-validate-error="{{ 'validation.error.internId'|trans }} {{ 'validation.error.alphaNumericDashUnderscore'|trans }}"
+                                    data-dp-validate-:error="Translator.trans('validation.error.internId'|trans }} {{ 'validation.error.alphaNumericDashUnderscore')"
                                     :label="{
                                         text: Translator.trans('internId'),
                                         tooltip: `${Translator.trans('validation.error.internId')} ${Translator.trans('validation.error.alphaNumericDashUnderscore')}`
@@ -280,15 +300,6 @@
                     </div>
 
                     <template v-if="hasPermission('feature_statement_cluster')">
-                        {% set clusters = [] %}
-                        {% if templateVars.table.procedure.clusterStatements is defined %}
-                            {% for key, clusterStatement in templateVars.table.procedure.clusterStatements %}
-                                {% set assignee = {'id': clusterStatement.assignee.id|default(''), 'name': clusterStatement.assignee.firstname|default('') ~ ' ' ~ clusterStatement.assignee.lastname|default(''), 'organisation': clusterStatement.assignee.orgaName|default('') } %}
-                                {% set clusterStatement = {'id': clusterStatement.id|default(''), 'externId': clusterStatement.externId|default(''), 'assignee': assignee, 'name': clusterStatement.name|default} %}
-                                {% set clusters = clusters|merge([clusterStatement]) %}
-                            {% endfor %}
-                        {% endif %}
-
                         <label class="o-form__label">
                             {{ "statement.add.to.cluster"|trans }}
                         </label>
@@ -299,12 +310,11 @@
                             current-user-id="{{ user.ident }}"
                             current-user-name="{{ username }}"
                             current-user-organisation="{{ user.organisation|default('') }}"
-                            procedure-id="{{ templateVars.table.procedure.id|default }}"
+                            :procedure-id="procedureId"
                             :ignore-last-claimed="true"
                             :key="'cluster_' + values.headStatement"
                         ></dp-select-statement-cluster>
                     </template>
-
 
                     <label
                         v-if="hasPermission('field_procedure_elements')"
@@ -507,8 +517,8 @@
 
                     {% if hasPermission('field_statement_text') %}
                         <dp-label
-                            text="{{ 'statement.text.short'|trans }}"
-                            hint="{{ 'explanation.paste'|trans }}"
+                            :text="Translator.trans('statement.text.short')"
+                            :hint="Translator.trans('explanation.paste')"
                             for="r_text"
                             required>
                         </dp-label>
@@ -523,7 +533,7 @@
                                 mark: true,
                                 strikethrough: true
                             }"
-                            procedure-id="{{ templateVars.table.procedure.ident }}">
+                            :procedure-id="procedureId">
                         </dp-editor>
                     {% endif %}
 
@@ -539,8 +549,9 @@
                     )
                     }}
 
-                    {% if hasPermission('field_statement_file') %}
-                        <div class="u-mv">
+                        <div
+                        v-if="hasPermission('field_statement_file')"
+                        class="u-mv">
                             {{
                             fileupload(
                                 "r_upload",
@@ -552,27 +563,26 @@
                             )
                             }}
                         </div>
-                    {% endif %}
                 </div>
             </fieldset>
 
             {# MITZEICHNER #}
-            {% if hasPermission('feature_statements_vote') %}
-                {% apply spaceless %}
-                    <fieldset class="u-pb-0 u-mv">
-                        <a name="statementVoters" id="statementVotersId"></a>
-                        <dp-accordion title="{{ "statement.voter"|trans }}" ref="statementVoters">
-                            <statement-voter
-                                id="dp-new-statement-voter"
-                                data-cy="newStatementVoter"
-                                class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 flow-root"
-                                readonly="{{ readonly|default('') }}"
-                                is-manual="true"
-                            ></statement-voter>
-                        </dp-accordion>
-                    </fieldset>
-                {% endapply %}
-            {% endif %}
+            {% apply spaceless %}
+                <fieldset
+                v-if="hasPermission('feature_statements_vote')"
+                class="u-pb-0 u-mv">
+                    <a name="statementVoters" id="statementVotersId"></a>
+                    <dp-accordion title="{{ "statement.voter"|trans }}" ref="statementVoters">
+                        <statement-voter
+                            id="dp-new-statement-voter"
+                            data-cy="newStatementVoter"
+                            class="o-box--dark u-mt-0_25 u-ph u-pt-0_5 flow-root"
+                            readonly="{{ readonly|default('') }}"
+                            is-manual="true"
+                        ></statement-voter>
+                    </dp-accordion>
+                </fieldset>
+            {% endapply %}
 
             {# PUBLISHING #}
             {% if hasPermission('field_statement_public_allowed') and templateVars.table.procedure.publicParticipationPublicationEnabled %}
@@ -586,14 +596,13 @@
                             class="o-box--dark u-mt-0_25 u-ph u-pv-0_5"
                             data-cy="statementPublishContainer">
 
-                            {% if hasPermission('feature_statements_vote') %}
-                                <div
-                                    class="flash flash-info">
-                                    <p class="u-mb-0">
-                                        {{ "explanation.statement.public.activate.voting"|trans }}
-                                    </p>
-                                </div>
-                            {% endif %}
+                            <div
+                                v-if="hasPermission('feature_statements_vote')"
+                                class="flash flash-info">
+                                <p class="u-mb-0">
+                                    {{ "explanation.statement.public.activate.voting"|trans }}
+                                </p>
+                            </div>
 
                             <statement-publish :editable="true"></statement-publish>
                         </div>
@@ -608,7 +617,7 @@
                     @click.prevent="dpValidateAction('newStatementForm', submit)"
                     name="r_submit_button"
                     data-cy="submitterForm:saveButton">
-                    {{ 'save'|trans }}
+                    {{ Translator.trans('save') }}
                 </button>
 
                 <a
@@ -616,10 +625,15 @@
                   data-cy="submitterForm:abortButton"
                   href='{{ abort_path }}'
                   id="cancelStellungnahme">
-                    {{ "abort"|trans }}
+                    {{ Translator.trans('abort') }}
                 </a>
             </div>
 
         </form>
     </dp-new-statement>
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['assessmenttable-assessmentTableNewStatement.js']) }}
+{% endblock javascripts %}
