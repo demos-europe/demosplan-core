@@ -220,7 +220,6 @@ export default {
   data () {
     return {
       activeItem: 'entry',
-      finalMailDefaultText: '',
       isScrolling: false,
       localStatement: null,
       menuEntries: [
@@ -357,14 +356,6 @@ export default {
 
     setInitValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
-
-      this.finalMailDefaultText = Translator.trans('statement.send.final_mail.default', {
-        hasStatementText: this.localStatement.attributes.fullText.length < 2000 ? 0 : 1,
-        orgaName: this.procedure.orgaName,
-        procedureName: this.procedure.name,
-        statementText: this.localStatement.attributes.fullText,
-        statementRecommendation: this.localStatement.attributes.recommendation
-      })
     },
 
     updateLocalStatementProperties (value, field) {

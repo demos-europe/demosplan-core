@@ -79,6 +79,12 @@ export default {
     }
   },
 
+  watch: {
+    initText (newVal) {
+      this.text = newVal
+    }
+  },
+
   methods: {
     openBoilerPlate () {
       if (hasPermission('area_admin_boilerplates')) {

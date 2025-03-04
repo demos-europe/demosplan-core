@@ -599,7 +599,7 @@ export default {
       }
 
       if (hasPermission('field_send_final_email')) {
-        statementFields.push('feedback', 'publicStatement', 'sentAssessment', 'sentAssessmentDate')
+        statementFields.push('feedback', 'initialOrganisationEmail', 'publicStatement', 'sentAssessment', 'sentAssessmentDate', 'user')
       }
 
       const allFields = {
@@ -651,6 +651,12 @@ export default {
         ].join()
       }
 
+      if (hasPermission('field_send_final_email')) {
+        allFields.User = [
+          'orga'
+        ].join()
+      }
+
       const include = [
         'assignee',
         'document',
@@ -667,6 +673,10 @@ export default {
 
       if (hasPermission('feature_similar_statement_submitter')) {
         include.push('similarStatementSubmitters')
+      }
+
+      if (hasPermission('field_send_final_email')) {
+        include.push('user', 'user.orga')
       }
 
       return this.getStatementAction({

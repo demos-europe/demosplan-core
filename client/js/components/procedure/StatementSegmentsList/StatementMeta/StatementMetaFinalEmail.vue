@@ -38,7 +38,7 @@ All rights reserved
           text: Translator.trans('email.recipient')
         }"
         read-only
-        :value="email2" />
+        :value="email2InputValue" />
       <dp-input
         v-if="ccEmail2"
         id="email2cc"
@@ -65,22 +65,48 @@ All rights reserved
       <detail-view-final-email-body
         class="u-mb-0_5"
         data-cy="statementDetail:emailBodyText"
-        :init-text="initTextEmailBody"
+        :init-text="emailDefaultText"
         :procedure-id="procedure.id">
       </detail-view-final-email-body>
+      <dp-label
+        :text="Translator.trans('documents.attach')"
+        for="uploadEmailAttachments" />
+      <dp-upload-files
+        v-if="editable"
+        id="uploadEmailAttachments"
+        allowed-file-types="all"
+        :basic-auth="dplan.settings.basicAuth"
+        :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
+        :max-file-size="10 * 1024 * 1024 * 1024/* 2 GiB */"
+        :max-number-of-files="20"
+        name="uploadEmailAttachments"
+        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '10GB' }) }"
+        :tus-endpoint="dplan.paths.tusEndpoint" />
+      <div class="text-right">
+        <dp-button
+          data-cy="statementMeta:sendFinalEmail"
+          icon="mail"
+          name="sendFinalEmail"
+          :text="Translator.trans('send')"
+          @click="sendFinalEmail" />
+      </div>
     </template>
   </fieldset>
 </template>
 <script>
-import { DpInlineNotification, DpInput, formatDate } from '@demos-europe/demosplan-ui'
+import { DpButton, DpInlineNotification, DpInput, DpLabel, DpUploadFiles, formatDate } from '@demos-europe/demosplan-ui'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
+import { mapState } from 'vuex'
 export default {
   name: 'StatementMetaFinalEmail',
 
   components: {
     DetailViewFinalEmailBody,
+    DpButton,
     DpInlineNotification,
-    DpInput
+    DpInput,
+    DpLabel,
+    DpUploadFiles
   },
 
   props: {
@@ -104,60 +130,126 @@ export default {
   data () {
     return {
       ccEmail2: '',
+      email2: '',
+      emailDefaultText: '',
       emailSubject: Translator.trans('statement.final.email.subject', { procedureName: this.procedure.name }),
       emailsCC: '',
-      initTextEmailBody: ''
+      finalEmailOnlyToVoters: false,
+      formattedSentAssessmentDate: '',
+      statementUser: null,
+      statementUserOrga: null
     }
   },
 
   computed: {
-    email2 () {
-      const email2 = ''
+    ...mapState('Orga', {
+      orgas: 'items'
+    }),
+
+    ...mapState('User', {
+      users: 'items'
+    }),
+
+    email2InputValue () {
       if (this.statement.attributes.publicStatement === 'external') {
 
         return Translator.trans('explanation.statement.final.citizen.email.hidden')
       } else {
 
-        return email2
+        return this.email2
       }
     },
 
     explanationNoSendingEmail () {
       let sendFinalEmail = false
+      // TO DO set author feedback
       const authorFeedback = false
       if ((this.statement.attributes.feedback === 'snailmail' && this.statement.relationships.votes.data) ||
           this.statement.attributes.feedback === 'email') {
         sendFinalEmail = true
       }
-      const statementExternal = false // Konstante, muss über twig kommen
-      const email2 = false
 
       if (!sendFinalEmail) {
 
         return Translator.trans('explanation.no.statement.final.sent')
-      } else if (statementExternal && !authorFeedback) {
+      } else if (this.statement.attributes.publicStatement === 'external' && !authorFeedback) {
 
         return Translator.trans('explanation.no.statement.final.no.feedback.wanted')
-      } else if (!email2) {
+      } else if (!this.email2) {
 
         return Translator.trans('explanation.no.statement.final.no.email')
       }
 
       return ''
-    },
-
-    finalEmailOnlyToVoters () {
-      let finalEmailOnlyToVoters = false
-      if (this.statement.attributes.feedback === 'snailmail' && this.statement.relationships.votes.data) {
-        finalEmailOnlyToVoters = true
-      }
-
-      return finalEmailOnlyToVoters
-    },
-
-    formatedSentAssessmentDate () {
-      return formatDate(this.statement.attributes.sentAssessmentDate, 'DD.MM.YYYY HH:mm')
     }
+  },
+
+  methods: {
+    formatSentAssessmentDate () {
+      this.formattedSentAssessmentDate = formatDate(this.statement.attributes.sentAssessmentDate, 'DD.MM.YYYY HH:mm')
+    },
+
+    initValues () {
+      this.formatSentAssessmentDate()
+      this.setCCEmail2()
+      this.setEmail2()
+      this.setEmailDefaultText()
+      this.setFinalEmailOnlyToVoters()
+      this.setStatementUser()
+      this.setStatementUserOrga()
+    },
+
+    sendFinalEmail () {
+
+    },
+
+    setCCEmail2 () {
+      if (this.statementUserOrga) {
+        this.ccEmail2 = this.statementUserOrga.attributes.ccEmail2
+      }
+    },
+
+    setEmail2 () {
+      const { publicStatement, initialOrganisationEmail } = this.statement.attributes
+      if ((this.statementUserOrga && publicStatement === 'external' && initialOrganisationEmail) ||
+        (!this.statementUserOrga && initialOrganisationEmail)) {
+        this.email2 = initialOrganisationEmail
+      } else if (this.statementUserOrga && this.statement.attributes.publicStatement === 'external' && !initialOrganisationEmail) {
+        this.email2 = this.statementUserOrga.attributes.email2
+      }
+    },
+
+    setEmailDefaultText  () {
+      this.emailDefaultText = Translator.trans('statement.send.final_mail.default', {
+        hasStatementText: this.statement.attributes.fullText.length < 2000,
+        orgaName: this.procedure.orgaName,
+        procedureName: this.procedure.name,
+        statementText: this.statement.attributes.fullText,
+        statementRecommendation: this.statement.attributes.recommendation
+      })
+    },
+
+    setFinalEmailOnlyToVoters () {
+      if (this.statement.attributes.feedback === 'snailmail' && this.statement.relationships.votes.data) {
+        this.finalEmailOnlyToVoters = true
+      }
+    },
+
+    setStatementUser () {
+      if (this.statement.relationships?.user?.data?.id && this.users[this.statement.relationships.user.data.id]) {
+        this.statementUser = this.users[this.statement.relationships.user.data.id]
+      }
+    },
+
+    setStatementUserOrga () {
+      if (this.statementUser?.relationships?.orga?.data?.id) {
+        this.statementUserOrga = this.orgas[this.statementUser.relationships.orga.data.id]
+      }
+    }
+  },
+
+  mounted () {
+    this.initValues()
   }
 }
 </script>
