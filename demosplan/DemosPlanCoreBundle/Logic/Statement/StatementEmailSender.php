@@ -68,31 +68,11 @@ class StatementEmailSender extends CoreService
                 if ('email' === $statement->getFeedback()) {
                     $successMessageTranslationParams['sent_to'] = 'citizen_only';
                     $recipientEmailAddress =  $statement->getMeta()->getOrgaEmail();
-
-                    $this->sendFinalStatementEmail(
-                        $statement,
-                        $subject,
-                        $ccEmailAddresses,
-                        $emailVariables,
-                        $attachments,
-                        $attachmentNames,
-                        $recipientEmailAddress
-                    );
-
                 }
             // manuell eingegebene Stellungnahme
             } elseif ('' != $statement->getMeta()->getOrgaEmail()) {
                 $successMessageTranslationParams['sent_to'] = 'institution_only';
                 $recipientEmailAddress =  $statement->getMeta()->getOrgaEmail();
-                $this->sendFinalStatementEmail(
-                    $statement,
-                    $subject,
-                    $ccEmailAddresses,
-                    $emailVariables,
-                    $attachments,
-                    $attachmentNames,
-                    $recipientEmailAddress
-                );
 
             } else {
                 // regulär eingereichte Stellungnahme (ToeB)
@@ -108,40 +88,34 @@ class StatementEmailSender extends CoreService
                     $successMessageTranslationParams['sent_to'] = 'institution_only';
                     // Mail an Beteiligungs-E-Mail-Adresse
                     // Die Rollen brauchen keine Mail an ihre Organisation
-                    $recipients = $this->detectInstitutionRecipientEmailAddress($user);
-
-                    $this->sendFinalStatementEmail(
-                        $statement,
-                        $subject,
-                        $ccEmailAddresses,
-                        $emailVariables,
-                        $attachments,
-                        $attachmentNames,
-                        $recipients
-                    );
-
+                    $recipientEmailAddress = $this->detectInstitutionRecipientEmailAddress($user);
                 }
 
 
                 // Mail an die einreichende Institutions-K, falls nicht identisch mit Einreicher*in
                 if (null !== $statement->getMeta()->getSubmitUId()) {
                     $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
-                    $recipientEmailAddress = $submitUser->getEmail();
-                    if (false === stripos($user->getEmail(), $recipientEmailAddress)) {
-                        $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
 
-                        $this->sendFinalStatementEmail(
-                            $statement,
-                            $subject,
-                            $ccEmailAddresses,
-                            $emailVariables,
-                            $attachments,
-                            $attachmentNames,
-                            $recipientEmailAddress
-                        );
+                    if (false === stripos($user->getEmail(), $submitUser->getEmail())) {
+                        $recipientEmailAddress = $submitUser->getEmail();
+                        $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
                     }
                 }
             }
+
+            if (!empty($recipientEmailAddress)) {
+                $this->sendFinalStatementEmail(
+                    $statement,
+                    $subject,
+                    $ccEmailAddresses,
+                    $emailVariables,
+                    $attachments,
+                    $attachmentNames,
+                    $recipientEmailAddress
+                );
+            }
+
+
             if (!$statement->getVotes()->isEmpty()) {
                 $this->sendEmailToVoters($statement, $subject, $ccEmailAddresses, $emailVariables, $attachments, $attachmentNames);
                 $successMessageTranslationParams['voters_count'] = count($statement->getVotes());
