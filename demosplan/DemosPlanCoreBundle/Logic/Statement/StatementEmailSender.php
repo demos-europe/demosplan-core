@@ -133,7 +133,7 @@ class StatementEmailSender extends CoreService
             $recipientEmailAddress = $this->detectInstitutionRecipientEmailAddress($user);
         }
 
-
+        //@todo split logic into separate methods
         // Mail an die einreichende Institutions-K, falls nicht identisch mit Einreicher*in
         if (null !== $statement->getMeta()->getSubmitUId()) {
             $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
@@ -143,6 +143,7 @@ class StatementEmailSender extends CoreService
                 $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
             }
         }
+
 
 
 
