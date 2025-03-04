@@ -76,6 +76,35 @@ class StatementEmailSender extends CoreService
                     $attachmentNames,
                     $recipientEmailAddress
                 );
+            } else {
+                /** @var User $user */
+                $user = $this->userService->getSingleUser($statement->getUId());
+                $recipientEmailAddress = $this->determineRecipientEmailAddressInstitution($statement,$user, $successMessageTranslationParams);
+                if (!empty($recipientEmailAddress)) {
+                    $this->sendFinalStatementEmail(
+                        $statement,
+                        $subject,
+                        $ccEmailAddresses,
+                        $emailVariables,
+                        $attachments,
+                        $attachmentNames,
+                        $recipientEmailAddress
+                    );
+                }
+
+                $recipientEmailAddress = $this->determineRecipientEmailAddressInstitutionCoordinator($statement, $user, $successMessageTranslationParams);
+
+                if (!empty($recipientEmailAddress)) {
+                    $this->sendFinalStatementEmail(
+                        $statement,
+                        $subject,
+                        $ccEmailAddresses,
+                        $emailVariables,
+                        $attachments,
+                        $attachmentNames,
+                        $recipientEmailAddress
+                    );
+                }
             }
 
 
@@ -99,6 +128,41 @@ class StatementEmailSender extends CoreService
         $this->messageBag->add('confirm', 'confirm.statement.final.sent.emailCC');
     }
 
+    private function determineRecipientEmailAddressInstitution($statement,$user, &$successMessageTranslationParams): array
+    {
+        // regulär eingereichte Stellungnahme (ToeB)
+        if ('' === $statement->getUId()) {
+            throw new InvalidArgumentException('UserId must be set');
+        }
+
+        if (!$user->hasAnyOfRoles([Role::GUEST, Role::CITIZEN])) {
+            $successMessageTranslationParams['sent_to'] = 'institution_only';
+            // Mail an Beteiligungs-E-Mail-Adresse
+            // Die Rollen brauchen keine Mail an ihre Organisation
+            return $this->detectInstitutionRecipientEmailAddress($user);
+        }
+
+        return [];
+
+    }
+
+    private function determineRecipientEmailAddressInstitutionCoordinator ($statement, $user, &$successMessageTranslationParams) {
+
+        //@todo split logic into separate methods
+        // Mail an die einreichende Institutions-K, falls nicht identisch mit Einreicher*in
+        if (null !== $statement->getMeta()->getSubmitUId()) {
+            $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
+
+            if (false === stripos($user->getEmail(), $submitUser->getEmail())) {
+
+                $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
+                return $submitUser->getEmail();
+            }
+        }
+
+        return '';
+    }
+
     private function determineRecipientEmailAddress ($statement, &$successMessageTranslationParams): array|string
     {
         $recipientEmailAddress = '';
@@ -115,37 +179,6 @@ class StatementEmailSender extends CoreService
             $successMessageTranslationParams['sent_to'] = 'institution_only';
             return  $statement->getMeta()->getOrgaEmail();
         }
-
-
-        // regulär eingereichte Stellungnahme (ToeB)
-        if ('' === $statement->getUId()) {
-            throw new InvalidArgumentException('UserId must be set');
-        }
-
-        /** @var User $user */
-        $user = $this->userService->getSingleUser($statement->getUId());
-
-
-        if (!$user->hasAnyOfRoles([Role::GUEST, Role::CITIZEN])) {
-            $successMessageTranslationParams['sent_to'] = 'institution_only';
-            // Mail an Beteiligungs-E-Mail-Adresse
-            // Die Rollen brauchen keine Mail an ihre Organisation
-            $recipientEmailAddress = $this->detectInstitutionRecipientEmailAddress($user);
-        }
-
-        //@todo split logic into separate methods
-        // Mail an die einreichende Institutions-K, falls nicht identisch mit Einreicher*in
-        if (null !== $statement->getMeta()->getSubmitUId()) {
-            $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
-
-            if (false === stripos($user->getEmail(), $submitUser->getEmail())) {
-                $recipientEmailAddress = $submitUser->getEmail();
-                $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
-            }
-        }
-
-
-
 
         return $recipientEmailAddress;
     }
