@@ -61,8 +61,7 @@
       class="c-at__controls o-sticky o-sticky--border space-stack-xs u-pt-0_5 u-pb-0_25"
       ref="header">
       <search-and-sorting
-        :search-term="searchTerm"
-        :has-changed-statements="hasChangedStatements" />
+        :search-term="searchTerm" />
 
       <div class="flex items-center space-inline-m">
         <!-- mark all -->
@@ -75,7 +74,7 @@
             v-model="allItemsOnPageSelected"
             data-cy="ToggleAllCheckboxes"
             :disabled="areFragmentsSelected"
-            :title="areFragmentsSelected ? Translator.trans('unselect.entity.first', {entity: Translator.trans('statements')}) : false">
+            :title="areFragmentsSelected ? Translator.trans('unselect.entity.first', {entity: Translator.trans('statements')}) : null">
           {{ Translator.trans('visible.entries') }}
         </label>
 
@@ -187,7 +186,7 @@
               role="menuitem"
               tabindex="-1"
               data-actionmenu-menuitem
-              :data-actionmenu-current="currentTableView === 'statement'"
+              :data-actionmenu-current="currentTableView === 'statement' ? true : null"
               :class="{'pointer-events-none': !assessmentBaseLoaded }"
               @click.prevent="setProperty({ prop: 'currentTableView', val: 'statement' })">
               {{ Translator.trans(hasPermission('area_statements_fragment') ? 'statements' : 'display.list.expanded') }}
@@ -200,7 +199,7 @@
                 role="menuitem"
                 tabindex="-1"
                 data-actionmenu-menuitem
-                :data-actionmenu-current="currentTableView === 'fragments'"
+                :data-actionmenu-current="currentTableView === 'fragments' ? true : null"
                 :class="{'pointer-events-none': !assessmentBaseLoaded }"
                 @click.prevent="setProperty({ prop: 'currentTableView', val: 'fragments' })">
                 {{ Translator.trans('fragments') }}
@@ -211,7 +210,7 @@
                 role="menuitem"
                 tabindex="-1"
                 data-actionmenu-menuitem
-                :data-actionmenu-current="currentTableView === 'collapsed'"
+                :data-actionmenu-current="currentTableView === 'collapsed' ? true : null"
                 :class="{'pointer-events-none': !assessmentBaseLoaded }"
                 @click.prevent="setProperty({ prop: 'currentTableView', val: 'collapsed' })">
                 {{ Translator.trans('display.list') }}
@@ -224,7 +223,7 @@
                 role="menuitem"
                 tabindex="-1"
                 data-actionmenu-menuitem
-                :data-actionmenu-current="currentTableView === 'collapsed'"
+                :data-actionmenu-current="currentTableView === 'collapsed' ? true : null"
                 :class="{'pointer-events-none': !assessmentBaseLoaded }"
                 @click.prevent="setProperty({ prop: 'currentTableView', val: 'collapsed' })">
                 {{ Translator.trans('display.list.collapsed') }}
@@ -323,6 +322,11 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'exportModal:toggle',
+    'handle-sort-change'
+  ],
 
   data () {
     return {

@@ -7,7 +7,7 @@
         {% block content %}
             <orga-register-form
                 customer="{{ templateVars.customerName|default }}"
-                :csrf-token="{{ csrf_token('register-orga')|json_encode }}">
+                csrf-token="{{ csrf_token('register-orga')|json_encode }}">
                 {{ extensionPointMarkup('formExtraFields')|raw }}
             </orga-register-form>
         {% endblock content %}

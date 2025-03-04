@@ -20,116 +20,114 @@
           :labels="selectElementLabels"
           @set-label="setLabel" />
         <dp-sticky-element>
-          <template>
-            <div class="u-ml w-12">
+          <div class="u-ml w-12">
+            <p
+              class="weight--bold">
+              {{ Translator.trans('tool.active') }}
+            </p>
+            <div>
+              <div class="annotator__button-wrapper is-first">
+                <button
+                  @click="setInteraction('select')"
+                  class="btn annotator__button annotator__button--toggle"
+                  :class="{'is-current': currentInteractionName === 'select'}"
+                  aria-labelledby="elementSelectLabel">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 10 17"
+                    style="width: 20px; height: 20px;">
+                    <defs>
+                      <clipPath id="selectIcon">
+                        <path d="M0 0h12v17H0z" />
+                      </clipPath>
+                    </defs>
+                    <g :clip-path="`url(#selectIcon)`">
+                      <path
+                        d="M0 0v17l4.849-4.973H12z"
+                        :fill="currentInteractionName === 'select' ? '#fff' : '#4d4d4d'" />
+                    </g>
+                  </svg>
+                </button>
+              </div>
+              <span
+                class="align-middle u-ml-0_5"
+                id="elementSelectLabel">
+                {{ Translator.trans('select.or.edit') }}
+              </span>
+            </div>
+            <div>
+              <div class="annotator__button-wrapper is-last">
+                <button
+                  @click="setInteraction('draw')"
+                  class="btn annotator__button annotator__button--toggle"
+                  :class="{'is-current': currentInteractionName === 'draw'}"
+                  aria-labelledby="elementDrawLabel">
+                  <i class="fa fa-plus" />
+                </button>
+              </div>
+              <span
+                class="align-middle u-ml-0_5"
+                id="elementDrawLabel">
+                {{ Translator.trans('element.add') }}
+              </span>
+            </div>
+            <div class="u-mt-2">
               <p
-                class="weight--bold">
-                {{ Translator.trans('tool.active') }}
+                class="weight--bold"
+                :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}">
+                {{ Translator.trans('element.selected') }}
+                <dp-contextual-help
+                  class="float-right u-mt-0_12"
+                  :text="Translator.trans('annotator.modify.explanation')" />
               </p>
               <div>
-                <div class="annotator__button-wrapper is-first">
-                  <button
-                    @click="setInteraction('select')"
-                    class="btn annotator__button annotator__button--toggle"
-                    :class="{'is-current': currentInteractionName === 'select'}"
-                    aria-labelledby="elementSelectLabel">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 10 17"
-                      style="width: 20px; height: 20px;">
-                      <defs>
-                        <clipPath id="selectIcon">
-                          <path d="M0 0h12v17H0z" />
-                        </clipPath>
-                      </defs>
-                      <g :clip-path="`url(#selectIcon)`">
-                        <path
-                          d="M0 0v17l4.849-4.973H12z"
-                          :fill="currentInteractionName === 'select' ? '#fff' : '#4d4d4d'" />
-                      </g>
-                    </svg>
-                  </button>
-                </div>
+                <button
+                  @click="deleteFeature(editingFeature)"
+                  class="annotator__button btn btn--warning btn--outline u-ml-0_25"
+                  :disabled="currentInteractionName !== 'select' || !editingFeature"
+                  aria-labelledby="elementDeleteLabel">
+                  <i class="fa fa-trash" />
+                </button>
                 <span
                   class="align-middle u-ml-0_5"
-                  id="elementSelectLabel">
-                  {{ Translator.trans('select.or.edit') }}
+                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
+                  id="elementDeleteLabel">
+                  {{ Translator.trans('element.delete') }}
                 </span>
               </div>
               <div>
-                <div class="annotator__button-wrapper is-last">
-                  <button
-                    @click="setInteraction('draw')"
-                    class="btn annotator__button annotator__button--toggle"
-                    :class="{'is-current': currentInteractionName === 'draw'}"
-                    aria-labelledby="elementDrawLabel">
-                    <i class="fa fa-plus" />
-                  </button>
-                </div>
+                <button
+                  @click="$refs.labelModal.toggleModal(getFeatureLabel(editingFeature))"
+                  class="annotator__button btn btn--primary btn--outline u-ml-0_25"
+                  :disabled="currentInteractionName !== 'select' || !editingFeature"
+                  aria-labelledby="formatChangeLabel">
+                  <i class="fa fa-tag" />
+                </button>
                 <span
                   class="align-middle u-ml-0_5"
-                  id="elementDrawLabel">
-                  {{ Translator.trans('element.add') }}
+                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
+                  id="formatChangeLabel">
+                  {{ Translator.trans('format.change') }}
                 </span>
               </div>
-              <div class="u-mt-2">
-                <p
-                  class="weight--bold"
-                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}">
-                  {{ Translator.trans('element.selected') }}
-                  <dp-contextual-help
-                    class="float-right u-mt-0_12"
-                    :text="Translator.trans('annotator.modify.explanation')" />
-                </p>
-                <div>
-                  <button
-                    @click="deleteFeature(editingFeature)"
-                    class="annotator__button btn btn--warning btn--outline u-ml-0_25"
-                    :disabled="currentInteractionName !== 'select' || !editingFeature"
-                    aria-labelledby="elementDeleteLabel">
-                    <i class="fa fa-trash" />
-                  </button>
-                  <span
-                    class="align-middle u-ml-0_5"
-                    :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
-                    id="elementDeleteLabel">
-                    {{ Translator.trans('element.delete') }}
-                  </span>
-                </div>
-                <div>
-                  <button
-                    @click="$refs.labelModal.toggleModal(getFeatureLabel(editingFeature))"
-                    class="annotator__button btn btn--primary btn--outline u-ml-0_25"
-                    :disabled="currentInteractionName !== 'select' || !editingFeature"
-                    aria-labelledby="formatChangeLabel">
-                    <i class="fa fa-tag" />
-                  </button>
-                  <span
-                    class="align-middle u-ml-0_5"
-                    :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
-                    id="formatChangeLabel">
-                    {{ Translator.trans('format.change') }}
-                  </span>
-                </div>
-              </div>
-              <div class="u-mt-2">
-                <p>{{ Translator.trans('pages.checked', { doneCount: donePagesCount, totalCount: documentLengthTotal }) }}</p>
-                <div>
-                  <dp-button
-                    :busy="isSaving"
-                    class="w-11 u-mb-0_25"
-                    :disabled="documentLengthTotal === 0"
-                    :text="buttonText"
-                    @click="save" />
-                  <dp-button
-                    class="w-11"
-                    color="secondary"
-                    :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
-                    :text="Translator.trans('abort')" />
-                </div>
+            </div>
+            <div class="u-mt-2">
+              <p>{{ Translator.trans('pages.checked', { doneCount: donePagesCount, totalCount: documentLengthTotal }) }}</p>
+              <div>
+                <dp-button
+                  :busy="isSaving"
+                  class="w-11 u-mb-0_25"
+                  :disabled="documentLengthTotal === 0"
+                  :text="buttonText"
+                  @click="save" />
+                <dp-button
+                  class="w-11"
+                  color="secondary"
+                  :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
+                  :text="Translator.trans('abort')" />
               </div>
             </div>
-          </template>
+          </div>
         </dp-sticky-element>
       </div>
     </template>

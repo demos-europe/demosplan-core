@@ -19,7 +19,7 @@
 
         {# original statements #}
         <original-statements-table
-            :csrf-token="{{ csrf_token('csrf')|json_encode }}"
+            csrf-token="{{ csrf_token('csrf')|json_encode }}"
             :export-options="JSON.parse('{{ templateVars.assessmentExportOptions|json_encode|e('js', 'utf-8') }}')"
             init-filter-hash="{{ templateVars.filterHash }}"
             :init-pagination="{

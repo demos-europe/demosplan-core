@@ -126,6 +126,12 @@ export default {
       required: false,
       type: Array,
       default: () => []
+    },
+
+    usedInternIdsPattern: {
+      required: false,
+      type: Array,
+      default: () => []
     }
   },
 
@@ -174,11 +180,23 @@ export default {
         return this.procedurePhases({
           internal: true,
           external: false
+        }).map(el => {
+          return {
+            ...el,
+            value: el.key,
+            label: el.name
+          }
         })
       } else {
         return this.procedurePhases({
           internal: false,
           external: true
+        }).map(el => {
+          return {
+            ...el,
+            value: el.key,
+            label: el.name
+          }
         })
       }
     }
@@ -231,7 +249,7 @@ export default {
 
     setPhaseValue (value) {
       if (value) {
-        this.values.phase = value
+        this.values.phase = this.phases.find(el => el.value === value)
       }
     },
 

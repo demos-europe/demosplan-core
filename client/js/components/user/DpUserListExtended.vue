@@ -76,6 +76,7 @@ import {
   dpSelectAllMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpTableCardListHeader from '@DpJs/components/user/DpTableCardList/DpTableCardListHeader'
 import DpUserListExtendedItem from './DpUserListExtendedItem'
 
@@ -85,10 +86,10 @@ export default {
   components: {
     DpButton,
     DpLoading,
-    DpSlidingPagination: async () => {
+    DpSlidingPagination: defineAsyncComponent(async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
       return DpSlidingPagination
-    },
+    }),
     DpTableCardListHeader,
     DpUserListExtendedItem
   },

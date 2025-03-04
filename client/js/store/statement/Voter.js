@@ -33,7 +33,7 @@ const Voter = {
       Object.assign(state.voters[index], newData)
     },
     removeVoter (state, index) {
-      del(state.voters, index)
+      delete state.voters[index]
     }
 
   }

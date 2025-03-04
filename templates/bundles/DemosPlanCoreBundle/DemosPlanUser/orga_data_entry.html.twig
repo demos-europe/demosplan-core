@@ -46,7 +46,7 @@
 
 {% block content %}
     <organisation-data-form
-        :csrf-token="{{ csrf_token('csrf')|json_encode }}"
+        csrf-token="{{ csrf_token('csrf')|json_encode }}"
         :customers="JSON.parse('{{ customers|default([])|json_encode|e('js', 'utf-8') }}')"
         :is-orga-data-editable="Boolean({{ mayEditOrgaData }})"
         :organisation="JSON.parse('{{ organisationData|default({})|json_encode|e('js', 'utf-8') }}')"

@@ -47,6 +47,10 @@ export default {
     }
   },
 
+  emits: [
+    'layer:features:changed'
+  ],
+
   data () {
     return {
       drawingExtent: '',
@@ -70,9 +74,12 @@ export default {
   },
 
   watch: {
-    features () {
-      this.map.removeLayer(this.layer)
-      this.addLayer()
+    features: {
+      handler () {
+        this.map.removeLayer(this.layer)
+        this.addLayer()
+      },
+      deep: true
     }
   },
 

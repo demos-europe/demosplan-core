@@ -97,7 +97,7 @@
         :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection.sharedStatement') }"
         @select-all="handleSelectAll"
         @items-toggled="handleToggleItem">
-        <template v-slot:externId="{ assignee, externId, id: statementId, synchronized }">
+        <template v-slot:externId="{ assignee = {}, externId, id: statementId, synchronized }">
           <span
             class="weight--bold"
             v-text="externId" />

@@ -15,6 +15,7 @@
     @change="setActiveTabId">
     <dp-tab
       id="institutionList"
+      :is-active="activeTabId === 'institutionList'"
       :label="Translator.trans('invitable_institution.group')">
       <slot>
         <institution-list :is-active="isInstitutionListActive" />
@@ -22,6 +23,7 @@
     </dp-tab>
     <dp-tab
       id="tagList"
+      :is-active="activeTabId === 'tagList'"
       :label="Translator.trans('tag.administrate')">
       <slot>
         <tag-list @tagIsRemoved="institutionListReset" />
@@ -63,10 +65,13 @@ export default {
   },
 
   watch: {
-    needToReset (newValue) {
-      if (newValue === true) {
-        this.getInstitutionsByPage(1)
-      }
+    needToReset: {
+      handler (newValue) {
+        if (newValue) {
+          this.getInstitutionsByPage(1)
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
