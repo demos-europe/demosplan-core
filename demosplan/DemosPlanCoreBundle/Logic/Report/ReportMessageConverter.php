@@ -852,16 +852,6 @@ class ReportMessageConverter
         ]);
     }
 
-
-    private function shortenText(string $text, int $length = 50): string
-    {
-        if ('' === $text) {
-            return '';
-        }
-
-        return substr($text, 0, $length).'...';
-    }
-
     private function createUpdateElementMessage(array $reportEntryMessage): string
     {
         return $this->translator->trans('report.update.element', [
@@ -900,7 +890,6 @@ class ReportMessageConverter
     {
         return $this->translator->trans('report.add.singleDocument', [
             'title' => $reportEntryMessage['documentTitle'],
-            'text' => $this->shortenText($reportEntryMessage['documentText']),
             'category' => $this->translator->trans($reportEntryMessage['documentCategory']),
             'fileName' => $reportEntryMessage['relatedFile'],
             'visible' =>
@@ -914,7 +903,6 @@ class ReportMessageConverter
     {
         return $this->translator->trans('report.update.singleDocument', [
             'title' => $reportEntryMessage['documentTitle'],
-            'text' => $this->shortenText($reportEntryMessage['documentText']),
             'category' => $this->translator->trans($reportEntryMessage['documentCategory']),
             'fileName' => $reportEntryMessage['relatedFile'],
             'visible' =>

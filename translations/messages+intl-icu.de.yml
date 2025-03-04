@@ -4289,7 +4289,6 @@ report.delete.paragraph: "Das Kapitel {title} wurde gelöscht."
 report.add.singleDocument: |
     Eine Planungsdokument wurde hinzugefügt:<br>
     Titel: "{title}"<br>
-    Text: "{text}"<br>
     Kategorie: {category}<br>
     Datei: {fileName}<br>
     Sichtbar: {visible}<br>
@@ -4297,7 +4296,6 @@ report.add.singleDocument: |
 report.update.singleDocument: |
     Eine Planungsdokument wurde geändert zu:<br>
     Titel: "{title}"<br>
-    Text: "{text}"<br>
     Kategorie: {category}<br>
     Datei: {fileName}<br>
     Sichtbar: {visible}<br>
