@@ -10,7 +10,7 @@
             <idp-login-form
                 :is-idp="{{ useIdp|json_encode }}"
                 idp-login-path="{{ gatewayURL }}"
-                :csrf-token="{{ csrf_token('authenticate')|json_encode }}">
+                csrf-token="{{ csrf_token('authenticate')|json_encode }}">
                 {# Using the |raw filter in this special case is needed, as html tags are returned. #}
                 {{ extensionPointMarkup('formExtraFields')|raw }}
             </idp-login-form>
