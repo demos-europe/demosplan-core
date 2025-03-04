@@ -401,6 +401,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->initialOrganisationName
                 ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaName);
+            $configBuilder->initialOrganisationEmail
+                ->setReadableByPath()
+                ->aliasedPath(Paths::statement()->meta->orgaEmail);
             $configBuilder->initialOrganisationDepartmentName
                 ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaDepartmentName);
