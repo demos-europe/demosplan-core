@@ -47,13 +47,13 @@ class StatementEmailSender extends CoreService
     ) {
     }
 
-    public function sendStatementMail($statementId, $subject, $body, $sendEmailCC, $emailAttachments)
+    public function sendStatementMail($statementId, $subject, $body, $sendEmailCC, $emailAttachments): bool
     {
         try {
             $statement = $this->statementService->getStatement($statementId);
             if (null === $statement) {
                 $this->messageBag->add('error', 'error.statement.final.send');
-                return;
+                return false;
             }
 
             $emailVariables = $this->populateEmailVariables($subject, $body);
@@ -123,12 +123,12 @@ class StatementEmailSender extends CoreService
 
         } catch (InvalidArgumentException) {
             $this->messageBag->add('error', 'error.statement.final.send.noemail');
-
-            return;
+            return false;
         }
 
         $this->messageBag->add('confirm', 'confirm.statement.final.sent', $successMessageTranslationParams);
         $this->messageBag->add('confirm', 'confirm.statement.final.sent.emailCC');
+        return true;
     }
 
     private function determineRecipientEmailAddressInstitution($statement,$user, &$successMessageTranslationParams): array

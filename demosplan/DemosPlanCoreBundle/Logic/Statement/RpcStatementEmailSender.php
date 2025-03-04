@@ -57,9 +57,9 @@ class RpcStatementEmailSender implements RpcMethodSolverInterface
                 $sendEmailCC = $params->sendEmailCC;
                 $emailAttachments = $params->emailAttachments;
 
-                $this->statementEmailSender->sendStatementMail($ident, $subject, $body, $sendEmailCC, $emailAttachments);
+                $emailIsSent = $this->statementEmailSender->sendStatementMail($ident, $subject, $body, $sendEmailCC, $emailAttachments);
 
-                $resultResponse[] = $this->generateMethodResult($rpcRequest, true);
+                $resultResponse[] = $this->generateMethodResult($rpcRequest, $emailIsSent);
             } catch (Exception $exception) {
                 $this->logger->error('Error while sending Email for Statement ', ['exception' => $exception]);
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
