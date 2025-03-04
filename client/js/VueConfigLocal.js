@@ -12,9 +12,8 @@
  *
  * Used to run Jest-Tests
  */
-
-// Use Local Vue for testing
-import { createLocalVue, shallowMount } from '@vue/test-utils'
+import Vue from 'vue'
+import { shallowMount } from '@vue/test-utils'
 
 // Globally used
 import { DpMultiselect, DpObscure } from '@demos-europe/demosplan-ui'
@@ -35,7 +34,6 @@ const DPVueCorePlugin = {
 }
 
 // Mocking global stuff
-const Vue = createLocalVue()
 const hasPermission = jest.fn(() => true)
 
 const Translator = {
@@ -60,7 +58,6 @@ const globalMocks = {
   Routing,
   Translator,
   dplan,
-  Vue,
   lscache,
   dpApi,
   checkResponse
@@ -71,33 +68,38 @@ const globalMocks = {
  * shouldn't it work when it's a globalMock ?
  * in my tests it doesn't :-(
  */
-global.Vue = Vue
 global.Translator = Translator
 global.hasPermission = hasPermission
 global.lscache = lscache
 global.dplan = dplan
 
-// Add plugins to Vue instance
-Vue.use(DPVueCorePlugin)
 
-Vue.directive('tooltip', VTooltip)
+// Vue.directive('tooltip', VTooltip)
 
 // Register components that are used globally
-Vue.component('DpObscure', DpObscure)
-Vue.component('DpMultiselect', DpMultiselect)
+const components = {
+  DpObscure,
+  DpMultiselect
+}
+
+const globalPlugins = {
+  DPVueCorePlugin
+}
 
 const shallowMountWithGlobalMocks = (component, options) => {
   return shallowMount(
     component,
     {
-      localVue: Vue,
-      mocks: Object.assign(globalMocks, options.mocks),
-      propsData: Object.assign({}, options.propsData),
-      computed: Object.assign({}, options.computed),
-      store: options.store,
-      methods: Object.assign({}, options.methods),
-      stubs: Object.assign({}, options.stubs),
-      slots: Object.assign({}, options.slots)
+      components: Object.assign(components, options.components),
+      directives: Object.assign({ tooltip: VTooltip }, options.directives),
+      props: Object.assign({}, options.props),
+      slots: Object.assign({}, options.slots),
+      global: {
+        computed: Object.assign({}, options.computed),
+        plugins: Object.assign(globalPlugins, options.plugins),
+        mocks: Object.assign(globalMocks, options.mocks),
+        stubs: Object.assign({}, options.stubs)
+      }
     })
 }
 

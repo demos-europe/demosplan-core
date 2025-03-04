@@ -10,7 +10,6 @@
 import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 const LayersStore = {
-
   namespaced: true,
 
   name: 'Layers',

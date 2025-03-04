@@ -16,7 +16,7 @@ describe('DpClaim', () => {
     const localVue = createLocalVue()
 
     const wrapper = shallowMountWithGlobalMocks(DpClaim, {
-      propsData: {
+      props: {
         assignedOrganisation: 'Orga des Assingnee',
         assignedName: 'Aktueller Benutzer',
         assignedId: '',

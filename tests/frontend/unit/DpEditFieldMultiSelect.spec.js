@@ -47,7 +47,7 @@ describe('DpEditFieldMultiSelect', () => {
 
   it('should load assessmentBase', () => {
     const instance = shallowMount(DpEditFieldMultiSelect, {
-      propsData: {
+      props: {
         entityId: 'entId',
         fieldKey: 'aaa',
         options: [],

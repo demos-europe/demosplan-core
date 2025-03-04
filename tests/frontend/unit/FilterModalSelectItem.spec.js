@@ -25,7 +25,7 @@ describe('FilterModalSelectItem', () => {
 
     wrapper = shallowMountWithGlobalMocks(FilterModalSelectItem, {
       store,
-      propsData: {
+      props: {
         appliedFilterOptions: [],
         filterGroup: {},
         filterItem: {

@@ -47,7 +47,7 @@ describe('DpPublicLayerList', () => {
 
   it('has the correct props', () => {
     const wrapper = shallowMount(DpPublicLayerList, {
-      propsData: {
+      props: {
         layers: [],
         unfolded: false,
         layerType: 'overlay',

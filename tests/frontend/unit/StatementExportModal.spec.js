@@ -19,7 +19,7 @@ describe('StatementExportModal', () => {
 
   beforeEach(() => {
     wrapper = shallowMountWithGlobalMocks(StatementExportModal, {
-      propsData: {
+      props: {
         isSingleStatementExport: false
       },
       stubs: {

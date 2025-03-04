@@ -114,7 +114,7 @@ export default {
     },
 
     layers () {
-      return this.elementListForLayerSidebar(this.group.id, this.layerType, true)
+      return this.$store.getters.elementListForLayerSidebar(this.group.id, this.layerType, true)
     },
 
     ...mapGetters('Layers', ['rootId', 'element', 'elementListForLayerSidebar'])

@@ -18,7 +18,7 @@ describe('NewTagForm', () => {
     const localVue = createLocalVue()
     wrapper = shallowMountWithGlobalMocks(NewTagForm, {
       localVue,
-      propsData: {
+      props: {
         tagCategories: [
           {
             id: 1,

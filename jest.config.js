@@ -42,9 +42,12 @@ module.exports = {
   modulePaths: [
     '<rootDir>'
   ],
+  testEnvironmentOptions: {
+    customExportConditions: ["node", "node-addons"],
+  },
   transform: {
     '^.+\\.js$': '<rootDir>/node_modules/babel-jest',
-    '.*\\.(vue)$': '<rootDir>/node_modules/@vue/vue2-jest'
+    '.*\\.(vue)$': '<rootDir>/node_modules/@vue/vue3-jest'
   },
   transformIgnorePatterns: [
     '/node_modules/demosplan-ui'
@@ -63,10 +66,10 @@ module.exports = {
     ]
   ],
   globals: {
-    '@vue/vue2-jest': {
-      babelConfig: {
-        plugins: ['dynamic-import-node']
-      }
+    '@vue/vue3-jest': {
+      // babelConfig: {
+      //   plugins: ['dynamic-import-node']
+      // }
     }
   }
 }

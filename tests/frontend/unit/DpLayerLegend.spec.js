@@ -25,7 +25,7 @@ describe('DpLayerLegend', () => {
 
     wrapper = shallowMountWithGlobalMocks(DpLayerLegend, {
       store,
-      propsData: {
+      props: {
         layersWithLegendFiles: [],
         planPdf: {},
         procedureId: '123'
