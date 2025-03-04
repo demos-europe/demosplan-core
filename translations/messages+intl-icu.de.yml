@@ -4260,44 +4260,44 @@ zoomwindow: "Zoom-Fenster"
 keinezuordnung: "Keine Zuordnung"
 report.add.element: |
     Eine Planungsdokumentenkategorie wurde hinzugefügt:<br>
-    Titel: {title}<br>
-    Text: {text}<br>
+    Titel: "{title}"<br>
+    Text: "{text}"<br>
     Kategorie: {category}<br>
     Planungsdokument als Datei: {fileName}<br>
     Veröffentlicht: {enabled}<br>
 report.update.element: |
     Eine Planungsdokumentenkategorie wurde geändert zu:<br>
-    Titel: {title}<br>
-    Text: {text}<br>
+    Titel: "{title}"<br>
+    Text: "{text}"<br>
     Kategorie: {category}<br>
     Planungsdokument als Datei: {fileName}<br>
     Veröffentlicht: {enabled}<br>
 report.delete.element: "Das Planungsdokumentenkategorie {title} wurde gelöscht."
 report.add.paragraph: |
     Eine Kapitel wurde hinzugefügt:<br>
-    Titel: {title}<br>
-    Text: {text}<br>
+    Titel: "{title}"<br>
+    Text: "{text}"<br>
     Kategorie: {category}<br>
     Sichtbar: {visible}<br>
 report.update.paragraph: |
     Eine Kapitel wurde geändert zu:<br>
-    Titel: {title}<br>
-    Text: {text}<br>
+    Titel: "{title}"<br>
+    Text: "{text}"<br>
     Kategorie: {category}<br>
     Sichtbar: {visible}<br>
 report.delete.paragraph: "Das Kapitel {title} wurde gelöscht."
 report.add.singleDocument: |
     Eine Planungsdokument wurde hinzugefügt:<br>
-    Titel: {title}<br>
-    Text: {text}<br>
+    Titel: "{title}"<br>
+    Text: "{text}"<br>
     Kategorie: {category}<br>
     Datei: {fileName}<br>
     Sichtbar: {visible}<br>
     Stellungnahme möglich: {statement_enabled}<br>
 report.update.singleDocument: |
     Eine Planungsdokument wurde geändert zu:<br>
-    Titel: {title}<br>
-    Text: {text}<br>
+    Titel: "{title}"<br>
+    Text: "{text}"<br>
     Kategorie: {category}<br>
     Datei: {fileName}<br>
     Sichtbar: {visible}<br>

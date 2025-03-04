@@ -852,16 +852,25 @@ class ReportMessageConverter
         ]);
     }
 
+
+    private function shortenText(string $text, int $length = 50): string
+    {
+        if ('' === $text) {
+            return '';
+        }
+
+        return substr($text, 0, $length).'...';
+    }
+
     private function createUpdateElementMessage(array $reportEntryMessage): string
     {
         return $this->translator->trans('report.update.element', [
             'title' => $reportEntryMessage['elementTitle'],
-            'text' => substr($reportEntryMessage['elementText'], 0, 25).'...',
+            'text' => $this->shortenText($reportEntryMessage['elementText']),
             'category' => $reportEntryMessage['elementCategory'],
             'fileName' => $reportEntryMessage['fileName'],
-            'enabled' => $reportEntryMessage['enabled'] ? $this->translator->trans(
-                'yes'
-            ) : $this->translator->trans('no'),
+            'enabled' =>
+                $reportEntryMessage['enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
         ]);
     }
 
@@ -869,11 +878,10 @@ class ReportMessageConverter
     {
         return $this->translator->trans('report.add.paragraph', [
             'title' => $reportEntryMessage['paragraphTitle'],
-            'text' => substr($reportEntryMessage['paragraphText'], 0, 25).'...',
+            'text' => $this->shortenText($reportEntryMessage['paragraphText']),
             'category' => $this->translator->trans($reportEntryMessage['paragraphCategory']),
-            'visible' => $reportEntryMessage['visible'] ? $this->translator->trans(
-                'yes'
-            ) : $this->translator->trans('no'),
+            'visible' =>
+                $reportEntryMessage['visible'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
         ]);
     }
 
@@ -881,11 +889,10 @@ class ReportMessageConverter
     {
         return $this->translator->trans('report.update.paragraph', [
             'title' => $reportEntryMessage['paragraphTitle'],
-            'text' => substr($reportEntryMessage['paragraphText'], 0, 25).'...',
+            'text' => $this->shortenText($reportEntryMessage['paragraphText']),
             'category' => $this->translator->trans($reportEntryMessage['paragraphCategory']),
-            'visible' => $reportEntryMessage['visible'] ? $this->translator->trans(
-                'yes'
-            ) : $this->translator->trans('no'),
+            'visible' =>
+                $reportEntryMessage['visible'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
         ]);
     }
 
@@ -893,15 +900,13 @@ class ReportMessageConverter
     {
         return $this->translator->trans('report.add.singleDocument', [
             'title' => $reportEntryMessage['documentTitle'],
-            'text' => substr($reportEntryMessage['documentText'], 0, 25).'...',
+            'text' => $this->shortenText($reportEntryMessage['documentText']),
             'category' => $this->translator->trans($reportEntryMessage['documentCategory']),
             'fileName' => $reportEntryMessage['relatedFile'],
-            'visible' => $reportEntryMessage['visible'] ? $this->translator->trans(
-                'yes'
-            ) : $this->translator->trans('no'),
-            'statement_enabled' => $reportEntryMessage['statement_enabled'] ? $this->translator->trans(
-                'yes'
-            ) : $this->translator->trans('no'),
+            'visible' =>
+                $reportEntryMessage['visible'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
+            'statement_enabled' =>
+                $reportEntryMessage['statement_enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
         ]);
     }
 
@@ -909,15 +914,13 @@ class ReportMessageConverter
     {
         return $this->translator->trans('report.update.singleDocument', [
             'title' => $reportEntryMessage['documentTitle'],
-            'text' => substr($reportEntryMessage['documentText'], 0, 25).'...',
+            'text' => $this->shortenText($reportEntryMessage['documentText']),
             'category' => $this->translator->trans($reportEntryMessage['documentCategory']),
             'fileName' => $reportEntryMessage['relatedFile'],
-            'visible' => $reportEntryMessage['visible'] ? $this->translator->trans(
-                'yes'
-            ) : $this->translator->trans('no'),
-            'statement_enabled' => $reportEntryMessage['statement_enabled'] ? $this->translator->trans(
-                'yes'
-            ) : $this->translator->trans('no'),
+            'visible' =>
+                $reportEntryMessage['visible'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
+            'statement_enabled' =>
+                $reportEntryMessage['statement_enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
         ]);
     }
 
