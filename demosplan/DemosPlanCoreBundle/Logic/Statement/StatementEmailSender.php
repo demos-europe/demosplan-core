@@ -106,7 +106,20 @@ class StatementEmailSender extends CoreService
 
                 if (!$user->hasAnyOfRoles([Role::GUEST, Role::CITIZEN])) {
                     $successMessageTranslationParams['sent_to'] = 'institution_only';
-                    $this->sendEmailToInstitution($user, $statement, $subject, $ccEmailAddresses, $emailVariables, $attachments, $attachmentNames);
+                    // Mail an Beteiligungs-E-Mail-Adresse
+                    // Die Rollen brauchen keine Mail an ihre Organisation
+                    $recipients = $this->detectInstitutionRecipientEmailAddress($user);
+
+                    $this->sendFinalStatementEmail(
+                        $statement,
+                        $subject,
+                        $ccEmailAddresses,
+                        $emailVariables,
+                        $attachments,
+                        $attachmentNames,
+                        $recipients
+                    );
+
                 }
 
 
@@ -147,25 +160,6 @@ class StatementEmailSender extends CoreService
 
         $this->messageBag->add('confirm', 'confirm.statement.final.sent', $successMessageTranslationParams);
         $this->messageBag->add('confirm', 'confirm.statement.final.sent.emailCC');
-    }
-
-
-    private function sendEmailToInstitution($user, $statement, $subject, $emailcc, $vars, $attachments, $attachmentNames) {
-        // Mail an Beteiligungs-E-Mail-Adresse
-        // Die Rollen brauchen keine Mail an ihre Organisation
-
-
-        $recipients = $this->detectInstitutionRecipientEmailAddress($user);
-
-        $this->sendFinalStatementEmail(
-            $statement,
-            $subject,
-            $emailcc,
-            $vars,
-            $attachments,
-            $attachmentNames,
-            $recipients
-        );
     }
 
     private function detectInstitutionRecipientEmailAddress($user): array {
