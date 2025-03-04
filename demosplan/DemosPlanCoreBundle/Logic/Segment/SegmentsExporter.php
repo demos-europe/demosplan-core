@@ -175,7 +175,6 @@ class SegmentsExporter
             );
 
             $this->addSegmentCell($submitDateRow, '', $this->styles['statementInfoEmptyCell']);
-            $this->addSegmentCell($submitDateRow, '', $this->styles['statementInfoEmptyCell']);
             $submittedAt = $this->translator->trans('statement.date.submitted').': '.$statement->getSubmitDateString();
             $this->addSegmentCell($submitDateRow, $submittedAt, $this->styles['statementInfoTextCell']);
         }
@@ -189,7 +188,6 @@ class SegmentsExporter
         );
 
         $this->addSegmentCell($textRow, '', $this->styles['statementInfoEmptyCell']);
-        $this->addSegmentCell($textRow, '', $this->styles['statementInfoEmptyCell']);
         $externIdText = $this->translator->trans('segments.export.statement.extern.id', ['externId' => $statement->getExternId()]);
         $this->addSegmentCell($textRow, $externIdText, $this->styles['statementInfoTextCell']);
 
@@ -202,7 +200,6 @@ class SegmentsExporter
                 $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
             );
 
-            $this->addSegmentCell($internIdRow, '', $this->styles['statementInfoEmptyCell']);
             $this->addSegmentCell($internIdRow, '', $this->styles['statementInfoEmptyCell']);
             $internIdText = $this->translator->trans('segments.export.statement.intern.id', ['internId' => $statement->getInternId()]);
             $this->addSegmentCell($internIdRow, $internIdText, $this->styles['statementInfoTextCell']);
