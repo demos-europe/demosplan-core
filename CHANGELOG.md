@@ -5,14 +5,18 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v2.27.0 (2025-03-25)
+
+### Features
 - Add the possibility to export synopsis without personal data.
+
+### Further changes
+- Migrate to Vue 3
 
 ## v2.26.0 (2025-02-25)
 - Allow flag on external links to indicate this URL should only be shown for user(roles) with a specific permission
 - Extend safelist for purge css to include all plyr classes
-
-### Further changes
-- Migrate to Vue 3
 
 ### Features
 - Institution tag management: Add search field and filters to institution list
