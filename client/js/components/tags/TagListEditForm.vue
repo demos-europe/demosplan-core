@@ -1,4 +1,3 @@
-
 <template>
   <div class="flex items-center">
     <dp-input
@@ -122,7 +121,7 @@ export default {
     }
   },
 
-  data() {
+  data () {
     return {
       unsavedItem: {
         title: ''

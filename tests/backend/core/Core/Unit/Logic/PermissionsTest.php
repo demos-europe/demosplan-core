@@ -310,7 +310,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_meta_house_number_export',
                     'field_procedure_name',
                     'field_statement_feedback',
-                    'field_statement_phase',
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [

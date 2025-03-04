@@ -202,7 +202,8 @@ export default {
 
       if (!isConfirmed) return
 
-      const deleteResults = await Promise.allSettled( /* ensures all deletions attempt to execute, even if one fails. Each deletion resolves to { status: 'fulfilled' | 'rejected', value | reason } */
+      /* Ensures all deletions attempt to execute, even if one fails. Each deletion resolves to { status: 'fulfilled' | 'rejected', value | reason } */
+      const deleteResults = await Promise.allSettled(
         ids.map(async id => {
           try {
             await this.deleteAdministratableUser(id)

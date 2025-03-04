@@ -5,6 +5,9 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Add the possibility to export synopsis without personal data.
+
+## v2.26.0 (2025-02-25)
 - Allow flag on external links to indicate this URL should only be shown for user(roles) with a specific permission
 - Extend safelist for purge css to include all plyr classes
 
@@ -22,6 +25,7 @@
 - Rework Tags-Lists: Now works with APi2.0 and is extendable by addons.
 - Enable the DELETE method for the AdministratableUser resource type
 - TagsList: trigger an update request only when the title is modified
+- DpCreateTag: Ensure the new tag retains its relationship to the Topic after creation
 
 
 ## 2.20.0
