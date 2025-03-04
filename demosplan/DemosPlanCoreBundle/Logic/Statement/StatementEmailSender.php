@@ -76,6 +76,7 @@ class StatementEmailSender extends CoreService
                     $attachmentNames,
                     $recipientEmailAddress
                 );
+                $ccEmailAddresses = [];
             } else {
                 /** @var User $user */
                 $user = $this->userService->getSingleUser($statement->getUId());
@@ -90,6 +91,7 @@ class StatementEmailSender extends CoreService
                         $attachmentNames,
                         $recipientEmailAddress
                     );
+                    $ccEmailAddresses = [];
                 }
 
                 $recipientEmailAddress = $this->determineRecipientEmailAddressInstitutionCoordinator($statement, $user, $successMessageTranslationParams);
@@ -104,6 +106,7 @@ class StatementEmailSender extends CoreService
                         $attachmentNames,
                         $recipientEmailAddress
                     );
+                    $ccEmailAddresses = [];
                 }
             }
 
