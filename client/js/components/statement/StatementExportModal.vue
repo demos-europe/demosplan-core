@@ -41,11 +41,21 @@
             :checked="active === key"
             @change="active = key" />
           <dp-checkbox
+            v-if="active !== 'xlsx_normal'"
+            id="censoredCheckbox"
+            v-model="isCensored"
+            :label="{
+              text: Translator.trans('export.anonymous'),
+              hint: Translator.trans('export.anonymous.hint')
+            }" />
+          <dp-checkbox
+            v-if="active !== 'xlsx_normal'"
+            id="obscureCheckbox"
             v-model="isObscure"
             :label="{
-              text: Translator.trans('export.docx.obscured')
-            }"
-          />
+              text: Translator.trans('export.docx.obscured'),
+              hint: Translator.trans('export.docx.obscured.hint')
+            }" />
         </div>
       </fieldset>
 
@@ -180,23 +190,11 @@ export default {
           hint: Translator.trans('export.xlsx.hint'),
           exportPath: 'dplan_statement_xls_export',
           dataCy: 'exportModal:export:xlsx'
-        },
-        docx_censored: {
-          label: 'export.docx.censored',
-          hint: '',
-          exportPath: 'dplan_statement_segments_export',
-          dataCy: 'exportModal:export:docx',
-          censor: true
-        },
-        zip_censored: {
-          label: 'export.zip.censored',
-          hint: '',
-          exportPath: 'dplan_statement_segments_export_packaged',
-          dataCy: 'exportModal:export:zip',
-          censor: true
         }
       },
       fileName: '',
+      isCensored: false,
+      isObscure: false,
       singleStatementExportPath: 'dplan_segments_export' /** Used in the statements detail page */
     }
   },
@@ -252,17 +250,22 @@ export default {
         }
       })
 
-      let exportPath = this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath
-      if (this.isObscure) {
-        exportPath += '_obscure'
-      }
+      console.log('Export parameters:', {
+        route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
+        docxHeaders: ['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored'].includes(this.active) ? columnTitles : null,
+        fileNameTemplate: this.fileName || null,
+        shouldConfirm,
+        censorParameter: this.exportTypes[this.active].censor || false,
+        obscureParameter: this.isObscure
+      })
 
       this.$emit('export', {
         route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
         docxHeaders: ['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored'].includes(this.active) ? columnTitles : null,
         fileNameTemplate: this.fileName || null,
         shouldConfirm,
-        censorParameter: this.exportTypes[this.active].censor || false
+        censorParameter: this.isCensored,
+        obscureParameter: this.isObscure
       })
       this.closeModal()
     },
