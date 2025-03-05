@@ -59,6 +59,25 @@
         </div>
       </fieldset>
 
+      <fieldset v-if="isSingleStatementExport">
+        <div class="flex mt-1 mb-5">
+          <dp-checkbox
+            id="censoredCheckbox"
+            v-model="isCensored"
+            :label="{
+              text: Translator.trans('export.anonymous'),
+              hint: Translator.trans('export.anonymous.hint')
+            }" />
+          <dp-checkbox
+            id="obscureCheckbox"
+            v-model="isObscure"
+            :label="{
+              text: Translator.trans('export.docx.obscured'),
+              hint: Translator.trans('export.docx.obscured.hint')
+            }" />
+        </div>
+      </fieldset>
+
       <fieldset v-if="['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored', 'docx_obscured', 'zip_obscured'].includes(this.active)">
         <legend
           id="docxColumnTitles"
@@ -255,7 +274,7 @@ export default {
         docxHeaders: ['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored'].includes(this.active) ? columnTitles : null,
         fileNameTemplate: this.fileName || null,
         shouldConfirm,
-        censorParameter: this.exportTypes[this.active].censor || false,
+        censorParameter: this.isCensored,
         obscureParameter: this.isObscure
       })
 
