@@ -233,7 +233,7 @@ class PrepareReportFromProcedureService extends CoreService
 
         if (0 !== strcmp($sourceProcedureSettings->getPlanPDF(), $destinationProcedureSettings->getPlanPDF())
         || (0 !== strcmp($sourceProcedureSettings->getPlanDrawPDF(), $destinationProcedureSettings->getPlanDrawPDF()))) {
-            $report = $this->reportEntryFactory->createPlanChangeCreateEntry(
+            $report = $this->reportEntryFactory->createPlanDrawEntry(
                 $destinationProcedure->getId(),
                 $sourceProcedureSettings->getPlanPDF(),
                 $destinationProcedureSettings->getPlanPDF(),

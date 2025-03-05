@@ -36,7 +36,10 @@ class PlanDrawReportEntryFactory extends AbstractReportEntryFactory
         return $entry;
     }
 
-    public function createPlanChangeCreateEntry(
+    /**
+     * @throws JsonException
+     */
+    public function createPlanDrawEntry(
         string $procedureId,
         string $oldPlanPDF,
         string $newPlanPDF,

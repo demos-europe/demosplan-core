@@ -4272,7 +4272,8 @@ report.update.element: |
     Kategorie: {category}<br>
     Planungsdokument als Datei: {fileName}<br>
     Veröffentlicht: {enabled}<br>
-report.delete.element: "Das Planungsdokumentenkategorie {title} wurde gelöscht."
+report.delete.element: |
+    Das Planungsdokumentenkategorie "{title}" wurde gelöscht.
 report.add.paragraph: |
     Eine Kapitel wurde hinzugefügt:<br>
     Titel: "{title}"<br>
@@ -4285,7 +4286,8 @@ report.update.paragraph: |
     Text: "{text}"<br>
     Kategorie: {category}<br>
     Sichtbar: {visible}<br>
-report.delete.paragraph: "Das Kapitel {title} wurde gelöscht."
+report.delete.paragraph: |
+    Das Kapitel "{title}" wurde gelöscht.
 report.add.singleDocument: |
     Eine Planungsdokument wurde hinzugefügt:<br>
     Titel: "{title}"<br>
@@ -4300,4 +4302,17 @@ report.update.singleDocument: |
     Datei: {fileName}<br>
     Sichtbar: {visible}<br>
     Stellungnahme möglich: {statement_enabled}<br>
-report.delete.singleDocument: "Das Planungsdokument {title} wurde gelöscht."
+report.delete.singleDocument:  |
+    Das Planungsdokument "{title}" wurde gelöscht.
+report.create.planDrawingFile: |
+    Die Planzeichnung "{fileName}" wurde hinzugefügt.
+report.delete.planDrawingFile: |
+    Die Planzeichnung "{fileName}" wurde gelöscht.
+report.update.planDrawingFile: |
+    Die Planzeichnung wurde geändert von "{oldFileName}" zu "{newFileName}".
+report.create.planDrawingExplanation: |
+    Die Planzeichenerklärung "{fileName}" wurde hinzugefügt.
+report.delete.planDrawingExplanation: |
+    "Die Planzeichenerklärung "{fileName}" wurde gelöscht."
+report.update.planDrawingExplanation: |
+    Die Planzeichenerklärung wurde geändert von "{oldFileName}" zu "{newFileName}".

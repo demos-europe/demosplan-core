@@ -916,26 +916,57 @@ class ReportMessageConverter
         ]);
     }
 
-    private function createChangePlanDrawMessage($reportEntryMessage): string
+    private function createChangePlanDrawMessage(array $reportEntryMessage): string
     {
-        $planDrawMessage = $this->translator->trans('report.change.headLine');
+        $planDrawMessage = '';
 
         if (array_key_exists('planDrawFile', $reportEntryMessage)) {
-            $planDrawMessage .= $this->translator->trans('report.change.planDrawingFile', [
-            'oldPlanDrawFile' => $reportEntryMessage['planDrawFile']['old'],
-            'newPlanDrawFile' => $reportEntryMessage['planDrawFile']['new']]
-            );
+
+            if ('' === $reportEntryMessage['planDrawFile']['old'] && '' !== $reportEntryMessage['planDrawFile']['new']) {
+                $planDrawMessage .= $this->translator->trans('report.create.planDrawingFile', [
+                        'fileName' => $this->getFileName($reportEntryMessage['planDrawFile']['new']),
+                    ]
+                );
+            } elseif ('' !== $reportEntryMessage['planDrawFile']['old'] && '' === $reportEntryMessage['planDrawFile']['new']) {
+                $planDrawMessage .= $this->translator->trans('report.delete.planDrawingFile', [
+                        'fileName' => $this->getFileName($reportEntryMessage['planDrawFile']['old']),
+                    ]
+                );
+            } else {
+                $planDrawMessage .= $this->translator->trans('report.update.planDrawingFile', [
+                        'oldFileName' => $this->getFileName($reportEntryMessage['planDrawFile']['old']),
+                        'newFileName' => $this->getFileName($reportEntryMessage['planDrawFile']['new']),
+                    ]
+                );
+            }
         }
 
         if (array_key_exists('planDrawingExplanation', $reportEntryMessage)) {
-            $planDrawMessage .= $this->translator->trans('report.change.planDrawingExplanation', [
-                'oldPlanDrawingExplanation' => $reportEntryMessage['planDrawingExplanation']['old'],
-                'newPlanDrawingExplanation' => $reportEntryMessage['planDrawingExplanation']['new']
-                ]
-            );
+            if ('' === $reportEntryMessage['planDrawFile']['old'] && '' !== $reportEntryMessage['planDrawFile']['new']) {
+                $planDrawMessage .= $this->translator->trans('report.delete.planDrawingExplanation', [
+                        'fileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['new']),
+                    ]
+                );
+            } elseif ('' !== $reportEntryMessage['planDrawFile']['old'] && '' === $reportEntryMessage['planDrawFile']['new']) {
+                $planDrawMessage .= $this->translator->trans('report.delete.planDrawingExplanation', [
+                        'fileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['old']),
+                    ]
+                );
+            } else {
+                $planDrawMessage .= $this->translator->trans('report.update.planDrawingExplanation', [
+                        'oldFileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['old']),
+                        'newFileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['new']),
+                    ]
+                );
+            }
         }
 
         return $planDrawMessage;
+    }
+
+    private function getFileName($fileString): string
+    {
+        return explode(':', $fileString)[0];
     }
 
     private function createDeleteElementMessage($title): string
