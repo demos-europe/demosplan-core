@@ -25,13 +25,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 
 class ElementReportEntryFactory extends AbstractReportEntryFactory
 {
-    public function __construct(
-        CurrentUserInterface $currentUserProvider,
-        CustomerService $currentCustomerProvider,
-    ) {
-        parent::__construct($currentUserProvider, $currentCustomerProvider);
-    }
-
     /**
      * @throws JsonException
      */
