@@ -18,28 +18,32 @@
     <addon-wrapper
       :addon-props="{ tag: nodeElement }"
       hook-name="tag.edit.form" />
-    <div class="flex-0 text-center w-8">
-      <template v-if="isInEditState !== nodeElement.id">
-        <button
-          v-if="nodeElement.type !== 'Tag'"
-          :aria-label="Translator.trans('item.edit')"
-          class="btn--blank o-link--default"
-          :data-cy="`tags:edit${type}`"
-          @click="editItem">
-          <dp-icon
-            aria-hidden="true"
-            icon="edit" />
-        </button>
-        <a
-          v-else
-          :aria-label="Translator.trans('item.edit')"
-          class="btn--blank o-link--default"
-          :data-cy="`tags:edit${type}`"
-          :href="Routing.generate('DemosPlan_statement_administration_tag', { tag: nodeElement.id, procedure: procedureId })">
-          <dp-icon
-            aria-hidden="true"
-            icon="edit" />
-        </a>
+    <div class="flex-0 justify-center w-8 flex">
+      <div
+        v-if="isInEditState !== nodeElement.id"
+        class="flex">
+        <div v-if="nodeElement.type !== 'Tag'">
+          <button
+            :aria-label="Translator.trans('item.edit')"
+            class="btn--blank o-link--default"
+            :data-cy="`tags:edit${type}`"
+            @click="editItem">
+            <dp-icon
+              aria-hidden="true"
+              icon="edit" />
+          </button>
+        </div>
+        <div v-else>
+          <a
+            :aria-label="Translator.trans('item.edit')"
+            class="btn--blank o-link--default"
+            :data-cy="`tags:edit${type}`"
+            :href="Routing.generate('DemosPlan_statement_administration_tag', { tag: nodeElement.id, procedure: procedureId })">
+            <dp-icon
+              aria-hidden="true"
+              icon="edit" />
+          </a>
+        </div>
         <button
           :aria-label="Translator.trans('delete')"
           class="btn--blank o-link--default"
@@ -49,8 +53,8 @@
             aria-hidden="true"
             icon="delete" />
         </button>
-      </template>
-      <template v-else>
+      </div>
+      <div v-else class="flex">
         <button
           :aria-label="Translator.trans('save')"
           class="btn--blank o-link--default u-mr-0_25"
@@ -69,7 +73,7 @@
             aria-hidden="true"
             icon="xmark" />
         </button>
-      </template>
+      </div>
     </div>
   </div>
 </template>
