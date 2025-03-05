@@ -678,13 +678,16 @@ export default {
 
     save () {
       const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
-      const rel = this.updateRelationships()
+      const { assignee, place } = this.updateRelationships()
 
       const payload = {
         data: {
           id: this.segment.id,
           type: 'StatementSegment',
-          relationships: { assignee: rel.assignee, place: rel.place }
+          relationships: {
+            assignee,
+            place
+          }
         }
       }
 
@@ -877,7 +880,6 @@ export default {
     },
 
     updateSegment (key, val) {
-      console.log('updateSegment', key, val)
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
       this.setSegment({ ...updated, id: this.segment.id })
     }
