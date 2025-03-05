@@ -144,6 +144,10 @@ class ReportMessageConverter
                 if (ReportEntry::CATEGORY_DELETE === $category) {
                     $message = $this->createDeleteSingleDocumentMessage($reportEntryMessage['documentTitle']);
                 }
+            } elseif (ReportEntry::GROUP_PLAN_DRAW === $group) { // Planzeichnung
+                if (ReportEntry::CATEGORY_CHANGE === $category) {
+                    $message = $this->createChangePlanDrawMessage($reportEntryMessage);
+                }
             }
         } catch (Exception $e) {
             $this->logger->warning('Exception when converting protocol message', [$e]);
@@ -910,6 +914,28 @@ class ReportMessageConverter
             'statement_enabled' =>
                 $reportEntryMessage['statement_enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
         ]);
+    }
+
+    private function createChangePlanDrawMessage($reportEntryMessage): string
+    {
+        $planDrawMessage = $this->translator->trans('report.change.headLine');
+
+        if (array_key_exists('planDrawFile', $reportEntryMessage)) {
+            $planDrawMessage .= $this->translator->trans('report.change.planDrawingFile', [
+            'oldPlanDrawFile' => $reportEntryMessage['planDrawFile']['old'],
+            'newPlanDrawFile' => $reportEntryMessage['planDrawFile']['new']]
+            );
+        }
+
+        if (array_key_exists('planDrawingExplanation', $reportEntryMessage)) {
+            $planDrawMessage .= $this->translator->trans('report.change.planDrawingExplanation', [
+                'oldPlanDrawingExplanation' => $reportEntryMessage['planDrawingExplanation']['old'],
+                'newPlanDrawingExplanation' => $reportEntryMessage['planDrawingExplanation']['new']
+                ]
+            );
+        }
+
+        return $planDrawMessage;
     }
 
     private function createDeleteElementMessage($title): string
