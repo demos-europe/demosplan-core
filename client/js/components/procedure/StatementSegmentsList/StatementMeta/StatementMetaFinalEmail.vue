@@ -16,24 +16,29 @@ All rights reserved
     </legend>
     <dp-inline-notification
       v-if="explanationNoSendingEmail"
+      class="mb-3"
       :message="explanationNoSendingEmail"
       type="info" />
     <template v-else>
       <dp-inline-notification
         v-if="finalEmailOnlyToVoters"
+        class="mb-3"
         :message="Translator.trans('explanation.statement.final.sent.only.voters')"
         type="info" />
       <dp-inline-notification
         v-if="statement.attributes.sentAssessment"
+        class="mb-3"
         :message="Translator.trans('confirm.statement.final.sent.date', { date: formattedSentAssessmentDate })"
         type="info" />
       <dp-inline-notification
         v-else
+        class="mb-3"
         :message="Translator.trans('confirm.statement.final.not.sent')"
         type="info" />
       <dp-input
         v-if="hasPermission('field_organisation_email2_cc')"
         id="email2"
+        class="mb-2"
         :label="{
           text: Translator.trans('email.recipient')
         }"
@@ -42,6 +47,7 @@ All rights reserved
       <dp-input
         v-if="ccEmail2"
         id="email2cc"
+        class="mb-2"
         :label="{
           text: Translator.trans('recipients.additional')
         }"
@@ -50,6 +56,7 @@ All rights reserved
       <dp-input
         id="emailCC"
         v-model="emailsCC"
+        class="mb-2"
         :disabled="!editable"
         :label="{
           text: Translator.trans('email.cc'),
@@ -58,6 +65,7 @@ All rights reserved
       <dp-input
         id="emailSubject"
         v-model="emailSubject"
+        class="mb-2"
         :disabled="!editable"
         :label="{
           text: Translator.trans('subject')
@@ -158,10 +166,8 @@ export default {
 
     email2InputValue () {
       if (this.statement.attributes.publicStatement === 'external') {
-
         return Translator.trans('explanation.statement.final.citizen.email.hidden')
       } else {
-
         return this.email2
       }
     },
