@@ -1661,42 +1661,42 @@ feature_procedure_report_elements:
     description: 'Enables ''elements'' section in protocol (report).'
     expose: true
     label: 'Show the elements procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_report_final_mails:
     description: 'Enables ''final mail'' section in protocol (report).'
     expose: true
     label: 'Show the final mail procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_report_general:
     description: 'Enables ''general'' section in protocol (report).'
     expose: true
     label: 'Show the general procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_report_invitations:
     description: 'Enables ''invitations'' section in protocol (report).'
     expose: true
     label: 'Show the invitations procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_report_drawings:
     description: 'Enables ''drawings'' section in protocol (report).'
     expose: true
     label: 'Show the drawings procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_report_paragraphs:
     description: 'Enables ''paragraphs'' section in protocol (report).'
     expose: true
     label: 'Show the paragraphs procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_report_public_phase:
     description: 'Enables ''public phase'' section in protocol (report).'
     expose: true
     label: 'Show the public phase procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_report_register_invitations:
     description: 'Enables ''register invitations'' section in protocol (report).'
     expose: true
     label: 'Show the register invitations procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_report_single_documents:
     description: 'Enables ''single documents'' section in protocol (report).'
     expose: true
@@ -1706,7 +1706,7 @@ feature_procedure_report_statements:
     description: 'Enables ''statements'' section in protocol (report).'
     expose: true
     label: 'Show the statement procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_require_location:
     description: 'Require location of procedure on the map.'
     expose: true
