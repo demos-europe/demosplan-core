@@ -91,6 +91,10 @@ export default {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
       }
+    },
+
+    resetText () {
+      this.text = this.initText
     }
   }
 }

@@ -63,6 +63,7 @@ All rights reserved
           text: Translator.trans('subject')
         }" />
       <detail-view-final-email-body
+        ref="emailBody"
         class="u-mb-0_5"
         data-cy="statementDetail:emailBodyText"
         :init-text="emailDefaultText"
@@ -74,6 +75,7 @@ All rights reserved
       <dp-upload-files
         v-if="editable"
         id="uploadEmailAttachments"
+        ref="uploadEmailAttachments"
         allowed-file-types="all"
         :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
@@ -206,10 +208,20 @@ export default {
       this.setFinalEmailOnlyToVoters()
       this.setStatementUser()
       this.setStatementUserOrga()
+      this.setDefaultEmailSubject()
     },
 
     removeAttachment (file) {
       this.emailAttachments = this.emailAttachments.filter(attachment => attachment.fileId !== file.fileId)
+    },
+
+    resetEmailData () {
+      this.emailAttachments = []
+      this.setEmailDefaultText()
+      this.emailsCC = ''
+      this.setDefaultEmailSubject()
+      this.$refs.emailBody.resetText()
+      this.$refs.uploadEmailAttachments.clearFilesList()
     },
 
     sendFinalEmail () {
@@ -223,12 +235,19 @@ export default {
       }
       dpRpc('statement.email.sender', params, this.procedure.id)
         .then(checkResponse)
+        .then(() => {
+          this.resetEmailData()
+        })
     },
 
     setCCEmail2 () {
       if (this.statementUserOrga) {
         this.ccEmail2 = this.statementUserOrga.attributes.ccEmail2
       }
+    },
+
+    setDefaultEmailSubject () {
+      this.emailSubject = Translator.trans('statement.final.email.subject', { procedureName: this.procedure.name })
     },
 
     setEmail2 () {
