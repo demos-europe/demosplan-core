@@ -54,7 +54,9 @@
             icon="delete" />
         </button>
       </div>
-      <div v-else class="flex">
+      <div
+        v-else
+        class="flex">
         <button
           :aria-label="Translator.trans('save')"
           class="btn--blank o-link--default u-mr-0_25"
