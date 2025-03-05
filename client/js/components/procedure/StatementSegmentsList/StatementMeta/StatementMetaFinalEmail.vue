@@ -231,19 +231,30 @@ export default {
     },
 
     sendFinalEmail () {
-      const formattedAttachments = this.formatAttachments()
-      const params = {
-        statementId: this.statement.id,
-        subject: this.emailSubject,
-        body: this.emailBodyText,
-        sendEmailCC: this.emailsCC,
-        emailAttachments: formattedAttachments
+      let sentToTransKey = ''
+      if (!this.statement.attributes.isSubmittedByCitizen) {
+        sentToTransKey = 'check.mail.result.institutions'
+      } else if (hasPermission('feature_statements_vote') && this.statement.relationships?.votes) {
+        sentToTransKey = 'check.mail.result.citizenAndVoters'
+      } else {
+        sentToTransKey = 'check.mail.result.citizen'
       }
-      dpRpc('statement.email.sender', params, this.procedure.id)
-        .then(checkResponse)
-        .then(() => {
-          this.resetEmailData()
-        })
+
+      if (dpconfirm(Translator.trans('check.mail.result', { sentTo: Translator.trans(sentToTransKey) }))) {
+        const formattedAttachments = this.formatAttachments()
+        const params = {
+          statementId: this.statement.id,
+          subject: this.emailSubject,
+          body: this.emailBodyText,
+          sendEmailCC: this.emailsCC,
+          emailAttachments: formattedAttachments
+        }
+        dpRpc('statement.email.sender', params, this.procedure.id)
+          .then(checkResponse)
+          .then(() => {
+            this.resetEmailData()
+          })
+      }
     },
 
     setCCEmail2 () {
