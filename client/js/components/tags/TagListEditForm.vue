@@ -20,28 +20,26 @@
       hook-name="tag.edit.form" />
     <div class="flex-0 text-center w-8">
       <template v-if="isInEditState !== nodeElement.id">
-        <template v-if="nodeElement.type !== 'Tag'">
-          <button
-            :aria-label="Translator.trans('item.edit')"
-            class="btn--blank o-link--default"
-            :data-cy="`tags:edit${type}`"
-            @click="editItem">
-            <dp-icon
-              aria-hidden="true"
-              icon="edit" />
-          </button>
-        </template>
-        <template v-else>
-          <a
-            :aria-label="Translator.trans('item.edit')"
-            class="btn--blank o-link--default"
-            :data-cy="`tags:edit${type}`"
-            :href="Routing.generate('DemosPlan_statement_administration_tag', { tag: nodeElement.id, procedure: procedureId })">
-            <dp-icon
-              aria-hidden="true"
-              icon="edit" />
-          </a>
-        </template>
+        <button
+          v-if="nodeElement.type !== 'Tag'"
+          :aria-label="Translator.trans('item.edit')"
+          class="btn--blank o-link--default"
+          :data-cy="`tags:edit${type}`"
+          @click="editItem">
+          <dp-icon
+            aria-hidden="true"
+            icon="edit" />
+        </button>
+        <a
+          v-else
+          :aria-label="Translator.trans('item.edit')"
+          class="btn--blank o-link--default"
+          :data-cy="`tags:edit${type}`"
+          :href="Routing.generate('DemosPlan_statement_administration_tag', { tag: nodeElement.id, procedure: procedureId })">
+          <dp-icon
+            aria-hidden="true"
+            icon="edit" />
+        </a>
         <button
           :aria-label="Translator.trans('delete')"
           class="btn--blank o-link--default"
