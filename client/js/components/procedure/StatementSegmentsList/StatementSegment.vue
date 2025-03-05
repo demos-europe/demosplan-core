@@ -499,7 +499,7 @@ export default {
       if (this.segment?.relationships?.assignee?.data?.id && this.segment.relationships.assignee.data.id !== '') {
         const assignee = this.assignableUserItems[this.segment.relationships.assignee.data.id]
         const name = `${assignee.attributes.firstname} ${assignee.attributes.lastname}`
-        const orga = assignee ? assignee.rel('orga') : ''
+        const orga = assignee?.rel ? assignee.rel('orga') : ''
 
         return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
       } else {
@@ -901,28 +901,46 @@ export default {
   },
 
   mounted () {
-    this.fetchPlaces({
-      fields: {
-        Place: [
-          'description',
-          'name',
-          'solved',
-          'sortIndex'
-        ].join()
-      },
-      sort: 'sortIndex'
-    })
-      .then(() => {
-        if (this.segment.relationships.place) {
-          this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
-        }
+    if (!this.$store.state.Place.loading || this.places.length === 0) {
+      this.fetchPlaces({
+        fields: {
+          Place: [
+            'description',
+            'name',
+            'solved',
+            'sortIndex'
+          ].join()
+        },
+        sort: 'sortIndex'
       })
-    this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
-      .then(() => {
-        if (this.segment.relationships?.assignee?.data?.id) {
-          this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
-        }
+        .then(() => {
+          if (this.segment.relationships.place) {
+            this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+          }
+        })
+    } else if (this.segment.relationships.place) {
+      this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+    }
+
+    if (!this.$store.state.AssignableUser.loading || this.assignableUsers.length === 0) {
+      this.fetchAssignableUsers({
+        fields: {
+          AssignableUser: [
+            'firstname',
+            'lastname'
+          ].join()
+        },
+        include: 'department',
+        sort: 'lastname'
       })
+        .then(() => {
+          if (this.segment.relationships?.assignee?.data?.id) {
+            this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+          }
+        })
+    } else if (this.segment.relationships?.assignee?.data?.id) {
+      this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+    }
 
     loadAddonComponents('segment.recommendationModal.tab')
       .then(response => {
