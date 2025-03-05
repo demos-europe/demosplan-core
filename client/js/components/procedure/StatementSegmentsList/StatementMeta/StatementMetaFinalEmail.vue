@@ -25,7 +25,7 @@ All rights reserved
         type="info" />
       <dp-inline-notification
         v-if="statement.attributes.sentAssessment"
-        :message="Translator.trans('confirm.statement.final.sent.date', { date: formatedSentAssessmentDate })"
+        :message="Translator.trans('confirm.statement.final.sent.date', { date: formattedSentAssessmentDate })"
         type="info" />
       <dp-inline-notification
         v-else
@@ -174,13 +174,10 @@ export default {
       }
 
       if (!sendFinalEmail) {
-
         return Translator.trans('explanation.no.statement.final.sent')
       } else if (this.statement.attributes.publicStatement === 'external' && !authorFeedback) {
-
         return Translator.trans('explanation.no.statement.final.no.feedback.wanted')
       } else if (!this.email2) {
-
         return Translator.trans('explanation.no.statement.final.no.email')
       }
 
@@ -198,7 +195,7 @@ export default {
     },
 
     formatSentAssessmentDate () {
-      this.formattedSentAssessmentDate = formatDate(this.statement.attributes.sentAssessmentDate, 'DD.MM.YYYY HH:mm')
+      this.formattedSentAssessmentDate = formatDate(this.statement.attributes.sentAssessmentDate, 'DD.MM.YYYY | HH:mm')
     },
 
     initValues () {
