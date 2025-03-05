@@ -942,12 +942,12 @@ class ReportMessageConverter
         }
 
         if (array_key_exists('planDrawingExplanation', $reportEntryMessage)) {
-            if ('' === $reportEntryMessage['planDrawFile']['old'] && '' !== $reportEntryMessage['planDrawFile']['new']) {
+            if ('' === $reportEntryMessage['planDrawingExplanation']['old'] && '' !== $reportEntryMessage['planDrawingExplanation']['new']) {
                 $planDrawMessage .= $this->translator->trans('report.delete.planDrawingExplanation', [
                         'fileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['new']),
                     ]
                 );
-            } elseif ('' !== $reportEntryMessage['planDrawFile']['old'] && '' === $reportEntryMessage['planDrawFile']['new']) {
+            } elseif ('' !== $reportEntryMessage['planDrawingExplanation']['old'] && '' === $reportEntryMessage['planDrawingExplanation']['new']) {
                 $planDrawMessage .= $this->translator->trans('report.delete.planDrawingExplanation', [
                         'fileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['old']),
                     ]
