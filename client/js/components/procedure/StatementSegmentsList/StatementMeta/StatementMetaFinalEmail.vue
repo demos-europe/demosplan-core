@@ -66,8 +66,8 @@ All rights reserved
         class="u-mb-0_5"
         data-cy="statementDetail:emailBodyText"
         :init-text="emailDefaultText"
-        :procedure-id="procedure.id">
-      </detail-view-final-email-body>
+        :procedure-id="procedure.id"
+        @emailBody:input="updateEmailBodyText" />
       <dp-label
         :text="Translator.trans('documents.attach')"
         for="uploadEmailAttachments" />
@@ -81,7 +81,9 @@ All rights reserved
         :max-number-of-files="20"
         name="uploadEmailAttachments"
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '10GB' }) }"
-        :tus-endpoint="dplan.paths.tusEndpoint" />
+        :tus-endpoint="dplan.paths.tusEndpoint"
+        @file-remove="removeAttachment"
+        @upload-success="addAttachment" />
       <div class="text-right">
         <dp-button
           data-cy="statementMeta:sendFinalEmail"
@@ -94,7 +96,7 @@ All rights reserved
   </fieldset>
 </template>
 <script>
-import { DpButton, DpInlineNotification, DpInput, DpLabel, DpUploadFiles, formatDate } from '@demos-europe/demosplan-ui'
+import { checkResponse, DpButton, DpInlineNotification, DpInput, DpLabel, dpRpc, DpUploadFiles, formatDate } from '@demos-europe/demosplan-ui'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
 import { mapState } from 'vuex'
 export default {
@@ -131,6 +133,8 @@ export default {
     return {
       ccEmail2: '',
       email2: '',
+      emailAttachments: [],
+      emailBodyText: '',
       emailDefaultText: '',
       emailSubject: Translator.trans('statement.final.email.subject', { procedureName: this.procedure.name }),
       emailsCC: '',
@@ -185,6 +189,14 @@ export default {
   },
 
   methods: {
+    addAttachment (file) {
+      this.emailAttachments.push(file)
+    },
+
+    formatAttachments () {
+      return this.emailAttachments.map(file => `${file.name}:${file.fileId}:${file.type}`)
+    },
+
     formatSentAssessmentDate () {
       this.formattedSentAssessmentDate = formatDate(this.statement.attributes.sentAssessmentDate, 'DD.MM.YYYY HH:mm')
     },
@@ -199,8 +211,21 @@ export default {
       this.setStatementUserOrga()
     },
 
-    sendFinalEmail () {
+    removeAttachment (file) {
+      this.emailAttachments = this.emailAttachments.filter(attachment => attachment.fileId !== file.fileId)
+    },
 
+    sendFinalEmail () {
+      const formattedAttachments = this.formatAttachments()
+      const params = {
+        statementId: this.statement.id,
+        subject: this.emailSubject,
+        body: this.emailBodyText,
+        sendEmailCC: this.emailsCC,
+        emailAttachments: formattedAttachments
+      }
+      dpRpc('statement.email.sender', params, this.procedure.id)
+        .then(checkResponse)
     },
 
     setCCEmail2 () {
@@ -245,6 +270,10 @@ export default {
       if (this.statementUser?.relationships?.orga?.data?.id) {
         this.statementUserOrga = this.orgas[this.statementUser.relationships.orga.data.id]
       }
+    },
+
+    updateEmailBodyText (text) {
+      this.emailBodyText = text
     }
   },
 

@@ -12,7 +12,8 @@
     :data-cy="dataCy"
     hidden-input="r_send_body"
     :toolbar-items="toolbarItems"
-    v-model="text">
+    v-model="text"
+    @input="$emit('emailBody:input', $event)">
     <template v-slot:modal="modalProps">
       <dp-boiler-plate-modal
         v-if="hasPermission('area_admin_boilerplates')"
