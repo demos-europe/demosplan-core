@@ -70,6 +70,22 @@ class ExportReportService extends CoreService
             $report['statements'] = $this->getStatementsReportInfo($procedureId);
         }
 
+        if ($permissions->hasPermission('feature_procedure_report_elements')) {
+            $report['elements'] = $this->getElementsReportInfo($procedureId);
+        }
+
+        if ($permissions->hasPermission('feature_procedure_report_single_documents')) {
+            $report['singleDocuments'] = $this->getSingleDocumentsReportInfo($procedureId);
+        }
+
+        if ($permissions->hasPermission('feature_procedure_report_paragraphs')) {
+            $report['paragraphs'] = $this->getParagraphsReportInfo($procedureId);
+        }
+
+        if ($permissions->hasPermission('feature_procedure_report_drawings')) {
+            $report['mapDrawings'] = $this->getMapDrawingsReportInfo($procedureId);
+        }
+
         return $report;
     }
 
@@ -308,5 +324,51 @@ class ExportReportService extends CoreService
     private function getMessageParts(ReportEntry $reportEntry)
     {
         return explode('<br />', $this->messageConverter->convertMessage($reportEntry));
+    }
+
+    private function getElementsReportInfo(string $procedureId): array
+    {
+        return [
+            'titleMessage'  => 'plandocument.and.drawing.categories',
+            'reportEntries' => $this->reportRepository->getProcedureReportEntries(
+                $procedureId, [ReportEntry::GROUP_ELEMENT],
+                [ReportEntry::CATEGORY_ADD, ReportEntry::CATEGORY_UPDATE, ReportEntry::CATEGORY_DELETE]
+            ),
+        ];
+    }
+
+    private function getSingleDocumentsReportInfo(string $procedureId): array
+    {
+        return [
+            'titleMessage'  => 'plandocument.and.drawing.documents',
+            'reportEntries' => $this->reportRepository->getProcedureReportEntries(
+                $procedureId, [ReportEntry::GROUP_SINGLE_DOCUMENT],
+                [ReportEntry::CATEGORY_ADD, ReportEntry::CATEGORY_UPDATE, ReportEntry::CATEGORY_DELETE]
+            ),
+        ];
+    }
+
+    private function getParagraphsReportInfo(string $procedureId): array
+    {
+        return [
+            'titleMessage'  => 'plandocument.and.drawing.paragraphs',
+            'reportEntries' => $this->reportRepository->getProcedureReportEntries(
+                $procedureId,
+                [ReportEntry::GROUP_PARAGRAPH],
+                [ReportEntry::CATEGORY_ADD, ReportEntry::CATEGORY_UPDATE, ReportEntry::CATEGORY_DELETE]
+            ),
+        ];
+    }
+
+    private function getMapDrawingsReportInfo(string $procedureId)
+    {
+        return [
+            'titleMessage'  => 'plandocument.and.drawing.drawings',
+            'reportEntries' => $this->reportRepository->getProcedureReportEntries(
+                $procedureId,
+                [ReportEntry::GROUP_PLAN_DRAW],
+                [ReportEntry::CATEGORY_CHANGE]
+            ),
+        ];
     }
 }
