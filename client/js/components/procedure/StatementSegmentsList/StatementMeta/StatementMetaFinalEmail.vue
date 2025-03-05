@@ -39,6 +39,7 @@ All rights reserved
         v-if="hasPermission('field_organisation_email2_cc')"
         id="email2"
         class="mb-2"
+        data-cy="statementFinalEmail:email2"
         :label="{
           text: Translator.trans('email.recipient')
         }"
@@ -48,6 +49,7 @@ All rights reserved
         v-if="ccEmail2"
         id="email2cc"
         class="mb-2"
+        data-cy="statementFinalEmail:email2cc"
         :label="{
           text: Translator.trans('recipients.additional')
         }"
@@ -57,6 +59,7 @@ All rights reserved
         id="emailCC"
         v-model="emailsCC"
         class="mb-2"
+        data-cy="statementFinalEmail:emailCC"
         :disabled="!editable"
         :label="{
           text: Translator.trans('email.cc'),
@@ -66,6 +69,7 @@ All rights reserved
         id="emailSubject"
         v-model="emailSubject"
         class="mb-2"
+        data-cy="statementFinalEmail:emailSubject"
         :disabled="!editable"
         :label="{
           text: Translator.trans('subject')
