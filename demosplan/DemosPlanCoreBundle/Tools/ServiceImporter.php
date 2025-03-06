@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Tools;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ServiceImporterException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
@@ -262,7 +263,11 @@ class ServiceImporter implements ServiceImporterInterface
             // Persistiere Paragraph Zeile
             try {
                 $response = $this->paragraphRepository->add($p);
-                $report = $this->reportEntryFactory->createParagraphCreateEntry($response);
+                $report = $this->reportEntryFactory->createParagraphEntry(
+                    $response,
+                    ReportEntry::CATEGORY_ADD,
+                    $paragraph->getCreateDate()->getTimestamp()
+                );
                 $this->reportService->persistAndFlushReportEntries($report);
 
                 $this->getLogger()->debug('Paragraph:'.serialize($response));
