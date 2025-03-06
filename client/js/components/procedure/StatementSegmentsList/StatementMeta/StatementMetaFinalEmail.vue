@@ -275,6 +275,7 @@ export default {
 
     setEmail2 () {
       const { publicStatement, initialOrganisationEmail } = this.statement.attributes
+      
       if ((this.statementUserOrga && publicStatement === 'external' && initialOrganisationEmail) ||
         (!this.statementUserOrga && initialOrganisationEmail)) {
         this.email2 = initialOrganisationEmail
