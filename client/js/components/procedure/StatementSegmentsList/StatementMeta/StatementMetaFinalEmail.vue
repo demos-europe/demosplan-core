@@ -191,9 +191,13 @@ export default {
 
       if (!sendFinalEmail) {
         return Translator.trans('explanation.no.statement.final.sent')
-      } else if (publicStatement === 'external' && !authorFeedback) {
+      }
+
+      if (sendFinalEmail && publicStatement === 'external' && !authorFeedback) {
         return Translator.trans('explanation.no.statement.final.no.feedback.wanted')
-      } else if (!this.email2) {
+      }
+
+      if (!this.email2 && publicStatement !== 'external' && authorFeedback) {
         return Translator.trans('explanation.no.statement.final.no.email')
       }
 
