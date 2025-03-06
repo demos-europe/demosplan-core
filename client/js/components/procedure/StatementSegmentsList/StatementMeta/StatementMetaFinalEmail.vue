@@ -180,6 +180,7 @@ export default {
     explanationNoSendingEmail () {
       const { authorFeedback, feedback, publicStatement } = this.statement.attributes
       let sendFinalEmail = false
+      
       if ((feedback === 'snailmail' && this.statement.relationships.votes.data) ||
           feedback === 'email') {
         sendFinalEmail = true
