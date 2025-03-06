@@ -232,6 +232,7 @@ export default {
   mixins: [tableScrollbarMixin],
 
   props: {
+    // Array when empty, object when not empty
     initialFilter: {
       type: [Object, Array],
       default: () => ({})
@@ -246,6 +247,7 @@ export default {
 
   data () {
     return {
+      // Array when empty, object when not empty
       appliedFilterQuery: this.initialFilter,
       currentlySelectedColumns: [],
       currentlySelectedFilterCategories: [],
@@ -360,8 +362,9 @@ export default {
 
     queryIds () {
       let ids = []
+      const isFilterApplied = !Array.isArray(this.appliedFilterQuery) && Object.keys(this.appliedFilterQuery).length > 0
 
-      if (!Array.isArray(this.appliedFilterQuery) && Object.values(this.appliedFilterQuery).length > 0) {
+      if (isFilterApplied) {
         ids = Object.values(this.appliedFilterQuery).map(el => el.condition.value)
       }
 
@@ -704,10 +707,12 @@ export default {
      * }
      */
     setAppliedFilterQuery (filter) {
-      const selectedFilterOptions = Object.values(filter).filter(el => el.condition)
+      // Remove groups from filter
+      const selectedFilterOptions = Object.fromEntries(Object.entries(filter).filter(([_key, value]) => value.condition))
       const isReset = Object.keys(selectedFilterOptions).length === 0
+      const isAppliedFilterQueryEmpty = Array.isArray(this.appliedFilterQuery) && this.appliedFilterQuery.length === 0
 
-      if (!isReset && !Array.isArray(this.appliedFilterQuery) && Object.keys(this.appliedFilterQuery).length === 0) {
+      if (!isReset && isAppliedFilterQueryEmpty) {
         Object.values(selectedFilterOptions).forEach(option => {
           this.$set(this.appliedFilterQuery, option.condition.value, option)
         })
