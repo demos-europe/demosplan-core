@@ -1703,6 +1703,7 @@ file.pdf.explanation: "Sie können an dieser Stelle Dateien des Typs PDF hochlad
 file.delete: "Datei löschen"
 file.download: "Anhang herunterladen"
 file.reference: "Dateibezug"
+file.related: "dokumentbezogen"
 file.upload.docx: ".docx hochladen"
 file.upload.pdf: ".pdf hochladen"
 file.upload.pdf.zip.mp4: ".pdf, .zip oder .mp4 hochladen"
@@ -2446,6 +2447,7 @@ paragraph.notavailable: "Kapitelbezug nicht verfügbar"
 paragraph.parent.none: "oberste Ebene"
 paragraph.parent: "Übergeordnetes Kapitel"
 paragraph.reference: "Kapitelbezug"
+paragraph.related: "kapitelbezogen"
 paragraph.file: "Planungsdokument als Datei"
 paragraph.text: "Text des Kapitels"
 paragraph.title: "Absatz"
@@ -2971,7 +2973,7 @@ report.update.element: |
     Berechtigte Institutionen: {organisations} <br />
     Veröffentlicht: {enabled}
 report.delete.element: |
-    Die Kategorie "{title}" wurde gelöscht.
+    Die Kategorie ({elementCategory}) "{title}" wurde gelöscht.
 report.add.paragraph: |
     Eine Kapitel wurde hinzugefügt:<br />
     Titel: "{title}"<br />

@@ -122,7 +122,7 @@ class ReportMessageConverter
                     $message = $this->createUpdateElementMessage($reportEntryMessage);
                 }
                 if (ReportEntry::CATEGORY_DELETE === $category) {
-                    $message = $this->createDeleteElementMessage($reportEntryMessage['elementTitle']);
+                    $message = $this->createDeleteElementMessage($reportEntryMessage['elementTitle'], $reportEntryMessage['elementCategory']);
                 }
             } elseif (ReportEntry::GROUP_PARAGRAPH === $group) { // Kapitel
                 if (ReportEntry::CATEGORY_ADD === $category) {
@@ -847,10 +847,14 @@ class ReportMessageConverter
     {
         $restrictedToOrganisations = '' === $reportEntryMessage['organisations'] ? $this->translator->trans('unrestricted') : $reportEntryMessage['organisations'];
 
+        $elementCategory = $reportEntryMessage['elementCategory'];
+        $translationKey = 'file' === $elementCategory ? 'file.related' : 'paragraph.related';
+        $elementCategory = $this->translator->trans($translationKey);
+
         return $this->translator->trans('report.add.element', [
             'title' => $reportEntryMessage['elementTitle'],
             'text' => substr($reportEntryMessage['elementText'], 0, 25).'...',
-            'category' => $this->translator->trans($reportEntryMessage['elementCategory']),
+            'category' => $this->translator->trans($elementCategory),
             'fileName' => $reportEntryMessage['fileName'],
             'organisations' => $restrictedToOrganisations,
             'enabled' => $reportEntryMessage['enabled'] ? $this->translator->trans(
@@ -863,10 +867,14 @@ class ReportMessageConverter
     {
         $restrictedToOrganisations = '' === $reportEntryMessage['organisations'] ? $this->translator->trans('unrestricted') : $reportEntryMessage['organisations'];
 
+        $elementCategory = $reportEntryMessage['elementCategory'];
+        $translationKey = 'file' === $elementCategory ? 'file.related' : 'paragraph.related';
+        $elementCategory = $this->translator->trans($translationKey);
+
         return $this->translator->trans('report.update.element', [
             'title' => $reportEntryMessage['elementTitle'],
             'text' => $this->shortenText($reportEntryMessage['elementText']),
-            'category' => $this->translator->trans($reportEntryMessage['elementCategory']),
+            'category' => $this->translator->trans($elementCategory),
             'fileName' => $reportEntryMessage['fileName'],
             'organisations' => $restrictedToOrganisations,
             'enabled' =>
@@ -979,9 +987,12 @@ class ReportMessageConverter
         return explode(':', $fileString)[0];
     }
 
-    private function createDeleteElementMessage($title): string
+    private function createDeleteElementMessage(string $title, string $elementCategory): string
     {
-        return $this->translator->trans('report.delete.element', ['title' => $title]);
+        $translationKey = 'file' === $elementCategory ? 'file.related' : 'paragraph.related';
+        $elementCategory = $this->translator->trans($translationKey);
+
+        return $this->translator->trans('report.delete.element', ['elementCategory' => $elementCategory, 'title' => $title]);
     }
 
     private function createDeleteParagraphMessage($title): string
