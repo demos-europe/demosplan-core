@@ -380,6 +380,10 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             })->filterable();
         }
 
+        if ($this->currentUser->hasPermission('field_statement_priority')) {
+            $configBuilder->priority->setReadableByPath();
+        }
+
         if ($this->currentUser->hasPermission('feature_similar_statement_submitter')) {
             $configBuilder->similarStatementSubmitters->readable();
         }
