@@ -237,6 +237,7 @@ export default {
 
     sendFinalEmail () {
       let sentToTransKey = ''
+      
       if (!this.statement.attributes.isSubmittedByCitizen) {
         sentToTransKey = 'check.mail.result.institutions'
       } else if (hasPermission('feature_statements_vote') && this.statement.relationships?.votes) {
