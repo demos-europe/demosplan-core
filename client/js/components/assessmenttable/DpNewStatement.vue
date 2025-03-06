@@ -206,19 +206,19 @@ export default {
     ...mapActions('AssessmentTable', ['applyBaseData']),
 
     addLocationPrompt (data) {
-      if (data.counties.length > 0) {
+      if (data && data.counties && data.counties.length > 0) {
         this.values.counties = data.counties.map(id => this.counties.find(county => county.id === id))
         this.sortSelected('counties')
         this.countiesPromptAdded = true
-      } else if (data.counties.length === 0) {
+      } else if (data && data.counties && data.counties.length === 0) {
         this.values.counties = []
         this.countiesPromptAdded = false
       }
-      if (data.municipalities.length > 0) {
+      if (data && data.municipalities && data.municipalities.length > 0) {
         this.values.municipalities = data.municipalities.map(id => this.municipalities.find(municipality => municipality.id === id))
         this.sortSelected('municipalities')
         this.municipalitiesPromptAdded = true
-      } else if (data.municipalities.length === 0) {
+      } else if (data && data.municipalities && data.municipalities.length === 0) {
         this.values.municipalities = []
         this.municipalitiesPromptAdded = false
       }
