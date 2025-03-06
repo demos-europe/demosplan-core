@@ -257,7 +257,7 @@ export default {
           })
         }
 
-        this.queue.push(deleteAction())
+        this.queue.push(deleteAction)
       }
     }
   }
