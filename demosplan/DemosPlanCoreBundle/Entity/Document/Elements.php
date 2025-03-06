@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -646,24 +647,18 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
         $this->permission = '' === $permission ? null : $permission;
     }
 
-    /**
-     *  If there is no file info in this element, returns an associative array keeping its keys
-     *  ['name','hash', 'size', 'mimeType'] but with empty values.
-     *
-     * @return array<string, string>
-     */
-    public function getFileInfo(): array
+    public function getFileInfo(): FileInfo
     {
-        $fileInfo = ['name' => '', 'hash' => '', 'size' => '', 'mimeType' => ''];
-
         $fileStringParts = explode(':', $this->getFile());
-        if (count($fileStringParts) >= 4) {
-            $fileInfo['name'] = $fileStringParts[0];
-            $fileInfo['hash'] = $fileStringParts[1];
-            $fileInfo['size'] = $fileStringParts[2];
-            $fileInfo['mimeType'] = $fileStringParts[3];
-        }
 
-        return $fileInfo;
+        return  new FileInfo(
+            $fileStringParts[1],
+            $fileStringParts[0],
+            $fileStringParts[2],
+            $fileStringParts[3],
+            'missing',
+            'missing',
+            $this->procedure
+        );
     }
 }

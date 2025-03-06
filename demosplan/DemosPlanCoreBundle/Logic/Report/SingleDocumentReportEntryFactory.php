@@ -47,7 +47,7 @@ class SingleDocumentReportEntryFactory extends AbstractReportEntryFactory
             'documentTitle'     => $singleDocument->getTitle(),
             'documentText'      => $singleDocument->getText(),
             'documentCategory'  => $singleDocument->getCategory(), // eg. file, e_unterlagen, arbeitskreis, informationen,...
-            'relatedFile'       => $singleDocument->getSingleDocumentInfo()['name'],
+            'relatedFile'       => $singleDocument->getFileInfo()->getFileName(),
             'elementCategory'   => $singleDocument->getElement()->getCategory(), // eg map, file, statement, paragraph, ..
             'elementTitle'      => $singleDocument->getElement()->getTitle(), // eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
             'visible'           => $singleDocument->getVisible(),
