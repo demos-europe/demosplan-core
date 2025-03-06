@@ -13,12 +13,15 @@ namespace demosplan\DemosPlanCoreBundle\Tools;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ServiceImporterException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ParagraphReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
@@ -76,6 +79,8 @@ class ServiceImporter implements ServiceImporterInterface
         private readonly PdfCreatorInterface $pdfCreator,
         private readonly RouterInterface $router,
         RpcClient $client,
+        private readonly ParagraphReportEntryFactory $reportEntryFactory,
+        private readonly ReportService $reportService,
     ) {
         $this->client = $client;
         $this->fileService = $fileService;
@@ -257,8 +262,14 @@ class ServiceImporter implements ServiceImporterInterface
             ];
             // Persistiere Paragraph Zeile
             try {
-                $response = $this->paragraphRepository
-                    ->add($p);
+                $response = $this->paragraphRepository->add($p);
+                $report = $this->reportEntryFactory->createParagraphEntry(
+                    $response,
+                    ReportEntry::CATEGORY_ADD,
+                    $paragraph->getCreateDate()->getTimestamp()
+                );
+                $this->reportService->persistAndFlushReportEntries($report);
+
                 $this->getLogger()->debug('Paragraph:'.serialize($response));
 
                 // save paragraph as current one in nesting level

@@ -30,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\PlanDrawReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
@@ -42,9 +43,19 @@ use Webmozart\Assert\Assert;
 
 class PrepareReportFromProcedureService extends CoreService
 {
-    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly ElementsService $elementsService, private readonly GlobalConfigInterface $globalConfig, private readonly MapService $mapService, private readonly ParagraphService $paragraphDocumentService, private readonly PermissionsInterface $permissions, private readonly ReportService $reportService, private readonly ProcedureReportEntryFactory $procedureReportEntryFactory, private readonly StatementReportEntryFactory $statementReportEntryFactory, private readonly TranslatorInterface $translator)
-    {
-    }
+    public function __construct(
+        private readonly CurrentUserInterface $currentUser,
+        private readonly ElementsService $elementsService,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly MapService $mapService,
+        private readonly ParagraphService $paragraphDocumentService,
+        private readonly PermissionsInterface $permissions,
+        private readonly ReportService $reportService,
+        private readonly ProcedureReportEntryFactory $procedureReportEntryFactory,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly TranslatorInterface $translator,
+        private readonly PlanDrawReportEntryFactory $reportEntryFactory,
+    ) {}
 
     /**
      * Add report entry to ensure send mail to unregistered public agency will be logged.
@@ -218,6 +229,18 @@ class PrepareReportFromProcedureService extends CoreService
             $update['newPublicStartDate'] = $destinationProcedure->getPublicParticipationStartDate()->getTimestamp();
             $update['oldPublicEndDate'] = $sourceProcedure->getPublicParticipationEndDate()->getTimestamp();
             $update['newPublicEndDate'] = $destinationProcedure->getPublicParticipationEndDate()->getTimestamp();
+        }
+
+        if (0 !== strcmp($sourceProcedureSettings->getPlanPDF(), $destinationProcedureSettings->getPlanPDF())
+        || (0 !== strcmp($sourceProcedureSettings->getPlanDrawPDF(), $destinationProcedureSettings->getPlanDrawPDF()))) {
+            $report = $this->reportEntryFactory->createPlanDrawEntry(
+                $destinationProcedure->getId(),
+                $sourceProcedureSettings->getPlanPDF(),
+                $destinationProcedureSettings->getPlanPDF(),
+                $sourceProcedureSettings->getPlanDrawPDF(),
+                $destinationProcedureSettings->getPlanDrawPDF()
+            );
+            $this->reportService->persistAndFlushReportEntries($report);
         }
 
         $phaseChangeEntry = $this->createPhaseChangeReportEntryIfChangesOccurred(
