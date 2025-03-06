@@ -120,7 +120,17 @@
       :current-page="paragraphsCurrentPage"
       :total-pages="paragraphsTotalPages"
       :is-loading="paragraphsLoading"
-      @page-change="handlePageChange('paragraphs', $event)" />
+      @page-change="handlePageChange('paragraphs', $event)"/>
+
+    <dp-report-group
+        group="drawings"
+        group-label="plandocument.and.drawing.drawings"
+        content-label="drawing"
+        :items="drawingsItems"
+        :current-page="drawingsCurrentPage"
+        :total-pages="drawingsTotalPages"
+        :is-loading="drawingsLoading"
+        @page-change="handlePageChange('drawings', $event)"/>
   </div>
 </template>
 
@@ -205,6 +215,12 @@ export default {
       paragraphsCurrentPage: 'currentPage',
       paragraphsTotalPages: 'totalPages',
       paragraphsLoading: 'loading'
+    }),
+    ...mapState('report/drawings', {
+      drawingsItems: 'items',
+      drawingsCurrentPage: 'currentPage',
+      drawingsTotalPages: 'totalPages',
+      drawingsLoading: 'loading'
     })
   },
 
@@ -218,7 +234,8 @@ export default {
       listStatements: 'report/statements/list',
       listElements: 'report/elements/list',
       listSingleDocuments: 'report/singleDocuments/list',
-      listParagraphs: 'report/paragraphs/list'
+      listParagraphs: 'report/paragraphs/list',
+      listDrawings: 'report/drawings/list'
     }),
 
     handlePageChange (group, page) {
@@ -248,7 +265,9 @@ export default {
       'statements',
       'elements',
       'single_documents',
-      'paragraphs']
+      'paragraphs',
+      'drawings'
+    ]
       .filter(groupName => {
         /*
          * This returns one of those permissions:
@@ -260,6 +279,7 @@ export default {
          * - feature_procedure_report_elements
          * - feature_procedure_report_single_documents
          * - feature_procedure_report_paragraphs
+         * - feature_procedure_report_drawings
          */
         return hasPermission('feature_procedure_report_' + groupName)
       })
