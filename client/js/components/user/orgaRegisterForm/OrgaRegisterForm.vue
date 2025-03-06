@@ -25,9 +25,10 @@
             :class="prefixClass('font-size-large u-mb')"
             v-text="Translator.trans('register.email')" />
           <fieldset>
-            <dp-form-row :class="prefixClass('u-mb-0_75 space-stack-s')">
+            <div :class="prefixClass('mb-0.5')">
               <dp-input
                 id="r_organame"
+                class="mb-2"
                 data-cy="orga"
                 :label="{
                   bold: false,
@@ -45,7 +46,7 @@
                 name="r_orgaphone"
                 required
                 type="tel" />
-            </dp-form-row>
+            </div>
           </fieldset>
 
           <fieldset>
@@ -87,43 +88,40 @@
           </fieldset>
 
           <fieldset>
-            <dp-form-row :class="prefixClass('u-mb-0_75 u-mt-0_25 space-stack-s')">
-              <legend class="font-size-medium is-label u-mb-0_25 u-mt">
+            <div :class="prefixClass('mb-0.5 mt-1 grid  gap-x-4 gap-y-2')">
+              <legend :class="prefixClass('font-size-medium is-label mb-0 u-mt md:col-span-2')">
                 {{ Translator.trans('organisation.administration') }}
               </legend>
-              <div>
-                <dp-input
-                  id="r_useremail"
-                  data-cy="useremail"
-                  :label="{
-                    bold: false,
-                    text: Translator.trans('email.address')
-                  }"
-                  name="r_useremail"
-                  required
-                  type="email" />
-              </div>
-              <div class="flex">
-                <dp-input
-                  id="r_firstname"
-                  data-cy="user_firstname"
-                  :label="{
-                    bold: false,
-                    text: Translator.trans('name.first')
-                  }"
-                  name="r_firstname"
-                  required />
-                <dp-input
-                  id="r_lastname"
-                  data-cy="user_lastname"
-                  :label="{
-                    bold: false,
-                    text: Translator.trans('name.last')
-                  }"
-                  name="r_lastname"
-                  required />
-              </div>
-            </dp-form-row>
+              <dp-input
+                id="r_useremail"
+                :class="prefixClass('md:col-span-2')"
+                data-cy="useremail"
+                :label="{
+                  bold: false,
+                  text: Translator.trans('email.address')
+                }"
+                name="r_useremail"
+                required
+                type="email" />
+              <dp-input
+                id="r_firstname"
+                data-cy="user_firstname"
+                :label="{
+                  bold: false,
+                  text: Translator.trans('name.first')
+                }"
+                name="r_firstname"
+                required />
+              <dp-input
+                id="r_lastname"
+                data-cy="user_lastname"
+                :label="{
+                  bold: false,
+                  text: Translator.trans('name.last')
+                }"
+                name="r_lastname"
+                required />
+            </div>
           </fieldset>
 
           <dp-checkbox
@@ -181,7 +179,6 @@
 import {
   DpButton,
   DpCheckbox,
-  DpFormRow,
   DpInput,
   prefixClassMixin
 } from '@demos-europe/demosplan-ui'
@@ -192,7 +189,6 @@ export default {
   components: {
     DpButton,
     DpCheckbox,
-    DpFormRow,
     DpInput
   },
 
