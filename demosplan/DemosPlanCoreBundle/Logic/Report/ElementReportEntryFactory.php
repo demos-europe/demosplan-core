@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
 use Carbon\Carbon;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -21,17 +20,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 
 class ElementReportEntryFactory extends AbstractReportEntryFactory
 {
-    public function __construct(
-        CurrentUserInterface $currentUserProvider,
-        CustomerService $currentCustomerProvider,
-    ) {
-        parent::__construct($currentUserProvider, $currentCustomerProvider);
-    }
-
     /**
      * @throws JsonException
      */
@@ -54,7 +45,7 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
             'elementTitle'        => $element->getTitle(),
             'elementText'         => $element->getText(),
             'elementCategory'     => $element->getCategory(), // eg. file, e_unterlagen, arbeitskreis, informationen,...
-            'fileName'            => $element->getFileInfo()['name'], // Planungsdokument als Datei
+            'fileName'            => $element->getFileInfo()->getFileName(), // Planungsdokument als Datei
             'parentCategory'      => $element->getParent()?->getCategory(), // eg map, file, statement, paragraph, ..
             'parentTitle'         => $element->getParent()?->getTitle(), // eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
             'enabled'             => $element->getEnabled(),

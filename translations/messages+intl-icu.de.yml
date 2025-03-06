@@ -2529,9 +2529,10 @@ places.edit.infoProcedureTemplate: "Die Anpassungen werden in die auswählbaren 
 plandocument: "Planungsdokument"
 plandocument.add: "Planungsdokument hinzufügen"
 plandocument.and.drawing: 'Planungsdokumente und Planzeichnung'
-plandocument.and.drawing.documents: "Planungsdokumente und Planzeichnung - Dokumente"
-plandocument.and.drawing.paragraphs: "Planungsdokumente und Planzeichnung - Kapitel"
-plandocument.and.drawing.categories: "Planungsdokumente und Planzeichnung - Kategorien"
+plandocument.and.drawing.categories: "Planungsdokumente - Kategorien"
+plandocument.and.drawing.documents: "Planungsdokumente - Dokumente"
+plandocument.and.drawing.drawings: "Planzeichnung"
+plandocument.and.drawing.paragraphs: "Planungsdokumente - Kapitel"
 plandocument.and.chapter: "Planungsdokument und -kapitel"
 plandocument.edit: "Planungsdokument bearbeiten"
 plandocument.file.attach: "Planungsdokument als Datei anhängen"
@@ -2953,6 +2954,64 @@ remove: "Entfernen"
 remove.from.list: "Aus Liste entfernen"
 rename: "umbenennen"
 replied.to: "Erwidert"
+report.add.element: |
+    Eine Kategorie wurde hinzugefügt:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorie: {category}<br />
+    Planungsdokument als Datei: {fileName}<br />
+    Veröffentlicht: {enabled}
+report.update.element: |
+    Eine Kategorie wurde geändert zu:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorie: {category}<br />
+    Planungsdokument als Datei: {fileName}<br />
+    Veröffentlicht: {enabled}
+report.delete.element: |
+    Die Kategorie "{title}" wurde gelöscht.
+report.add.paragraph: |
+    Eine Kapitel wurde hinzugefügt:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorie: {category}<br />
+    Sichtbar: {visible}
+report.update.paragraph: |
+    Eine Kapitel wurde geändert zu:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorie: {category}<br />
+    Sichtbar: {visible}
+report.delete.paragraph: |
+    Das Kapitel "{title}" wurde gelöscht.
+report.add.singleDocument: |
+    Eine Planungsdokument wurde hinzugefügt:<br />
+    Titel: "{title}"<br />
+    Kategorie: {category}<br />
+    Datei: {fileName}<br />
+    Sichtbar: {visible}<br />
+    Stellungnahme möglich: {statement_enabled}
+report.update.singleDocument: |
+    Eine Planungsdokument wurde geändert zu:<br />
+    Titel: "{title}"<br />
+    Kategorie: {category}<br />
+    Datei: {fileName}<br />
+    Sichtbar: {visible}<br />
+    Stellungnahme möglich: {statement_enabled}
+report.delete.singleDocument:  |
+    Das Planungsdokument "{title}" wurde gelöscht.
+report.create.planDrawingFile: |
+    Die Planzeichnung "{fileName}" wurde hinzugefügt.
+report.delete.planDrawingFile: |
+    Die Planzeichnung "{fileName}" wurde gelöscht.
+report.update.planDrawingFile: |
+    Die Planzeichnung wurde geändert von "{oldFileName}" zu "{newFileName}".
+report.create.planDrawingExplanation: |
+    Die Planzeichenerklärung "{fileName}" wurde hinzugefügt.
+report.delete.planDrawingExplanation: |
+    Die Planzeichenerklärung "{fileName}" wurde gelöscht.
+report.update.planDrawingExplanation: |
+    Die Planzeichenerklärung wurde geändert von "{oldFileName}" zu "{newFileName}".
 request: "Ihre Anfrage"
 requested: "angefragt"
 reset: "Zurücksetzen"
@@ -4261,48 +4320,3 @@ xplanning.notes: "Hinweise zu XPlanung"
 yes: "Ja"
 zoomwindow: "Zoom-Fenster"
 keinezuordnung: "Keine Zuordnung"
-report.add.element: |
-    Eine Planungsdokumentenkategorie wurde hinzugefügt:
-    Titel: {title}
-    Text: {text}
-    Kategorie: {category}
-    Planungsdokument als Datei: {fileName}
-    Veröffentlicht: {enabled}
-report.update.element: |
-    Eine Planungsdokumentenkategorie wurde geändert zu:
-    Titel: {title}
-    Text: {text}
-    Kategorie: {category}
-    Planungsdokument als Datei: {fileName}
-    Veröffentlicht: {enabled}
-report.delete.element: "Das Planungsdokumentenkategorie {title} wurde gelöscht."
-report.add.paragraph: |
-    Eine Kapitel wurde hinzugefügt:
-    Titel: {title}
-    Text: {text}
-    Kategorie: {category}
-    Sichtbar: {visible}
-report.update.paragraph: |
-    Eine Kapitel wurde geändert zu:
-    Titel: {title}
-    Text: {text}
-    Kategorie: {category}
-    Sichtbar: {visible}
-report.delete.paragraph: "Das Kapitel {title} wurde gelöscht."
-report.add.singleDocument: |
-    Eine Planungsdokument wurde hinzugefügt:
-    Titel: {title}
-    Text: {text}
-    Kategorie: {category}
-    Datei: {fileName}
-    Sichtbar: {visible}
-    Stellungnahme möglich: {statement_enabled}
-report.update.singleDocument: |
-    Eine Planungsdokument wurde geändert zu:
-    Titel: {title}
-    Text: {text}
-    Kategorie: {category}
-    Datei: {fileName}
-    Sichtbar: {visible}
-    Stellungnahme möglich: {statement_enabled}
-report.delete.singleDocument: "Das Planungsdokument {title} wurde gelöscht."
