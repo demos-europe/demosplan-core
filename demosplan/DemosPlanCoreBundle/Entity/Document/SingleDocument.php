@@ -474,11 +474,11 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface, Uuid
     {
         $fileStringParts = explode(':', $this->getDocument());
 
-        return  new FileInfo(
-            $fileStringParts[1],
-            $fileStringParts[0],
-            $fileStringParts[2],
-            $fileStringParts[3],
+        return new FileInfo(
+            $fileStringParts[1] ?? '',
+            $fileStringParts[0] ?? '',
+            (int)($fileStringParts[2] ?? ''),
+            $fileStringParts[3] ?? '',
             'missing',
             'missing',
             $this->procedure
