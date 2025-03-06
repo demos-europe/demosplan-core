@@ -2955,21 +2955,21 @@ remove.from.list: "Aus Liste entfernen"
 rename: "umbenennen"
 replied.to: "Erwidert"
 report.add.element: |
-    Eine Planungsdokumentenkategorie wurde hinzugefügt:<br />
+    Eine Kategorie wurde hinzugefügt:<br />
     Titel: "{title}"<br />
     Text: "{text}"<br />
     Kategorie: {category}<br />
     Planungsdokument als Datei: {fileName}<br />
     Veröffentlicht: {enabled}
 report.update.element: |
-    Eine Planungsdokumentenkategorie wurde geändert zu:<br />
+    Eine Kategorie wurde geändert zu:<br />
     Titel: "{title}"<br />
     Text: "{text}"<br />
     Kategorie: {category}<br />
     Planungsdokument als Datei: {fileName}<br />
     Veröffentlicht: {enabled}
 report.delete.element: |
-    Das Planungsdokumentenkategorie "{title}" wurde gelöscht.
+    Die Kategorie "{title}" wurde gelöscht.
 report.add.paragraph: |
     Eine Kapitel wurde hinzugefügt:<br />
     Titel: "{title}"<br />

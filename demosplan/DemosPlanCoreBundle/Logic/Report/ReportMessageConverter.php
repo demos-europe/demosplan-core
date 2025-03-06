@@ -122,7 +122,7 @@ class ReportMessageConverter
                     $message = $this->createUpdateElementMessage($reportEntryMessage);
                 }
                 if (ReportEntry::CATEGORY_DELETE === $category) {
-                    $message = $this->createDeleteElementMessage($reportEntryMessage['title']);
+                    $message = $this->createDeleteElementMessage($reportEntryMessage['elementTitle']);
                 }
             } elseif (ReportEntry::GROUP_PARAGRAPH === $group) { // Kapitel
                 if (ReportEntry::CATEGORY_ADD === $category) {
@@ -905,6 +905,10 @@ class ReportMessageConverter
 
     private function createUpdateSingleDocumentMessage(array $reportEntryMessage): string
     {
+        //todo
+        // add related element?
+        // add ID  for update entries?!
+
         return $this->translator->trans('report.update.singleDocument', [
             'title' => $reportEntryMessage['documentTitle'],
             'category' => $this->translator->trans($reportEntryMessage['documentCategory']),
