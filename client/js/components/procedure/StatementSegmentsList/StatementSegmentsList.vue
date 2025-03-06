@@ -599,7 +599,7 @@ export default {
       }
 
       if (hasPermission('field_send_final_email')) {
-        statementFields.push('feedback', 'initialOrganisationEmail', 'publicStatement', 'sentAssessment', 'sentAssessmentDate', 'user')
+        statementFields.push('authorFeedback', 'feedback', 'initialOrganisationEmail', 'publicStatement', 'sentAssessment', 'sentAssessmentDate', 'user')
       }
 
       const allFields = {

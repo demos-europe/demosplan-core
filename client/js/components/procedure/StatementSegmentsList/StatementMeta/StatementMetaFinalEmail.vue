@@ -177,17 +177,16 @@ export default {
     },
 
     explanationNoSendingEmail () {
+      const { authorFeedback, feedback, publicStatement } = this.statement.attributes
       let sendFinalEmail = false
-      // TO DO set author feedback
-      const authorFeedback = false
-      if ((this.statement.attributes.feedback === 'snailmail' && this.statement.relationships.votes.data) ||
-          this.statement.attributes.feedback === 'email') {
+      if ((feedback === 'snailmail' && this.statement.relationships.votes.data) ||
+          feedback === 'email') {
         sendFinalEmail = true
       }
 
       if (!sendFinalEmail) {
         return Translator.trans('explanation.no.statement.final.sent')
-      } else if (this.statement.attributes.publicStatement === 'external' && !authorFeedback) {
+      } else if (publicStatement === 'external' && !authorFeedback) {
         return Translator.trans('explanation.no.statement.final.no.feedback.wanted')
       } else if (!this.email2) {
         return Translator.trans('explanation.no.statement.final.no.email')
