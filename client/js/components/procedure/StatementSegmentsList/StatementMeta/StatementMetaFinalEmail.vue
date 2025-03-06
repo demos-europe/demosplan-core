@@ -63,7 +63,7 @@ All rights reserved
         :disabled="!editable"
         :label="{
           text: Translator.trans('email.cc'),
-          hint: Translator.trans('explanation.email.cc')
+          hint: editable ? Translator.trans('explanation.email.cc') : ''
         }" />
       <dp-input
         id="emailSubject"
