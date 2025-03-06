@@ -139,7 +139,7 @@
     "symfony/yaml": "5.*.*",
     "wgirhad/geophp": "^3.0",
     "willdurand/geocoder-bundle": "^5.16",
-    "willdurand/js-translation-bundle": "~6.0",
+    "willdurand/js-translation-bundle": "~7.0",
     "wrep/daemonizable-command": "^3.0"
   },
   "require-dev": {
