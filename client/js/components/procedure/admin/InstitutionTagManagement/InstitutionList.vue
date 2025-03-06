@@ -668,6 +668,10 @@ export default {
         })
     },
 
+    resetFilterQueryInLocalStorage () {
+      localStorage.setItem('filterQuery', JSON.stringify({}))
+    },
+
     resetQuery () {
       this.searchTerm = ''
       Object.keys(this.allFilterCategories).forEach((filterCategoryId, idx) => {
@@ -690,6 +694,8 @@ export default {
           }
         }
       })
+
+      this.resetFilterQueryInLocalStorage()
       this.appliedFilterQuery = []
       this.getInstitutionsByPage(1)
     },
