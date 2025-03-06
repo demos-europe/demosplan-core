@@ -132,7 +132,7 @@ class ReportMessageConverter
                     $message = $this->createUpdateParagraphMessage($reportEntryMessage);
                 }
                 if (ReportEntry::CATEGORY_DELETE === $category) {
-                    $message = $this->createDeleteParagraphMessage($reportEntryMessage['title']);
+                    $message = $this->createDeleteParagraphMessage($reportEntryMessage['paragraphTitle']);
                 }
             } elseif (ReportEntry::GROUP_SINGLE_DOCUMENT === $group) { // Planungsdokumente
                 if (ReportEntry::CATEGORY_ADD === $category) {
@@ -845,11 +845,14 @@ class ReportMessageConverter
      */
     private function createAddElementMessage(array $reportEntryMessage): string
     {
+        $restrictedToOrganisations = '' === $reportEntryMessage['organisations'] ? $this->translator->trans('unrestricted') : $reportEntryMessage['organisations'];
+
         return $this->translator->trans('report.add.element', [
             'title' => $reportEntryMessage['elementTitle'],
             'text' => substr($reportEntryMessage['elementText'], 0, 25).'...',
-            'category' => $reportEntryMessage['elementCategory'],
+            'category' => $this->translator->trans($reportEntryMessage['elementCategory']),
             'fileName' => $reportEntryMessage['fileName'],
+            'organisations' => $restrictedToOrganisations,
             'enabled' => $reportEntryMessage['enabled'] ? $this->translator->trans(
                 'yes'
             ) : $this->translator->trans('no'),
@@ -858,11 +861,14 @@ class ReportMessageConverter
 
     private function createUpdateElementMessage(array $reportEntryMessage): string
     {
+        $restrictedToOrganisations = '' === $reportEntryMessage['organisations'] ? $this->translator->trans('unrestricted') : $reportEntryMessage['organisations'];
+
         return $this->translator->trans('report.update.element', [
             'title' => $reportEntryMessage['elementTitle'],
             'text' => $this->shortenText($reportEntryMessage['elementText']),
-            'category' => $reportEntryMessage['elementCategory'],
+            'category' => $this->translator->trans($reportEntryMessage['elementCategory']),
             'fileName' => $reportEntryMessage['fileName'],
+            'organisations' => $restrictedToOrganisations,
             'enabled' =>
                 $reportEntryMessage['enabled'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
         ]);
