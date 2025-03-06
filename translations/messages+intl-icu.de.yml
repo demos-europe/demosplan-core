@@ -2991,14 +2991,12 @@ report.delete.paragraph: |
 report.add.singleDocument: |
     Eine Planungsdokument wurde hinzugefügt:<br />
     Titel: "{title}"<br />
-    Kategorie: {category}<br />
     Datei: {fileName}<br />
     Sichtbar: {visible}<br />
     Stellungnahme möglich: {statement_enabled}
 report.update.singleDocument: |
     Eine Planungsdokument wurde geändert zu:<br />
     Titel: "{title}"<br />
-    Kategorie: {category}<br />
     Datei: {fileName}<br />
     Sichtbar: {visible}<br />
     Stellungnahme möglich: {statement_enabled}
