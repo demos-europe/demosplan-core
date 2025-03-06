@@ -9,10 +9,11 @@
 
 <template>
   <dp-editor
+    v-model="text"
     :data-cy="dataCy"
     hidden-input="r_send_body"
+    :readonly="!editable"
     :toolbar-items="toolbarItems"
-    v-model="text"
     @input="$emit('emailBody:input', $event)">
     <template v-slot:modal="modalProps">
       <dp-boiler-plate-modal
@@ -57,6 +58,12 @@ export default {
       type: String,
       required: false,
       default: 'statementDetailFinalEmailBody'
+    },
+
+    editable: {
+      type: Boolean,
+      required: false,
+      default: true
     },
 
     initText: {

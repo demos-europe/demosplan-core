@@ -78,29 +78,32 @@ All rights reserved
         ref="emailBody"
         class="u-mb-0_5"
         data-cy="statementDetail:emailBodyText"
+        :editable="editable"
         :init-text="emailDefaultText"
         :procedure-id="procedure.id"
         @emailBody:input="updateEmailBodyText" />
-      <dp-label
-        :text="Translator.trans('documents.attach')"
-        for="uploadEmailAttachments" />
-      <dp-upload-files
-        v-if="editable"
-        id="uploadEmailAttachments"
-        ref="uploadEmailAttachments"
-        allowed-file-types="all"
-        :basic-auth="dplan.settings.basicAuth"
-        :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
-        :max-file-size="10 * 1024 * 1024 * 1024/* 2 GiB */"
-        :max-number-of-files="20"
-        name="uploadEmailAttachments"
-        :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '10GB' }) }"
-        :tus-endpoint="dplan.paths.tusEndpoint"
-        @file-remove="removeAttachment"
-        @upload-success="addAttachment" />
+      <template v-if="editable">
+        <dp-label
+          :text="Translator.trans('documents.attach')"
+          for="uploadEmailAttachments" />
+        <dp-upload-files
+          id="uploadEmailAttachments"
+          ref="uploadEmailAttachments"
+          allowed-file-types="all"
+          :basic-auth="dplan.settings.basicAuth"
+          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
+          :max-file-size="10 * 1024 * 1024 * 1024/* 2 GiB */"
+          :max-number-of-files="20"
+          name="uploadEmailAttachments"
+          :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '10GB' }) }"
+          :tus-endpoint="dplan.paths.tusEndpoint"
+          @file-remove="removeAttachment"
+          @upload-success="addAttachment" />
+      </template>
       <div class="text-right">
         <dp-button
           data-cy="statementMeta:sendFinalEmail"
+          :disabled="!editable"
           icon="mail"
           name="sendFinalEmail"
           :text="Translator.trans('send')"
@@ -180,7 +183,7 @@ export default {
     explanationNoSendingEmail () {
       const { authorFeedback, feedback, publicStatement } = this.statement.attributes
       let sendFinalEmail = false
-      
+
       if ((feedback === 'snailmail' && this.statement.relationships.votes.data) ||
           feedback === 'email') {
         sendFinalEmail = true
@@ -237,7 +240,7 @@ export default {
 
     sendFinalEmail () {
       let sentToTransKey = ''
-      
+
       if (!this.statement.attributes.isSubmittedByCitizen) {
         sentToTransKey = 'check.mail.result.institutions'
       } else if (hasPermission('feature_statements_vote') && this.statement.relationships?.votes) {
@@ -275,7 +278,7 @@ export default {
 
     setEmail2 () {
       const { publicStatement, initialOrganisationEmail } = this.statement.attributes
-      
+
       if ((this.statementUserOrga && publicStatement === 'external' && initialOrganisationEmail) ||
         (!this.statementUserOrga && initialOrganisationEmail)) {
         this.email2 = initialOrganisationEmail
