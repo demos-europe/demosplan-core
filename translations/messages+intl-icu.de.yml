@@ -2960,6 +2960,7 @@ report.add.element: |
     Text: "{text}"<br />
     Kategorie: {category}<br />
     Planungsdokument als Datei: {fileName}<br />
+    Berechtigte Institutionen: {organisations} <br />
     Veröffentlicht: {enabled}
 report.update.element: |
     Eine Kategorie wurde geändert zu:<br />
@@ -2967,6 +2968,7 @@ report.update.element: |
     Text: "{text}"<br />
     Kategorie: {category}<br />
     Planungsdokument als Datei: {fileName}<br />
+    Berechtigte Institutionen: {organisations} <br />
     Veröffentlicht: {enabled}
 report.delete.element: |
     Die Kategorie "{title}" wurde gelöscht.
@@ -4011,6 +4013,7 @@ unsaved.changes: "Ungespeicherte Änderungen"
 unselect: "Auswahl aufheben"
 unselect.entity.first: "Aktuelle Auswahl aufheben, um {entity} auszuwählen"
 unpublished.statements.if.participation.ends: "nicht eingereichten Stellungnahmen, wenn die Beteiligung in einem Verfahren endet"
+unrestricted: "Uneingeschränkt"
 update: "Aktualisierung"
 upload: "Hochladen"
 upload.again: "Erneut hochladen"
