@@ -54,8 +54,11 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
         ];
     }
 
-    public function createParagraphEntry(Paragraph $paragraph, $reportCategory, $date = null): ReportEntry
-    {
+    public function createParagraphEntry(
+        Paragraph $paragraph,
+        string $reportCategory,
+        int $date = null
+    ): ReportEntry {
         $data = $this->createMessageData($paragraph);
         $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;
         $reportEntry = $this->createParagraphReportEntry($paragraph->getProcedure()->getId(), $data);

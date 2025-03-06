@@ -55,8 +55,12 @@ class SingleDocumentReportEntryFactory extends AbstractReportEntryFactory
             'procedurePhase'    => $singleDocument->getProcedure()->getPhase(),
         ];
     }
-    public function createSingleDocumentEntry(SingleDocument $singleDocument, $reportCategory, $date = null): ReportEntry
-    {
+
+    public function createSingleDocumentEntry(
+        SingleDocument $singleDocument,
+        string $reportCategory,
+        int $date = null
+    ): ReportEntry {
         $data = $this->createMessageData($singleDocument);
         $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;
         $reportEntry = $this->createSingleDocumentReportEntry($singleDocument->getProcedure()->getId(), $data);

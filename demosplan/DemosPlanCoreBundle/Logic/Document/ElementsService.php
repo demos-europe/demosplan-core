@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\HiddenElementUpdateException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -415,7 +416,9 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         try {
             $this->validateParentsCount($data);
             $element = $this->getElementsRepository()->add($data);
-            $report = $this->reportEntryFactory->createElementCreateEntry($element);
+            $report = $this->reportEntryFactory->createElementEntry(
+                $element, ReportEntry::CATEGORY_ADD, $element->getCreateDate()->getTimestamp()
+            );
             $this->reportService->persistAndFlushReportEntries($report);
 
             return $this->convertElementToArray($element);
@@ -431,7 +434,9 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     public function addEntity(Elements $element): Elements
     {
         $element = $this->getElementsRepository()->updateObject($element);
-        $report = $this->reportEntryFactory->createElementCreateEntry($element);
+        $report = $this->reportEntryFactory->createElementEntry(
+            $element, ReportEntry::CATEGORY_ADD, $element->getCreateDate()->getTimestamp()
+        );
         $this->reportService->persistAndFlushReportEntries($report);
 
         return $element;
@@ -497,7 +502,9 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                     }
 
                     $elementToDelete = $this->getElementObject($elementId);
-                    $report = $this->reportEntryFactory->createElementDeleteEntry($elementToDelete);
+                    $report = $this->reportEntryFactory->createElementEntry(
+                        $elementToDelete, ReportEntry::CATEGORY_DELETE
+                    );
                     $this->getElementsRepository()->delete($elementId);
                     $this->reportService->persistAndFlushReportEntries($report);
                 } catch (Exception $e) {
@@ -549,7 +556,9 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         $element = $repository->update($element['ident'], $element);
 
-        $report = $this->reportEntryFactory->createElementUpdateEntry($element);
+        $report = $this->reportEntryFactory->createElementEntry(
+            $element, ReportEntry::CATEGORY_UPDATE, $element->getModifyDate()->getTimestamp()
+        );
         $this->reportService->persistAndFlushReportEntries($report);
 
         return $this->convertElementToArray($element);
@@ -587,7 +596,9 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         /** @var Elements $element */
         $element = $repository->updateObject($element);
-        $report = $this->reportEntryFactory->createElementUpdateEntry($element);
+        $report = $this->reportEntryFactory->createElementEntry(
+            $element, ReportEntry::CATEGORY_UPDATE, $element->getModifyDate()->getTimestamp()
+        );
         $this->reportService->persistAndFlushReportEntries($report);
 
         return $element;

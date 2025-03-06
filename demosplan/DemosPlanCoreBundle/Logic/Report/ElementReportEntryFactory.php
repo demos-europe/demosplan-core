@@ -54,41 +54,12 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
         ];
     }
 
-    /**
-     * @throws JsonException
-     */
-    public function createElementCreateEntry(Elements $element): ReportEntry
+    public function createElementEntry(Elements $element, string $reportCategory, int $date = null): ReportEntry
     {
         $data = $this->createMessageData($element);
-        $data['date'] = $element->getCreateDate()->getTimestamp();
+        $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;
         $reportEntry = $this->createElementReportEntry($element->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_ADD);
-
-        return $reportEntry;
-    }
-
-    /**
-     * @throws JsonException
-     */
-    public function createElementUpdateEntry(Elements $element): ReportEntry
-    {
-        $data = $this->createMessageData($element);
-        $data['date'] = $element->getModifyDate()->getTimestamp();
-        $reportEntry = $this->createElementReportEntry($element->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_UPDATE);
-
-        return $reportEntry;
-    }
-
-    /**
-     * @throws JsonException
-     */
-    public function createElementDeleteEntry(Elements $element): ReportEntry
-    {
-        $data = $this->createMessageData($element);
-        $data['date'] = Carbon::now()->getTimestamp();
-        $reportEntry = $this->createElementReportEntry($element->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_DELETE);
+        $reportEntry->setCategory($reportCategory);
 
         return $reportEntry;
     }
