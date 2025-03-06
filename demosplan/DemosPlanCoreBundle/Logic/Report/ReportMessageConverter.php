@@ -908,7 +908,6 @@ class ReportMessageConverter
     {
         return $this->translator->trans('report.add.singleDocument', [
             'title' => $reportEntryMessage['documentTitle'],
-            'category' => $this->translator->trans($reportEntryMessage['documentCategory']),
             'fileName' => $reportEntryMessage['relatedFile'],
             'visible' =>
                 $reportEntryMessage['visible'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
@@ -925,7 +924,6 @@ class ReportMessageConverter
 
         return $this->translator->trans('report.update.singleDocument', [
             'title' => $reportEntryMessage['documentTitle'],
-            'category' => $this->translator->trans($reportEntryMessage['documentCategory']),
             'fileName' => $reportEntryMessage['relatedFile'],
             'visible' =>
                 $reportEntryMessage['visible'] ? $this->translator->trans('yes') : $this->translator->trans('no'),
