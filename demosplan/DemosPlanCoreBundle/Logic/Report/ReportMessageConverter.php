@@ -959,7 +959,7 @@ class ReportMessageConverter
 
         if (array_key_exists('planDrawingExplanation', $reportEntryMessage)) {
             if ('' === $reportEntryMessage['planDrawingExplanation']['old'] && '' !== $reportEntryMessage['planDrawingExplanation']['new']) {
-                $planDrawMessage .= $this->translator->trans('report.delete.planDrawingExplanation', [
+                $planDrawMessage .= $this->translator->trans('report.create.planDrawingExplanation', [
                         'fileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['new']),
                     ]
                 );
