@@ -94,6 +94,20 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         return $entry;
     }
 
+    public function createProcedureDeletionEntry(
+        array $data,
+        Procedure $procedure
+    ): ReportEntry {
+        $entry = $this->createReportEntry();
+        $entry->setUser($this->getCurrentUser());
+        $entry->setIdentifier($procedure->getId());
+        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
+        $entry->setCategory(ReportEntry::CATEGORY_DELETE);
+        $entry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
+
+        return $entry;
+    }
+
     public function createPublicParticipationUpdateEntry(Procedure $procedure): ReportEntry
     {
         $data = [

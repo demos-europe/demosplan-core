@@ -925,7 +925,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 }
 
                 try {
-                    $this->updateProcedureWithoutReport($data);
+                    $this->updateProcedure($data);
                     $this->getLogger()->info('Procedure marked as deleted: '.\var_export($procedureId, true));
                     ++$deletionCount;
                 } catch (Exception $e) {
@@ -1040,7 +1040,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
      *
      * @throws Exception
      */
-    public function updateProcedure($data)
+    public function updateProcedure($data, bool $createReports = true)
     {
         try {
             $data['ident'] ??= $data['id'];
@@ -1087,12 +1087,14 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $this->getEsProcedurePersister()->replaceOne($procedure);
             }
 
-            $destinationProcedure = $this->procedureRepository->get($data['ident']);
+            if ($createReports) {
+                $destinationProcedure = $this->procedureRepository->get($data['ident']);
 
-            $this->prepareReportFromProcedureService->createReportEntry(
-                $sourceProcedure,
-                $destinationProcedure,
-            );
+                $this->prepareReportFromProcedureService->createReportEntry(
+                    $sourceProcedure,
+                    $destinationProcedure,
+                );
+            }
 
             // convert procedure to match legacy arraystructure
             return $this->procedureToLegacyConverter->convertToLegacy($procedure);
@@ -1150,51 +1152,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             return $procedure;
         } catch (Exception $e) {
             $this->getLogger()->warning('Update Procedure Object failed Message: ', [$e]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Update eines Verfahren ohne einen Reporteintrag zu generieren & ohne eine Session zu benötigen
-     * (z.B. aus einem ConsoleCommand).
-     *
-     * @param array $data
-     *
-     * @return array
-     *
-     * @throws Exception
-     */
-    public function updateProcedureWithoutReport($data)
-    {
-        try {
-            if (!isset($data['ident'])) {
-                throw new \InvalidArgumentException('Ident is missing');
-            }
-
-            $sourceProcedure = $this->cloneProcedure($this->procedureRepository->get($data['ident']));
-            $procedure = $this->procedureRepository->update($data['ident'], $data);
-            // set procedurePhase properties: permissionSet, name
-            // they are not mapped do a database but the updated ones are needed within the upcoming event
-            $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
-            $procedure->setPublicParticipationPhaseName(
-                $this->globalConfig->getPhaseNameWithPriorityExternal(
-                    $procedure->getPublicParticipationPhase()
-                )
-            );
-            $this->eventDispatcher->dispatch(
-                new PostProcedureUpdatedEvent($sourceProcedure, $procedure),
-                PostProcedureUpdatedEventInterface::class
-            );
-
-            // always update elasticsearch as changes that where made only in
-            // ProcedureSettings not automatically trigger an ES update
-            if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
-                $this->getEsProcedurePersister()->replaceOne($procedure);
-            }
-
-            return $this->procedureToLegacyConverter->convertToLegacy($procedure);
-        } catch (Exception $e) {
-            $this->logger->warning('Update Procedure without Report failed Message: ', [$e]);
             throw $e;
         }
     }

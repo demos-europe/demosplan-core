@@ -147,6 +147,23 @@ class PrepareReportFromProcedureService extends CoreService
         $destinationProcedureSettings = $destinationProcedure->getSettings();
         $update = [];
 
+        // if the procedure was deleted, only a deletion entry will be created.
+        if ($destinationProcedure->getDeleted() === true) {
+            $update = [
+                'ident'    => $destinationProcedure->getId(),
+                'customer' => null,
+                'deleted'  => true,
+            ];
+            // Do something if 'deleted' key exists and is true
+            $deletionEntry = $this->procedureReportEntryFactory->createProcedureDeletionEntry(
+                $update,
+                $destinationProcedure
+            );
+            $this->reportService->persistAndFlushReportEntries($deletionEntry);
+
+            return;
+        }
+
         $sourceDateOfSwitchPublicPhase = $sourceProcedure->getSettings()->getDesignatedPublicSwitchDate();
         $destinationDateOfSwitchPublicPhase = $destinationProcedure->getSettings()->getDesignatedPublicSwitchDate();
         if (!$this->equalDates($sourceDateOfSwitchPublicPhase, $destinationDateOfSwitchPublicPhase)) {
