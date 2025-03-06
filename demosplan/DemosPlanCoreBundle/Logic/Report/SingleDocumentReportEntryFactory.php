@@ -55,42 +55,12 @@ class SingleDocumentReportEntryFactory extends AbstractReportEntryFactory
             'procedurePhase'    => $singleDocument->getProcedure()->getPhase(),
         ];
     }
-
-    /**
-     * @throws JsonException
-     */
-    public function createSingleDocumentCreateEntry(SingleDocument $singleDocument): ReportEntry
+    public function createSingleDocumentEntry(SingleDocument $singleDocument,$reportCategory, $date = null): ReportEntry
     {
         $data = $this->createMessageData($singleDocument);
-        $data['date'] = $singleDocument->getCreateDate()->getTimestamp();
+        $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;
         $reportEntry = $this->createSingleDocumentReportEntry($singleDocument->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_ADD);
-
-        return $reportEntry;
-    }
-
-    /**
-     * @throws JsonException
-     */
-    public function createSingleDocumentUpdateEntry(SingleDocument $singleDocument): ReportEntry
-    {
-        $data = $this->createMessageData($singleDocument);
-        $data['date'] = $singleDocument->getModifyDate()->getTimestamp();
-        $reportEntry = $this->createSingleDocumentReportEntry($singleDocument->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_UPDATE);
-
-        return $reportEntry;
-    }
-
-    /**
-     * @throws JsonException
-     */
-    public function createSingleDocumentDeleteEntry(SingleDocument $singleDocument): ReportEntry
-    {
-        $data = $this->createMessageData($singleDocument);
-        $data['date'] = Carbon::now()->getTimestamp();
-        $reportEntry = $this->createSingleDocumentReportEntry($singleDocument->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_DELETE);
+        $reportEntry->setCategory($reportCategory);
 
         return $reportEntry;
     }

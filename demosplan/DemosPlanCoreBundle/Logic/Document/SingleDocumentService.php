@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
@@ -237,7 +238,11 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     {
         $singleDocument = $this->singleDocumentRepository->add($data);
 
-        $report = $this->reportEntryFactory->createSingleDocumentCreateEntry($singleDocument);
+        $report = $this->reportEntryFactory->createSingleDocumentEntry(
+            $singleDocument,
+            ReportEntry::CATEGORY_ADD,
+            $singleDocument->getCreateDate()->getTimestamp(),
+        );
         $this->reportService->persistAndFlushReportEntries($report);
 
         $singleDocument = $this->entityHelper->toArray($singleDocument);
@@ -264,7 +269,9 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
             foreach ($idents as $documentId) {
                 try {
                     $documentToDelete = $this->getSingleDocument($documentId, false);
-                    $report = $this->reportEntryFactory->createSingleDocumentDeleteEntry($documentToDelete);
+                    $report = $this->reportEntryFactory->createSingleDocumentEntry(
+                        $documentToDelete, ReportEntry::CATEGORY_DELETE,
+                    );
                     $this->singleDocumentRepository->delete($documentId);
                     $this->reportService->persistAndFlushReportEntries($report);
                 } catch (Exception $e) {
@@ -290,8 +297,11 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     public function updateSingleDocument($data): array
     {
         $updatedDocument = $this->singleDocumentRepository->update($data['ident'], $data);
-
-        $report = $this->reportEntryFactory->createSingleDocumentUpdateEntry($updatedDocument);
+        $report = $this->reportEntryFactory->createSingleDocumentEntry(
+            $updatedDocument,
+            ReportEntry::CATEGORY_UPDATE,
+            $updatedDocument->getModifyDate()->getTimestamp(),
+        );
         $this->reportService->persistAndFlushReportEntries($report);
 
         $updatedDocument = $this->entityHelper->toArray($updatedDocument);
