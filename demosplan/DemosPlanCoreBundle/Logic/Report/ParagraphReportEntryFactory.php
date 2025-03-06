@@ -54,41 +54,12 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
         ];
     }
 
-    /**
-     * @throws JsonException
-     */
-    public function createParagraphCreateEntry(Paragraph $paragraph): ReportEntry
+    public function createParagraphEntry(Paragraph $paragraph, $reportCategory, $date = null): ReportEntry
     {
         $data = $this->createMessageData($paragraph);
-        $data['date'] = $paragraph->getCreateDate()->getTimestamp();
+        $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;
         $reportEntry = $this->createParagraphReportEntry($paragraph->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_ADD);
-
-        return $reportEntry;
-    }
-
-    /**
-     * @throws JsonException
-     */
-    public function createParagraphUpdateEntry(Paragraph $paragraph): ReportEntry
-    {
-        $data = $this->createMessageData($paragraph);
-        $data['date'] = $paragraph->getModifyDate()->getTimestamp();
-        $reportEntry = $this->createParagraphReportEntry($paragraph->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_UPDATE);
-
-        return $reportEntry;
-    }
-
-    /**
-     * @throws JsonException
-     */
-    public function createParagraphDeleteEntry(Paragraph $paragraph): ReportEntry
-    {
-        $data = $this->createMessageData($paragraph);
-        $data['date'] = Carbon::now()->getTimestamp();
-        $reportEntry = $this->createParagraphReportEntry($paragraph->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_DELETE);
+        $reportEntry->setCategory($reportCategory);
 
         return $reportEntry;
     }

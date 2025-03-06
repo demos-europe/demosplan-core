@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 use DemosEurope\DemosplanAddon\Contracts\Services\ParagraphServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
@@ -397,7 +398,11 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
     public function addParaDocument(array $data, bool $convertToLegacy = true)
     {
         $paragraph = $this->paragraphRepository->add($data);
-        $report = $this->reportEntryFactory->createParagraphCreateEntry($paragraph);
+        $report = $this->reportEntryFactory->createParagraphEntry(
+            $paragraph,
+            ReportEntry::CATEGORY_ADD,
+            $paragraph->getCreateDate()->getTimestamp()
+        );
         $this->reportService->persistAndFlushReportEntries($report);
 
         if (!$convertToLegacy) {
@@ -425,7 +430,12 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
             foreach ($idents as $paragraphId) {
                 try {
                     $paragraphToDelete = $this->getParaDocumentObject($paragraphId);
-                    $report = $this->reportEntryFactory->createParagraphDeleteEntry($paragraphToDelete);
+
+                    $report = $this->reportEntryFactory->createParagraphEntry(
+                        $paragraphToDelete,
+                        ReportEntry::CATEGORY_DELETE
+                    );
+
                     $this->paragraphRepository->delete($paragraphId);
                     $this->reportService->persistAndFlushReportEntries($report);
                 } catch (Exception $e) {
@@ -452,7 +462,12 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
     public function updateParaDocument($data)
     {
         $paragraph = $this->paragraphRepository->update($data['ident'], $data);
-        $report = $this->reportEntryFactory->createParagraphUpdateEntry($paragraph);
+        $report = $this->reportEntryFactory->createParagraphEntry(
+            $paragraph,
+            ReportEntry::CATEGORY_UPDATE,
+            $paragraph->getModifyDate()->getTimestamp(),
+        );
+
         $this->reportService->persistAndFlushReportEntries($report);
 
         $res = $this->entityHelper->toArray($paragraph);
