@@ -157,7 +157,7 @@ class SegmentsExporter
             $this->addSegmentCell(
                 $authoredDateRow,
                 $censored ? '' : $orgaInfoHeader->getNextHeader(),
-                $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+                $censored ? $this->styles['rightAlignedStatementInfoTextCell'] : $this->styles['rightAlignedStatementInfoTextCell']
             );
 
             $this->addSegmentCell($authoredDateRow, '', $this->styles['statementInfoEmptyCell']);
@@ -171,7 +171,7 @@ class SegmentsExporter
             $this->addSegmentCell(
                 $submitDateRow,
                 $censored ? '' : $orgaInfoHeader->getNextHeader(),
-                $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+                $censored ? $this->styles['rightAlignedStatementInfoTextCell'] : $this->styles['rightAlignedStatementInfoTextCell']
             );
 
             $this->addSegmentCell($submitDateRow, '', $this->styles['statementInfoEmptyCell']);
@@ -184,7 +184,7 @@ class SegmentsExporter
         $this->addSegmentCell(
             $textRow,
             $censored ? '' : $orgaInfoHeader->getNextHeader(),
-            $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+            $censored ? $this->styles['rightAlignedStatementInfoTextCell'] : $this->styles['rightAlignedStatementInfoTextCell']
         );
 
         $this->addSegmentCell($textRow, '', $this->styles['statementInfoEmptyCell']);
@@ -197,7 +197,7 @@ class SegmentsExporter
             $this->addSegmentCell(
                 $internIdRow,
                 $censored ? '' : $orgaInfoHeader->getNextHeader(),
-                $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+                $censored ? $this->styles['rightAlignedStatementInfoTextCell'] : $this->styles['rightAlignedStatementInfoTextCell']
             );
 
             $this->addSegmentCell($internIdRow, '', $this->styles['statementInfoEmptyCell']);
@@ -408,6 +408,7 @@ class SegmentsExporter
             'borderSize'  => 0,
             'cellSpacing' => Converter::cmToTwip(0),
         ];
+        $this->styles['rightAlignedStatementInfoTextCell'] = new CellExportStyle(5600);
         $this->styles['statementInfoTextCell'] = new CellExportStyle(4500);
         $this->styles['statementInfoEmptyCell'] = new CellExportStyle(6500);
 
