@@ -76,6 +76,7 @@ class StatementEmailSender extends CoreService
                     $attachmentNames,
                     $recipientEmailAddress
                 );
+                // If the mail is sent once in CC, it doesn't need to be sent in CC again later.
                 $ccEmailAddresses = [];
             } else {
                 /** @var User $user */
@@ -91,6 +92,8 @@ class StatementEmailSender extends CoreService
                         $attachmentNames,
                         $recipientEmailAddress
                     );
+                    // If the mail is sent once in CC, it doesn't need to be sent in CC again later.
+                    //If we dont do this, it will spam the $ccEmailAddresses when sending email to voters will happen
                     $ccEmailAddresses = [];
                 }
 
@@ -100,13 +103,12 @@ class StatementEmailSender extends CoreService
                     $this->sendFinalStatementEmail(
                         $statement,
                         $subject,
-                        $ccEmailAddresses,
+                        '',
                         $emailVariables,
                         $attachments,
                         $attachmentNames,
                         $recipientEmailAddress
                     );
-                    $ccEmailAddresses = [];
                 }
             }
 
@@ -234,8 +236,6 @@ class StatementEmailSender extends CoreService
             $vars,
             $attachments
         );
-        // wenn die Mail einmal im CC verschickt wird, muss sie es später nicht mehr
-        $emailcc = [];
         // speicher ab, wann die Schlussmitteilung verschickt wurde
         $this->statementService->setSentAssessment($statement->getId());
 
