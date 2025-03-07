@@ -188,10 +188,14 @@ class StatementEmailSender extends CoreService
 
     private function detectInstitutionRecipientEmailAddress($user): array {
         $recipients = [];
-        if (0 < strlen($user->getOrga()->getEmail2())) {
-            $recipients[] = $user->getOrga()->getEmail2();
+        /** @var User $user */
+
+        //Participation email address is found on Statement details view > Grundeinstellungen > Intern section > E-Mail Verfahrensträger
+        if (0 < strlen($user->getOrga()->getParticipationEmail())) {
+            $recipients[] = $user->getOrga()->getParticipationEmail();
         }
-        // Gibt es auch noch eingetragenede BeteiligungsEmail in CC
+
+        //CcEmail2 addresses are found on Statement details view > Grundeinstellungen > Intern section > Weitere Empfänger*innen
         if (null !== $user->getOrga()->getCcEmail2()) {
             $ccUsersEmail = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $user->getOrga()->getCcEmail2());
             $recipients = array_merge($recipients, $ccUsersEmail);
