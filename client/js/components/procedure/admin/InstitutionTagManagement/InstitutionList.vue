@@ -826,7 +826,7 @@ export default {
     toggleAllSelectedFilterCategories () {
       const allSelected = this.currentlySelectedFilterCategories.length === Object.keys(this.allFilterCategories).length
       const selectedFilterOptions = Object.values(this.appliedFilterQuery)
-      let categoriesWithSelectedOptions = []
+      const categoriesWithSelectedOptions = []
 
       selectedFilterOptions.forEach(option => {
         const categoryId = option.condition.memberOf.replace('_group', '')
