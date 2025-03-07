@@ -632,6 +632,12 @@ export default {
       return filterQueryInStorage && filterQueryInStorage !== 'undefined' ? JSON.parse(filterQueryInStorage) : {}
     },
 
+    getInitiallySelectedFilterCategoriesFromLocalStorage () {
+      const selectedFilterCategories = localStorage.getItem('visibleFilterFlyouts')
+
+      return selectedFilterCategories ? JSON.parse(selectedFilterCategories) : []
+    },
+
     getTagById (tagId) {
       return this.tagList.find(el => el.id === tagId) ?? null
     },
@@ -643,11 +649,8 @@ export default {
     },
 
     handleChange (filterCategoryName, isSelected) {
-      if (isSelected) {
-        this.currentlySelectedFilterCategories.push(filterCategoryName)
-      } else {
-        this.currentlySelectedFilterCategories = this.currentlySelectedFilterCategories.filter(category => category !== filterCategoryName)
-      }
+      this.updateCurrentlySelectedFilterCategories(filterCategoryName, isSelected)
+      this.setSelectedFilterCategoriesInLocalStorage(this.currentlySelectedFilterCategories)
     },
 
     handleReset () {
@@ -798,14 +801,36 @@ export default {
         .map(category => category.attributes.name)
     },
 
+    setSelectedFilterCategoriesInLocalStorage (selectedFilterCategories) {
+      localStorage.setItem('visibleFilterFlyouts', JSON.stringify(selectedFilterCategories))
+    },
+
     setInitiallySelectedFilterCategories () {
-      this.initiallySelectedFilterCategories = this.initiallySelectedColumns
+      const selectedFilterCategoriesInStorage = this.getInitiallySelectedFilterCategoriesFromLocalStorage()
+      this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage.length ? selectedFilterCategoriesInStorage : this.initiallySelectedColumns
+
+      if (selectedFilterCategoriesInStorage.length === 0) {
+        localStorage.setItem('visibleFilterFlyouts', JSON.stringify(this.initiallySelectedFilterCategories))
+      }
     },
 
     toggleAllSelectedFilterCategories () {
       const allSelected = this.currentlySelectedFilterCategories.length === Object.keys(this.allFilterCategories).length
 
       this.currentlySelectedFilterCategories = allSelected ? [] : Object.values(this.allFilterCategories).map(filter => filter.label)
+    },
+
+    /**
+     * Adds or removes a single fliterCategory to/from currentlySelectedFilterCategories
+     * @param filterCategoryName {String}
+     * @param isSelected {Boolean}
+     */
+    updateCurrentlySelectedFilterCategories (filterCategoryName, isSelected) {
+      if (isSelected) {
+        this.currentlySelectedFilterCategories.push(filterCategoryName)
+      } else {
+        this.currentlySelectedFilterCategories = this.currentlySelectedFilterCategories.filter(category => category !== filterCategoryName)
+      }
     }
   },
 
