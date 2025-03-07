@@ -98,9 +98,10 @@ class StatementEmailSender extends CoreService
                     $ccEmailAddresses = [];
                 }
 
-                $recipientEmailAddress = $this->determineRecipientEmailAddressInstitutionCoordinator($statement, $user, $successMessageTranslationParams);
+                $recipientEmailAddress = $this->determineRecipientEmailAddressInstitutionCoordinator($statement, $user);
 
                 if (!empty($recipientEmailAddress)) {
+                    $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
                     $this->sendFinalStatementEmail(
                         $statement,
                         $subject,
@@ -151,7 +152,7 @@ class StatementEmailSender extends CoreService
 
     }
 
-    private function determineRecipientEmailAddressInstitutionCoordinator ($statement, $user, &$successMessageTranslationParams) {
+    private function determineRecipientEmailAddressInstitutionCoordinator ($statement, $user) {
 
         //@todo split logic into separate methods
         // Mail an die einreichende Institutions-K, falls nicht identisch mit Einreicher*in
@@ -159,8 +160,6 @@ class StatementEmailSender extends CoreService
             $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
 
             if (false === stripos($user->getEmail(), $submitUser->getEmail())) {
-
-                $successMessageTranslationParams['sent_to'] = 'institution_and_coordination';
                 return $submitUser->getEmail();
             }
         }
