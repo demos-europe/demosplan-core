@@ -233,11 +233,6 @@ export default {
   mixins: [tableScrollbarMixin],
 
   props: {
-    initialFilter: {
-      type: [Object, Array],
-      default: () => ({})
-    },
-
     isActive: {
       type: Boolean,
       required: false,
@@ -247,7 +242,7 @@ export default {
 
   data () {
     return {
-      appliedFilterQuery: this.initialFilter,
+      appliedFilterQuery: {},
       currentlySelectedColumns: [],
       currentlySelectedFilterCategories: [],
       editingInstitutionId: null,
@@ -325,7 +320,7 @@ export default {
     },
 
     isQueryApplied () {
-      const isFilterApplied = !Array.isArray(this.appliedFilterQuery) && Object.keys(this.appliedFilterQuery).length > 0
+      const isFilterApplied = Object.keys(this.appliedFilterQuery).length > 0
       const isSearchApplied = this.searchTerm !== ''
 
       return isFilterApplied || isSearchApplied
@@ -361,8 +356,9 @@ export default {
 
     queryIds () {
       let ids = []
+      const isFilterApplied = Object.keys(this.appliedFilterQuery).length > 0
 
-      if (!Array.isArray(this.appliedFilterQuery) && Object.values(this.appliedFilterQuery).length > 0) {
+      if (isFilterApplied) {
         ids = Object.values(this.appliedFilterQuery).map(el => el.condition.value)
       }
 
@@ -677,6 +673,10 @@ export default {
         })
     },
 
+    resetFilterQueryInLocalStorage () {
+      localStorage.setItem('filterQuery', JSON.stringify({}))
+    },
+
     resetQuery () {
       this.searchTerm = ''
       Object.keys(this.allFilterCategories).forEach((filterCategoryId, idx) => {
@@ -699,7 +699,9 @@ export default {
           }
         }
       })
-      this.appliedFilterQuery = []
+
+      this.resetFilterQueryInLocalStorage()
+      this.appliedFilterQuery = {}
       this.getInstitutionsByPage(1)
     },
 
@@ -716,10 +718,12 @@ export default {
      * }
      */
     setAppliedFilterQuery (filter) {
-      const selectedFilterOptions = Object.values(filter).filter(el => el.condition)
+      // Remove groups from filter
+      const selectedFilterOptions = Object.fromEntries(Object.entries(filter).filter(([_key, value]) => value.condition))
       const isReset = Object.keys(selectedFilterOptions).length === 0
+      const isAppliedFilterQueryEmpty = Object.keys(this.appliedFilterQuery).length === 0
 
-      if (!isReset && !Array.isArray(this.appliedFilterQuery) && Object.keys(this.appliedFilterQuery).length === 0) {
+      if (!isReset && isAppliedFilterQueryEmpty) {
         Object.values(selectedFilterOptions).forEach(option => {
           this.$set(this.appliedFilterQuery, option.condition.value, option)
         })
@@ -728,7 +732,7 @@ export default {
           const filtersWithConditions = Object.fromEntries(
             Object.entries(this.filterQuery).filter(([key, value]) => value.condition)
           )
-          this.appliedFilterQuery = Object.keys(filtersWithConditions).length ? filtersWithConditions : []
+          this.appliedFilterQuery = Object.keys(filtersWithConditions).length ? filtersWithConditions : {}
         } else {
           this.appliedFilterQuery = selectedFilterOptions
         }
