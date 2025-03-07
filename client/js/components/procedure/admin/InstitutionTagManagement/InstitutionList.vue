@@ -44,7 +44,7 @@
                       icon="faders" />
                   </span>
                 </template>
-                <!-- Checkboxes to specify in which fields to search -->
+                <!-- 'More filters' flyout -->
                 <div>
                   <button
                     class="btn--blank o-link--default ml-auto"
@@ -56,10 +56,11 @@
                       v-for="category in allFilterCategories"
                       :key="category.id"
                       :id="`filterCategorySelect:${category.label}`"
-                      :data-cy="`institutionList:filterCategoriesSelect:${category.label}`"
                       :checked="selectedFilterCategories.includes(category.label)"
+                      :data-cy="`institutionList:filterCategoriesSelect:${category.label}`"
+                      :disabled="checkIfDisabled(category.id)"
                       :label="{
-                        text: category.label
+                        text: `${category.label} (${getSelectedOptionsCount(category.id)})`
                       }"
                       @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
                   </div>
@@ -477,6 +478,14 @@ export default {
       this.getInstitutionsByPage(1, categoryId)
     },
 
+    checkIfDisabled (categoryId) {
+      return !!Object.values(this.appliedFilterQuery).find(el => el.condition?.memberOf === `${categoryId}_group`)
+    },
+
+    getSelectedOptionsCount (categoryId) {
+      return Object.values(this.appliedFilterQuery).filter(el => el.condition?.memberOf === `${categoryId}_group`).length
+    },
+
     createFilterOptions (params) {
       const { categoryId, isInitialWithQuery } = params
       let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0 ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
@@ -816,8 +825,21 @@ export default {
 
     toggleAllSelectedFilterCategories () {
       const allSelected = this.currentlySelectedFilterCategories.length === Object.keys(this.allFilterCategories).length
+      const selectedFilterOptions = Object.values(this.appliedFilterQuery)
+      let categoriesWithSelectedOptions = []
 
-      this.currentlySelectedFilterCategories = allSelected ? [] : Object.values(this.allFilterCategories).map(filter => filter.label)
+      selectedFilterOptions.forEach(option => {
+        const categoryId = option.condition.memberOf.replace('_group', '')
+        const category = this.allFilterCategories[categoryId]
+
+        if (category && !categoriesWithSelectedOptions.includes(category.label)) {
+          categoriesWithSelectedOptions.push(category.label)
+        }
+      })
+
+      this.currentlySelectedFilterCategories = allSelected
+        ? categoriesWithSelectedOptions
+        : Object.values(this.allFilterCategories).map(filterCategory => filterCategory.label)
     },
 
     /**
