@@ -81,8 +81,9 @@ class StatementEmailSender extends CoreService
             } else {
                 /** @var User $user */
                 $user = $this->userService->getSingleUser($statement->getUId());
-                $recipientEmailAddress = $this->determineRecipientEmailAddressInstitution($statement,$user, $successMessageTranslationParams);
+                $recipientEmailAddress = $this->determineRecipientEmailAddressInstitution($statement,$user);
                 if (!empty($recipientEmailAddress)) {
+                    $successMessageTranslationParams['sent_to'] = 'institution_only';
                     $this->sendFinalStatementEmail(
                         $statement,
                         $subject,
@@ -133,7 +134,7 @@ class StatementEmailSender extends CoreService
         return true;
     }
 
-    private function determineRecipientEmailAddressInstitution($statement,$user, &$successMessageTranslationParams): array
+    private function determineRecipientEmailAddressInstitution($statement,$user): array
     {
         // regulär eingereichte Stellungnahme (ToeB)
         if ('' === $statement->getUId()) {
@@ -141,7 +142,6 @@ class StatementEmailSender extends CoreService
         }
 
         if (!$user->hasAnyOfRoles([Role::GUEST, Role::CITIZEN])) {
-            $successMessageTranslationParams['sent_to'] = 'institution_only';
             // Mail an Beteiligungs-E-Mail-Adresse
             // Die Rollen brauchen keine Mail an ihre Organisation
             return $this->detectRecipientParticipationEmailAddresses($user);
