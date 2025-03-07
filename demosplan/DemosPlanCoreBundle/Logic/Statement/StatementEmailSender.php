@@ -142,7 +142,7 @@ class StatementEmailSender extends CoreService
             $successMessageTranslationParams['sent_to'] = 'institution_only';
             // Mail an Beteiligungs-E-Mail-Adresse
             // Die Rollen brauchen keine Mail an ihre Organisation
-            return $this->detectInstitutionRecipientEmailAddress($user);
+            return $this->detectRecipientParticipationEmailAddresses($user);
         }
 
         return [];
@@ -186,7 +186,7 @@ class StatementEmailSender extends CoreService
         return $recipientEmailAddress;
     }
 
-    private function detectInstitutionRecipientEmailAddress($user): array {
+    private function detectRecipientParticipationEmailAddresses($user): array {
         $recipients = [];
         /** @var User $user */
 
