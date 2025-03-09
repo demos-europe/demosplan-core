@@ -52,7 +52,6 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
         $reportEntry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
         $reportEntry->setIdentifier($paragraph->getProcedure()->getId());
         $reportEntry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
-
         $reportEntry->setCategory($reportCategory);
 
         return $reportEntry;

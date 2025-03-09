@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
 use Carbon\Carbon;
-use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
@@ -49,7 +48,6 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
         $reportEntry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
         $reportEntry->setIdentifier($element->getProcedure()->getId());
         $reportEntry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
-
         $reportEntry->setCategory($reportCategory);
 
         return $reportEntry;
