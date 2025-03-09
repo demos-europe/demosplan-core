@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -21,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Event\Procedure\ProcedureEditedEvent;
 use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ElementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ParagraphReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\PlanDrawReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\SingleDocumentReportEntryFactory;
@@ -43,6 +45,7 @@ class ReportSubscriber extends BaseEventSubscriber
         private readonly ElementReportEntryFactory $elementReportEntryFactory,
         private readonly SingleDocumentReportEntryFactory $singleDocumentReportEntryFactory,
         private readonly ParagraphReportEntryFactory $paragraphReportEntryFactory,
+        private readonly PlanDrawReportEntryFactory $planDrawReportEntryFactory,
         ReportService $reportService
     ) {
         $this->reportService = $reportService;
@@ -75,21 +78,52 @@ class ReportSubscriber extends BaseEventSubscriber
             /** @var User $user */
             $user = $event->getUser();
 
-            if (!isset($inData['r_externalDesc'])) {
-                return;
+            if (isset($inData['r_externalDesc'])) {
+                // speichere ggf. eine Änderung des Planungsanlasses im Report
+                $newExternalDesc = str_replace(["\r\n", "\r", "\n"], '<br />', (string) $inData['r_externalDesc']);
+                if ($currentProcedure['externalDesc'] !== $newExternalDesc) {
+                    $report = $this->procedureReportEntryFactory->createDescriptionUpdateEntry(
+                        $procedureId,
+                        $inData['r_externalDesc'],
+                        $user
+                    );
+                    $this->reportService->persistAndFlushReportEntries($report);
+                }
             }
-            // speichere ggf. eine Änderung des Planungsanlasses im Report
-            $newExternalDesc = str_replace(["\r\n", "\r", "\n"], '<br />', (string) $inData['r_externalDesc']);
-            if ($currentProcedure['externalDesc'] !== $newExternalDesc) {
-                $report = $this->procedureReportEntryFactory->createDescriptionUpdateEntry(
-                    $procedureId,
-                    $inData['r_externalDesc'],
-                    $user
-                );
-                $this->reportService->persistAndFlushReportEntries($report);
-            }
+
+            $this->createPlanDrawReportOnDemand($event);
+
         } catch (Exception $e) {
             $this->getLogger()->error('Add Report failed ', [$e]);
+        }
+    }
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws JsonException
+     */
+    private function createPlanDrawReportOnDemand(ProcedureEditedEvent $event): void
+    {
+        $originPlanPDF = $event->getOriginalProcedureArray()['planPDF'] ?? null;
+        $originPlanDrawPDF = $event->getOriginalProcedureArray()['planDrawPDF'] ?? null;
+
+        $incomingPlanPDF = $event->getInData()['planPDF'] ?? null;
+        $incomingPlanDrawPDF = $event->getInData()['planDrawPDF'] ?? null;
+
+
+        if ((null !== $originPlanPDF && null !== $incomingPlanPDF)
+            ||(null !== $originPlanDrawPDF && null !== $incomingPlanDrawPDF))
+        {
+            $report = $this->planDrawReportEntryFactory->createPlanDrawEntry(
+                $event->getProcedureId(),
+                $originPlanPDF,
+                $incomingPlanPDF,
+                $originPlanDrawPDF,
+                $incomingPlanDrawPDF
+            );
+
+            $this->reportService->persistAndFlushReportEntries($report);
         }
     }
 
