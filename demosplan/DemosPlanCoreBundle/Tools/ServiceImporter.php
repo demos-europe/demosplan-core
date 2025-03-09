@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Event\CreateReportEntryEvent;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ServiceImporterException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
@@ -36,6 +37,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Import von Planunterlagen-Absaetzen.
@@ -81,6 +83,7 @@ class ServiceImporter implements ServiceImporterInterface
         RpcClient $client,
         private readonly ParagraphReportEntryFactory $reportEntryFactory,
         private readonly ReportService $reportService,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
         $this->client = $client;
         $this->fileService = $fileService;
@@ -263,12 +266,9 @@ class ServiceImporter implements ServiceImporterInterface
             // Persistiere Paragraph Zeile
             try {
                 $response = $this->paragraphRepository->add($p);
-                $report = $this->reportEntryFactory->createParagraphEntry(
-                    $response,
-                    ReportEntry::CATEGORY_ADD,
-                    $paragraph->getCreateDate()->getTimestamp()
-                );
-                $this->reportService->persistAndFlushReportEntries($report);
+
+                $reportEntryEvent = new CreateReportEntryEvent($response, ReportEntry::CATEGORY_ADD);
+                $this->eventDispatcher->dispatch($reportEntryEvent);
 
                 $this->getLogger()->debug('Paragraph:'.serialize($response));
 

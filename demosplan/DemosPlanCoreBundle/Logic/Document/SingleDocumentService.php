@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Event\CreateReportEntryEvent;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
@@ -27,6 +28,8 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 use ReflectionException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+
 
 class SingleDocumentService extends CoreService implements SingleDocumentServiceInterface
 {
@@ -43,6 +46,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
         private readonly SingleDocumentReportEntryFactory $reportEntryFactory,
         private readonly ReportService $reportService,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
         $this->fileService = $fileService;
     }
@@ -238,12 +242,8 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     {
         $singleDocument = $this->singleDocumentRepository->add($data);
 
-        $report = $this->reportEntryFactory->createSingleDocumentEntry(
-            $singleDocument,
-            ReportEntry::CATEGORY_ADD,
-            $singleDocument->getCreateDate()->getTimestamp(),
-        );
-        $this->reportService->persistAndFlushReportEntries($report);
+        $reportEntryEvent = new CreateReportEntryEvent($singleDocument, ReportEntry::CATEGORY_ADD);
+        $this->eventDispatcher->dispatch($reportEntryEvent);
 
         $singleDocument = $this->entityHelper->toArray($singleDocument);
         $singleDocument = $this->convertDateTime($singleDocument);
@@ -269,11 +269,11 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
             foreach ($idents as $documentId) {
                 try {
                     $documentToDelete = $this->getSingleDocument($documentId, false);
-                    $report = $this->reportEntryFactory->createSingleDocumentEntry(
-                        $documentToDelete, ReportEntry::CATEGORY_DELETE,
-                    );
+
+                    $reportEntryEvent = new CreateReportEntryEvent($documentToDelete, ReportEntry::CATEGORY_DELETE);
+                    $this->eventDispatcher->dispatch($reportEntryEvent);
+
                     $this->singleDocumentRepository->delete($documentId);
-                    $this->reportService->persistAndFlushReportEntries($report);
                 } catch (Exception $e) {
                     $this->logger->error('Fehler beim Löschen eines SingleDocuments: ', [$e]);
                     $success = false;
@@ -297,12 +297,9 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     public function updateSingleDocument($data): array
     {
         $updatedDocument = $this->singleDocumentRepository->update($data['ident'], $data);
-        $report = $this->reportEntryFactory->createSingleDocumentEntry(
-            $updatedDocument,
-            ReportEntry::CATEGORY_UPDATE,
-            $updatedDocument->getModifyDate()->getTimestamp(),
-        );
-        $this->reportService->persistAndFlushReportEntries($report);
+
+        $reportEntryEvent = new CreateReportEntryEvent($updatedDocument, ReportEntry::CATEGORY_UPDATE);
+        $this->eventDispatcher->dispatch($reportEntryEvent);
 
         $updatedDocument = $this->entityHelper->toArray($updatedDocument);
         $updatedDocument = $this->convertDateTime($updatedDocument);
