@@ -23,21 +23,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 
 class ElementReportEntryFactory extends AbstractReportEntryFactory
 {
-    /**
-     * @throws JsonException
-     */
-    private function createElementReportEntry(string $procedureId, array $data): ReportEntry
-    {
-        $entry = $this->createReportEntry();
-        $entry->setUser($this->getCurrentUser());
-        $entry->setGroup(ReportEntry::GROUP_ELEMENT);
-        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
-        $entry->setIdentifier($procedureId);
-        $entry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
-
-        return $entry;
-    }
-
     private function createMessageData(Elements $element): array
     {
         return [
@@ -58,7 +43,13 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
     {
         $data = $this->createMessageData($element);
         $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;
-        $reportEntry = $this->createElementReportEntry($element->getProcedure()->getId(), $data);
+        $reportEntry = $this->createReportEntry();
+        $reportEntry->setUser($this->getCurrentUser());
+        $reportEntry->setGroup(ReportEntry::GROUP_ELEMENT);
+        $reportEntry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
+        $reportEntry->setIdentifier($element->getProcedure()->getId());
+        $reportEntry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
+
         $reportEntry->setCategory($reportCategory);
 
         return $reportEntry;
