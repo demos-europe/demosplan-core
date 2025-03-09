@@ -25,21 +25,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 
 class SingleDocumentReportEntryFactory extends AbstractReportEntryFactory
 {
-    /**
-     * @throws JsonException
-     */
-    private function createSingleDocumentReportEntry(string $procedureId, array $data): ReportEntry
-    {
-        $entry = $this->createReportEntry();
-        $entry->setUser($this->getCurrentUser());
-        $entry->setGroup(ReportEntry::GROUP_SINGLE_DOCUMENT);
-        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
-        $entry->setIdentifier($procedureId);
-        $entry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
-
-        return $entry;
-    }
-
     private function createMessageData(SingleDocument $singleDocument): array
     {
         return [
@@ -63,7 +48,12 @@ class SingleDocumentReportEntryFactory extends AbstractReportEntryFactory
     ): ReportEntry {
         $data = $this->createMessageData($singleDocument);
         $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;
-        $reportEntry = $this->createSingleDocumentReportEntry($singleDocument->getProcedure()->getId(), $data);
+        $reportEntry = $this->createReportEntry();
+        $reportEntry->setUser($this->getCurrentUser());
+        $reportEntry->setGroup(ReportEntry::GROUP_SINGLE_DOCUMENT);
+        $reportEntry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
+        $reportEntry->setIdentifier($singleDocument->getProcedure()->getId());
+        $reportEntry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
         $reportEntry->setCategory($reportCategory);
 
         return $reportEntry;
