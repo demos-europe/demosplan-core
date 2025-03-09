@@ -10,11 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Event\CreateReportEntryEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\ProcedureEditedEvent;
 use demosplan\DemosPlanCoreBundle\Event\StatementAnonymizeRpcEvent;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ElementReportEntryFactory;
@@ -52,9 +54,10 @@ class ReportSubscriber extends BaseEventSubscriber
     public static function getSubscribedEvents(): array
     {
         return [
-            AfterUpdateEvent::class             => ['afterUpdate'],
-            AfterDeletionEvent::class           => ['afterDeletion'],
-            AfterCreationEvent::class           => ['afterCreation'],
+            CreateReportEntryEvent::class       => ['createReportEntry'],
+            AfterUpdateEvent::class             => ['afterCreateUpdateOrDelete'],
+            AfterDeletionEvent::class           => ['afterCreateUpdateOrDelete'],
+            AfterCreationEvent::class           => ['afterCreateUpdateOrDelete'],
             ProcedureEditedEvent::class         => ['onEditProcedure'],
             StatementAnonymizeRpcEvent::class   => ['onStatementAnonymizeRpc'],
         ];
@@ -97,116 +100,90 @@ class ReportSubscriber extends BaseEventSubscriber
 
     /**
      * @throws ORMException
-     * @throws OptimisticLockException|\Doctrine\ORM\ORMException
+     * @throws OptimisticLockException
      */
-    public function afterUpdate(AfterUpdateEvent $event): void
+    public function createReportEntry(CreateReportEntryEvent $event): void
     {
-        switch ($event->getType()->getName()) {
-            case 'Elements':
-                /** @var Elements $element */
-                $element = $event->getEntity();
-                $report = $this->elementReportEntryFactory->createElementEntry(
-                    $element,
-                    ReportEntry::CATEGORY_UPDATE,
-                    $element->getModifyDate()->getTimestamp()
-                );
+        $this->dynamicCreateReportEntry($event->getEntity(), $event->getCategory());
+    }
+
+    /**
+     * @throws OptimisticLockException
+     * @throws ORMException
+     */
+    public function afterCreateUpdateOrDelete(AfterDeletionEvent|AfterCreationEvent|AfterUpdateEvent $event): void
+    {
+        $reportCategory = 'unknown';
+        switch (true) {
+            case $event instanceof AfterCreationEvent:
+                $reportCategory = ReportEntry::CATEGORY_ADD;
                 break;
-            case 'SingleDocument':
-                /** @var SingleDocument $singleDocument */
-                $singleDocument = $event->getEntity();
-                $report = $this->singleDocumentReportEntryFactory->createSingleDocumentEntry(
-                    $singleDocument,
-                    ReportEntry::CATEGORY_UPDATE,
-                    $singleDocument->getModifyDate()->getTimestamp()
-                );
+            case $event instanceof AfterUpdateEvent:
+                $reportCategory = ReportEntry::CATEGORY_UPDATE;
                 break;
-            case 'Paragraph':
-                /** @var Paragraph $paragraph */
-                $paragraph = $event->getEntity();
-                $report = $this->paragraphReportEntryFactory->createParagraphEntry(
-                    $paragraph,
-                    ReportEntry::CATEGORY_UPDATE,
-                    $paragraph->getModifyDate()->getTimestamp()
-                );
+            case $event instanceof AfterDeletionEvent:
+                $reportCategory = ReportEntry::CATEGORY_DELETE;
                 break;
         }
 
-        $this->reportService->persistAndFlushReportEntries($report);
+        //fixme: in case of AfterDeletionEvent there is no entity, only the entityIdentifier!
+
+        if ($event->getEntity() instanceof Elements
+            || $event->getEntity() instanceof SingleDocument
+            || $event->getEntity() instanceof Paragraph) {
+            $this->dynamicCreateReportEntry($event->getEntity(), $reportCategory);
+        }
     }
 
     /**
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function afterCreation(AfterCreationEvent $event): void
+    private function dynamicCreateReportEntry(Elements|Paragraph|SingleDocument $entity, string $category): void
     {
-        switch ($event->getType()->getName()) {
-            case 'Elements':
+        switch ($category) {
+            case ReportEntry::CATEGORY_ADD:
+                $date = $entity->getCreateDate()->getTimestamp();
+                break;
+            case ReportEntry::CATEGORY_UPDATE:
+                $date = $entity->getModifyDate()->getTimestamp();
+                break;
+            default:
+                $date = Carbon::now()->getTimestamp();
+                break;
+        }
+
+
+        switch (true) {
+            case $entity instanceof Elements:
                 /** @var Elements $element */
-                $element = $event->getEntity();
+                $element = $entity;
                 $report = $this->elementReportEntryFactory->createElementEntry(
                     $element,
-                    ReportEntry::CATEGORY_ADD,
-                    $element->getCreateDate()->getTimestamp()
+                    $category,
+                    $date
                 );
                 break;
-            case 'SingleDocument':
+            case $entity instanceof SingleDocument:
                 /** @var SingleDocument $singleDocument */
-                $singleDocument = $event->getEntity();
+                $singleDocument = $entity;
                 $report = $this->singleDocumentReportEntryFactory->createSingleDocumentEntry(
                     $singleDocument,
-                    ReportEntry::CATEGORY_ADD,
-                    $singleDocument->getCreateDate()->getTimestamp()
+                    $category,
+                    $date
                 );
                 break;
-            case 'Paragraph':
+            case $entity instanceof Paragraph:
                 /** @var Paragraph $paragraph */
-                $paragraph = $event->getEntity();
+                $paragraph = $entity;
                 $report = $this->paragraphReportEntryFactory->createParagraphEntry(
                     $paragraph,
-                    ReportEntry::CATEGORY_ADD,
-                    $paragraph->getCreateDate()->getTimestamp()
+                    $category,
+                    $date
                 );
                 break;
         }
 
         $this->reportService->persistAndFlushReportEntries($report);
     }
-
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function afterDeletion(AfterCreationEvent $event): void
-    {
-        switch ($event->getType()->getName()) {
-            case 'Elements':
-                /** @var Elements $element */
-                $element = $event->getEntity();
-                $report = $this->elementReportEntryFactory->createElementEntry(
-                    $element,
-                    ReportEntry::CATEGORY_DELETE,
-                );
-                break;
-            case 'SingleDocument':
-                /** @var SingleDocument $singleDocument */
-                $singleDocument = $event->getEntity();
-                $report = $this->singleDocumentReportEntryFactory->createSingleDocumentEntry(
-                    $singleDocument,
-                    ReportEntry::CATEGORY_DELETE,
-                );
-                break;
-            case 'Paragraph':
-                /** @var Paragraph $paragraph */
-                $paragraph = $event->getEntity();
-                $report = $this->paragraphReportEntryFactory->createParagraphEntry(
-                    $paragraph,
-                    ReportEntry::CATEGORY_DELETE,
-                );
-                break;
-        }
-
-        $this->reportService->persistAndFlushReportEntries($report);
-    }
-
 }
