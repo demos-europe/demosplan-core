@@ -761,7 +761,11 @@ class ReportMessageConverter
                 $category['name'] = $elementTitle;
 
                 if (array_key_exists('hasParagraphPdf', $element)) {
-                    $category['existingParagraphs'][] = $this->translator->trans('file.as.pdf');
+                    if (array_key_exists('paragraphPdfName', $element)) {
+                        $category['existingParagraphs'][] = $element['paragraphPdfName'];
+                    } else {
+                        $category['existingParagraphs'][] = $this->translator->trans('file.as.pdf');
+                    }
                 }
                 if (array_key_exists('hasParagraphs', $element)) {
                     $category['existingParagraphs'][] = $this->translator->trans('file.as.paragraphs');
