@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
 use Carbon\Carbon;
-use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
@@ -23,21 +22,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 
 class ElementReportEntryFactory extends AbstractReportEntryFactory
 {
-    /**
-     * @throws JsonException
-     */
-    private function createElementReportEntry(string $procedureId, array $data): ReportEntry
-    {
-        $entry = $this->createReportEntry();
-        $entry->setUser($this->getCurrentUser());
-        $entry->setGroup(ReportEntry::GROUP_ELEMENT);
-        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
-        $entry->setIdentifier($procedureId);
-        $entry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
-
-        return $entry;
-    }
-
     private function createMessageData(Elements $element): array
     {
         return [
@@ -54,41 +38,17 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
         ];
     }
 
-    /**
-     * @throws JsonException
-     */
-    public function createElementCreateEntry(Elements $element): ReportEntry
+    public function createElementEntry(Elements $element, string $reportCategory, int $date = null): ReportEntry
     {
         $data = $this->createMessageData($element);
-        $data['date'] = $element->getCreateDate()->getTimestamp();
-        $reportEntry = $this->createElementReportEntry($element->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_ADD);
-
-        return $reportEntry;
-    }
-
-    /**
-     * @throws JsonException
-     */
-    public function createElementUpdateEntry(Elements $element): ReportEntry
-    {
-        $data = $this->createMessageData($element);
-        $data['date'] = $element->getModifyDate()->getTimestamp();
-        $reportEntry = $this->createElementReportEntry($element->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_UPDATE);
-
-        return $reportEntry;
-    }
-
-    /**
-     * @throws JsonException
-     */
-    public function createElementDeleteEntry(Elements $element): ReportEntry
-    {
-        $data = $this->createMessageData($element);
-        $data['date'] = Carbon::now()->getTimestamp();
-        $reportEntry = $this->createElementReportEntry($element->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_DELETE);
+        $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;
+        $reportEntry = $this->createReportEntry();
+        $reportEntry->setUser($this->getCurrentUser());
+        $reportEntry->setGroup(ReportEntry::GROUP_ELEMENT);
+        $reportEntry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
+        $reportEntry->setIdentifier($element->getProcedure()->getId());
+        $reportEntry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
+        $reportEntry->setCategory($reportCategory);
 
         return $reportEntry;
     }

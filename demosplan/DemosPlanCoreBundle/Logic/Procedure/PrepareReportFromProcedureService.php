@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Event\Procedure\ProcedureEditedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -38,6 +39,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 use ReflectionException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
 
@@ -54,7 +56,8 @@ class PrepareReportFromProcedureService extends CoreService
         private readonly ProcedureReportEntryFactory $procedureReportEntryFactory,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         private readonly TranslatorInterface $translator,
-        private readonly PlanDrawReportEntryFactory $reportEntryFactory,
+        private readonly PlanDrawReportEntryFactory $planDrawReportEntryFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {}
 
     /**
@@ -233,14 +236,14 @@ class PrepareReportFromProcedureService extends CoreService
 
         if (0 !== strcmp($sourceProcedureSettings->getPlanPDF(), $destinationProcedureSettings->getPlanPDF())
         || (0 !== strcmp($sourceProcedureSettings->getPlanDrawPDF(), $destinationProcedureSettings->getPlanDrawPDF()))) {
-            $report = $this->reportEntryFactory->createPlanDrawEntry(
-                $destinationProcedure->getId(),
-                $sourceProcedureSettings->getPlanPDF(),
-                $destinationProcedureSettings->getPlanPDF(),
-                $sourceProcedureSettings->getPlanDrawPDF(),
-                $destinationProcedureSettings->getPlanDrawPDF()
+
+            $reportEntryEvent = new ProcedureEditedEvent(
+                $sourceProcedure->getId(),
+                ['planPDF' => $sourceProcedureSettings->getPlanPDF(), 'planDrawPDF' => $sourceProcedureSettings->getPlanDrawPDF()],
+                ['planPDF' => $destinationProcedureSettings->getPlanPDF(), 'planDrawPDF' => $destinationProcedureSettings->getPlanDrawPDF()],
+                $this->currentUser->getUser()
             );
-            $this->reportService->persistAndFlushReportEntries($report);
+            $this->eventDispatcher->dispatch($reportEntryEvent);
         }
 
         $phaseChangeEntry = $this->createPhaseChangeReportEntryIfChangesOccurred(

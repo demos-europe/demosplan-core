@@ -19,7 +19,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Event\CreateReportEntryEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HiddenElementUpdateException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -50,6 +52,7 @@ use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 
 class ElementsService extends CoreService implements ElementsServiceInterface
@@ -80,6 +83,7 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         protected readonly ValidatorInterface $validator,
         private readonly ElementReportEntryFactory $reportEntryFactory,
         private readonly ReportService $reportService,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
         $this->paragraphService = $paragraphService;
         $this->singleDocumentService = $singleDocumentService;
@@ -415,8 +419,9 @@ class ElementsService extends CoreService implements ElementsServiceInterface
         try {
             $this->validateParentsCount($data);
             $element = $this->getElementsRepository()->add($data);
-            $report = $this->reportEntryFactory->createElementCreateEntry($element);
-            $this->reportService->persistAndFlushReportEntries($report);
+
+            $reportEntryEvent = new CreateReportEntryEvent($element, ReportEntry::CATEGORY_ADD);
+            $this->eventDispatcher->dispatch($reportEntryEvent);
 
             return $this->convertElementToArray($element);
         } catch (Exception $e) {
@@ -431,8 +436,9 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     public function addEntity(Elements $element): Elements
     {
         $element = $this->getElementsRepository()->updateObject($element);
-        $report = $this->reportEntryFactory->createElementCreateEntry($element);
-        $this->reportService->persistAndFlushReportEntries($report);
+
+        $reportEntryEvent = new CreateReportEntryEvent($element, ReportEntry::CATEGORY_ADD);
+        $this->eventDispatcher->dispatch($reportEntryEvent);
 
         return $element;
     }
@@ -497,9 +503,9 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                     }
 
                     $elementToDelete = $this->getElementObject($elementId);
-                    $report = $this->reportEntryFactory->createElementDeleteEntry($elementToDelete);
+                    $reportEntryEvent = new CreateReportEntryEvent($elementToDelete, ReportEntry::CATEGORY_DELETE);
+                    $this->eventDispatcher->dispatch($reportEntryEvent);
                     $this->getElementsRepository()->delete($elementId);
-                    $this->reportService->persistAndFlushReportEntries($report);
                 } catch (Exception $e) {
                     $this->logger->error('An error occurred while deleting an element: ', [$e]);
                     $success = false;
@@ -549,8 +555,8 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         $element = $repository->update($element['ident'], $element);
 
-        $report = $this->reportEntryFactory->createElementUpdateEntry($element);
-        $this->reportService->persistAndFlushReportEntries($report);
+        $reportEntryEvent = new CreateReportEntryEvent($element, ReportEntry::CATEGORY_UPDATE);
+        $this->eventDispatcher->dispatch($reportEntryEvent);
 
         return $this->convertElementToArray($element);
     }
@@ -587,8 +593,9 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
         /** @var Elements $element */
         $element = $repository->updateObject($element);
-        $report = $this->reportEntryFactory->createElementUpdateEntry($element);
-        $this->reportService->persistAndFlushReportEntries($report);
+
+        $reportEntryEvent = new CreateReportEntryEvent($element, ReportEntry::CATEGORY_UPDATE);
+        $this->eventDispatcher->dispatch($reportEntryEvent);
 
         return $element;
     }

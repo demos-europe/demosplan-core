@@ -1703,6 +1703,7 @@ file.pdf.explanation: "Sie können an dieser Stelle Dateien des Typs PDF hochlad
 file.delete: "Datei löschen"
 file.download: "Anhang herunterladen"
 file.reference: "Dateibezug"
+file.related: "dokumentbezogen"
 file.upload.docx: ".docx hochladen"
 file.upload.pdf: ".pdf hochladen"
 file.upload.pdf.zip.mp4: ".pdf, .zip oder .mp4 hochladen"
@@ -2446,6 +2447,7 @@ paragraph.notavailable: "Kapitelbezug nicht verfügbar"
 paragraph.parent.none: "oberste Ebene"
 paragraph.parent: "Übergeordnetes Kapitel"
 paragraph.reference: "Kapitelbezug"
+paragraph.related: "kapitelbezogen"
 paragraph.file: "Planungsdokument als Datei"
 paragraph.text: "Text des Kapitels"
 paragraph.title: "Absatz"
@@ -2960,6 +2962,7 @@ report.add.element: |
     Text: "{text}"<br />
     Kategorie: {category}<br />
     Planungsdokument als Datei: {fileName}<br />
+    Berechtigte Institutionen: {organisations} <br />
     Veröffentlicht: {enabled}
 report.update.element: |
     Eine Kategorie wurde geändert zu:<br />
@@ -2967,9 +2970,10 @@ report.update.element: |
     Text: "{text}"<br />
     Kategorie: {category}<br />
     Planungsdokument als Datei: {fileName}<br />
+    Berechtigte Institutionen: {organisations} <br />
     Veröffentlicht: {enabled}
 report.delete.element: |
-    Die Kategorie "{title}" wurde gelöscht.
+    Die Kategorie ({elementCategory}) "{title}" wurde gelöscht.
 report.add.paragraph: |
     Eine Kapitel wurde hinzugefügt:<br />
     Titel: "{title}"<br />
@@ -2987,14 +2991,12 @@ report.delete.paragraph: |
 report.add.singleDocument: |
     Eine Planungsdokument wurde hinzugefügt:<br />
     Titel: "{title}"<br />
-    Kategorie: {category}<br />
     Datei: {fileName}<br />
     Sichtbar: {visible}<br />
     Stellungnahme möglich: {statement_enabled}
 report.update.singleDocument: |
     Eine Planungsdokument wurde geändert zu:<br />
     Titel: "{title}"<br />
-    Kategorie: {category}<br />
     Datei: {fileName}<br />
     Sichtbar: {visible}<br />
     Stellungnahme möglich: {statement_enabled}
@@ -4011,6 +4013,7 @@ unsaved.changes: "Ungespeicherte Änderungen"
 unselect: "Auswahl aufheben"
 unselect.entity.first: "Aktuelle Auswahl aufheben, um {entity} auszuwählen"
 unpublished.statements.if.participation.ends: "nicht eingereichten Stellungnahmen, wenn die Beteiligung in einem Verfahren endet"
+unrestricted: "Uneingeschränkt"
 update: "Aktualisierung"
 upload: "Hochladen"
 upload.again: "Erneut hochladen"

@@ -25,21 +25,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 
 class ParagraphReportEntryFactory extends AbstractReportEntryFactory
 {
-    /**
-     * @throws JsonException
-     */
-    private function createParagraphReportEntry(string $procedureId, array $data): ReportEntry
-    {
-        $entry = $this->createReportEntry();
-        $entry->setUser($this->getCurrentUser());
-        $entry->setGroup(ReportEntry::GROUP_PARAGRAPH);
-        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
-        $entry->setIdentifier($procedureId);
-        $entry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
-
-        return $entry;
-    }
-
     private function createMessageData(Paragraph $paragraph): array
     {
         return [
@@ -54,41 +39,20 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
         ];
     }
 
-    /**
-     * @throws JsonException
-     */
-    public function createParagraphCreateEntry(Paragraph $paragraph): ReportEntry
-    {
+    public function createParagraphEntry(
+        Paragraph $paragraph,
+        string $reportCategory,
+        int $date = null
+    ): ReportEntry {
         $data = $this->createMessageData($paragraph);
-        $data['date'] = $paragraph->getCreateDate()->getTimestamp();
-        $reportEntry = $this->createParagraphReportEntry($paragraph->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_ADD);
-
-        return $reportEntry;
-    }
-
-    /**
-     * @throws JsonException
-     */
-    public function createParagraphUpdateEntry(Paragraph $paragraph): ReportEntry
-    {
-        $data = $this->createMessageData($paragraph);
-        $data['date'] = $paragraph->getModifyDate()->getTimestamp();
-        $reportEntry = $this->createParagraphReportEntry($paragraph->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_UPDATE);
-
-        return $reportEntry;
-    }
-
-    /**
-     * @throws JsonException
-     */
-    public function createParagraphDeleteEntry(Paragraph $paragraph): ReportEntry
-    {
-        $data = $this->createMessageData($paragraph);
-        $data['date'] = Carbon::now()->getTimestamp();
-        $reportEntry = $this->createParagraphReportEntry($paragraph->getProcedure()->getId(), $data);
-        $reportEntry->setCategory(ReportEntry::CATEGORY_DELETE);
+        $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;
+        $reportEntry = $this->createReportEntry();
+        $reportEntry->setUser($this->getCurrentUser());
+        $reportEntry->setGroup(ReportEntry::GROUP_PARAGRAPH);
+        $reportEntry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
+        $reportEntry->setIdentifier($paragraph->getProcedure()->getId());
+        $reportEntry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
+        $reportEntry->setCategory($reportCategory);
 
         return $reportEntry;
     }
