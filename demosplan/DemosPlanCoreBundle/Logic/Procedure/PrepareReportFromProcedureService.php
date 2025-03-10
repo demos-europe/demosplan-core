@@ -519,6 +519,7 @@ class PrepareReportFromProcedureService extends CoreService
         $elementEntry = [];
         // category has uploaded pdf file
         if ('' !== $element->getFile()) {
+            $elementEntry['paragraphPdfName'] = $element->getFileInfo()->getFileName();
             $elementEntry['hasParagraphPdf'] = true;
         }
 

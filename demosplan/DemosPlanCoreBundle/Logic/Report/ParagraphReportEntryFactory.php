@@ -13,29 +13,30 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
 use Carbon\Carbon;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 
 class ParagraphReportEntryFactory extends AbstractReportEntryFactory
 {
     private function createMessageData(Paragraph $paragraph): array
     {
         return [
-            'paragraphId'       => $paragraph->getId(),
-            'paragraphTitle'    => $paragraph->getTitle(),
-            'paragraphText'     => $paragraph->getText(),
-            'paragraphCategory' => $paragraph->getCategory(), // eg. file, e_unterlagen, arbeitskreis, informationen,...
-            'elementCategory'   => $paragraph->getElement()->getCategory(), // eg map, file, statement, paragraph, ..
-            'elementTitle'      => $paragraph->getElement()->getTitle(), // eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
-            'visible'           => $paragraph->getVisible(),
-            'procedurePhase'    => $paragraph->getProcedure()->getPhase(),
+            'id'                        => $paragraph->getId(),
+            'title'                     => $paragraph->getTitle(),
+            'text'                      => $paragraph->getText(),
+            'category'                  => $paragraph->getCategory(), // eg. file, e_unterlagen, arbeitskreis, informationen,...
+            'relatedElementCategory'    => $paragraph->getElement()->getCategory(), // eg map, file, statement, paragraph, ..
+            'relatedElementTitle'       => $paragraph->getElement()->getTitle(), // eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
+            'visible'                   => $paragraph->getVisible(),
+            'keyOfInternalPhase'        => $paragraph->getProcedure()->getPhase(),
+            'keyOfEternalPhase'         => $paragraph->getProcedure()->getPublicParticipationPhase(),
+            //The translation of the time the report is created is the important one, not the key
+            'nameOfInternalPhase'       => $paragraph->getProcedure()->getPhaseName(),
+            'nameOfExternalPhase'       => $paragraph->getProcedure()->getPublicParticipationPhaseName(),
         ];
     }
 

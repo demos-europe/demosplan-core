@@ -2719,6 +2719,7 @@ field_segment_assignee_filter:
     loginRequired: true
 field_send_final_email:
     label: 'Schlussmitteilung versenden'
+    expose: true
     loginRequired: true
 field_sign_language_overview_video_edit:
     description: 'User with this permission are able to upload a video file for their current customer including a title and description.'
