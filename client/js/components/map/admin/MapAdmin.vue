@@ -57,7 +57,7 @@
         data-cy="map:informationUrl"
         :label="{
           text: Translator.trans('url.information'),
-          hint: Translator.trans('url.information.hint', { buttonlabel: 'map.getfeatureinfo.label' })
+          hint: Translator.trans('url.information.hint', { buttonlabel: Translator.trans('map.getfeatureinfo.label') })
         }" />
 
       <dp-input
