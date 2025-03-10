@@ -45,7 +45,7 @@ All rights reserved
         ref="listComponent"
         @reset="resetForm()"
         @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)">
-        <template v-slot:list="{entry, index}">
+        <template v-slot:list="{ entry }">
           <span
             v-if="entry.attributes.name"
             class="o-list__item separated">
@@ -211,9 +211,8 @@ import {
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { v4 as uuid } from 'uuid'
 import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
-import StatementVoter from '@DpJs/components/statement/voter/StatementVoter'
+import { v4 as uuid } from 'uuid'
 
 export default {
   name: 'StatementPublicationAndVoting',
@@ -224,8 +223,7 @@ export default {
     DpLoading,
     DpInput,
     DpRadio,
-    StatementPublish,
-    StatementVoter
+    StatementPublish
   },
 
   mixins: [dpValidateMixin],

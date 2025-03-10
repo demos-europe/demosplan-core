@@ -7,12 +7,12 @@
  * All rights reserved
  */
 
+import { api1_0Routes, generateApi2_0Routes } from './VuexApiRoutes'
 import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { initJsonApiPlugin, prepareModuleHashMap, StaticRouter } from '@efrane/vuex-json-api'
+import { initJsonApiPlugin, prepareModuleHashMap, Route, StaticRoute, StaticRouter } from '@efrane/vuex-json-api'
 import notify from './Notify'
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { api1_0Routes, generateApi2_0Routes } from './VuexApiRoutes'
 
 function registerPresetModules (store, presetStoreModules) {
   if (Object.keys(presetStoreModules).length > 0) {
@@ -68,14 +68,15 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             baseUrl,
             headers: {
               'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
-              'X-Demosplan-Procedure-Id': dplan.procedureId
+              'X-Demosplan-Procedure-Id': dplan.procedureId,
+              'X-CSRF-Token': dplan.csrfToken
             },
             successCallbacks: [
               async (success) => {
                 // If the response body is empty, contentType will be null
                 const contentType = success.headers.get('Content-Type')
 
-                if (contentType && contentType.includes('application/json')) {
+                if (contentType && contentType.includes('json')) {
                   const response = await success.json()
 
                   const meta = response.data?.meta
@@ -96,7 +97,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
                 // If the response body is empty, contentType will be null
                 const contentType = error.headers.get('Content-Type')
 
-                if (contentType && contentType.includes('application/json')) {
+                if (contentType && contentType.includes('json')) {
                   const response = await error.json()
 
                   const meta = response.data?.meta
@@ -116,6 +117,12 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
           }),
           store => {
             store.api.checkResponse = checkResponse
+            store.api.newStaticRoute = (route) => {
+              return new StaticRoute(route)
+            }
+            store.api.newRoute = (route) => {
+              return new Route(route)
+            }
           }
         ]
       })

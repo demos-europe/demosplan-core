@@ -52,12 +52,14 @@
       data-dp-validate="organisationForm">
       <!-- Form fields -->
       <dp-organisation-form-fields
+        :additional-field-options="additionalFieldOptions"
         :available-orga-types="availableOrgaTypes"
         :initial-organisation="initialOrganisation"
         :organisation="organisation"
         :organisation-id="organisation.id"
-        @organisation-update="updateOrganisation"
-        @addon-update="updateAddonPayload" />
+        @addon-update="updateAddonPayload"
+        @addonOptions:loaded="setAdditionalFieldOptions"
+        @organisation-update="updateOrganisation" />
 
       <!-- Button row -->
       <dp-button-row
@@ -71,7 +73,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButtonRow, DpIcon, dpValidateMixin} from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
 
@@ -92,6 +94,12 @@ export default {
   ],
 
   props: {
+    additionalFieldOptions: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     availableOrgaTypes: {
       type: Array,
       required: false,
@@ -172,15 +180,17 @@ export default {
       return {
         type: this.addonPayload.resourceType,
         attributes: this.addonPayload.attributes,
-        relationships: this.addonPayload.url === 'api_resource_update' ? undefined : {
-          orga: {
-            data: {
-              type: 'Orga',
-              id: this.organisation.id
-            }
-          }
-        },
-        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {}),
+        relationships: this.addonPayload.url === 'api_resource_update'
+          ? undefined
+          : {
+              orga: {
+                data: {
+                  type: 'Orga',
+                  id: this.organisation.id
+                }
+              }
+            },
+        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {})
       }
     },
 
@@ -227,7 +237,6 @@ export default {
         } else {
           this.submitOrganisationForm()
         }
-
       } else {
         dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
       }
@@ -250,6 +259,10 @@ export default {
             this.$root.$emit('get-items')
           }
         })
+    },
+
+    setAdditionalFieldOptions (options) {
+      this.$emit('addonOptions:loaded', options)
     },
 
     setItem (payload) {

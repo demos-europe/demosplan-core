@@ -24,6 +24,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, InstitutionTag> $name
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, InstitutionTag> $isUsed
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,InstitutionTag,InstitutionTagCategory> $category
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, InstitutionTag> $creationDate
  */
 class InstitutionTagResourceConfigBuilder extends BaseInstitutionTagResourceConfigBuilder
 {

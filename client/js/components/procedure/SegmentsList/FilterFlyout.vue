@@ -107,12 +107,12 @@
           </span>
           <filter-flyout-checkbox
             v-for="option in group.options"
-            @change="updateQuery"
-            :checked="isChecked(option.id)"
-            :option="option"
-            :instance="group.id"
             :key="option.id"
-            :show-count="showCount.groupedOptions" />
+            :checked="isChecked(option.id)"
+            :instance="group.id"
+            :option="option"
+            :show-count="showCount.groupedOptions"
+            @change="updateQuery" />
         </ul>
 
         <span v-if="searchedGroupedOptions.length === 0 && searchedUngroupedOptions?.length === 0">
@@ -171,7 +171,7 @@ import {
   DpResettableInput,
   hasOwnProp
 } from '@demos-europe/demosplan-ui'
-import { mapGetters, mapMutations } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
 
 export default {
@@ -200,11 +200,26 @@ export default {
       }
     },
 
-    // Contains applied filters from this and the neighboring filterFlyouts
-    initialQuery: {
+    // Contains ids of applied filters from this and the neighboring filterFlyouts
+    initialQueryIds: {
       type: Array,
       required: false,
       default: () => ([])
+    },
+
+    /**
+     * Set to group id if the filter options should be applied with an 'OR' conjunction,
+     * i.e. they need to be a member of a group:
+     * 'groupId' : {
+     *   group: {
+     *     conjunction: 'OR'
+     *   }
+     * }
+     */
+    memberOf: {
+      type: String,
+      required: false,
+      default: ''
     },
 
     operator: {
@@ -267,6 +282,7 @@ export default {
      */
     filter () {
       const filter = {}
+
       this.currentQuery.forEach(id => {
         if (id === 'unassigned') {
           filter[id] = {
@@ -283,8 +299,16 @@ export default {
               operator: this.operator
             }
           }
+
+          if (this.memberOf) {
+            filter[id].condition = {
+              ...filter[id].condition,
+              memberOf: this.memberOf
+            }
+          }
         }
       })
+
       return filter
     },
 
@@ -362,12 +386,15 @@ export default {
   },
 
   methods: {
+    ...mapActions('FilterFlyout', {
+      updateFilters: 'updateFilterQuery'
+    }),
+
     ...mapMutations('FilterFlyout', {
       setGroupedSelected: 'setGroupedOptionSelected',
       setIsExpanded: 'setIsExpanded',
       setIsLoading: 'setIsLoading',
-      setUngroupedSelected: 'setUngroupedOptionSelected',
-      updateFilters: 'updateFilterQuery'
+      setUngroupedSelected: 'setUngroupedOptionSelected'
     }),
 
     /**
@@ -467,15 +494,22 @@ export default {
       this.appliedQuery = JSON.parse(JSON.stringify(query))
     },
 
+    /**
+     *
+     * @param {Boolean} isSelected
+     * @param {Object} option - { id: string, label: string, selected: boolean }
+     */
     updateQuery (isSelected, option) {
       if (isSelected) {
         this.currentQuery.push(option.id)
         const query = {}
         query[option.id] = this.filter[option.id]
+
         this.updateFilters(query)
       } else if (!isSelected) {
         const query = {}
         query[option.id] = this.filter[option.id]
+
         this.updateFilters(query)
         this.currentQuery.splice(this.currentQuery.indexOf(option.id), 1)
       }
@@ -499,8 +533,10 @@ export default {
   mounted () {
     this.setIsLoading({ categoryId: this.category.id, isLoading: true })
     this.setIsExpanded({ categoryId: this.category.id, isExpanded: false })
-    if (this.initialQuery.length) {
+
+    if (this.initialQueryIds.length) {
       const isInitialWithQuery = true
+
       this.requestFilterOptions(isInitialWithQuery)
     }
   }
