@@ -64,17 +64,32 @@ class StatementEmailSender extends CoreService
             $attachments = array_map($this->createSendableAttachment(...), $emailAttachments);
             $attachmentNames = array_column($attachments, 'name');
 
-            $recipientEmailAddress = $this->determineRecipientEmailAddress($statement, $successMessageTranslationParams);
 
-            if (!empty($recipientEmailAddress)) {
-                $this->sendFinalStatementEmail(
+           if (Statement::EXTERNAL === $statement->getPublicStatement()) {
+               if ('email' === $statement->getFeedback()) {
+                   $successMessageTranslationParams['sent_to'] = 'citizen_only';
+                   $this->sendFinalStatementEmail(
+                       $statement,
+                       $subject,
+                       $ccEmailAddresses,
+                       $emailVariables,
+                       $attachments,
+                       $attachmentNames,
+                       $statement->getMeta()->getOrgaEmail(),
+                   );
+                   // If the mail is sent once in CC, it doesn't need to be sent in CC again later.
+                   $ccEmailAddresses = [];
+               }
+           } elseif ('' != $statement->getMeta()->getOrgaEmail()) {
+                   $successMessageTranslationParams['sent_to'] = 'institution_only';
+                   $this->sendFinalStatementEmail(
                     $statement,
                     $subject,
                     $ccEmailAddresses,
                     $emailVariables,
                     $attachments,
                     $attachmentNames,
-                    $recipientEmailAddress
+                    $statement->getMeta()->getOrgaEmail(),
                 );
                 // If the mail is sent once in CC, it doesn't need to be sent in CC again later.
                 $ccEmailAddresses = [];
@@ -165,26 +180,6 @@ class StatementEmailSender extends CoreService
         }
 
         return '';
-    }
-
-    private function determineRecipientEmailAddress ($statement, &$successMessageTranslationParams): array|string
-    {
-        $recipientEmailAddress = '';
-        // Bürger Stellungnahmen
-        if (Statement::EXTERNAL === $statement->getPublicStatement() && 'email' === $statement->getFeedback()) {
-            $successMessageTranslationParams['sent_to'] = 'citizen_only';
-            $recipientEmailAddress = $statement->getMeta()->getOrgaEmail();
-            return $recipientEmailAddress;
-
-        }
-
-        // manuell eingegebene Stellungnahme
-        if (Statement::EXTERNAL !== $statement->getPublicStatement() && '' != $statement->getMeta()->getOrgaEmail()) {
-            $successMessageTranslationParams['sent_to'] = 'institution_only';
-            return  $statement->getMeta()->getOrgaEmail();
-        }
-
-        return $recipientEmailAddress;
     }
 
     private function detectRecipientParticipationEmailAddresses($user): array {
