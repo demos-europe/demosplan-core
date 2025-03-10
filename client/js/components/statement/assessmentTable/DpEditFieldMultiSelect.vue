@@ -155,6 +155,12 @@ export default {
     }
   },
 
+  emits: [
+    'field:input',
+    'field:save',
+    'toggleEditing'
+  ],
+
   data () {
     return {
       //  Current value
@@ -166,8 +172,11 @@ export default {
   },
 
   watch: {
-    value (newValue) {
-      this.setInitialValues()
+    value: {
+      handler () {
+        this.setInitialValues()
+      },
+      deep: true
     }
   },
 

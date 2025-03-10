@@ -88,36 +88,33 @@
       </span>
     </div><!--
             Show this Stuff (Visibility-group / show initially on load) only for layer, not for Categories
- --><template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')">
-<!--
+ --><template v-if="(layer.type === 'GisLayer') && hasPermission('feature_map_layer_visibility')"><!--
     --><div class="inline-block w-1/12 text-right">
-        <a
-          v-if="layer.attributes.isBaseLayer === false && isChildOfCategoryThatAppearsAsLayer === false"
-          data-cy="adminLayerListItem:toggleVisibilityGroup"
-          class="w-full flex items-center justify-center"
-          :title="hintTextForLockedLayer"
-          @click.stop.prevent="toggleVisibilityGroup"
-          @mouseover="setIconHoverState"
-          @mouseout="unsetIconHoverState">
-          <i
-            :aria-label="Translator.trans('gislayer.visibilitygroup.toggle')"
-            :class="[iconClass,showGroupableIcon]" />
-        </a>
+      <a
+        v-if="layer.attributes.isBaseLayer === false && isChildOfCategoryThatAppearsAsLayer === false"
+        data-cy="adminLayerListItem:toggleVisibilityGroup"
+        class="w-full flex items-center justify-center"
+        :title="hintTextForLockedLayer"
+        @click.stop.prevent="toggleVisibilityGroup"
+        @mouseover="setIconHoverState"
+        @mouseout="unsetIconHoverState">
+        <i
+          :aria-label="Translator.trans('gislayer.visibilitygroup.toggle')"
+          :class="[iconClass,showGroupableIcon]" />
+      </a>
+    </div><!--
+    --><div class="inline-block w-1/12 text-right">
+      <input
+        type="checkbox"
+        data-cy="adminLayerListItem:toggleDefaultVisibility"
+        :disabled="'' !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
+        @change.prevent="toggleHasDefaultVisibility"
+        :checked="hasDefaultVisibility"
+        :class="[iconClass, 'o-sortablelist__checkbox']">
       </div><!--
-   --><div class="inline-block w-1/12 text-right">
-        <input
-          type="checkbox"
-          data-cy="adminLayerListItem:toggleDefaultVisibility"
-          :disabled="'' !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
-          @change.prevent="toggleHasDefaultVisibility"
-          :checked="hasDefaultVisibility"
-          :class="[iconClass, 'o-sortablelist__checkbox']">
-      </div><!--
-  -->
-</template><!--
+  --></template><!--
           Show this Stuff for 'special category that looks like an Layer and hides all his children'
- --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)">
-<!--
+ --><template v-if="(layer.type === 'GisLayerCategory' && layer.attributes.layerWithChildrenHidden)"><!--
    --><div class="inline-block w-2/12 text-right">
         <input
           type="checkbox"
@@ -614,19 +611,19 @@ export default {
     hasSettingsThatPreventGrouping () {
       if (typeof this.activeLayer.id === 'undefined') {
         return this.layer.attributes.canUserToggleVisibility === false ||
-            this.layer.attributes.layerType !== 'overlay' ||
-            this.layer.attributes.isScope ||
-            this.layer.attributes.isBplan
+          this.layer.attributes.layerType !== 'overlay' ||
+          this.layer.attributes.isScope ||
+          this.layer.attributes.isBplan
       }
 
       return this.layer.attributes.canUserToggleVisibility === false ||
-          this.activeLayer.attributes.canUserToggleVisibility === false ||
-          this.layer.attributes.layerType !== 'overlay' ||
-          this.activeLayer.attributes.layerType !== 'overlay' ||
-          this.layer.attributes.isScope ||
-          this.activeLayer.attributes.isScope ||
-          this.layer.attributes.isBplan ||
-          this.activeLayer.attributes.isBplan
+        this.activeLayer.attributes.canUserToggleVisibility === false ||
+        this.layer.attributes.layerType !== 'overlay' ||
+        this.activeLayer.attributes.layerType !== 'overlay' ||
+        this.layer.attributes.isScope ||
+        this.activeLayer.attributes.isScope ||
+        this.layer.attributes.isBplan ||
+        this.activeLayer.attributes.isBplan
     },
 
     /**
@@ -674,11 +671,17 @@ export default {
   },
 
   watch: {
-    index () {
-      this.setOrderPosition()
+    index: {
+      handler () {
+        this.setOrderPosition()
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
-    parentOrderPosition () {
-      this.setOrderPosition()
+    parentOrderPosition: {
+      handler () {
+        this.setOrderPosition()
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
@@ -766,10 +769,10 @@ export default {
      */
     setActiveState () {
       if (!hasPermission('feature_map_layer_visibility') ||
-          this.layer.type !== 'GisLayer' ||
-          this.layer.attributes.isBaseLayer ||
-          this.isLoading ||
-          this.isChildOfCategoryThatAppearsAsLayer) {
+        this.layer.type !== 'GisLayer' ||
+        this.layer.attributes.isBaseLayer ||
+        this.isLoading ||
+        this.isChildOfCategoryThatAppearsAsLayer) {
         return
       }
       if (this.preventActiveFromToggeling === false) {
@@ -858,11 +861,11 @@ export default {
       this.preventActiveFromToggeling = true
 
       if (typeof this.activeLayer.id === 'undefined' ||
-          this.layerType === 'base' ||
-          this.isActive ||
-          (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && this.layer.attributes.visibilityGroupId !== '') ||
-          this.hasSettingsThatPreventGrouping ||
-          this.isLoading) {
+        this.layerType === 'base' ||
+        this.isActive ||
+        (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && this.layer.attributes.visibilityGroupId !== '') ||
+        this.hasSettingsThatPreventGrouping ||
+        this.isLoading) {
         return false
       }
 

@@ -8,7 +8,6 @@
  */
 
 import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { set } from 'vue'
 
 const LayersStore = {
 
@@ -77,10 +76,11 @@ const LayersStore = {
     /**
      *
      * @param state
-     * @param data|Object {'id': LayerId, 'attribute':AttributeName, 'value':AttributeValue}
+     * @param {Object} data {'id': LayerId, 'attribute':AttributeName, 'value':AttributeValue}
      */
     setAttributeForLayer (state, data) {
       const index = state.apiData.included.findIndex(elem => elem.id === data.id)
+
       if (index >= 0) {
         state.apiData.included[index].attributes[data.attribute] = data.value
       }
@@ -141,13 +141,13 @@ const LayersStore = {
         const layers = []
 
         data.data.forEach((el, idx) => {
-          set(el.attributes, data.orderType, (data.parentOrder * 100) + (idx + 1))
+          el.attributes[data.orderType] = (data.parentOrder * 100) + (idx + 1)
           if (data.orderType === 'treeOrder') {
             if (el.type === 'GisLayerCategory') {
-              set(el.attributes, 'parentId', data.categoryId)
-              categories.push({ id: el.id, type: 'GisLayerCategory' })
+              el.attributes.parentId = data.categoryId
+              categories.push(el)
             } else if (el.type === 'GisLayer') {
-              set(el.attributes, 'categoryId', data.categoryId)
+              el.attributes.categoryId = data.categoryId
               if (el.attributes.isEnabled) {
                 layers.push({ id: el.id, type: 'GisLayer' })
               }
@@ -156,8 +156,8 @@ const LayersStore = {
         })
 
         // Update the store-state
-        set(category.relationships.categories, 'data', categories)
-        set(category.relationships.gisLayers, 'data', layers)
+        category.relationships.categories.data = categories
+        category.relationships.gisLayers.data = layers
       }
     },
 
@@ -191,7 +191,7 @@ const LayersStore = {
     },
 
     setIsMapLoaded (state) {
-      set(state, 'isMapLoaded', true)
+      state.isMapLoaded = true
     }
 
   },

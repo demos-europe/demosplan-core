@@ -33,7 +33,7 @@
         <section class="u-mb">
             {% set advice_values = templateVars.adviceValues|default([]) %}
             <dp-fragment-list
-                :csrf-token="{{ csrf_token('csrf')|json_encode }}"
+                csrf-token="{{ csrf_token('csrf')|json_encode }}"
                 :is-archive="false"
                 current-user-id="{{ user.ident }}"
                 current-user-name="{{ username }}"

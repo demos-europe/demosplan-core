@@ -5,6 +5,11 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+### Further changes
+- Migrate to Vue 3
+
+### Features
 - Enable to send Statement final notice using RpcRequest and Vue.js
 - Add the possibility to export synopsis without personal data.
 
@@ -24,6 +29,7 @@
 - Enable the DELETE method for the AdministratableUser resource type
 - TagsList: trigger an update request only when the title is modified
 - DpCreateTag: Ensure the new tag retains its relationship to the Topic after creation
+
 
 ## 2.20.0
 

@@ -56,7 +56,7 @@
         :applied-filters="{{ filters|default({})|json_encode }}"
         :assessment-export-options="JSON.parse('{{ templateVars.assessmentExportOptions|json_encode|e('js', 'utf-8') }}')"
         :authorised-users="JSON.parse('{{ authUsers|json_encode|e('js', 'utf-8') }}')"
-        :csrf-token="{{ csrf_token('csrf')|json_encode }}"
+        csrf-token="{{ csrf_token('csrf')|json_encode }}"
         current-user-id="{{ user.ident }}"
         current-user-name="{{ username }}"
         :exact-search="Boolean({{ templateVars.exactSearch|default(false) }})"
