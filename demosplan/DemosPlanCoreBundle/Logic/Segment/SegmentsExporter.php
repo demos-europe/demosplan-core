@@ -215,7 +215,6 @@ class SegmentsExporter
         );
 
         $this->addSegmentCell($row5, '', $this->styles['statementInfoEmptyCell']);
-        $this->addSegmentCell($row5, '', $this->styles['statementInfoEmptyCell']);
         $this->addSegmentCell($row5, '', $this->styles['statementInfoTextCell']);
 
         $row6 = $table->addRow();
