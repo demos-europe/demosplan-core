@@ -171,7 +171,7 @@ export default {
       type: Object,
       required: true,
       validator (value) {
-        return Object.hasOwn(value, 'originalAttachment') && Object.hasOwn('additionalAttachments')
+        return Object.hasOwn(value, 'originalAttachment') && Object.hasOwn(value, 'additionalAttachments')
       }
     },
 
