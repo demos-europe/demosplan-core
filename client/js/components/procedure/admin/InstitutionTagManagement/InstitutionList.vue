@@ -44,7 +44,7 @@
                       icon="faders" />
                   </span>
                 </template>
-                <!-- Checkboxes to specify in which fields to search -->
+                <!-- 'More filters' flyout -->
                 <div>
                   <button
                     class="btn--blank o-link--default ml-auto"
@@ -56,10 +56,11 @@
                       v-for="category in allFilterCategories"
                       :key="category.id"
                       :id="`filterCategorySelect:${category.label}`"
-                      :data-cy="`institutionList:filterCategoriesSelect:${category.label}`"
                       :checked="selectedFilterCategories.includes(category.label)"
+                      :data-cy="`institutionList:filterCategoriesSelect:${category.label}`"
+                      :disabled="checkIfDisabled(category.id)"
                       :label="{
-                        text: category.label
+                        text: `${category.label} (${getSelectedOptionsCount(category.id)})`
                       }"
                       @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
                   </div>
@@ -473,6 +474,14 @@ export default {
       this.getInstitutionsByPage(1, categoryId)
     },
 
+    checkIfDisabled (categoryId) {
+      return !!Object.values(this.appliedFilterQuery).find(el => el.condition?.memberOf === `${categoryId}_group`)
+    },
+
+    getSelectedOptionsCount (categoryId) {
+      return Object.values(this.appliedFilterQuery).filter(el => el.condition?.memberOf === `${categoryId}_group`).length
+    },
+
     createFilterOptions (params) {
       const { categoryId, isInitialWithQuery } = params
       let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0 ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
@@ -628,6 +637,12 @@ export default {
       return filterQueryInStorage && filterQueryInStorage !== 'undefined' ? JSON.parse(filterQueryInStorage) : {}
     },
 
+    getInitiallySelectedFilterCategoriesFromLocalStorage () {
+      const selectedFilterCategories = localStorage.getItem('visibleFilterFlyouts')
+
+      return selectedFilterCategories ? JSON.parse(selectedFilterCategories) : null
+    },
+
     getTagById (tagId) {
       return this.tagList.find(el => el.id === tagId) ?? null
     },
@@ -639,11 +654,8 @@ export default {
     },
 
     handleChange (filterCategoryName, isSelected) {
-      if (isSelected) {
-        this.currentlySelectedFilterCategories.push(filterCategoryName)
-      } else {
-        this.currentlySelectedFilterCategories = this.currentlySelectedFilterCategories.filter(category => category !== filterCategoryName)
-      }
+      this.updateCurrentlySelectedFilterCategories(filterCategoryName, isSelected)
+      this.setSelectedFilterCategoriesInLocalStorage(this.currentlySelectedFilterCategories)
     },
 
     handleReset () {
@@ -715,15 +727,14 @@ export default {
         Object.values(selectedFilterOptions).forEach(option => {
           this.$set(this.appliedFilterQuery, option.condition.value, option)
         })
+      } else if (isReset) {
+        const filtersWithConditions = Object.fromEntries(
+          Object.entries(this.filterQuery).filter(([key, value]) => value.condition)
+        )
+
+        this.appliedFilterQuery = Object.keys(filtersWithConditions).length ? filtersWithConditions : {}
       } else {
-        if (isReset) {
-          const filtersWithConditions = Object.fromEntries(
-            Object.entries(this.filterQuery).filter(([key, value]) => value.condition)
-          )
-          this.appliedFilterQuery = Object.keys(filtersWithConditions).length ? filtersWithConditions : {}
-        } else {
-          this.appliedFilterQuery = selectedFilterOptions
-        }
+        this.appliedFilterQuery = selectedFilterOptions
       }
     },
 
@@ -802,14 +813,46 @@ export default {
         .map(category => category.attributes.name)
     },
 
+    setSelectedFilterCategoriesInLocalStorage (selectedFilterCategories) {
+      localStorage.setItem('visibleFilterFlyouts', JSON.stringify(selectedFilterCategories))
+    },
+
     setInitiallySelectedFilterCategories () {
-      this.initiallySelectedFilterCategories = this.initiallySelectedColumns
+      const selectedFilterCategoriesInStorage = this.getInitiallySelectedFilterCategoriesFromLocalStorage()
+
+      this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null ? selectedFilterCategoriesInStorage : this.initiallySelectedColumns
     },
 
     toggleAllSelectedFilterCategories () {
       const allSelected = this.currentlySelectedFilterCategories.length === Object.keys(this.allFilterCategories).length
+      const selectedFilterOptions = Object.values(this.appliedFilterQuery)
+      const categoriesWithSelectedOptions = []
 
-      this.currentlySelectedFilterCategories = allSelected ? [] : Object.values(this.allFilterCategories).map(filter => filter.label)
+      selectedFilterOptions.forEach(option => {
+        const categoryId = option.condition.memberOf.replace('_group', '')
+        const category = this.allFilterCategories[categoryId]
+
+        if (category && !categoriesWithSelectedOptions.includes(category.label)) {
+          categoriesWithSelectedOptions.push(category.label)
+        }
+      })
+
+      this.currentlySelectedFilterCategories = allSelected
+        ? categoriesWithSelectedOptions
+        : Object.values(this.allFilterCategories).map(filterCategory => filterCategory.label)
+    },
+
+    /**
+     * Adds or removes a single fliterCategory to/from currentlySelectedFilterCategories
+     * @param filterCategoryName {String}
+     * @param isSelected {Boolean}
+     */
+    updateCurrentlySelectedFilterCategories (filterCategoryName, isSelected) {
+      if (isSelected) {
+        this.currentlySelectedFilterCategories.push(filterCategoryName)
+      } else {
+        this.currentlySelectedFilterCategories = this.currentlySelectedFilterCategories.filter(category => category !== filterCategoryName)
+      }
     }
   },
 
