@@ -767,7 +767,6 @@
 <script>
 import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
-import { nextTick } from 'vue'
 
 export default {
   name: 'DpOrganisationFormFields',
@@ -1016,17 +1015,6 @@ export default {
     registrationTypeLabel (type) {
       const orgaType = this.availableOrgaTypes.find(el => el.value === type)
       return Translator.trans(orgaType.label)
-    },
-
-    /**
-     * On this event DpOrganisationListItem will call the set mutation to update the store so that on save the saveAction
-     * can use the data from the store
-     */
-    emitOrganisationUpdate () {
-      // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
-      nextTick(() => {
-        this.$emit('organisation-update', this.localOrganisation)
-      })
     },
 
     saveNewRegistrationStatus () {
