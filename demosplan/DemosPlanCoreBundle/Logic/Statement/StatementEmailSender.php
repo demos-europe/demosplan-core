@@ -140,10 +140,17 @@ class StatementEmailSender extends CoreService
                 }
             }
 
-        } catch (InvalidArgumentException) {
+        }
+        catch (InvalidDataException) {
+            $this->messageBag->add('error', 'error.statement.final.send.syntax.email.cc');
+            return false;
+        }
+
+        catch (InvalidArgumentException) {
             $this->messageBag->add('error', 'error.statement.final.send.noemail');
             return false;
         }
+
 
         $this->messageBag->add('confirm', 'confirm.statement.final.sent', $successMessageTranslationParams);
         $this->messageBag->add('confirm', 'confirm.statement.final.sent.emailCC');
@@ -152,14 +159,15 @@ class StatementEmailSender extends CoreService
 
     private function determineRecipientEmailAddressInstitution($statement,$user): array
     {
-        // regulär eingereichte Stellungnahme (ToeB)
+        // Regular submitted statement (ToeB)
         if ('' === $statement->getUId()) {
             throw new InvalidArgumentException('UserId must be set');
         }
 
         if (!$user->hasAnyOfRoles([Role::GUEST, Role::CITIZEN])) {
-            // Mail an Beteiligungs-E-Mail-Adresse
-            // Die Rollen brauchen keine Mail an ihre Organisation
+            // Detect participation email addresses of the orga that the user belongs to
+            // when the user is not a guest or a citizen
+
             return $this->detectRecipientParticipationEmailAddresses($user);
         }
 
@@ -167,10 +175,9 @@ class StatementEmailSender extends CoreService
 
     }
 
-    private function determineRecipientEmailAddressInstitutionCoordinator ($statement, $user) {
+    private function determineRecipientEmailAddressInstitutionCoordinator ($statement, $user): string {
 
-        //@todo split logic into separate methods
-        // Mail an die einreichende Institutions-K, falls nicht identisch mit Einreicher*in
+        // Detect email address of the submitting institution coordinator, if not identical to the submitter
         if (null !== $statement->getMeta()->getSubmitUId()) {
             $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
 
@@ -199,7 +206,7 @@ class StatementEmailSender extends CoreService
         return $recipients;
     }
 
-    private function sendEmailToVoters($statement, $subject, $emailcc, $vars, $attachments, $attachmentNames) {
+    private function sendEmailToVoters($statement, $subject, $emailcc, $vars, $attachments, $attachmentNames): void {
         /** @var StatementVote $vote */
         foreach ($statement->getVotes() as $vote) {
             $voteEmailAddress = $vote->getUserMail();
@@ -218,7 +225,7 @@ class StatementEmailSender extends CoreService
         }
     }
 
-    private function sendFinalStatementEmail ($statement, $subject, $emailcc, $vars, $attachments, $attachmentNames, $recipientEmailAddress) {
+    private function sendFinalStatementEmail ($statement, $subject, $emailcc, $vars, $attachments, $attachmentNames, $recipientEmailAddress): void {
 
         $procedure = $this->currentProcedureService->getProcedureWithCertainty();
         $from = $procedure->getAgencyMainEmailAddress();
@@ -230,7 +237,8 @@ class StatementEmailSender extends CoreService
             $vars,
             $attachments
         );
-        // speicher ab, wann die Schlussmitteilung verschickt wurde
+
+        // Save when the final notice was sent
         $this->statementService->setSentAssessment($statement->getId());
 
         if (is_array($recipientEmailAddress)) {
@@ -281,26 +289,29 @@ class StatementEmailSender extends CoreService
         return $emailVariables;
     }
 
+    /**
+     * @throws InvalidDataException
+     */
     private function extractAndValidateCcEmails($sendEmailCC): array {
         $syntaxEmailErrors = [];
         $emailcc = [];
-        // zerlege den string in die einzelnen E-Mail-Adressen
+        // Split string into individual email addresses
         $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $sendEmailCC);
-        // überprüfe jede dieser mails
+        // Check each email address for validity
         foreach ($mailsCC as $mail) {
-            // lösche alle Freizeichen am Anfang und Ende
+            // Remove all whitespace at the beginning and end
             $mailForCc = trim((string) $mail);
-            // Überprüfe, ob die E-Mail-Adresse korrekt ist
+            // Check if the email address is correct
             if (filter_var($mailForCc, FILTER_VALIDATE_EMAIL)) {
-                // wenn ja, gebe sie weiter
+                // if yes, add it to the array
                 $emailcc[] = $mailForCc;
             } else {
-                // wennn nicht, gebe eine Fehlermeldung aus
+                // if not, added to error message array
                 $syntaxEmailErrors[] = $mailForCc;
             }
         }
 
-        // wenn E-Mail-Adressen falsch sind, generiere eine Fehlermeldung
+        // if email addresses are incorrect, generate an error message
         if (0 < count($syntaxEmailErrors)) {
             throw new InvalidDataException('Invalid Emails provided in CC field.');
         }
