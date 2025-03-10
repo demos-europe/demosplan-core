@@ -55,7 +55,7 @@ export default {
       customMarks: {
         underline: {
           parseDOM: [{ tag: 'u' }],
-          toDOM() {
+          toDOM () {
             return ['u']
           }
         },

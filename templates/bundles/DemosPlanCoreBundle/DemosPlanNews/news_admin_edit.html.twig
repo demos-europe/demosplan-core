@@ -150,27 +150,23 @@
                 }) }}
 
             {% else %}
-                {{ uiComponent('form.row', {
-                    elements: [
-                        {
-                            label: { text: 'citizen.for'|trans },
-                            control: { name: 'r_group_code[]', value: 'GGUEST', checked: guestChecked|default(false) },
-                            id: 'citizenVisibility',
-                            type: 'checkbox',
-                            elementSize: 'medium'
-                        },
-                        {
-                            label: { text: 'invitable_institution.for'|trans },
-                            control: { name: 'r_group_code[]', value: 'GPSORG', checked: publicAgencyChecked|default(false) },
-                            id: 'publicAgencyVisibility',
-                            type: 'checkbox',
-                            elementSize: 'medium'
-                        }
-                    ],
-                    heading: 'visible',
-                    required: true,
-                    isFieldset: true
-                }) }}
+                <fieldset>
+                    <legend class="font-semibold mb-1">{{ 'visible'|trans }}&#42</legend>
+                    <dp-checkbox
+                        id="citizenVisibility"
+                        :label="{ text: '{{ 'citizen.for'|trans }}', bold: true }"
+                        name="r_group_code[]"
+                        :checked="Boolean({{ guestChecked|default(false)}})"
+                        value-to-send="GGUEST">
+                    </dp-checkbox>
+                    <dp-checkbox
+                        id="publicAgencyVisibility"
+                        :label="{ text: '{{ 'invitable_institution.for'|trans }}', bold: true}"
+                        name="r_group_code[]"
+                        :checked="Boolean({{ publicAgencyChecked|default(false)}})"
+                        value-to-send="GPSORG">
+                    </dp-checkbox>
+                </fieldset>
             {% endif %}
          {% endblock %}
 

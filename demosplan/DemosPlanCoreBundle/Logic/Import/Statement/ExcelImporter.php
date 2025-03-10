@@ -15,6 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleSegmentsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\MatchingFieldValueInSegments;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
@@ -26,6 +28,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
+use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterHandleSegmentsEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterPrePersistTagsEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -48,6 +52,7 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraint;
@@ -109,7 +114,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         private readonly TagValidator $tagValidator,
         TranslatorInterface $translator,
         ValidatorInterface $validator,
-        StatementCopier $statementCopier
+        StatementCopier $statementCopier,
+        private readonly EventDispatcherInterface $dispatcher,
     ) {
         parent::__construct(
             $currentProcedureService,
@@ -192,6 +198,14 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         unset($segmentsWorksheet);
 
+        // option for addons to process additional information of import file
+        $event = $this->dispatcher->dispatch(
+            new ExcelImporterHandleSegmentsEvent($segments),
+            ExcelImporterHandleSegmentsEventInterface::class
+        );
+
+        $segments = $event->getSegments();
+
         $miscTopic = $this->findOrCreateMiscTagTopic();
 
         $columnNamesMeta = $this->getFirstRowOfWorksheet($metaDataWorksheet);
@@ -264,6 +278,12 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
             unset($segments[$statementId]);
         }
+
+        // option for addons to gather the persisted ids and core relations of imported segments
+        $this->dispatcher->dispatch(
+            new ExcelImporterPrePersistTagsEvent(segments: $result->getSegments()),
+            ExcelImporterPrePersistTagsEventInterface::class
+        );
 
         return $result;
     }
@@ -385,7 +405,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         int $counter,
         int $line,
         string $worksheetTitle,
-        TagTopic $miscTopic
+        TagTopic $miscTopic,
     ): Segment {
         if (!$this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
             throw new AccessDeniedException('Current user is not permitted to create or edit segments.');
@@ -619,8 +639,8 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     private function getMatchingTag(string $tagTitle, string $procedureId): ?Tag
     {
         $titleCondition = $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue(trim($tagTitle), $this->tagResourceType->title),
-            $this->conditionFactory->propertyHasValue($procedureId, $this->tagResourceType->topic->procedure->id),
+            $this->conditionFactory->propertyHasValue(trim($tagTitle), ['title']),
+            $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
         );
 
         $matchingTags = $this->tagResourceType->listPrefilteredEntities($this->generatedTags, [$titleCondition]);
@@ -634,7 +654,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     protected function getValidatedStatementText(
         string $statementText,
         int $line,
-        string $currentWorksheetTitle
+        string $currentWorksheetTitle,
     ): string {
         $violations = $this->validator->validate($statementText, $this->getStatementTextConstraint());
         if (0 !== $violations->count()) {

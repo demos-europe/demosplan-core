@@ -251,6 +251,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     protected function setGlobalPermissions(): void
     {
+        if ($this->user->hasAnyOfRoles([Role::PLANNING_AGENCY_ADMIN, Role::PLANNING_AGENCY_WORKER, Role::PRIVATE_PLANNING_AGENCY])) {
+            $this->enablePermissions([
+                'feature_list_restricted_external_links',
+            ]);
+        }
+
         if ($this->user->hasAnyOfRoles(
             [
                 Role::PUBLIC_AGENCY_COORDINATION,

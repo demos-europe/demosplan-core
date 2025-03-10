@@ -18,8 +18,10 @@ use Exception;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -543,8 +545,6 @@ class GlobalConfig implements GlobalConfigInterface
 
     /** @var array */
     protected $publicIndexRouteParameters;
-    /** @var string[] */
-    protected $proxyTrusted;
 
     /**
      * @var bool
@@ -678,7 +678,6 @@ class GlobalConfig implements GlobalConfigInterface
         $this->piwikSiteID = $parameterBag->get('piwik_site_id');
         // external proxy
         $this->proxyDsn = $parameterBag->get('proxy_dsn');
-        $this->proxyTrusted = $parameterBag->get('proxy_trusted');
 
         // request variable
         $this->urlScheme = trim($parameterBag->get('url_scheme'));
@@ -1233,14 +1232,6 @@ class GlobalConfig implements GlobalConfigInterface
         return $parts[1] ?? '';
     }
 
-    /**
-     * @return string[]
-     */
-    public function getProxyTrusted(): array
-    {
-        return $this->proxyTrusted;
-    }
-
     public function getProjectCoreVersion(): string
     {
         return $this->projectCoreVersion;
@@ -1767,17 +1758,46 @@ class GlobalConfig implements GlobalConfigInterface
      */
     private function getValidatedExternalLinks(array $externalLinks): array
     {
-        $violations = $this->validator->validate($externalLinks, [
-            new Type('array'),
-            new NotNull(),
-            new All([
-                new Type('string'),
-                new NotBlank(null, null, false),
-                new Url(),
-            ]),
-        ]);
-        if (0 !== $violations->count()) {
-            throw ViolationsException::fromConstraintViolationList($violations);
+        if (empty($externalLinks)) {
+            // Validation not needed
+            return $externalLinks;
+        }
+
+        // Validation for extended externalLinks
+        if (is_array(array_values($externalLinks)[0])) {
+            $violations = $this->validator->validate($externalLinks, [
+                new Type('array'),
+                new NotNull(),
+                new All([
+                    new Type('array'),
+                    new NotNull(),
+                    new AtLeastOneOf([
+                        new Type('string'),
+                        new NotBlank(null, null, false),
+                        new Url(),
+                    ]),
+                    new Optional([
+                        new Type('bool'),
+                        new NotBlank(null, null, false),
+                    ]),
+                ]),
+            ]);
+            if (0 !== $violations->count()) {
+                throw ViolationsException::fromConstraintViolationList($violations);
+            }
+        } else {
+            $violations = $this->validator->validate($externalLinks, [
+                new Type('array'),
+                new NotNull(),
+                new All([
+                    new Type('string'),
+                    new NotBlank(null, null, false),
+                    new Url(),
+                ]),
+            ]);
+            if (0 !== $violations->count()) {
+                throw ViolationsException::fromConstraintViolationList($violations);
+            }
         }
 
         $violations->addAll($this->validator->validate(array_keys($externalLinks), [
@@ -1793,8 +1813,14 @@ class GlobalConfig implements GlobalConfigInterface
         return $externalLinks;
     }
 
-    private function addCustomerToUrl(string $url): string
+    private function addCustomerToUrl(array|string $projectURLData): array|string
     {
-        return str_replace(self::CUSTOMER_PLACEHOLFER, $this->subdomain, $url);
+        if (is_string($projectURLData)) {
+            return str_replace(self::CUSTOMER_PLACEHOLFER, $this->subdomain, $projectURLData);
+        }
+
+        $projectURLData['url'] = str_replace(self::CUSTOMER_PLACEHOLFER, $this->subdomain, $projectURLData['url']);
+
+        return $projectURLData;
     }
 }

@@ -226,7 +226,7 @@ const createCreatorMenu = (view, anchor, head) => {
 
     // Matomo Tracking Event Tagging & Slicing
     if (window._paq) {
-      _paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('tag.new')])
+      window._paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('tag.new')])
     }
   })
 

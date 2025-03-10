@@ -12,6 +12,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleImportedTagsRecordsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -42,6 +44,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\GetOriginalFileFromAnnotatedStatementEvent;
 use demosplan\DemosPlanCoreBundle\Event\MultipleStatementsSubmittedEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterHandleImportedTagsRecordsEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\ExcelImporterPrePersistTagsEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\AsynchronousStateException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -88,6 +92,8 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
+use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
+use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
@@ -118,6 +124,7 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+use Webmozart\Assert\Assert;
 
 use function array_key_exists;
 use function is_string;
@@ -237,7 +244,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         UserService $userService,
         private readonly StatementCopier $statementCopier,
         private readonly ValidatorInterface $validator,
-        private readonly StatementDeleter $statementDeleter,
+        private readonly StatementDeleter $statementDeleter, private readonly TagRepository $tagRepository, private readonly TagTopicRepository $tagTopicRepository,
     ) {
         parent::__construct($messageBag);
         $this->assignService = $assignService;
@@ -2279,20 +2286,37 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $reader->setDelimiter(';');
         $reader->setEnclosure('"');
         $records = $reader->getRecords();
-        // Acquire data
-        $newTags = [];
-        foreach ($records as $dataset) {
-            // Do not use line if all fields are empty
-            if (array_reduce($dataset, static fn ($carry, $item) => $carry && ('' == $item), true)) {
-                continue;
+        $records->rewind();
+        $columnTitles = [];
+        if ($records->valid()) {
+            $columnTitles = $records->current();
+            $records->next();
+        }
+
+        $event = $this->eventDispatcher->dispatch(
+            new ExcelImporterHandleImportedTagsRecordsEvent($records, $columnTitles),
+            ExcelImporterHandleImportedTagsRecordsEventInterface::class
+        );
+
+        $newTags = $event->getTags();
+
+        if (empty($newTags)) {
+            while ($records->valid()) {
+                $dataset = $records->current();
+                // Do not use line if all fields are empty
+                if (array_reduce($dataset, static fn ($carry, $item) => $carry && '' === $item, true)) {
+                    $records->next();
+                    continue;
+                }
+                $newTagData = [
+                    'topic'          => $dataset[0] ?? '',
+                    'tag'            => $dataset[1] ?? '',
+                    'useBoilerplate' => isset($dataset[2]) && 'ja' === $dataset[2],
+                    'boilerplate'    => $dataset[3] ?? '',
+                ];
+                $newTags[] = $newTagData;
+                $records->next();
             }
-            $newTagData = [
-                'topic'          => $dataset[0] ?? '',
-                'tag'            => $dataset[1] ?? '',
-                'useBoilerplate' => isset($dataset[2]) ? 'ja' === $dataset[2] : false,
-                'boilerplate'    => $dataset[3] ?? '',
-            ];
-            $newTags[] = $newTagData;
         }
 
         // Create objects
@@ -2301,21 +2325,26 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // Will be filled with the tag topics needed to create the imported tags
         // with the tag topic title as key and the object as value.
         $topics = [];
+        $persistedTag = [];
 
         foreach ($newTags as $tagData) {
             $currentTopicTitle = $tagData['topic'];
             $currentTagTitle = $tagData['tag'];
             // Create topic if not already present
-            if ($currentTopicTitle != $lastTopic) {
+            if ($currentTopicTitle !== $lastTopic) {
                 try {
+                    Assert::stringNotEmpty($currentTopicTitle);
+                    Assert::stringNotEmpty($currentTagTitle);
                     $topics[$currentTopicTitle] = $this->createTopic($currentTopicTitle, $procedureId);
-                    $lastTopic = $currentTopicTitle;
-                } catch (DuplicatedTagTopicTitleException) {
-                    // better do not try to heal import as it may have unforeseen
-                    // consequences?
-                    $this->getMessageBag()->add('warning', 'topic.create.duplicated.title');
+                } catch (InvalidArgumentException) {
+                    $this->getMessageBag()->add('warning', 'tag.or.topic.name.empty.error');
                     continue;
+                } catch (DuplicatedTagTopicTitleException) {
+                    $alreadyCreatedTopic = $this->tagTopicRepository->findOneByTitle($currentTopicTitle, $procedureId);
+                    Assert::notNull($alreadyCreatedTopic);
+                    $topics[$currentTopicTitle] = $alreadyCreatedTopic;
                 }
+                $lastTopic = $currentTopicTitle;
             }
 
             // Create the tag
@@ -2323,6 +2352,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $currentTagTitle,
                 $topics[$currentTopicTitle]
             );
+
+            $persistedTag[] = $tag;
 
             // Create and attach a boilerplate object if required
             if ($tagData['useBoilerplate']) {
@@ -2337,6 +2368,11 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $this->tagService->attachBoilerplateToTag($tag, $boilerplate);
             }
         }
+
+        $this->eventDispatcher->dispatch(
+            new ExcelImporterPrePersistTagsEvent(tags: $persistedTag),
+            ExcelImporterPrePersistTagsEventInterface::class
+        );
     }
 
     /**

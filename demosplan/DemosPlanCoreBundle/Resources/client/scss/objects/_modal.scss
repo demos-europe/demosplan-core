@@ -19,10 +19,7 @@
     &__content,
     &__backdrop {
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        inset: 0;
     }
 
     &__content {
@@ -78,8 +75,7 @@
     }
 
     &__body {
-        overflow-y: auto;
-        overflow-x: hidden;
+        overflow: hidden auto;
         padding: 0 $inuit-base-spacing-unit $inuit-base-spacing-unit;
         margin: $inuit-base-spacing-unit 0 0;
         height: auto;
@@ -89,6 +85,7 @@
     &.recommendation-modal {
         li:hover {
             background-color: $dp-color-background-light;
+
             .badge {
                 background-color: $dp-color-main;
             }
