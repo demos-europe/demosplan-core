@@ -378,8 +378,16 @@ const LayersStore = {
         id = element.categoryId
       }
 
-      return dpApi.delete(Routing.generate('api_resource_delete', { resourceType: currentType, resourceId: id }))
-        .then(this.api.checkResponse)
+      return dpApi.delete(Routing.generate('api_resource_delete', {
+        resourceType: currentType,
+        resourceId: id
+      }))
+        .then(response => this.api.checkResponse(response, {
+          204: {
+            text: Translator.trans('confirm.gislayer.delete'),
+            type: 'confirm'
+          }
+        }))
         .then(() => {
           commit('removeElement', {
             id: element.id,
@@ -388,7 +396,6 @@ const LayersStore = {
           })
         })
     }
-
   },
 
   getters: {

@@ -31,7 +31,7 @@ class PostcodeConstraintValidator extends ConstraintValidator
         if ('' === $value) {
             return;
         }
-        if (is_int($value) && 9999 < $value && 100000 > $value) {
+        if (is_int($value) && 999 < $value && 100000 > $value) {
             return;
         }
         if (is_string($value) && is_numeric($value) && 5 === strlen($value)) {

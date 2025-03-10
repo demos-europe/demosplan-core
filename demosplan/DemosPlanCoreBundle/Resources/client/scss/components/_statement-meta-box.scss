@@ -21,7 +21,7 @@
         font-weight: $bold-font-weight;
     }
 
-    fieldset:not(:last-child):not(fieldset fieldset) {
+    fieldset:not(:last-child, fieldset fieldset) {
         border-bottom: 1px solid $dp-color-neutral-light-2 !important;
         margin-bottom: 32px !important;
     }

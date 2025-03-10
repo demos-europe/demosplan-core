@@ -35,7 +35,7 @@
             class="inline-block first:mr-1"
             :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             :groups-object="filter.groupsObject"
-            :initial-query="queryIds"
+            :initial-query-ids="queryIds"
             :items-object="filter.itemsObject"
             :key="`filter_${filter.labelTranslationKey}`"
             :operator="filter.comparisonOperator"
@@ -500,20 +500,23 @@ export default {
       fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('StatementSegment', {
-      listSegments: 'list'
-    }),
+    ...mapActions('FilterFlyout', [
+      'updateFilterQuery'
+    ]),
 
     ...mapActions('Place', {
       fetchPlaces: 'list'
+    }),
+
+    ...mapActions('StatementSegment', {
+      listSegments: 'list'
     }),
 
     ...mapMutations('FilterFlyout', {
       setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
       setIsLoadingFilterFlyout: 'setIsLoading',
       setGroupedFilterOptions: 'setGroupedOptions',
-      setUngroupedFilterOptions: 'setUngroupedOptions',
-      updateFilterQuery: 'updateFilterQuery'
+      setUngroupedFilterOptions: 'setUngroupedOptions'
     }),
 
     applyQuery (page) {
@@ -698,6 +701,7 @@ export default {
      * @param params.additionalQueryParams {Object}
      * @param params.category {Object} id, label
      * @param params.filter {Object}
+     * @param params.isInitialWithQuery {Boolean}
      * @param params.path {String}
      * @param params.searchPhrase {String}
      */
@@ -731,7 +735,7 @@ export default {
             const groupedOptions = []
             const ungroupedOptions = []
 
-            result.included.forEach(resource => {
+            result.included?.forEach(resource => {
               const filter = result.data.find(type => type.attributes.path === path)
               const resourceIsGroup = resource.type === 'AggregationFilterGroup'
               const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0

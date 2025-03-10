@@ -17,26 +17,15 @@
   <div class="u-mt">
     <!-- search -->
     <div class="layout u-mt">
-      <div class="layout__item u-1-of-1">
-        <input
-          type="text"
-          v-model="searchValue"
-          class="o-form__control-input u-mb-0_5"
-          style="height: 28px;"
-          data-cy="userList:searchUser"
-          @keypress.enter.prevent="getFilteredItems"
-          :placeholder="Translator.trans('search')"><!--
-     --><dp-button
-          class="u-ml-0_5"
-          data-cy="userList:searchUserBtn"
-          :text="Translator.trans('searching')"
-          @click="getFilteredItems" />
-        <dp-contextual-help
-          class="float-right"
-          :text="tooltipContent" />
+      <div class="layout__item u-1-of-1 flex">
+        <dp-search-field
+          data-cy="search:currentSearchTerm"
+          :placeholder="Translator.trans('searchterm')"
+          @search="handleSearch"
+          @reset="handleReset" />
+        <dp-contextual-help :text="tooltipContent" />
       </div>
     </div>
-
     <dp-loading
       v-if="isLoading"
       class="u-ml u-mt" />
@@ -108,16 +97,16 @@
 </template>
 
 <script>
-import { debounce, DpButton, DpContextualHelp, DpLoading, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { debounce, DpContextualHelp, DpLoading, DpSearchField, dpSelectAllMixin, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 
 export default {
   name: 'DpUserList',
 
   components: {
-    DpButton,
     DpContextualHelp,
     DpLoading,
+    DpSearchField,
     DpSlidingPagination: async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
       return DpSlidingPagination
@@ -198,23 +187,36 @@ export default {
     }),
     ...mapActions('AdministratableUser', {
       userList: 'list',
-      deleteUser: 'delete'
+      deleteAdministratableUser: 'delete'
     }),
 
-    deleteItems (ids) {
-      if (this.selectedItems.length === 0) {
-        dplan.notify.notify('warning', Translator.trans('warning.select.entries'))
-      } else {
-        if (window.dpconfirm(Translator.trans('check.user.delete', { count: this.selectedItems.length }))) {
-          ids.forEach(id => {
-            this.deleteUser(id)
-              .then(() => {
-                // Remove deleted item from itemSelections
-                delete this.itemSelections[id]
-                dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
-              })
-          })
-        }
+    async deleteItems (ids) {
+      if (!this.selectedItems.length) {
+        return dplan.notify.notify('warning', Translator.trans('warning.select.entries'))
+      }
+
+      const isConfirmed = window.dpconfirm(
+        Translator.trans('check.user.delete', { count: this.selectedItems.length })
+      )
+
+      if (!isConfirmed) return
+
+      /* Ensures all deletions attempt to execute, even if one fails. Each deletion resolves to { status: 'fulfilled' | 'rejected', value | reason } */
+      const deleteResults = await Promise.allSettled(
+        ids.map(async id => {
+          try {
+            await this.deleteAdministratableUser(id)
+            delete this.itemSelections[id]
+            dplan.notify.notify('confirm', Translator.trans('confirm.user.deleted'))
+          } catch (error) {
+            console.error(`Failed to delete user with ID ${id}:`, error)
+          }
+        })
+      )
+
+      // Reload items only if at least one deletion was successful
+      if (deleteResults.some(result => result.status === 'fulfilled')) {
+        this.loadItems()
       }
     },
 
@@ -262,6 +264,16 @@ export default {
         .then(() => {
           this.isLoading = false
         })
+    },
+
+    handleSearch (term) {
+      this.searchValue = term
+      this.getFilteredItems()
+    },
+
+    handleReset () {
+      this.searchValue = ''
+      this.getFilteredItems()
     },
 
     hasOwnProp (obj, prop) {

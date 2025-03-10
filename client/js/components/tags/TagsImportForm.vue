@@ -1,7 +1,7 @@
 <template>
   <div>
     <form
-      :action="Routing.generate('DemosPlan_statement_administration_tags_csv_import', { procedure: this.procedureId })"
+      :action="Routing.generate('DemosPlan_statement_administration_tags_csv_import', { procedureId: this.procedureId })"
       method="POST"
       name="tag_edit">
 
@@ -12,14 +12,12 @@
         :value="dplan.csrfToken">
 
       <fieldset class="flow-root pb-1">
-        <dp-contextual-help
-          class="float-right"
-          :text="Translator.trans('tags.import.help')"
-        ></dp-contextual-help>
         <dp-label
           :text="Translator.trans('tags.import')"
           for="uploadTags"
+          :hint="Translator.trans('tags.import.hint')"
           :tooltip="Translator.trans('tags.import.help')" />
+        <a download :href="availableEntity.exampleFile" target="_blank">{{ Translator.trans('example.file') }}</a>
         <dp-upload
           id="uploadTags"
           name="r_importCsv"
@@ -49,14 +47,12 @@
 </template>
 
 <script>
-import { DpButton, DpContextualHelp, DpInput, DpLabel, DpUpload } from '@demos-europe/demosplan-ui'
+import { DpButton, DpLabel, DpUpload } from '@demos-europe/demosplan-ui'
 export default {
   name: 'TagsImportForm',
 
   components: {
     DpButton,
-    DpContextualHelp,
-    DpInput,
     DpLabel,
     DpUpload
   },
@@ -72,6 +68,14 @@ export default {
     return {
       uploadedCSV: null,
       uploadedFiles: ''
+    }
+  },
+
+  computed: {
+    availableEntity () {
+      return {
+        exampleFile: '/files/Beispieldatei_Schlagwortimport.csv'
+      }
     }
   },
 

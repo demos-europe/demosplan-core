@@ -1,5 +1,5 @@
 # due to BSI SYS.1.6.A6 we need to use excplicit versions
-FROM debian:stable-20250113-slim AS build
+FROM debian:stable-20250224-slim AS build
 
 ARG PROJECT_NAME
 # ENV vars needs to be set to build the assets
@@ -66,9 +66,11 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/video && \
     mkdir -p /srv/www/var/cache && \
     mkdir -p /srv/www/var/log && \
+    mkdir -p /srv/www/var/certs && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web && \
     chown -R www-data /srv/www/var/cache && \
     chown -R www-data /srv/www/var/log && \
+    chown -R www-data /srv/www/var/certs && \
 # define doctrine in memory database for the asset build
     mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
 COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
@@ -101,7 +103,7 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
     touch /var/log/php8.2-fpm.log && chown www-data:www-data /var/log/php8.2-fpm.log
 
-FROM debian:stable-20241111-slim AS fpm
+FROM debian:stable-20250224-slim AS fpm
 
 ARG PROJECT_NAME
 ENV PROJECT_PREFIX=$PROJECT_NAME \
@@ -134,7 +136,11 @@ COPY --from=build /opt/config/parameters.yml /opt/config/parameters.yml
 # delte the cache and log files
 RUN rm -rf /srv/www/var/cache/* && \
     rm -rf /srv/www/var/log/* && \
-    rm -rf /srv/www/projects/$PROJECT_NAME/{files,fonts,images,js,video,img,pdf}
+    rm -rf /srv/www/projects/$PROJECT_NAME/{files,fonts,images,js,video,img,pdf} && \
+    # link the custom squid root ca to the system that is mounted as a secret \
+    # use a dummy file during link creation to prevent the error if the secret is not mounted \
+    touch /srv/www/var/certs/ca.crt && \
+    ln -s /srv/www/var/certs/ca.crt /usr/local/share/ca-certificates/ca.crt
 
 # run as rootless container
 USER www-data
