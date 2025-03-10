@@ -640,7 +640,7 @@ export default {
     getInitiallySelectedFilterCategoriesFromLocalStorage () {
       const selectedFilterCategories = localStorage.getItem('visibleFilterFlyouts')
 
-      return selectedFilterCategories ? JSON.parse(selectedFilterCategories) : []
+      return selectedFilterCategories ? JSON.parse(selectedFilterCategories) : null
     },
 
     getTagById (tagId) {
@@ -727,15 +727,14 @@ export default {
         Object.values(selectedFilterOptions).forEach(option => {
           this.$set(this.appliedFilterQuery, option.condition.value, option)
         })
+      } else if (isReset) {
+        const filtersWithConditions = Object.fromEntries(
+          Object.entries(this.filterQuery).filter(([key, value]) => value.condition)
+        )
+
+        this.appliedFilterQuery = Object.keys(filtersWithConditions).length ? filtersWithConditions : {}
       } else {
-        if (isReset) {
-          const filtersWithConditions = Object.fromEntries(
-            Object.entries(this.filterQuery).filter(([key, value]) => value.condition)
-          )
-          this.appliedFilterQuery = Object.keys(filtersWithConditions).length ? filtersWithConditions : {}
-        } else {
-          this.appliedFilterQuery = selectedFilterOptions
-        }
+        this.appliedFilterQuery = selectedFilterOptions
       }
     },
 
@@ -820,11 +819,8 @@ export default {
 
     setInitiallySelectedFilterCategories () {
       const selectedFilterCategoriesInStorage = this.getInitiallySelectedFilterCategoriesFromLocalStorage()
-      this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage.length ? selectedFilterCategoriesInStorage : this.initiallySelectedColumns
 
-      if (selectedFilterCategoriesInStorage.length === 0) {
-        localStorage.setItem('visibleFilterFlyouts', JSON.stringify(this.initiallySelectedFilterCategories))
-      }
+      this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null ? selectedFilterCategoriesInStorage : this.initiallySelectedColumns
     },
 
     toggleAllSelectedFilterCategories () {
