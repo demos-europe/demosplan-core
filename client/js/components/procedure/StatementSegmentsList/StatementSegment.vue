@@ -723,6 +723,18 @@ export default {
       this.activeId = id
     },
 
+    setSelectedAssignee () {
+      if (this.segment.relationships?.assignee?.data?.id) {
+        this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+      }
+    },
+
+    setSelectedPlace () {
+      if (this.segment.relationships.place) {
+        this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+      }
+    },
+
     showComments () {
       if (this.checkIfToolIsActive('comments')) {
         return
@@ -901,7 +913,7 @@ export default {
   },
 
   mounted () {
-    if (!this.$store.state.Place.loading || this.places.length === 0) {
+    if (!this.$store.state.Place.loading && this.places.length === 0) {
       this.fetchPlaces({
         fields: {
           Place: [
@@ -914,15 +926,13 @@ export default {
         sort: 'sortIndex'
       })
         .then(() => {
-          if (this.segment.relationships.place) {
-            this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
-          }
+          this.setSelectedPlace()
         })
-    } else if (this.segment.relationships.place) {
-      this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+    } else {
+      this.setSelectedPlace()
     }
 
-    if (!this.$store.state.AssignableUser.loading || this.assignableUsers.length === 0) {
+    if (!this.$store.state.AssignableUser.loading && this.assignableUsers.length === 0) {
       this.fetchAssignableUsers({
         fields: {
           AssignableUser: [
@@ -934,12 +944,10 @@ export default {
         sort: 'lastname'
       })
         .then(() => {
-          if (this.segment.relationships?.assignee?.data?.id) {
-            this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
-          }
+          this.setSelectedAssignee()
         })
-    } else if (this.segment.relationships?.assignee?.data?.id) {
-      this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+    } else {
+      this.setSelectedAssignee()
     }
 
     loadAddonComponents('segment.recommendationModal.tab')
