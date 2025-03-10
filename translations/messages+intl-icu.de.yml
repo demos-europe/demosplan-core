@@ -2960,48 +2960,69 @@ report.add.element: |
     Eine Kategorie wurde hinzugefügt:<br />
     Titel: "{title}"<br />
     Text: "{text}"<br />
-    Kategorie: {category}<br />
-    Planungsdokument als Datei: {fileName}<br />
+    Kategorietyp: {category}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
     Berechtigte Institutionen: {organisations} <br />
     Veröffentlicht: {enabled}
 report.update.element: |
     Eine Kategorie wurde geändert zu:<br />
     Titel: "{title}"<br />
     Text: "{text}"<br />
-    Kategorie: {category}<br />
+    Kategorietyp: {category}<br />
     Planungsdokument als Datei: {fileName}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
     Berechtigte Institutionen: {organisations} <br />
     Veröffentlicht: {enabled}
 report.delete.element: |
-    Die Kategorie ({elementCategory}) "{title}" wurde gelöscht.
+    Die Kategorie "{title}" ({category}) wurde gelöscht.<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
 report.add.paragraph: |
     Eine Kapitel wurde hinzugefügt:<br />
     Titel: "{title}"<br />
     Text: "{text}"<br />
-    Kategorie: {category}<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
     Sichtbar: {visible}
 report.update.paragraph: |
     Eine Kapitel wurde geändert zu:<br />
     Titel: "{title}"<br />
     Text: "{text}"<br />
-    Kategorie: {category}<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
     Sichtbar: {visible}
 report.delete.paragraph: |
-    Das Kapitel "{title}" wurde gelöscht.
+    Das Kapitel "{title}" wurde gelöscht.<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
 report.add.singleDocument: |
     Eine Planungsdokument wurde hinzugefügt:<br />
     Titel: "{title}"<br />
     Datei: {fileName}<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
     Sichtbar: {visible}<br />
     Stellungnahme möglich: {statement_enabled}
 report.update.singleDocument: |
     Eine Planungsdokument wurde geändert zu:<br />
     Titel: "{title}"<br />
     Datei: {fileName}<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
     Sichtbar: {visible}<br />
     Stellungnahme möglich: {statement_enabled}
 report.delete.singleDocument:  |
-    Das Planungsdokument "{title}" wurde gelöscht.
+    Das Planungsdokument "{title}" wurde gelöscht.<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
 report.create.planDrawingFile: |
     Die Planzeichnung "{fileName}" wurde hinzugefügt.
 report.delete.planDrawingFile: |

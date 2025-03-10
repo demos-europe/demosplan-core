@@ -13,31 +13,32 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
 use Carbon\Carbon;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 
 class SingleDocumentReportEntryFactory extends AbstractReportEntryFactory
 {
     private function createMessageData(SingleDocument $singleDocument): array
     {
         return [
-            'documentId'        => $singleDocument->getId(),
-            'documentTitle'     => $singleDocument->getTitle(),
-            'documentText'      => $singleDocument->getText(),
-            'documentCategory'  => $singleDocument->getCategory(), // eg. file, e_unterlagen, arbeitskreis, informationen,...
-            'relatedFile'       => $singleDocument->getFileInfo()->getFileName(),
-            'elementCategory'   => $singleDocument->getElement()->getCategory(), // eg map, file, statement, paragraph, ..
-            'elementTitle'      => $singleDocument->getElement()->getTitle(), // eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
-            'visible'           => $singleDocument->getVisible(),
-            'statement_enabled' => $singleDocument->isStatementEnabled(),
-            'procedurePhase'    => $singleDocument->getProcedure()->getPhase(),
+            'id'                        => $singleDocument->getId(),
+            'title'                     => $singleDocument->getTitle(),
+            'text'                      => $singleDocument->getText(),
+            'category'                  => $singleDocument->getCategory(), // eg. file, e_unterlagen, arbeitskreis, informationen,...
+            'fileName'               => $singleDocument->getFileInfo()->getFileName(),
+            'relatedElementCategory'    => $singleDocument->getElement()->getCategory(), // eg map, file, statement, paragraph, ..
+            'relatedElementTitle'       => $singleDocument->getElement()->getTitle(), // eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
+            'visible'                   => $singleDocument->getVisible(),
+            'statement_enabled'         => $singleDocument->isStatementEnabled(),
+            'keyOfInternalPhase'        => $singleDocument->getProcedure()->getPhase(),
+            'keyOfEternalPhase'         => $singleDocument->getProcedure()->getPublicParticipationPhase(),
+            //The translation of the time the report is created is the important one, not the key
+            'nameOfInternalPhase'       => $singleDocument->getProcedure()->getPhaseName(),
+            'nameOfExternalPhase'       => $singleDocument->getProcedure()->getPublicParticipationPhaseName(),
         ];
     }
 
