@@ -283,6 +283,7 @@ class StatementEmailSender extends CoreService
 
     private function extractAndValidateCcEmails($sendEmailCC): array {
         $syntaxEmailErrors = [];
+        $emailcc = [];
         // zerlege den string in die einzelnen E-Mail-Adressen
         $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $sendEmailCC);
         // überprüfe jede dieser mails
