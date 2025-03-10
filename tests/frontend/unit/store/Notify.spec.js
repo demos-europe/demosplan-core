@@ -15,22 +15,20 @@ const LocalVue = createLocalVue()
 LocalVue.use(Vuex)
 let StubStore
 
-// Non-instance tests
-describe('Notify', () => {
+describe('Notify - Non-instance tests', () => {
   it('is namespaced', () => {
-    expect(Notify.hasOwnProperty('namespaced')).toBe(true)
+    expect(Object.hasOwn(Notify, 'namespaced')).toBe(true)
     expect(Notify.namespaced).toBe(true)
   })
 
   it('has a messages list', () => {
-    expect(Notify.hasOwnProperty('state')).toBe(true)
-    expect(Notify.state.hasOwnProperty('messages')).toBe(true)
+    expect(Object.hasOwn(Notify, 'state')).toBe(true)
+    expect(Object.hasOwn(Notify.state, 'messages')).toBe(true)
     expect(Notify.state.messages instanceof Array).toBe(true)
   })
 })
 
-// Active tests
-describe('Notify', () => {
+describe('Notify - Active tests', () => {
   beforeEach(() => {
     StubStore = new Vuex.Store({})
     StubStore.registerModule('Notify', Notify)

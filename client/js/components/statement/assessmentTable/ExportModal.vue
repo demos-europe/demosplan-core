@@ -161,6 +161,16 @@
                 class="sr-only"
                 v-text="Translator.trans('export.type')" />
               <dp-checkbox
+                id="docxNumberStatements"
+                class="mb-1"
+                data-cy="exportModal:docxNumberStatements"
+                :label="{
+                  bold: true,
+                  text: Translator.trans('export.numbered_statements'),
+                  hint: Translator.trans('explanation.export.numbered_statements')
+                }"
+                v-model="exportChoice.docx.numberStatements" />
+              <dp-checkbox
                 id="docxAnonymous"
                 v-model="exportChoice.docx.anonymous"
                 data-cy="exportModal:docxObscure"
@@ -210,8 +220,7 @@
                   text: Translator.trans('statements')
                 }"
                 value="statementsOnly"
-                @change="() => handleDocxExportTypeChange('statementsOnly')"
-                />
+                @change="() => handleDocxExportTypeChange('statementsOnly')" />
               <dp-radio
                 id="docxExportTypeStatementsAndFragments"
                 :checked="exportChoice.docx.exportType === 'statementsAndFragments'"
@@ -313,6 +322,7 @@
                 value="topicsAndTags"
                 @change="exportChoice.xlsx.exportType = 'topicsAndTags'" />
               <dp-radio
+                v-if="hasPermission('feature_admin_assessmenttable_export_potential_areas_xlsx')"
                 id="xlsxExportTypePotentialAreas"
                 :checked="exportChoice.xlsx.exportType === 'potentialAreas'"
                 :class="{'mb-1': hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')}"
@@ -457,8 +467,8 @@ export default {
     const options = this.options
     const data = {}
     let optGroupKey // 'docx', 'pdf', etc.
-    let optGroup // all the options defined for an optGroupKey
-    let optKey // key of a single option, e.g. 'exportType', 'sortType'
+    let optGroup // All the options defined for an optGroupKey
+    let optKey // Key of a single option, e.g. 'exportType', 'sortType'
 
     for (optGroupKey in options) {
       optGroup = options[optGroupKey]
@@ -573,7 +583,7 @@ export default {
 
     zipTemplateOptions () {
       return this.getTemplateOptions(this.options.zip)
-    },
+    }
   },
 
   methods: {

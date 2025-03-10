@@ -37,6 +37,7 @@
           id="procedure_search_simple"
           v-model="currentAutocompleteSearch"
           :class="prefixClass('c-proceduresearch__search-field')"
+          data-cy="searchProcedureMapForm:procedureSearch"
           :label="{
             hide: true,
             text: Translator.trans('procedure.public.search.placeholder')
@@ -74,8 +75,9 @@
     <div :class="prefixClass('layout__item u-1-of-1-palm hide-lap-up-ib')">
       <button
         type="button"
-        @click.prevent="showFilter = !showFilter"
-        :class="prefixClass('btn btn--primary weight--bold block u-1-of-1')">
+        :class="prefixClass('btn btn--primary weight--bold block u-1-of-1')"
+        data-cy="searchProcedureMapForm:toggleFilter"
+        @click.prevent="showFilter = !showFilter">
         Filter
       </button>
     </div>
@@ -109,23 +111,24 @@
 
       <!-- Filter: Municipal code -->
       <label
-        for="municipalCode"
+        v-if="hasPermission('feature_procedures_show_municipal_filter')"
         :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-0_25')"
-        v-if="hasPermission('feature_procedures_show_municipal_filter')">
+        for="municipalCode">
         Kreis
       </label><!--
    --><div
-        :class="prefixClass('layout__item u-1-of-1 u-mb')"
-        v-if="hasPermission('feature_procedures_show_municipal_filter')">
+        v-if="hasPermission('feature_procedures_show_municipal_filter')"
+        :class="prefixClass('layout__item u-1-of-1 u-mb')">
         <select
           id="municipalCode"
-          name="municipalCode"
           :class="prefixClass('o-form__control-select')"
+          data-cy="searchProcedureMapForm:municipalCode"
+          name="municipalCode"
           @change="setValueAndSubmitForm($event, 'municipalCode')">
           <template v-for="municipalityGroups in municipalities">
             <optgroup
-              :key="'group_' + municipalityGroups.label"
               v-if="hasOwnProp(municipalityGroups,'options')"
+              :key="'group_' + municipalityGroups.label"
               :label="municipalityGroups.label">
               <option
                 v-for="county in municipalityGroups.options"
@@ -161,11 +164,11 @@
           :key="'select_' + filter.name"
           :class="prefixClass('layout__item u-1-of-1 u-mb')">
           <select
-            :ref="'filter_' + idx"
             :id="filter.name"
-            :name="filter.name"
-            :data-cy="'searchProcedureMapForm:' + filter.name"
+            :ref="'filter_' + idx"
             :class="prefixClass('o-form__control-select')"
+            :data-cy="'searchProcedureMapForm:' + filter.name"
+            :name="filter.name"
             @change="setValueAndSubmitForm($event, filter.name)">
             <option value="">
               {{ Translator.trans('all') }}
@@ -195,16 +198,16 @@
         <h2
           v-if="isSearch"
           id="searchResultHeading"
-          aria-live="polite"
-          role="status"
-          :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')">
+          aria-live="assertive"
+          :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')"
+          role="status">
           Die Suche nach <span :class="prefixClass('c-proceduresearch__term weight--bold')">{{ currentSearch }}</span> hatte {{ resultCount }} Ergebnis
         </h2>
         <h2
           v-else-if="isNoSearchAndNoResult"
           id="noSearchResultHeading"
-          role="status"
-          :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')">
+          :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')"
+          role="status">
           {{ Translator.trans('search.results.none') }}.
         </h2>
         <template v-else-if="isDefaultFilter && resultCount === Translator.trans('none.neutral')">
@@ -214,6 +217,7 @@
           <button
             type="button"
             :class="prefixClass('btn btn--primary u-ml u-mb')"
+            data-cy="searchProcedureMapForm:showAllProcedures"
             @click.prevent="showAllProcedures">
             {{ Translator.trans('procedures.all.show') }}
           </button>

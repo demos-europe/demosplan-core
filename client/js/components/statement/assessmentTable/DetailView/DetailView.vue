@@ -25,8 +25,8 @@ import { mapActions, mapGetters } from 'vuex'
 import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
-import DpStatementPublish from '@DpJs/components/statement/statement/DpStatementPublish'
 import saveAndReturn from '@DpJs/directives/saveAndReturn'
+import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
 
 export default {
   name: 'DpDetailView',
@@ -39,7 +39,7 @@ export default {
     DpDatepicker,
     DpMapModal,
     DpMultiselect,
-    DpStatementPublish,
+    StatementPublish,
     DpAccordion,
     DpUploadFiles,
 
@@ -141,7 +141,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('AssessmentTable', ['counties', 'municipalities', 'priorityAreas', 'tag'])
+    ...mapGetters('AssessmentTable', ['counties', 'municipalities', 'priorityAreas', 'tags'])
   },
 
   methods: {

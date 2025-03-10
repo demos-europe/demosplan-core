@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler;
 
+use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\AddonTreeBuilder;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\FormOptionsTreeBuilder;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\ProcedurePhasesTreeBuilder;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
@@ -26,6 +27,7 @@ class OptionsLoaderPass implements CompilerPassInterface
     final public const OVERRIDABLE_CONFIGS = [
         'form_options.yml'      => FormOptionsTreeBuilder::class,
         'procedurephases.yml'   => ProcedurePhasesTreeBuilder::class,
+        'addons.yml'            => AddonTreeBuilder::class,
     ];
 
     public function process(ContainerBuilder $container): void
@@ -35,6 +37,7 @@ class OptionsLoaderPass implements CompilerPassInterface
             DemosPlanPath::getProjectPath('app/Resources/DemosPlanCoreBundle/config'),
             DemosPlanPath::getConfigPath('procedure'),
             DemosPlanPath::getProjectPath('app/Resources/DemosPlanCoreBundle/config/procedure'),
+            DemosPlanPath::getProjectPath('app/config'),
         ]);
 
         foreach (self::OVERRIDABLE_CONFIGS as $overridableConfig => $configClassName) {

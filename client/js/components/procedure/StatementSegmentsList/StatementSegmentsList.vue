@@ -13,7 +13,7 @@
       <dp-version-history
         v-show="slidebar.showTab === 'history'"
         class="u-pr"
-        :procedure-id="procedureId" />
+        :procedure-id="procedure.id" />
       <segment-comments-list
         v-if="hasPermission('feature_segment_comment_list_on_segment')"
         v-show="slidebar.showTab === 'comments'"
@@ -24,7 +24,7 @@
         v-show="slidebar.showTab === 'map'"
         ref="locationMap"
         :map-data="procedureMapSettings"
-        :procedure-id="procedureId"
+        :procedure-id="procedure.id"
         :segment-id="slidebar.segmentId"
         :statement-id="statementId" />
     </dp-slidebar>
@@ -89,21 +89,27 @@
               </template>
               <template v-if="statement">
                 <div class="overflow-x-scroll break-words max-h-13 max-w-14 w-max">
-                  <span class="block weight--bold">{{ Translator.trans('original.pdf') }}</span>
+                  <span
+                    v-if="originalAttachment.hash"
+                    class="block weight--bold">
+                    {{ Translator.trans('original.pdf') }}
+                  </span>
                   <statement-meta-attachments-link
                     v-if="originalAttachment.hash"
                     class="block whitespace-normal u-mr-0_75"
                     :attachment="originalAttachment"
-                    :procedure-id="procedureId" />
+                    :procedure-id="procedure.id" />
                   <span
                     v-if="additionalAttachments.length > 0"
-                    class="block weight--bold">{{ Translator.trans('more.attachments') }}</span>
+                    class="block weight--bold">
+                    {{ Translator.trans('more.attachments') }}
+                  </span>
                   <statement-meta-attachments-link
                     v-for="attachment in additionalAttachments"
                     class="block whitespace-normal u-mr-0_75"
                     :attachment="attachment"
                     :key="attachment.hash"
-                    :procedure-id="procedureId" />
+                    :procedure-id="procedure.id" />
                 </div>
               </template>
             </dp-flyout>
@@ -137,17 +143,24 @@
       <statement-meta
         v-if="showInfobox && statement"
         :attachments="filteredAttachments"
+        :available-counties="availableCounties"
+        :available-municipalities="availableMunicipalities"
+        :available-priority-areas="availablePriorityAreas"
         :current-user-id="currentUser.id"
         :editable="editable"
+        :statement-form-definitions="statementFormDefinitions"
+        :procedure="procedure"
+        :procedure-statement-priority-area="procedureStatementPriorityArea"
         :statement="statement"
         :submit-type-options="submitTypeOptions"
         @close="showInfobox = false"
+        @input="checkStatementClaim"
         @save="(statement) => saveStatement(statement)"
-        @input="checkStatementClaim" />
+        @updatedVoters="getStatement" />
       <segments-recommendations
         v-if="currentAction === 'addRecommendation' && hasPermission('feature_segment_recommendation_edit')"
         :current-user="currentUser"
-        :procedure-id="procedureId"
+        :procedure-id="procedure.id"
         :statement-id="statementId" />
       <statement-segments-edit
         v-else-if="currentAction === 'editText'"
@@ -165,7 +178,6 @@
 import {
   checkResponse,
   dpApi,
-  DpButton,
   DpFlyout,
   DpSlidebar,
   DpStickyElement
@@ -181,14 +193,13 @@ import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatementSegmentsEdit from './StatementSegmentsEdit'
-import StatusBadge from '../Shared/StatusBadge.vue'
+import StatusBadge from '../Shared/StatusBadge'
 
 export default {
   name: 'StatementSegmentsList',
 
   components: {
     DpClaim,
-    DpButton,
     DpFlyout,
     DpSlidebar,
     DpStickyElement,
@@ -206,12 +217,30 @@ export default {
 
   provide () {
     return {
-      procedureId: this.procedureId,
+      procedureId: this.procedure.id,
       recommendationProcedureIds: this.recommendationProcedureIds
     }
   },
 
   props: {
+    availableCounties: { // TODO: has to be adjusted in the BE
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availableMunicipalities: { // TODO: has to be adjusted in the BE
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
+    availablePriorityAreas: { // TODO: has to be adjusted in the BE
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     currentUser: {
       type: Object,
       required: true
@@ -227,9 +256,26 @@ export default {
       default: false
     },
 
-    procedureId: {
-      type: String,
-      required: true
+    procedure: {
+      type: Object,
+      required: true,
+      validator: (p) => {
+        let valid = true
+
+        Object.keys(p).forEach(key => {
+          if (!['id', 'name', 'orgaName'].includes(key)) {
+            valid = false
+          }
+        })
+
+        return valid
+      }
+    },
+
+    procedureStatementPriorityArea: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
     recommendationProcedureIds: {
@@ -246,6 +292,11 @@ export default {
     statementExternId: {
       type: String,
       required: true
+    },
+
+    statementFormDefinitions: {
+      required: true,
+      type: Object
     },
 
     submitTypeOptions: {
@@ -286,19 +337,16 @@ export default {
     ...mapGetters('SegmentSlidebar', ['commentsList']),
 
     additionalAttachments () {
-      /**
-       * Until we move completely to the "new way" of handling files,
-       * We have to get the additional files directly from files since that's the place where they get stored.
-       * When crating a new 'additionalFile' via API, the backend creates this kind of relationship as a sideeffect
-       */
-      if (this?.statement?.hasRelationship('files')) {
-        const files = this.statement.relationships.files.list()
+      if (this.statement?.hasRelationship('genericAttachments')) {
+        const attachments = this.statement.relationships.genericAttachments.list()
 
-        return Object.values(files).map(file => {
+        return Object.values(attachments).map(attachment => {
+          const file = attachment?.relationships?.file.get()
+
           return {
-            hash: file.attributes.hash,
             filename: file.attributes.filename,
-            type: file.type
+            hash: file.attributes.hash,
+            id: attachment.id
           }
         })
       } else {
@@ -313,23 +361,6 @@ export default {
           id: user.id
         }))
         : []
-    },
-
-    attachments () {
-      if (this?.statement?.hasRelationship('attachments')) {
-        const attachments = this.statement.relationships.attachments.list()
-
-        return Object.values(attachments).map(attachment => {
-          const file = attachment?.relationships?.file.get()
-          return {
-            hash: file.attributes.hash,
-            filename: file.attributes.filename,
-            type: attachment.attributes.attachmentType
-          }
-        })
-      } else {
-        return []
-      }
     },
 
     attachmentsAndOriginalPdfCount () {
@@ -367,7 +398,7 @@ export default {
         orgaName: ''
       }
     },
-
+    // TO DO: add check for original statement
     editable () {
       return this.isCurrentUserAssigned && !this.statement.attributes.synchronized
     },
@@ -401,7 +432,19 @@ export default {
     },
 
     originalAttachment () {
-      return this.attachments.find((attachment) => attachment.type === 'source_statement') || {}
+      const originalAttachment = this.statement.hasRelationship('sourceAttachment')
+        ? Object.values(this.statement.relationships.sourceAttachment.list())[0]
+        : {}
+
+      const file = originalAttachment?.relationships?.file.get()
+
+      return originalAttachment && file
+        ? {
+            filename: file.attributes.filename,
+            hash: file.attributes.hash,
+            id: originalAttachment.id
+          }
+        : {}
     },
 
     statement () {
@@ -501,13 +544,15 @@ export default {
     getStatement () {
       const statementFields = [
         'assignee',
-        'attachments',
-        'similarStatementSubmitters',
+        'availableProcedurePhases',
         'authoredDate',
         'authorName',
-        'files',
+        'consentRevoked',
+        'counties',
+        'document',
+        'elements',
         'fullText',
-        'isSubmittedByCitizen',
+        'genericAttachments',
         'initialOrganisationCity',
         'initialOrganisationDepartmentName',
         'initialOrganisationHouseNumber',
@@ -516,14 +561,29 @@ export default {
         'initialOrganisationStreet',
         'internId',
         'isManual',
+        'isSubmittedByCitizen',
         'memo',
+        'municipalities',
+        'numberOfAnonymVotes',
+        'paragraph',
+        'paragraphParentId',
+        'paragraphVersion',
+        'polygon',
+        'priorityAreas',
+        'priorityAreas',
+        'procedurePhase',
+        'publicVerified',
+        'publicVerifiedTranslation',
         'recommendation',
         'segmentDraftList',
-        'status',
+        'sourceAttachment',
         'submitDate',
         'submitName',
+        'submitterAndAuthorMetaDataAnonymized',
+        'submitterEmailAddress',
         'submitType',
-        'submitterEmailAddress'
+        'status',
+        'votes'
       ]
 
       if (this.isSourceAndCoupledProcedure) {
@@ -534,34 +594,95 @@ export default {
         statementFields.push('segmentDraftList')
       }
 
+      if (hasPermission('feature_similar_statement_submitter')) {
+        statementFields.push('similarStatementSubmitters')
+      }
+
+      if (hasPermission('field_send_final_email')) {
+        statementFields.push('authorFeedback', 'feedback', 'initialOrganisationEmail', 'publicStatement', 'sentAssessment', 'sentAssessmentDate', 'user')
+      }
+
+      const allFields = {
+        ElementsDetails: [
+          'document',
+          'paragraphs',
+          'title'
+        ].join(),
+        File: [
+          'hash',
+          'filename'
+        ].join(),
+        GenericStatementAttachment: [
+          'file'
+        ].join(),
+        ParagraphVersion: [
+          'title'
+        ].join(),
+        SingleDocument: [
+          'title'
+        ].join(),
+        SourceStatementAttachment: [
+          'file'
+        ].join(),
+        Statement: statementFields.join()
+      }
+
+      if (hasPermission('feature_statements_vote')) {
+        allFields.StatementVote = [
+          'city',
+          'createdDate',
+          'createdByCitizen',
+          'departmentName',
+          'email',
+          'name',
+          'organisationName',
+          'postcode'
+        ].join()
+      }
+
+      if (hasPermission('feature_similar_statement_submitter')) {
+        allFields.SimilarStatementSubmitter = [
+          'city',
+          'emailAddress',
+          'fullName',
+          'postalCode',
+          'streetName',
+          'streetNumber'
+        ].join()
+      }
+
+      if (hasPermission('field_send_final_email')) {
+        allFields.User = [
+          'orga'
+        ].join()
+      }
+
+      const include = [
+        'assignee',
+        'document',
+        'elements',
+        'genericAttachments',
+        'genericAttachments.file',
+        'paragraph',
+        'paragraphs',
+        'paragraphVersion.paragraph',
+        'sourceAttachment',
+        'sourceAttachment.file',
+        'votes'
+      ]
+
+      if (hasPermission('feature_similar_statement_submitter')) {
+        include.push('similarStatementSubmitters')
+      }
+
+      if (hasPermission('field_send_final_email')) {
+        include.push('user', 'user.orga')
+      }
+
       return this.getStatementAction({
         id: this.statementId,
-        include: [
-          'assignee',
-          'attachments',
-          'attachments.file',
-          'files',
-          'similarStatementSubmitters'
-        ].join(),
-        fields: {
-          Statement: statementFields.join(),
-          SimilarStatementSubmitter: [
-            'city',
-            'emailAddress',
-            'fullName',
-            'postalCode',
-            'streetName',
-            'streetNumber'
-          ].join(),
-          StatementAttachment: [
-            'file',
-            'attachmentType'
-          ].join(),
-          File: [
-            'hash',
-            'filename'
-          ].join()
-        }
+        include: include.join(),
+        fields: allFields
       })
     },
 
@@ -577,8 +698,6 @@ export default {
     saveStatement (statement) {
       this.synchronizeAssignee(statement)
       this.synchronizeFullText(statement)
-      // The key isManual is readonly, so we should remove it before saving
-      delete statement.attributes.isManual
       this.setStatement({ ...statement, id: statement.id })
 
       this.saveStatementAction(statement.id)
@@ -611,7 +730,7 @@ export default {
       const queryParams = new URLSearchParams(window.location.search)
       let action = queryParams.get('action')
 
-      if (action && action.includes('?')) {
+      if (action?.includes('?')) {
         action = action.split('?')[0]
       }
 
@@ -621,7 +740,7 @@ export default {
 
     showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
       const parameters = {
-        procedureId: this.procedureId,
+        procedureId: this.procedure.id,
         statementId: this.statementId
       }
 
@@ -728,8 +847,8 @@ export default {
         Orga: 'name'
       }
     })
-    this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedureId, statementId: this.statementId } })
-    this.fetchProcedureMapSettings(this.procedureId)
+    this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
+    this.fetchProcedureMapSettings({ procedureId: this.procedure.id })
       .then(response => {
         this.procedureMapSettings = { ...this.procedureMapSettings, ...response.attributes }
       })

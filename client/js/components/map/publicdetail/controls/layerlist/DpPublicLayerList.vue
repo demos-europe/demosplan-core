@@ -23,7 +23,7 @@
         :layer-groups-alternate-visibility="layerGroupsAlternateVisibility" />
       <dp-public-layer-list-category
         v-else
-        :key="layer.id"
+        :key="`category:${layer.id}`"
         :group="layer"
         :layer-type="layerType"
         :visible="true"
@@ -42,6 +42,7 @@ export default {
   name: 'DpPublicLayerList',
 
   components: {
+    DpPublicLayerListCategory,
     DpPublicLayerListLayer
   },
 

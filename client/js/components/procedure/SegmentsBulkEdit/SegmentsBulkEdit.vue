@@ -153,13 +153,13 @@
         <dp-inline-notification
           type="info"
           :message="Translator.trans('bulk.edit.info.assigned', { count: segments.length})"
-          class="border-between-none" />
+          class="border-between-none mt-3 mb-2" />
 
         <dp-inline-notification
           v-if="actions.addRecommendations.text === '' && addRecommendationsChecked"
           type="warning"
           :message="emptyRecommendationWarning"
-          class="border-between-none" />
+          class="border-between-none mt-3 mb-2" />
 
         <div
           v-if="hasPermission('feature_statement_assignment') && assignSegmentCheckedAndSelected"
@@ -525,10 +525,8 @@ export default {
           this.assignableUsers.push({
             name: Translator.trans('not.assigned'),
             id: null
-          });
-
+          })
         })
-
     },
 
     fetchPlaces () {

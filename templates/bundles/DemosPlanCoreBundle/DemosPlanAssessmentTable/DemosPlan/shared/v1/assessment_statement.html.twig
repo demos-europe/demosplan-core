@@ -124,6 +124,7 @@
                     {% apply spaceless %}
                         <fieldset id="statementVoterDiv">
                             <dp-accordion
+                                data-cy="assessmentStatement:statementVoters"
                                 ref="statementVoters"
                                 title="{{ "statement.voter"|trans }} ({{ statement.votes|length|default(0) + statement.numberOfAnonymVotes|default(0) }})">
                                 <div class="o-box--dark u-mt-0_25 u-ph u-pv-0_5">
@@ -152,6 +153,7 @@
                     {% apply spaceless %}
                         <fieldset id="statementPublishDiv">
                             <dp-accordion
+                                data-cy="assessmentStatement:statementPublish"
                                 title="{{ "publish.on.platform"|trans }}"
                                 ref="statementPublish">
                                 <div class="o-box--dark u-mt-0_25 u-ph u-pv-0_5">
@@ -159,23 +161,14 @@
                                         name="statementPublish"
                                         id="statementPublish"></a>
 
-                                    <dp-statement-publish
+                                    <statement-publish
                                         :editable="Boolean('{{ statement.publicVerified == 'publication_pending' and not readonly }}')"
                                         files-length="{{ statement.files|default([])|length }}"
                                         :is-manual="Boolean({{ statement.manual }})"
                                         public-verified="{{ statement.publicVerified }}"
                                         public-verified-trans-key="{{ statement.publicVerifiedTranslation }}"
                                         submitter-email="{{ statement.submitterEmailAddress|default }}">
-                                    </dp-statement-publish>
-
-                                    {% if hasPermission('feature_statements_vote') %}
-                                    <div
-                                        class="flash flash-info">
-                                        <p class="u-mb-0">
-                                            {{ "explanation.statement.public.activate.voting"|trans }}
-                                        </p>
-                                    </div>
-                                    {% endif %}
+                                    </statement-publish>
 
                                     {% if statement.files|length > 0 %}
                                         <p class="lbl u-mb-0_5">
@@ -218,8 +211,8 @@
                 {% if hasPermission('field_statement_memo') %}
                     <fieldset>
                         <dp-accordion
-                            title="{{ "create.note"|trans }}"
-                            data-cy="statementMemo">
+                            data-cy="assessmentStatement:statementMemo"
+                            title="{{ "create.note"|trans }}">
                             <div class="o-box--dark u-mt-0_25 u-ph u-pv-0_5">
                                 {{ uiComponent('form.textarea', {
                                     name: 'r_memo',

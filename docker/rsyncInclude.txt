@@ -1,5 +1,5 @@
-addons
 bin/console
+CHANGELOG.md
 client
 config
 demosplan
@@ -18,3 +18,5 @@ stylelint.config.js
 symfony.lock
 tailwind.config.js
 yarn.lock
+.yarnrc.yml
+tailwind.preflight.config.js

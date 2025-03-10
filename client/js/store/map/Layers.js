@@ -207,32 +207,39 @@ const LayersStore = {
           GisLayerCategory: [
             'categories',
             'gisLayers',
+            'hasDefaultVisibility',
+            'isVisible',
             'name',
             'layerWithChildrenHidden',
-            'treeOrder',
-            'isVisible',
-            'hasDefaultVisibility',
-            'parentId'
+            'parentId',
+            'treeOrder'
           ].join(),
           GisLayer: [
-            'name',
-            'url',
-            'isEnabled',
-            'treeOrder',
-            'mapOrder',
+            'canUserToggleVisibility',
+            'categoryId',
             'hasDefaultVisibility',
+            'isBaseLayer',
+            'isBplan',
+            'isEnabled',
+            'isMinimap',
+            'isPrint',
+            'isScope',
             'layers',
             'layerType',
-            'visibilityGroupId',
-            'isMinimap',
-            'categoryId'
+            'mapOrder',
+            'name',
+            'opacity',
+            'projectionLabel',
+            'treeOrder',
+            'url',
+            'visibilityGroupId'
           ].join()
         },
         filter: {
           name: {
             condition: {
               path: 'parentId',
-              operator: 'IS NULL',
+              operator: 'IS NULL'
             }
           }
         }
@@ -281,7 +288,7 @@ const LayersStore = {
     },
 
     saveAll ({ state, dispatch }) {
-      /* save each GIS layer and GIS layer category with its relationships */
+      /* Save each GIS layer and GIS layer category with its relationships */
       state.apiData.included.forEach(el => {
         dispatch('save', el)
       })
@@ -332,7 +339,7 @@ const LayersStore = {
             type,
             attributes: {
               treeOrder,
-              hasDefaultVisibility,
+              hasDefaultVisibility
             },
             relationships: {
               parentCategory: {
@@ -371,8 +378,16 @@ const LayersStore = {
         id = element.categoryId
       }
 
-      return dpApi.delete(Routing.generate('api_resource_delete', { resourceType: currentType, resourceId: id }))
-        .then(this.api.checkResponse)
+      return dpApi.delete(Routing.generate('api_resource_delete', {
+        resourceType: currentType,
+        resourceId: id
+      }))
+        .then(response => this.api.checkResponse(response, {
+          204: {
+            text: Translator.trans('confirm.gislayer.delete'),
+            type: 'confirm'
+          }
+        }))
         .then(() => {
           commit('removeElement', {
             id: element.id,
@@ -381,7 +396,6 @@ const LayersStore = {
           })
         })
     }
-
   },
 
   getters: {

@@ -12,7 +12,6 @@
     ref="sideBar"
     :style="`max-height: calc(100vh - ${offset}px - 8px);`"
     class="side-bar flex flex-col">
-
     <!-- Selected Tags Section -->
     <div class="relative px-2 py-2">
       <dp-label
@@ -41,7 +40,6 @@
       :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-hidden': availableTags.length && tagTopics.length > 8 }]"
       @mouseover="showFloatingContextButton.tags = true"
       @mouseleave="showFloatingContextButton.tags = false">
-
       <button
         v-if="!isCollapsed.tags"
         data-cy="sidebar:toggleVisibility:tags"
@@ -96,7 +94,6 @@
       class="relative py-1 pl-2 pr-5 -mr-4"
       @mouseover="showFloatingContextButton.placesAndAssignee = true"
       @mouseleave="showFloatingContextButton.placesAndAssignee = false">
-
       <FloatingContextButton
         class="right-0 top-0"
         section="placesAndAssignee"
@@ -172,17 +169,15 @@
 import {
   DpButtonRow,
   DpContextualHelp,
-  DpIcon,
   DpLabel,
   DpMultiselect,
-  DpSelect,
   hasOwnProp,
   Tooltip
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import AssignedTags from './AssignedTags.vue'
+import AssignedTags from './AssignedTags'
 import DpCreateTag from './DpCreateTag'
-import FloatingContextButton from './FloatingContextButton.vue'
+import FloatingContextButton from './FloatingContextButton'
 import SearchSelect from './SearchSelect'
 import TagSelect from './TagSelect'
 
@@ -194,10 +189,8 @@ export default {
     DpButtonRow,
     DpCreateTag,
     DpContextualHelp,
-    DpIcon,
     DpLabel,
     DpMultiselect,
-    DpSelect,
     FloatingContextButton,
     SearchSelect,
     TagSelect
@@ -332,7 +325,26 @@ export default {
       this.$emit('abort')
     },
 
+    // Matomo Tracking Event Tagging & Slicing
+    clickTrackerSaveButton () {
+      if (window._paq) {
+        window._paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('tags.select')])
+      }
+    },
+
     save () {
+      if (this.availablePlaces.length < 1) {
+        dplan.notify.notify(
+          'error',
+          Translator.trans('error.split_statement.no_place'),
+          Routing.generate('DemosPlan_procedure_places_list', { procedureId: this.procedureId }),
+          Translator.trans('places.addPlace'))
+
+        return
+      }
+
+      this.clickTrackerSaveButton()
+
       if (this.needsUpdate) {
         this.updateSegment()
       }
@@ -358,7 +370,7 @@ export default {
 
       if (this.placeNeedsUpdate) {
         // Place can't be empty
-        if (this.selectedPlace.id !== '') {
+        if (this.selectedPlace?.id) {
           segment.placeId = this.selectedPlace.id
           const place = this.availablePlaces.find(aPlace => aPlace.id === this.selectedPlace.id)
           segment.place = place ? { id: place.id, name: place.name } : { id: this.availablePlaces[0].id, name: this.availablePlaces[0].name }

@@ -45,13 +45,14 @@ class DumpGraphContainerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         $parameterEnable = 'container_dumper_graphivz_enable';
-        if (!$container->hasParameter($parameterEnable) || !$container->getParameter($parameterEnable)) {
+        if (!$container->hasParameter($parameterEnable) || false === $container->getParameter($parameterEnable)) {
             return;
         }
 
         // set default paths
-        $containerDotfilePath = $container->getParameter('kernel.cache_dir').'/container.dot';
-        $containerDplanDotfilePath = $container->getParameter('kernel.cache_dir').'/containerDplan.dot';
+        $cacheDir = $container->getParameter('kernel.cache_dir');
+        $containerDotfilePath = $cacheDir.'/container.dot';
+        $containerDplanDotfilePath = $cacheDir.'/containerDplan.dot';
 
         $parameterFileParam = 'container_dumper_graphivz_file';
         $parameterFileDplanParam = 'container_dumper_graphivz_dplan_file';
@@ -63,6 +64,7 @@ class DumpGraphContainerPass implements CompilerPassInterface
             $containerDplanDotfilePath = $container->getParameter($parameterFileDplanParam);
         }
 
+        // local file only, no need for flysystem
         $fs = new Filesystem();
         if ($fs->exists($containerDotfilePath)) {
             $fs->remove($containerDotfilePath);

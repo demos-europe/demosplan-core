@@ -97,6 +97,7 @@ class ExternalFileSaverTest extends FunctionalTestCase
             ->method('getFileContents')
             ->withAnyParameters()
             ->willReturn(
+                // uses local file, no need for flysystem
                 file_get_contents(DemosPlanPath::getRootPath('tests/backend/core/ExternalFileSaver/Functional/fff.png'))
             );
 

@@ -24,8 +24,13 @@ use demosplan\DemosPlanCoreBundle\Logic\User\UserHasher;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator;
+use Doctrine\ORM\EntityManagerInterface;
+use Endroid\QrCode\Builder\BuilderInterface;
+use Endroid\QrCodeBundle\Response\QrCodeResponse;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Email\Generator\CodeGeneratorInterface;
+use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticatorInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -62,7 +67,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
     public function __construct(
         UserHandler $userHandler,
-        UserService $userService
+        UserService $userService,
     ) {
         $this->userHandler = $userHandler;
         $this->userService = $userService;
@@ -116,6 +121,62 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             $requestPostFields['newEmail'],
             $hasherFactory
         );
+
+        return $this->redirectToRoute('DemosPlan_user_portal');
+    }
+
+    #[Route(path: '/authentication/2fa/qr-code', name: 'DemosPlan_user_qr_code')]
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    public function displayGoogleAuthenticatorQrCode(BuilderInterface $builder, TotpAuthenticatorInterface $totpAuthenticator)
+    {
+        $qrCodeContent = $totpAuthenticator->getQRContent($this->getUser());
+        $result = $builder
+            ->size(200)
+            ->margin(20)
+            ->data($qrCodeContent)
+            ->validateResult(true)
+            ->build();
+
+        return new QrCodeResponse($result);
+    }
+
+    #[Route(path: '/authentication/2fa/enable', name: 'DemosPlan_user_2fa_enable')]
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    public function enable2fa(
+        CurrentUserInterface $currentUser,
+        EntityManagerInterface $entityManager,
+        TotpAuthenticatorInterface $totpAuthenticator,
+    ): RedirectResponse {
+        $user = $currentUser->getUser();
+        if (!$user->isTotpEnabled()) {
+            $user->setTotpSecret($totpAuthenticator->generateSecret());
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('DemosPlan_user_portal');
+    }
+
+    #[Route(path: '/authentication/2faemail/enable', name: 'DemosPlan_user_2fa_email_enable')]
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    public function enable2faemail(
+        CodeGeneratorInterface $codeGenerator,
+        CurrentUserInterface $currentUser,
+    ): RedirectResponse {
+        $user = $currentUser->getUser();
+        if (!$user->isEmailAuthEnabled()) {
+            $codeGenerator->generateAndSend($user);
+        }
+
+        return $this->redirectToRoute('DemosPlan_user_portal');
+    }
+
+    #[Route(path: '/authentication/2faemail/send', name: 'DemosPlan_user_2fa_email_send')]
+    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    public function send2faemail(
+        CodeGeneratorInterface $codeGenerator,
+        CurrentUserInterface $currentUser,
+    ): RedirectResponse {
+        $codeGenerator->reSend($currentUser->getUser());
 
         return $this->redirectToRoute('DemosPlan_user_portal');
     }
@@ -241,7 +302,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         CurrentUserInterface $currentUser,
         CustomerService $customerService,
         ParameterBagInterface $parameterBag,
-        Request $request
+        Request $request,
     ) {
         if (!($currentUser->getUser() instanceof AnonymousUser)) {
             return $this->redirectToRoute('core_home_loggedin');
@@ -258,7 +319,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         $customers = array_map(static fn (array $availableCustomer): string => $availableCustomer[1], $availableCustomers);
         $usersOsi = [];
         $customerKey = $customerService->getCurrentCustomer()->getSubdomain();
-        $useIdp = false;
+        $useLoginListIdp = false;
 
         if (true === $parameterBag->get('alternative_login_use_testuser')) {
             // collect users for Login as
@@ -274,7 +335,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             // add access to test external identity provider
             // do not display link when it targets same site
             $gatewayUrl = $parameterBag->get('gateway_url');
-            $useIdp = '' !== $gatewayUrl && !str_contains($gatewayUrl, $request->getPathInfo());
+            $useLoginListIdp = '' !== $gatewayUrl && !str_contains($gatewayUrl, $request->getPathInfo());
         }
 
         if (true === $parameterBag->get('alternative_login_use_testuser_osi')) {
@@ -285,23 +346,23 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             });
         }
 
-        $useSaml = false;
-        // this check needs to be reworked once we know better how to save saml parameters by customer
-        if ('' !== $parameterBag->get('saml_idp_entityid')
+        $useIdp = false;
+        // this check needs to be reworked once we know better how to save oauth parameters by customer
+        if ('' !== $parameterBag->get('oauth_client')
             && 'bb' === $customerService->getCurrentCustomer()->getSubdomain()) {
-            $useSaml = true;
+            $useIdp = true;
         }
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
             [
                 'title'           => 'user.login',
-                'useSaml'         => $useSaml,
+                'useIdp'          => $useIdp,
                 'customers'       => $customers,
                 'currentCustomer' => $currentCustomer,
                 'loginList'       => [
                     'enabled'  => 0 < count($users) || 0 < count($usersOsi),
-                    'useIdp'   => $useIdp,
+                    'useIdp'   => $useLoginListIdp,
                     'users'    => $users,
                     'usersOsi' => $usersOsi,
                 ],
@@ -383,7 +444,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         UserHasher $userHasher,
         UserService $userService,
         string $token,
-        string $uId
+        string $uId,
     ) {
         try {
             $newPassword = $request->request->get('password');

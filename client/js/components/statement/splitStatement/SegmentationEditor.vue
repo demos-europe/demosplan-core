@@ -52,47 +52,65 @@ export default {
 
   data () {
     return {
+      customMarks: {
+        underline: {
+          parseDOM: [{ tag: 'u' }],
+          toDOM () {
+            return ['u']
+          }
+        },
+        link: {
+          attrs: {
+            href: {},
+            class: { default: null }
+          },
+          inclusive: false,
+          parseDOM: [{
+            tag: 'a[href]',
+            getAttrs (dom) {
+              return {
+                href: dom.getAttribute('href'),
+                class: dom.getAttribute('class')
+              }
+            }
+          }],
+          toDOM (node) {
+            const { href, class: className } = node.attrs
+            return ['a', { href, class: className }, 0]
+          }
+        }
+      },
       maxRange: 0
     }
   },
 
   methods: {
+    getExtendedMarks () {
+      let extendedMarks = schema.spec.marks
+
+      for (const [key, value] of Object.entries(this.customMarks)) {
+        extendedMarks = extendedMarks.update(key, value)
+      }
+
+      return extendedMarks
+    },
+
     initialize () {
       const proseSchema = new Schema({
         nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
-        marks: {
-          ...schema.spec.marks,
-          link: {
-            attrs: {
-              href: {},
-              class: { default: null }
-            },
-            inclusive: false,
-            parseDOM: [{
-              tag: 'a[href]',
-              getAttrs(dom) {
-                return {
-                  href: dom.getAttribute('href'),
-                  class: dom.getAttribute('class')
-                }
-              }
-            }],
-            toDOM(node) {
-              let { href, class: className } = node.attrs
-              return ['a', { href, class: className }, 0]
-            }
-          }
-        }
+        marks: this.getExtendedMarks()
       })
       const wrapper = document.createElement('div')
       wrapper.innerHTML = this.initStatementText ?? ''
       const rangePlugin = initRangePlugin(proseSchema, this.rangeChangeCallback, this.editToggleCallback)
-      this.maxRange = DOMParser.fromSchema(rangePlugin.schema).parse(wrapper).content.size
+      const parsedContent = DOMParser.fromSchema(rangePlugin.schema).parse(wrapper, { preserveWhitespace: true })
+
+      this.maxRange = parsedContent.content.size
 
       const view = new EditorView(document.querySelector('#editor'), {
         editable: () => false,
         state: EditorState.create({
-          doc: DOMParser.fromSchema(rangePlugin.schema).parse(wrapper),
+          doc: parsedContent,
           plugins: rangePlugin.plugins
         })
       })
@@ -107,7 +125,7 @@ export default {
       }
 
       let prosemirrorStateWrapper = {
-        view: view,
+        view,
         keyAccess: rangePlugin.keys,
         getContent: getContent(proseSchema)
       }

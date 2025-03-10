@@ -52,6 +52,7 @@
       </div>
       <dp-inline-notification
         v-if="hasActiveFilters && hasChangedStatements"
+        class="mt-3 mb-2"
         :message="Translator.trans('filter.settings_not_current')"
         type="warning" />
     </fieldset>
@@ -388,7 +389,7 @@ export default {
 
     filteredAssessmentExportOptions () {
       return Object.entries(this.assessmentExportOptions)
-        .filter(([val, key]) => val !== false)
+        .filter(([key, val]) => val !== false)
         .map(([key, val]) => ({ [key]: val }))
     },
 
@@ -432,7 +433,7 @@ export default {
 
     toggleAllCheckboxes (status) {
       const statements = JSON.parse(JSON.stringify(this.statements))
-      const payload = { status: status, statements: statements }
+      const payload = { status, statements }
 
       if (status === true) {
         for (const statementId in statements) {

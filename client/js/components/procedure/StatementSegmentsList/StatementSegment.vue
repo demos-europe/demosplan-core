@@ -90,7 +90,7 @@
     <div class="segment-list-col--l overflow-word-break">
       <image-modal
         ref="imageModal"
-        data-cy="recommendation:imgModal"/>
+        data-cy="recommendation:imgModal" />
       <div
         v-if="isAssignedToMe === false"
         ref="recommendationContainer"
@@ -174,14 +174,16 @@
             <button
               v-if="hasPermission('area_admin_boilerplates')"
               :class="prefixClass('menubar__button')"
+              data-cy="segmentEditor:boilerplate"
               type="button"
               v-tooltip="Translator.trans('boilerplate.insert')"
               @click.stop="openBoilerPlate">
               <i :class="prefixClass('fa fa-puzzle-piece')" />
             </button>
             <button
-              v-if="asyncComponents"
+              v-if="asyncComponents.length > 0"
               :class="prefixClass('menubar__button')"
+              data-cy="segmentEditor:similarRecommendation"
               type="button"
               v-tooltip="Translator.trans('segment.recommendation.insert.similar')"
               @click.stop="toggleRecommendationModal">
@@ -501,7 +503,7 @@ export default {
         const name = `${assignee.attributes.firstname} ${assignee.attributes.lastname}`
         const orga = assignee ? assignee.rel('orga') : ''
 
-        return { id: this.segment.relationships.assignee.data.id, name: name, orgaName: orga ? orga.attributes.name : '' }
+        return { id: this.segment.relationships.assignee.data.id, name, orgaName: orga ? orga.attributes.name : '' }
       } else {
         return { id: '', name: '', orgaName: '' }
       }
@@ -544,6 +546,21 @@ export default {
     visibleSegmentText () {
       const shortText = this.segment.attributes.text.length > 40 ? this.segment.attributes.text.slice(0, 40) + '...' : this.segment.attributes.text
       return this.isCollapsed ? shortText : this.segment.attributes.text
+    }
+  },
+
+  watch: {
+    isCollapsed: {
+      handler: function (newVal, oldVal) {
+        if (!newVal) {
+          this.$nextTick(() => {
+            if (this.$refs.recommendationContainer) {
+              this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+            }
+          })
+        }
+      },
+      immediate: true // This ensures the handler is executed immediately after the component is created
     }
   },
 
@@ -623,7 +640,7 @@ export default {
         }
       }
 
-      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
         .then(checkResponse)
         .then(() => {
           this.claimLoading = false
@@ -669,7 +686,7 @@ export default {
           ...this.segment,
           relationships: {
             ...this.segment.relationships,
-            comments: comments
+            comments
           }
         }
         this.setSegment({ ...segmentWithComments, id: this.segment.id })
@@ -678,9 +695,21 @@ export default {
 
     save () {
       const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
+      const { assignee, place } = this.updateRelationships()
 
-      this.updateRelationships()
-      return this.saveSegmentAction(this.segment.id)
+      const payload = {
+        data: {
+          id: this.segment.id,
+          type: 'StatementSegment',
+          relationships: {
+            assignee,
+            place
+          }
+        }
+      }
+
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
+        .then(checkResponse)
         .then(() => {
           /*
            * @improve - once the vuex-json-api resolves with a response,
@@ -864,26 +893,13 @@ export default {
       }
 
       this.setSegment({ ...updated, id: this.segment.id })
+
+      return relations
     },
 
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
       this.setSegment({ ...updated, id: this.segment.id })
-    }
-  },
-
-  watch: {
-    isCollapsed: {
-      handler: function (newVal, oldVal) {
-        if (!newVal) {
-          this.$nextTick(() => {
-            if (this.$refs.recommendationContainer) {
-              this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
-            }
-          })
-        }
-      },
-      immediate: true // this ensures the handler is executed immediately after the component is created
     }
   },
 

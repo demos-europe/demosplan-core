@@ -3,7 +3,8 @@
 {% block component_part %}
     {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
         'content_heading': "notifications"|trans,
-        'content_subheading': "text.notifications.new.procedures"|trans({ link: path("DemosPlan_user_portal") })|wysiwyg
+        'content_subheading': "text.notifications.new.procedures"|trans({ link: path("DemosPlan_user_portal") })|wysiwyg,
+        'full_width': true
     }%}
 
         {% block content %}

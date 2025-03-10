@@ -24,11 +24,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToCheckExistence;
+use League\Flysystem\UnableToRetrieveMetadata;
 use League\HTMLToMarkdown\HtmlConverter;
 use Psr\Log\LoggerInterface;
 use stdClass;
-use Symfony\Component\Filesystem\Exception\IOException;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -60,11 +62,12 @@ class MailService extends CoreService
     private $globalConfig;
 
     public function __construct(
+        private readonly FilesystemOperator $defaultStorage,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         MailerInterface $mailer,
         private readonly MailRepository $mailRepository,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->emailIsLiveSystem = $globalConfig->isEmailIsLiveSystem();
         $this->emailSubjectPrefix = $globalConfig->getEmailSubjectPrefix();
@@ -105,7 +108,7 @@ class MailService extends CoreService
         $bcc,
         $scope,
         $vars = [],
-        $attachments = []
+        $attachments = [],
     ): MailSend {
         if (!is_string($from) || '' === $from || (is_array($from) && 0 === count($from))) {
             $from = $this->emailSystem;
@@ -135,25 +138,24 @@ class MailService extends CoreService
 
         // persist all supplied attachments
         foreach ($attachments as $descriptor) {
-            if (is_string($descriptor) && !file_exists($descriptor)) {
-                $this->logger->warning("Could not attach $descriptor to email. Does not exist in filesystem.");
+            if (!isset($descriptor['content'], $descriptor['name'])) {
                 continue;
             }
+            $filename = DemosPlanPath::getSystemFilesPath(random_int(1000, 9999).'-'.$descriptor['name']);
 
-            if (isset($descriptor['content'], $descriptor['name'])) {
-                $filename = DemosPlanPath::getTemporaryPath(random_int(1000, 9999).'-'.$descriptor['name']);
-                file_put_contents($filename, $descriptor['content']);
-            } else {
-                continue;
+            try {
+                $this->defaultStorage->write($filename, $descriptor['content']);
+            } catch (FilesystemException $e) {
+                $this->logger->warning("Attachment $filename could not be created: ", [$e]);
             }
 
-            if (preg_match("/^\w:/", (string) $filename)) {
+            if (preg_match("/^\w:/", $filename)) {
                 $this->logger->warning("Ignoring attachment created on a Windows™ system: $filename");
-            } else {
-                $attachment = $this->mailRepository->createAttachment($filename);
-                $mail->getAttachments()->add($attachment);
-                $attachment->setMailSend($mail);
             }
+
+            $attachment = $this->mailRepository->createAttachment($filename);
+            $mail->getAttachments()->add($attachment);
+            $attachment->setMailSend($mail);
         }
 
         // Mark this email als ready to send.
@@ -191,7 +193,7 @@ class MailService extends CoreService
         $bcc,
         $scope,
         $vars = [],
-        $attachments = []
+        $attachments = [],
     ) {
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->beginTransaction();
@@ -248,7 +250,6 @@ class MailService extends CoreService
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
         $emailsSent = 0;
-        $fs = new Filesystem();
         try {
             try {
                 $mailList = $this->getMailsToSend($limit);
@@ -315,10 +316,40 @@ class MailService extends CoreService
                 /** @var MailAttachment $attachment */
                 foreach ($mail->getAttachments() as $attachment) {
                     // attach file only if it really exists
-                    if ($fs->exists($attachment->getFilename())) {
-                        $message->attachFromPath($attachment->getFilename());
-                    } else {
-                        $this->logger->warning('Tried to add non existing attachment to Email', [$attachment->getFilename()]);
+                    try {
+                        if ($this->defaultStorage->fileExists($attachment->getFilename())) {
+                            $mimeType = $this->defaultStorage->mimeType($attachment->getFilename());
+                            $resource = $this->defaultStorage->readStream($attachment->getFilename());
+                            $fileName = basename($attachment->getFilename());
+                            $this->logger->info(
+                                'extracted name for attachment and its contentType is',
+                                ['fileName' => $fileName, 'mimeType' => $mimeType]
+                            );
+                            $mimeType = '' !== $mimeType ? $mimeType : null;
+                            $fileName = '' !== $fileName ? $fileName : null;
+                            $message->attach(
+                                $resource,
+                                $fileName,
+                                $mimeType
+                            );
+                        } else {
+                            $this->logger->warning('Tried to add non existing attachment to Email', [$attachment->getFilename()]);
+                        }
+                    } catch (UnableToCheckExistence $e) {
+                        $this->logger->warning(
+                            'Failed to check the existence of attachment to Email',
+                            ['attachment' => $attachment->getFilename(), 'ExceptionMessage' => $e->getMessage()]
+                        );
+                    } catch (UnableToRetrieveMetadata $e) {
+                        $this->logger->warning(
+                            'Failed to retrieve mimeType of attachment to Email',
+                            ['attachment' => $attachment->getFilename(), 'ExceptionMessage' => $e->getMessage()]
+                        );
+                    } catch (Exception $e) {
+                        $this->logger->warning(
+                            'Failed to append attachment to Email',
+                            ['attachment' => $attachment->getFilename(), 'ExceptionMessage' => $e->getMessage()]
+                        );
                     }
                 }
 
@@ -376,12 +407,15 @@ class MailService extends CoreService
 
                 /** @var MailAttachment $attachment */
                 foreach ($mail->getAttachments() as $attachment) {
-                    if ($attachment->getDeleteOnSent() && $fs->exists($attachment->getFilename())) {
-                        try {
-                            $fs->remove($attachment->getFilename());
-                        } catch (IOException $exception) {
-                            $this->logger->warning('failed to remove email attachment', [$exception]);
-                        }
+                    try {
+                        if ($attachment->getDeleteOnSent()
+                            && $mail->getStatus() === 'sent'
+                            && $this->defaultStorage->fileExists($attachment->getFilename())
+                            ) {
+                                $this->defaultStorage->delete($attachment->getFilename());
+                            }
+                    } catch (Exception $exception) {
+                        $this->logger->warning('failed to remove email attachment', [$exception]);
                     }
                 }
 

@@ -371,7 +371,7 @@ export default {
 
     createSelectedFiltersBadge (filterGroup) {
       const selectedCount = this.selectedOptions.length ? this.selectedOptions.filter(option => option.type === filterGroup.type).length : 0
-      return (selectedCount > 0) ? '<span class="u-mb-0_25 o-badge o-badge--small o-badge--dark">' + selectedCount + '</span>' : ''
+      return (selectedCount > 0) ? '<span class="o-badge o-badge--small o-badge--dark">' + selectedCount + '</span>' : ''
     },
 
     deleteSavedFilterSet (userFilterSetId) {
@@ -387,7 +387,7 @@ export default {
     loadUserFilterSet () {
       const filterHash = this.userFilterSetFilterHash(this.selectedUserFilterSet)
       // Reload with userFilterSet
-      document.location.href = Routing.generate(this.route, { procedureId: this.procedureId, filterHash: filterHash })
+      document.location.href = Routing.generate(this.route, { procedureId: this.procedureId, filterHash })
     },
 
     nameFromAttributes (option) {
@@ -489,7 +489,7 @@ export default {
       window.updateFilterHash(this.procedureId, this.allSelectedFilterOptionsWithFilterName)
         .then((filterHash) => {
           // Get updated options for selected filters
-          this.getFilterOptionsAction({ filterHash: filterHash })
+          this.getFilterOptionsAction({ filterHash })
             .then((filterHash) => {
               this.$root.$emit('selected-updated', filterHash)
               this.disabledInteractions = false

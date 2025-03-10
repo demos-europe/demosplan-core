@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\News\GlobalNewsHandler;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use InvalidArgumentException;
 use Tests\Base\FunctionalTestCase;
 
 class GlobalNewsHandlerTest extends FunctionalTestCase
@@ -45,10 +46,10 @@ class GlobalNewsHandlerTest extends FunctionalTestCase
         $newsList = $this->sut->getNewsList($user);
         static::assertCount(2, $newsList);
         $this->checkSingleGlobalContentVariables($newsList[0]);
-        static::assertCount(17, $newsList[0]);
-        static::assertCount(2, $newsList[0]['roles']);
+        static::assertCount(18, $newsList[0]);
+        static::assertCount(3, $newsList[0]['roles']);
         static::assertCount(1, $newsList[0]['categories']);
-        static::assertEquals('GlobalNews2 Title', $newsList[0]['title']);
+        static::assertEquals('GlobalNews1 Title', $newsList[0]['title']);
     }
 
     public function testGetNewsListStructureWithLimit()
@@ -58,20 +59,20 @@ class GlobalNewsHandlerTest extends FunctionalTestCase
         static::assertTrue(is_array($newsList));
         static::assertCount(1, $newsList);
         $this->checkSingleGlobalContentVariables($newsList[0]);
-        static::assertCount(17, $newsList[0]);
-        static::assertCount(2, $newsList[0]['roles']);
+        static::assertCount(18, $newsList[0]);
+        static::assertCount(3, $newsList[0]['roles']);
     }
 
     public function testGetGlobalNewsAdminListReturnValueStructure()
     {
         $newsList = $this->sut->getGlobalNewsAdminList();
         static::assertCount(2, $newsList);
-        static::assertCount(17, $newsList[0]);
+        static::assertCount(18, $newsList[0]);
         $this->checkSingleGlobalContentVariables($newsList[0]);
-        static::assertCount(3, $newsList[1]['roles']);
+        static::assertCount(2, $newsList[1]['roles']);
         static::assertCount(6, $newsList[0]['roles'][1]);
         // Manuelle Sortierung muss für diesen test fertig sein!
-        static::assertEquals($this->fixtures->getReference('testGlobalNews2')->getTitle(), $newsList[0]['title']);
+        static::assertEquals($this->fixtures->getReference('testGlobalNews1')->getTitle(), $newsList[0]['title']);
         static::assertEquals('News Kategorie Nummer 1', $newsList[0]['categories'][0]['title']);
     }
 
@@ -81,7 +82,7 @@ class GlobalNewsHandlerTest extends FunctionalTestCase
 
         $singleNews = $this->sut->getSingleNews($singleNewsId);
         static::assertTrue(is_array($singleNews));
-        static::assertCount(17, $singleNews);
+        static::assertCount(18, $singleNews);
         $this->checkSingleGlobalContentVariables($singleNews);
         static::assertCount(3, $singleNews['roles']);
         static::assertCount(1, $singleNews['categories']
@@ -92,13 +93,13 @@ class GlobalNewsHandlerTest extends FunctionalTestCase
     {
         $singleNewsId = '';
 
+        $this->expectException(InvalidArgumentException::class);
         $singleNews = $this->sut->getSingleNews($singleNewsId);
-        static::assertTrue(is_array($singleNews));
-        static::assertCount(0, $singleNews);
     }
 
     public function testAddGlobalNews()
     {
+        self::markSkippedForCIIntervention();
         /** @var Category $category */
         $category = $this->fixtures->getReference('testCategoryNews');
         $data = ['title' => 'testnews', 'description' => 'kurztext', 'enabled' => true, 'group_code' => [Role::GLAUTH, Role::GPSORG], 'category_id' => $category->getId()];

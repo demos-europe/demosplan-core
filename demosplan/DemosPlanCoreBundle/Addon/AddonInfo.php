@@ -12,7 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Addon;
 
 use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 
-final class AddonInfo
+class AddonInfo
 {
     public const DEFAULT_CONTROLLER_PATH = '/src/Controller';
 
@@ -23,8 +23,13 @@ final class AddonInfo
     {
     }
 
-    public function isEnabled(): bool
+    public function isEnabled(bool $dynamicOverride = true): bool
     {
+        // when the permissionInitializer of the addon has a method isEnabled, call it
+        if ($dynamicOverride && method_exists($this->permissionInitializer, 'isEnabled')) {
+            return $this->permissionInitializer->isEnabled();
+        }
+
         return $this->config['enabled'];
     }
 
@@ -56,5 +61,10 @@ final class AddonInfo
     public function getUIHooks(): array
     {
         return $this->config['manifest']['ui'];
+    }
+
+    public function getVersion(): string
+    {
+        return $this->config['version'];
     }
 }

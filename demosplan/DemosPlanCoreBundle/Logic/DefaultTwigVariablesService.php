@@ -24,10 +24,10 @@ use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
+use Illuminate\Support\Collection;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
-use Illuminate\Support\Collection;
 
 use function str_replace;
 
@@ -160,6 +160,8 @@ class DefaultTwigVariablesService
             'jwtToken'                         => $this->jwtTokenManager->create($user),
             'permissions'                      => $this->permissions->getPermissions(),
             'piwik'                            => $this->loadPiwikVariables(),
+            'procedure'                        => $this->currentProcedureService->getProcedure()?->getId(), // legacy twig code in twigs
+            'procedureId'                      => $this->currentProcedureService->getProcedure()?->getId(),
             'procedureObject'                  => $this->currentProcedureService->getProcedure(),
             'proceduresettings'                => $this->currentProcedureService->getProcedureArray(),
             'projectCoreVersion'               => $this->globalConfig->getProjectCoreVersion(),
@@ -174,8 +176,30 @@ class DefaultTwigVariablesService
             'urlPathPrefix'                    => $this->globalConfig->getUrlPathPrefix(),
             'urlScheme'                        => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
             'useOpenGeoDb'                     => $this->globalConfig->getUseOpenGeoDb(),
-            'externalLinks'                    => $this->globalConfig->getExternalLinks(),
+            'externalLinks'                    => $this->getFilteredExternalLinks(),
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getFilteredExternalLinks(): array
+    {
+        $externalLinks = $this->globalConfig->getExternalLinks();
+
+        // simple list of urls are given, without intention to filter
+        if (empty($externalLinks) || !is_array(array_values($externalLinks)[0])) {
+            return $externalLinks;
+        }
+
+        // In case of current user has no permission to see restricted external links, execute filtering
+        if (!$this->currentUser->hasPermission('feature_list_restricted_external_links')) {
+            $externalLinks = array_filter($this->globalConfig->getExternalLinks(), function ($link) {
+                return !isset($link['restricted']) || !$link['restricted'];
+            });
+        }
+
+        return array_map(fn (array $data) => $data['url'], $externalLinks);
     }
 
     private function getLocale(Request $request): string

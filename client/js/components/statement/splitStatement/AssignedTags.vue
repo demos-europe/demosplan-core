@@ -8,15 +8,14 @@
       :class="assignTagSizeClasses(tag,idx)">
       <div
         :class="[
-              'tag flex whitespace-nowrap overflow-hidden text-sm px-0.5 py-0.5',
-              isTagAppliedToSegment(tag.id) ? 'bg-status-neutral': 'bg-status-complete',
-              isLastTagWithEvenPosition(idx) ? 'w-fit' : ''
-            ]"
-        v-tooltip="tag.tagName"
-      >
-          <span class="overflow-hidden text-ellipsis">
-            {{ tag.tagName }}
-          </span>
+          'tag flex whitespace-nowrap overflow-hidden text-sm px-0.5 py-0.5',
+          isTagAppliedToSegment(tag.id) ? 'bg-status-neutral': 'bg-status-complete',
+          isLastTagWithEvenPosition(idx) ? 'w-fit' : ''
+        ]"
+        v-tooltip="tag.tagName">
+        <span class="overflow-hidden text-ellipsis">
+          {{ tag.tagName }}
+        </span>
         <button
           type="button"
           class="tag__remove btn--blank o-link--default ml-1"
@@ -36,6 +35,10 @@ import { DpIcon } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'AssignedTags',
+
+  components: {
+    DpIcon
+  },
 
   props: {
     availableTags: {
@@ -57,10 +60,6 @@ export default {
       type: Object,
       required: true
     }
-  },
-
-  components: {
-    DpIcon
   },
 
   methods: {
@@ -109,7 +108,7 @@ export default {
 
     removeTag (id) {
       const tagToBeDeleted = this.availableTags.find(tag => tag.id === id)
-      this.$emit('remove', { id: id, tagName: tagToBeDeleted.attributes.title })
+      this.$emit('remove', { id, tagName: tagToBeDeleted.attributes.title })
     }
   }
 }

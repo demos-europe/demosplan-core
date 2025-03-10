@@ -19,27 +19,6 @@ parameters:
 
     https_only: false
 
-    demosplan_csp_script_src:
-        - 'self'
-        - 'unsafe-eval' # vue.js needs it if templates are not precompiled
-        - 'sg.geodatenzentrum.de'
-        - '*.demos-europe.eu'
-        - 'matomo' # local matomo
-        - '172.22.255.8' # local matomo
-    demosplan_csp_font_src:
-        - 'self'
-        - 'fonts.google.com'
-        - 'fonts.gstatic.com'
-        - '*.demos-europe.eu'
-        - 'data:'
-    demosplan_csp_style_src:
-        - 'unsafe-inline'
-        - 'self'
-        - 'fast.fonts.net'
-        - 'fonts.googleapis.com'
-        - '*.demos-europe.eu'
-        - 'cdnjs.cloudflare.com'
-
     rabbitmq_routing_disabled: true
     tex2pdf_url: "http://pdflatex_api_nginx:8080"
     docx_importer_route: "http://docx_importer_nginx:8080"

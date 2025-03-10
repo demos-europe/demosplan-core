@@ -129,8 +129,12 @@ export default {
   },
 
   methods: {
+    capitalizeFirstLetter (str) {
+      return str.charAt(0).toUpperCase() + str.slice(1)
+    },
+
     resetSelection () {
-      this.$store.dispatch(`${this.visibleEntityType}/resetSelection`)
+      this.$store.dispatch(`${this.capitalizeFirstLetter(this.visibleEntityType)}/resetSelection`)
     },
     ...mapMutations('Statement', ['updateStatement'])
   }

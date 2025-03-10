@@ -84,6 +84,9 @@
             >
         {% endfor %}
 
+        {% set translatedError = 'error.mandatoryfields'|trans %}
+        {% set attributeString = 'data-dp-validate-error="' ~ translatedError|e('html_attr') ~ '"' %}
+
         {{ uiComponent('form.row', {
             elements: [
                 {
@@ -92,7 +95,7 @@
                         name: 'r_emailTitle',
                         value: templateVars.procedure.settings.emailTitle,
                         attributes: [
-                            'data-dp-validate-error=error.mandatoryfields',
+                            attributeString,
                             'data-cy=administrationMemberEmail:emailTitle'
                         ]
                     },
@@ -120,7 +123,7 @@
 
         {% set emailText = templateVars.procedure.settings.emailText|default %}
         {% if hasPermission('feature_email_invitable_institution_additional_invitation_text') and templateVars.emailTextAdded is defined %}
-            {% set emailText = emailText ~ '<br/><br/>' ~ templateVars.emailTextAdded|wysiwyg|nl2br  %}
+            {% set emailText = emailText ~ '<br/><br/>' ~ templateVars.emailTextAdded|wysiwyg|nl2br %}
         {% endif %}
 
         <div class="{{ 'u-mb-0_75'|prefixClass }}">

@@ -57,7 +57,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         ServiceImporter $serviceImport,
         SimpleSpreadsheetService $simpleSpreadsheetService,
         StatementHandler $statementHandler,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         parent::__construct(
             $assessmentTableServiceOutput,
@@ -106,7 +106,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         return [
             'filename' => sprintf(
                 $this->translator->trans('considerationtable').'-%s.xlsx',
-                Carbon::now()->format('d-m-Y-H:i')
+                Carbon::now('Europe/Berlin')->format('d-m-Y-H:i')
             ),
             'writer'       => $objWriter,
             'statementIds' => $statementIds,
@@ -246,7 +246,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
         $this->addColumnDefinition($columnsDefinition, 'externId', 'field_statement_extern_id', 'id');
 
-        if ($isStatement) {
+        if ($isStatement && $this->permissions->hasPermission('feature_statement_cluster')) {
             $columnsDefinition[] = $this->createColumnDefinition('name', 'cluster.name');
         }
 
@@ -373,7 +373,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         string $key,
         string $permission,
         string $columnTitle,
-        int $width = 20
+        int $width = 20,
     ): void {
         if ($this->permissions->hasPermission($permission)) {
             $columnsDefinition[] = $this->createColumnDefinition($key, $columnTitle, $width);
@@ -388,7 +388,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     protected function prepareDataForExcelExport(
         array $statements,
         bool $anonymous,
-        array $keysOfAttributesToExport
+        array $keysOfAttributesToExport,
     ): array {
         $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys', 'tagNames']);
         $formattedStatements = collect([]);

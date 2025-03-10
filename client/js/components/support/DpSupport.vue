@@ -42,8 +42,9 @@ All rights reserved
       v-if="hasPermission('feature_customer_support_technical_read')">
       {{ Translator.trans('support.technical') }}
     </h3>
-    <div class="lg:w-8/12"
-         v-if="hasPermission('feature_customer_support_technical_read')">
+    <div
+      class="lg:w-8/12"
+      v-if="hasPermission('feature_customer_support_technical_read')">
       <dp-support-card
         :phone-number="Translator.trans('support.contact.number')"
         :reachability="{
@@ -58,7 +59,7 @@ All rights reserved
 
 import { mapActions, mapState } from 'vuex'
 import DpSupportCard from './DpSupportCard'
-import {hasPermission} from "@demos-europe/demosplan-ui";
+import { hasPermission } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpSupport',

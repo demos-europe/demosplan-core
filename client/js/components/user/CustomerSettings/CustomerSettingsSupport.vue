@@ -7,9 +7,15 @@
       @reset="resetForm"
       @saveEntry="id => dpValidateAction('contactData', () => createOrUpdateContact(id), false)">
       <template v-slot:list="contact">
-        <h3 class="break-words" v-text="contact.attributes.title" />
-        <p class="break-words" v-text="contact.attributes.phoneNumber" />
-        <p class="break-words" v-text="contact.attributes.eMailAddress" />
+        <h3
+          class="break-words"
+          v-text="contact.attributes.title" />
+        <p
+          class="break-words"
+          v-text="contact.attributes.phoneNumber" />
+        <p
+          class="break-words"
+          v-text="contact.attributes.eMailAddress" />
         <template v-html="contact.attributes.text" />
         <dp-badge
           class="color--white rounded-full whitespace--nowrap bg-color--grey u-mt-0_125"
@@ -29,11 +35,11 @@
             v-model="customerContact.title"
             class="u-mb-0_75"
             data-cy="contactTitle"
-            :pattern="titlesInUsePattern"
-            :data-dp-validate-error="customerContact.title === '' ? 'error.name.required' : 'error.name.unique'"
+            :data-dp-validate-error="Translator.trans(customerContact.title === '' ? 'error.name.required' : 'error.name.unique')"
             :label="{
               text: Translator.trans('contact.name')
             }"
+            :pattern="titlesInUsePattern"
             required
             type="text" />
           <dp-input
@@ -42,7 +48,7 @@
             autocomplete="tel"
             class="u-mb-0_75"
             data-cy="phoneNumber"
-            :data-dp-validate-error="!customerContact.phoneNumber ? 'error.phone.required' : 'error.phone.pattern'"
+            :data-dp-validate-error="Translator.trans(!customerContact.phoneNumber ? 'error.phone.required' : 'error.phone.pattern')"
             :label="{
               text: Translator.trans('contact.phone_number')
             }"
@@ -61,8 +67,8 @@
             type="email" />
           <dp-editor
             id="supportText"
-            class="u-mb-0_75"
             v-model="customerContact.text"
+            class="u-mb-0_75"
             hidden-input="supportText"
             :toolbar-items="{
               fullscreenButton: true,
@@ -211,7 +217,7 @@ export default {
         eMailAddress: currentData.eMailAddress ?? '',
         text: currentData.text ?? '',
         visible: currentData.visible,
-        id: id
+        id
       }
     }
   },
@@ -226,6 +232,7 @@ export default {
 
     this.$on('delete', (id) => {
       this.deleteContact(id).then(() => {
+        this.getContacts()
         dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
       })
     })

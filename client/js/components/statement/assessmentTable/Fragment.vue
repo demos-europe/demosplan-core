@@ -585,7 +585,7 @@ export default {
 
     //  Map store getters to local computed properties with object spread operator
     ...mapGetters(
-      'assessmentTable',
+      'AssessmentTable',
       [
         'adviceValues',
         'agencies',
@@ -609,7 +609,7 @@ export default {
 
     deleteFragment (fragmentId) {
       if (dpconfirm(Translator.trans('check.fragment.delete'))) {
-        this.deleteFragmentAction({ procedureId: this.procedureId, statementId: this.statement.id, fragmentId: fragmentId })
+        this.deleteFragmentAction({ procedureId: this.procedureId, statementId: this.statement.id, fragmentId })
       }
     },
 
@@ -704,7 +704,7 @@ export default {
 
           // Update short and full texts in EditableText.vue
           if (field === 'text' || field === 'consideration' || field === 'considerationAdvice') {
-            this.$root.$emit('entityTextSaved:' + this.fragmentId, { entityId: this.fragmentId, field: field })
+            this.$root.$emit('entityTextSaved:' + this.fragmentId, { entityId: this.fragmentId, field })
           }
 
           //  Unset loading state of saved field
