@@ -43,7 +43,7 @@ class ReportMessageConverter
         private readonly LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
         private readonly RouterInterface $router,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->dateExtension = $dateExtension;
         $this->globalConfig = $globalConfig;
@@ -113,6 +113,40 @@ class ReportMessageConverter
                 }
                 if (ReportEntry::CATEGORY_DELETE_ATTACHMENTS === $category) {
                     $message = $this->getOriginalStatementMessage($reportEntryMessage, 'confirm.original.statement.attachment.deleted');
+                }
+            } elseif (ReportEntry::GROUP_ELEMENT === $group) { // Planungsdokumentenkategorien
+                if (ReportEntry::CATEGORY_ADD === $category) {
+                    $message = $this->createAddElementMessage($reportEntryMessage);
+                }
+                if (ReportEntry::CATEGORY_UPDATE === $category) {
+                    $message = $this->createUpdateElementMessage($reportEntryMessage);
+                }
+                if (ReportEntry::CATEGORY_DELETE === $category) {
+                    $message = $this->createDeleteElementMessage($reportEntryMessage);
+                }
+            } elseif (ReportEntry::GROUP_PARAGRAPH === $group) { // Kapitel
+                if (ReportEntry::CATEGORY_ADD === $category) {
+                    $message = $this->createAddParagraphMessage($reportEntryMessage);
+                }
+                if (ReportEntry::CATEGORY_UPDATE === $category) {
+                    $message = $this->createUpdateParagraphMessage($reportEntryMessage);
+                }
+                if (ReportEntry::CATEGORY_DELETE === $category) {
+                    return $this->translator->trans('report.delete.paragraph',$reportEntryMessage);
+                }
+            } elseif (ReportEntry::GROUP_SINGLE_DOCUMENT === $group) { // Planungsdokumente
+                if (ReportEntry::CATEGORY_ADD === $category) {
+                    $message = $this->createAddSingleDocumentMessage($reportEntryMessage);
+                }
+                if (ReportEntry::CATEGORY_UPDATE === $category) {
+                    $message = $this->createUpdateSingleDocumentMessage($reportEntryMessage);
+                }
+                if (ReportEntry::CATEGORY_DELETE === $category) {
+                    $message = $this->translator->trans('report.delete.singleDocument',$reportEntryMessage);
+                }
+            } elseif (ReportEntry::GROUP_PLAN_DRAW === $group) { // Planzeichnung
+                if (ReportEntry::CATEGORY_CHANGE === $category) {
+                    $message = $this->createChangePlanDrawMessage($reportEntryMessage);
                 }
             }
         } catch (Exception $e) {
@@ -551,8 +585,8 @@ class ReportMessageConverter
                 }
             } else {
                 $returnMessage[] = $translator->trans('text.protocol.publicphase', [
-                    'oldPublicPhase'     => $message['oldPublicPhase'],
-                    'newPublicPhase'     => $message['newPublicPhase'],
+                    'oldPublicPhase'          => $message['oldPublicPhase'],
+                    'newPublicPhase'          => $message['newPublicPhase'],
                     'oldPublicPhaseIteration' => $message['oldPublicPhaseIteration'] ?? 0,
                     'newPublicPhaseIteration' => $message['newPublicPhaseIteration'] ?? 0,
                 ]);
@@ -727,7 +761,11 @@ class ReportMessageConverter
                 $category['name'] = $elementTitle;
 
                 if (array_key_exists('hasParagraphPdf', $element)) {
-                    $category['existingParagraphs'][] = $this->translator->trans('file.as.pdf');
+                    if (array_key_exists('paragraphPdfName', $element)) {
+                        $category['existingParagraphs'][] = $element['paragraphPdfName'];
+                    } else {
+                        $category['existingParagraphs'][] = $this->translator->trans('file.as.pdf');
+                    }
                 }
                 if (array_key_exists('hasParagraphs', $element)) {
                     $category['existingParagraphs'][] = $this->translator->trans('file.as.paragraphs');
@@ -802,5 +840,163 @@ class ReportMessageConverter
         ]);
 
         return "$visibilityMessage: $mainMessage";
+    }
+
+    /**
+     * @param array $reportEntryMessage
+     *
+     * @return string
+     */
+    private function createAddElementMessage(array $reportEntryMessage): string
+    {
+        $reportEntryMessage['organisations'] = '' === $reportEntryMessage['organisations'] ?
+            $this->translator->trans('unrestricted') : $reportEntryMessage['organisations'];
+
+        $translationKey = 'file' === $reportEntryMessage['category'] ? 'file.related' : 'paragraph.related';
+        $reportEntryMessage['category'] = $this->translator->trans($translationKey);
+
+        $reportEntryMessage['enabled'] = $reportEntryMessage['enabled'] ?
+            $this->translator->trans('yes') : $this->translator->trans('no');
+
+        $reportEntryMessage['text'] = $this->shortenText($reportEntryMessage['text']);
+
+        return $this->translator->trans('report.add.element', $reportEntryMessage);
+    }
+
+    private function createUpdateElementMessage(array $reportEntryMessage): string
+    {
+        $reportEntryMessage['organisations'] = '' === $reportEntryMessage['organisations'] ?
+            $this->translator->trans('unrestricted') : $reportEntryMessage['organisations'];
+
+        $reportEntryMessage['text'] = $this->shortenText($reportEntryMessage['text']);
+
+        $elementCategory = $reportEntryMessage['category'];
+        $translationKey = 'file' === $elementCategory ? 'file.related' : 'paragraph.related';
+        $reportEntryMessage['category'] = $this->translator->trans($translationKey);
+
+        $reportEntryMessage['enabled'] = $reportEntryMessage['enabled'] ?
+            $this->translator->trans('yes') : $this->translator->trans('no');
+
+        return $this->translator->trans('report.update.element', $reportEntryMessage);
+    }
+
+    private function createAddParagraphMessage(array $reportEntryMessage): string
+    {
+        $reportEntryMessage['visible'] = $reportEntryMessage['visible'] ?
+            $this->translator->trans('yes') : $this->translator->trans('no');
+        $reportEntryMessage['text'] = $this->shortenText($reportEntryMessage['text']);
+
+        return $this->translator->trans('report.add.paragraph', $reportEntryMessage);
+    }
+
+    private function createUpdateParagraphMessage(array $reportEntryMessage): string
+    {
+        $reportEntryMessage['visible'] = $reportEntryMessage['visible'] ?
+            $this->translator->trans('yes') :
+            $this->translator->trans('no');
+        $reportEntryMessage['text'] = $this->shortenText($reportEntryMessage['text']);
+
+        return $this->translator->trans('report.update.paragraph', $reportEntryMessage);
+    }
+
+    private function createAddSingleDocumentMessage(array $reportEntryMessage): string
+    {
+        $reportEntryMessage['visible'] = $reportEntryMessage['visible'] ?
+            $this->translator->trans('yes') : $this->translator->trans('no');
+        $reportEntryMessage['statement_enabled'] = $reportEntryMessage['statement_enabled'] ?
+            $this->translator->trans('yes') : $this->translator->trans('no');
+
+        return $this->translator->trans('report.add.singleDocument', $reportEntryMessage);
+    }
+
+    private function createUpdateSingleDocumentMessage(array $reportEntryMessage): string
+    {
+        $reportEntryMessage['visible'] = $reportEntryMessage['visible'] ?
+            $this->translator->trans('yes') : $this->translator->trans('no');
+
+        $reportEntryMessage['statement_enabled'] = $reportEntryMessage['statement_enabled'] ?
+            $this->translator->trans('yes') : $this->translator->trans('no');
+
+        return $this->translator->trans('report.update.singleDocument', $reportEntryMessage);
+    }
+
+    private function createChangePlanDrawMessage(array $reportEntryMessage): string
+    {
+        $planDrawMessage = '';
+
+        if (array_key_exists('planDrawFile', $reportEntryMessage)) {
+
+            if ('' === $reportEntryMessage['planDrawFile']['old'] && '' !== $reportEntryMessage['planDrawFile']['new']) {
+                $planDrawMessage .= $this->translator->trans('report.create.planDrawingFile', [
+                        'fileName' => $this->getFileName($reportEntryMessage['planDrawFile']['new']),
+                    ]
+                );
+            } elseif ('' !== $reportEntryMessage['planDrawFile']['old'] && '' === $reportEntryMessage['planDrawFile']['new']) {
+                $planDrawMessage .= $this->translator->trans('report.delete.planDrawingFile', [
+                        'fileName' => $this->getFileName($reportEntryMessage['planDrawFile']['old']),
+                    ]
+                );
+            } else {
+                $planDrawMessage .= $this->translator->trans('report.update.planDrawingFile', [
+                        'oldFileName' => $this->getFileName($reportEntryMessage['planDrawFile']['old']),
+                        'newFileName' => $this->getFileName($reportEntryMessage['planDrawFile']['new']),
+                    ]
+                );
+            }
+        }
+
+        if (array_key_exists('planDrawingExplanation', $reportEntryMessage)) {
+            if ('' === $reportEntryMessage['planDrawingExplanation']['old'] && '' !== $reportEntryMessage['planDrawingExplanation']['new']) {
+                $planDrawMessage .= $this->translator->trans('report.create.planDrawingExplanation', [
+                        'fileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['new']),
+                    ]
+                );
+            } elseif ('' !== $reportEntryMessage['planDrawingExplanation']['old'] && '' === $reportEntryMessage['planDrawingExplanation']['new']) {
+                $planDrawMessage .= $this->translator->trans('report.delete.planDrawingExplanation', [
+                        'fileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['old']),
+                    ]
+                );
+            } else {
+                $planDrawMessage .= $this->translator->trans('report.update.planDrawingExplanation', [
+                        'oldFileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['old']),
+                        'newFileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['new']),
+                    ]
+                );
+            }
+        }
+
+        return $planDrawMessage;
+    }
+
+    private function getFileName($fileString): string
+    {
+        return explode(':', $fileString)[0];
+    }
+
+    /**
+     * @param array<string, string> $reportEntryMessage
+     */
+    private function createDeleteElementMessage(array $reportEntryMessage): string
+    {
+        $translationKey = 'file' === $reportEntryMessage['category'] ? 'file.related' : 'paragraph.related';
+        $elementCategory = $this->translator->trans($translationKey);
+
+        return $this->translator->trans('report.delete.element',
+            [
+                'title' => $reportEntryMessage['title'],
+                'category' => $elementCategory,
+                'nameOfInternalPhase' => $reportEntryMessage['nameOfInternalPhase'],
+                'nameOfExternalPhase' => $reportEntryMessage['nameOfExternalPhase'],
+            ]
+        );
+    }
+
+    private function shortenText(string $text, int $length = 50): string
+    {
+        if ('' === $text) {
+            return '';
+        }
+
+        return substr($text, 0, $length).'...';
     }
 }

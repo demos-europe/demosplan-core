@@ -27,6 +27,7 @@ use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Tests\Base\FunctionalTestCase;
 
 /**
@@ -61,6 +62,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
             self::$container->get(PdfCreatorInterface::class),
             self::$container->get(RouterInterface::class),
             self::$container->get(RpcClient::class),
+            self::$container->get(EventDispatcherInterface::class),
         );
     }
 

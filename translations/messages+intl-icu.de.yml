@@ -1703,6 +1703,7 @@ file.pdf.explanation: "Sie können an dieser Stelle Dateien des Typs PDF hochlad
 file.delete: "Datei löschen"
 file.download: "Anhang herunterladen"
 file.reference: "Dateibezug"
+file.related: "dokumentbezogen"
 file.upload.docx: ".docx hochladen"
 file.upload.pdf: ".pdf hochladen"
 file.upload.pdf.zip.mp4: ".pdf, .zip oder .mp4 hochladen"
@@ -2446,6 +2447,7 @@ paragraph.notavailable: "Kapitelbezug nicht verfügbar"
 paragraph.parent.none: "oberste Ebene"
 paragraph.parent: "Übergeordnetes Kapitel"
 paragraph.reference: "Kapitelbezug"
+paragraph.related: "kapitelbezogen"
 paragraph.file: "Planungsdokument als Datei"
 paragraph.text: "Text des Kapitels"
 paragraph.title: "Absatz"
@@ -2529,6 +2531,10 @@ places.edit.infoProcedureTemplate: "Die Anpassungen werden in die auswählbaren 
 plandocument: "Planungsdokument"
 plandocument.add: "Planungsdokument hinzufügen"
 plandocument.and.drawing: 'Planungsdokumente und Planzeichnung'
+plandocument.and.drawing.categories: "Planungsdokumente - Kategorien"
+plandocument.and.drawing.documents: "Planungsdokumente - Dokumente"
+plandocument.and.drawing.drawings: "Planzeichnung"
+plandocument.and.drawing.paragraphs: "Planungsdokumente - Kapitel"
 plandocument.and.chapter: "Planungsdokument und -kapitel"
 plandocument.edit: "Planungsdokument bearbeiten"
 plandocument.file.attach: "Planungsdokument als Datei anhängen"
@@ -2950,6 +2956,85 @@ remove: "Entfernen"
 remove.from.list: "Aus Liste entfernen"
 rename: "umbenennen"
 replied.to: "Erwidert"
+report.add.element: |
+    Eine Kategorie wurde hinzugefügt:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorietyp: {category}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Berechtigte Institutionen: {organisations} <br />
+    Veröffentlicht: {enabled}
+report.update.element: |
+    Eine Kategorie wurde geändert zu:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorietyp: {category}<br />
+    Planungsdokument als Datei: {fileName}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Berechtigte Institutionen: {organisations} <br />
+    Veröffentlicht: {enabled}
+report.delete.element: |
+    Die Kategorie "{title}" ({category}) wurde gelöscht.<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+report.add.paragraph: |
+    Eine Kapitel wurde hinzugefügt:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Sichtbar: {visible}
+report.update.paragraph: |
+    Eine Kapitel wurde geändert zu:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Sichtbar: {visible}
+report.delete.paragraph: |
+    Das Kapitel "{title}" wurde gelöscht.<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+report.add.singleDocument: |
+    Eine Planungsdokument wurde hinzugefügt:<br />
+    Titel: "{title}"<br />
+    Datei: {fileName}<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Sichtbar: {visible}<br />
+    Stellungnahme möglich: {statement_enabled}
+report.update.singleDocument: |
+    Eine Planungsdokument wurde geändert zu:<br />
+    Titel: "{title}"<br />
+    Datei: {fileName}<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Sichtbar: {visible}<br />
+    Stellungnahme möglich: {statement_enabled}
+report.delete.singleDocument:  |
+    Das Planungsdokument "{title}" wurde gelöscht.<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+report.create.planDrawingFile: |
+    Die Planzeichnung "{fileName}" wurde hinzugefügt.
+report.delete.planDrawingFile: |
+    Die Planzeichnung "{fileName}" wurde gelöscht.
+report.update.planDrawingFile: |
+    Die Planzeichnung wurde geändert von "{oldFileName}" zu "{newFileName}".
+report.create.planDrawingExplanation: |
+    Die Planzeichenerklärung "{fileName}" wurde hinzugefügt.
+report.delete.planDrawingExplanation: |
+    Die Planzeichenerklärung "{fileName}" wurde gelöscht.
+report.update.planDrawingExplanation: |
+    Die Planzeichenerklärung wurde geändert von "{oldFileName}" zu "{newFileName}".
 request: "Ihre Anfrage"
 requested: "angefragt"
 reset: "Zurücksetzen"
@@ -3949,6 +4034,7 @@ unsaved.changes: "Ungespeicherte Änderungen"
 unselect: "Auswahl aufheben"
 unselect.entity.first: "Aktuelle Auswahl aufheben, um {entity} auszuwählen"
 unpublished.statements.if.participation.ends: "nicht eingereichten Stellungnahmen, wenn die Beteiligung in einem Verfahren endet"
+unrestricted: "Uneingeschränkt"
 update: "Aktualisierung"
 upload: "Hochladen"
 upload.again: "Erneut hochladen"

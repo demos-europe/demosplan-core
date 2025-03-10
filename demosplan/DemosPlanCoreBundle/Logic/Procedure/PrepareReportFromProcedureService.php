@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCoupleToken;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Event\Procedure\ProcedureEditedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -30,6 +31,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\PlanDrawReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
@@ -37,14 +39,26 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 use ReflectionException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
 
 class PrepareReportFromProcedureService extends CoreService
 {
-    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly ElementsService $elementsService, private readonly GlobalConfigInterface $globalConfig, private readonly MapService $mapService, private readonly ParagraphService $paragraphDocumentService, private readonly PermissionsInterface $permissions, private readonly ReportService $reportService, private readonly ProcedureReportEntryFactory $procedureReportEntryFactory, private readonly StatementReportEntryFactory $statementReportEntryFactory, private readonly TranslatorInterface $translator)
-    {
-    }
+    public function __construct(
+        private readonly CurrentUserInterface $currentUser,
+        private readonly ElementsService $elementsService,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly MapService $mapService,
+        private readonly ParagraphService $paragraphDocumentService,
+        private readonly PermissionsInterface $permissions,
+        private readonly ReportService $reportService,
+        private readonly ProcedureReportEntryFactory $procedureReportEntryFactory,
+        private readonly StatementReportEntryFactory $statementReportEntryFactory,
+        private readonly TranslatorInterface $translator,
+        private readonly PlanDrawReportEntryFactory $planDrawReportEntryFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
+    ) {}
 
     /**
      * Add report entry to ensure send mail to unregistered public agency will be logged.
@@ -218,6 +232,18 @@ class PrepareReportFromProcedureService extends CoreService
             $update['newPublicStartDate'] = $destinationProcedure->getPublicParticipationStartDate()->getTimestamp();
             $update['oldPublicEndDate'] = $sourceProcedure->getPublicParticipationEndDate()->getTimestamp();
             $update['newPublicEndDate'] = $destinationProcedure->getPublicParticipationEndDate()->getTimestamp();
+        }
+
+        if (0 !== strcmp($sourceProcedureSettings->getPlanPDF(), $destinationProcedureSettings->getPlanPDF())
+        || (0 !== strcmp($sourceProcedureSettings->getPlanDrawPDF(), $destinationProcedureSettings->getPlanDrawPDF()))) {
+
+            $reportEntryEvent = new ProcedureEditedEvent(
+                $sourceProcedure->getId(),
+                ['planPDF' => $sourceProcedureSettings->getPlanPDF(), 'planDrawPDF' => $sourceProcedureSettings->getPlanDrawPDF()],
+                ['planPDF' => $destinationProcedureSettings->getPlanPDF(), 'planDrawPDF' => $destinationProcedureSettings->getPlanDrawPDF()],
+                $this->currentUser->getUser()
+            );
+            $this->eventDispatcher->dispatch($reportEntryEvent);
         }
 
         $phaseChangeEntry = $this->createPhaseChangeReportEntryIfChangesOccurred(
@@ -493,6 +519,7 @@ class PrepareReportFromProcedureService extends CoreService
         $elementEntry = [];
         // category has uploaded pdf file
         if ('' !== $element->getFile()) {
+            $elementEntry['paragraphPdfName'] = $element->getFileInfo()->getFileName();
             $elementEntry['hasParagraphPdf'] = true;
         }
 
