@@ -12,6 +12,7 @@ namespace Tests\Core\Document\Functional;
 
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService;
 use Tests\Base\FunctionalTestCase;
 
@@ -258,7 +259,7 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertIsNumeric($result['modifydate']);
     }
 
-    public function testAdd()
+    public function testAdd(): void
     {
         $testElement = $this->fixtures->getReference('testSingleDocumentElement');
         $data = [
@@ -322,6 +323,65 @@ class SingleDocumentServiceTest extends FunctionalTestCase
 
         $versionsAfter = $this->sut->getVersions($this->testDocument->getId());
         static::assertCount(1, $versionsAfter);
+    }
+
+    public function testReportOnAddSingleDocument(): void
+    {
+        $testElement = $this->fixtures->getReference('testSingleDocumentElement');
+        $data = [
+            'pId'               => $this->testProcedure->getId(),
+            'elementId'         => $testElement->getId(),
+            'category'          => 'category',
+            'order'             => 0,
+            'title'             => 'my title',
+            'text'              => 'my text',
+            'symbol'            => 'random symbol',
+            'document'          => 'some file',
+            'statement_enabled' => false,
+            'visible'           => true,
+            'deleted'           => false,
+        ];
+
+        $result = $this->sut->addSingleDocument($data);
+        $createdSingleDocument = $this->find(SingleDocument::class,$result['id']);
+        static::assertInstanceOf(SingleDocument::class, $createdSingleDocument);
+
+        $relatedReports = $this->getEntries(ReportEntry::class,
+            [
+                'group'     => 'singleDocument',
+                'category'  => 'add',
+                'identifierType'  => 'procedure',
+                'identifier'  => $this->testProcedure->getId(),
+            ]
+        );
+
+        static::assertCount(1, $relatedReports);
+        $relatedReport = $relatedReports[0];
+        static::assertInstanceOf(ReportEntry::class, $relatedReport);
+        $messageArray = $relatedReport->getMessageDecoded(false);
+
+        static::assertArrayHasKey('documentId', $messageArray);
+        static::assertArrayHasKey('documentTitle', $messageArray);
+        static::assertArrayHasKey('documentText', $messageArray);
+        static::assertArrayHasKey('documentCategory', $messageArray);
+        static::assertArrayHasKey('relatedFile', $messageArray);
+        static::assertArrayHasKey('elementCategory', $messageArray);
+        static::assertArrayHasKey('elementTitle', $messageArray);
+        static::assertArrayHasKey('visible', $messageArray);
+        static::assertArrayHasKey('statement_enabled', $messageArray);
+        static::assertArrayHasKey('procedurePhase', $messageArray);
+        static::assertArrayHasKey('date', $messageArray);
+
+        static::assertEquals($createdSingleDocument->getId(), $messageArray['documentId']);
+        static::assertEquals($createdSingleDocument->getTitle(), $messageArray['documentTitle']);
+        static::assertEquals($createdSingleDocument->getText(), $messageArray['documentText']);
+        static::assertEquals($createdSingleDocument->getCategory(), $messageArray['documentCategory']);
+        static::assertEquals($createdSingleDocument->getFileInfo()->getFileName(), $messageArray['relatedFile']);
+        static::assertEquals($createdSingleDocument->getElement()->getCategory(), $messageArray['elementCategory']);
+        static::assertEquals($createdSingleDocument->getElement()->getTitle(), $messageArray['elementTitle']);
+        static::assertEquals($createdSingleDocument->getVisible(), $messageArray['visible']);
+        static::assertEquals($createdSingleDocument->isStatementEnabled(), $messageArray['statement_enabled']);
+        static::assertEquals($createdSingleDocument->getProcedure()->getPhase(), $messageArray['procedurePhase']);
     }
 
     public function testUdpate()
