@@ -349,6 +349,16 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
                     return $fileContainers;
                 });
+
+            $configBuilder->feedback->setReadableByPath();
+            $configBuilder->sentAssessmentDate->setReadableByPath();
+            $configBuilder->sentAssessment->setReadableByPath();
+            $configBuilder->publicStatement->setReadableByPath();
+            $configBuilder->authorFeedback->setReadableByPath()->setAliasedPath(Paths::statement()->meta->authorFeedback);
+            $configBuilder->user
+                ->setRelationshipType($this->resourceTypeStore->getUserResourceType())
+                ->setReadableByPath();
+
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
@@ -368,6 +378,10 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->status->readable(true, function (Statement $statement) {
                 return $this->statementService->getProcessingStatus($statement);
             })->filterable();
+        }
+
+        if ($this->currentUser->hasPermission('field_statement_priority')) {
+            $configBuilder->priority->setReadableByPath();
         }
 
         if ($this->currentUser->hasPermission('feature_similar_statement_submitter')) {
@@ -392,6 +406,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->initialOrganisationName
                 ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaName);
+            $configBuilder->initialOrganisationEmail
+                ->setReadableByPath()
+                ->aliasedPath(Paths::statement()->meta->orgaEmail);
             $configBuilder->initialOrganisationDepartmentName
                 ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaDepartmentName);
