@@ -111,6 +111,10 @@ services:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\FileResourceType
         public: true
 
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\TagResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType
+        public: true
+
     DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType
         public: true
