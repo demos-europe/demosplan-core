@@ -54,7 +54,7 @@ class SegmentsExporter
         private readonly ImageManager $imageManager,
         protected readonly ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
     ) {
         $this->translator = $translator;
         $this->initializeStyles();
@@ -143,14 +143,23 @@ class SegmentsExporter
         return implode(', ', $submitterStrings);
     }
 
-    protected function addStatementInfo(Section $section, Statement $statement): void
+    protected function addStatementInfo(Section $section, Statement $statement, bool $censored = false): void
     {
         $table = $section->addTable($this->styles['statementInfoTable']);
-        $orgaInfoHeader = new ExportOrgaInfoHeader($statement, $this->currentUser, $this->translator);
+
+        if (!$censored) {
+            $orgaInfoHeader = new ExportOrgaInfoHeader($statement, $this->currentUser, $this->translator);
+        }
 
         if ('' !== $statement->getAuthoredDateString()) {
             $authoredDateRow = $table->addRow();
-            $this->addSegmentCell($authoredDateRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+
+            $this->addSegmentCell(
+                $authoredDateRow,
+                $censored ? '' : $orgaInfoHeader->getNextHeader(),
+                $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+            );
+
             $this->addSegmentCell($authoredDateRow, '', $this->styles['statementInfoEmptyCell']);
             $authoredAt = $this->translator->trans('statement.date.authored').': '.$statement->getAuthoredDateString();
             $this->addSegmentCell($authoredDateRow, $authoredAt, $this->styles['statementInfoTextCell']);
@@ -158,21 +167,39 @@ class SegmentsExporter
 
         if ('' !== $statement->getSubmitDateString()) {
             $submitDateRow = $table->addRow();
-            $this->addSegmentCell($submitDateRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+
+            $this->addSegmentCell(
+                $submitDateRow,
+                $censored ? '' : $orgaInfoHeader->getNextHeader(),
+                $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+            );
+
             $this->addSegmentCell($submitDateRow, '', $this->styles['statementInfoEmptyCell']);
             $submittedAt = $this->translator->trans('statement.date.submitted').': '.$statement->getSubmitDateString();
             $this->addSegmentCell($submitDateRow, $submittedAt, $this->styles['statementInfoTextCell']);
         }
 
         $textRow = $table->addRow();
-        $this->addSegmentCell($textRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+
+        $this->addSegmentCell(
+            $textRow,
+            $censored ? '' : $orgaInfoHeader->getNextHeader(),
+            $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+        );
+
         $this->addSegmentCell($textRow, '', $this->styles['statementInfoEmptyCell']);
         $externIdText = $this->translator->trans('segments.export.statement.extern.id', ['externId' => $statement->getExternId()]);
         $this->addSegmentCell($textRow, $externIdText, $this->styles['statementInfoTextCell']);
 
         if (null !== $statement->getInternId() && '' !== $statement->getInternId()) {
             $internIdRow = $table->addRow();
-            $this->addSegmentCell($internIdRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+
+            $this->addSegmentCell(
+                $internIdRow,
+                $censored ? '' : $orgaInfoHeader->getNextHeader(),
+                $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+            );
+
             $this->addSegmentCell($internIdRow, '', $this->styles['statementInfoEmptyCell']);
             $internIdText = $this->translator->trans('segments.export.statement.intern.id', ['internId' => $statement->getInternId()]);
             $this->addSegmentCell($internIdRow, $internIdText, $this->styles['statementInfoTextCell']);
@@ -180,12 +207,24 @@ class SegmentsExporter
 
         // formation only
         $row5 = $table->addRow();
-        $this->addSegmentCell($row5, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+
+        $this->addSegmentCell(
+            $row5,
+            $censored ? '' : $orgaInfoHeader->getNextHeader(),
+            $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+        );
+
         $this->addSegmentCell($row5, '', $this->styles['statementInfoEmptyCell']);
         $this->addSegmentCell($row5, '', $this->styles['statementInfoTextCell']);
 
         $row6 = $table->addRow();
-        $this->addSegmentCell($row6, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+
+        $this->addSegmentCell(
+            $row6,
+            $censored ? '' : $orgaInfoHeader->getNextHeader(),
+            $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+        );
+
         $this->addSegmentCell($row6, '', $this->styles['statementInfoEmptyCell']);
 
         $section->addTextBreak(2);
@@ -200,14 +239,14 @@ class SegmentsExporter
         }
     }
 
-    protected function addFooter(Section $section, Statement $statement): void
+    protected function addFooter(Section $section, Statement $statement, bool $censored = false): void
     {
         $footer = $section->addFooter();
         $table = $footer->addTable();
         $row = $table->addRow();
 
         $cell1 = $row->addCell($this->styles['footerCellWidth'], $this->styles['footerCell']);
-        $footerLeftString = $this->getFooterLeftString($statement);
+        $footerLeftString = $this->getFooterLeftString($statement, $censored);
         $cell1->addText($footerLeftString, $this->styles['footerStatementInfoFont'], $this->styles['footerStatementInfoParagraph']);
 
         $cell2 = $row->addCell($this->styles['footerCellWidth'], $this->styles['footerCell']);
@@ -325,10 +364,10 @@ class SegmentsExporter
         $cell->addText($text, $cellExportStyle->getFontStyle(), $cellExportStyle->getParagraphStyle());
     }
 
-    private function getFooterLeftString(Statement $statement): string
+    private function getFooterLeftString(Statement $statement, bool $censored): string
     {
         $info = [];
-        if ($this->validInfoString($statement->getUserName())) {
+        if ($this->validInfoString($statement->getUserName()) && !$censored) {
             $info[] = $statement->getUserName();
         }
         if ($this->validInfoString($statement->getExternId())) {

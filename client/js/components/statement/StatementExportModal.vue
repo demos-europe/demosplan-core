@@ -27,11 +27,12 @@
         <legend
           class="o-form__label text-base"
           v-text="Translator.trans('export.type')" />
-        <div class="flex flex-row mb-5 mt-1 gap-3">
+        <div class="grid grid-cols-3 mt-2 mb-5 gap-x-2 gap-y-5">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
             :key="key"
             :id="key"
+            :data-cy="`exportType:${key}`"
             :label="{
               hint: active === key ? exportType.hint : '',
               text: Translator.trans(exportType.label)
@@ -42,7 +43,7 @@
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx', 'zip'].includes(this.active)">
+      <fieldset v-if="['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored', 'xlsx_normal'].includes(this.active)">
         <legend
           id="docxColumnTitles"
           class="o-form__label text-base float-left mr-1"
@@ -123,7 +124,7 @@ export default {
 
   data () {
     return {
-      active: 'docx',
+      active: 'docx_normal',
       docxColumns: {
         col1: {
           width: 'col-span-1',
@@ -145,23 +146,37 @@ export default {
         }
       },
       exportTypes: {
-        docx: {
+        docx_normal: {
           label: 'export.docx',
           hint: '',
           exportPath: 'dplan_statement_segments_export',
           dataCy: 'exportModal:export:docx'
         },
-        zip: {
+        zip_normal: {
           label: 'export.zip',
           hint: '',
           exportPath: 'dplan_statement_segments_export_packaged',
           dataCy: 'exportModal:export:zip'
         },
-        xlsx: {
+        xlsx_normal: {
           label: 'export.xlsx',
           hint: Translator.trans('export.xlsx.hint'),
           exportPath: 'dplan_statement_xls_export',
           dataCy: 'exportModal:export:xlsx'
+        },
+        docx_censored: {
+          label: 'export.docx.censored',
+          hint: '',
+          exportPath: 'dplan_statement_segments_export',
+          dataCy: 'exportModal:export:docx',
+          censor: true
+        },
+        zip_censored: {
+          label: 'export.zip.censored',
+          hint: '',
+          exportPath: 'dplan_statement_segments_export_packaged',
+          dataCy: 'exportModal:export:zip',
+          censor: true
         }
       },
       fileName: '',
@@ -229,8 +244,9 @@ export default {
 
       this.$emit('export', {
         route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
-        docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null,
-        fileNameTemplate: this.fileName || null
+        docxHeaders: ['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored', 'xlsx_normal'].includes(this.active) ? columnTitles : null,
+        fileNameTemplate: this.fileName || null,
+        censorParameter: this.exportTypes[this.active].censor || false
       })
       this.closeModal()
     },
@@ -241,7 +257,7 @@ export default {
     },
 
     setInitialValues () {
-      this.active = 'docx'
+      this.active = 'docx_normal'
 
       Object.keys(this.docxColumns).forEach(key => {
         const storageKey = `exportModal:docxCol:${key}`
