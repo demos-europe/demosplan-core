@@ -98,6 +98,7 @@
               @mouseover.native="handleMouseOver"
               @mouseleave.native="handleMouseLeave"
               :init-statement-text="initText ?? ''"
+              :keydown-event="handleKeydownEvent"
               :segments="segments"
               :range-change-callback="handleSegmentChanges"
               :class="{ 'is-fullwidth': !showTags }" />
@@ -172,6 +173,7 @@ import SideBar from './SideBar'
 import StatementMeta from '@DpJs/components/procedure/StatementSegmentsList/StatementMeta/StatementMeta'
 import StatementMetaTooltip from '../StatementMetaTooltip'
 import { v4 as uuid } from 'uuid'
+import { TextSelection } from 'prosemirror-state'
 /**
  * This function merges ranges with their corresponding segments.
  * Ranges are used to represent range shaped information in prosemirror.
@@ -282,7 +284,9 @@ export default {
       prosemirror: null,
       segmentationStatus: 'processing',
       showInfobox: false,
-      tagsCounter: 0
+      tagsCounter: 0,
+      selectionStartPos: null,
+      selectionEndPos: null
     }
   },
 
@@ -362,6 +366,85 @@ export default {
       'saveSegmentsDrafts',
       'saveSegmentsFinal'
     ]),
+
+    handleKeydownEvent (view, event) {
+      console.log('key pressed:', event.key)
+
+      const { state } = view
+      const { doc, selection } = state
+      const pos = selection.head
+
+      console.log('selection', selection)
+      console.log('doc', doc)
+      console.log('pos', pos)
+
+      // Helper to dispatch a new selection transaction.
+      const setSelectionAt = (newSelection) => {
+        view.dispatch(state.tr.setSelection(newSelection))
+        return true
+      }
+
+      switch (event.key) {
+        case 'ArrowRight': {
+          if (pos < doc.content.size) {
+            const newPos = pos + 1
+            if (this.selectionStartPos !== null) {
+              const from = Math.min(this.selectionStartPos, newPos)
+              const to = Math.max(this.selectionStartPos, newPos)
+              return setSelectionAt(TextSelection.create(doc, from, to))
+            } else {
+              return setSelectionAt(TextSelection.create(doc, newPos))
+            }
+          }
+          console.log('Current selection:', view.state.selection)
+          console.log('Is selection empty?', view.state.selection.empty)
+          console.log('Selection from-to:', view.state.selection.from, view.state.selection.to)
+          return true
+        }
+        case 'ArrowLeft': {
+          if (pos > 0) {
+            const newPos = pos - 1
+            if (this.selectionStartPos !== null) {
+              const from = Math.min(this.selectionStartPos, newPos)
+              const to = Math.max(this.selectionStartPos, newPos)
+              return setSelectionAt(TextSelection.create(doc, from, to))
+            } else {
+              return setSelectionAt(TextSelection.create(doc, newPos))
+            }
+          }
+          console.log('Current selection:', view.state.selection)
+          console.log('Is selection empty?', view.state.selection.empty)
+          console.log('Selection from-to:', view.state.selection.from, view.state.selection.to)
+          return true
+        }
+        case 'Enter': {
+          if (this.selectionStartPos === null) {
+            // First Enter: record current caret as the start.
+            this.selectionStartPos = pos
+            console.log('Selection start recorded at position', pos)
+            return true
+          } else {
+            this.selectionEndPos = pos
+            // Second Enter: create a selection from the stored start to current caret.
+            const start = Math.min(this.selectionStartPos, pos)
+            const end = Math.max(this.selectionEndPos, pos)
+            const newSelection = TextSelection.create(doc, start, end)
+            setSelectionAt(newSelection)
+
+            // Extract the selected text.
+            const selectedText = doc.textBetween(start, end, ' ')
+            console.log('Selected text:', selectedText)
+
+            this.handleSegmentCreation({ from: start, to: end, text: selectedText })
+            // Reset the stored start.
+            this.selectionStartPos = null
+            return true
+          }
+        }
+        default:
+          return false
+      }
+    },
 
     setCurrentTime () {
       this.lastSavedTime = dayjs().format('HH:mm')
@@ -551,6 +634,7 @@ export default {
      * Updates currentlyHighlightedSegmentId in the store
      */
     handleMouseLeave () {
+      console.log('LEAVE')
       if (!this.editModeActive) {
         this.handleSegmentHighlighting(this.currentlyHighlightedSegmentId, false)
         this.handleCardHighlighting(this.currentlyHighlightedSegmentId, false)

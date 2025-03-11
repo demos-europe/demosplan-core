@@ -47,6 +47,12 @@ export default {
       type: Function,
       required: false,
       default: () => ({})
+    },
+
+    keydownEvent: {
+      type: Function,
+      required: false,
+      default: () => ({})
     }
   },
 
@@ -108,19 +114,35 @@ export default {
       this.maxRange = parsedContent.content.size
 
       const view = new EditorView(document.querySelector('#editor'), {
-        editable: () => false,
+        editable: () => true,
         state: EditorState.create({
           doc: parsedContent,
           plugins: rangePlugin.plugins
-        })
+        }),
+        attributes: { tabindex: '0' },
+        handleDOMEvents: {
+          beforeinput: (view, event) => {
+            event.preventDefault()
+            return true
+          },
+          keydown: this.keydownEvent
+        }
       })
 
-      const transformedSegments = this.transformSegments(this.segments.filter(segment => segment.charEnd <= this.maxRange))
-      transformedSegments.forEach(segment => setRange(view)(segment.from, segment.to, segment.attributes))
+      const transformedSegments = this.transformSegments(
+        this.segments.filter(segment => segment.charEnd <= this.maxRange)
+      )
+      transformedSegments.forEach(segment =>
+        setRange(view)(segment.from, segment.to, segment.attributes)
+      )
 
       const getContent = (schema) => (state) => {
         const container = document.createElement('div')
-        const serialized = DOMSerializer.fromSchema(schema).serializeFragment(state.doc.content, { document: window.document }, container)
+        const serialized = DOMSerializer.fromSchema(schema).serializeFragment(
+          state.doc.content,
+          { document: window.document },
+          container
+        )
         return serialized.innerHTML
       }
 
