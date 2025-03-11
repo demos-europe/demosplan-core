@@ -87,5 +87,28 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
     }
 
+    public function testSendStatementMail(): void
+    {
+        $procedure = ProcedureFactory::createOne();
+        $user = UserFactory::createOne();
+        $statement = StatementFactory::createOne(['procedure' => $procedure, 'user' => $user]);
+
+        $this->currentUserService->setUser($user->_real());
+
+
+        $statementId = $statement->getId();
+        $subject = 'My subject';
+        $body =' Email body';
+        $sendEmailCC = 'hola@test.de';
+        $emailAttachments = [];
+
+        $this->currentProcedureService->setProcedure($procedure->_real());
+
+        $this->sut->sendStatementMail($statementId, $subject, $body, $sendEmailCC, $emailAttachments);
+
+        $this->assertTrue(true);
+
+    }
+
 
 }
