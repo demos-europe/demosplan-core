@@ -147,19 +147,12 @@ class ReportSubscriber extends BaseEventSubscriber
      */
     public function afterCreateUpdateOrDelete(AfterDeletionEvent|AfterCreationEvent|AfterUpdateEvent $event): void
     {
-        $reportCategory = 'unknown';
-        switch (true) {
-            case $event instanceof AfterCreationEvent:
-                $reportCategory = ReportEntry::CATEGORY_ADD;
-                break;
-            case $event instanceof AfterUpdateEvent:
-                $reportCategory = ReportEntry::CATEGORY_UPDATE;
-                break;
-            case $event instanceof AfterDeletionEvent:
-                $reportCategory = ReportEntry::CATEGORY_DELETE;
-                break;
-        }
-
+        $reportCategory = match (true) {
+            $event instanceof AfterCreationEvent => ReportEntry::CATEGORY_ADD,
+            $event instanceof AfterUpdateEvent => ReportEntry::CATEGORY_UPDATE,
+            $event instanceof AfterDeletionEvent => ReportEntry::CATEGORY_DELETE,
+            default => 'unknown',
+        };
         //fixme: in case of AfterDeletionEvent there is no entity, only the entityIdentifier!
         //fixme: not implemented yet: AfterDeletionEvent does not have an entity, only an getEntityIdentifier
         // this needs to be handled in case of deletion of one of these three entities, via ResourceTypes.
@@ -176,48 +169,29 @@ class ReportSubscriber extends BaseEventSubscriber
      */
     private function dynamicCreateReportEntry(Elements|Paragraph|SingleDocument $entity, string $category): void
     {
-        switch ($category) {
-            case ReportEntry::CATEGORY_ADD:
-                $date = $entity->getCreateDate()->getTimestamp();
-                break;
-            case ReportEntry::CATEGORY_UPDATE:
-                $date = $entity->getModifyDate()->getTimestamp();
-                break;
-            default:
-                $date = Carbon::now()->getTimestamp();
-                break;
-        }
+        $date = match ($category) {
+            ReportEntry::CATEGORY_ADD => $entity->getCreateDate()->getTimestamp(),
+            ReportEntry::CATEGORY_UPDATE => $entity->getModifyDate()->getTimestamp(),
+            default => Carbon::now()->getTimestamp(),
+        };
 
-
-        switch (true) {
-            case $entity instanceof Elements:
-                /** @var Elements $element */
-                $element = $entity;
-                $report = $this->elementReportEntryFactory->createElementEntry(
-                    $element,
-                    $category,
-                    $date
-                );
-                break;
-            case $entity instanceof SingleDocument:
-                /** @var SingleDocument $singleDocument */
-                $singleDocument = $entity;
-                $report = $this->singleDocumentReportEntryFactory->createSingleDocumentEntry(
-                    $singleDocument,
-                    $category,
-                    $date
-                );
-                break;
-            case $entity instanceof Paragraph:
-                /** @var Paragraph $paragraph */
-                $paragraph = $entity;
-                $report = $this->paragraphReportEntryFactory->createParagraphEntry(
-                    $paragraph,
-                    $category,
-                    $date
-                );
-                break;
-        }
+        $report = match (true) {
+            $entity instanceof Elements => $this->elementReportEntryFactory->createElementEntry(
+                $entity,
+                $category,
+                $date
+            ),
+            $entity instanceof SingleDocument => $this->singleDocumentReportEntryFactory->createSingleDocumentEntry(
+                $entity,
+                $category,
+                $date
+            ),
+            $entity instanceof Paragraph => $this->paragraphReportEntryFactory->createParagraphEntry(
+                $entity,
+                $category,
+                $date
+            ),
+        };
 
         $this->reportService->persistAndFlushReportEntries($report);
     }
