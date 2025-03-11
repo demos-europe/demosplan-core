@@ -41,6 +41,7 @@ export default {
 
     fetchProcedureMapSettings ({ commit }, { procedureId, isMaster = false }) {
       if (!hasPermission('area_admin_map')) return
+
       try {
         const resourceType = isMaster ? 'ProcedureTemplate' : 'Procedure'
         const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType })
