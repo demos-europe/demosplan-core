@@ -79,7 +79,7 @@ All rights reserved
         class="u-mb-0_5"
         data-cy="statementDetail:emailBodyText"
         :editable="editable"
-        :init-text="emailDefaultText"
+        :init-text="emailBodyText"
         :procedure-id="procedure.id"
         @emailBody:input="updateEmailBodyText" />
       <template v-if="editable">
@@ -153,7 +153,6 @@ export default {
       email2: '',
       emailAttachments: [],
       emailBodyText: '',
-      emailDefaultText: '',
       emailSubject: Translator.trans('statement.final.email.subject', { procedureName: this.procedure.name }),
       emailsCC: '',
       finalEmailOnlyToVoters: false,
@@ -292,7 +291,7 @@ export default {
     },
 
     setEmailDefaultText  () {
-      this.emailDefaultText = Translator.trans('statement.send.final_mail.default', {
+      this.emailBodyText = Translator.trans('statement.send.final_mail.default', {
         hasStatementText: this.statement.attributes.fullText.length < 2000,
         orgaName: this.procedure.orgaName,
         procedureName: this.procedure.name,
