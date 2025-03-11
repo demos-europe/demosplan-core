@@ -115,53 +115,23 @@ class ReportMessageConverter
                     $message = $this->getOriginalStatementMessage($reportEntryMessage, 'confirm.original.statement.attachment.deleted');
                 }
             } elseif (ReportEntry::GROUP_ELEMENT === $group) { // Planungsdokumentenkategorien
-                if (ReportEntry::CATEGORY_ADD === $category) {
-                    $message = $this->translator->trans(
-                        'report.add.element',
-                        $this->createElementMessageData($reportEntryMessage)
-                    );
-                }
-                if (ReportEntry::CATEGORY_UPDATE === $category) {
-                    $message = $this->translator->trans(
-                        'report.update.element',
-                        $this->createElementMessageData($reportEntryMessage)
-                    );
-                }
-                if (ReportEntry::CATEGORY_DELETE === $category) {
-                    $message = $this->createDeleteElementMessage($reportEntryMessage);
-                }
+                $message = match ($category) {
+                    ReportEntry::CATEGORY_ADD => $this->translator->trans('report.add.element', $this->createElementMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_UPDATE => $this->translator->trans('report.update.element', $this->createElementMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_DELETE => $this->createDeleteElementMessage($reportEntryMessage),
+                };
             } elseif (ReportEntry::GROUP_PARAGRAPH === $group) { // Kapitel
-                if (ReportEntry::CATEGORY_ADD === $category) {
-                    $message =  $this->translator->trans(
-                        'report.add.paragraph',
-                        $this->createParagraphMessageData($reportEntryMessage)
-                    );
-                }
-                if (ReportEntry::CATEGORY_UPDATE === $category) {
-                    $message =  $this->translator->trans(
-                        'report.update.paragraph',
-                        $this->createParagraphMessageData($reportEntryMessage)
-                    );
-                }
-                if (ReportEntry::CATEGORY_DELETE === $category) {
-                    return $this->translator->trans('report.delete.paragraph',$reportEntryMessage);
-                }
+                $message = match ($category) {
+                    ReportEntry::CATEGORY_ADD => $this->translator->trans('report.add.paragraph', $this->createParagraphMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_UPDATE => $this->translator->trans('report.update.paragraph', $this->createParagraphMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_DELETE => $this->translator->trans('report.delete.paragraph',$reportEntryMessage),
+                };
             } elseif (ReportEntry::GROUP_SINGLE_DOCUMENT === $group) { // Planungsdokumente
-                if (ReportEntry::CATEGORY_ADD === $category) {
-                    $message = $this->translator->trans(
-                        'report.add.singleDocument',
-                        $this->createSingleDocumentMessageData($reportEntryMessage)
-                    );
-                }
-                if (ReportEntry::CATEGORY_UPDATE === $category) {
-                    $message = $this->translator->trans(
-                        'report.update.singleDocument',
-                        $this->createSingleDocumentMessageData($reportEntryMessage)
-                    );
-                }
-                if (ReportEntry::CATEGORY_DELETE === $category) {
-                    $message = $this->translator->trans('report.delete.singleDocument',$reportEntryMessage);
-                }
+                $message = match ($category) {
+                    ReportEntry::CATEGORY_ADD => $this->translator->trans('report.add.singleDocument', $this->createSingleDocumentMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_UPDATE => $this->translator->trans('report.update.singleDocument', $this->createSingleDocumentMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_DELETE => $this->translator->trans('report.delete.singleDocument', $reportEntryMessage),
+                };
             } elseif (ReportEntry::GROUP_PLAN_DRAW === $group) { // Planzeichnung
                 if (ReportEntry::CATEGORY_CHANGE === $category) {
                     $message = $this->createChangePlanDrawMessage($reportEntryMessage);
