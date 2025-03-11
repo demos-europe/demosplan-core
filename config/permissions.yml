@@ -76,6 +76,7 @@ area_admin_import:
 area_admin_map:
     description: |-
         Controls ResourceType and Access to Map Settings.
+    expose: true
     label: 'Verwalten Planzeichnung'
     loginRequired: true
     parent: area_admin
