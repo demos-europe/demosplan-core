@@ -325,11 +325,12 @@ class BoilerplateServiceTest extends FunctionalTestCase
         }
     }
 
-    public function testBoilerplateCategoryCascade()
+    public function testBoilerplateCategoryCascade(): void
     {
         /** @var BoilerplateCategory $category */
         $category = $this->fixtures->getReference('testBoilerplateEmptyCategory');
         $boilerplate = new Boilerplate();
+        $boilerplate->setProcedure($this->fixtures->getReference('testProcedure'));
         $boilerplate->setTitle('Cascade Test');
         $boilerplate->setText('This is a test for cascade delete.');
         $boilerplate->addBoilerplateCategory($category);
