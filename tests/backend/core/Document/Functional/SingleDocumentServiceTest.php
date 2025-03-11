@@ -10,10 +10,12 @@
 
 namespace Tests\Core\Document\Functional;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\SingleDocumentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService;
+use PhpOffice\PhpSpreadsheet\Calculation\Financial\CashFlow\Single;
 use Tests\Base\FunctionalTestCase;
 
 class SingleDocumentServiceTest extends FunctionalTestCase
@@ -325,7 +327,7 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertCount(1, $versionsAfter);
     }
 
-    public function testReportOnAddSingleDocument(): void
+    public function testReportOnAddSingleDocumentViaService(): void
     {
         $testElement = $this->fixtures->getReference('testSingleDocumentElement');
         $data = [
@@ -343,13 +345,13 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         ];
 
         $result = $this->sut->addSingleDocument($data);
-        $createdSingleDocument = $this->find(SingleDocument::class,$result['id']);
-        static::assertInstanceOf(SingleDocument::class, $createdSingleDocument);
+        $document = $this->find(SingleDocument::class,$result['id']);
+        static::assertInstanceOf(SingleDocument::class, $document);
 
         $relatedReports = $this->getEntries(ReportEntry::class,
             [
                 'group'     => 'singleDocument',
-                'category'  => 'add',
+                'category'  => ReportEntry::CATEGORY_ADD,
                 'identifierType'  => 'procedure',
                 'identifier'  => $this->testProcedure->getId(),
             ]
@@ -360,28 +362,61 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertInstanceOf(ReportEntry::class, $relatedReport);
         $messageArray = $relatedReport->getMessageDecoded(false);
 
-        static::assertArrayHasKey('documentId', $messageArray);
-        static::assertArrayHasKey('documentTitle', $messageArray);
-        static::assertArrayHasKey('documentText', $messageArray);
-        static::assertArrayHasKey('documentCategory', $messageArray);
-        static::assertArrayHasKey('relatedFile', $messageArray);
-        static::assertArrayHasKey('elementCategory', $messageArray);
-        static::assertArrayHasKey('elementTitle', $messageArray);
-        static::assertArrayHasKey('visible', $messageArray);
-        static::assertArrayHasKey('statement_enabled', $messageArray);
-        static::assertArrayHasKey('procedurePhase', $messageArray);
-        static::assertArrayHasKey('date', $messageArray);
+        $this->assertSingleDocumentReportEntryMessageKeys($messageArray);
+        $this->assertSingleDocumentReportEntryMessageValues($document, $messageArray);
+    }
 
-        static::assertEquals($createdSingleDocument->getId(), $messageArray['documentId']);
-        static::assertEquals($createdSingleDocument->getTitle(), $messageArray['documentTitle']);
-        static::assertEquals($createdSingleDocument->getText(), $messageArray['documentText']);
-        static::assertEquals($createdSingleDocument->getCategory(), $messageArray['documentCategory']);
-        static::assertEquals($createdSingleDocument->getFileInfo()->getFileName(), $messageArray['relatedFile']);
-        static::assertEquals($createdSingleDocument->getElement()->getCategory(), $messageArray['elementCategory']);
-        static::assertEquals($createdSingleDocument->getElement()->getTitle(), $messageArray['elementTitle']);
-        static::assertEquals($createdSingleDocument->getVisible(), $messageArray['visible']);
-        static::assertEquals($createdSingleDocument->isStatementEnabled(), $messageArray['statement_enabled']);
-        static::assertEquals($createdSingleDocument->getProcedure()->getPhase(), $messageArray['procedurePhase']);
+    public function testReportOnUpdateSingleDocumentViaService(): void
+    {
+        $testDocument = SingleDocumentFactory::createOne();
+        $updatedDocument = $this->sut->updateSingleDocument([
+            'ident'             => $testDocument->getId(),
+            'title'             => 'my updated single document',
+            'text'              => 'a updated unique and nice text',
+            'statement_enabled' => true,
+            'visible'           => true,
+        ]);
+        $updatedDocument = $this->find(SingleDocument::class, $updatedDocument['ident']);
+
+        $relatedReports = $this->getEntries(ReportEntry::class,
+            [
+                'group'     => 'singleDocument',
+                'category'  => ReportEntry::CATEGORY_UPDATE,
+                'identifierType'  => 'procedure',
+                'identifier'  => $this->testProcedure->getId(),
+            ]
+        );
+
+        static::assertCount(1, $relatedReports);
+        $relatedReport = $relatedReports[0];
+        static::assertInstanceOf(ReportEntry::class, $relatedReport);
+        $messageArray = $relatedReport->getMessageDecoded(false);
+
+        $this->assertSingleDocumentReportEntryMessageKeys($messageArray);
+        $this->assertSingleDocumentReportEntryMessageValues($updatedDocument, $messageArray);
+    }
+
+    public function testReportOnDeleteSingleDocumentViaService():void
+    {
+        $originDocument = SingleDocumentFactory::createOne();
+        $result = $this->sut->deleteSingleDocument($originDocument->getId());
+        static::assertTrue($result);
+        $relatedReports = $this->getEntries(ReportEntry::class,
+            [
+                'group'     => 'singleDocument',
+                'category'  => ReportEntry::CATEGORY_DELETE,
+                'identifierType'  => 'procedure',
+                'identifier'  => $this->testProcedure->getId(),
+            ]
+        );
+
+        static::assertCount(1, $relatedReports);
+        $relatedReport = $relatedReports[0];
+        static::assertInstanceOf(ReportEntry::class, $relatedReport);
+        $messageArray = $relatedReport->getMessageDecoded(false);
+
+        $this->assertSingleDocumentReportEntryMessageKeys($messageArray);
+        $this->assertSingleDocumentReportEntryMessageValues($originDocument, $messageArray);
     }
 
     public function testUdpate()
@@ -400,5 +435,39 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertEquals($data['statement_enabled'], $returnValue['statement_enabled']);
         static::assertEquals($data['visible'], $returnValue['visible']);
         static::assertEquals($data['title'], $returnValue['title']);
+    }
+
+    /**
+     * @param array $messageArray
+     *
+     * @return void
+     */
+    private function assertSingleDocumentReportEntryMessageKeys(array $messageArray): void
+    {
+        static::assertArrayHasKey('documentId', $messageArray);
+        static::assertArrayHasKey('documentTitle', $messageArray);
+        static::assertArrayHasKey('documentText', $messageArray);
+        static::assertArrayHasKey('documentCategory', $messageArray);
+        static::assertArrayHasKey('relatedFile', $messageArray);
+        static::assertArrayHasKey('elementCategory', $messageArray);
+        static::assertArrayHasKey('elementTitle', $messageArray);
+        static::assertArrayHasKey('visible', $messageArray);
+        static::assertArrayHasKey('statement_enabled', $messageArray);
+        static::assertArrayHasKey('procedurePhase', $messageArray);
+        static::assertArrayHasKey('date', $messageArray);
+    }
+
+    private function assertSingleDocumentReportEntryMessageValues(SingleDocument $document, array $messageArray): void
+    {
+        static::assertEquals($document->getId(), $messageArray['documentId']);
+        static::assertEquals($document->getTitle(), $messageArray['documentTitle']);
+        static::assertEquals($document->getText(), $messageArray['documentText']);
+        static::assertEquals($document->getCategory(), $messageArray['documentCategory']);
+        static::assertEquals($document->getFileInfo()->getFileName(), $messageArray['relatedFile']);
+        static::assertEquals($document->getElement()->getCategory(), $messageArray['elementCategory']);
+        static::assertEquals($document->getElement()->getTitle(), $messageArray['elementTitle']);
+        static::assertEquals($document->getVisible(), $messageArray['visible']);
+        static::assertEquals($document->isStatementEnabled(), $messageArray['statement_enabled']);
+        static::assertEquals($document->getProcedure()->getPhase(), $messageArray['procedurePhase']);
     }
 }
