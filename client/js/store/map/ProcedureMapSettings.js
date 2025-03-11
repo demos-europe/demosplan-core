@@ -39,8 +39,6 @@ export default {
         .then(response => checkResponse(response))
     },
 
-
-
     fetchProcedureMapSettings ({ commit }, { procedureId, isMaster = false }) {
       if (!hasPermission('area_admin_map')) return
       try {
