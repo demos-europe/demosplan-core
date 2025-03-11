@@ -16,6 +16,8 @@ namespace Tests\Core\Statement\Functional;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\MailTemplateFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
@@ -89,8 +91,20 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
     public function testSendStatementMail(): void
     {
+        $orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
         $procedure = ProcedureFactory::createOne();
+
         $user = UserFactory::createOne();
+        $user->setOrga($orga->_real());
+
+
+        $orga->addUser($user->_real());
+
+        $user->_save();
+        $orga->_save();
+
+        $mailTemplate = MailTemplateFactory::createOne(['label' => 'dm_schlussmitteilung']);
+
         $statement = StatementFactory::createOne(['procedure' => $procedure, 'user' => $user]);
 
         $this->currentUserService->setUser($user->_real());
