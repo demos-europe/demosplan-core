@@ -81,8 +81,6 @@ class ServiceImporter implements ServiceImporterInterface
         private readonly PdfCreatorInterface $pdfCreator,
         private readonly RouterInterface $router,
         RpcClient $client,
-        private readonly ParagraphReportEntryFactory $reportEntryFactory,
-        private readonly ReportService $reportService,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
         $this->client = $client;
