@@ -13,6 +13,7 @@ namespace Tests\Core\Procedure\Functional;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use Exception;
@@ -329,9 +330,14 @@ class BoilerplateServiceTest extends FunctionalTestCase
     {
         /** @var BoilerplateCategory $category */
         $category = $this->fixtures->getReference('testBoilerplateEmptyCategory');
+
+        /** @var Procedure $blueprintWithBoilerplates */
+        $blueprintWithBoilerplates = $this->getReference('testmasterProcedureWithBoilerplates');
+
         $boilerplate = new Boilerplate();
         $boilerplate->setTitle('Cascade Test');
         $boilerplate->setText('This is a test for cascade delete.');
+        $boilerplate->setProcedure($blueprintWithBoilerplates);
         $boilerplate->addBoilerplateCategory($category);
 
         $this->getEntityManager()->persist($boilerplate);
@@ -344,7 +350,7 @@ class BoilerplateServiceTest extends FunctionalTestCase
         $this->sut->deleteBoilerplate($boilerplate->getId());
 
         $deletedCategory = $this->getEntries(BoilerplateCategory::class, ['id' => $category->getId()]);
-        $deletedBoilerplate = $this->getEntries(Boilerplate::class, ['id' => $boilerplate->getId()]);
+        $deletedBoilerplate = $this->getEntries(Boilerplate::class, ['ident' => $boilerplate->getId()]);
 
         static::assertCount(0, $deletedCategory);
         static::assertCount(0, $deletedBoilerplate);
