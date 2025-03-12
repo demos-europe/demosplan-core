@@ -106,17 +106,9 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         $statement = StatementFactory::createOne(['procedure' => $procedure, 'user' => $user]);
 
         $this->currentUserService->setUser($user->_real());
-
-
-        $statementId = $statement->getId();
-        $subject = 'My subject';
-        $body =' Email body';
-        $sendEmailCC = 'hola@test.de';
-        $emailAttachments = [];
-
         $this->currentProcedureService->setProcedure($procedure->_real());
 
-        $this->assertConfirmationMessages($statementId, $subject, $body, $sendEmailCC, $emailAttachments, 'institution_only');
+        $this->assertConfirmationMessages($statement->getId(), 'institution_only');
 
 
     }
@@ -144,18 +136,9 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
 
         $this->currentUserService->setUser($user->_real());
-
-
-        $statementId = $statement->getId();
-        $subject = 'My subject';
-        $body =' Email body';
-        $sendEmailCC = 'hola@test.de';
-        $emailAttachments = [];
-
         $this->currentProcedureService->setProcedure($procedure->_real());
 
-        $this->assertConfirmationMessages($statementId, $subject, $body, $sendEmailCC, $emailAttachments, 'institution_only');
-
+        $this->assertConfirmationMessages( $statement->getId(), 'institution_only');
 
     }
 
@@ -181,26 +164,21 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
 
         $this->currentUserService->setUser($user->_real());
+        $this->currentProcedureService->setProcedure($procedure->_real());
 
+        $this->assertConfirmationMessages($statement->getId(), 'institution_and_coordination');
 
-        $statementId = $statement->getId();
+    }
+
+    private function assertConfirmationMessages($statementId, $sentToConfirmMessageKey): void {
+
+        // Create a mail template with the label 'dm_schlussmitteilung' because it is needed later in the sendStatementMail method
+        $mailTemplate = MailTemplateFactory::createOne(['label' => 'dm_schlussmitteilung']);
+
         $subject = 'My subject';
         $body =' Email body';
         $sendEmailCC = 'hola@test.de';
         $emailAttachments = [];
-
-        $this->currentProcedureService->setProcedure($procedure->_real());
-
-        $this->assertConfirmationMessages($statementId, $subject, $body, $sendEmailCC, $emailAttachments, 'institution_and_coordination');
-
-
-
-    }
-
-    private function assertConfirmationMessages($statementId, $subject, $body, $sendEmailCC, $emailAttachments, $sentToConfirmMessageKey): void {
-
-        // Create a mail template with the label 'dm_schlussmitteilung' because it is needed later in the sendStatementMail method
-        $mailTemplate = MailTemplateFactory::createOne(['label' => 'dm_schlussmitteilung']);
 
         $isEmailSent = $this->sut->sendStatementMail($statementId, $subject, $body, $sendEmailCC, $emailAttachments);
 
