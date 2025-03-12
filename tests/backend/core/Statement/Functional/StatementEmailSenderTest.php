@@ -118,9 +118,26 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
         $this->currentProcedureService->setProcedure($procedure->_real());
 
-        $this->sut->sendStatementMail($statementId, $subject, $body, $sendEmailCC, $emailAttachments);
+        $isEmailSent = $this->sut->sendStatementMail($statementId, $subject, $body, $sendEmailCC, $emailAttachments);
 
-        $this->assertTrue(true);
+        $this->assertTrue($isEmailSent);
+
+        // Assert that there are exactly two confirmation messages
+        $confirmMessages = $this->messageBag->getConfirmMessages();
+        $this->assertCount(2, $confirmMessages);
+
+        $expectedMessage1 = $this->translator->trans('confirm.statement.final.sent', ['sent_to' => 'institution_only']);
+        $expectedMessage2 = $this->translator->trans('confirm.statement.final.sent.emailCC');
+
+        //Get first success message
+        $successMessage1 =  $confirmMessages->get(0);
+        $successMessage2 =  $confirmMessages->get(1);
+
+        $this->assertEquals( $expectedMessage1, $successMessage1->getText());
+        $this->assertEquals( $expectedMessage2, $successMessage2->getText());
+
+
+
 
     }
 
