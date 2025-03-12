@@ -268,19 +268,19 @@ export default {
           columnTitles[key] = null /** Setting the value to null will trigger the display of the default column titles */
         }
       })
-
-      console.log('Export parameters:', {
-        route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
-        docxHeaders: ['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored'].includes(this.active) ? columnTitles : null,
-        fileNameTemplate: this.fileName || null,
-        shouldConfirm,
-        censorParameter: this.isCensored,
-        obscureParameter: this.isObscure
-      })
+      //
+      // console.log('Export parameters:', {
+      //   route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
+      //   docxHeaders: ['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored'].includes(this.active) ? columnTitles : null,
+      //   fileNameTemplate: this.fileName || null,
+      //   shouldConfirm,
+      //   censorParameter: this.isCensored,
+      //   obscureParameter: this.isObscure
+      // })
 
       this.$emit('export', {
         route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
-        docxHeaders: ['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored'].includes(this.active) ? columnTitles : null,
+        docxHeaders: ['docx_normal', 'zip_normal'].includes(this.active) ? columnTitles : null,
         fileNameTemplate: this.fileName || null,
         shouldConfirm,
         censorParameter: this.isCensored,
