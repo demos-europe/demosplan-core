@@ -684,6 +684,9 @@ export default {
         data: {
           id: this.segment.id,
           type: 'StatementSegment',
+          attributes: {
+            recommendation: this.segment.attributes.recommendation
+          },
           relationships: {
             assignee,
             place
