@@ -148,25 +148,13 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
     public function testSendStatementMailToStatementMetaOrgaEmail(): void
     {
-        $orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
-        $procedure = ProcedureFactory::createOne();
+        $this->setupInitialData();
 
-        $user = UserFactory::createOne();
-        $user->setOrga($orga->_real());
+        $this->setupStatementMeta($this->statement, '', 'hola-orga@test.de');
+        $this->currentUserService->setUser($this->user->_real());
+        $this->currentProcedureService->setProcedure($this->procedure->_real());
 
-        $orga->addUser($user->_real());
-
-        $user->_save();
-        $orga->_save();
-
-
-        $statement = StatementFactory::createOne(['procedure' => $procedure, 'user' => $user]);
-
-        $this->setupStatementMeta($statement, '', 'hola-orga@test.de');
-        $this->currentUserService->setUser($user->_real());
-        $this->currentProcedureService->setProcedure($procedure->_real());
-
-        $this->assertConfirmationMessages( $statement->getId(), 'institution_only');
+        $this->assertConfirmationMessages( $this->statement->getId(), 'institution_only');
 
     }
 
