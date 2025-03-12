@@ -140,8 +140,123 @@ class StatementEmailSenderTest extends FunctionalTestCase {
             $this->assertEquals($expectedMessage, $successMessage->getText());
         }
 
+    }
+
+    public function testSendStatementMailToStatementMetaOrgaEmail(): void
+    {
+        $orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
+        $procedure = ProcedureFactory::createOne();
+
+        $user = UserFactory::createOne();
+        $user->setOrga($orga->_real());
+
+        $orga->addUser($user->_real());
+
+        $user->_save();
+        $orga->_save();
+
+        // Create a mail template with the label 'dm_schlussmitteilung' because it is needed later in the sendStatementMail method
+        $mailTemplate = MailTemplateFactory::createOne(['label' => 'dm_schlussmitteilung']);
+
+        $statement = StatementFactory::createOne(['procedure' => $procedure, 'user' => $user]);
+
+        $statementSubmitter = UserFactory::createOne();
+        $statementMeta = StatementMetaFactory::createOne(['statement' => $statement, 'orgaEmail' => 'hola-orga@test.de']);
+        $statementMeta->setSubmitUId($statementSubmitter->getId());
+        $statementMeta->_save();
 
 
+        $this->currentUserService->setUser($user->_real());
+
+
+        $statementId = $statement->getId();
+        $subject = 'My subject';
+        $body =' Email body';
+        $sendEmailCC = 'hola@test.de';
+        $emailAttachments = [];
+
+        $this->currentProcedureService->setProcedure($procedure->_real());
+
+        $isEmailSent = $this->sut->sendStatementMail($statementId, $subject, $body, $sendEmailCC, $emailAttachments);
+
+        $this->assertTrue($isEmailSent);
+
+        // Retrieve confirmation messages from the message bag
+        $confirmMessages = $this->messageBag->getConfirmMessages();
+
+        // Assert that there are exactly two confirmation messages
+        $this->assertCount(2, $confirmMessages);
+
+        // Define the expected confirmation messages
+        $expectedMessages = [
+            $this->translator->trans('confirm.statement.final.sent', ['sent_to' => 'institution_only']),
+            $this->translator->trans('confirm.statement.final.sent.emailCC')
+        ];
+
+        // Loop through the expected messages and assert that they match the actual confirmation messages
+        foreach ($expectedMessages as $index => $expectedMessage) {
+            $successMessage = $confirmMessages->get($index);
+            $this->assertEquals($expectedMessage, $successMessage->getText());
+        }
+
+    }
+
+    public function testSendStatementMailToInstitutionAndCoordination(): void
+    {
+        $orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
+        $procedure = ProcedureFactory::createOne();
+
+        $user = UserFactory::createOne(['email' => 'party-parrot@test-de']);
+        $user->setOrga($orga->_real());
+
+        $orga->addUser($user->_real());
+
+        $user->_save();
+        $orga->_save();
+
+        // Create a mail template with the label 'dm_schlussmitteilung' because it is needed later in the sendStatementMail method
+        $mailTemplate = MailTemplateFactory::createOne(['label' => 'dm_schlussmitteilung']);
+
+        $statement = StatementFactory::createOne(['procedure' => $procedure, 'user' => $user]);
+
+        $statementSubmitter = UserFactory::createOne(['email' => 'conga-parrot@test-de']);
+        $statementMeta = StatementMetaFactory::createOne(['statement' => $statement, 'orgaEmail' => '']);
+        $statementMeta->setSubmitUId($statementSubmitter->getId());
+        $statementMeta->_save();
+
+
+        $this->currentUserService->setUser($user->_real());
+
+
+        $statementId = $statement->getId();
+        $subject = 'My subject';
+        $body =' Email body';
+        $sendEmailCC = 'hola@test.de';
+        $emailAttachments = [];
+
+        $this->currentProcedureService->setProcedure($procedure->_real());
+
+        $isEmailSent = $this->sut->sendStatementMail($statementId, $subject, $body, $sendEmailCC, $emailAttachments);
+
+        $this->assertTrue($isEmailSent);
+
+        // Retrieve confirmation messages from the message bag
+        $confirmMessages = $this->messageBag->getConfirmMessages();
+
+        // Assert that there are exactly two confirmation messages
+        $this->assertCount(2, $confirmMessages);
+
+        // Define the expected confirmation messages
+        $expectedMessages = [
+            $this->translator->trans('confirm.statement.final.sent', ['sent_to' => 'institution_and_coordination']),
+            $this->translator->trans('confirm.statement.final.sent.emailCC')
+        ];
+
+        // Loop through the expected messages and assert that they match the actual confirmation messages
+        foreach ($expectedMessages as $index => $expectedMessage) {
+            $successMessage = $confirmMessages->get($index);
+            $this->assertEquals($expectedMessage, $successMessage->getText());
+        }
 
     }
 
