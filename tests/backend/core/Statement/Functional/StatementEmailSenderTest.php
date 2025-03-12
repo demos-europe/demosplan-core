@@ -35,13 +35,34 @@ class StatementEmailSenderTest extends FunctionalTestCase {
      */
     protected $sut;
 
-    private $statementEmailSender;
+    /**
+     * @var MailService
+     */
     private $mailService;
+
+    /**
+     * @var StatementService
+     */
     private $statementService;
+
+    /**
+     * @var CurrentProcedureService
+     */
     private $currentProcedureService;
+
+    /**
+     * @var UserService
+     */
     private $userService;
+
+    /**
+     * @var MessageBagInterface
+     */
     private $messageBag;
 
+    /**
+     * @var TranslatorInterface
+     */
     private $translator;
 
     protected function setUp(): void
