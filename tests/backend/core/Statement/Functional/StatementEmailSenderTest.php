@@ -150,12 +150,7 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
         $statement = StatementFactory::createOne(['procedure' => $procedure, 'user' => $user]);
 
-        $statementSubmitter = UserFactory::createOne();
-        $statementMeta = StatementMetaFactory::createOne(['statement' => $statement, 'orgaEmail' => 'hola-orga@test.de']);
-        $statementMeta->setSubmitUId($statementSubmitter->getId());
-        $statementMeta->_save();
-
-
+        $this->setupStatementMeta($statement);
         $this->currentUserService->setUser($user->_real());
         $this->currentProcedureService->setProcedure($procedure->_real());
 
@@ -182,6 +177,8 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         $statementMeta = StatementMetaFactory::createOne(['statement' => $statement, 'orgaEmail' => '']);
         $statementMeta->setSubmitUId($statementSubmitter->getId());
         $statementMeta->_save();
+
+        $this->setupStatementMeta($statement);
 
 
         $this->currentUserService->setUser($user->_real());
@@ -222,6 +219,13 @@ class StatementEmailSenderTest extends FunctionalTestCase {
             $successMessage = $confirmMessages->get($index);
             $this->assertEquals($expectedMessage, $successMessage->getText());
         }
+    }
+
+    private function setupStatementMeta($statement): void {
+        $statementSubmitter = UserFactory::createOne();
+        $statementMeta = StatementMetaFactory::createOne(['statement' => $statement, 'orgaEmail' => 'hola-orga@test.de']);
+        $statementMeta->setSubmitUId($statementSubmitter->getId());
+        $statementMeta->_save();
     }
 
 }
