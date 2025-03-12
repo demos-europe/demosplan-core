@@ -93,6 +93,7 @@
       @page-change="handlePageChange('statements', $event)" />
 
     <dp-report-group
+      v-if="hasPermission('feature_procedure_report_elements')"
       group="elements"
       group-label="plandocument.and.drawing.categories"
       content-label="category"
@@ -103,6 +104,7 @@
       @page-change="handlePageChange('elements', $event)" />
 
     <dp-report-group
+      v-if="hasPermission('feature_procedure_report_single_documents')"
       group="singleDocuments"
       group-label="plandocument.and.drawing.documents"
       content-label="plandocument"
@@ -113,6 +115,7 @@
       @page-change="handlePageChange('singleDocuments', $event)" />
 
     <dp-report-group
+      v-if="hasPermission('feature_procedure_report_paragraphs')"
       group="paragraphs"
       group-label="plandocument.and.drawing.paragraphs"
       content-label="paragraph"
@@ -123,14 +126,15 @@
       @page-change="handlePageChange('paragraphs', $event)"/>
 
     <dp-report-group
-        group="drawings"
-        group-label="plandocument.and.drawing.drawings"
-        content-label="drawing"
-        :items="drawingsItems"
-        :current-page="drawingsCurrentPage"
-        :total-pages="drawingsTotalPages"
-        :is-loading="drawingsLoading"
-        @page-change="handlePageChange('drawings', $event)"/>
+      v-if="hasPermission('feature_procedure_report_drawings')"
+      group="drawings"
+      group-label="plandocument.and.drawing.drawings"
+      content-label="drawing"
+      :items="drawingsItems"
+      :current-page="drawingsCurrentPage"
+      :total-pages="drawingsTotalPages"
+      :is-loading="drawingsLoading"
+      @page-change="handlePageChange('drawings', $event)"/>
   </div>
 </template>
 
