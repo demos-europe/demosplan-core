@@ -96,8 +96,9 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
         $this->currentProcedureService->setProcedure($procedure->_real());
 
-        $this->sut->sendStatementMail($statementId, $subject, $body, $sendEmailCC, $emailAttachments);
+        $isEmailSent = $this->sut->sendStatementMail($statementId, $subject, $body, $sendEmailCC, $emailAttachments);
 
+        $this->assertFalse($isEmailSent);
         // Assert that there is exactly one error message
         $errorMessages = $this->messageBag->getErrorMessages();
         $this->assertCount(1, $errorMessages);
