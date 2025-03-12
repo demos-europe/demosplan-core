@@ -89,7 +89,7 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
     }
 
-    public function testSendStatementMail(): void
+    public function testSendStatementMailToInstitutionOnly(): void
     {
         $orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
         $procedure = ProcedureFactory::createOne();
@@ -97,12 +97,12 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         $user = UserFactory::createOne();
         $user->setOrga($orga->_real());
 
-
         $orga->addUser($user->_real());
 
         $user->_save();
         $orga->_save();
 
+        // Create a mail template with the label 'dm_schlussmitteilung' because it is needed later in the sendStatementMail method
         $mailTemplate = MailTemplateFactory::createOne(['label' => 'dm_schlussmitteilung']);
 
         $statement = StatementFactory::createOne(['procedure' => $procedure, 'user' => $user]);
@@ -122,19 +122,23 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
         $this->assertTrue($isEmailSent);
 
-        // Assert that there are exactly two confirmation messages
+        // Retrieve confirmation messages from the message bag
         $confirmMessages = $this->messageBag->getConfirmMessages();
+
+        // Assert that there are exactly two confirmation messages
         $this->assertCount(2, $confirmMessages);
 
-        $expectedMessage1 = $this->translator->trans('confirm.statement.final.sent', ['sent_to' => 'institution_only']);
-        $expectedMessage2 = $this->translator->trans('confirm.statement.final.sent.emailCC');
+        // Define the expected confirmation messages
+        $expectedMessages = [
+            $this->translator->trans('confirm.statement.final.sent', ['sent_to' => 'institution_only']),
+            $this->translator->trans('confirm.statement.final.sent.emailCC')
+        ];
 
-        //Get first success message
-        $successMessage1 =  $confirmMessages->get(0);
-        $successMessage2 =  $confirmMessages->get(1);
-
-        $this->assertEquals( $expectedMessage1, $successMessage1->getText());
-        $this->assertEquals( $expectedMessage2, $successMessage2->getText());
+        // Loop through the expected messages and assert that they match the actual confirmation messages
+        foreach ($expectedMessages as $index => $expectedMessage) {
+            $successMessage = $confirmMessages->get($index);
+            $this->assertEquals($expectedMessage, $successMessage->getText());
+        }
 
 
 
