@@ -102,8 +102,6 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         $user->_save();
         $orga->_save();
 
-        // Create a mail template with the label 'dm_schlussmitteilung' because it is needed later in the sendStatementMail method
-        $mailTemplate = MailTemplateFactory::createOne(['label' => 'dm_schlussmitteilung']);
 
         $statement = StatementFactory::createOne(['procedure' => $procedure, 'user' => $user]);
 
@@ -136,8 +134,6 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         $user->_save();
         $orga->_save();
 
-        // Create a mail template with the label 'dm_schlussmitteilung' because it is needed later in the sendStatementMail method
-        $mailTemplate = MailTemplateFactory::createOne(['label' => 'dm_schlussmitteilung']);
 
         $statement = StatementFactory::createOne(['procedure' => $procedure, 'user' => $user]);
 
@@ -176,9 +172,6 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         $user->_save();
         $orga->_save();
 
-        // Create a mail template with the label 'dm_schlussmitteilung' because it is needed later in the sendStatementMail method
-        $mailTemplate = MailTemplateFactory::createOne(['label' => 'dm_schlussmitteilung']);
-
         $statement = StatementFactory::createOne(['procedure' => $procedure, 'user' => $user]);
 
         $statementSubmitter = UserFactory::createOne(['email' => 'conga-parrot@test-de']);
@@ -205,6 +198,10 @@ class StatementEmailSenderTest extends FunctionalTestCase {
     }
 
     private function assertConfirmationMessages($statementId, $subject, $body, $sendEmailCC, $emailAttachments, $sentToConfirmMessageKey): void {
+
+        // Create a mail template with the label 'dm_schlussmitteilung' because it is needed later in the sendStatementMail method
+        $mailTemplate = MailTemplateFactory::createOne(['label' => 'dm_schlussmitteilung']);
+
         $isEmailSent = $this->sut->sendStatementMail($statementId, $subject, $body, $sendEmailCC, $emailAttachments);
 
         $this->assertTrue($isEmailSent);
