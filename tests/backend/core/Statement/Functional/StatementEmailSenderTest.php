@@ -120,11 +120,11 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
     }
 
-    private function setupInitialData(): void {
+    private function setupInitialData($userEmail = ''): void {
         $this->orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
         $this->procedure = ProcedureFactory::createOne();
 
-        $this->user = UserFactory::createOne();
+        $this->user = UserFactory::createOne(['email' => $userEmail]);
         $this->user->setOrga($this->orga->_real());
 
         $this->orga->addUser($this->user->_real());
@@ -160,25 +160,15 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
     public function testSendStatementMailToInstitutionAndCoordination(): void
     {
-        $orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
-        $procedure = ProcedureFactory::createOne();
 
-        $user = UserFactory::createOne(['email' => 'party-parrot@test-de']);
-        $user->setOrga($orga->_real());
+        $this->setupInitialData('party-parrot@test-de');
 
-        $orga->addUser($user->_real());
+        $this->setupStatementMeta($this->statement, 'conga-parrot@test-de', '');
 
-        $user->_save();
-        $orga->_save();
+        $this->currentUserService->setUser($this->user->_real());
+        $this->currentProcedureService->setProcedure($this->procedure->_real());
 
-        $statement = StatementFactory::createOne(['procedure' => $procedure, 'user' => $user]);
-
-        $this->setupStatementMeta($statement, 'conga-parrot@test-de', '');
-
-        $this->currentUserService->setUser($user->_real());
-        $this->currentProcedureService->setProcedure($procedure->_real());
-
-        $this->assertConfirmationMessages($statement->getId(), 'institution_and_coordination');
+        $this->assertConfirmationMessages($this->statement->getId(), 'institution_and_coordination');
 
     }
 
