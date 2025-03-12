@@ -65,6 +65,15 @@ class StatementEmailSenderTest extends FunctionalTestCase {
      */
     private $translator;
 
+    private $statement;
+
+    private $procedure;
+
+    private $orga;
+
+    private $user;
+
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -111,27 +120,29 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
     }
 
+    private function setupInitialData(): void {
+        $this->orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
+        $this->procedure = ProcedureFactory::createOne();
+
+        $this->user = UserFactory::createOne();
+        $this->user->setOrga($this->orga->_real());
+
+        $this->orga->addUser($this->user->_real());
+
+        $this->user->_save();
+        $this->orga->_save();
+
+
+        $this->statement = StatementFactory::createOne(['procedure' => $this->procedure, 'user' => $this->user]);
+    }
+
     public function testSendStatementMailToInstitutionOnly(): void
     {
-        $orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
-        $procedure = ProcedureFactory::createOne();
+        $this->setupInitialData();
 
-        $user = UserFactory::createOne();
-        $user->setOrga($orga->_real());
-
-        $orga->addUser($user->_real());
-
-        $user->_save();
-        $orga->_save();
-
-
-        $statement = StatementFactory::createOne(['procedure' => $procedure, 'user' => $user]);
-
-        $this->currentUserService->setUser($user->_real());
-        $this->currentProcedureService->setProcedure($procedure->_real());
-
-        $this->assertConfirmationMessages($statement->getId(), 'institution_only');
-
+        $this->currentUserService->setUser($this->user->_real());
+        $this->currentProcedureService->setProcedure($this->procedure->_real());
+        $this->assertConfirmationMessages($this->statement->getId(), 'institution_only');
 
     }
 
