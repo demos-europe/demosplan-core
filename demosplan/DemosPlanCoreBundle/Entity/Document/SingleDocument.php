@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -446,5 +447,41 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface, Uuid
     public function getDeleteDate(): DateTime
     {
         return $this->deleteDate;
+    }
+
+    /**
+     *  If there is no file info in the SingleDocument object, returns an associative array keeping its keys
+     *  ['name','hash', 'size', 'mimeType'] but with empty values.
+     *
+     * @return array<string, string>
+     */
+    public function getSingleDocumentInfo(): array
+    {
+        $fileInfo = ['name' => '', 'hash' => '', 'size' => '', 'mimeType' => ''];
+
+        $documentStringParts = explode(':', $this->getDocument());
+        if (count($documentStringParts) >= 4) {
+            $fileInfo['name'] = $documentStringParts[0];
+            $fileInfo['hash'] = $documentStringParts[1];
+            $fileInfo['size'] = $documentStringParts[2];
+            $fileInfo['mimeType'] = $documentStringParts[3];
+        }
+
+        return $fileInfo;
+    }
+
+    public function getFileInfo(): FileInfo
+    {
+        $fileStringParts = explode(':', $this->getDocument());
+
+        return new FileInfo(
+            $fileStringParts[1] ?? '',
+            $fileStringParts[0] ?? '',
+            (int)($fileStringParts[2] ?? ''),
+            $fileStringParts[3] ?? '',
+            'missing',
+            'missing',
+            $this->procedure
+        );
     }
 }
