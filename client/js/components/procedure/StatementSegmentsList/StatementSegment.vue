@@ -643,7 +643,7 @@ export default {
         }
       }
 
-      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
         .then(checkResponse)
         .then(() => {
           this.claimLoading = false
@@ -698,9 +698,21 @@ export default {
 
     save () {
       const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
+      const { assignee, place } = this.updateRelationships()
 
-      this.updateRelationships()
-      return this.saveSegmentAction(this.segment.id)
+      const payload = {
+        data: {
+          id: this.segment.id,
+          type: 'StatementSegment',
+          relationships: {
+            assignee,
+            place
+          }
+        }
+      }
+
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
+        .then(checkResponse)
         .then(() => {
           /*
            * @improve - once the vuex-json-api resolves with a response,
@@ -884,6 +896,8 @@ export default {
       }
 
       this.setSegment({ ...updated, id: this.segment.id })
+
+      return relations
     },
 
     updateSegment (key, val) {
