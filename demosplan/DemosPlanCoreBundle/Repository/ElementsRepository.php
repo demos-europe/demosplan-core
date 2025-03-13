@@ -47,7 +47,7 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
         PermissionsInterface $permissions,
         Reindexer $reindexer,
         SortMethodFactory $sortMethodFactory,
-        string $entityClass = Elements::class
+        string $entityClass = Elements::class,
     ) {
         parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
 
@@ -195,11 +195,9 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
      *
      * @param string $id
      *
-     * @return Elements|mixed
-     *
      * @throws Exception
      */
-    public function update($id, array $data)
+    public function update($id, array $data): Elements
     {
         try {
             $em = $this->getEntityManager();

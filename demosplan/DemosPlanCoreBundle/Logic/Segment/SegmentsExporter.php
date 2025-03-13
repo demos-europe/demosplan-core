@@ -175,7 +175,6 @@ class SegmentsExporter
             );
 
             $this->addSegmentCell($submitDateRow, '', $this->styles['statementInfoEmptyCell']);
-            $this->addSegmentCell($submitDateRow, '', $this->styles['statementInfoEmptyCell']);
             $submittedAt = $this->translator->trans('statement.date.submitted').': '.$statement->getSubmitDateString();
             $this->addSegmentCell($submitDateRow, $submittedAt, $this->styles['statementInfoTextCell']);
         }
@@ -188,7 +187,6 @@ class SegmentsExporter
             $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
         );
 
-        $this->addSegmentCell($textRow, '', $this->styles['statementInfoEmptyCell']);
         $this->addSegmentCell($textRow, '', $this->styles['statementInfoEmptyCell']);
         $externIdText = $this->translator->trans('segments.export.statement.extern.id', ['externId' => $statement->getExternId()]);
         $this->addSegmentCell($textRow, $externIdText, $this->styles['statementInfoTextCell']);
@@ -203,7 +201,6 @@ class SegmentsExporter
             );
 
             $this->addSegmentCell($internIdRow, '', $this->styles['statementInfoEmptyCell']);
-            $this->addSegmentCell($internIdRow, '', $this->styles['statementInfoEmptyCell']);
             $internIdText = $this->translator->trans('segments.export.statement.intern.id', ['internId' => $statement->getInternId()]);
             $this->addSegmentCell($internIdRow, $internIdText, $this->styles['statementInfoTextCell']);
         }
@@ -217,7 +214,6 @@ class SegmentsExporter
             $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
         );
 
-        $this->addSegmentCell($row5, '', $this->styles['statementInfoEmptyCell']);
         $this->addSegmentCell($row5, '', $this->styles['statementInfoEmptyCell']);
         $this->addSegmentCell($row5, '', $this->styles['statementInfoTextCell']);
 
@@ -352,6 +348,8 @@ class SegmentsExporter
 
     private function addSegmentHtmlCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
     {
+        // remove STX (start of text) EOT (end of text) special chars
+        $text = str_replace([chr(2), chr(3)], '', $text);
         $cell = $row->addCell(
             $cellExportStyle->getWidth(),
             $cellExportStyle->getCellStyle()
