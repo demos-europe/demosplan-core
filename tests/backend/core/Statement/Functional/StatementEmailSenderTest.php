@@ -24,11 +24,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementEmailSender;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
@@ -42,24 +39,9 @@ class StatementEmailSenderTest extends FunctionalTestCase {
     protected $sut;
 
     /**
-     * @var MailService
-     */
-    private $mailService;
-
-    /**
-     * @var StatementService
-     */
-    private $statementService;
-
-    /**
      * @var CurrentProcedureService
      */
     private $currentProcedureService;
-
-    /**
-     * @var UserService
-     */
-    private $userService;
 
     /**
      * @var MessageBagInterface
@@ -85,15 +67,9 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         parent::setUp();
 
         $this->sut = $this->getContainer()->get(StatementEmailSender::class);
-
-        $this->mailService = $this->getContainer()->get(MailService::class);
-        $this->statementService = $this->getContainer()->get(StatementService::class);
         $this->currentProcedureService = $this->getContainer()->get(CurrentProcedureService::class);
-        $this->userService = $this->getContainer()->get(UserService::class);
         $this->messageBag = $this->getContainer()->get(MessageBagInterface::class);
         $this->translator = $this->getContainer()->get(TranslatorInterface::class);
-
-
     }
 
     public function testSendStatementMailWithInvalidCCEmail(): void
