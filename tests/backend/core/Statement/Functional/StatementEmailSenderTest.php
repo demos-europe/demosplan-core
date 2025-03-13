@@ -74,31 +74,31 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
     public function testSendStatementMailWithInvalidCCEmail(): void
     {
-        $procedure = ProcedureFactory::createOne();
-        $statement = StatementFactory::createOne(['procedure' => $procedure]);
+        $this->procedure = ProcedureFactory::createOne();
+        $this->statement = StatementFactory::createOne(['procedure' =>  $this->procedure]);
         $user = UserFactory::createOne();
         $this->currentUserService->setUser($user->_real());
 
-        $statementId = $statement->getId();
+        $statementId = $this->statement->getId();
         $subject = 'My subject';
         $body =' Email body';
         $sendEmailCC = 'not-formated-email';
         $emailAttachments = [];
 
-        $this->currentProcedureService->setProcedure($procedure->_real());
+        $this->currentProcedureService->setProcedure($this->procedure->_real());
 
         $isEmailSent = $this->sut->sendStatementMail($statementId, $subject, $body, $sendEmailCC, $emailAttachments);
 
-        $this->assertFalse($isEmailSent);
+        static::assertFalse($isEmailSent);
         // Assert that there is exactly one error message
         $errorMessages = $this->messageBag->getErrorMessages();
-        $this->assertCount(1, $errorMessages);
+        static::assertCount(1, $errorMessages);
 
         //Get first error message
         $errorMessage =  $errorMessages->get(0);
 
         //Assert error message text
-        $this->assertEquals( $this->translator->trans('error.statement.final.send.syntax.email.cc'), $errorMessage->getText());
+        static::assertSame( $this->translator->trans('error.statement.final.send.syntax.email.cc'), $errorMessage->getText());
 
     }
 
@@ -145,13 +145,13 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
         $isEmailSent = $this->sut->sendStatementMail($this->statement->getId(), $subject, $body, $sendEmailCC, $emailAttachments);
 
-        $this->assertTrue($isEmailSent);
+        static::assertTrue($isEmailSent);
 
         // Retrieve confirmation messages from the message bag
         $confirmMessages = $this->messageBag->getConfirmMessages();
 
         // Assert that there are exactly two confirmation messages
-        $this->assertCount(2, $confirmMessages);
+        static::assertCount(2, $confirmMessages);
 
         // Define the expected confirmation messages
         $expectedMessages = [
@@ -162,7 +162,7 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         // Loop through the expected messages and assert that they match the actual confirmation messages
         foreach ($expectedMessages as $index => $expectedMessage) {
             $successMessage = $confirmMessages->get($index);
-            $this->assertEquals($expectedMessage, $successMessage->getText());
+            static::assertSame($expectedMessage, $successMessage->getText());
         }
     }
 
