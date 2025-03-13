@@ -14,12 +14,14 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Functional;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\MailTemplateFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementMetaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
@@ -69,11 +71,11 @@ class StatementEmailSenderTest extends FunctionalTestCase {
      */
     private $translator;
 
-    private $statement;
+    private Statement|Proxy|null $statement;
 
-    private $procedure;
+    private Procedure|Proxy|null $procedure;
 
-    private $orga;
+    private Orga|Proxy|null $orga;
 
     private User|Proxy|null  $user;
 
@@ -124,11 +126,11 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
     }
 
-    private function setupInitialData($userEmail = ''): void {
+    private function setupInitialData(string $userEmail = 'myemail@test.de'): void {
         $this->orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
         $this->procedure = ProcedureFactory::createOne();
 
-        $this->user = UserFactory::createOne(['email' => $userEmail]);
+        $this->user = UserFactory::createOne(['email' => $userEmail, 'password' => 'xxx']);
         $this->user->setOrga($this->orga->_real());
 
         $this->orga->addUser($this->user->_real());
@@ -146,27 +148,27 @@ class StatementEmailSenderTest extends FunctionalTestCase {
     public function testSendStatementMailToInstitutionOnly(): void
     {
         $this->setupInitialData();
-        $this->assertConfirmationMessages($this->statement->getId(), 'institution_only');
+        $this->assertConfirmationMessages('institution_only');
 
     }
 
     public function testSendStatementMailToStatementMetaOrgaEmail(): void
     {
         $this->setupInitialData();
-        $this->setupStatementMeta($this->statement, '', 'hola-orga@test.de');
-        $this->assertConfirmationMessages( $this->statement->getId(), 'institution_only');
+        $this->setupStatementMeta('', 'hola-orga@test.de');
+        $this->assertConfirmationMessages('institution_only');
 
     }
 
     public function testSendStatementMailToInstitutionAndCoordination(): void
     {
         $this->setupInitialData('party-parrot@test-de');
-        $this->setupStatementMeta($this->statement, 'conga-parrot@test-de', '');
-        $this->assertConfirmationMessages($this->statement->getId(), 'institution_and_coordination');
+        $this->setupStatementMeta('conga-parrot@test-de', '');
+        $this->assertConfirmationMessages('institution_and_coordination');
 
     }
 
-    private function assertConfirmationMessages($statementId, $sentToConfirmMessageKey): void {
+    private function assertConfirmationMessages(string $sentToConfirmMessageKey): void {
 
         // Create a mail template with the label 'dm_schlussmitteilung' because it is needed later in the sendStatementMail method
         $mailTemplate = MailTemplateFactory::createOne(['label' => 'dm_schlussmitteilung']);
@@ -176,7 +178,7 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         $sendEmailCC = 'hola@test.de';
         $emailAttachments = [];
 
-        $isEmailSent = $this->sut->sendStatementMail($statementId, $subject, $body, $sendEmailCC, $emailAttachments);
+        $isEmailSent = $this->sut->sendStatementMail($this->statement->getId(), $subject, $body, $sendEmailCC, $emailAttachments);
 
         $this->assertTrue($isEmailSent);
 
@@ -199,9 +201,9 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         }
     }
 
-    private function setupStatementMeta($statement, $statementSubmitterEmail, $statementMetaOrgaEmail): void {
+    private function setupStatementMeta(string $statementSubmitterEmail, string $statementMetaOrgaEmail): void {
         $statementSubmitter = UserFactory::createOne(['email' => $statementSubmitterEmail]);
-        $statementMeta = StatementMetaFactory::createOne(['statement' => $statement, 'orgaEmail' => $statementMetaOrgaEmail]);
+        $statementMeta = StatementMetaFactory::createOne(['statement' => $this->statement, 'orgaEmail' => $statementMetaOrgaEmail]);
         $statementMeta->setSubmitUId($statementSubmitter->getId());
         $statementMeta->_save();
     }
