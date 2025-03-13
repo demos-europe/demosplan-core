@@ -153,14 +153,18 @@ class ReportSubscriber extends BaseEventSubscriber
             $event instanceof AfterDeletionEvent => ReportEntry::CATEGORY_DELETE,
             default => 'unknown',
         };
-        //fixme: in case of AfterDeletionEvent there is no entity, only the entityIdentifier!
-        //fixme: not implemented yet: AfterDeletionEvent does not have an entity, only an getEntityIdentifier
-        // this needs to be handled in case of deletion of one of these three entities, via ResourceTypes.
-//        if ($event->getEntity() instanceof Elements
-//            || $event->getEntity() instanceof SingleDocument
-//            || $event->getEntity() instanceof Paragraph) {
-//            $this->dynamicCreateReportEntry($event->getEntity(), $reportCategory);
-//        }
+
+        //not implemented yet:
+        // In case of AfterDeletionEvent there is no entity, only the entityIdentifier!
+        if ('unknown' === $reportCategory || ReportEntry::CATEGORY_DELETE === $reportCategory) {
+            return;
+        }
+
+        if ($event->getEntity() instanceof Elements
+            || $event->getEntity() instanceof SingleDocument
+            || $event->getEntity() instanceof Paragraph) {
+            $this->dynamicCreateReportEntry($event->getEntity(), $reportCategory);
+        }
     }
 
     /**
