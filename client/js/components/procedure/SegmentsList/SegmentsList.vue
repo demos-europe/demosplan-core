@@ -735,7 +735,7 @@ export default {
             const groupedOptions = []
             const ungroupedOptions = []
 
-            result.included.forEach(resource => {
+            result.included?.forEach(resource => {
               const filter = result.data.find(type => type.attributes.path === path)
               const resourceIsGroup = resource.type === 'AggregationFilterGroup'
               const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0

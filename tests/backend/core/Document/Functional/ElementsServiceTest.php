@@ -338,10 +338,10 @@ class ElementsServiceTest extends FunctionalTestCase
 
     public function testDeleteElement()
     {
-        $data = [$this->fixtures->getReference('testElement5')];
+        $elementId = $this->fixtures->getReference('testElement5')->getId();
 
         $entriesBefore = $this->countEntries(Elements::class);
-        $result = $this->sut->deleteElement($data);
+        $result = $this->sut->deleteElement($elementId);
         static::assertTrue($result); // has to be true but is null
         static::assertEquals($entriesBefore - 1, $this->countEntries(Elements::class));
     }
