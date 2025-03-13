@@ -126,23 +126,12 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
     }
 
-    private function setupInitialData(string $userEmail = 'myemail@test.de'): void {
-        $this->orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
-        $this->procedure = ProcedureFactory::createOne();
+    public function testSendStatementMailToPublicStatement(): void
+    {
+        $this->setupInitialData(publicStatement: Statement::EXTERNAL, feedback: 'email');
+        $this->setupStatementMeta('', 'hola-orga@test.de');
+        $this->assertConfirmationMessages('citizen_only');
 
-        $this->user = UserFactory::createOne(['email' => $userEmail, 'password' => 'xxx']);
-        $this->user->setOrga($this->orga->_real());
-
-        $this->orga->addUser($this->user->_real());
-
-        $this->user->_save();
-        $this->orga->_save();
-
-
-        $this->statement = StatementFactory::createOne(['procedure' => $this->procedure, 'user' => $this->user]);
-
-        $this->currentUserService->setUser($this->user->_real());
-        $this->currentProcedureService->setProcedure($this->procedure->_real());
     }
 
     public function testSendStatementMailToInstitutionOnly(): void
@@ -206,6 +195,25 @@ class StatementEmailSenderTest extends FunctionalTestCase {
         $statementMeta = StatementMetaFactory::createOne(['statement' => $this->statement, 'orgaEmail' => $statementMetaOrgaEmail]);
         $statementMeta->setSubmitUId($statementSubmitter->getId());
         $statementMeta->_save();
+    }
+
+    private function setupInitialData(string $userEmail = 'myemail@test.de', string $publicStatement = Statement::INTERNAL, string $feedback = ''): void {
+        $this->orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
+        $this->procedure = ProcedureFactory::createOne();
+
+        $this->user = UserFactory::createOne(['email' => $userEmail, 'password' => 'xxx']);
+        $this->user->setOrga($this->orga->_real());
+
+        $this->orga->addUser($this->user->_real());
+
+        $this->user->_save();
+        $this->orga->_save();
+
+
+        $this->statement = StatementFactory::createOne(['procedure' => $this->procedure, 'user' => $this->user, 'publicStatement' => $publicStatement, 'feedback' => $feedback]);
+
+        $this->currentUserService->setUser($this->user->_real());
+        $this->currentProcedureService->setProcedure($this->procedure->_real());
     }
 
 }
