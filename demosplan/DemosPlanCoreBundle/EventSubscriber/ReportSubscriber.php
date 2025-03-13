@@ -78,21 +78,22 @@ class ReportSubscriber extends BaseEventSubscriber
             /** @var User $user */
             $user = $event->getUser();
 
-            if (isset($inData['r_externalDesc'])) {
-                // speichere ggf. eine Änderung des Planungsanlasses im Report
-                $newExternalDesc = str_replace(["\r\n", "\r", "\n"], '<br />', (string) $inData['r_externalDesc']);
-                if ($currentProcedure['externalDesc'] !== $newExternalDesc) {
-                    $report = $this->procedureReportEntryFactory->createDescriptionUpdateEntry(
-                        $procedureId,
-                        $inData['r_externalDesc'],
-                        $user
-                    );
-                    $this->reportService->persistAndFlushReportEntries($report);
-                }
-            }
-
             $this->createPlanDrawReportOnDemand($event);
 
+            if (!isset($inData['r_externalDesc'])) {
+                return;
+            }
+
+            // speichere ggf. eine Änderung des Planungsanlasses im Report
+            $newExternalDesc = str_replace(["\r\n", "\r", "\n"], '<br />', (string) $inData['r_externalDesc']);
+            if ($currentProcedure['externalDesc'] !== $newExternalDesc) {
+                $report = $this->procedureReportEntryFactory->createDescriptionUpdateEntry(
+                    $procedureId,
+                    $inData['r_externalDesc'],
+                    $user
+                );
+                $this->reportService->persistAndFlushReportEntries($report);
+            }
         } catch (Exception $e) {
             $this->getLogger()->error('Add Report failed ', [$e]);
         }
