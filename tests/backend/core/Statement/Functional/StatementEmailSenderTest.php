@@ -20,13 +20,17 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\MailTemplateFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementEmailSender;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
+use Zenstruck\Foundry\Persistence\Proxy;
 
 class StatementEmailSenderTest extends FunctionalTestCase {
 
@@ -71,7 +75,7 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
     private $orga;
 
-    private $user;
+    private User|Proxy|null  $user;
 
 
     protected function setUp(): void
@@ -134,14 +138,14 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
 
         $this->statement = StatementFactory::createOne(['procedure' => $this->procedure, 'user' => $this->user]);
+
+        $this->currentUserService->setUser($this->user->_real());
+        $this->currentProcedureService->setProcedure($this->procedure->_real());
     }
 
     public function testSendStatementMailToInstitutionOnly(): void
     {
         $this->setupInitialData();
-
-        $this->currentUserService->setUser($this->user->_real());
-        $this->currentProcedureService->setProcedure($this->procedure->_real());
         $this->assertConfirmationMessages($this->statement->getId(), 'institution_only');
 
     }
@@ -149,25 +153,15 @@ class StatementEmailSenderTest extends FunctionalTestCase {
     public function testSendStatementMailToStatementMetaOrgaEmail(): void
     {
         $this->setupInitialData();
-
         $this->setupStatementMeta($this->statement, '', 'hola-orga@test.de');
-        $this->currentUserService->setUser($this->user->_real());
-        $this->currentProcedureService->setProcedure($this->procedure->_real());
-
         $this->assertConfirmationMessages( $this->statement->getId(), 'institution_only');
 
     }
 
     public function testSendStatementMailToInstitutionAndCoordination(): void
     {
-
         $this->setupInitialData('party-parrot@test-de');
-
         $this->setupStatementMeta($this->statement, 'conga-parrot@test-de', '');
-
-        $this->currentUserService->setUser($this->user->_real());
-        $this->currentProcedureService->setProcedure($this->procedure->_real());
-
         $this->assertConfirmationMessages($this->statement->getId(), 'institution_and_coordination');
 
     }
