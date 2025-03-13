@@ -6,6 +6,8 @@
 
 ## UNRELEASED
 - Create report entries on create, update, deletion of an element, paragraph , singleDocument, mapDrawing or mapDrawing-explanation
+
+## v2.27.0 (2025-03-12)
 - Enable to send Statement final notice using RpcRequest and Vue.js
 - Add the possibility to export synopsis without personal data.
 
