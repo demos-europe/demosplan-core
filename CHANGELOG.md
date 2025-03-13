@@ -7,6 +7,7 @@
 ## UNRELEASED
 - Enable to send Statement final notice using RpcRequest and Vue.js
 - Add the possibility to export synopsis without personal data.
+- Implement VirusCheckSocket to directly check files for viruses via remote sockets
 
 - Create report entries on create, update, deletion of an element, paragraph , singleDocument, mapDrawing or mapDrawing-explanation
 
