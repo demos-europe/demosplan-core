@@ -1,8 +1,6 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 
 {% block demosplanbundlecontent %}
-    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ currentUser.id|default }}"><div>
-
     {% set owndraftText = "text.statements.owndraft"|trans %}
     {% set permissionSubmit = 'feature_statements_released_group_submit' %}
 
@@ -19,7 +17,6 @@
     {% endfor %}
 
     {% block title_text %}
-
         {# Wenn shorthand, anderer Text #}
         {#  pageheader - display procedure title + nav link #}
         {% include '@DemosPlanCore/DemosPlanCore/includes/pageheader.html.twig' with {
@@ -35,6 +32,24 @@
         %}
     {% endblock %}
 
+    {# grouped formFields for statement form #}
+    {%  set statementFields = [] %}
+    {%  set personalDataFields = [] %}
+    {%  set feedbackFields = [] %}
+    {% for field in templateVars.statementFormDefinition.fieldDefinitions|default([]) %}
+        {% if field.enabled|default(false) %}
+            {% set formField = {name: field.name|default, required: field.required|default(false)} %}
+            {% if field.name == 'countyReference' or field.name == 'mapAndCountyReference' %}
+                {% set statementFields = statementFields|merge([formField]) %}
+            {% elseif field.name == 'getEvaluationMailViaEmail' or field.name == 'getEvaluationMailViaSnailMailOrEmail' %}
+                {% set feedbackFields = feedbackFields|merge([formField]) %}
+            {% else %}
+                {% set personalDataFields = personalDataFields|merge([formField]) %}
+            {% endif %}
+        {% endif %}
+    {%  endfor %}
+
+    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ currentUser.id|default }}"><div>
     <div class="{{ 'o-page__padded--spaced u-pv'|prefixClass }}">
         <form class="{{ 'layout flow-root'|prefixClass }}" name="sortform" action="{{ path('DemosPlan_statement_list_draft',{'procedure':procedure}) }}" method="post">
             {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
@@ -77,19 +92,16 @@
                                     {{ 'statements.marked.release'|trans }}
                                 </template>
 
-                                <template>
-                                    <p>
-                                        {{ 'check.statement.marked.release'|trans }}
-                                    </p>
+                                <p>
+                                    {{ 'check.statement.marked.release'|trans }}
+                                </p>
 
-                                    <dp-button
-                                        data-cy="submitStatement"
-                                        name="statement_release"
-                                        :text="Translator.trans('statements.marked.release')"
-                                        @click="dpValidateAction('draftForm', () => submitForm('draftForm', 'statement_release'), false)"
-                                    ></dp-button>
-                                </template>
-
+                                <dp-button
+                                    data-cy="submitStatement"
+                                    name="statement_release"
+                                    :text="Translator.trans('statements.marked.release')"
+                                    @click="dpValidateAction('draftForm', () => submitForm('draftForm', 'statement_release'), false)"
+                                ></dp-button>
                             </dp-modal>
 
                             <button
@@ -115,18 +127,16 @@
                                     {{ 'statements.marked.submit'|trans }}
                                 </template>
 
-                                <template>
-                                    {# The dropdown for `feature_statement_notify_counties is shown in the draft list
-                                        only if short submission process is enabled because then, statements are directly
-                                        submitted from this view. If the default submission process is enabled, the dropdown
-                                        is shown in the `list_released_group` view instead. #}
-                                    {% include '@DemosPlanCore/DemosPlanStatement/includes/list_statement_nofity_contries.html.twig' with {
-                                        showDropdown: hasPermission(['feature_statement_notify_counties', permissionSubmit]) and
-                                            templateVars.hasPermissionsetWrite == true and
-                                            proceduresettings.settings.sendMailsToCounties == true,
-                                        targetForm: 'draftForm'
-                                    } %}
-                                </template>
+                                {# The dropdown for `feature_statement_notify_counties is shown in the draft list
+                                    only if short submission process is enabled because then, statements are directly
+                                    submitted from this view. If the default submission process is enabled, the dropdown
+                                    is shown in the `list_released_group` view instead. #}
+                                {% include '@DemosPlanCore/DemosPlanStatement/includes/list_statement_nofity_contries.html.twig' with {
+                                    showDropdown: hasPermission(['feature_statement_notify_counties', permissionSubmit]) and
+                                        templateVars.hasPermissionsetWrite == true and
+                                        proceduresettings.settings.sendMailsToCounties == true,
+                                    targetForm: 'draftForm'
+                                } %}
 
                             </dp-modal>
 
@@ -148,18 +158,18 @@
             </fieldset>
 
             {% block statementList %}
-                <dp-public-statement-list
-                    class="layout__item"
-                    :statements="JSON.parse('{{ templateVars.list.statementlist|default([])|json_encode|e('js', 'utf-8') }}')"
-                    :counties="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
-                    procedure-id="{{ templateVars.procedure|default('') }}"
-                    show-author
-                    show-checkbox
-                    show-delete
-                    show-edit
-                    show-pdf-download
-                    show-versions
-                    target="draft"></dp-public-statement-list>
+            <dp-public-statement-list
+                class="layout__item"
+                :statements="JSON.parse('{{ templateVars.list.statementlist|default([])|json_encode|e('js', 'utf-8') }}')"
+                :counties="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
+                procedure-id="{{ templateVars.procedure|default('') }}"
+                show-author
+                show-checkbox
+                show-delete
+                show-edit
+                show-pdf-download
+                show-versions
+                target="draft"></dp-public-statement-list>
             {% endblock %}
         </form>
     </div>
@@ -169,23 +179,6 @@
         map-options-route="dplan_api_map_options_public"
     >
     </dp-map-modal>
-
-    {# grouped formFields for statement form #}
-    {%  set statementFields = [] %}
-    {%  set personalDataFields = [] %}
-    {%  set feedbackFields = [] %}
-    {% for field in templateVars.statementFormDefinition.fieldDefinitions|default([]) %}
-        {% if field.enabled|default(false) %}
-            {% set formField = {name: field.name|default, required: field.required|default(false)} %}
-            {% if field.name == 'countyReference' or field.name == 'mapAndCountyReference' %}
-                {% set statementFields = statementFields|merge([formField]) %}
-            {% elseif field.name == 'getEvaluationMailViaEmail' or field.name == 'getEvaluationMailViaSnailMailOrEmail' %}
-                {% set feedbackFields = feedbackFields|merge([formField]) %}
-            {% else %}
-                {% set personalDataFields = personalDataFields|merge([formField]) %}
-            {% endif %}
-        {% endif %}
-    {%  endfor %}
 
     <statement-modal
         ref="statementModal"

@@ -245,8 +245,11 @@ export default {
   },
 
   watch: {
-    defaultAttribution () {
-      this.$refs.map.updateMapInstance()
+    defaultAttribution: {
+      handler () {
+        this.$refs.map.updateMapInstance()
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

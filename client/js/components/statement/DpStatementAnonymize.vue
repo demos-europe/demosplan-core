@@ -124,12 +124,13 @@
         <li v-if="actions.anonymizeStatementText">
           {{ Translator.trans('statement.anonymize.text.label') }}
           <div>
-            <template v-for="(snippet, idx) in anonymizedTextSnippets">
+            <template
+              v-for="(snippet, idx) in anonymizedTextSnippets"
+              :key="idx + 'snippet'">
+              <span v-if="idx !== 0">
+               ...
+              </span>
               <span
-                v-if="idx !== 0"
-                :key="idx + 'dots'"> ... </span>
-              <span
-                :key="idx + '_enonymized_segments'"
                 class="font-size-small u-mb-0_5 o-box bg-color--grey-light-2 u-pl-0_25 u-pr-0_25 u-mr-0_5"
                 v-clean-html="snippet" />
             </template>

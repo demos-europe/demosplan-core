@@ -15,70 +15,69 @@
 
 <template>
   <div>
-    <template>
-      <h2 class="u-mb-0_75">
-        {{ versionHistoryHeading }}
-      </h2>
+    <h2 class="u-mb-0_75">
+      {{ versionHistoryHeading }}
+    </h2>
 
-      <dp-loading
-        v-if="isLoading"
-        data-cy="loadingSpinner"
-        class="u-mt-1_5 u-ml" />
+    <dp-loading
+      v-if="isLoading"
+      data-cy="loadingSpinner"
+      class="u-mt-1_5 u-ml" />
 
-      <div
-        v-else-if="false === isLoading"
-        class="c-slidebar__content overflow-y-auto"
-        :class="{'u-mr': days.length === 0}"
-        style="height: 88vh;">
-        <table class="u-mb">
-          <tr class="sr-only">
-            <th>
-              {{ Translator.trans('history') }}
-            </th>
-          </tr>
-          <tr>
-            <!-- if history is empty -->
-            <td
-              v-if="days === null || typeof days === 'undefined' || days.length === 0"
-              data-cy="noEntries"
-              colspan="4"
-              class="u-mr">
-              <dp-inline-notification
-                class="mt-3 mb-2"
-                :message="Translator.trans('explanation.noentries')"
-                type="info" />
-            </td>
-          </tr>
-          <!-- if there are history items -->
-          <!-- for each day -->
-          <template v-if="days.length">
-            <dp-version-history-day
-              v-for="(day, idx) in days"
-              :procedure-id="procedureId"
-              :key="idx"
-              :date="day.attributes.day"
-              :day="day"
-              :all-times="times"
-              :entity="entity" />
-          </template>
-        </table>
-      </div>
-    </template>
+    <div
+      v-else-if="!isLoading"
+      class="c-slidebar__content overflow-y-auto"
+      :class="{'u-mr': days.length === 0}"
+      style="height: 88vh;">
+      <table class="u-mb">
+        <tr class="sr-only">
+          <th>
+            {{ Translator.trans('history') }}
+          </th>
+        </tr>
+        <tr>
+          <!-- if history is empty -->
+          <td
+            v-if="days === null || typeof days === 'undefined' || days.length === 0"
+            data-cy="noEntries"
+            colspan="4"
+            class="u-mr">
+            <dp-inline-notification
+              class="mt-3 mb-2"
+              :message="Translator.trans('explanation.noentries')"
+              type="info" />
+          </td>
+        </tr>
+        <!-- if there are history items -->
+        <!-- for each day -->
+        <template v-if="days.length">
+          <dp-version-history-day
+            v-for="(day, idx) in days"
+            :procedure-id="procedureId"
+            :key="idx"
+            :date="day.attributes.day"
+            :day="day"
+            :all-times="times"
+            :entity="entity" />
+        </template>
+      </table>
+    </div>
   </div>
 </template>
 
 <script>
 import { checkResponse, dpApi, DpLoading } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 import DpVersionHistoryDay from './DpVersionHistoryDay'
 
 export default {
   name: 'DpVersionHistory',
 
   components: {
-    DpInlineNotification: async () => {
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
+    }),
     DpLoading,
     DpVersionHistoryDay
   },
