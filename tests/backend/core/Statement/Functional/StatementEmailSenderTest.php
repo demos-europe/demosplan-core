@@ -57,10 +57,6 @@ class StatementEmailSenderTest extends FunctionalTestCase {
 
     private Procedure|Proxy|null $procedure;
 
-    private Orga|Proxy|null $orga;
-
-    private User|Proxy|null  $user;
-
 
     protected function setUp(): void
     {
@@ -174,21 +170,21 @@ class StatementEmailSenderTest extends FunctionalTestCase {
     }
 
     private function setupInitialData(string $userEmail = 'myemail@test.de', string $publicStatement = Statement::INTERNAL, string $feedback = ''): void {
-        $this->orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
+        $orga = OrgaFactory::createOne(['email2' => 'hello@partipation-email.de']);
         $this->procedure = ProcedureFactory::createOne();
 
-        $this->user = UserFactory::createOne(['email' => $userEmail, 'password' => 'xxx']);
-        $this->user->setOrga($this->orga->_real());
+        $user = UserFactory::createOne(['email' => $userEmail, 'password' => 'xxx']);
+        $user->setOrga($orga->_real());
 
-        $this->orga->addUser($this->user->_real());
+        $orga->addUser($user->_real());
 
-        $this->user->_save();
-        $this->orga->_save();
+        $user->_save();
+        $orga->_save();
 
 
-        $this->statement = StatementFactory::createOne(['procedure' => $this->procedure, 'user' => $this->user, 'publicStatement' => $publicStatement, 'feedback' => $feedback]);
+        $this->statement = StatementFactory::createOne(['procedure' => $this->procedure, 'user' => $user, 'publicStatement' => $publicStatement, 'feedback' => $feedback]);
 
-        $this->currentUserService->setUser($this->user->_real());
+        $this->currentUserService->setUser($user->_real());
         $this->currentProcedureService->setProcedure($this->procedure->_real());
     }
 
