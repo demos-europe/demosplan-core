@@ -239,14 +239,8 @@ class PrepareReportFromProcedureService extends CoreService
 
             $reportEntryEvent = new ProcedureEditedEvent(
                 $sourceProcedure->getId(),
-                [
-                    ProcedureEditedEvent::PLAN_PDF => $sourceProcedureSettings->getPlanPDF(),
-                    ProcedureEditedEvent::PLAN_DRAW_PDF => $sourceProcedureSettings->getPlanDrawPDF(),
-                ],
-                [
-                    ProcedureEditedEvent::PLAN_PDF => $destinationProcedureSettings->getPlanPDF(),
-                    ProcedureEditedEvent::PLAN_DRAW_PDF => $destinationProcedureSettings->getPlanDrawPDF(),
-                ],
+                ['planPDF' => $sourceProcedureSettings->getPlanPDF(), 'planDrawPDF' => $sourceProcedureSettings->getPlanDrawPDF()],
+                ['planPDF' => $destinationProcedureSettings->getPlanPDF(), 'planDrawPDF' => $destinationProcedureSettings->getPlanDrawPDF()],
                 $this->currentUser->getUser()
             );
             $this->eventDispatcher->dispatch($reportEntryEvent);
@@ -525,6 +519,7 @@ class PrepareReportFromProcedureService extends CoreService
         $elementEntry = [];
         // category has uploaded pdf file
         if ('' !== $element->getFile()) {
+            $elementEntry['paragraphPdfName'] = $element->getFileInfo()->getFileName();
             $elementEntry['hasParagraphPdf'] = true;
         }
 

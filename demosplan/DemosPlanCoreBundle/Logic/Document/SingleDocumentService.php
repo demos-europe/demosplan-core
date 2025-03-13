@@ -234,11 +234,9 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
      *
      * @param array $data
      *
-     * @return array
-     *
      * @throws ReflectionException
      */
-    public function addSingleDocument($data)
+    public function addSingleDocument($data): array
     {
         $singleDocument = $this->singleDocumentRepository->add($data);
 

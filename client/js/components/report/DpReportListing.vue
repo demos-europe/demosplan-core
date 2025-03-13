@@ -91,6 +91,50 @@
       :total-pages="statementsTotalPages"
       :is-loading="statementsLoading"
       @page-change="handlePageChange('statements', $event)" />
+
+    <dp-report-group
+      v-if="hasPermission('feature_procedure_report_elements')"
+      group="elements"
+      group-label="plandocument.and.drawing.categories"
+      content-label="category"
+      :items="elementsItems"
+      :current-page="elementsCurrentPage"
+      :total-pages="elementsTotalPages"
+      :is-loading="elementsLoading"
+      @page-change="handlePageChange('elements', $event)" />
+
+    <dp-report-group
+      v-if="hasPermission('feature_procedure_report_single_documents')"
+      group="singleDocuments"
+      group-label="plandocument.and.drawing.documents"
+      content-label="plandocument"
+      :items="singleDocumentsItems"
+      :current-page="singleDocumentsCurrentPage"
+      :total-pages="singleDocumentsTotalPages"
+      :is-loading="singleDocumentsLoading"
+      @page-change="handlePageChange('singleDocuments', $event)" />
+
+    <dp-report-group
+      v-if="hasPermission('feature_procedure_report_paragraphs')"
+      group="paragraphs"
+      group-label="plandocument.and.drawing.paragraphs"
+      content-label="paragraph"
+      :items="paragraphsItems"
+      :current-page="paragraphsCurrentPage"
+      :total-pages="paragraphsTotalPages"
+      :is-loading="paragraphsLoading"
+      @page-change="handlePageChange('paragraphs', $event)"/>
+
+    <dp-report-group
+      v-if="hasPermission('feature_procedure_report_drawings')"
+      group="drawings"
+      group-label="plandocument.and.drawing.drawings"
+      content-label="drawing"
+      :items="drawingsItems"
+      :current-page="drawingsCurrentPage"
+      :total-pages="drawingsTotalPages"
+      :is-loading="drawingsLoading"
+      @page-change="handlePageChange('drawings', $event)"/>
   </div>
 </template>
 
@@ -157,6 +201,30 @@ export default {
       statementsCurrentPage: 'currentPage',
       statementsTotalPages: 'totalPages',
       statementsLoading: 'loading'
+    }),
+    ...mapState('report/elements', {
+      elementsItems: 'items',
+      elementsCurrentPage: 'currentPage',
+      elementsTotalPages: 'totalPages',
+      elementsLoading: 'loading'
+    }),
+    ...mapState('report/singleDocuments', {
+      singleDocumentsItems: 'items',
+      singleDocumentsCurrentPage: 'currentPage',
+      singleDocumentsTotalPages: 'totalPages',
+      singleDocumentsLoading: 'loading'
+    }),
+    ...mapState('report/paragraphs', {
+      paragraphsItems: 'items',
+      paragraphsCurrentPage: 'currentPage',
+      paragraphsTotalPages: 'totalPages',
+      paragraphsLoading: 'loading'
+    }),
+    ...mapState('report/drawings', {
+      drawingsItems: 'items',
+      drawingsCurrentPage: 'currentPage',
+      drawingsTotalPages: 'totalPages',
+      drawingsLoading: 'loading'
     })
   },
 
@@ -167,7 +235,11 @@ export default {
       listInvitations: 'report/invitations/list',
       listRegisterInvitations: 'report/registerInvitations/list',
       listFinalMails: 'report/finalMails/list',
-      listStatements: 'report/statements/list'
+      listStatements: 'report/statements/list',
+      listElements: 'report/elements/list',
+      listSingleDocuments: 'report/singleDocuments/list',
+      listParagraphs: 'report/paragraphs/list',
+      listDrawings: 'report/drawings/list'
     }),
 
     handlePageChange (group, page) {
@@ -194,7 +266,12 @@ export default {
       'invitations',
       'register_invitations',
       'final_mails',
-      'statements']
+      'statements',
+      'elements',
+      'single_documents',
+      'paragraphs',
+      'drawings'
+    ]
       .filter(groupName => {
         /*
          * This returns one of those permissions:
@@ -203,6 +280,10 @@ export default {
          * - feature_procedure_report_register_invitations
          * - feature_procedure_report_final_mails
          * - feature_procedure_report_statements
+         * - feature_procedure_report_elements
+         * - feature_procedure_report_single_documents
+         * - feature_procedure_report_paragraphs
+         * - feature_procedure_report_drawings
          */
         return hasPermission('feature_procedure_report_' + groupName)
       })

@@ -25,16 +25,20 @@ class ElementReportEntryFactory extends AbstractReportEntryFactory
     private function createMessageData(Elements $element): array
     {
         return [
-            'elementId'           => $element->getId(),
-            'elementTitle'        => $element->getTitle(),
-            'elementText'         => $element->getText(),
-            'elementCategory'     => $element->getCategory(), // eg. file, e_unterlagen, arbeitskreis, informationen,...
-            'fileName'            => $element->getFileInfo()->getFileName(), // Planungsdokument als Datei
-            'parentCategory'      => $element->getParent()?->getCategory(), // eg map, file, statement, paragraph, ..
-            'parentTitle'         => $element->getParent()?->getTitle(), // eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
-            'enabled'             => $element->getEnabled(),
-            'procedurePhase'      => $element->getProcedure()->getPhase(),
-            'organisations'       => $element->getOrganisationNames(true),
+            'id'                    => $element->getId(),
+            'title'                 => $element->getTitle(),
+            'text'                  => $element->getText(),
+            'category'              => $element->getCategory(), // eg. file, e_unterlagen, arbeitskreis, informationen,...
+            'fileName'              => $element->getFileInfo()->getFileName(), // Planungsdokument als Datei
+            'parentCategory'        => $element->getParent()?->getCategory(), // eg map, file, statement, paragraph, ..
+            'parentTitle'           => $element->getParent()?->getTitle(), // eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
+            'enabled'               => $element->getEnabled(),
+            'organisations'         => $element->getOrganisationNames(true),
+            'keyOfInternalPhase'    => $element->getProcedure()->getPhase(),
+            'keyOfEternalPhase'     => $element->getProcedure()->getPublicParticipationPhase(),
+            //The translation of the time the report is created is the important one, not the key
+            'nameOfInternalPhase'   => $element->getProcedure()->getPhaseName(),
+            'nameOfExternalPhase'   => $element->getProcedure()->getPublicParticipationPhaseName(),
         ];
     }
 
