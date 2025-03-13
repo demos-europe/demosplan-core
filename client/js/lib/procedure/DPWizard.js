@@ -23,7 +23,7 @@ export default function DpWizard () {
   const $wizardElements = $('.o-wizard__additional-elements')
 
   if ($wizardButton.length) {
-    ({
+    const wizard = {
       state: false,
       length: 0,
 
