@@ -189,8 +189,8 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
                     }
 
                     $this->getEntityManager()->persist($newTopic);
+                    $newProcedure->addTagTopic($newTopic);
                 }
-                $newProcedure->addTagTopic($newTopic);
             }
 
             $this->getEntityManager()->flush();

@@ -21,6 +21,7 @@ use EDT\PathBuilding\End;
  *
  * @property-read End $title
  * @property-read PlanningDocumentCategoryResourceType $element
+ * @property-read End $deleted
  */
 final class ParagraphResourceType extends DplanResourceType
 {
@@ -51,7 +52,7 @@ final class ParagraphResourceType extends DplanResourceType
 
     protected function getAccessConditions(): array
     {
-        return [];
+        return [$this->conditionFactory->propertyHasValue(false, $this->deleted)];
     }
 
     protected function getProperties(): array
