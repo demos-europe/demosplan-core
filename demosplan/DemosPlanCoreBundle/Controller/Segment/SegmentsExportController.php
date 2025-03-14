@@ -112,7 +112,7 @@ class SegmentsExportController extends BaseController
 
         $censorParameter = filter_var($censorParameter, FILTER_VALIDATE_BOOLEAN);
 
-        $obscureParameter = $this->requestStack->getCurrentRequest()->query->get('obscureParameter');
+        $obscureParameter = $this->requestStack->getCurrentRequest()->query->get('obscureParameter', true);
 
         $obscureParameter = filter_var($obscureParameter, FILTER_VALIDATE_BOOLEAN);
 
@@ -202,6 +202,11 @@ class SegmentsExportController extends BaseController
         $censorParameter = $this->requestStack->getCurrentRequest()->query->get('censorParameter');
 
         $censorParameter = filter_var($censorParameter, FILTER_VALIDATE_BOOLEAN);
+
+        $obscureParameter = $this->requestStack->getCurrentRequest()->query->get('obscureParameter');
+
+        $obscureParameter = filter_var($obscureParameter, FILTER_VALIDATE_BOOLEAN);
+
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // This method applies mostly the same restrictions as the generic API access to retrieve statements.
         // It validates filter and search parameters and limits the returned statement entities to those
