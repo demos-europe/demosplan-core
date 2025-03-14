@@ -117,8 +117,8 @@ class SegmentsExportController extends BaseController
         $obscureParameter = filter_var($obscureParameter, FILTER_VALIDATE_BOOLEAN);
 
         $response = new StreamedResponse(
-            static function () use ($tableHeaders, $procedure, $statementEntities, $exporter, $censorParameter) {
-                $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, $censorParameter, ...$statementEntities);
+            static function () use ($tableHeaders, $procedure, $statementEntities, $exporter, $censorParameter, $obscureParameter) {
+                $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, $censorParameter, $obscureParameter, ...$statementEntities);
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );

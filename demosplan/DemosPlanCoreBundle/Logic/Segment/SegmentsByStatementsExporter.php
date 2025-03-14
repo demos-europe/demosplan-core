@@ -64,7 +64,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     /**
      * @throws Exception
      */
-    public function exportAll(array $tableHeaders, Procedure $procedure, bool $censored, Statement ...$statements): WriterInterface
+    public function exportAll(array $tableHeaders, Procedure $procedure, bool $censored, bool $obscureParameter, Statement ...$statements): WriterInterface
     {
         Settings::setOutputEscapingEnabled(true);
 
