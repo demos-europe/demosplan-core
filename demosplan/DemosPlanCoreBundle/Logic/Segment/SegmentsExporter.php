@@ -64,7 +64,7 @@ class SegmentsExporter
     /**
      * @throws Exception
      */
-    public function export(Procedure $procedure, Statement $statement, array $tableHeaders, $isCensored, $isObscure): WriterInterface
+    public function export(Procedure $procedure, Statement $statement, array $tableHeaders): WriterInterface
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
@@ -143,7 +143,7 @@ class SegmentsExporter
         return implode(', ', $submitterStrings);
     }
 
-    protected function addStatementInfo(Section $section, Statement $statement, bool $censored = false, bool $isObscure): void
+    protected function addStatementInfo(Section $section, Statement $statement, bool $censored = false): void
     {
         $table = $section->addTable($this->styles['statementInfoTable']);
 
@@ -263,7 +263,7 @@ class SegmentsExporter
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
     }
 
-    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders): void
+    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders   ): void
     {
         $table = $this->addSegmentsTableHeader($section, $tableHeaders);
         $sortedSegments = $this->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
