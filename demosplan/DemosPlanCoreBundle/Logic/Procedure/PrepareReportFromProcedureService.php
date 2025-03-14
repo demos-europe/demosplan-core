@@ -168,7 +168,7 @@ class PrepareReportFromProcedureService extends CoreService
                 'customer' => null,
                 'deleted'  => true,
             ];
-            // Do something if 'deleted' key exists and is true
+
             $deletionEntry = $this->procedureReportEntryFactory->createProcedureDeletionEntry(
                 $update,
                 $destinationProcedure
