@@ -64,14 +64,14 @@ class SegmentsExporter
     /**
      * @throws Exception
      */
-    public function export(Procedure $procedure, Statement $statement, array $tableHeaders, $isCensored, $isObscure): WriterInterface
+    public function export(Procedure $procedure, Statement $statement, array $tableHeaders, bool $isCensored, bool $isObscure): WriterInterface
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
-        $this->addStatementInfo($section, $statement);
+        $this->addStatementInfo($section, $statement, $isCensored);
         $this->addSimilarStatementSubmitters($section, $statement);
         $this->addSegments($section, $statement, $tableHeaders, $isObscure);
         $this->addFooter($section, $statement);
@@ -230,7 +230,7 @@ class SegmentsExporter
         $section->addTextBreak(2);
     }
 
-    protected function addSegments(Section $section, Statement $statement, array $tableHeaders, $isObscure = false): void
+    protected function addSegments(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void
     {
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
             $this->addNoSegmentsMessage($section);
