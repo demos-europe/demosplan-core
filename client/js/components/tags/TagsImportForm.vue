@@ -18,14 +18,13 @@
           :hint="Translator.trans('tags.import.hint')"
           :tooltip="Translator.trans('tags.import.help')" />
         <a download :href="availableEntity.exampleFile" target="_blank">{{ Translator.trans('example.file') }}</a>
-        <dp-upload
-          id="uploadTags"
-          name="r_importCsv"
+        <dp-upload-files
           allowed-file-types="csv"
           :basic-auth="dplan.settings.basicAuth"
-          :tus-endpoint="dplan.paths.tusEndpoint"
+          data-cy="uploadTagsCsv"
+          :max-file-size="100 * 1024 * 1024/* 100 MiB */"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.csv', { browse: '{browse}', maxUploadSize: '10GB' }) }"
-          :max-number-of-files="1"
+          :tus-endpoint="dplan.paths.tusEndpoint"
           @upload-success="importCSVs" />
         <input
           type="hidden"
@@ -47,14 +46,14 @@
 </template>
 
 <script>
-import { DpButton, DpLabel, DpUpload } from '@demos-europe/demosplan-ui'
+import { DpButton, DpLabel, DpUploadFiles } from '@demos-europe/demosplan-ui'
 export default {
   name: 'TagsImportForm',
 
   components: {
     DpButton,
     DpLabel,
-    DpUpload
+    DpUploadFiles
   },
 
   props: {
