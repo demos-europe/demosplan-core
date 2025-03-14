@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use function PHPUnit\Framework\assertNotNull;
+use Webmozart\Assert\Assert;
 
 class PlanDrawReportEntryFactory extends AbstractReportEntryFactory
 {
@@ -59,7 +59,7 @@ class PlanDrawReportEntryFactory extends AbstractReportEntryFactory
             $messageData['planDrawingExplanation']['new'] = $newPlanDrawPDF;
         }
 
-        assertNotNull($messageData);
+        Assert::notNull($messageData);
 
         $reportEntry = $this->createPlanDrawReportEntry($procedureId, $messageData);
         $reportEntry->setCategory(ReportEntry::CATEGORY_CHANGE);
