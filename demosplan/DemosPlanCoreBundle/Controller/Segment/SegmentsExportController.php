@@ -211,17 +211,17 @@ class SegmentsExportController extends BaseController
         );
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
-        $statements = $exporter->mapStatementsToPathInZip($statements, $censorParameter, $fileNameTemplate);
+        $statements = $exporter->mapStatementsToPathInZip($statements, $censorParameter, $obscureParameter, $fileNameTemplate);
 
         return $zipExportService->buildZipStreamResponse(
             $exporter->getSynopseFileName($procedure, 'zip'),
-            static function (ZipStream $zipStream) use ($statements, $exporter, $zipExportService, $procedure, $tableHeaders, $censorParameter): void {
+            static function (ZipStream $zipStream) use ($statements, $exporter, $zipExportService, $procedure, $tableHeaders, $censorParameter, $obscureParameter): void {
                 array_map(
                     static function (
                         Statement $statement,
                         string $filePathInZip,
-                    ) use ($exporter, $zipExportService, $zipStream, $procedure, $tableHeaders, $censorParameter): void {
-                        $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure, $tableHeaders, $censorParameter);
+                    ) use ($exporter, $zipExportService, $zipStream, $procedure, $tableHeaders, $censorParameter, $obscureParameter): void {
+                        $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure, $tableHeaders, $censorParameter, $obscureParameter);
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(
                             $writer,

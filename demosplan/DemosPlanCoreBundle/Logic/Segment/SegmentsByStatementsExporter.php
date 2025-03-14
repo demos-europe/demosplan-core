@@ -186,13 +186,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         return IOFactory::createWriter($phpWord);
     }
 
-    public function exportStatementSegmentsInSeparateDocx(Statement $statement, Procedure $procedure, array $tableHeaders, bool $censored): PhpWord
+    public function exportStatementSegmentsInSeparateDocx(Statement $statement, Procedure $procedure, array $tableHeaders, bool $censored, bool $obscureParameter): PhpWord
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
-        $this->exportStatement($section, $statement, $tableHeaders, $censored);
+        $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscureParameter);
 
         return $phpWord;
     }
@@ -219,7 +219,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @return array<string, Statement>
      */
-    public function mapStatementsToPathInZip(array $statements, bool $censored, string $fileNameTemplate = ''): array
+    public function mapStatementsToPathInZip(array $statements, bool $censored, bool $obscureParameter, string $fileNameTemplate = ''): array
     {
         $pathedStatements = [];
         $previousKeysOfReaddedDuplicates = [];
