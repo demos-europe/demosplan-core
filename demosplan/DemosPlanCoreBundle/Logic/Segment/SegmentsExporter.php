@@ -73,7 +73,7 @@ class SegmentsExporter
         $this->addHeader($section, $procedure);
         $this->addStatementInfo($section, $statement);
         $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement, $tableHeaders, $isCensored, $isObscure);
+        $this->addSegments($section, $statement, $tableHeaders, $isObscure);
         $this->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
@@ -230,12 +230,12 @@ class SegmentsExporter
         $section->addTextBreak(2);
     }
 
-    protected function addSegments(Section $section, Statement $statement, array $tableHeaders, $isCensored, $isObscure): void
+    protected function addSegments(Section $section, Statement $statement, array $tableHeaders, $isObscure = false): void
     {
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
             $this->addNoSegmentsMessage($section);
         } else {
-            $this->addSegmentsTable($section, $statement, $tableHeaders, $isCensored, $isObscure);
+            $this->addSegmentsTable($section, $statement, $tableHeaders, $isObscure);
         }
     }
 
@@ -263,13 +263,13 @@ class SegmentsExporter
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
     }
 
-    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders, $isCensored, $isObscure): void
+    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders, bool $isObscure): void
     {
         $table = $this->addSegmentsTableHeader($section, $tableHeaders);
         $sortedSegments = $this->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
 
         foreach ($sortedSegments as $segment) {
-            $this->addSegmentTableBody($table, $segment, $statement->getExternId(), $isCensored, $isObscure);
+            $this->addSegmentTableBody($table, $segment, $statement->getExternId(), $isObscure);
         }
         $this->imageManager->addImages($section);
     }
@@ -324,7 +324,7 @@ class SegmentsExporter
         return $table;
     }
 
-    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId, $isCensored, $isObscure): void
+    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId, bool $isObscure): void
     {
         $textRow = $table->addRow();
         // Replace image tags in segment text and in segment recommendation text with text references.
