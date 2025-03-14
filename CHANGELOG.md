@@ -7,6 +7,7 @@
 ## UNRELEASED
 - Enable to send Statement final notice using RpcRequest and Vue.js
 - Add the possibility to export synopsis without personal data.
+- create deletion report entry when procedure is deleted
 
 - Create report entries on create, update, deletion of an element, paragraph , singleDocument, mapDrawing or mapDrawing-explanation
 
