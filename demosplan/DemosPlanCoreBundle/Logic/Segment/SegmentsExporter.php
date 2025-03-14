@@ -328,7 +328,7 @@ class SegmentsExporter
     {
         $textRow = $table->addRow();
         // Replace image tags in segment text and in segment recommendation text with text references.
-        $convertedSegment = $this->imageLinkConverter->convert($segment, $statementExternId);
+        $convertedSegment = $this->imageLinkConverter->convert($segment, $statementExternId, true, $isObscure);
         $this->addSegmentHtmlCell(
             $textRow,
             $segment->getExternId(),
