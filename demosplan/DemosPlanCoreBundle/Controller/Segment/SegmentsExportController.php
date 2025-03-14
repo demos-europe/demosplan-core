@@ -66,11 +66,13 @@ class SegmentsExportController extends BaseController
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
+        $isCensored = $this->requestStack->getCurrentRequest()->query->get('censorParameter', false);
+        $isObscure = $this->requestStack->getCurrentRequest()->query->get('obscureParameter', false);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
-            static function () use ($procedure, $statement, $exporter, $tableHeaders) {
-                $exportedDoc = $exporter->export($procedure, $statement, $tableHeaders);
+            static function () use ($procedure, $statement, $exporter, $tableHeaders, $isCensored, $isObscure) {
+                $exportedDoc = $exporter->export($procedure, $statement, $tableHeaders, $isCensored, $isObscure);
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
@@ -110,21 +112,16 @@ class SegmentsExportController extends BaseController
 
         $censorParameter = filter_var($censorParameter, FILTER_VALIDATE_BOOLEAN);
 
-        if ($censorParameter) {
-            $response = new StreamedResponse(
-                static function () use ($tableHeaders, $procedure, $statementEntities, $exporter) {
-                    $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, true, ...$statementEntities);
-                    $exportedDoc->save(self::OUTPUT_DESTINATION);
-                }
-            );
-        } else {
-            $response = new StreamedResponse(
-                static function () use ($tableHeaders, $procedure, $statementEntities, $exporter) {
-                    $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, false, ...$statementEntities);
-                    $exportedDoc->save(self::OUTPUT_DESTINATION);
-                }
-            );
-        }
+        $obscureParameter = $this->requestStack->getCurrentRequest()->query->get('obscureParameter', true);
+
+        $obscureParameter = filter_var($obscureParameter, FILTER_VALIDATE_BOOLEAN);
+
+        $response = new StreamedResponse(
+            static function () use ($tableHeaders, $procedure, $statementEntities, $exporter, $censorParameter, $obscureParameter) {
+                $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, $censorParameter, $obscureParameter, ...$statementEntities);
+                $exportedDoc->save(self::OUTPUT_DESTINATION);
+            }
+        );
 
         $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx'));
 
@@ -205,6 +202,11 @@ class SegmentsExportController extends BaseController
         $censorParameter = $this->requestStack->getCurrentRequest()->query->get('censorParameter');
 
         $censorParameter = filter_var($censorParameter, FILTER_VALIDATE_BOOLEAN);
+
+        $obscureParameter = $this->requestStack->getCurrentRequest()->query->get('obscureParameter');
+
+        $obscureParameter = filter_var($obscureParameter, FILTER_VALIDATE_BOOLEAN);
+
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // This method applies mostly the same restrictions as the generic API access to retrieve statements.
         // It validates filter and search parameters and limits the returned statement entities to those

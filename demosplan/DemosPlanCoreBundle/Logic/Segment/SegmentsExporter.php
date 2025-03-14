@@ -64,16 +64,16 @@ class SegmentsExporter
     /**
      * @throws Exception
      */
-    public function export(Procedure $procedure, Statement $statement, array $tableHeaders): WriterInterface
+    public function export(Procedure $procedure, Statement $statement, array $tableHeaders, bool $isCensored, bool $isObscure): WriterInterface
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
-        $this->addStatementInfo($section, $statement);
+        $this->addStatementInfo($section, $statement, $isCensored);
         $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement, $tableHeaders);
+        $this->addSegments($section, $statement, $tableHeaders, $isObscure);
         $this->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
@@ -175,7 +175,6 @@ class SegmentsExporter
             );
 
             $this->addSegmentCell($submitDateRow, '', $this->styles['statementInfoEmptyCell']);
-            $this->addSegmentCell($submitDateRow, '', $this->styles['statementInfoEmptyCell']);
             $submittedAt = $this->translator->trans('statement.date.submitted').': '.$statement->getSubmitDateString();
             $this->addSegmentCell($submitDateRow, $submittedAt, $this->styles['statementInfoTextCell']);
         }
@@ -188,7 +187,6 @@ class SegmentsExporter
             $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
         );
 
-        $this->addSegmentCell($textRow, '', $this->styles['statementInfoEmptyCell']);
         $this->addSegmentCell($textRow, '', $this->styles['statementInfoEmptyCell']);
         $externIdText = $this->translator->trans('segments.export.statement.extern.id', ['externId' => $statement->getExternId()]);
         $this->addSegmentCell($textRow, $externIdText, $this->styles['statementInfoTextCell']);
@@ -203,7 +201,6 @@ class SegmentsExporter
             );
 
             $this->addSegmentCell($internIdRow, '', $this->styles['statementInfoEmptyCell']);
-            $this->addSegmentCell($internIdRow, '', $this->styles['statementInfoEmptyCell']);
             $internIdText = $this->translator->trans('segments.export.statement.intern.id', ['internId' => $statement->getInternId()]);
             $this->addSegmentCell($internIdRow, $internIdText, $this->styles['statementInfoTextCell']);
         }
@@ -217,7 +214,6 @@ class SegmentsExporter
             $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
         );
 
-        $this->addSegmentCell($row5, '', $this->styles['statementInfoEmptyCell']);
         $this->addSegmentCell($row5, '', $this->styles['statementInfoEmptyCell']);
         $this->addSegmentCell($row5, '', $this->styles['statementInfoTextCell']);
 
@@ -234,12 +230,12 @@ class SegmentsExporter
         $section->addTextBreak(2);
     }
 
-    protected function addSegments(Section $section, Statement $statement, array $tableHeaders): void
+    protected function addSegments(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void
     {
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
             $this->addNoSegmentsMessage($section);
         } else {
-            $this->addSegmentsTable($section, $statement, $tableHeaders);
+            $this->addSegmentsTable($section, $statement, $tableHeaders, $isObscure);
         }
     }
 
@@ -267,13 +263,13 @@ class SegmentsExporter
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
     }
 
-    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders): void
+    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders, bool $isObscure): void
     {
         $table = $this->addSegmentsTableHeader($section, $tableHeaders);
         $sortedSegments = $this->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
 
         foreach ($sortedSegments as $segment) {
-            $this->addSegmentTableBody($table, $segment, $statement->getExternId());
+            $this->addSegmentTableBody($table, $segment, $statement->getExternId(), $isObscure);
         }
         $this->imageManager->addImages($section);
     }
@@ -328,11 +324,11 @@ class SegmentsExporter
         return $table;
     }
 
-    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId): void
+    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId, bool $isObscure): void
     {
         $textRow = $table->addRow();
         // Replace image tags in segment text and in segment recommendation text with text references.
-        $convertedSegment = $this->imageLinkConverter->convert($segment, $statementExternId);
+        $convertedSegment = $this->imageLinkConverter->convert($segment, $statementExternId, true, $isObscure);
         $this->addSegmentHtmlCell(
             $textRow,
             $segment->getExternId(),
@@ -352,6 +348,8 @@ class SegmentsExporter
 
     private function addSegmentHtmlCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
     {
+        // remove STX (start of text) EOT (end of text) special chars
+        $text = str_replace([chr(2), chr(3)], '', $text);
         $cell = $row->addCell(
             $cellExportStyle->getWidth(),
             $cellExportStyle->getCellStyle()
