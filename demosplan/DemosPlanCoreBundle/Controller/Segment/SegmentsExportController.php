@@ -37,6 +37,8 @@ use ZipStream\ZipStream;
 class SegmentsExportController extends BaseController
 {
     private const OUTPUT_DESTINATION = 'php://output';
+    private const TABLE_HEADERS_PARAMETER = 'tableHeaders';
+    private const FILE_NAME_TEMPLATE_PARAMETER = 'fileNameTemplate';
     private const CENSOR_PARAMETER = 'censorParameter';
     private const OBSCURE_PARAMETER = 'obscureParameter';
 
@@ -66,8 +68,8 @@ class SegmentsExportController extends BaseController
         string $statementId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
-        $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all(self::TABLE_HEADERS_PARAMETER);
+        $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '');
         $isCensored = $this->getBooleanQueryParameter(self::CENSOR_PARAMETER);
         $isObscure = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
@@ -103,7 +105,7 @@ class SegmentsExportController extends BaseController
         string $procedureId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all(self::TABLE_HEADERS_PARAMETER);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -194,8 +196,8 @@ class SegmentsExportController extends BaseController
         string $procedureId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
-        $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all(self::TABLE_HEADERS_PARAMETER);
+        $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '');
 
         $censorParameter = $this->getBooleanQueryParameter(self::CENSOR_PARAMETER);
         $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
