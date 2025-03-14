@@ -37,6 +37,8 @@ use ZipStream\ZipStream;
 class SegmentsExportController extends BaseController
 {
     private const OUTPUT_DESTINATION = 'php://output';
+    private const CENSOR_PARAMETER = 'censorParameter';
+    private const OBSCURE_PARAMETER = 'obscureParameter';
 
     public function __construct(
         private readonly NameGenerator $nameGenerator,
@@ -66,8 +68,8 @@ class SegmentsExportController extends BaseController
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
-        $isCensored = $this->requestStack->getCurrentRequest()->query->get('censorParameter', false);
-        $isObscure = $this->requestStack->getCurrentRequest()->query->get('obscureParameter', false);
+        $isCensored = $this->getBooleanQueryParameter(self::CENSOR_PARAMETER);
+        $isObscure = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
@@ -108,13 +110,8 @@ class SegmentsExportController extends BaseController
             $requestHandler->getObjectsByQueryParams($this->requestStack->getCurrentRequest()->query, $statementResourceType)->getList()
         );
 
-        $censorParameter = $this->requestStack->getCurrentRequest()->query->get('censorParameter');
-
-        $censorParameter = filter_var($censorParameter, FILTER_VALIDATE_BOOLEAN);
-
-        $obscureParameter = $this->requestStack->getCurrentRequest()->query->get('obscureParameter', true);
-
-        $obscureParameter = filter_var($obscureParameter, FILTER_VALIDATE_BOOLEAN);
+        $censorParameter = $this->getBooleanQueryParameter(self::CENSOR_PARAMETER);
+        $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
 
         $response = new StreamedResponse(
             static function () use ($tableHeaders, $procedure, $statementEntities, $exporter, $censorParameter, $obscureParameter) {
@@ -199,13 +196,9 @@ class SegmentsExportController extends BaseController
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
-        $censorParameter = $this->requestStack->getCurrentRequest()->query->get('censorParameter');
 
-        $censorParameter = filter_var($censorParameter, FILTER_VALIDATE_BOOLEAN);
-
-        $obscureParameter = $this->requestStack->getCurrentRequest()->query->get('obscureParameter');
-
-        $obscureParameter = filter_var($obscureParameter, FILTER_VALIDATE_BOOLEAN);
+        $censorParameter = $this->getBooleanQueryParameter(self::CENSOR_PARAMETER);
+        $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // This method applies mostly the same restrictions as the generic API access to retrieve statements.
@@ -255,5 +248,11 @@ class SegmentsExportController extends BaseController
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
         );
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($filename));
+    }
+
+    private function getBooleanQueryParameter(string $parameterName, bool $defaultValue = false): bool
+    {
+        $parameter = $this->requestStack->getCurrentRequest()->query->get($parameterName, $defaultValue);
+        return filter_var($parameter, FILTER_VALIDATE_BOOLEAN);
     }
 }
