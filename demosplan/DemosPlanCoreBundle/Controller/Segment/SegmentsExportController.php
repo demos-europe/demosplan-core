@@ -112,6 +112,11 @@ class SegmentsExportController extends BaseController
 
         $censorParameter = filter_var($censorParameter, FILTER_VALIDATE_BOOLEAN);
 
+        $obscureParameter = $this->requestStack->getCurrentRequest()->query->get('obscureParameter');
+
+        $obscureParameter = filter_var($obscureParameter, FILTER_VALIDATE_BOOLEAN);
+
+
         if ($censorParameter) {
             $response = new StreamedResponse(
                 static function () use ($tableHeaders, $procedure, $statementEntities, $exporter) {
