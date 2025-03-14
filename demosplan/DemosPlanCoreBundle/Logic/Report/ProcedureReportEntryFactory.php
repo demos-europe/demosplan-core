@@ -27,8 +27,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProcedureReportEntryFactory extends AbstractReportEntryFactory
 {
-    public function __construct(CurrentUserInterface $currentUserProvider, CustomerService $currentCustomerProvider, private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        CurrentUserInterface $currentUserProvider,
+        CustomerService $currentCustomerProvider,
+        private readonly TranslatorInterface $translator,
+    ) {
         parent::__construct($currentUserProvider, $currentCustomerProvider);
     }
 
@@ -37,7 +40,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         array $ccAddresses,
         string $procedureId,
         string $phase,
-        string $mailSubject
+        string $mailSubject,
     ): ReportEntry {
         $data = [
             'recipients'  => $recipients,
@@ -61,7 +64,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         array $recipientsWithEmail,
         string $procedureId,
         string $phase,
-        string $mailSubject
+        string $mailSubject,
     ): ReportEntry {
         $data = [
             'recipients'  => $recipientsWithEmail,
@@ -82,7 +85,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
 
     public function createProcedureCreationEntry(
         array $data,
-        Procedure $procedure
+        Procedure $procedure,
     ): ReportEntry {
         $entry = $this->createReportEntry();
         $entry->setUser($this->getCurrentUser());
@@ -134,7 +137,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
     public function createPhaseChangeEntry(
         Procedure $procedure,
         array $data,
-        User|string $user
+        User|string $user,
     ): ReportEntry {
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_CHANGE_PHASES);
@@ -157,7 +160,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
     public function createTargetProcedureCoupleEntry(
         string $procedureIdToCreateTheReportEntryFor,
         Procedure $coupledProcedure,
-        User $user
+        User $user,
     ): ReportEntry {
         $messageData = [];
         $messageData['sourceProcedure'] = $coupledProcedure->getName();
@@ -170,7 +173,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
      */
     public function createSourceProcedureCoupleEntry(
         string $procedureIdToCreateTheReportEntryFor,
-        Procedure $coupledProcedure
+        Procedure $coupledProcedure,
     ): ReportEntry {
         $messageData = [];
         $messageData['targetProcedure'] = $coupledProcedure->getName();
@@ -185,7 +188,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         string $procedureIdToCreateTheReportEntryFor,
         Procedure $coupledProcedure,
         ?User $user,
-        array $messageData
+        array $messageData,
     ): ReportEntry {
         $messageData['relatedInstitutionName'] = $coupledProcedure->getOrgaName();
 
@@ -204,7 +207,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
 
     public function createUpdateEntry(
         Procedure $procedure,
-        array $data
+        array $data,
     ): ReportEntry {
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_UPDATE);
@@ -233,7 +236,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
     public function createDescriptionUpdateEntry(
         string $procedureId,
         $externalDescription,
-        User $user
+        User $user,
     ): ReportEntry {
         $message = [
             'ident'        => $procedureId,
@@ -256,7 +259,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
         string $procedureId,
         User $fromUser,
         PreparationMailVO $preparationMail,
-        $statementMailAddresses
+        $statementMailAddresses,
     ): ReportEntry {
         $message = [
             'procedureId'   => $procedureId,
