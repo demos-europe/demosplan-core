@@ -71,8 +71,8 @@ class SegmentsExportController extends BaseController
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $response = new StreamedResponse(
-            static function () use ($procedure, $statement, $exporter, $tableHeaders) {
-                $exportedDoc = $exporter->export($procedure, $statement, $tableHeaders);
+            static function () use ($procedure, $statement, $exporter, $tableHeaders, $isCensored, $isObscure) {
+                $exportedDoc = $exporter->export($procedure, $statement, $tableHeaders, $isCensored, $isObscure);
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
