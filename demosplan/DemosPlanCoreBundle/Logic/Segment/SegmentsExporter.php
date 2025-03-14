@@ -64,7 +64,7 @@ class SegmentsExporter
     /**
      * @throws Exception
      */
-    public function export(Procedure $procedure, Statement $statement, array $tableHeaders): WriterInterface
+    public function export(Procedure $procedure, Statement $statement, array $tableHeaders, $isCensored, $isObscure): WriterInterface
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
@@ -143,7 +143,7 @@ class SegmentsExporter
         return implode(', ', $submitterStrings);
     }
 
-    protected function addStatementInfo(Section $section, Statement $statement, bool $censored = false): void
+    protected function addStatementInfo(Section $section, Statement $statement, bool $censored = false, bool $isObscure): void
     {
         $table = $section->addTable($this->styles['statementInfoTable']);
 
