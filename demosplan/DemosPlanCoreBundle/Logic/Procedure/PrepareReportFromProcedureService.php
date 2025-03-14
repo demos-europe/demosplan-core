@@ -161,7 +161,7 @@ class PrepareReportFromProcedureService extends CoreService
         $destinationProcedureSettings = $destinationProcedure->getSettings();
         $update = [];
 
-        // if the procedure was deleted, only a deletion entry will be created.
+        // if the procedure is deleted, only a deletion entry will be created.
         if ($destinationProcedure->getDeleted() === true) {
             $update = [
                 'ident'    => $destinationProcedure->getId(),
