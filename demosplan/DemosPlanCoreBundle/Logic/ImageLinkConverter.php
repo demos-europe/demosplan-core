@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
@@ -35,7 +36,7 @@ final class ImageLinkConverter
     private array $currentImagesFromRecommendationText = [];
     private int $imageCounter = 1;
 
-    public function __construct(private readonly HtmlHelper $htmlHelper, private readonly FileService $fileService)
+    public function __construct(private readonly HtmlHelper $htmlHelper, private readonly FileService $fileService, private readonly EditorService $editorService)
     {
     }
 
@@ -43,8 +44,14 @@ final class ImageLinkConverter
         Segment $segment,
         string $statementExternId,
         bool $asLinkedReference = true,
+        bool $isObscure = false
     ): ConvertedSegment {
         $segmentText = $segment->getText();
+
+        if ($isObscure) {
+            $segmentText = $this->editorService->obscureString($segmentText);
+        }
+
         $recommendationText = $segment->getRecommendation();
         $xmlSegmentText = str_replace('<br>', '<br/>', $segmentText);
         $xmlRecommendationText = str_replace('<br>', '<br/>', $recommendationText);
