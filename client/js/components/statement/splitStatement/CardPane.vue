@@ -67,7 +67,7 @@ export default {
     ]),
 
     filteredSortedSegments () {
-      return this.sortedSegments.filter(el => el.charEnd <= this.maxRange)
+      return this.sortedSegments // .filter(el => el.charEnd <= this.maxRange)
     }
   },
 

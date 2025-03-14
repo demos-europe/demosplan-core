@@ -66,6 +66,10 @@ const postcssPresetEnv = require('postcss-preset-env')({
     'focus-visible-pseudo-class': false
   }
 })
+const purgeCSSPlugin = require('@fullhuman/postcss-purgecss')
+
+console.dir(purgeCSSPlugin)
+console.dir(purgeCSSPlugin.purgeCSSPlugin)
 const postcssPurgeCss = require('@fullhuman/postcss-purgecss')({
   ...config.purgeCss,
   defaultExtractor (content) {
