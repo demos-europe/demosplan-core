@@ -66,7 +66,7 @@ class SegmentsExportController extends BaseController
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
-        $isCesonred = $this->requestStack->getCurrentRequest()->query->get('censorParameter', false);
+        $isCensored = $this->requestStack->getCurrentRequest()->query->get('censorParameter', false);
         $isObscure = $this->requestStack->getCurrentRequest()->query->get('obscureParameter', false);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
