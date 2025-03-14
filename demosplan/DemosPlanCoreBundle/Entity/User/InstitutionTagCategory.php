@@ -106,4 +106,14 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface, 
     {
         $this->customer = $customer;
     }
+
+    public function setCreationDate(DateTime $creationDate): void
+    {
+        $this->creationDate = $creationDate;
+    }
+
+    public function setModificationDate(DateTime $modificationDate): void
+    {
+        $this->modificationDate = $modificationDate;
+    }
 }
