@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
-use Doctrine\ORM\EntityRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
@@ -39,7 +38,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  */
 final class ParagraphFactory extends PersistentProxyObjectFactory
 {
-
     public static function class(): string
     {
         return Paragraph::class;

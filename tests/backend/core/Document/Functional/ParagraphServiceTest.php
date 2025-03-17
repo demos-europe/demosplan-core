@@ -15,7 +15,6 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\ElementsFactory
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\ParagraphFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use Tests\Base\FunctionalTestCase;
@@ -575,9 +574,9 @@ class ParagraphServiceTest extends FunctionalTestCase
 
         $data = [
             'procedure' => $testElement->getProcedure(),
-            'pId' => $testElement->getProcedure()->getId(),
+            'pId'       => $testElement->getProcedure()->getId(),
             'elementId' => $testElement->getId(),
-            'element' => $testElement,
+            'element'   => $testElement,
             'category'  => 'begruendung',
             'title'     => 'my test title',
             'text'      => 'my test text',
@@ -683,7 +682,7 @@ class ParagraphServiceTest extends FunctionalTestCase
     private function assertParagraphReportEntryMessageValues(
         Paragraph $paragraph,
         array $messageArray,
-        string $originId = null
+        ?string $originId = null,
     ): void {
         $id = $originId ?? $paragraph->getId();
 
