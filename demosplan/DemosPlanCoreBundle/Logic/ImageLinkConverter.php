@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
@@ -44,7 +43,7 @@ final class ImageLinkConverter
         Segment $segment,
         string $statementExternId,
         bool $asLinkedReference = true,
-        bool $isObscure = false
+        bool $isObscure = false,
     ): ConvertedSegment {
         $segmentText = $segment->getText();
 

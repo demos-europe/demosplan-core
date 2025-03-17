@@ -255,6 +255,7 @@ class SegmentsExportController extends BaseController
     private function getBooleanQueryParameter(string $parameterName, bool $defaultValue = false): bool
     {
         $parameter = $this->requestStack->getCurrentRequest()->query->get($parameterName, $defaultValue);
+
         return filter_var($parameter, FILTER_VALIDATE_BOOLEAN);
     }
 }
