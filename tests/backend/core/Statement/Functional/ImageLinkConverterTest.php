@@ -54,7 +54,8 @@ class ImageLinkConverterTest extends FunctionalTestCase
         $this->sut = new ImageLinkConverter($htmlHelper, $fileService, $editorService);
     }
 
-    public function testObscureSegmentText() {
+    public function testObscureSegmentText()
+    {
         $segment = SegmentFactory::createOne(
             ['text' => '<p>Clear text and this is <dp-obscure>obscure</dp-obscure> text</p>']
         );
@@ -62,9 +63,6 @@ class ImageLinkConverterTest extends FunctionalTestCase
         $result = $this->sut->convert($segment->_real(), $segment->getId(), false, true);
 
         static::assertSame($expectedSegmentText, $result->getText());
-
-
-
     }
 
     public function testConvertWithLinkedReference(): void
