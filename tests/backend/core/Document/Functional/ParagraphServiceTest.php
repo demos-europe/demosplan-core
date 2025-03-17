@@ -108,7 +108,7 @@ class ParagraphServiceTest extends FunctionalTestCase
     public function testgetParaDocumentAdminList()
     {
         $elementId = $this->fixtures->getReference('testElement1')->getId();
-        $procedureId = $this->fixtures->getReference('testProcedure')->getId();
+        $procedureId = $this->fixtures->getReference('testProcedure2')->getId();
 
         $resultList = $this->sut->getParaDocumentAdminList($procedureId, $elementId, null);
 
@@ -612,7 +612,7 @@ class ParagraphServiceTest extends FunctionalTestCase
         $testParagraph = ParagraphFactory::createOne();
         $updatedParagraph = $this->sut->updateParaDocument([
             'ident'             => $testParagraph->getId(),
-            'title'             => 'my updated single document',
+            'title'             => 'my updated paragraph',
             'text'              => 'a updated unique and nice text',
             'statement_enabled' => true,
             'order'             => 1,
@@ -638,7 +638,7 @@ class ParagraphServiceTest extends FunctionalTestCase
         $this->assertParagraphReportEntryMessageValues($updatedParagraph, $messageArray);
     }
 
-    public function testReportOnDeleteSingleDocument(): void
+    public function testReportOnDeleteParagraph(): void
     {
         $originParagraph = ParagraphFactory::createOne();
         $originId = $originParagraph->getId();
