@@ -94,6 +94,9 @@ class ReportSubscriber extends BaseEventSubscriber
                 );
                 $this->reportService->persistAndFlushReportEntries($report);
             }
+
+            $this->createPlanDrawReportOnDemand($event);
+
         } catch (Exception $e) {
             $this->getLogger()->error('Add Report failed ', [$e]);
         }

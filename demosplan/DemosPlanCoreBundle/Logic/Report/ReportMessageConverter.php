@@ -45,7 +45,6 @@ class ReportMessageConverter
         private readonly PermissionsInterface $permissions,
         private readonly RouterInterface $router,
         private readonly TranslatorInterface $translator,
-        private readonly FileService $fileService,
     ) {
         $this->dateExtension = $dateExtension;
         $this->globalConfig = $globalConfig;
@@ -871,9 +870,6 @@ class ReportMessageConverter
         return $preparedMessageData;
     }
 
-    /**
-     * @throws Exception
-     */
     private function createChangePlanDrawMessage(array $reportEntryMessage): string
     {
         $planDrawMessage = '';
@@ -922,13 +918,9 @@ class ReportMessageConverter
         return $planDrawMessage;
     }
 
-    /**
-     * @throws Exception
-     */
     private function getFileName($fileString): string
     {
-        return $this->fileService->getFileInfoFromFileString($fileString)->getFileName();
-
+        return explode(':', $fileString)[0];
     }
 
     /**
