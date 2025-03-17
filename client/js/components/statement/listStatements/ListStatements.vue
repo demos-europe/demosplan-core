@@ -15,25 +15,20 @@
       :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
       <div class="flex items-center justify-between mb-2">
         <div class="flex">
-          <search-modal
+          <custom-search-statements
+            ref="customSearchStatements"
             :search-in-fields="searchFields"
-            @search="(term, selectedFields) => applySearch(term, selectedFields)"
-            ref="searchModal" />
-          <dp-button
-            class="ml-2"
-            variant="outline"
-            data-cy="listStatements:searchReset"
-            :href="Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })"
-            :disabled="searchValue === ''"
-            :text="Translator.trans('search.reset')" />
+            @changeFields="updateSearchFields"
+            @reset="resetSearch"
+            @search="(term) => applySearch(term)" />
         </div>
         <dp-button
           data-cy="editorFullscreen"
           :icon="isFullscreen ? 'compress' : 'expand'"
           icon-size="medium"
           hide-text
-          variant="outline"
           :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
+          variant="outline"
           @click="handleFullscreenMode()" />
       </div>
       <dp-bulk-edit-header
@@ -43,9 +38,9 @@
         @reset-selection="resetSelection">
         <dp-button
           data-cy="statementsBulkShare"
+          :text="Translator.trans('procedure.share_statements.bulk.share')"
           variant="outline"
-          @click.prevent="handleBulkShare"
-          :text="Translator.trans('procedure.share_statements.bulk.share')" />
+          @click.prevent="handleBulkShare" />
       </dp-bulk-edit-header>
       <statement-export-modal
         data-cy="listStatements:export"
@@ -57,13 +52,13 @@
           v-if="pagination.currentPage"
           :class="{ 'invisible': isLoading }"
           :current-page="pagination.currentPage"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
+          :limits="pagination.limits"
+          :per-page="pagination.perPage"
           :total-pages="pagination.totalPages"
           :total-items="pagination.total"
-          :per-page="pagination.perPage"
-          :limits="pagination.limits"
           @page-change="getItemsByPage"
-          @size-change="handleSizeChange"
-          :key="`pager1_${pagination.currentPage}_${pagination.count}`" />
+          @size-change="handleSizeChange" />
         <div class="ml-auto flex items-center space-inline-xs">
           <label
             class="u-mb-0"
@@ -80,8 +75,8 @@
     </dp-sticky-element>
 
     <dp-loading
-      class="u-mt"
-      v-if="isLoading" />
+      v-if="isLoading"
+      class="u-mt" />
 
     <template v-else>
       <dp-data-table
@@ -317,9 +312,9 @@ import {
   tableSelectAllItems
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import CustomSearchStatements from './CustomSearchStatements'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
-import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
@@ -328,6 +323,7 @@ export default {
   name: 'ListStatements',
 
   components: {
+    CustomSearchStatements,
     DpBulkEditHeader,
     DpButton,
     DpClaim,
@@ -338,7 +334,6 @@ export default {
     DpPager,
     DpSelect,
     DpStickyElement,
-    SearchModal,
     StatementExportModal,
     StatementMetaData,
     StatusBadge
@@ -452,7 +447,7 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute, docxHeaders, fileNameTemplate) => {
+      return (exportRoute, docxHeaders, fileNameTemplate, censorParameter) => {
         const parameters = {
           filter: {
             procedureId: {
@@ -467,7 +462,8 @@ export default {
             value: this.searchValue,
             ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
           },
-          sort: this.selectedSort
+          sort: this.selectedSort,
+          censorParameter: censorParameter
         }
 
         if (docxHeaders) {
@@ -598,9 +594,8 @@ export default {
       }
     },
 
-    applySearch (term, selectedFields) {
+    applySearch (term) {
       this.searchValue = term
-      this.searchFieldsSelected = selectedFields
       this.getItemsByPage(1)
     },
 
@@ -662,7 +657,6 @@ export default {
       if (assigneeId !== this.currentUserId) {
         this.claimStatement(statementId)
       } else {
-        console.log('unclaim')
         this.unclaimStatement(statementId)
       }
     },
@@ -724,7 +718,7 @@ export default {
         'textIsTruncated',
         // Relationships:
         'assignee',
-        'attachments',
+        'genericAttachments',
         'segments'
       ]
       if (this.isSourceAndCoupledProcedure) {
@@ -733,6 +727,7 @@ export default {
       if (hasPermission('area_statement_segmentation')) {
         statementFields.push('segmentDraftList')
       }
+
       this.fetchStatements({
         page: {
           number: page,
@@ -754,8 +749,8 @@ export default {
         include: [
           'segments',
           'assignee',
-          'attachments',
-          'attachments.file'
+          'genericAttachments',
+          'genericAttachments.file'
         ].join(),
         fields: {
           Statement: statementFields.join(),
@@ -778,8 +773,8 @@ export default {
      * Returns the hash of the original statement attachment
      */
     getOriginalPdfAttachmentHash (el) {
-      if (el.hasRelationship('attachments')) {
-        const originalAttachment = Object.values(el.relationships.attachments.list())
+      if (el.hasRelationship('genericAttachments')) {
+        const originalAttachment = Object.values(el.relationships.genericAttachments.list())
           .filter(attachment => attachment.attributes.attachmentType === 'source_statement')
         if (originalAttachment.length === 1) {
           return originalAttachment[0].relationships.file.get().attributes.hash
@@ -911,6 +906,7 @@ export default {
     resetSearch () {
       this.searchValue = ''
       this.getItemsByPage(1)
+      this.$refs.customSearchStatements.toggleAllFields(false)
     },
 
     /**
@@ -934,8 +930,8 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm }) {
-      const url = this.exportRoute(route, docxHeaders, fileNameTemplate)
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, censorParameter }) {
+      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, censorParameter)
       if (!shouldConfirm || window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = url
       }
@@ -948,6 +944,9 @@ export default {
             200: { type: 'confirm', text: 'confirm.statement.deleted' },
             204: { type: 'confirm', text: 'confirm.statement.deleted' }
           }))
+          .then(() => {
+            this.getItemsByPage(this.pagination.currentPage)
+          })
       }
     },
 
@@ -955,6 +954,10 @@ export default {
       const statement = this.statementsObject[statementId]
       const isFulltext = statement.attributes.isFulltextDisplayed
       this.setStatement({ ...{ ...statement, attributes: { ...statement.attributes, isFulltextDisplayed: !isFulltext }, id: statementId } })
+    },
+
+    updateSearchFields (selectedFields) {
+      this.searchFieldsSelected = selectedFields
     }
   },
 

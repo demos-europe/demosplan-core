@@ -171,7 +171,7 @@ import {
   DpResettableInput,
   hasOwnProp
 } from '@demos-europe/demosplan-ui'
-import { mapGetters, mapMutations } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
 
 export default {
@@ -200,8 +200,8 @@ export default {
       }
     },
 
-    // Contains applied filters from this and the neighboring filterFlyouts
-    initialQuery: {
+    // Contains ids of applied filters from this and the neighboring filterFlyouts
+    initialQueryIds: {
       type: Array,
       required: false,
       default: () => ([])
@@ -386,12 +386,15 @@ export default {
   },
 
   methods: {
+    ...mapActions('FilterFlyout', {
+      updateFilters: 'updateFilterQuery'
+    }),
+
     ...mapMutations('FilterFlyout', {
       setGroupedSelected: 'setGroupedOptionSelected',
       setIsExpanded: 'setIsExpanded',
       setIsLoading: 'setIsLoading',
-      setUngroupedSelected: 'setUngroupedOptionSelected',
-      updateFilters: 'updateFilterQuery'
+      setUngroupedSelected: 'setUngroupedOptionSelected'
     }),
 
     /**
@@ -531,10 +534,16 @@ export default {
     this.setIsLoading({ categoryId: this.category.id, isLoading: true })
     this.setIsExpanded({ categoryId: this.category.id, isExpanded: false })
 
-    if (this.initialQuery.length) {
+    if (this.initialQueryIds.length) {
       const isInitialWithQuery = true
 
       this.requestFilterOptions(isInitialWithQuery)
+
+      if (this.itemsSelected) {
+        const selectedIds = this.itemsSelected.map(item => item.id)
+        this.appliedQuery = selectedIds
+        this.currentQuery = selectedIds
+      }
     }
   }
 }

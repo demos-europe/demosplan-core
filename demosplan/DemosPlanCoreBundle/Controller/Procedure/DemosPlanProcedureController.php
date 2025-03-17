@@ -183,13 +183,14 @@ class DemosPlanProcedureController extends BaseController
      *
      * @DplanPermissions("area_demosplan")
      *
-     * @return RedirectResponse|Response
-     *
      * @throws MessageBagException
      */
     #[Route(path: '/plan/{slug}', name: 'core_procedure_slug')]
-    public function procedureSlugAction(CurrentUserInterface $currentUser, ProcedureServiceOutput $procedureOutput, string $slug = '')
-    {
+    public function procedureSlugAction(
+        CurrentUserInterface $currentUser,
+        ProcedureServiceOutput $procedureOutput,
+        string $slug = '',
+    ): RedirectResponse|Response {
         try {
             $slugify = new Slugify();
             $slug = $slugify->slugify($slug);
@@ -2030,10 +2031,10 @@ class DemosPlanProcedureController extends BaseController
             }
         }
 
-        // Lösche gegebenenfalls Benachrichtigungen
+        // delete notification if required
         if (\array_key_exists('deleteSubscription', $requestPost)) {
             if (!isset($requestPost['region_selected']) || 0 === (is_countable($requestPost['region_selected']) ? count($requestPost['region_selected']) : 0)) {
-                $this->getMessageBag()->add('error', 'explanation.entries.noneselected');
+                $this->getMessageBag()->add('error', 'warning.select.entries');
             } else {
                 $deleteNotifications = $requestPost['region_selected'];
                 $actuallyDeletedCount = $this->procedureHandler->deleteSubscriptions($deleteNotifications);
@@ -2358,14 +2359,14 @@ class DemosPlanProcedureController extends BaseController
         $requestPost = $request->request;
         $procedureService = $this->procedureService;
 
-        // Lösche markierte Textbausteine und oder Textbausteingruppen
+        // Delete checked Boilerplates and or BoilerPlateGroups
         if ($requestPost->has('boilerplateDeleteChecked')) {
-            // Lösche markierte Textbausteine
+            // Delete checked Boilerplates
             if ($requestPost->has('boilerplate_delete')) {
                 $this->handleDeleteBoilerplates($procedureHandler, $requestPost->get('boilerplate_delete'));
             }
 
-            // Lösche markierte Textbausteingruppen
+            // Delete checked BoilerplateGroups
             if ($requestPost->has('boilerplateGroupIdsTo_delete')) {
                 $this->handleDeleteBoilerplateGroups($requestPost->get('boilerplateGroupIdsTo_delete'));
             }
@@ -2373,7 +2374,7 @@ class DemosPlanProcedureController extends BaseController
             if (false ===
                 $requestPost->has('boilerplate_delete') || $requestPost->has('boilerplateGroupIdsTo_delete')
             ) {
-                $this->getMessageBag()->add('warning', 'explanation.entries.noneselected');
+                $this->getMessageBag()->add('warning', 'warning.select.entries');
             }
         }
 

@@ -9,10 +9,12 @@
 
 <template>
   <dp-editor
+    v-model="text"
     :data-cy="dataCy"
     hidden-input="r_send_body"
+    :readonly="!editable"
     :toolbar-items="toolbarItems"
-    v-model="text">
+    @input="$emit('emailBody:input', $event)">
     <template v-slot:modal="modalProps">
       <dp-boiler-plate-modal
         v-if="hasPermission('area_admin_boilerplates')"
@@ -58,6 +60,12 @@ export default {
       default: 'statementDetailFinalEmailBody'
     },
 
+    editable: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+
     initText: {
       type: String,
       required: true
@@ -79,11 +87,21 @@ export default {
     }
   },
 
+  watch: {
+    initText (newVal) {
+      this.text = newVal
+    }
+  },
+
   methods: {
     openBoilerPlate () {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
       }
+    },
+
+    resetText () {
+      this.text = this.initText
     }
   }
 }

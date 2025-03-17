@@ -123,7 +123,6 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             store.api.newRoute = (route) => {
               return new Route(route)
             }
-
           }
         ]
       })

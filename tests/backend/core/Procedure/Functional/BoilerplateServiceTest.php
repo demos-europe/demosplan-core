@@ -11,7 +11,9 @@
 namespace Tests\Core\Procedure\Functional;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use Exception;
@@ -322,5 +324,35 @@ class BoilerplateServiceTest extends FunctionalTestCase
             $boilerplates = $this->getEntries(Boilerplate::class, ['ident' => $id]);
             static::assertCount(1, $boilerplates);
         }
+    }
+
+    public function testBoilerplateCategoryCascade()
+    {
+        /** @var BoilerplateCategory $category */
+        $category = $this->fixtures->getReference('testBoilerplateEmptyCategory');
+
+        /** @var Procedure $blueprintWithBoilerplates */
+        $blueprintWithBoilerplates = $this->getReference('testmasterProcedureWithBoilerplates');
+
+        $boilerplate = new Boilerplate();
+        $boilerplate->setTitle('Cascade Test');
+        $boilerplate->setText('This is a test for cascade delete.');
+        $boilerplate->setProcedure($blueprintWithBoilerplates);
+        $boilerplate->addBoilerplateCategory($category);
+
+        $this->getEntityManager()->persist($boilerplate);
+        $this->getEntityManager()->flush();
+
+        // Ensure the boilerplate is associated with the category
+        static::assertContains($boilerplate, $category->getBoilerplates());
+
+        // Delete the category and check if the boilerplate is also deleted
+        $this->sut->deleteBoilerplate($boilerplate->getId());
+
+        $deletedCategory = $this->getEntries(BoilerplateCategory::class, ['id' => $category->getId()]);
+        $deletedBoilerplate = $this->getEntries(Boilerplate::class, ['ident' => $boilerplate->getId()]);
+
+        static::assertCount(0, $deletedCategory);
+        static::assertCount(0, $deletedBoilerplate);
     }
 }
