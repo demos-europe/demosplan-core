@@ -49,7 +49,7 @@ class ImageLinkConverterTest extends FunctionalTestCase
         $htmlHelper = $this->getContainer()->get(HtmlHelper::class);
 
         /** @var EditorService $editorService */
-        $editorService = $this->createMock(EditorService::class);
+        $editorService = $this->getContainer()->get(EditorService::class);
         $this->sut = new ImageLinkConverter($htmlHelper, $fileService, $editorService);
     }
 
