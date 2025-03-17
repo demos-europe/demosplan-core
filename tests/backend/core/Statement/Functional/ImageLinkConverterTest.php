@@ -33,6 +33,7 @@ class ImageLinkConverterTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $fileService = $this->createMock(FileService::class);
         $fileService->method('getFileInfo')->willReturnCallback(
             fn ($hash) => new FileInfo(
@@ -51,6 +52,19 @@ class ImageLinkConverterTest extends FunctionalTestCase
         /** @var EditorService $editorService */
         $editorService = $this->getContainer()->get(EditorService::class);
         $this->sut = new ImageLinkConverter($htmlHelper, $fileService, $editorService);
+    }
+
+    public function testObscureSegmentText() {
+        $segment = SegmentFactory::createOne(
+            ['text' => '<p>Clear text and this is <dp-obscure>obscure</dp-obscure> text</p>']
+        );
+        $expectedSegmentText = '<p>Clear text and this is ███████ text</p>';
+        $result = $this->sut->convert($segment->_real(), $segment->getId(), false, true);
+
+        static::assertSame($expectedSegmentText, $result->getText());
+
+
+
     }
 
     public function testConvertWithLinkedReference(): void
