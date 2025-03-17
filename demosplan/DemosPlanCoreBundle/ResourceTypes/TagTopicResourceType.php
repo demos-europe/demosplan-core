@@ -205,7 +205,6 @@ final class TagTopicResourceType extends DplanResourceType
                     EntityDataInterface $entityData,
                 ): array {
                     try {
-                        $this->messageBag->add('confirm', var_export($entityData, true));
                         // check Procedure relation
                         $procedureIdToSet = ((array) $entityData->getToOneRelationships())['procedure']['id'];
                         Assert::same(
