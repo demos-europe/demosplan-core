@@ -45,7 +45,6 @@ final class ImageLinkConverter
         bool $asLinkedReference = true,
         bool $isObscure = false,
     ): ConvertedSegment {
-
         $segmentText = $this->getSegmentText($segment, $isObscure);
         $recommendationText = $segment->getRecommendation();
         $xmlSegmentText = str_replace('<br>', '<br/>', $segmentText);
@@ -88,6 +87,7 @@ final class ImageLinkConverter
     private function getSegmentText(Segment $segment, bool $isObscure): string
     {
         $segmentText = $segment->getText();
+
         return $isObscure ? $this->editorService->obscureString($segmentText) : $segmentText;
     }
 
