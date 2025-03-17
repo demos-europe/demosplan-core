@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "521ef5ed9d03cb543827b4c87554a4b3",
+    "content-hash": "bd3ec41809c4ea159585f52583cbf6be",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -18983,20 +18983,20 @@
         },
         {
             "name": "willdurand/js-translation-bundle",
-            "version": "6.1.0",
+            "version": "7.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/willdurand/BazingaJsTranslationBundle.git",
-                "reference": "f6af94fe2100076d087334d7412a77b758c88eec"
+                "reference": "28283525bed4071d6d827af1402318ecf29d156e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/willdurand/BazingaJsTranslationBundle/zipball/f6af94fe2100076d087334d7412a77b758c88eec",
-                "reference": "f6af94fe2100076d087334d7412a77b758c88eec",
+                "url": "https://api.github.com/repos/willdurand/BazingaJsTranslationBundle/zipball/28283525bed4071d6d827af1402318ecf29d156e",
+                "reference": "28283525bed4071d6d827af1402318ecf29d156e",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2.5",
+                "php": ">=7.4",
                 "symfony/console": "~4.4|~5.0|~6.0|~7.0",
                 "symfony/finder": "~4.4|~5.0|~6.0|~7.0",
                 "symfony/framework-bundle": "~4.4|~5.0|~6.0|~7.0",
@@ -19044,9 +19044,9 @@
             ],
             "support": {
                 "issues": "https://github.com/willdurand/BazingaJsTranslationBundle/issues",
-                "source": "https://github.com/willdurand/BazingaJsTranslationBundle/tree/6.1.0"
+                "source": "https://github.com/willdurand/BazingaJsTranslationBundle/tree/7.0.0"
             },
-            "time": "2024-08-02T14:30:21+00:00"
+            "time": "2025-02-22T09:35:32+00:00"
         },
         {
             "name": "willdurand/jsonp-callback-validator",
