@@ -56,6 +56,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public const HEARING_AUTHORITY_ROLES = [RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER];
     public const PLANNING_AGENCY_ROLES = [RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER];
     public const PUBLIC_AGENCY_ROLES = [RoleInterface::PUBLIC_AGENCY_COORDINATION, RoleInterface::PUBLIC_AGENCY_WORKER];
+    public const CUSTOMER_MASTER_USER_ROLE = [RoleInterface::CUSTOMER_MASTER_USER];
     /**
      * @var string|null
      *
