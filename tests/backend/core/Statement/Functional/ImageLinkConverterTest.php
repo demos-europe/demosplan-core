@@ -34,18 +34,11 @@ class ImageLinkConverterTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $fileService = $this->createMock(FileService::class);
-        $fileService->method('getFileInfo')->willReturnCallback(
-            fn ($hash) => new FileInfo(
-                $hash,
-                'filename.jpg',
-                12345,
-                'image/jpeg',
-                '/path/to/file',
-                '/absolute/path/to/'.$hash,
-                $this->createMock(Procedure::class)
-            )
+        $fileService = $this->createPartialMock(FileService::class, ['ensureLocalFileFromHash']);
+        $fileService->method('ensureLocalFileFromHash')->willReturnCallback(
+            fn ($hash) => '/absolute/path/to/'.$hash
         );
+
         /** @var HtmlHelper $htmlHelper */
         $htmlHelper = $this->getContainer()->get(HtmlHelper::class);
 
@@ -112,7 +105,6 @@ class ImageLinkConverterTest extends FunctionalTestCase
 
     public function testGetImages(): void
     {
-        self::markSkippedForCIIntervention();
         $segment = $this->createTestSegment();
         $statementExternId = 'statement123';
 
