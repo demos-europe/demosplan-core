@@ -192,8 +192,7 @@
     "ff esr"
   ],
   "resolutions": {
-    "@mapbox/mapbox-gl-style-spec": "13.23.1",
-    "@demos-europe/demosplan-ui": "portal:/srv/www/local_modules/demosplan-ui"
+    "@mapbox/mapbox-gl-style-spec": "13.23.1"
   },
   "packageManager": "yarn@4.2.2"
 }
