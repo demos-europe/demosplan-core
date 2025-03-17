@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\ProcedureFinalMailReportEntryData;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\RegisteredInvitationReportEntryData;
@@ -44,6 +45,7 @@ class ReportMessageConverter
         private readonly PermissionsInterface $permissions,
         private readonly RouterInterface $router,
         private readonly TranslatorInterface $translator,
+        private readonly FileService $fileService,
     ) {
         $this->dateExtension = $dateExtension;
         $this->globalConfig = $globalConfig;
@@ -869,6 +871,9 @@ class ReportMessageConverter
         return $preparedMessageData;
     }
 
+    /**
+     * @throws Exception
+     */
     private function createChangePlanDrawMessage(array $reportEntryMessage): string
     {
         $planDrawMessage = '';
@@ -916,9 +921,12 @@ class ReportMessageConverter
         return $planDrawMessage;
     }
 
+    /**
+     * @throws Exception
+     */
     private function getFileName($fileString): string
     {
-        return explode(':', $fileString)[0];
+        return $this->fileService->getFileInfoFromFileString($fileString)->getFileName();
     }
 
     /**
