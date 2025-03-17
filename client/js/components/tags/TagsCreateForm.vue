@@ -16,7 +16,7 @@
         class="mb-4"
         data-cy="tagsList:newTag:title"
         :label="{
-           text: Translator.trans('title')
+          text: Translator.trans('title')
         }"
         maxlength="250"
         required />
@@ -57,7 +57,7 @@
         id="new-topic-title"
         class="mb-4"
         :label="{
-           text: Translator.trans('title')
+          text: Translator.trans('title')
         }"
         maxlength="250"
         required />
@@ -114,6 +114,12 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    isMasterProcedure: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     procedureId: {
       type: String,
       required: true
@@ -240,7 +246,7 @@ export default {
         relationships: {
           procedure: {
             data: {
-              type: 'Procedure',
+              type: this.isMasterProcedure ? 'ProcedureTemplate' : 'Procedure',
               id: this.procedureId
             }
           }
