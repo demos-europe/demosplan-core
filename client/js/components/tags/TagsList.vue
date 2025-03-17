@@ -2,7 +2,9 @@
   <div>
     <tags-list-header />
 
-    <tags-create-form :procedure-id="procedureId" />
+    <tags-create-form
+      :is-master-procedure="isMasterProcedure"
+      :procedure-id="procedureId" />
 
     <dp-tree-list
       v-if="transformedCategories"
@@ -97,6 +99,12 @@ export default {
   },
 
   props: {
+    isMasterProcedure: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
     procedureId: {
       type: String,
       required: true
