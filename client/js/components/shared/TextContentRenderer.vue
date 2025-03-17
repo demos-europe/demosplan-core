@@ -13,6 +13,11 @@ export default {
       default: ''
     },
 
+    sanitize: {
+      type: Boolean,
+      default: true
+    },
+
     data: {
       type: Object,
       default: () => ({})
@@ -42,7 +47,7 @@ export default {
    * @return {*}
    */
   render (h, context) {
-    const sanitizedText = DomPurify.sanitize(context.props.text)
+    const sanitizedText = DomPurify.sanitize(context.props.text, { ADD_TAGS: ['dp-obscure'] })
 
     const immediateComponent = {
       template: `<div class='text-wrapper w-fit' data-cy='textWrapper'>${sanitizedText}</div>`,
