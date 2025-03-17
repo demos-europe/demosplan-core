@@ -14,15 +14,16 @@ namespace Tests\Core\Core\Unit\Tools;
 
 use demosplan\DemosPlanCoreBundle\Tools\VirusCheckSocket;
 use Exception;
+use InvalidArgumentException;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Tests\Base\UnitTestCase;
 
 class VirusCheckSocketTest extends UnitTestCase
 {
-
     /** @var LoggerInterface|MockObject */
     private $loggerMock;
 
@@ -61,7 +62,7 @@ class VirusCheckSocketTest extends UnitTestCase
     }
 
     /**
-     * Test scanFile with various file states
+     * Test scanFile with various file states.
      */
     public function testScanFileWithNonExistentFile(): void
     {
@@ -73,14 +74,14 @@ class VirusCheckSocketTest extends UnitTestCase
 
         // Configure the mock to throw an exception
         $sutMock->method('scanFile')
-            ->willThrowException(new \InvalidArgumentException("File not found or not readable"));
+            ->willThrowException(new InvalidArgumentException('File not found or not readable'));
 
         $this->expectException(Exception::class);
         $sutMock->hasVirus($this->fileMock);
     }
 
     /**
-     * Test hasVirus when a virus is detected
+     * Test hasVirus when a virus is detected.
      */
     public function testHasVirusWhenVirusDetected(): void
     {
@@ -108,7 +109,7 @@ class VirusCheckSocketTest extends UnitTestCase
     }
 
     /**
-     * Test hasVirus when no virus is detected
+     * Test hasVirus when no virus is detected.
      */
     public function testHasVirusWhenNoVirusDetected(): void
     {
@@ -132,7 +133,7 @@ class VirusCheckSocketTest extends UnitTestCase
     }
 
     /**
-     * Test hasVirus when an error occurs during scanning
+     * Test hasVirus when an error occurs during scanning.
      */
     public function testHasVirusWhenErrorOccurs(): void
     {
@@ -144,7 +145,7 @@ class VirusCheckSocketTest extends UnitTestCase
 
         // Configure the mock to throw an exception
         $sutMock->method('scanFile')
-            ->willThrowException(new \RuntimeException("Connection error"));
+            ->willThrowException(new RuntimeException('Connection error'));
 
         // Logger should log an error message
         $this->loggerMock->expects($this->once())
