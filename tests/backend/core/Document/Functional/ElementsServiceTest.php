@@ -722,7 +722,7 @@ class ElementsServiceTest extends FunctionalTestCase
     public function testReportOnCreateElement(): void
     {
         $data = [
-            'pId' => $this->testProcedure2->getId(),
+            'pId'       => $this->testProcedure2->getId(),
             'category'  => 'file',
             'title'     => 'my test title',
             'text'      => 'my test text',
@@ -857,7 +857,7 @@ class ElementsServiceTest extends FunctionalTestCase
     private function assertElementReportEntryMessageValues(
         Elements $element,
         array $messageArray,
-        string $originId = null
+        ?string $originId = null,
     ): void {
         $id = $originId ?? $element->getId();
 
