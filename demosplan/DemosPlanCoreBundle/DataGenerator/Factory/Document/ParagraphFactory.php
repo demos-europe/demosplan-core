@@ -36,44 +36,15 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static Paragraph[]|Proxy[]                          findBy(array $attributes)
  * @method static Paragraph[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
  * @method static Paragraph[]|Proxy[]                          randomSet(int $number, array $attributes = [])
- *
- * @phpstan-method        Paragraph&Proxy<Paragraph> create(array|callable $attributes = [])
- * @phpstan-method static Paragraph&Proxy<Paragraph> createOne(array $attributes = [])
- * @phpstan-method static Paragraph&Proxy<Paragraph> find(object|array|mixed $criteria)
- * @phpstan-method static Paragraph&Proxy<Paragraph> findOrCreate(array $attributes)
- * @phpstan-method static Paragraph&Proxy<Paragraph> first(string $sortedField = 'id')
- * @phpstan-method static Paragraph&Proxy<Paragraph> last(string $sortedField = 'id')
- * @phpstan-method static Paragraph&Proxy<Paragraph> random(array $attributes = [])
- * @phpstan-method static Paragraph&Proxy<Paragraph> randomOrCreate(array $attributes = [])
- * @phpstan-method static ProxyRepositoryDecorator<Paragraph, EntityRepository> repository()
- * @phpstan-method static list<Paragraph&Proxy<Paragraph>> all()
- * @phpstan-method static list<Paragraph&Proxy<Paragraph>> createMany(int $number, array|callable $attributes = [])
- * @phpstan-method static list<Paragraph&Proxy<Paragraph>> createSequence(iterable|callable $sequence)
- * @phpstan-method static list<Paragraph&Proxy<Paragraph>> findBy(array $attributes)
- * @phpstan-method static list<Paragraph&Proxy<Paragraph>> randomRange(int $min, int $max, array $attributes = [])
- * @phpstan-method static list<Paragraph&Proxy<Paragraph>> randomSet(int $number, array $attributes = [])
  */
 final class ParagraphFactory extends PersistentProxyObjectFactory
 {
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
-     * @todo inject services if required
-     */
-    public function __construct()
-    {
-    }
 
     public static function class(): string
     {
         return Paragraph::class;
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
-     * @todo add your default values here
-     */
     protected function defaults(): array|callable
     {
         return [

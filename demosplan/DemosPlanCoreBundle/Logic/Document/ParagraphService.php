@@ -467,7 +467,7 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
     }
 
     /**
-     * Update the given paragraph.
+     * Update the given paragraph without creating a report entry.
      *
      * @return Paragraph
      */
