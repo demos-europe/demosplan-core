@@ -10,6 +10,7 @@
 
 namespace Tests\Core\Document\Functional;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\ElementsFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\SingleDocumentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -326,9 +327,10 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertCount(1, $versionsAfter);
     }
 
-    public function testReportOnAddSingleDocumentViaService(): void
+    public function testReportOnCreateSingleDocument(): void
     {
-        $testElement = $this->fixtures->getReference('testSingleDocumentElement');
+        $testElement = ElementsFactory::new()->create(['procedure' => $this->testProcedure]);
+
         $data = [
             'pId'               => $this->testProcedure->getId(),
             'elementId'         => $testElement->getId(),
@@ -365,7 +367,7 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         $this->assertSingleDocumentReportEntryMessageValues($document, $messageArray);
     }
 
-    public function testReportOnUpdateSingleDocumentViaService(): void
+    public function testReportOnUpdateSingleDocument(): void
     {
         $testDocument = SingleDocumentFactory::createOne();
         $updatedDocument = $this->sut->updateSingleDocument([
@@ -382,7 +384,7 @@ class SingleDocumentServiceTest extends FunctionalTestCase
                 'group'           => 'singleDocument',
                 'category'        => ReportEntry::CATEGORY_UPDATE,
                 'identifierType'  => 'procedure',
-                'identifier'      => $this->testProcedure->getId(),
+                'identifier'      => $testDocument->getProcedure()->getId(),
             ]
         );
 
@@ -395,9 +397,11 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         $this->assertSingleDocumentReportEntryMessageValues($updatedDocument, $messageArray);
     }
 
-    public function testReportOnDeleteSingleDocumentViaService(): void
+    public function testReportOnDeleteSingleDocument(): void
     {
         $originDocument = SingleDocumentFactory::createOne();
+        $originId = $originDocument->getId();
+        $procedureId = $originDocument->getProcedure()->getId();
         $result = $this->sut->deleteSingleDocument($originDocument->getId());
         static::assertTrue($result);
         $relatedReports = $this->getEntries(ReportEntry::class,
@@ -405,7 +409,7 @@ class SingleDocumentServiceTest extends FunctionalTestCase
                 'group'           => 'singleDocument',
                 'category'        => ReportEntry::CATEGORY_DELETE,
                 'identifierType'  => 'procedure',
-                'identifier'      => $this->testProcedure->getId(),
+                'identifier'      => $procedureId,
             ]
         );
 
@@ -415,10 +419,10 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         $messageArray = $relatedReport->getMessageDecoded(false);
 
         $this->assertSingleDocumentReportEntryMessageKeys($messageArray);
-        $this->assertSingleDocumentReportEntryMessageValues($originDocument, $messageArray);
+        $this->assertSingleDocumentReportEntryMessageValues($originDocument->_real(), $messageArray, $originId);
     }
 
-    public function testUdpate()
+    public function testUpdate(): void
     {
         $data = [
             'ident'             => $this->testDocument->getId(),
@@ -454,9 +458,14 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertArrayHasKey('date', $messageArray);
     }
 
-    private function assertSingleDocumentReportEntryMessageValues(SingleDocument $document, array $messageArray): void
-    {
-        static::assertEquals($document->getId(), $messageArray['id']);
+    private function assertSingleDocumentReportEntryMessageValues(
+        SingleDocument $document,
+        array $messageArray,
+        string $originId = null
+    ): void {
+        $id = $originId ?? $document->getId();
+
+        static::assertEquals($id, $messageArray['id']);
         static::assertEquals($document->getTitle(), $messageArray['title']);
         static::assertEquals($document->getText(), $messageArray['text']);
         static::assertEquals($document->getCategory(), $messageArray['category']);

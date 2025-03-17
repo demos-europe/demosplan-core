@@ -38,15 +38,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  */
 final class SingleDocumentFactory extends PersistentProxyObjectFactory
 {
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
-     * @todo inject services if required
-     */
-    public function __construct()
-    {
-    }
-
     public static function class(): string
     {
         return SingleDocument::class;
@@ -59,21 +50,33 @@ final class SingleDocumentFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
+        $categories = [
+            'file',
+            'arbeitskreis',
+            'landschaftsplan',
+            'fnp',
+            'untersuchung',
+            'informationen',
+            'e_unterlagen',
+            'fnp',
+            'sv-eu',
+            'protokolle',
+        ];
+
+        $procedure = ProcedureFactory::new();
+
         return [
-            'category'         => self::faker()->text(36),
-            'createDate'       => self::faker()->dateTime(),
-            'deleteDate'       => self::faker()->dateTime(),
-            'deleted'          => self::faker()->boolean(),
-            'document'         => self::faker()->text(256),
-            'element'          => ElementsFactory::new(),
-            'modifyDate'       => self::faker()->dateTime(),
-            'order'            => self::faker()->randomNumber(),
-            'procedure'        => ProcedureFactory::new(),
+            'category'         => self::faker()->randomElement($categories),
+            'deleted'          => false,
+            'document'         => self::faker()->colorName().'.pdf:'.self::faker()->uuid().':'.self::faker()->numberBetween([255],[99999]).':application/pdf',
+            'element'          => ElementsFactory::new()->create(['procedure' => $procedure]),
+            'order'            => self::faker()->numberBetween([0],[999]),
+            'procedure'        => $procedure,
             'statementEnabled' => self::faker()->boolean(),
-            'symbol'           => self::faker()->text(36),
-            'text'             => self::faker()->text(65535),
-            'title'            => self::faker()->text(256),
-            'visible'          => self::faker()->boolean(),
+            'symbol'           => '',
+            'text'             => self::faker()->text(2000),
+            'title'            => 'default test single document',
+            'visible'          => true,
         ];
     }
 

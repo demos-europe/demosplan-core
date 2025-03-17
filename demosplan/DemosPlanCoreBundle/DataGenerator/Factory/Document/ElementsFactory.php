@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
@@ -37,41 +39,25 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  */
 final class ElementsFactory extends PersistentProxyObjectFactory
 {
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
-     * @todo inject services if required
-     */
-    public function __construct()
-    {
-    }
-
     public static function class(): string
     {
         return Elements::class;
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
-     * @todo add your default values here
-     */
     protected function defaults(): array|callable
     {
         return [
-            'category'   => self::faker()->text(255),
-            'createDate' => self::faker()->dateTime(),
-            'deleteDate' => self::faker()->dateTime(),
-            'deleted'    => self::faker()->boolean(),
+            'procedure'  => ProcedureFactory::new(),
+            'category'   => self::faker()->randomElement(ElementsInterface::ELEMENT_CATEGORIES),
+            'deleted'    => false,
             'enabled'    => self::faker()->boolean(),
             'file'       => self::faker()->text(256),
-            'icon'       => self::faker()->text(36),
-            'iconTitle'  => self::faker()->text(),
-            'modifyDate' => self::faker()->dateTime(),
-            'order'      => self::faker()->randomNumber(),
-            'pId'        => self::faker()->text(36),
+            'icon'       => 'fa-picture-o',
+            'iconTitle'  => 'weitere Information',
+            'order'      => self::faker()->numberBetween([0],[999]),
+            'pId'        => '', //deprecated procedureId-field without actual relation to a procedure! (not worth to be covered by tests)
             'text'       => self::faker()->text(65535),
-            'title'      => self::faker()->text(256),
+            'title'      => self::faker()->randomElement(ElementsInterface::ELEMENT_TITLES),
         ];
     }
 
