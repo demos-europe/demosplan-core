@@ -192,44 +192,47 @@
                         <div class="layout u-mb-0_75">
                             <div class="u-1-of-4 layout__item">
                                 <dp-label
+                                    class="mb-1"
+                                    for="r_submitted_date"
                                     text="{{ 'statement.date.submitted'|trans }}"
-                                    tooltip="{{ 'explanation.statement.date'|trans }}"
-                                    for="r_submitted_date"></dp-label>
+                                    tooltip="{{ 'explanation.statement.date'|trans }}"></dp-label>
                                 <dp-datepicker
-                                    class="o-form__control-wrapper"
-                                    name="r_submitted_date"
-                                    data-cy="submitterForm:submittedDate"
-                                    value="{{ app.request.get('r_submitted_date') }}"
                                     :calendars-before="2"
+                                    class="o-form__control-wrapper"
+                                    data-cy="submitterForm:submittedDate"
+                                    id="r_submitted_date"
                                     max-date="{{ 'now'|date('d.m.Y') }}"
                                     :min-date="values.authoredDate"
-                                    id="r_submitted_date"
+                                    name="r_submitted_date"
+                                    value="{{ app.request.get('r_submitted_date') }}"
                                     v-model="values.submittedDate"></dp-datepicker>
                             </div>
                             <div class="u-1-of-4 layout__item">
                                 <dp-label
+                                    class="mb-1"
+                                    for="r_authored_date"
                                     text="{{ 'statement.date.authored'|trans }}"
-                                    tooltip="{{ 'explanation.statement.date.authored'|trans }}"
-                                    for="r_authored_date"></dp-label>
+                                    tooltip="{{ 'explanation.statement.date.authored'|trans }}"></dp-label>
                                 <dp-datepicker
-                                    class="o-form__control-wrapper"
-                                    name="r_authored_date"
-                                    data-cy="submitterForm:authoredDate"
-                                    value="{{ app.request.get('r_authored_date') }}"
                                     :calendars-before="2"
-                                    :max-date="values.submittedDate ? values.submittedDate : '{{ 'now'|date('d.m.Y') }}'"
+                                    class="o-form__control-wrapper"
+                                    data-cy="submitterForm:authoredDate"
                                     id="r_authored_date"
+                                    :max-date="values.submittedDate ? values.submittedDate : '{{ 'now'|date('d.m.Y') }}'"
+                                    name="r_authored_date"
+                                    value="{{ app.request.get('r_authored_date') }}"
                                     v-model="values.authoredDate"></dp-datepicker>
                             </div>
                             <div class="u-1-of-4 layout__item">
                                 <dp-select
+                                    data-cy="submitterForm:submitType"
                                     id="r_submit_type"
                                     :label="{
+                                        class: 'mb-1',
                                         text: Translator.trans('submit.type'),
                                         tooltip: Translator.trans('explanation.statement.submit.type')
                                     }"
                                     name="r_submit_type"
-                                    data-cy="submitterForm:submitType"
                                     :options="JSON.parse('{{ submitTypeOptions|json_encode|e('js') }}')"
                                     selected="{{ selectedSubmitType }}"></dp-select>
                             </div>
