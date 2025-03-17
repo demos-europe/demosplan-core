@@ -461,7 +461,7 @@ class SingleDocumentServiceTest extends FunctionalTestCase
     private function assertSingleDocumentReportEntryMessageValues(
         SingleDocument $document,
         array $messageArray,
-        string $originId = null
+        ?string $originId = null,
     ): void {
         $id = $originId ?? $document->getId();
 

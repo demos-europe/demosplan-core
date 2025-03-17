@@ -54,8 +54,8 @@ final class ElementsFactory extends PersistentProxyObjectFactory
             'file'       => self::faker()->text(256),
             'icon'       => 'fa-picture-o',
             'iconTitle'  => 'weitere Information',
-            'order'      => self::faker()->numberBetween([0],[999]),
-            'pId'        => '', //deprecated procedureId-field without actual relation to a procedure! (not worth to be covered by tests)
+            'order'      => self::faker()->numberBetween([0], [999]),
+            'pId'        => '', // deprecated procedureId-field without actual relation to a procedure! (not worth to be covered by tests)
             'text'       => self::faker()->text(65535),
             'title'      => self::faker()->randomElement(ElementsInterface::ELEMENT_TITLES),
         ];

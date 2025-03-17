@@ -68,9 +68,9 @@ final class SingleDocumentFactory extends PersistentProxyObjectFactory
         return [
             'category'         => self::faker()->randomElement($categories),
             'deleted'          => false,
-            'document'         => self::faker()->colorName().'.pdf:'.self::faker()->uuid().':'.self::faker()->numberBetween([255],[99999]).':application/pdf',
+            'document'         => self::faker()->colorName().'.pdf:'.self::faker()->uuid().':'.self::faker()->numberBetween([255], [99999]).':application/pdf',
             'element'          => ElementsFactory::new()->create(['procedure' => $procedure]),
-            'order'            => self::faker()->numberBetween([0],[999]),
+            'order'            => self::faker()->numberBetween([0], [999]),
             'procedure'        => $procedure,
             'statementEnabled' => self::faker()->boolean(),
             'symbol'           => '',
