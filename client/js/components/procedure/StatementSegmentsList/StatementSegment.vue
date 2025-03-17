@@ -623,7 +623,7 @@ export default {
         }
       }
 
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
+      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
         .then(checkResponse)
         .then(() => {
           this.claimLoading = false
@@ -684,6 +684,9 @@ export default {
         data: {
           id: this.segment.id,
           type: 'StatementSegment',
+          attributes: {
+            recommendation: this.segment.attributes.recommendation
+          },
           relationships: {
             assignee,
             place
