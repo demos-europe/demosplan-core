@@ -1,11 +1,18 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
-use Doctrine\ORM\EntityRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
@@ -53,20 +60,20 @@ final class SingleDocumentFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'category' => self::faker()->text(36),
-            'createDate' => self::faker()->dateTime(),
-            'deleteDate' => self::faker()->dateTime(),
-            'deleted' => self::faker()->boolean(),
-            'document' => self::faker()->text(256),
-            'element' => ElementsFactory::new(),
-            'modifyDate' => self::faker()->dateTime(),
-            'order' => self::faker()->randomNumber(),
-            'procedure' => ProcedureFactory::new(),
+            'category'         => self::faker()->text(36),
+            'createDate'       => self::faker()->dateTime(),
+            'deleteDate'       => self::faker()->dateTime(),
+            'deleted'          => self::faker()->boolean(),
+            'document'         => self::faker()->text(256),
+            'element'          => ElementsFactory::new(),
+            'modifyDate'       => self::faker()->dateTime(),
+            'order'            => self::faker()->randomNumber(),
+            'procedure'        => ProcedureFactory::new(),
             'statementEnabled' => self::faker()->boolean(),
-            'symbol' => self::faker()->text(36),
-            'text' => self::faker()->text(65535),
-            'title' => self::faker()->text(256),
-            'visible' => self::faker()->boolean(),
+            'symbol'           => self::faker()->text(36),
+            'text'             => self::faker()->text(65535),
+            'title'            => self::faker()->text(256),
+            'visible'          => self::faker()->boolean(),
         ];
     }
 

@@ -18,7 +18,6 @@ class ProcedureEditedEvent extends DPlanEvent
     final public const PLAN_PDF = 'planPDF';
     final public const PLAN_DRAW_PDF = 'planDrawPDF';
 
-
     /**
      * @var array Current state of the procedure
      */

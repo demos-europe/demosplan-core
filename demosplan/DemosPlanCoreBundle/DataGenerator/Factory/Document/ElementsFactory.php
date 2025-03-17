@@ -1,10 +1,17 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document;
 
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
-use Doctrine\ORM\EntityRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
@@ -52,19 +59,19 @@ final class ElementsFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'category' => self::faker()->text(255),
+            'category'   => self::faker()->text(255),
             'createDate' => self::faker()->dateTime(),
             'deleteDate' => self::faker()->dateTime(),
-            'deleted' => self::faker()->boolean(),
-            'enabled' => self::faker()->boolean(),
-            'file' => self::faker()->text(256),
-            'icon' => self::faker()->text(36),
-            'iconTitle' => self::faker()->text(),
+            'deleted'    => self::faker()->boolean(),
+            'enabled'    => self::faker()->boolean(),
+            'file'       => self::faker()->text(256),
+            'icon'       => self::faker()->text(36),
+            'iconTitle'  => self::faker()->text(),
             'modifyDate' => self::faker()->dateTime(),
-            'order' => self::faker()->randomNumber(),
-            'pId' => self::faker()->text(36),
-            'text' => self::faker()->text(65535),
-            'title' => self::faker()->text(256),
+            'order'      => self::faker()->randomNumber(),
+            'pId'        => self::faker()->text(36),
+            'text'       => self::faker()->text(65535),
+            'title'      => self::faker()->text(256),
         ];
     }
 

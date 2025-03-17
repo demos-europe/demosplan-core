@@ -15,7 +15,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService;
-use PhpOffice\PhpSpreadsheet\Calculation\Financial\CashFlow\Single;
 use Tests\Base\FunctionalTestCase;
 
 class SingleDocumentServiceTest extends FunctionalTestCase
@@ -345,15 +344,15 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         ];
 
         $result = $this->sut->addSingleDocument($data);
-        $document = $this->find(SingleDocument::class,$result['id']);
+        $document = $this->find(SingleDocument::class, $result['id']);
         static::assertInstanceOf(SingleDocument::class, $document);
 
         $relatedReports = $this->getEntries(ReportEntry::class,
             [
-                'group'     => 'singleDocument',
-                'category'  => ReportEntry::CATEGORY_ADD,
+                'group'           => 'singleDocument',
+                'category'        => ReportEntry::CATEGORY_ADD,
                 'identifierType'  => 'procedure',
-                'identifier'  => $this->testProcedure->getId(),
+                'identifier'      => $this->testProcedure->getId(),
             ]
         );
 
@@ -380,10 +379,10 @@ class SingleDocumentServiceTest extends FunctionalTestCase
 
         $relatedReports = $this->getEntries(ReportEntry::class,
             [
-                'group'     => 'singleDocument',
-                'category'  => ReportEntry::CATEGORY_UPDATE,
+                'group'           => 'singleDocument',
+                'category'        => ReportEntry::CATEGORY_UPDATE,
                 'identifierType'  => 'procedure',
-                'identifier'  => $this->testProcedure->getId(),
+                'identifier'      => $this->testProcedure->getId(),
             ]
         );
 
@@ -396,17 +395,17 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         $this->assertSingleDocumentReportEntryMessageValues($updatedDocument, $messageArray);
     }
 
-    public function testReportOnDeleteSingleDocumentViaService():void
+    public function testReportOnDeleteSingleDocumentViaService(): void
     {
         $originDocument = SingleDocumentFactory::createOne();
         $result = $this->sut->deleteSingleDocument($originDocument->getId());
         static::assertTrue($result);
         $relatedReports = $this->getEntries(ReportEntry::class,
             [
-                'group'     => 'singleDocument',
-                'category'  => ReportEntry::CATEGORY_DELETE,
+                'group'           => 'singleDocument',
+                'category'        => ReportEntry::CATEGORY_DELETE,
                 'identifierType'  => 'procedure',
-                'identifier'  => $this->testProcedure->getId(),
+                'identifier'      => $this->testProcedure->getId(),
             ]
         );
 
@@ -437,11 +436,6 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertEquals($data['title'], $returnValue['title']);
     }
 
-    /**
-     * @param array $messageArray
-     *
-     * @return void
-     */
     private function assertSingleDocumentReportEntryMessageKeys(array $messageArray): void
     {
         static::assertArrayHasKey('documentId', $messageArray);

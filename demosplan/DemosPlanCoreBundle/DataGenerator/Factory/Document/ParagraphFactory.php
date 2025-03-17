@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
@@ -69,18 +77,18 @@ final class ParagraphFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'category' => self::faker()->text(36),
+            'category'   => self::faker()->text(36),
             'createDate' => self::faker()->dateTime(),
             'deleteDate' => self::faker()->dateTime(),
-            'deleted' => self::faker()->boolean(),
-            'element' => ElementsFactory::new(),
+            'deleted'    => self::faker()->boolean(),
+            'element'    => ElementsFactory::new(),
             'lockReason' => self::faker()->text(300),
             'modifyDate' => self::faker()->dateTime(),
-            'order' => self::faker()->randomNumber(),
-            'procedure' => ProcedureFactory::new(),
-            'text' => self::faker()->text(16777215),
-            'title' => self::faker()->text(65535),
-            'visible' => self::faker()->randomNumber(),
+            'order'      => self::faker()->randomNumber(),
+            'procedure'  => ProcedureFactory::new(),
+            'text'       => self::faker()->text(16777215),
+            'title'      => self::faker()->text(65535),
+            'visible'    => self::faker()->randomNumber(),
         ];
     }
 
