@@ -16,6 +16,7 @@ namespace Tests\Core\Statement\Functional;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
@@ -46,7 +47,10 @@ class ImageLinkConverterTest extends FunctionalTestCase
         );
         /** @var HtmlHelper $htmlHelper */
         $htmlHelper = $this->getContainer()->get(HtmlHelper::class);
-        $this->sut = new ImageLinkConverter($htmlHelper, $fileService);
+
+        /** @var EditorService $editorService */
+        $editorService = $this->createMock(EditorService::class);
+        $this->sut = new ImageLinkConverter($htmlHelper, $fileService, $editorService);
     }
 
     public function testConvertWithLinkedReference(): void
