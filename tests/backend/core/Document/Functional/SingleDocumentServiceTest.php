@@ -438,30 +438,36 @@ class SingleDocumentServiceTest extends FunctionalTestCase
 
     private function assertSingleDocumentReportEntryMessageKeys(array $messageArray): void
     {
-        static::assertArrayHasKey('documentId', $messageArray);
-        static::assertArrayHasKey('documentTitle', $messageArray);
-        static::assertArrayHasKey('documentText', $messageArray);
-        static::assertArrayHasKey('documentCategory', $messageArray);
-        static::assertArrayHasKey('relatedFile', $messageArray);
-        static::assertArrayHasKey('elementCategory', $messageArray);
-        static::assertArrayHasKey('elementTitle', $messageArray);
+        static::assertArrayHasKey('id', $messageArray);
+        static::assertArrayHasKey('title', $messageArray);
+        static::assertArrayHasKey('text', $messageArray);
+        static::assertArrayHasKey('category', $messageArray);
+        static::assertArrayHasKey('fileName', $messageArray);
+        static::assertArrayHasKey('relatedElementCategory', $messageArray);
+        static::assertArrayHasKey('relatedElementTitle', $messageArray);
         static::assertArrayHasKey('visible', $messageArray);
         static::assertArrayHasKey('statement_enabled', $messageArray);
-        static::assertArrayHasKey('procedurePhase', $messageArray);
+        static::assertArrayHasKey('keyOfInternalPhase', $messageArray);
+        static::assertArrayHasKey('keyOfEternalPhase', $messageArray);
+        static::assertArrayHasKey('nameOfInternalPhase', $messageArray);
+        static::assertArrayHasKey('nameOfExternalPhase', $messageArray);
         static::assertArrayHasKey('date', $messageArray);
     }
 
     private function assertSingleDocumentReportEntryMessageValues(SingleDocument $document, array $messageArray): void
     {
-        static::assertEquals($document->getId(), $messageArray['documentId']);
-        static::assertEquals($document->getTitle(), $messageArray['documentTitle']);
-        static::assertEquals($document->getText(), $messageArray['documentText']);
-        static::assertEquals($document->getCategory(), $messageArray['documentCategory']);
-        static::assertEquals($document->getFileInfo()->getFileName(), $messageArray['relatedFile']);
-        static::assertEquals($document->getElement()->getCategory(), $messageArray['elementCategory']);
-        static::assertEquals($document->getElement()->getTitle(), $messageArray['elementTitle']);
+        static::assertEquals($document->getId(), $messageArray['id']);
+        static::assertEquals($document->getTitle(), $messageArray['title']);
+        static::assertEquals($document->getText(), $messageArray['text']);
+        static::assertEquals($document->getCategory(), $messageArray['category']);
+        static::assertEquals($document->getFileInfo()->getFileName(), $messageArray['fileName']);
+        static::assertEquals($document->getElement()->getCategory(), $messageArray['relatedElementCategory']);
+        static::assertEquals($document->getElement()->getTitle(), $messageArray['relatedElementTitle']);
         static::assertEquals($document->getVisible(), $messageArray['visible']);
         static::assertEquals($document->isStatementEnabled(), $messageArray['statement_enabled']);
-        static::assertEquals($document->getProcedure()->getPhase(), $messageArray['procedurePhase']);
+        static::assertEquals($document->getProcedure()->getPhase(), $messageArray['keyOfInternalPhase']);
+        static::assertEquals($document->getProcedure()->getPublicParticipationPhase(), $messageArray['keyOfEternalPhase']);
+        static::assertEquals($document->getProcedure()->getPhaseName(), $messageArray['nameOfInternalPhase']);
+        static::assertEquals($document->getProcedure()->getPublicParticipationPhaseName(), $messageArray['nameOfExternalPhase']);
     }
 }
