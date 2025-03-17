@@ -62,14 +62,14 @@
       <fieldset v-if="isSingleStatementExport">
         <div class="flex mt-1 mb-5">
           <dp-checkbox
-            id="censoredCheckbox"
+            id="singleStatementCensored"
             v-model="isCensored"
             :label="{
               text: Translator.trans('export.anonymous'),
               hint: Translator.trans('export.anonymous.hint')
             }" />
           <dp-checkbox
-            id="obscureCheckbox"
+            id="singleStatementObscure"
             v-model="isObscure"
             :label="{
               text: Translator.trans('export.docx.obscured'),
