@@ -182,17 +182,21 @@ export default {
         id: parentTopic.id,
         type: 'TagTopic',
         attributes: parentTopic.attributes,
-        relationships: {
-          tags: {
-            data: [
-              ...parentTopic.relationships.tags.data,
-              {
-                id: tagId,
-                type: 'Tag'
+        relationships: parentTopic.relationships
+          ? {
+              ...parentTopic.relationships,
+              tags: {
+                data: parentTopic.relationships.tags.data.concat({
+                  type: 'Tag',
+                  id: tagId
+                })
               }
-            ]
-          }
-        }
+            }
+          : {
+              tags: {
+                data: [{ type: 'Tag', id: tagId }]
+              }
+            }
       })
 
       this.saveTagTopic(parentTopic.id)
@@ -205,11 +209,11 @@ export default {
         return
       }
 
-      const hasNewParent = !this.TagTopic[parentId].relationships.tags.data.find(tag => tag.id === elementId)
+      const hasNewParent = !this.TagTopic[parentId].relationships?.tags.data.find(tag => tag.id === elementId)
 
       if (hasNewParent) {
         const parentTopic = { ...this.TagTopic[parentId] }
-        const oldParent = Object.values(this.TagTopic).find(topic => topic.relationships.tags.data.find(tag => tag.id === elementId))
+        const oldParent = Object.values(this.TagTopic).find(topic => topic.relationships?.tags.data.find(tag => tag.id === elementId))
 
         this.addTagToNewTopic(parentTopic, elementId)
         this.removeTagFromOldTopic(oldParent, elementId)
