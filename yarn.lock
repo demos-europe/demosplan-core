@@ -2584,9 +2584,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:^0.4.5":
-  version: 0.4.5
-  resolution: "@demos-europe/demosplan-ui@npm:0.4.5"
+"@demos-europe/demosplan-ui@npm:^0.4.6":
+  version: 0.4.6
+  resolution: "@demos-europe/demosplan-ui@npm:0.4.6"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.4.5"
@@ -2620,6 +2620,7 @@ __metadata:
     "@uppy/tus": "npm:^3.0.1"
     "@vue/server-renderer": "npm:^3.4.29"
     "@vue/vue3-jest": "npm:^29.2.6"
+    "@vueuse/components": "npm:^13.0.0"
     "@vueuse/integrations": "npm:^11.1.0"
     a11y-datepicker: "npm: ^0.9.0"
     dayjs: "npm:^1.11.5"
@@ -2637,7 +2638,7 @@ __metadata:
     vue-multiselect: "npm:^3.1.0"
     vue-omnibox: "npm:^0.3.7"
     vue-sliding-pagination: "npm:^1.3.2"
-  checksum: 10c0/66062ccab1f2f41e22c2487f9be53c3dc61530648c5d4fe7ed6a06a9ecf8ba0403d22ceab6d3e14a1c25e692f059eae317e2449844672fe9e95aee58d095a120
+  checksum: 10c0/6181728e733735d86aadc082b5bc1800710ea94f460eadca3bf761a1f0497fe1d20c2a8423c58d895516bf9d7518e6d481eda28cf166d21148daed9def8ea7ca
   languageName: node
   linkType: hard
 
@@ -4088,6 +4089,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/web-bluetooth@npm:^0.0.21":
+  version: 0.0.21
+  resolution: "@types/web-bluetooth@npm:0.0.21"
+  checksum: 10c0/5f47c5ec452ca31e6a9b44c8aaa54b66c4f57d4aca00166c45902a3883139580e14b254b774172ff982ba4458cc444b5aa59bb4573c2fd34562cfa599721f8e4
+  languageName: node
+  linkType: hard
+
 "@types/yargs-parser@npm:*":
   version: 21.0.3
   resolution: "@types/yargs-parser@npm:21.0.3"
@@ -4458,6 +4466,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vueuse/components@npm:^13.0.0":
+  version: 13.0.0
+  resolution: "@vueuse/components@npm:13.0.0"
+  dependencies:
+    "@vueuse/core": "npm:13.0.0"
+    "@vueuse/shared": "npm:13.0.0"
+  peerDependencies:
+    vue: ^3.5.0
+  checksum: 10c0/1df5067c25667efcb17dbad56ffa5d4c027d4914ba45409385b9ea82b4bea1b0fe5d01ba0f9dab33949f0c86320269014dbe961c7c7167623087b17194bc9e43
+  languageName: node
+  linkType: hard
+
 "@vueuse/core@npm:11.3.0":
   version: 11.3.0
   resolution: "@vueuse/core@npm:11.3.0"
@@ -4467,6 +4487,19 @@ __metadata:
     "@vueuse/shared": "npm:11.3.0"
     vue-demi: "npm:>=0.14.10"
   checksum: 10c0/57ebed3ee2fd5b33297bbb36727424dc1707357db52954a1715366dd6583a4d53a05b10d17d16d1e5bf91fe8f12ea69fd6b232551f60167098ebc606b7234d4a
+  languageName: node
+  linkType: hard
+
+"@vueuse/core@npm:13.0.0":
+  version: 13.0.0
+  resolution: "@vueuse/core@npm:13.0.0"
+  dependencies:
+    "@types/web-bluetooth": "npm:^0.0.21"
+    "@vueuse/metadata": "npm:13.0.0"
+    "@vueuse/shared": "npm:13.0.0"
+  peerDependencies:
+    vue: ^3.5.0
+  checksum: 10c0/1ec663fb17870b43d176180f114b46a235564276ca38e87b487685c6e44f6d1a5cec5569ca73f0641b8e5aa2acb874e36f5ad0e8c241a1505e9b5d79d83629ec
   languageName: node
   linkType: hard
 
@@ -4526,12 +4559,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vueuse/metadata@npm:13.0.0":
+  version: 13.0.0
+  resolution: "@vueuse/metadata@npm:13.0.0"
+  checksum: 10c0/335d09b15088b47c52487a74316f4298dc5323c261d9d17aba30cf5e21a3cb8b623134cf10fa538cf29952bb77dcdc4a25b6ed92db1633218125eb6c7b64a053
+  languageName: node
+  linkType: hard
+
 "@vueuse/shared@npm:11.3.0":
   version: 11.3.0
   resolution: "@vueuse/shared@npm:11.3.0"
   dependencies:
     vue-demi: "npm:>=0.14.10"
   checksum: 10c0/820af5359d204e434b27ef570e5dfb5fe765e19d540738665c51c8d1569b81dd000dbe292add15dffb1b9538cbcec890626d0b47a5525e624273a0963b524e1f
+  languageName: node
+  linkType: hard
+
+"@vueuse/shared@npm:13.0.0":
+  version: 13.0.0
+  resolution: "@vueuse/shared@npm:13.0.0"
+  peerDependencies:
+    vue: ^3.5.0
+  checksum: 10c0/d7730ed05f90a421763f9b5e6e5ac64f0e085fade6090724f09990018106bca8dd63ed6070f2f471a472b84eaf98e0fc8307c282ec0ecb798eaf4035cb195cee
   languageName: node
   linkType: hard
 
@@ -13966,7 +14015,7 @@ __metadata:
     "@babel/preset-flow": "npm:^7.25.9"
     "@babel/runtime": "npm:^7.26.0"
     "@cesium/engine": "npm:^9.2.0"
-    "@demos-europe/demosplan-ui": "npm:^0.4.5"
+    "@demos-europe/demosplan-ui": "npm:^0.4.6"
     "@demos-europe/dp-consent": "npm:^1.3"
     "@efrane/vuex-json-api": "npm:^0.1.3"
     "@fullhuman/postcss-purgecss": "npm:^6.0.0"
