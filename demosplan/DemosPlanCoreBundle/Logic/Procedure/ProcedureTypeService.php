@@ -37,6 +37,7 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use Exception;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProcedureTypeService extends CoreService implements ProcedureTypeServiceInterface
@@ -359,12 +360,15 @@ class ProcedureTypeService extends CoreService implements ProcedureTypeServiceIn
         $originalParticipationGuestOnly =
             $originalProcedureTypeEntity->getProcedureBehaviorDefinition()->isParticipationGuestOnly();
 
-        $procedureBehaviorDefinition = $request->request->get('procedureBehaviorDefinition');
-        if (is_array($procedureBehaviorDefinition)) {
+        $procedureBehaviorDefinition = ['participationGuestOnly' => $originalParticipationGuestOnly];
+        try {
+            // override default value if given by request
+            $procedureBehaviorDefinition = $request->request->all('procedureBehaviorDefinition');
             $procedureBehaviorDefinition['participationGuestOnly'] = $originalParticipationGuestOnly;
-        } else {
-            $procedureBehaviorDefinition = ['participationGuestOnly' => $originalParticipationGuestOnly];
+        } catch (BadRequestException) {
+            // default value already set
         }
+
         $request->request->set('procedureBehaviorDefinition', $procedureBehaviorDefinition);
 
         // Fills field definitions based on the original if they are missing.

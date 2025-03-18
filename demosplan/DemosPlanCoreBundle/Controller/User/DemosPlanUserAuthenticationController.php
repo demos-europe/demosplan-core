@@ -224,7 +224,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         $requestPost = $request->request;
 
         if ($requestPost->has('email')) {
-            $email = $requestPost->get('email');
+            $email = $requestPost->get('email', '');
             if (is_string($email)) {
                 // avoid brute force attacks
                 $limiter = $userRegisterLimiter->create($request->getClientIp());
