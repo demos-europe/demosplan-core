@@ -106,6 +106,7 @@ use Doctrine\ORM\TransactionRequiredException;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
 use InvalidArgumentException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -154,6 +155,7 @@ class DemosPlanProcedureController extends BaseController
         ProcedureServiceOutput $procedureServiceOutput,
         private readonly ProcedureTypeResourceType $procedureTypeResourceType,
         private readonly SortMethodFactory $sortMethodFactory,
+        private readonly ParameterBagInterface $parameterBag
     ) {
         $this->procedureServiceOutput = $procedureServiceOutput;
         $this->procedureService = $procedureService;
@@ -1399,6 +1401,14 @@ class DemosPlanProcedureController extends BaseController
             } else {
                 $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit.html.twig';
                 $title = 'procedure.adjustments';
+                $internalPhases = $this->parameterBag->get('internalPhases');
+                $evaluatingPhase = array_filter($internalPhases, static function ($internalPhase) {
+
+                    return $internalPhase['key'] === 'evaluating';
+                });
+
+                $templateVars['evaluatingPhase'] = reset($evaluatingPhase)['name'];
+
             }
             /** @var NotificationReceiverRepository $notificationReveicerRepository */
             $notificationReveicerRepository = $em->getRepository(NotificationReceiver::class);

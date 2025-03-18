@@ -1389,7 +1389,7 @@ class GlobalConfig implements GlobalConfigInterface
      * @param array<string, array> $higherPriorityPhasesArray
      * @param array<string, array> $lowerPriorityPhasesArray
      */
-    protected function getPhaseNameWithPriority(string $phaseKey, array $higherPriorityPhasesArray, array $lowerPriorityPhasesArray): string
+    public function getPhaseNameWithPriority(string $phaseKey, array $higherPriorityPhasesArray, array $lowerPriorityPhasesArray): string
     {
         $phaseName = $phaseKey;
         // Check for name in higher priority array
