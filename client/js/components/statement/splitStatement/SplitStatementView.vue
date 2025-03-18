@@ -445,8 +445,10 @@ export default {
       }
 
       this.ignoreProsemirrorUpdates = true
-      // const { rangeTrackerKey, editingDecorationsKey } = this.prosemirror.keyAccess
-      // setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(this.editingSegment.id, false)
+
+      const { rangeTrackerKey, editingDecorationsKey } = this.prosemirror.keyAccess
+      setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(this.editingSegment.id, false)
+
       this.ignoreProsemirrorUpdates = false
       this.setProperty({ prop: 'editingSegment', val: null })
       this.setProperty({ prop: 'editModeActive', val: false })
@@ -467,14 +469,14 @@ export default {
       this.setProperty({ prop: 'editModeActive', val: true })
 
       this.ignoreProsemirrorUpdates = true
-      // setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(id, true)
-      // activateRangeEdit(
-      //   this.prosemirror.view,
-      //   rangeTrackerKey,
-      //   editStateTrackerKey,
-      //   id,
-      //   { active: this.editingSegment.charEnd, fixed: this.editingSegment.charStart }
-      // )
+      setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(id, true)
+      activateRangeEdit(
+        this.prosemirror.view,
+        rangeTrackerKey,
+        editStateTrackerKey,
+        id,
+        { active: this.editingSegment.charEnd, fixed: this.editingSegment.charStart }
+      )
       this.ignoreProsemirrorUpdates = false
     },
 
@@ -523,12 +525,14 @@ export default {
         this.fetchStatementSegmentDraftList(this.statementId)
           .then(({ data }) => {
             console.log('fetchStatementSegmentDraftList', data)
-            // if (data.data.attributes.segmentDraftList) {
-              this.fetchInitialData()
-            // } else {
-            //   this.setInitialData()
-            //   this.fetchTags()
-            // }
+            // If (data.data.attributes.segmentDraftList) {
+            this.fetchInitialData()
+            /*
+             * } else {
+             *   this.setInitialData()
+             *   this.fetchTags()
+             * }
+             */
 
             this.segmentationStatus = 'inUserSegmentation'
           })

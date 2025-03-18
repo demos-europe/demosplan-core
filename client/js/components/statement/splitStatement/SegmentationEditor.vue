@@ -20,7 +20,7 @@ import { EditorState } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { initRangePlugin } from '@DpJs/lib/prosemirror/plugins'
 import { schema } from 'prosemirror-schema-basic'
-import { setRange } from '@DpJs/lib/prosemirror/commands'
+import { setRange, setRange2 } from '@DpJs/lib/prosemirror/commands'
 import statementMock from '../mocks/segmentedStatement.json'
 import { v4 as uuid } from 'uuid'
 import segmentsMark from '../../../lib/prosemirror/segmentsMark'
@@ -83,35 +83,36 @@ export default {
         },
         segmentsMark: {
           attrs: {
-            'data-range-confirmed': { default: true },
-            'data-range': { default: null },
-            class: { default: null }
+            rangeId: { default: null },
+            isActive: { default: false },
+            isMoving: { default: false },
+            isConfirmed: { default: false },
+            pmId: { default: null }
           },
           parseDOM: [{
             tag: 'segments-mark',
             getAttrs (dom) {
               console.log('segments-mark - parse dom ', dom)
               return {
-                'data-range-confirmed': dom.getAttribute('data-range-confirmed'),
-                'data-range': dom.getAttribute('data-range'),
-                class: dom.getAttribute('class')
+                rangeId: dom.getAttribute('data-range'),
+                isActive: dom.getAttribute('data-range-active'),
+                isMoving: dom.getAttribute('data-range-moving'),
+                isConfirmed: dom.getAttribute('data-range-confirmed'),
+                pmId: dom.getAttribute('data-pm-id')
               }
             }
           }],
           toDOM (node) {
-            const { class: className } = node.attrs
-            console.log(node.attrs)
-            return [
-              'span',
-              {
-                ['data-range-confirmed']: 'true',
-                ['data-range']: node.attrs['data-range'] ,
-                class: className
-              },
-              0
-            ]
+            const { rangeId, isActive, isConfirmed, isMoving, pmId } = node.attrs
+            return ['span', {
+              'data-range': rangeId,
+              'data-range-active': isActive,
+              'data-range-moving': isMoving,
+              'data-range-confirmed': isConfirmed,
+              'data-pm-id': pmId
+            }, 0]
           }
-        },
+        }
       },
       maxRange: 0
     }
@@ -134,7 +135,6 @@ export default {
         marks: this.getExtendedMarks()
       })
       const wrapper = document.createElement('div')
-      // wrapper.innerHTML = statementMock.data.attributes.textualReference
       wrapper.innerHTML = this.initStatementText ?? ''
       const rangePlugin = initRangePlugin(proseSchema, this.rangeChangeCallback, this.editToggleCallback)
       const parsedContent = DOMParser.fromSchema(rangePlugin.schema).parse(wrapper, { preserveWhitespace: true })
@@ -149,10 +149,12 @@ export default {
         })
       })
 
-      // const transformedSegments = this.transformSegments(this.segments.filter(segment => segment.charEnd <= this.maxRange))
-      // transformedSegments.forEach(segment => {
-      //   setRange(view)(segment.from, segment.to, segment.attributes)
-      // })
+      /*
+       * Const transformedSegments = this.transformSegments(this.segments.filter(segment => segment.charEnd <= this.maxRange))
+       * transformedSegments.forEach(segment => {
+       *   setRange(view)(segment.from, segment.to, segment.attributes)
+       * })
+       */
 
       const getContent = (schema) => (state) => {
         const container = document.createElement('div')
@@ -176,22 +178,22 @@ export default {
 
       this.$emit('prosemirror-max-range', this.maxRange)
       this.$emit('prosemirror-initialized', prosemirrorStateWrapper)
-    },
-
-    transformSegments (segments) {
-      const segmentsCpy = JSON.parse(JSON.stringify(segments))
-      return segmentsCpy.map(segment => {
-        return {
-          attributes: {
-            rangeId: segment.id,
-            isConfirmed: segment.status === 'confirmed',
-            pmId: uuid()
-          },
-          from: segment.charStart,
-          to: segment.charEnd
-        }
-      })
     }
+
+    /*
+     *   TransformSegments (segments) {
+     *   const segmentsCpy = JSON.parse(JSON.stringify(segments))
+     *   return segmentsCpy.map(segment => {
+     *     return {
+     *       attributes: {
+     *         rangeId: segment.id,
+     *         isConfirmed: segment.status === 'confirmed',
+     *         pmId: uuid()
+     *       }
+     *     }
+     *   })
+     *   }
+     */
   },
 
   mounted () {

@@ -31,6 +31,7 @@ function flattenNode (node, descend = true) {
       return false
     }
   })
+  // Console.log('flattenNode - result:', result)
   return result
 }
 
@@ -140,7 +141,7 @@ const serializeRange = (range, state, schema) => {
  *
  */
 const splitsExistingRange = (from, to, doc) => {
-  const existingMarks = getMarks(flattenNode(doc), 'range', 'rangeId')
+  const existingMarks = getMarks(flattenNode(doc), 'segmentsMark', 'rangeId')
   const doesSplit = Object.values(existingMarks).filter((mark) => from > mark.from && to < mark.to)
   return doesSplit.length !== 0
 }

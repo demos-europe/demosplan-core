@@ -20,7 +20,7 @@ import {
 } from './utilities'
 import { genEditingDecorations, removeMarkByName, replaceMarkInRange, toggleRangeEdit } from './commands'
 import { Plugin, PluginKey } from 'prosemirror-state'
-import { rangeMark, rangeSelectionMark } from './marks'
+import { rangeSelectionMark } from './marks'
 import { Schema } from 'prosemirror-model'
 
 /**
@@ -256,7 +256,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
     key: rangeTrackerKey,
     state: {
       init (_, state) {
-        const ranges = getMarks(flattenNode(state.doc), 'range', 'rangeId')
+        const ranges = getMarks(flattenNode(state.doc), 'segmentsMark', 'rangeId')
 
         return ranges
       },
@@ -265,7 +265,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
           return pluginState
         }
 
-        const ranges = getMarks(flattenNode(newState.doc), 'range', 'rangeId')
+        const ranges = getMarks(flattenNode(newState.doc), 'segmentsMark', 'rangeId')
         const equal = ranges && pluginState && rangesEqual(pluginState, ranges)
         if (equal) {
           return pluginState
@@ -387,8 +387,20 @@ const rangeCreator = (pluginKey, rangeEditingKey) => {
  * @return {{schema, plugins: (prosemirror-plugin|*)[], keys: {rangeTrackerKey, editingDecorationsKey, rangeCreatorKey, editStateTrackerKey}}}
  */
 const initRangePlugin = (schema, rangeChangeCallback, editToggleCallback) => {
-  let marks = schema.spec.marks.addToStart('range', rangeMark)
-  marks = marks.addToStart('rangeselection', rangeSelectionMark)
+  let marks = schema.spec.marks
+
+  console.log('initRangePlugin - marks: ', marks)
+
+  /*
+   *If (!marks.get('segmentsMark')) {
+   *marks = marks.addToStart('segmentsMark', segmentsMark)
+   *}
+   */
+
+  if (!marks.get('rangeselection')) {
+    marks = marks.addToStart('rangeselection', rangeSelectionMark)
+  }
+
   const currentSchema = new Schema({
     nodes: schema.spec.nodes,
     marks
