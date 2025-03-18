@@ -175,14 +175,16 @@ const replaceMarkInRange = (state, from, to, markKey, markAttrs, tr = false) => 
 
   transaction = transaction.removeMark(from, to, markType)
 
-  console.log('replaceMarkInRange - state.config.schema.marks', state.config.schema.marks)
-  console.log('markKey: ', markKey)
-  console.log('markType: ', markType)
+  /*
+   *Console.log('replaceMarkInRange - state.config.schema.marks', state.config.schema.marks)
+   *console.log('markKey: ', markKey)
+   *console.log('markType: ', markType)
+   */
 
   const newMark = markType.create(newAttrs)
   transaction = transaction.addMark(from, to, newMark)
   const markCollection = getMarks(flattenNode(transaction.doc), markKey, 'pmId')
-  console.log('markCollection: ', markCollection)
+  // Console.log('markCollection: ', markCollection)
   const currentMarkCollection = markCollection[pmId]
 
   currentMarkCollection.marks.forEach(m => {
@@ -240,6 +242,7 @@ const makeDecoration = (id, pos, isActive = false) => {
  *
  */
 const genEditingDecorations = (state, from, to, id, activePosition = null) => {
+  console.log('from to', from, to)
   const start = Decoration.widget(from, makeDecoration(id, from, activePosition === from), { id })
   const end = Decoration.widget(to, makeDecoration(id, to, activePosition === to), { id })
 

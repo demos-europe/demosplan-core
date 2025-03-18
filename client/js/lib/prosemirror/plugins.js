@@ -53,7 +53,7 @@ import { Schema } from 'prosemirror-model'
  *
  */
 const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editToggleCallback) => {
-  console.log('')
+  console.log('pluginKey', pluginKey)
   return new Plugin({
     callbackPayload: null,
     callbackRunning: false,
@@ -70,6 +70,9 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
       apply (tr, pluginState, _, newState) {
         const meta = tr.getMeta(pluginKey)
         const move = editingTrackerKey.getState(newState)
+        console.log('pluginKey', pluginKey)
+
+        console.log('meta: ', meta)
 
         if (meta && meta.editing) {
           /**
@@ -106,9 +109,14 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
             activeDecorationPosition: null
           }
         } else if (move.moving) {
-          const { fixed } = move.positions
+          const { fixed, active } = move.positions
+          console.log('fixed: ', fixed)
           const selection = tr.selection
+          console.log('selection: ', selection)
+          console.log('move: ', move)
+
           const newDecorationPosition = selection.$head.pos
+          console.log('newDecorationPosition: ', newDecorationPosition)
 
           const { from, to } = getMinMax(fixed, newDecorationPosition)
 
