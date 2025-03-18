@@ -538,6 +538,12 @@ export default {
       const isInitialWithQuery = true
 
       this.requestFilterOptions(isInitialWithQuery)
+
+      if (this.itemsSelected) {
+        const selectedIds = this.itemsSelected.map(item => item.id)
+        this.appliedQuery = selectedIds
+        this.currentQuery = selectedIds
+      }
     }
   }
 }
