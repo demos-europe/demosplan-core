@@ -50,6 +50,7 @@ final class CustomerFactory extends PersistentProxyObjectFactory
     {
         return $this;
     }
+
     public static function class(): string
     {
         return Customer::class;
@@ -71,6 +72,5 @@ final class CustomerFactory extends PersistentProxyObjectFactory
             'termsOfUse'                          => self::faker()->text(65535),
             'xplanning'                           => self::faker()->text(65535),
         ];
-
     }
 }

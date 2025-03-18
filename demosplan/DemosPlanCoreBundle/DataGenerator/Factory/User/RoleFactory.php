@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -26,12 +34,9 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static Role[]|Proxy[]                          findBy(array $attributes)
  * @method static Role[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
  * @method static Role[]|Proxy[]                          randomSet(int $number, array $attributes = [])
- *
  */
 final class RoleFactory extends PersistentProxyObjectFactory
 {
-
-
     public static function class(): string
     {
         return Role::class;
@@ -45,7 +50,7 @@ final class RoleFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'code' => self::faker()->text(6),
+            'code'      => self::faker()->text(6),
             'groupCode' => self::faker()->text(6),
             'groupName' => self::faker()->text(60),
         ];

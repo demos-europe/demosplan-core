@@ -1,8 +1,16 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Tests\Core\JsonApi\Functional;
-
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\ElementsFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
@@ -16,7 +24,6 @@ use Tests\Base\JsonApiTest;
 
 class ElementResourceTypeTest extends JsonApiTest
 {
-
     private \demosplan\DemosPlanCoreBundle\Entity\User\User|\Zenstruck\Foundry\Persistence\Proxy $user;
     private Role|\Zenstruck\Foundry\Persistence\Proxy $role;
     private $customer;
@@ -25,20 +32,21 @@ class ElementResourceTypeTest extends JsonApiTest
     {
     }
 
-
     public function testCreateReportOnUpdate(): void
     {
         $this->setUpHttpClient();
         $this->user = UserFactory::createOne();
         $this->customer = CustomerFactory::createOne();
         $this->role = RoleFactory::createOne([
-            'name' => Role::PLANNING_AGENCY_ADMIN,
-            'code' => Role::PLANNING_AGENCY_ADMIN,
+            'name'      => Role::PLANNING_AGENCY_ADMIN,
+            'code'      => Role::PLANNING_AGENCY_ADMIN,
             'groupCode' => Role::GLAUTH,
             'groupName' => Role::GLAUTH,
-            ]);
-        $this->user->setDplanroles([$this->role->_real()]);     $this->user->_save();
-        $this->user->setCurrentCustomer($this->customer->_real());     $this->user->_save();
+        ]);
+        $this->user->setDplanroles([$this->role->_real()]);
+        $this->user->_save();
+        $this->user->setCurrentCustomer($this->customer->_real());
+        $this->user->_save();
         $this->tokenStorage = $this->getContainer()->get('security.token_storage');
         $this->logIn($this->user->_real());
 
