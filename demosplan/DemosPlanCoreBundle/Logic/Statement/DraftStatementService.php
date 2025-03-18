@@ -731,7 +731,7 @@ class DraftStatementService extends CoreService
     public function addDraftStatement($data)
     {
         // validate visibility of related paragraph in case of related paragraph is set
-        if (array_key_exists('paragraphId', $data) && !is_null($data['paragraphId'])) {
+        if (array_key_exists('paragraphId', $data) && !is_null($data['paragraphId']) && '' !== $data['paragraphId']) {
             $paragraph = $this->paragraphService->getParaDocumentObject($data['paragraphId']);
             if (!is_null($paragraph) && 1 != $paragraph->getVisible()) {
                 $this->getLogger()->error('On addDraftStatement(): selected paragraph '.$paragraph->getId().' is not released!');
