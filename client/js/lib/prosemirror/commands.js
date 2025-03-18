@@ -87,7 +87,7 @@ const replaceRange = (state, from, to, rangeAttrs, tr = false) => {
  *
  */
 const removeRange = (state, from, to, tr = false) => {
-  const rangeMarkType = state.config.schema.marks.range
+  const rangeMarkType = state.config.schema.marks.segmentsMark
   let transaction = tr || state.tr
 
   transaction = transaction.removeMark(from, to, rangeMarkType)
@@ -153,6 +153,7 @@ const setRangeEditingState = (view, rangeTrackerKey, editingDecorationsKey) => (
 const replaceMarkInRange = (state, from, to, markKey, markAttrs, tr = false) => {
   const pmId = uuidv4()
   const newAttrs = { ...markAttrs, pmId }
+  // Console.log('markKey', markKey)
   const markType = state.config.schema.marks[markKey]
   let transaction = tr || state.tr
 
@@ -274,6 +275,8 @@ const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, rangeId, 
   const range = rangeTrackerKey.getState(state)[rangeId]
   console.log('activateRangeEdit - range: ', range)
   tr = tr.setMeta(editStateTrackerKey, { id: rangeId, pos: positions.active, moving: true, positions: { active: range.to, fixed: range.from } })
+
+  //  Tr = tr.setMeta(editStateTrackerKey, { id: rangeId, pos: positions.active, moving: true, positions })
   dispatch(tr)
 
   /**

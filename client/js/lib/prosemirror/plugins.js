@@ -118,7 +118,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
           console.log('fixed: ', fixed)
           const selection = tr.selection
           console.log('selection: ', selection)
-          console.log('move: ', move)
+          console.log('newState.selection.$head.pos: ', newState.selection.$head.pos)
 
           const newDecorationPosition = selection.$head.pos
           console.log('newDecorationPosition: ', newDecorationPosition)

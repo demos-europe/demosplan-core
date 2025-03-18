@@ -140,7 +140,9 @@ const serializeRange = (range, state, schema) => {
  *
  */
 const splitsExistingRange = (from, to, doc) => {
+  console.log('splitsExistingRange - from to', from, to)
   const existingMarks = getMarks(flattenNode(doc), 'segmentsMark', 'rangeId')
+  // Console.log('splitsExistingRange - existingMarks', existingMarks)
   const doesSplit = Object.values(existingMarks).filter((mark) => from > mark.from && to < mark.to)
   return doesSplit.length !== 0
 }
