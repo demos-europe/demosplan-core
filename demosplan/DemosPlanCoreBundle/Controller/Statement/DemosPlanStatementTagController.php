@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
@@ -112,12 +113,14 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     #[Route(name: 'DemosPlan_statement_administration_tags', path: '/verfahren/{procedure}/schlagworte', defaults: ['master' => false], options: ['expose' => true])]
     public function tagListAction(
         TranslatorInterface $translator,
+        CurrentProcedureService $currentProcedureService,
         string $procedure,
     ): Response {
         $templateVars = [];
 
         $templateVars['procedure'] = $procedure;
         $title = $translator->trans('tag.administration');
+        $templateVars['procedureTemplate'] = $currentProcedureService->getProcedure()?->getMaster() ?? false;
 
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanStatement/list_tags.html.twig',

@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "v2.26.0",
+  "version": "v2.27.0",
   "scripts": {
     "dev:blp": "cross-env ./fe build blp",
     "dev:bimschgsh": "cross-env ./fe build bimschgsh",
