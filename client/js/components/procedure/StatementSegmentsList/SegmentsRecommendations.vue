@@ -296,7 +296,6 @@ export default {
 
   mounted () {
     if (Object.keys(this.segments).length === 0) {
-
       this.fetchSegments()
     }
   }
