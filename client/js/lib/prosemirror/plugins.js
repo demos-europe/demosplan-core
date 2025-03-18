@@ -70,8 +70,9 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
       apply (tr, pluginState, _, newState) {
         const meta = tr.getMeta(pluginKey)
         const move = editingTrackerKey.getState(newState)
-        console.log('pluginKey', pluginKey)
 
+        console.log('editingTrackerKey', editingTrackerKey)
+        console.log('pluginKey', pluginKey)
         console.log('meta: ', meta)
 
         if (meta && meta.editing) {
