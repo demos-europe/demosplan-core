@@ -548,14 +548,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('AssignableUser', {
-      fetchAssignableUsers: 'list'
-    }),
-
-    ...mapActions('Place', {
-      fetchPlaces: 'list'
-    }),
-
     ...mapActions('SegmentSlidebar', [
       'toggleSlidebarContent'
     ]),
@@ -916,42 +908,8 @@ export default {
   },
 
   mounted () {
-    if (!this.$store.state.Place.loading && this.places.length === 0) {
-      this.fetchPlaces({
-        fields: {
-          Place: [
-            'description',
-            'name',
-            'solved',
-            'sortIndex'
-          ].join()
-        },
-        sort: 'sortIndex'
-      })
-        .then(() => {
-          this.setSelectedPlace()
-        })
-    } else {
-      this.setSelectedPlace()
-    }
-
-    if (!this.$store.state.AssignableUser.loading && this.assignableUsers.length === 0) {
-      this.fetchAssignableUsers({
-        fields: {
-          AssignableUser: [
-            'firstname',
-            'lastname'
-          ].join()
-        },
-        include: 'department',
-        sort: 'lastname'
-      })
-        .then(() => {
-          this.setSelectedAssignee()
-        })
-    } else {
-      this.setSelectedAssignee()
-    }
+    this.setSelectedPlace()
+    this.setSelectedAssignee()
 
     loadAddonComponents('segment.recommendationModal.tab')
       .then(response => {
