@@ -10,22 +10,22 @@
 <dp-modal
   ref="labelModal"
   content-classes="w-14">
-    <h3>
-      {{ Translator.trans('format') }}
-    </h3>
-    <div class="flex space-inline-s">
-      <dp-select
-        v-model="selectedLabel"
-        classes="w-12"
-        name="labelSelect"
-        placeholder="-"
-        :options="labels" />
-      <button
-        @click="setLabel"
-        class="btn btn--primary">
-        {{ Translator.trans('accept') }}
-      </button>
-    </div>
+  <h3>
+    {{ Translator.trans('format') }}
+  </h3>
+  <div class="flex space-inline-s">
+    <dp-select
+      v-model="selectedLabel"
+      classes="w-12"
+      name="labelSelect"
+      placeholder="-"
+      :options="labels" />
+    <button
+      @click="setLabel"
+      class="btn btn--primary">
+      {{ Translator.trans('accept') }}
+    </button>
+  </div>
 </dp-modal>
 
 <script>
