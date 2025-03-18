@@ -70,8 +70,11 @@
         @click="toggleClaimSegment" />
     </div>
     <div
-      class="segment-list-col--l overflow-word-break c-styled-html"
-      v-cleanhtml="visibleSegmentText" />
+      class="segment-list-col--l overflow-word-break c-styled-html">
+      <text-content-renderer
+        class="segment-list-col--l overflow-word-break c-styled-html"
+        :text="visibleSegmentText" />
+    </div>
     <div class="segment-list-col--s">
       <button
         v-if="!isFullscreen"
@@ -383,6 +386,7 @@ import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
 export default {
   name: 'StatementSegment',
@@ -407,6 +411,7 @@ export default {
     DpTab,
     DpTabs,
     ImageModal,
+    TextContentRenderer,
     VPopover
   },
 
