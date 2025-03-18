@@ -49,8 +49,7 @@
             @toggleEditing="() => addToEditing(segment.id)"
             @save="() => saveSegment(segment.id)">
             <template v-slot:display>
-              <text-content-renderer
-                :text="segment.attributes.text" />
+              <text-content-renderer :text="segment.attributes.text" />
             </template>
             <template v-slot:edit>
               <dp-editor

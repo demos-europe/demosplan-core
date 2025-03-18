@@ -40,22 +40,22 @@
             :value="key"
             :checked="active === key"
             @change="active = key" />
-          <dp-checkbox
-            v-if="active !== 'xlsx_normal'"
-            id="censoredCheckbox"
-            v-model="isCensored"
-            :label="{
-              text: Translator.trans('export.anonymous'),
-              hint: Translator.trans('export.anonymous.hint')
-            }" />
-          <dp-checkbox
-            v-if="active !== 'xlsx_normal'"
-            id="obscureCheckbox"
-            v-model="isObscure"
-            :label="{
-              text: Translator.trans('export.docx.obscured'),
-              hint: Translator.trans('export.docx.obscured.hint')
-            }" />
+          <template v-if="active !== 'xlsx_normal'">
+            <dp-checkbox
+              id="censored"
+              v-model="isCensored"
+              :label="{
+                text: Translator.trans('export.anonymous'),
+                hint: Translator.trans('export.anonymous.hint')
+              }" />
+            <dp-checkbox
+              id="obscure"
+              v-model="isObscure"
+              :label="{
+                text: Translator.trans('export.docx.obscured'),
+                hint: Translator.trans('export.docx.obscured.hint')
+              }" />
+          </template>
         </div>
       </fieldset>
 
@@ -274,8 +274,8 @@ export default {
         docxHeaders: ['docx_normal', 'zip_normal'].includes(this.active) ? columnTitles : null,
         fileNameTemplate: this.fileName || null,
         shouldConfirm,
-        censorParameter: this.isCensored,
-        obscureParameter: this.isObscure
+        isCensored: this.isCensored,
+        isObscured: this.isObscure
       })
       this.closeModal()
     },

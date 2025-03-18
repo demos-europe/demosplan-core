@@ -100,8 +100,8 @@ describe('StatementExportModal', () => {
       },
       fileNameTemplate: null,
       shouldConfirm: true,
-      censorParameter: false,
-      obscureParameter: false
+      isCensored: false,
+      isObscured: false
     })
   })
 
@@ -125,8 +125,8 @@ describe('StatementExportModal', () => {
       },
       fileNameTemplate: null,
       shouldConfirm: true,
-      censorParameter: false,
-      obscureParameter: false
+      isCensored: false,
+      isObscured: false
     })
   })
 
@@ -140,12 +140,12 @@ describe('StatementExportModal', () => {
       docxHeaders: null,
       fileNameTemplate: null,
       shouldConfirm: false,
-      censorParameter: false,
-      obscureParameter: false
+      isCensored: false,
+      isObscured: false
     })
   })
 
-  it('emits export event with censorParameter true for docx_censored export type', () => {
+  it('emits export event with isCensored true for docx_censored export type', () => {
     const emitSpy = jest.spyOn(wrapper.vm, '$emit')
     wrapper.setData({
       active: 'docx_normal',
@@ -170,12 +170,12 @@ describe('StatementExportModal', () => {
       },
       fileNameTemplate: null,
       shouldConfirm: true,
-      censorParameter: true,
-      obscureParameter: false
+      isCensored: true,
+      isObscured: false
     })
   })
 
-  it('emits export event with obscureParameter true for docx_obscured export type', () => {
+  it('emits export event with isObscured true for docx_obscured export type', () => {
     const emitSpy = jest.spyOn(wrapper.vm, '$emit')
     wrapper.setData({
       active: 'docx_normal',
@@ -200,8 +200,8 @@ describe('StatementExportModal', () => {
       },
       fileNameTemplate: null,
       shouldConfirm: true,
-      censorParameter: false,
-      obscureParameter: true
+      isCensored: false,
+      isObscured: true
     })
   })
 
