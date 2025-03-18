@@ -916,42 +916,45 @@ export default {
   },
 
   mounted () {
-    if (!this.$store.state.Place.loading && this.places.length === 0) {
-      this.fetchPlaces({
-        fields: {
-          Place: [
-            'description',
-            'name',
-            'solved',
-            'sortIndex'
-          ].join()
-        },
-        sort: 'sortIndex'
-      })
-        .then(() => {
-          this.setSelectedPlace()
-        })
-    } else {
-      this.setSelectedPlace()
-    }
+    console.log('mounted segment')
+    // This might be one already. When the segment has a related place it gets fetch with the segments request as relationship
+    // if (!this.$store.state.Place.loading && this.places.length < 2) {
+    //   this.fetchPlaces({
+    //     fields: {
+    //       Place: [
+    //         'description',
+    //         'name',
+    //         'solved',
+    //         'sortIndex'
+    //       ].join()
+    //     },
+    //     sort: 'sortIndex'
+    //   })
+    //     .then(() => {
+    //       this.setSelectedPlace()
+    //     })
+    // } else {
+    // }
+    this.setSelectedPlace()
 
-    if (!this.$store.state.AssignableUser.loading && this.assignableUsers.length === 0) {
-      this.fetchAssignableUsers({
-        fields: {
-          AssignableUser: [
-            'firstname',
-            'lastname'
-          ].join()
-        },
-        include: 'department',
-        sort: 'lastname'
-      })
-        .then(() => {
-          this.setSelectedAssignee()
-        })
-    } else {
-      this.setSelectedAssignee()
-    }
+    // This might be one already. When the segment has a related assignee it gets fetch with the segments request as relationship
+    // if (!this.$store.state.AssignableUser.loading && this.assignableUsers.length < 2) {
+    //   this.fetchAssignableUsers({
+    //     fields: {
+    //       AssignableUser: [
+    //         'firstname',
+    //         'lastname'
+    //       ].join()
+    //     },
+    //     include: 'department',
+    //     sort: 'lastname'
+    //   })
+    //     .then(() => {
+    //       this.setSelectedAssignee()
+    //     })
+    // } else {
+    // }
+    this.setSelectedAssignee()
 
     loadAddonComponents('segment.recommendationModal.tab')
       .then(response => {

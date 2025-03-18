@@ -111,8 +111,12 @@ export default {
   },
 
   methods: {
-    ...mapMutations('Statement', {
-      setStatement: 'setItem'
+    ...mapActions('AssignableUser', {
+      fetchAssignableUsers: 'list'
+    }),
+
+    ...mapActions('Place', {
+      fetchPlaces: 'list'
     }),
 
     ...mapActions('Statement', {
@@ -121,6 +125,10 @@ export default {
 
     ...mapActions('StatementSegment', {
       listSegments: 'list'
+    }),
+
+    ...mapMutations('Statement', {
+      setStatement: 'setItem'
     }),
 
     /**
@@ -188,9 +196,33 @@ export default {
         })
     },
 
-    fetchSegments () {
+    async fetchSegments () {
       this.isLoading = true
-      this.listSegments({
+
+      await this.fetchPlaces({
+        fields: {
+          Place: [
+            'description',
+            'name',
+            'solved',
+            'sortIndex'
+          ].join()
+        },
+        sort: 'sortIndex'
+      })
+
+      await this.fetchAssignableUsers({
+        fields: {
+          AssignableUser: [
+            'firstname',
+            'lastname'
+          ].join()
+        },
+        include: 'department',
+        sort: 'lastname'
+      })
+
+      await this.listSegments({
         include: [
           'assignee',
           'comments',
@@ -235,20 +267,19 @@ export default {
           }
         }
       })
-        .then(() => {
-          this.isLoading = false
-          this.$nextTick(() => {
-            const queryParams = new URLSearchParams(window.location.search)
-            const segmentId = queryParams.get('segment') || ''
-            if (segmentId) {
-              scrollTo('#segment_' + segmentId, { offset: -110 })
-              const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
-              if (segmentComponent) {
-                segmentComponent.isCollapsed = false
-              }
-            }
-          })
-        })
+
+      this.isLoading = false
+      this.$nextTick(() => {
+        const queryParams = new URLSearchParams(window.location.search)
+        const segmentId = queryParams.get('segment') || ''
+        if (segmentId) {
+          scrollTo('#segment_' + segmentId, { offset: -110 })
+          const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
+          if (segmentComponent) {
+            segmentComponent.isCollapsed = false
+          }
+        }
+      })
     },
 
     goToSplitStatementView () {
@@ -265,6 +296,7 @@ export default {
 
   mounted () {
     if (Object.keys(this.segments).length === 0) {
+
       this.fetchSegments()
     }
   }
