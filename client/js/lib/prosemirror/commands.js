@@ -73,7 +73,7 @@ const replaceRange = (state, from, to, rangeAttrs, tr = false) => {
     throw new Error('Ranges can not be split in two parts.')
   }
 
-  return replaceMarkInRange(state, from, to, 'range', rangeAttrs, tr)
+  return replaceMarkInRange(state, from, to, 'segmentsMark', rangeAttrs, tr)
 }
 
 /**
@@ -175,9 +175,14 @@ const replaceMarkInRange = (state, from, to, markKey, markAttrs, tr = false) => 
 
   transaction = transaction.removeMark(from, to, markType)
 
+  console.log('replaceMarkInRange - state.config.schema.marks', state.config.schema.marks)
+  console.log('markKey: ', markKey)
+  console.log('markType: ', markType)
+
   const newMark = markType.create(newAttrs)
   transaction = transaction.addMark(from, to, newMark)
   const markCollection = getMarks(flattenNode(transaction.doc), markKey, 'pmId')
+  console.log('markCollection: ', markCollection)
   const currentMarkCollection = markCollection[pmId]
 
   currentMarkCollection.marks.forEach(m => {
@@ -264,7 +269,8 @@ const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, rangeId, 
    */
   tr = tr.setSelection(TextSelection.near(state.doc.resolve(positions.active)))
   const range = rangeTrackerKey.getState(state)[rangeId]
-  tr = tr.setMeta(editStateTrackerKey, { id: rangeId, pos: positions.active, moving: true, positions })
+  console.log('activateRangeEdit - range: ', range)
+  tr = tr.setMeta(editStateTrackerKey, { id: rangeId, pos: positions.active, moving: true, positions: { active: range.to, fixed: range.from } })
   dispatch(tr)
 
   /**

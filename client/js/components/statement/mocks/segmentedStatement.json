@@ -1,0 +1,169 @@
+{
+  "data": {
+    "id": "a77e75aa-15f7-46e6-a6af-4d6f04f4a76c",
+    "type": "SegmentedStatement",
+    "attributes": {
+      "procedureId": "c5d80fe7-1fb7-4420-b4a8-50ff9835690c",
+      "statementId": "a77e75aa-15f7-46e6-a6af-4d6f04f4a76c",
+      "textualReference": "<dp-statement>\n  <p>\n    <segments-mark\n      id=\"46872475-3405-4a2f-acf4-2545102578\"\n      data-range=\"83610be8-b8e8-4b8a-b9eb-25ff656989e1\">\n      Die Nähe zum FFH-Gebiet und das dortige Vorkommen des Rotmilans als charakteristische Art gibt zu Bedenken Anlass, zumindest im nördlichen Erweiterungsteil. Die Rotmilan-Raumnutzung ist spätestens im Zulassungsverfahren genauer zu prüfen, auf bisheriger Datengrundlage kann eine Beeinträchtigung nicht ausgeschlossen werden, sie erscheint sogar wahrscheinlich.&nbsp;\n    </segments-mark>\n  </p>\n  <p>\n    <dp-loophole id=\"3a734d53-3405-4a2f-acf4-2545102500\">\n      Dies gilt z.T. auch für Fledermäuse und Gastvögel.\n    </dp-loophole>\n    <segments-mark\n      id=\"3a734d53-3405-4a2f-acf4-2545102578\"\n      data-range=\"3a734d53-3405-4a2f-acf4-14c0a179e387\">\n      Es ist bei einer Erweiterung des bestehenden Windparks Konfliktpotenzial vorhanden, so dass im Zulassungsverfahren Restriktionen zu befürchten sind.\n    </segments-mark>\n  </p>\n  <p>\n    <segments-mark\n      id=\"3a734d53-3405-4a2f-acf4-2545102549\"\n      data-range=\"3a734d53-3405-4a2f-acf4-14c0a179e387\"><!-- This is the same data-range as above, because the segments leaps over two p tags, but starts within one. -->\n      Insbesondere die Gefahren durch Eiswurf sind erheblich und bei der geplanten Anlagenhöhe völlig unkalkulierbar. Die Anwohner und ihre Kinder, die in unter 500 oder maximal 1.000 m Entfernung wohnen,\n    </segments-mark>\n    <dp-loophole id=\"3a734d53-3405-4a2f-acf4-3545102503\">\n      sind unter Umständen erheblich gefährdet\n    </dp-loophole>\n  </p>\n  <p>\n    <segments-mark\n      id=\"28347219-3405-4a2f-acf4-14c0a179e387\"\n      data-range=\"ddd54fce-ff22-4b9c-ba49-94b398bf43bd\">\n      Aber auch die Gefahren durch Anlagenbrände sind gerade durch die starken Größenzuwächse der Anlagen enorm gestiegen. Wie die letzten Nachrichten zeigen hat auch die Materialfestigkeit durch Produktion im Ausland ab- und die Gefährdung dadurch zugenommen. (Und nebenbei: wo bleibt die Umweltfreundlichkeit bei Transport solch riesiger Teile um die halbe Welt?)&nbsp;\n    </segments-mark>\n  </p>\n  <p>\n    <dp-loophole id=\"3a734d53-3405-4a2f-acf4-2545102501\">\n      Der Magnet unserer Region ist die Natur, wie wird sich unserer Region mit diesen monströsen Bauten entwickeln?\n    </dp-loophole>\n    <segments-mark\n      id=\"3a734d53-95624-4a2f-acf4-14c0a179e387\"\n      data-range=\"b8c92973-b535-4984-89d2-a3b46626975a\">\n      Durch den Windpark wird der Wert unserer Immobilie sich quasi über Nacht drastisch verschlechtern, vielleicht sogar nahezu gleich null sein. Wer fängt diesen Schaden auf?\n    </segments-mark>\n  </p>\n  <p>\n    <segments-mark\n      id=\"3a734d53-3405-4a2f-acf4-14c0a179e387\"\n      data-range=\"12435234-00111-4a2f-acf4-00004\">\n      Die allgemeinen Gefahren für die Anwohner aber auch für Spaziergänger, Wanderer,\n    </segments-mark>\n    <dp-loophole id=\"3a734d53-3405-4a2f-acf4-2545102502\">\n      Radfahrer und andere Erholungsuchende durch herabfallende Anlagenteile, die durch die Rotorblätter unkontrolliert\n      und mehrere 100 m weit geschleudert werden können, sind ebenfalls nicht unbeachtlich.&nbsp;\n    </dp-loophole>\n  </p>\n</dp-statement>",
+      "segments": [
+        {
+          "id": "83610be8-b8e8-4b8a-b9eb-25ff656989e1",
+          "tags": [],
+          "place": {
+            "id": "27d3107e-a47d-420c-974c-0f7af9d55762",
+            "name": "Erwiderung verfassen"
+          }
+        },{
+          "id": "3a734d53-3405-4a2f-acf4-14c0a179e387",
+          "tags": [],
+          "place": {
+            "id": "27d3107e-a47d-420c-974c-0f7af9d55762",
+            "name": "Erwiderung verfassen"
+          }
+        },{
+          "id": "ddd54fce-ff22-4b9c-ba49-94b398bf43bd",
+          "tags": [],
+          "place": {
+            "id": "27d3107e-a47d-420c-974c-0f7af9d55762",
+            "name": "Erwiderung verfassen"
+          }
+        },{
+          "id": "b8c92973-b535-4984-89d2-a3b46626975a",
+          "tags": [],
+          "place": {
+            "id": "27d3107e-a47d-420c-974c-0f7af9d55762",
+            "name": "Erwiderung verfassen"
+          }
+        }
+      ]
+    },
+    "relationships": {
+      "segments": {
+        "data": [
+          {
+            "id": "83610be8-b8e8-4b8a-b9eb-25ff656989e1",
+            "type": "Segment"
+          },
+          {
+            "id": "3a734d53-3405-4a2f-acf4-14c0a179e387",
+            "type": "Segment"
+          },
+          {
+            "id": "ddd54fce-ff22-4b9c-ba49-94b398bf43bd",
+            "type": "Segment"
+          },
+          {
+            "id": "b8c92973-b535-4984-89d2-a3b46626975a",
+            "type": "Segment"
+          }
+        ]
+      }
+    }
+  },
+  "included": [
+    [
+      {
+        "id": "3a734d53-3405-4a2f-acf4-14c0a179e387",
+        "type": "Segment",
+        "attributes": {
+          "status": "confirmed",
+          "text": "Die Nähe zum FFH-Gebiet und das dortige Vorkommen des Rotmilans als charakteristische Art gibt zu Bedenken Anlass, zumindest im nördlichen Erweiterungsteil. Die Rotmilan-Raumnutzung ist spätestens im Zulassungsverfahren genauer zu prüfen, auf bisheriger Datengrundlage kann eine Beeinträchtigung nicht ausgeschlossen werden, sie erscheint sogar wahrscheinlich.&nbsp;"
+        },
+        "relationships": {
+          "tags": {
+            "data": [
+              {
+                "tagName": "test - 1 schlagwort",
+                "id": "b09ef8d1-b77e-462c-95e3-e8d94cb43784"
+              },
+              {
+                "tagName": "3 bzw. 5 km Abstand zum Danewerk, weiches Tabu und Abwägung",
+                "id": "0ccc5c4b-99a1-4dc6-92ff-44845add0412"
+              },
+              {
+                "tagName": "Einzelne Kulturdenkmale Hochbau",
+                "id": "146e1b9a-eeb4-4e18-9468-59f1ecf98d16"
+              },
+              {
+                "tagName": "Sichtachsen auf Lübecker Altstadt",
+                "id": "16f9cc48-672a-4b98-ae6c-94cad3f084f4"
+              }
+            ],
+            "place": {
+              "data": {
+                "id": "27d3107e-a47d-420c-974c-0f7af9d55762",
+                "name": "Erwiderung verfassen"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "83610be8-b8e8-4b8a-b9eb-25ff656989e1",
+        "charStart": 415,
+        "charEnd": 764,
+        "tags": [
+          {
+            "tagName": "sinkende Lebensqualität",
+            "id": "58f9d222-107e-4105-a197-f041decbcc3e"
+          },
+          {
+            "tagName": "Abstände zur Bebauung zu gering",
+            "id": "b717fba7-49fa-47c6-b6fc-ba43fd3c04ea"
+          }
+        ],
+        "hasProsemirrorIndex": true,
+        "status": "confirmed",
+        "text": "<p>Es ist bei einer Erweiterung des bestehenden Windparks Konfliktpotenzial vorhanden, so dass im Zulassungsverfahren Restriktionen zu befürchten sind. </p><p>Insbesondere die Gefahren durch Eiswurf sind erheblich und bei der geplanten Anlagenhöhe völlig unkalkulierbar. Die Anwohner und ihre Kinder, die in unter 500 oder maximal 1.000 m Entfernung wohnen,</p>",
+        "placeId": "27d3107e-a47d-420c-974c-0f7af9d55762",
+        "place": {
+          "id": "27d3107e-a47d-420c-974c-0f7af9d55762",
+          "name": "Erwiderung verfassen"
+        }
+      },
+      {
+        "id": "ddd54fce-ff22-4b9c-ba49-94b398bf43bd",
+        "charStart": 808,
+        "charEnd": 1168,
+        "tags": [
+          {
+            "tagName": "Vorliegende Abbaugenehmigung für oberflächennahe Rohstoffe nicht berücksichtigt",
+            "id": "d87238b0-6122-4abe-9940-7f532357bb99"
+          },
+          {
+            "tagName": "Vorranggebiete Rohstoffsicherung und Abbau oberflächennaher Rohstoffe",
+            "id": "fd218bba-e078-4a92-819f-5c55ec4e1933"
+          }
+        ],
+        "hasProsemirrorIndex": true,
+        "status": "confirmed",
+        "text": "Aber auch die Gefahren durch Anlagenbrände sind gerade durch die starken Größenzuwächse der Anlagen enorm gestiegen. Wie die letzten Nachrichten zeigen hat auch die Materialfestigkeit durch Produktion im Ausland ab- und die Gefährdung dadurch zugenommen. (Und nebenbei: wo bleibt die Umweltfreundlichkeit bei Transport solch riesiger Teile um die halbe Welt?)&nbsp;",
+        "placeId": "27d3107e-a47d-420c-974c-0f7af9d55762",
+        "place": {
+          "id": "27d3107e-a47d-420c-974c-0f7af9d55762",
+          "name": "Erwiderung verfassen"
+        }
+      },
+      {
+        "id": "b8c92973-b535-4984-89d2-a3b46626975a",
+        "charStart": 1281,
+        "charEnd": 1534,
+        "tags": [
+          {
+            "tagName": "bestehende und sichergestellte Naturschutzgebiete",
+            "id": "0b24b8af-5f6f-4ef0-9b3a-24bd63565cc5"
+          }
+        ],
+        "hasProsemirrorIndex": true,
+        "status": "confirmed",
+        "text": "<p>Durch den Windpark wird der Wert unserer Immobilie sich quasi über Nacht drastisch verschlechtern, vielleicht sogar nahezu gleich null sein. Wer fängt diesen Schaden auf? </p><p>Die allgemeinen Gefahren für die Anwohner aber auch für Spaziergänger, Wanderer,</p>",
+        "placeId": "27d3107e-a47d-420c-974c-0f7af9d55762",
+        "place": {
+          "id": "27d3107e-a47d-420c-974c-0f7af9d55762",
+          "name": "Erwiderung verfassen"
+        }
+      }
+    ]
+  ]
+}

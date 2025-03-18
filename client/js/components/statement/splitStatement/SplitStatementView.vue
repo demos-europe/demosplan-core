@@ -521,13 +521,14 @@ export default {
       if (!addonsLoaded.includes('SplitStatementPreprocessor')) {
         this.fetchStatementSegmentDraftList(this.statementId)
           .then(({ data }) => {
-            if (data.data.attributes.segmentDraftList) {
-              this.fetchInitialData()
-            } else {
-              this.setInitialData()
-              this.fetchTags()
-            }
-
+            // If (data.data.attributes.segmentDraftList) {
+            this.fetchInitialData()
+            /*
+             * } else {
+             * this.setInitialData()
+             * this.fetchTags()
+             * }
+             */
             this.segmentationStatus = 'inUserSegmentation'
           })
       }
