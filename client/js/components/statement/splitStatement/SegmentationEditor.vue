@@ -21,7 +21,9 @@ import { EditorView } from 'prosemirror-view'
 import { initRangePlugin } from '@DpJs/lib/prosemirror/plugins'
 import { schema } from 'prosemirror-schema-basic'
 import { setRange } from '@DpJs/lib/prosemirror/commands'
+import statementMock from '../mocks/segmentedStatement.json'
 import { v4 as uuid } from 'uuid'
+import segmentsMark from '../../../lib/prosemirror/segmentsMark'
 
 export default {
   name: 'SegmentationEditor',
@@ -78,7 +80,38 @@ export default {
             const { href, class: className } = node.attrs
             return ['a', { href, class: className }, 0]
           }
-        }
+        },
+        segmentsMark: {
+          attrs: {
+            'data-range-confirmed': { default: true },
+            'data-range': { default: null },
+            class: { default: null }
+          },
+          parseDOM: [{
+            tag: 'segments-mark',
+            getAttrs (dom) {
+              console.log('segments-mark - parse dom ', dom)
+              return {
+                'data-range-confirmed': dom.getAttribute('data-range-confirmed'),
+                'data-range': dom.getAttribute('data-range'),
+                class: dom.getAttribute('class')
+              }
+            }
+          }],
+          toDOM (node) {
+            const { class: className } = node.attrs
+            console.log(node.attrs)
+            return [
+              'span',
+              {
+                ['data-range-confirmed']: 'true',
+                ['data-range']: node.attrs['data-range'] ,
+                class: className
+              },
+              0
+            ]
+          }
+        },
       },
       maxRange: 0
     }
@@ -101,6 +134,7 @@ export default {
         marks: this.getExtendedMarks()
       })
       const wrapper = document.createElement('div')
+      // wrapper.innerHTML = statementMock.data.attributes.textualReference
       wrapper.innerHTML = this.initStatementText ?? ''
       const rangePlugin = initRangePlugin(proseSchema, this.rangeChangeCallback, this.editToggleCallback)
       const parsedContent = DOMParser.fromSchema(rangePlugin.schema).parse(wrapper, { preserveWhitespace: true })
@@ -115,14 +149,18 @@ export default {
         })
       })
 
-      const transformedSegments = this.transformSegments(this.segments.filter(segment => segment.charEnd <= this.maxRange))
-      transformedSegments.forEach(segment => setRange(view)(segment.from, segment.to, segment.attributes))
+      // const transformedSegments = this.transformSegments(this.segments.filter(segment => segment.charEnd <= this.maxRange))
+      // transformedSegments.forEach(segment => {
+      //   setRange(view)(segment.from, segment.to, segment.attributes)
+      // })
 
       const getContent = (schema) => (state) => {
         const container = document.createElement('div')
         const serialized = DOMSerializer.fromSchema(schema).serializeFragment(state.doc.content, { document: window.document }, container)
         return serialized.innerHTML
       }
+
+      console.log(view)
 
       let prosemirrorStateWrapper = {
         view,
