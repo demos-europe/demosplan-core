@@ -3504,7 +3504,7 @@ Email:',
         $updateData = [
             'ident'    => $this->getTestProcedure()->getId(),
             'settings' => [
-                'planPDF' => 'Planzeichnung-3.pdf:1c24db03-b767-11e9-bc17-782bcb0d78b1:228978:application/pdf',
+                'planPDF'     => 'Planzeichnung-3.pdf:1c24db03-b767-11e9-bc17-782bcb0d78b1:228978:application/pdf',
                 'planDrawPDF' => 'Legende.pdf:d5825229fb35467ea138bc552e7df9d1',
             ],
         ];
@@ -3512,7 +3512,6 @@ Email:',
         $procedureArray = $this->sut->updateProcedure($updateData);
         /** @var Procedure $procedure */
         $procedure = $this->find(Procedure::class, $procedureArray['id']);
-
 
         $relatedReports = $this->getEntries(ReportEntry::class,
             [
@@ -3531,7 +3530,6 @@ Email:',
         $this->assertParagraphReportEntryMessageKeys($messageArray);
         $this->assertParagraphReportEntryMessageValues($procedure, $oldPlanPDF, $oldPlanDrawPDF, $messageArray);
     }
-
 
     /**
      * @throws Exception
@@ -3544,7 +3542,7 @@ Email:',
         $updateData = [
             'ident'    => $this->getTestProcedure()->getId(),
             'settings' => [
-                'planPDF' => 'Planzeichnung-3.pdf:1c24db03-b767-11e9-bc17-782bcb0d78b1:228978:application/pdf',
+                'planPDF'     => 'Planzeichnung-3.pdf:1c24db03-b767-11e9-bc17-782bcb0d78b1:228978:application/pdf',
                 'planDrawPDF' => 'Legende.pdf:d5825229fb35467ea138bc552e7df9d1',
             ],
         ];
@@ -3552,7 +3550,6 @@ Email:',
         $procedureArray = $this->sut->updateProcedure($updateData);
         /** @var Procedure $procedure */
         $procedure = $this->find(Procedure::class, $procedureArray['id']);
-
 
         $relatedReports = $this->getEntries(ReportEntry::class,
             [
@@ -3571,7 +3568,6 @@ Email:',
         $this->assertParagraphReportEntryMessageKeys($messageArray);
         $this->assertParagraphReportEntryMessageValues($procedure, $oldPlanPDF, $oldPlanDrawPDF, $messageArray);
     }
-
 
     private function assertParagraphReportEntryMessageKeys(array $messageArray): void
     {
@@ -3587,13 +3583,11 @@ Email:',
         Procedure $procedure,
         string $oldPlanPDF,
         string $oldPlanDrawPDF,
-        array $messageArray
+        array $messageArray,
     ): void {
         static::assertEquals($procedure->getSettings()->getPlanPDF(), $messageArray['planDrawFile']['new']);
         static::assertEquals($oldPlanPDF, $messageArray['planDrawFile']['old']);
         static::assertEquals($procedure->getSettings()->getPlanDrawPDF(), $messageArray['planDrawingExplanation']['new']);
         static::assertEquals($oldPlanDrawPDF, $messageArray['planDrawingExplanation']['old']);
     }
-
-
 }
