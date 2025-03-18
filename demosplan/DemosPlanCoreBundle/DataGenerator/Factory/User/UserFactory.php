@@ -35,22 +35,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static User[]|Proxy[]                          findBy(array $attributes)
  * @method static User[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
  * @method static User[]|Proxy[]                          randomSet(int $number, array $attributes = [])
- *
- * @phpstan-method        User&Proxy<User> create(array|callable $attributes = [])
- * @phpstan-method static User&Proxy<User> createOne(array $attributes = [])
- * @phpstan-method static User&Proxy<User> find(object|array|mixed $criteria)
- * @phpstan-method static User&Proxy<User> findOrCreate(array $attributes)
- * @phpstan-method static User&Proxy<User> first(string $sortedField = 'id')
- * @phpstan-method static User&Proxy<User> last(string $sortedField = 'id')
- * @phpstan-method static User&Proxy<User> random(array $attributes = [])
- * @phpstan-method static User&Proxy<User> randomOrCreate(array $attributes = [])
- * @phpstan-method static ProxyRepositoryDecorator<User, EntityRepository> repository()
- * @phpstan-method static list<User&Proxy<User>> all()
- * @phpstan-method static list<User&Proxy<User>> createMany(int $number, array|callable $attributes = [])
- * @phpstan-method static list<User&Proxy<User>> createSequence(iterable|callable $sequence)
- * @phpstan-method static list<User&Proxy<User>> findBy(array $attributes)
- * @phpstan-method static list<User&Proxy<User>> randomRange(int $min, int $max, array $attributes = [])
- * @phpstan-method static list<User&Proxy<User>> randomSet(int $number, array $attributes = [])
  */
 final class UserFactory extends PersistentProxyObjectFactory
 {
@@ -64,6 +48,7 @@ final class UserFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
+        $email = self::faker()->email();
         return [
             'authCodeEmailEnabled'       => self::faker()->boolean(),
             'createdDate'                => self::faker()->dateTime(),
@@ -71,6 +56,11 @@ final class UserFactory extends PersistentProxyObjectFactory
             'modifiedDate'               => self::faker()->dateTime(),
             'providedByIdentityProvider' => self::faker()->boolean(),
             'totpEnabled'                => self::faker()->boolean(),
+            'firstname'                  => self::faker()->firstName(),
+            'lastname'                   => self::faker()->lastName(),
+            'email'                      => $email,
+            'password'                   => self::faker()->password(),
+            'login'                      => $email,
         ];
     }
 
