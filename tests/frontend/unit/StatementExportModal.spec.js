@@ -71,20 +71,20 @@ describe('StatementExportModal', () => {
 
   it('renders checkboxes for isCensored and isObscure when export type is not xlsx', async () => {
     await wrapper.setData({ active: 'docx_normal' })
-    const censoredCheckbox = wrapper.find('#censoredCheckbox')
-    const obscureCheckbox = wrapper.find('#obscureCheckbox')
+    const censored = wrapper.find('#censored')
+    const obscured = wrapper.find('#obscured')
 
-    expect(censoredCheckbox.exists()).toBe(true)
-    expect(obscureCheckbox.exists()).toBe(true)
+    expect(censored.exists()).toBe(true)
+    expect(obscured.exists()).toBe(true)
   })
 
   it('does not render checkboxes for isCensored and isObscure when export type is xlsx', async () => {
     await wrapper.setData({ active: 'xlsx_normal' })
-    const censoredCheckbox = wrapper.find('#censoredCheckbox')
-    const obscureCheckbox = wrapper.find('#obscureCheckbox')
+    const censored = wrapper.find('#censored')
+    const obscured = wrapper.find('#obscured')
 
-    expect(censoredCheckbox.exists()).toBe(false)
-    expect(obscureCheckbox.exists()).toBe(false)
+    expect(censored.exists()).toBe(false)
+    expect(obscured.exists()).toBe(false)
   })
 
   it('emits export event with initial column titles when no changes are made', () => {

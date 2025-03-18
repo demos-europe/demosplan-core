@@ -49,7 +49,7 @@
                 hint: Translator.trans('export.anonymous.hint')
               }" />
             <dp-checkbox
-              id="obscure"
+              id="obscured"
               v-model="isObscure"
               :label="{
                 text: Translator.trans('export.docx.obscured'),
