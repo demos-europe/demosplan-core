@@ -167,7 +167,7 @@ export default {
       editingSegmentIds: [],
       hoveredSegment: null,
       isLoading: false,
-      transformedText: ''
+      obscuredText: ''
     }
   },
 
@@ -300,7 +300,7 @@ export default {
 
     saveSegment (segmentId) {
       // Use the transformed text if available
-      const textToSave = this.transformedText || this.segments[segmentId].attributes.text
+      const textToSave = this.obscuredText || this.segments[segmentId].attributes.text
 
       // Update the segment text with the transformed text
       this.updateSegmentText(segmentId, textToSave)
@@ -376,29 +376,34 @@ export default {
     },
 
     updateSegmentText (segmentId, val) {
-      let fullText = val
-      if (this.transformedText && this.transformedText !== fullText) {
-        fullText = this.transformedText
+      const fullText = this.transformedText && this.transformedText !== val ? this.transformedText : val
+      const updated = {
+        ...this.segments[segmentId],
+        attributes: {
+          ...this.segments[segmentId].attributes,
+          text: fullText
+        }
       }
-      const updated = { ...this.segments[segmentId], ...{ attributes: { ...this.segments[segmentId].attributes, ...{ text: fullText } } } }
-
       this.setSegment({ ...updated, id: segmentId })
     },
 
     updateStatementText (val) {
-      let fullText = val
-      if (this.transformedText && this.transformedText !== fullText) {
-        fullText = this.transformedText
-      }
+      const fullText = this.transformedText && this.transformedText !== val ? this.transformedText : val
 
       this.$emit('statement-text-updated')
 
-      const updated = { ...this.statement, ...{ attributes: { ...this.statement.attributes, ...{ fullText } } } }
+      const updated = {
+        ...this.statement,
+        attributes: {
+          ...this.statement.attributes,
+          fullText
+        }
+      }
       this.setStatement({ ...updated, id: this.statement.id })
     },
 
     transformObscureTag (val) {
-      this.transformedText = val
+      this.obscuredText = val
     }
   },
 
