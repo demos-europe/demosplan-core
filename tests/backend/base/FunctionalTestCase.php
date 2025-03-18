@@ -517,8 +517,8 @@ class FunctionalTestCase extends WebTestCase
     /**
      * @template T of object
      *
-     * @param class-string<T>        $classToMock
-     * @param MockMethodDefinition[] $definitions
+     * @param class-string<T>            $classToMock
+     * @param list<MockMethodDefinition> $definitions
      *
      * @return T
      */

@@ -40,6 +40,8 @@ export default {
     },
 
     fetchProcedureMapSettings ({ commit }, { procedureId, isMaster = false }) {
+      if (!hasPermission('area_admin_map')) return
+
       try {
         const resourceType = isMaster ? 'ProcedureTemplate' : 'Procedure'
         const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType })
@@ -94,7 +96,7 @@ export default {
             const procedureMapSettings = {
               attributes: {
                 availableScales: data.availableScales.map(scale => ({ label: `1:${scale.toLocaleString('de-DE')}`, value: scale })) ?? [],
-                coordinate: convertExtentToFlatArray(data.coordinate) ?? '',
+                coordinate: convertExtentToFlatArray(data.coordinate) ?? [],
                 copyright: data.copyright ?? '',
                 defaultBoundingBox,
                 defaultMapExtent,
@@ -107,11 +109,15 @@ export default {
                 territory: data.territory ?? {}
               },
               id: response.included[0].id,
-              type: 'ProcecdureMapSetting'
+              type: 'ProcedureMapSetting'
             }
 
             commit('setItem', { key: 'procedureMapSettings', value: procedureMapSettings })
+
             return procedureMapSettings
+          })
+          .catch(() => {
+            dplan.notify.error(Translator.trans('error.api.generic'))
           })
       } catch (e) {
         console.error(e)

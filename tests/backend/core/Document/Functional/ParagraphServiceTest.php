@@ -260,14 +260,14 @@ class ParagraphServiceTest extends FunctionalTestCase
         static::assertEquals($referenceDocument->getPId(), $result['pId']);
     }
 
-    public function testAdd()
+    public function testAdd(): void
     {
         $paragraph = [
             'pId'       => $this->fixtures->getReference('testProcedure')->getId(),
-            'elementId' => 'f9b1e7e3-7936-4edb-8b12-d6c42e1f349f',
+            'elementId' => $this->fixtures->getReference('testReasonElement')->getId(),
             'category'  => 'begruendung',
-            'title'     => '',
-            'text'      => '',
+            'title'     => ',my test title',
+            'text'      => 'my test text',
             'order'     => 0,
             'deleted'   => false,
             'visible'   => 1,

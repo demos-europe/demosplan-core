@@ -67,10 +67,8 @@
         </template>
         <template
           v-slot:expandedContent="{
-            authorName,
             fullText,
             id,
-            isSubmittedByCitizen,
             polygon,
             shortText,
             textIsTruncated
@@ -225,6 +223,7 @@
 
       <dp-inline-notification
         v-else
+        class="mt-3"
         :message="Translator.trans('statements.none')"
         type="info" />
     </template>
@@ -236,7 +235,6 @@ import {
   formatDate as _formatDate,
   CleanHtml,
   dpApi,
-  DpButton,
   DpDataTable,
   DpFlyout,
   DpInlineNotification,
@@ -251,7 +249,6 @@ export default {
   name: 'ListOriginalStatements',
 
   components: {
-    DpButton,
     DpDataTable,
     DpFlyout,
     DpInlineNotification,

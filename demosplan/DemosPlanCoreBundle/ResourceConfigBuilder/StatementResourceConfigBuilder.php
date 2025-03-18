@@ -47,6 +47,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $initialOrganisationCity @deprecated Should be moved into OrgaSubmitData resource type or something similar
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $initialOrganisationDepartmentName @deprecated Should be moved into OrgaSubmitData resource type or something similar
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $initialOrganisationName @deprecated Should be moved into OrgaSubmitData resource type or something similar
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $authorFeedback @deprecated Should be moved into OrgaSubmitData resource type or something similar
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $initialOrganisationPostalCode @deprecated Should be moved into OrgaSubmitData resource type or something similar
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $parentId @deprecated Statements in clusters should get a separate resource type where this relationship(!) can be moved into
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $procedureId @deprecated Use relationship instead
@@ -101,6 +102,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,StatementInterface,GenericStatementAttachmentResourceType> $genericAttachments
  * An Statement has only one source attachment, that is why the property is named singular even though it is a to-many relationship
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,StatementInterface,StatementAttachment> $sourceAttachment
+ * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Statement> $parentStatementOfSegment
  */
 class StatementResourceConfigBuilder extends BaseStatementResourceConfigBuilder
 {

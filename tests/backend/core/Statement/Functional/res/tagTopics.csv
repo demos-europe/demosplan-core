@@ -1,123 +1,124 @@
-"Grundtenor der Stellungnahme","Positiv, Zustimmung","ja","Die Stellungnahme wird zur Kenntnis genommen. [wenn eine Planänderung zu dem positiv bewerteten Planteil erfolgt, muss dies allerdings auftauchen]"
-"Grundtenor der Stellungnahme","Negativ, Ablehnung / Kritik","nein","[Tag dient nur der übergeordneten Filterung und Auswertung]"
-"Grundtenor der Stellungnahme","Datenkorrektur-Hinweis","ja","Der Hinweis wurde geprüft. Der Plan wird entsprechend angepasst.
+Topic;TagName;Boilerplate;
+"Grundtenor der Stellungnahme";"Positiv, Zustimmung";"ja";"Die Stellungnahme wird zur Kenntnis genommen. [wenn eine Planänderung zu dem positiv bewerteten Planteil erfolgt, muss dies allerdings auftauchen]"
+"Grundtenor der Stellungnahme";"Negativ, Ablehnung / Kritik";"nein";"[Tag dient nur der übergeordneten Filterung und Auswertung]"
+"Grundtenor der Stellungnahme";"Datenkorrektur-Hinweis";"ja";"Der Hinweis wurde geprüft. Der Plan wird entsprechend angepasst.
 ODER
 Der Hinweis wurde geprüft. Eine Änderung erfolgt jedoch aus folgendem Grund nicht: [individueller Text]"
-"Inhaltliche Intention der Stellungnahme","Neuer Flächenwunsch / Flächenerweiterung","nein","[Tag dient nur der übergeordneten Filterung und Auswertung]"
-"Inhaltliche Intention der Stellungnahme","Wunsch Flächen- (teil-) Streichung","nein","[Tag dient nur der übergeordneten Filterung und Auswertung]"
-"Inhaltliche Intention der Stellungnahme","Allgemeine Kritik ohne Flächenbezug","nein","[Tag dient nur der übergeordneten Filterung und Auswertung]"
-"Inhaltliche Intention der Stellungnahme","Allgemeine Kritik ohne Planungsbezug","ja","Dieser Aspekt ist nicht Gegenstand des laufenden Planverfahrens. Hierzu können im Plan keine Regelungen getroffen werden. Er kann daher nur zur Kenntnis genommen werden."
-"Wesentliche Grundannahmen der Planung","Raumbedeutsamkeit anders definieren","nein","[zu differenziertes Thema, weitere Aufschlüsselung nicht sinnvoll]"
-"Wesentliche Grundannahmen der Planung","Referenzanlage zu klein","ja","Für Schleswig-Holstein ist eine niedrigere Gesamthöhe der Durchschnittsanlage gerechtfertigt, da es sehr viele Standorte mit überdurchschnittlich guten Windverhältnissen gibt. Die Erfahrungen aus bisher genehmigten Anlagen legen den Schluss nahe, dass vielfach die Mehrkosten für einen höheren Turm nicht durch einen entsprechenden Mehrertrag der größeren Höhe kompensiert werden."
-"Wesentliche Grundannahmen der Planung","Höhenbegrenzungen","ja","[Forderung nach allg. Höhenbegrenzug]:
+"Inhaltliche Intention der Stellungnahme";"Neuer Flächenwunsch / Flächenerweiterung";"nein";"[Tag dient nur der übergeordneten Filterung und Auswertung]"
+"Inhaltliche Intention der Stellungnahme";"Wunsch Flächen- (teil-) Streichung";"nein";"[Tag dient nur der übergeordneten Filterung und Auswertung]"
+"Inhaltliche Intention der Stellungnahme";"Allgemeine Kritik ohne Flächenbezug";"nein";"[Tag dient nur der übergeordneten Filterung und Auswertung]"
+"Inhaltliche Intention der Stellungnahme";"Allgemeine Kritik ohne Planungsbezug";"ja";"Dieser Aspekt ist nicht Gegenstand des laufenden Planverfahrens. Hierzu können im Plan keine Regelungen getroffen werden. Er kann daher nur zur Kenntnis genommen werden."
+"Wesentliche Grundannahmen der Planung";"Raumbedeutsamkeit anders definieren";"nein";"[zu differenziertes Thema, weitere Aufschlüsselung nicht sinnvoll]"
+"Wesentliche Grundannahmen der Planung";"Referenzanlage zu klein";"ja";"Für Schleswig-Holstein ist eine niedrigere Gesamthöhe der Durchschnittsanlage gerechtfertigt, da es sehr viele Standorte mit überdurchschnittlich guten Windverhältnissen gibt. Die Erfahrungen aus bisher genehmigten Anlagen legen den Schluss nahe, dass vielfach die Mehrkosten für einen höheren Turm nicht durch einen entsprechenden Mehrertrag der größeren Höhe kompensiert werden."
+"Wesentliche Grundannahmen der Planung";"Höhenbegrenzungen";"ja";"[Forderung nach allg. Höhenbegrenzug]:
 Eine pauschale Höhenbegrenzung im geforderten Umfang ist nicht mit einer Vorranggebietsausweisung vereinbar. Sie stellt eine zu pauschale, nicht ausreichend begründete Einschränkung der gesetzlich privilegierten Windenergienutzung dar. Ob im Einzelfall Höhenbeschränkungen erforderlich sind ist auf der Ebene des Genehmigungsverfahrens zu klären.
 [Forderung nach Streichung jeglicher Höhenbegrenzung]:
 Höhenbegrenzungen, die sich in begründeten Einzelfällen auf Ebene der Regionalplanung bereits benennen lassen und die nicht zu unzulässigen Einschränkungen der Windenergienutzung führen, sind mit dem gesamträumlichen Plankonzept vereinbar. "
-"Wesentliche Grundannahmen der Planung","Mindest-Flächengröße zu hoch","ja","Dem gesamträumlichen Plankonzept liegt der Gedanke der Konzentrationsplanung zugrunde. [noch ergänzen]"
-"Wesentliche Grundannahmen der Planung","Mindest-Flächengröße zu niedrig","ja","[siehe Fußnote 1]"
-"Wesentliche Grundannahmen der Planung","Windhöffigkeit nicht ausreichend berücksichtigt","ja","[siehe Fußnote 1]"
-"Harte Tabuzonen","Innenbereich 250 m","ja","[siehe Fußnote 1]"
-"Harte Tabuzonen","Straßenrechtliche Anbauverbotszone","ja","[siehe Fußnote 1]"
-"Harte Tabuzonen","Binnenwasserstraßen","ja","[siehe Fußnote 1]"
-"Harte Tabuzonen","Militärische Liegenschaften","ja","[siehe Fußnote 1]"
-"Harte Tabuzonen","Schutzstreifen an Gewässern","ja","[siehe Fußnote 1]"
-"Harte Tabuzonen","Wasserschutzgebiete Zonen I und II","ja","[siehe Fußnote 1]"
-"Harte Tabuzonen","bestehende und sichergestellte Naturschutzgebiete","ja","[siehe Fußnote 1]"
-"Harte Tabuzonen","Nationalpark Wattenmeer","ja","[siehe Fußnote 1]"
-"Harte Tabuzonen","Gesetzlich geschützte Biotope","ja","[siehe Fußnote 1]"
-"Harte Tabuzonen","Waldflächen plus Abstand 30 m","ja","[siehe Fußnote 1]"
-"Mensch, menschliche Gesundheit","Abstände zur Bebauung zu gering","ja","In der Abwägung von Schutzansprüchen der Anwohner und energiepolitischen Zielsetzungen sind die gewählten Abstände angemessen. Bei der konkreten Anlagengenehmigung können z.B. aufgrund der erdrückenden Wirkung sehr hoher WEA im Einzelfall größere Abstände erforderlich werden. Dies ist im jeweiligen Genehmigungsverfahren zu klären."
-"Mensch, menschliche Gesundheit","hörbarer Lärm, Schattenwurf","ja","Im jeweiligen Genehmigungsverfahren für die einzelnen WEA wird die Einhaltung geltender Grenzwerte sichergestellt. [Ergänzung um Hinweis zu den laufenden Überprüfungen der Schallprognoseverfahren]"
-"Mensch, menschliche Gesundheit","Infraschall","ja","[Alter Textbaustein muss überarbeitet werden. Hierzu müssten aber schon verwertbare Texte (aus dem MELUR) vorliegen.]"
-"Mensch, menschliche Gesundheit","sinkende Lebensqualität","ja","Nach erneuter Prüfung sind keine Ausschlusskriterien erkennbar, die gegen eine Gebietsausweisung an dieser Stelle sprechen. Die von der Bundesregierung beschlossene Energiewende des Atomausstiegs und des Ausbaus dezentraler erneuerbarer Energieerzeugungsanlagen und der dazugehörigen Infrastruktur, die hiermit auf Landesebene umgesetzt wird, ist an einigen Stellen mit Veränderungen im Lebensumfeld verbunden. In der Abwägung mit den Risiken der Atomenergie sind diese jedoch hinnehmbar. Durch eine möglichst weitgehende Konzentration der WEA auf relativ dünn besiedelte, naturschutzfachlich vertretbare Standorte im Außenbereich werden diese Beeinträchtigungen gering gehalten."
-"Mensch, menschliche Gesundheit","Wertverlust Immobilien","ja","Jeder Eigentümer muss damit rechnen, dass sich um seine Immobilie herum planerische Entwicklungen vollziehen. Diese ergeben sich aus rechtmäßig zulässigen Planungen oder Einzelbaumaßnahmen. Es gibt keinen Anspruch auf Unveränderbarkeit der Umgebung, diese ist vielmehr im Rahmen rechtmäßiger Planungen hinzunehmen und dem Eigentum immanent (Sozialpflichtigkeit). Es werden aus regionalplanerischer Sicht ausreichende Abstände eingehalten, genauso wie im Einzelgenehmigungsverfahren die Abstände nach dem Bundesimmissionsschutzgesetz zu beachten sind. Damit ist dem Schutzanspruch rechtlich Genüge getan. Für Entschädigungsansprüche ist kein Raum."
-"Mensch, menschliche Gesundheit","Umfassung, Riegelbildung","nein","[individuelle Würdigung der jeweiligen Situation erforderlich]"
-"Mensch, menschliche Gesundheit","Schwerpunkträume und Kernbereiche Tourismus und Erholung","noch offen","[bei Bedarf nachpflegen]"
-"Infrastruktur","Hoheitliche Richtfunktrassen","nein","[kein Bedarf erkennbar, ggf. nachpflegen]"
-"Infrastruktur","5 km Schutzbereich DWD-Station Boostedt","noch offen","[hier entstehen Abhängigkeiten zwischen der Stellungnahme des DWD und anderen eingehenden Stellungnahmen. Textbaustein erst nach Vorliegen DWD-Stellungnahme sinnvoll]"
-"Infrastruktur","600 m Schutzbereich um VOR- / DVOR-Anlagen","nein","[kein Bedarf erkennbar, ggf. nachpflegen]"
-"Infrastruktur","600 m bis 15 km Schutzbereich um VOR- / DVOR-Anlagen","noch offen","[hier entstehen Abhängigkeiten zwischen der Stellungnahme des BAF / der DFS und anderen eingehenden Stellungnahmen. Textbaustein erst nach Vorliegen der BAF- / DFS-Stellungnahme sinnvoll]"
-"Infrastruktur","5-15 km Schutzbereich DWD-Station Boostedt, Höhenbeschränkung","noch offen","[hier entstehen Abhängigkeiten zwischen der Stellungnahme des DWD und anderen eingehenden Stellungnahmen. Textbaustein erst nach Vorliegen DWD-Stellungnahme sinnvoll]"
-"Infrastruktur","Bauverbot militärische Schutzbereiche und Interessengebiete","noch offen","[hier entstehen Abhängigkeiten zwischen der Stellungnahme der Bundeswehr und anderen eingehenden Stellungnahmen. Textbaustein eventuell nach Vorliegen Bundeswehr-Stellungnahme sinnvoll. Wahrscheinlicher ist das Erfordernis von Einzelfall-Klärungen mit der Bundeswehr]"
-"Infrastruktur","Sonstige militärische Belange","nein","[zu erwarten ist hier vor allem eine Stellungnahme der Bundeswehr und ggf. noch Einzelstellungnahmen]"
-"Infrastruktur","Abstand 100 m zu Hoch- und Höchstspannungsleitungen","nein","[kein Bedarf erkennbar, ggf. nachpflegen]"
-"Infrastruktur","100 m Abstand zu Landesschutz- und Regionaldeichen","nein","[kein Bedarf erkennbar, ggf. nachpflegen]"
-"Infrastruktur","Netzausbau vor Windkraftausbau","ja","[Textbaustein vom MELUR]"
-"Infrastruktur","Doppelbelastung Netzausbau und WKA","ja","Bei der Auswahl der Vorranggebiete wurden bestehende und zukünftig zu erwartende Raumbelastungen aus anderen Fachplanungen mit berücksichtigt. Die räumlichen Auswirkungen des Netzausbaus und der Windenergienutzung werden für diese Region noch als vertretbar angesehen.
+"Wesentliche Grundannahmen der Planung";"Mindest-Flächengröße zu hoch";"ja";"Dem gesamträumlichen Plankonzept liegt der Gedanke der Konzentrationsplanung zugrunde. [noch ergänzen]"
+"Wesentliche Grundannahmen der Planung";"Mindest-Flächengröße zu niedrig";"ja";"[siehe Fußnote 1]"
+"Wesentliche Grundannahmen der Planung";"Windhöffigkeit nicht ausreichend berücksichtigt";"ja";"[siehe Fußnote 1]"
+"Harte Tabuzonen";"Innenbereich 250 m";"ja";"[siehe Fußnote 1]"
+"Harte Tabuzonen";"Straßenrechtliche Anbauverbotszone";"ja";"[siehe Fußnote 1]"
+"Harte Tabuzonen";"Binnenwasserstraßen";"ja";"[siehe Fußnote 1]"
+"Harte Tabuzonen";"Militärische Liegenschaften";"ja";"[siehe Fußnote 1]"
+"Harte Tabuzonen";"Schutzstreifen an Gewässern";"ja";"[siehe Fußnote 1]"
+"Harte Tabuzonen";"Wasserschutzgebiete Zonen I und II";"ja";"[siehe Fußnote 1]"
+"Harte Tabuzonen";"bestehende und sichergestellte Naturschutzgebiete";"ja";"[siehe Fußnote 1]"
+"Harte Tabuzonen";"Nationalpark Wattenmeer";"ja";"[siehe Fußnote 1]"
+"Harte Tabuzonen";"Gesetzlich geschützte Biotope";"ja";"[siehe Fußnote 1]"
+"Harte Tabuzonen";"Waldflächen plus Abstand 30 m";"ja";"[siehe Fußnote 1]"
+"Mensch, menschliche Gesundheit";"Abstände zur Bebauung zu gering";"ja";"In der Abwägung von Schutzansprüchen der Anwohner und energiepolitischen Zielsetzungen sind die gewählten Abstände angemessen. Bei der konkreten Anlagengenehmigung können z.B. aufgrund der erdrückenden Wirkung sehr hoher WEA im Einzelfall größere Abstände erforderlich werden. Dies ist im jeweiligen Genehmigungsverfahren zu klären."
+"Mensch, menschliche Gesundheit";"hörbarer Lärm, Schattenwurf";"ja";"Im jeweiligen Genehmigungsverfahren für die einzelnen WEA wird die Einhaltung geltender Grenzwerte sichergestellt. [Ergänzung um Hinweis zu den laufenden Überprüfungen der Schallprognoseverfahren]"
+"Mensch, menschliche Gesundheit";"Infraschall";"ja";"[Alter Textbaustein muss überarbeitet werden. Hierzu müssten aber schon verwertbare Texte (aus dem MELUR) vorliegen.]"
+"Mensch, menschliche Gesundheit";"sinkende Lebensqualität";"ja";"Nach erneuter Prüfung sind keine Ausschlusskriterien erkennbar, die gegen eine Gebietsausweisung an dieser Stelle sprechen. Die von der Bundesregierung beschlossene Energiewende des Atomausstiegs und des Ausbaus dezentraler erneuerbarer Energieerzeugungsanlagen und der dazugehörigen Infrastruktur, die hiermit auf Landesebene umgesetzt wird, ist an einigen Stellen mit Veränderungen im Lebensumfeld verbunden. In der Abwägung mit den Risiken der Atomenergie sind diese jedoch hinnehmbar. Durch eine möglichst weitgehende Konzentration der WEA auf relativ dünn besiedelte, naturschutzfachlich vertretbare Standorte im Außenbereich werden diese Beeinträchtigungen gering gehalten."
+"Mensch, menschliche Gesundheit";"Wertverlust Immobilien";"ja";"Jeder Eigentümer muss damit rechnen, dass sich um seine Immobilie herum planerische Entwicklungen vollziehen. Diese ergeben sich aus rechtmäßig zulässigen Planungen oder Einzelbaumaßnahmen. Es gibt keinen Anspruch auf Unveränderbarkeit der Umgebung, diese ist vielmehr im Rahmen rechtmäßiger Planungen hinzunehmen und dem Eigentum immanent (Sozialpflichtigkeit). Es werden aus regionalplanerischer Sicht ausreichende Abstände eingehalten, genauso wie im Einzelgenehmigungsverfahren die Abstände nach dem Bundesimmissionsschutzgesetz zu beachten sind. Damit ist dem Schutzanspruch rechtlich Genüge getan. Für Entschädigungsansprüche ist kein Raum."
+"Mensch, menschliche Gesundheit";"Umfassung, Riegelbildung";"nein";"[individuelle Würdigung der jeweiligen Situation erforderlich]"
+"Mensch, menschliche Gesundheit";"Schwerpunkträume und Kernbereiche Tourismus und Erholung";"noch offen";"[bei Bedarf nachpflegen]"
+"Infrastruktur";"Hoheitliche Richtfunktrassen";"nein";"[kein Bedarf erkennbar, ggf. nachpflegen]"
+"Infrastruktur";"5 km Schutzbereich DWD-Station Boostedt";"noch offen";"[hier entstehen Abhängigkeiten zwischen der Stellungnahme des DWD und anderen eingehenden Stellungnahmen. Textbaustein erst nach Vorliegen DWD-Stellungnahme sinnvoll]"
+"Infrastruktur";"600 m Schutzbereich um VOR- / DVOR-Anlagen";"nein";"[kein Bedarf erkennbar, ggf. nachpflegen]"
+"Infrastruktur";"600 m bis 15 km Schutzbereich um VOR- / DVOR-Anlagen";"noch offen";"[hier entstehen Abhängigkeiten zwischen der Stellungnahme des BAF / der DFS und anderen eingehenden Stellungnahmen. Textbaustein erst nach Vorliegen der BAF- / DFS-Stellungnahme sinnvoll]"
+"Infrastruktur";"5-15 km Schutzbereich DWD-Station Boostedt, Höhenbeschränkung";"noch offen";"[hier entstehen Abhängigkeiten zwischen der Stellungnahme des DWD und anderen eingehenden Stellungnahmen. Textbaustein erst nach Vorliegen DWD-Stellungnahme sinnvoll]"
+"Infrastruktur";"Bauverbot militärische Schutzbereiche und Interessengebiete";"noch offen";"[hier entstehen Abhängigkeiten zwischen der Stellungnahme der Bundeswehr und anderen eingehenden Stellungnahmen. Textbaustein eventuell nach Vorliegen Bundeswehr-Stellungnahme sinnvoll. Wahrscheinlicher ist das Erfordernis von Einzelfall-Klärungen mit der Bundeswehr]"
+"Infrastruktur";"Sonstige militärische Belange";"nein";"[zu erwarten ist hier vor allem eine Stellungnahme der Bundeswehr und ggf. noch Einzelstellungnahmen]"
+"Infrastruktur";"Abstand 100 m zu Hoch- und Höchstspannungsleitungen";"nein";"[kein Bedarf erkennbar, ggf. nachpflegen]"
+"Infrastruktur";"100 m Abstand zu Landesschutz- und Regionaldeichen";"nein";"[kein Bedarf erkennbar, ggf. nachpflegen]"
+"Infrastruktur";"Netzausbau vor Windkraftausbau";"ja";"[Textbaustein vom MELUR]"
+"Infrastruktur";"Doppelbelastung Netzausbau und WKA";"ja";"Bei der Auswahl der Vorranggebiete wurden bestehende und zukünftig zu erwartende Raumbelastungen aus anderen Fachplanungen mit berücksichtigt. Die räumlichen Auswirkungen des Netzausbaus und der Windenergienutzung werden für diese Region noch als vertretbar angesehen.
 [Im Einzelfall kann differenziertere Auseinandersetzung mit dem Einwand erforderlich sein]"
-"Infrastruktur","Mehr Speichertechnologien","ja","[Textbaustein vom MELUR]"
-"Infrastruktur","Sonstige Netzausbau-Themen i.w.S.","noch offen","[ggf. später weiter aufgliedern]"
-"Verkehr","Planverfestigte und nicht planverfestigte Straßenbauplanungen, Kompensationsflächen","nein","[voraussichtlich vor allem Stellungnahmen aus MWAVT und nachgeordneten Behörden, die differenziert abgearbeitet werden müssen; ggf. später Bausteine ergänzen]"
-"Verkehr","Abstand 150 m zu Gleisanlagen","nein","[kein Bedarf erkennbar, ggf. nachpflegen]"
-"Verkehr","Platzrunden, Bauschutzbereiche um Flugplätze","nein","[kein Bedarf erkennbar, ggf. nachpflegen]"
-"Denkmalschutz","Sichtachsen auf Lübecker Altstadt","ja","Maßgeblich für freizuhaltende Sichtachsen ist das Gutachten der Hansestadt Lübeck, welches für die Anerkennung und Beibehaltung des UNESO-Welterbe-Status erstellt wurde.
+"Infrastruktur";"Mehr Speichertechnologien";"ja";"[Textbaustein vom MELUR]"
+"Infrastruktur";"Sonstige Netzausbau-Themen i.w.S.";"noch offen";"[ggf. später weiter aufgliedern]"
+"Verkehr";"Planverfestigte und nicht planverfestigte Straßenbauplanungen, Kompensationsflächen";"nein";"[voraussichtlich vor allem Stellungnahmen aus MWAVT und nachgeordneten Behörden, die differenziert abgearbeitet werden müssen; ggf. später Bausteine ergänzen]"
+"Verkehr";"Abstand 150 m zu Gleisanlagen";"nein";"[kein Bedarf erkennbar, ggf. nachpflegen]"
+"Verkehr";"Platzrunden, Bauschutzbereiche um Flugplätze";"nein";"[kein Bedarf erkennbar, ggf. nachpflegen]"
+"Denkmalschutz";"Sichtachsen auf Lübecker Altstadt";"ja";"Maßgeblich für freizuhaltende Sichtachsen ist das Gutachten der Hansestadt Lübeck, welches für die Anerkennung und Beibehaltung des UNESO-Welterbe-Status erstellt wurde.
 [dann Variante 1 oder 2 auswählen]
 [Variante 1]: Der beschriebene Bereich liegt nicht innerhalb der im Gutachten definierten Sichtachsen. Eine Freihaltung aus diesem Grund ist daher nicht erforderlich.
 [Variante 2]: Die Fläche liegt innerhalb der im Gutachten definierten Sichtachsen. Eine Übernahme der Fläche ist aus diesem Grund daher nicht möglich."
-"Denkmalschutz","3 bzw. 5 km Abstand zum Danewerk, weiches Tabu und Abwägung","noch offen","[Beitrag ALSH abwarten]"
-"Denkmalschutz","Einzelne Kulturdenkmale Hochbau","nein","[zu differenziert, Einzelfallbewertung in Rückkopplung mit LfD erforderlich]"
-"Denkmalschutz","Einzelne Kulturdenkmale Archäologie","nein","[zu differenziert, Einzelfallbewertung in Rückkopplung mit ALSH erforderlich]"
-"Landschaft, Umwelt allgemein","Nordfriesische Inseln und Halligen nicht pauschal freihalten","ja","[Textbaustein muss noch formuliert werden]"
-"Landschaft, Umwelt allgemein","Nordsee und Ostsee bis zur Hoheitsgrenze nicht pauschal freihalten","ja","[gleichzusetzen mit Wunsch / Forderung nach Offshore-Windparks im Hoheitsgebiet um die Landflächen zu entlasten. Textbaustein bei Bedarf formulieren]"
-"Landschaft, Umwelt allgemein","LSG, Bestand und einstweilig sichergestellt nicht pauschal freihalten","ja","[Textbaustein muss noch formuliert werden]"
-"Landschaft, Umwelt allgemein","Charakteristischer Landschaftsraum falsch abgegrenzt","ja","Auf Basis der Methodik des Gutachtens ist im Ergebnis die abgebildete Kulisse der Schwerpunktbereiche charakteristischer Landschaftsräume herausgekommen. Die Methodik ist in sich schlüssig. Aus der Stellungnahme ergeben sich keine ausreichenden Belege dafür, dass der betreffende Bereich aus anderen fachlichen Gründen heraus von WEA freigehalten werden müsste. [ggf. noch individuelle Würdigung der vorgebrachten Argumente]
+"Denkmalschutz";"3 bzw. 5 km Abstand zum Danewerk, weiches Tabu und Abwägung";"noch offen";"[Beitrag ALSH abwarten]"
+"Denkmalschutz";"Einzelne Kulturdenkmale Hochbau";"nein";"[zu differenziert, Einzelfallbewertung in Rückkopplung mit LfD erforderlich]"
+"Denkmalschutz";"Einzelne Kulturdenkmale Archäologie";"nein";"[zu differenziert, Einzelfallbewertung in Rückkopplung mit ALSH erforderlich]"
+"Landschaft, Umwelt allgemein";"Nordfriesische Inseln und Halligen nicht pauschal freihalten";"ja";"[Textbaustein muss noch formuliert werden]"
+"Landschaft, Umwelt allgemein";"Nordsee und Ostsee bis zur Hoheitsgrenze nicht pauschal freihalten";"ja";"[gleichzusetzen mit Wunsch / Forderung nach Offshore-Windparks im Hoheitsgebiet um die Landflächen zu entlasten. Textbaustein bei Bedarf formulieren]"
+"Landschaft, Umwelt allgemein";"LSG, Bestand und einstweilig sichergestellt nicht pauschal freihalten";"ja";"[Textbaustein muss noch formuliert werden]"
+"Landschaft, Umwelt allgemein";"Charakteristischer Landschaftsraum falsch abgegrenzt";"ja";"Auf Basis der Methodik des Gutachtens ist im Ergebnis die abgebildete Kulisse der Schwerpunktbereiche charakteristischer Landschaftsräume herausgekommen. Die Methodik ist in sich schlüssig. Aus der Stellungnahme ergeben sich keine ausreichenden Belege dafür, dass der betreffende Bereich aus anderen fachlichen Gründen heraus von WEA freigehalten werden müsste. [ggf. noch individuelle Würdigung der vorgebrachten Argumente]
 ODER
 Auf Basis der Methodik des Gutachtens ist im Ergebnis die abgebildete Kulisse der Schwerpunktbereiche charakteristischer Landschaftsräume herausgekommen. [individuelle Auseinandersetzung mit den vorgebrachten Argumenten]. Daher wird in diesem Bereich nach wie vor kein Vorranggebiet ausgewiesen."
-"Landschaft, Umwelt allgemein","Keine WEA im Naturpark","nein","[Einzelfall bezogene Argumentation]"
-"Landschaft, Umwelt allgemein","Mehr WEA im Naturpark","nein","[Einzelfall bezogene Argumentation]"
-"Landschaft, Umwelt allgemein","30 m bis 100 m Abstand um Wälder zu gering","noch offen","[Textbaustein MELUR]"
-"Landschaft, Umwelt allgemein","30 m bis 100 m Abstand um Wälder streichen","noch offen","[Textbaustein MELUR]"
-"Landschaft, Umwelt allgemein","Schützenswerte Geotope","noch offen","[wahrscheinlich kein Bedarf für Textbaustein]"
-"Landschaft, Umwelt allgemein","Wasserflächen ohne Talräume","noch offen","[wahrscheinlich kein Bedarf für Textbaustein]"
-"Landschaft, Umwelt allgemein","Talräume","noch offen","[wahrscheinlich kein Bedarf für Textbaustein]"
-"Schutzgebiete","FFH-Gebiete nicht pauschal freihalten","ja","Der Plangeber hat sich aus Vorsorgeerwägungen heraus bewusst für die pauschale Freihaltung aller FFH-Gebiete entschieden, auch wenn theoretisch in wenigen Einzelfällen über eine FFH-Prüfung nachgewiesen werden könnte, dass eine Vereinbarkeit mit den Erhaltungszielen gegeben sein könnte. Die Errichtung baulicher Anlagen wie WEA verschlechtert in FFH-Gebieten die Entwicklungsmöglichkeiten hin zu einem nach FFH-Richtlinie geforderten günstigen Erhaltungszustand, der in vielen Fällen noch nicht erreicht ist. Die Hereinnahme eines Vorranggebietes innerhalb eines FFH-Gebietes wird daher abgelehnt."
-"Schutzgebiete","Umgebungsbereich 300 m zu Schutzgebieten","ja","Grundsätzlich sollen die Schutzgebiete als herausragende Flächen für den Naturschutz und in Teilen auch für Naherholung und Tourismus in ihrem Gesamtcharakter erhalten und Entwicklungsmöglichkeiten nicht eingeschränkt werden. Die vorsorgliche Freihaltung eines Abstandes von 300 m ist unter diesem Aspekt sachgerecht. [das ist im Wesentlichen eine Wiederholung der Begründung aus dem Kriterienkatalog. Ich weiß noch nicht ob das sinnvoll ist…]"
-"Schutzgebiete","EU-Vogelschutzgebiete","noch offen","[wahrscheinlich kein Bedarf für Textbaustein]"
-"Schutzgebiete","Schwerpunktbereiche Biotopverbund","noch offen","[bei Bedarf nachpflegen]"
-"Schutzgebiete","Verbundachsen des Schutzgebiets- und Biotopverbundsystems","noch offen","[bei Bedarf nachpflegen]"
-"Schutzgebiete","300 m bis 1.200 m um EU-Vogelschutzgebiete (FFH-Prüfung)","noch offen","[zu klären ist, wer die noch ausstehenden FFH-Prüfungen durchführt. Wahrscheinlich müssen die eingehenden Stellungnahmen individuell beantwortet werden.]"
-"Schutzgebiete","Potenzielle Naturschutzgebiete (§ 23 BNatSchG)","noch offen","[bei Bedarf nachpflegen]"
-"Schutzgebiete","Konzentration Klein- und Kleinstbiotope","noch offen","[wahrscheinlich kein Bedarf für Textbaustein]"
-"Siedlungs- und Freiraumplanung","Siedlungs- oder Gewerbeflächenplanung, weiches Tabu und Abwägung","ja","Dem Hinweis auf eine verfestigte Planung wird gefolgt. Die Landesplanung unterstützt die Planungsabsichten der Gemeinde und gibt ihnen den Vorrang gegenüber der Windenergienutzung an dieser Stelle. Das Windenergie-Vorranggebiet wird verkleinert / gestrichen [nicht zutreffendes streichen]
+"Landschaft, Umwelt allgemein";"Keine WEA im Naturpark";"nein";"[Einzelfall bezogene Argumentation]"
+"Landschaft, Umwelt allgemein";"Mehr WEA im Naturpark";"nein";"[Einzelfall bezogene Argumentation]"
+"Landschaft, Umwelt allgemein";"30 m bis 100 m Abstand um Wälder zu gering";"noch offen";"[Textbaustein MELUR]"
+"Landschaft, Umwelt allgemein";"30 m bis 100 m Abstand um Wälder streichen";"noch offen";"[Textbaustein MELUR]"
+"Landschaft, Umwelt allgemein";"Schützenswerte Geotope";"noch offen";"[wahrscheinlich kein Bedarf für Textbaustein]"
+"Landschaft, Umwelt allgemein";"Wasserflächen ohne Talräume";"noch offen";"[wahrscheinlich kein Bedarf für Textbaustein]"
+"Landschaft, Umwelt allgemein";"Talräume";"noch offen";"[wahrscheinlich kein Bedarf für Textbaustein]"
+"Schutzgebiete";"FFH-Gebiete nicht pauschal freihalten";"ja";"Der Plangeber hat sich aus Vorsorgeerwägungen heraus bewusst für die pauschale Freihaltung aller FFH-Gebiete entschieden, auch wenn theoretisch in wenigen Einzelfällen über eine FFH-Prüfung nachgewiesen werden könnte, dass eine Vereinbarkeit mit den Erhaltungszielen gegeben sein könnte. Die Errichtung baulicher Anlagen wie WEA verschlechtert in FFH-Gebieten die Entwicklungsmöglichkeiten hin zu einem nach FFH-Richtlinie geforderten günstigen Erhaltungszustand, der in vielen Fällen noch nicht erreicht ist. Die Hereinnahme eines Vorranggebietes innerhalb eines FFH-Gebietes wird daher abgelehnt."
+"Schutzgebiete";"Umgebungsbereich 300 m zu Schutzgebieten";"ja";"Grundsätzlich sollen die Schutzgebiete als herausragende Flächen für den Naturschutz und in Teilen auch für Naherholung und Tourismus in ihrem Gesamtcharakter erhalten und Entwicklungsmöglichkeiten nicht eingeschränkt werden. Die vorsorgliche Freihaltung eines Abstandes von 300 m ist unter diesem Aspekt sachgerecht. [das ist im Wesentlichen eine Wiederholung der Begründung aus dem Kriterienkatalog. Ich weiß noch nicht ob das sinnvoll ist…]"
+"Schutzgebiete";"EU-Vogelschutzgebiete";"noch offen";"[wahrscheinlich kein Bedarf für Textbaustein]"
+"Schutzgebiete";"Schwerpunktbereiche Biotopverbund";"noch offen";"[bei Bedarf nachpflegen]"
+"Schutzgebiete";"Verbundachsen des Schutzgebiets- und Biotopverbundsystems";"noch offen";"[bei Bedarf nachpflegen]"
+"Schutzgebiete";"300 m bis 1.200 m um EU-Vogelschutzgebiete (FFH-Prüfung)";"noch offen";"[zu klären ist, wer die noch ausstehenden FFH-Prüfungen durchführt. Wahrscheinlich müssen die eingehenden Stellungnahmen individuell beantwortet werden.]"
+"Schutzgebiete";"Potenzielle Naturschutzgebiete (§ 23 BNatSchG)";"noch offen";"[bei Bedarf nachpflegen]"
+"Schutzgebiete";"Konzentration Klein- und Kleinstbiotope";"noch offen";"[wahrscheinlich kein Bedarf für Textbaustein]"
+"Siedlungs- und Freiraumplanung";"Siedlungs- oder Gewerbeflächenplanung, weiches Tabu und Abwägung";"ja";"Dem Hinweis auf eine verfestigte Planung wird gefolgt. Die Landesplanung unterstützt die Planungsabsichten der Gemeinde und gibt ihnen den Vorrang gegenüber der Windenergienutzung an dieser Stelle. Das Windenergie-Vorranggebiet wird verkleinert / gestrichen [nicht zutreffendes streichen]
 ODER
 Dem Hinweis wird nicht gefolgt, da es sich aus folgenden Gründen nicht um eine verfestigte Planung im Sinne des gesamträumlichen Plankonzeptes handelt: [individueller Text]"
-"Siedlungs- und Freiraumplanung","Siedlungsachsen und besondere Siedlungsräume","nein","[kein Bedarf erkennbar, ggf. nachpflegen]"
-"Siedlungs- und Freiraumplanung","Regionale Grünzüge","nein","[Einzelfall bezogene Argumentation]"
-"Siedlungs- und Freiraumplanung","Stadt- und Umlandbereiche, verdichtete Bereiche der Ordnungsräume","nein","[Einzelfall bezogene Argumentation]"
-"Siedlungs- und Freiraumplanung","Vorranggebiete Binnenhochwasserschutz","nein","[kein Bedarf erkennbar, ggf. nachpflegen]"
-"gebietsbezogener Artenschutz Vögel, ","Dichtezentrum Seeadler","noch offen","[denkbare Varianten: zu groß, zu klein, streichen, weitere Bereiche ausweisen. Textbausteine bei Bedarf nachpflegen]"
-"gebietsbezogener Artenschutz Vögel, ","Nahrungsgebiete Gänse und Schwäne","noch offen",
-"gebietsbezogener Artenschutz Vögel, ","Trauerseeschwalben-Kolonien + 1.000 m Abstand","noch offen",
-"gebietsbezogener Artenschutz Vögel, ","Lachseeschwalben-Kolonie + 3.000 m Abstand","noch offen",
-"gebietsbezogener Artenschutz Vögel, ","Vogelflugkorridore Schlaf- und Nahrungsplätze Gänse und Schwäne","noch offen",
-"gebietsbezogener Artenschutz Vögel, ","Schlafgewässer Kraniche + 3 km","noch offen",
-"gebietsbezogener Artenschutz Vögel, ","Küstenstreifen Nordsee und Fehmarn sowie Helgoland","noch offen",
-"gebietsbezogener Artenschutz Vögel, ","Hauptachsen überregionaler Vogelzug","noch offen",
-"gebietsbezogener Artenschutz Vögel, ","Wiesenvogelbrutgebiete für WEA öffnen",,"Die Kulisse hat für den Wiesenvogelschutz eine herausragende Bedeutung, weil der Bestand dieser Arten in den letzten Jahrzehnten teils dramatisch eingebrochen ist und erst durch erhebliche Anstrengungen teilweise stabilisiert werden konnte. Die genannten Arten weisen als Brutvögel gegenüber WEA ein deutliches Meideverhalten auf. Zusätzlich führt die Erschließung der Gebiete für WEA zu erheblichen Habitatveränderungen infolge von Entwässerung und Zerschneidung durch die Zuwegungen mit zahlreichen Nebenfolgen. Die Errichtung von WEA in der Wiesenvogelkulisse des Landes kann daher den Wiesenvogelschutz konterkarieren und bleibt in Ausnahmen nur dort zulässig, wo bereits ein WEA-Bestand vorhanden ist.
+"Siedlungs- und Freiraumplanung";"Siedlungsachsen und besondere Siedlungsräume";"nein";"[kein Bedarf erkennbar, ggf. nachpflegen]"
+"Siedlungs- und Freiraumplanung";"Regionale Grünzüge";"nein";"[Einzelfall bezogene Argumentation]"
+"Siedlungs- und Freiraumplanung";"Stadt- und Umlandbereiche, verdichtete Bereiche der Ordnungsräume";"nein";"[Einzelfall bezogene Argumentation]"
+"Siedlungs- und Freiraumplanung";"Vorranggebiete Binnenhochwasserschutz";"nein";"[kein Bedarf erkennbar, ggf. nachpflegen]"
+"gebietsbezogener Artenschutz Vögel, ";"Dichtezentrum Seeadler";"noch offen";"[denkbare Varianten: zu groß, zu klein, streichen, weitere Bereiche ausweisen. Textbausteine bei Bedarf nachpflegen]"
+"gebietsbezogener Artenschutz Vögel, ";"Nahrungsgebiete Gänse und Schwäne";"noch offen",
+"gebietsbezogener Artenschutz Vögel, ";"Trauerseeschwalben-Kolonien + 1.000 m Abstand";"noch offen",
+"gebietsbezogener Artenschutz Vögel, ";"Lachseeschwalben-Kolonie + 3.000 m Abstand";"noch offen",
+"gebietsbezogener Artenschutz Vögel, ";"Vogelflugkorridore Schlaf- und Nahrungsplätze Gänse und Schwäne";"noch offen",
+"gebietsbezogener Artenschutz Vögel, ";"Schlafgewässer Kraniche + 3 km";"noch offen",
+"gebietsbezogener Artenschutz Vögel, ";"Küstenstreifen Nordsee und Fehmarn sowie Helgoland";"noch offen",
+"gebietsbezogener Artenschutz Vögel, ";"Hauptachsen überregionaler Vogelzug";"noch offen",
+"gebietsbezogener Artenschutz Vögel, ";"Wiesenvogelbrutgebiete für WEA öffnen";"Die Kulisse hat für den Wiesenvogelschutz eine herausragende Bedeutung, weil der Bestand dieser Arten in den letzten Jahrzehnten teils dramatisch eingebrochen ist und erst durch erhebliche Anstrengungen teilweise stabilisiert werden konnte. Die genannten Arten weisen als Brutvögel gegenüber WEA ein deutliches Meideverhalten auf. Zusätzlich führt die Erschließung der Gebiete für WEA zu erheblichen Habitatveränderungen infolge von Entwässerung und Zerschneidung durch die Zuwegungen mit zahlreichen Nebenfolgen. Die Errichtung von WEA in der Wiesenvogelkulisse des Landes kann daher den Wiesenvogelschutz konterkarieren und bleibt in Ausnahmen nur dort zulässig, wo bereits ein WEA-Bestand vorhanden ist.
 [kopiert aus dem Kriterienkatalog, was nach Möglichkeit vermieden werden sollte. Ggf in Abhängigkeit von den Stellungnahmen noch ändern.]"
-"Einzel-Artenschutz Vögel","3 km um Seeadlerhorste","nein","[Stellungnahmen wahrscheinlich zu differenziert für Textbausteine, ansonsten nach der Systematik weiter unten zu diesem Thema]"
-"Einzel-Artenschutz Vögel","3 km um Schwarzstorchhorste","nein",
-"Einzel-Artenschutz Vögel","1 km um Weißstorchhorste","nein",
-"Einzel-Artenschutz Vögel","1,5 km um nachgewiesene Rotmilanhorste","nein",
-"Einzel-Artenschutz Vögel","Nicht sicher nachgewiesene Rotmilanhorste","nein",
-"Einzel-Artenschutz Vögel","Sichtung / Meldung eines nicht mehr existierenden Brutplatzes","ja","[nach Rückmeldung aus dem MELUR:]
+"Einzel-Artenschutz Vögel";"3 km um Seeadlerhorste";"nein";"[Stellungnahmen wahrscheinlich zu differenziert für Textbausteine, ansonsten nach der Systematik weiter unten zu diesem Thema]"
+"Einzel-Artenschutz Vögel";"3 km um Schwarzstorchhorste";"nein",
+"Einzel-Artenschutz Vögel";"1 km um Weißstorchhorste";"nein",
+"Einzel-Artenschutz Vögel";"1,5 km um nachgewiesene Rotmilanhorste";"nein",
+"Einzel-Artenschutz Vögel";"Nicht sicher nachgewiesene Rotmilanhorste";"nein",
+"Einzel-Artenschutz Vögel";"Sichtung / Meldung eines nicht mehr existierenden Brutplatzes";"ja";"[nach Rückmeldung aus dem MELUR:]
 Eine Überprüfung durch die Fachbehörden hat ergeben, dass der Brutplatz zwar derzeit nicht genutzt wird, dass eine potenzielle Wiederansiedlung aber sehr wahrscheinlich ist. Der Abstandsradius bleibt daher erhalten.
 ODER
 Eine Überprüfung durch die Fachbehörden hat ergeben, dass der Brutplatz mit hoher Wahrscheinlichkeit noch genutzt wird. Der Abstandsradius bleibt daher erhalten.
 ODER
 Eine Überprüfung durch die Fachbehörden hat ergeben, dass der Brutplatz derzeit nicht genutzt wird und dass eine potenzielle Wiederansiedlung unwahrscheinlich ist. Der Abstandsradius wird daher gestrichen."
-"Einzel-Artenschutz Vögel","Sichtung / Meldung eines nicht berücksichtigten Brutplatzes","ja","[nach Rückmeldung aus dem MELUR:]
+"Einzel-Artenschutz Vögel";"Sichtung / Meldung eines nicht berücksichtigten Brutplatzes";"ja";"[nach Rückmeldung aus dem MELUR:]
 Eine Überprüfung durch die Fachbehörden hat ergeben, dass es sich nicht um einen gesicherten Brutplatz handelt. Ein Abstandsradius zu der gemeldeten Fundstelle wird nicht festgelegt. Eine gutachterliche Überprüfung muss im Genehmigungsverfahren für die einzelnen WEA erfolgen.
 ODER
 Der gemeldete Brutplatz konnte von den Fachbehörden bestätigt werden. Es wird ein entsprechender Schutzradius festgelegt. Das Vorranggebiet wird gestrichen / angepasst [auswählen]"
-"Einzel-Artenschutz Vögel","Abstandsradius zu geschützter Art zu groß oder zu pauschal","ja","Nach aktuellen wissenschaftlichen Erkenntnissen ist in den gewählten Abstandsradien mit einem erhöhten Kollisionsrisiko für die jeweilige Art zu rechnen. Die vorsorgliche Freihaltung dieser Bereiche ist daher gerechtfertigt. Ein positives artenschutzfachliches Gutachten liegt nicht vor. Es fehlen insofern hinreichend konkrete fachliche Anknüpfungspunkte für eine abweichende Bewertung."
-"Einzel-Artenschutz Vögel","Abstandsradius zu geschützter Art zu klein","ja","Nach aktuellen wissenschaftlichen Erkenntnissen ist in den gewählten Abstandsradien mit einem erhöhten Kollisionsrisiko für die jeweilige Art zu rechnen. Darüber hinausgehende Abstände sind nicht hinreichend fachlich begründbar und würden daher zu einer unverhältnismäßigen Einschränkung der Windenergiesteuerung im Rahmen des gesamträumlichen Plankonzeptes führen. Dem Votum wird daher nicht gefolgt."
-"Artenschutz sonstige","Wintermassequartiere Fledermäuse","noch offen","[wahrscheinlich kein Bedarf für Textbaustein]"
-"Artenschutz sonstige","Gebiete mit bes. Bedeutung Fledermausschutz","noch offen","[wahrscheinlich kein Bedarf für Textbaustein]"
-"Artenschutz sonstige","Querungshilfen und damit verbundene Korridore","nein","[zu erwarten sind die Stellungnahme des LBV SH und Stellungnahmen, die eine Rückkopplung mit dem LBV SH erforderlich machen. I.d.R. detaillierte Einzelfallprüfung erforderlich]"
-"Rohstoffe","Abbaugenehmigung für oberflächennahe Rohstoffe liegt gar nicht vor","ja","Der Hinweis wird zur Kenntnis genommen. Der Belang wird für die Flächenbewertung an dieser Stelle nicht mehr herangezogen."
-"Rohstoffe","Vorliegende Abbaugenehmigung für oberflächennahe Rohstoffe nicht berücksichtigt","ja","Der Hinweis wird zur Kenntnis genommen. Die Vereinbarkeit mit der Ausweisung eines Windenergie-Vorranggebietes ist damit nicht gegeben. Die Fläche wird reduziert / gestrichen [auswählen]"
-"Rohstoffe","Vorranggebiete Rohstoffsicherung und Abbau oberflächennaher Rohstoffe","noch offen","[voraussichtlich vor allem Stellungnahme aus LLUR, Abt. Geologie und Boden, die differenziert abgearbeitet werden muss; ggf. später Bausteine ergänzen]"
-"Sonstiges","Flächenzuordnung nach Nr. im Planentwurf","ja ","[Erforderlich ist ein relativ spät im Anhörungsverfahren entwickelter Text, der alle Aspekte, die zu einer Fläche eingegangen sind (pro und kontra) würdigt und dann allen Stellungnahmen zu einer bestimmten Fläche zugeordnet wird.]"
-"Sonstiges","Hochstufung vom weichen zum harten Tabu","ja","Dem Votum wird nicht gefolgt. Als hartes Tabu können nach Urteil des BVerwG vom 11. April 2013 (4 CN 2/12) nur solche Gebiete gelten, in denen Windenergienutzung faktisch ausgeschlossen oder gesetzlich verboten ist. Das trifft auf das benannte Kriterium nicht zu."
-"Sonstiges","Hochstufung von Abwägung zu weichem Tabu","ja","Die Landesplanung hat sich bewusst entschieden, dieses Kriterium in der Abwägung zu belassen, um im Einzelfall entscheiden zu können, ob Windenergienutzung innerhalb eines solchen Bereiches zulässig sein kann oder nicht. Die theoretisch denkbare Hochstufung als weiches Tabu würde den verbleibenden Abwägungsspielraum zu stark einschränken, so dass der Nachweis, für die Windenergie substanziell Raum verschafft zu haben, nicht mehr fehlerfrei gelingen würde."
+"Einzel-Artenschutz Vögel";"Abstandsradius zu geschützter Art zu groß oder zu pauschal";"ja";"Nach aktuellen wissenschaftlichen Erkenntnissen ist in den gewählten Abstandsradien mit einem erhöhten Kollisionsrisiko für die jeweilige Art zu rechnen. Die vorsorgliche Freihaltung dieser Bereiche ist daher gerechtfertigt. Ein positives artenschutzfachliches Gutachten liegt nicht vor. Es fehlen insofern hinreichend konkrete fachliche Anknüpfungspunkte für eine abweichende Bewertung."
+"Einzel-Artenschutz Vögel";"Abstandsradius zu geschützter Art zu klein";"ja";"Nach aktuellen wissenschaftlichen Erkenntnissen ist in den gewählten Abstandsradien mit einem erhöhten Kollisionsrisiko für die jeweilige Art zu rechnen. Darüber hinausgehende Abstände sind nicht hinreichend fachlich begründbar und würden daher zu einer unverhältnismäßigen Einschränkung der Windenergiesteuerung im Rahmen des gesamträumlichen Plankonzeptes führen. Dem Votum wird daher nicht gefolgt."
+"Artenschutz sonstige";"Wintermassequartiere Fledermäuse";"noch offen";"[wahrscheinlich kein Bedarf für Textbaustein]"
+"Artenschutz sonstige";"Gebiete mit bes. Bedeutung Fledermausschutz";"noch offen";"[wahrscheinlich kein Bedarf für Textbaustein]"
+"Artenschutz sonstige";"Querungshilfen und damit verbundene Korridore";"nein";"[zu erwarten sind die Stellungnahme des LBV SH und Stellungnahmen, die eine Rückkopplung mit dem LBV SH erforderlich machen. I.d.R. detaillierte Einzelfallprüfung erforderlich]"
+"Rohstoffe";"Abbaugenehmigung für oberflächennahe Rohstoffe liegt gar nicht vor";"ja";"Der Hinweis wird zur Kenntnis genommen. Der Belang wird für die Flächenbewertung an dieser Stelle nicht mehr herangezogen."
+"Rohstoffe";"Vorliegende Abbaugenehmigung für oberflächennahe Rohstoffe nicht berücksichtigt";"ja";"Der Hinweis wird zur Kenntnis genommen. Die Vereinbarkeit mit der Ausweisung eines Windenergie-Vorranggebietes ist damit nicht gegeben. Die Fläche wird reduziert / gestrichen [auswählen]"
+"Rohstoffe";"Vorranggebiete Rohstoffsicherung und Abbau oberflächennaher Rohstoffe";"noch offen";"[voraussichtlich vor allem Stellungnahme aus LLUR, Abt. Geologie und Boden, die differenziert abgearbeitet werden muss; ggf. später Bausteine ergänzen]"
+"Sonstiges";"Flächenzuordnung nach Nr. im Planentwurf";"ja ";"[Erforderlich ist ein relativ spät im Anhörungsverfahren entwickelter Text, der alle Aspekte, die zu einer Fläche eingegangen sind (pro und kontra) würdigt und dann allen Stellungnahmen zu einer bestimmten Fläche zugeordnet wird.]"
+"Sonstiges";"Hochstufung vom weichen zum harten Tabu";"ja";"Dem Votum wird nicht gefolgt. Als hartes Tabu können nach Urteil des BVerwG vom 11. April 2013 (4 CN 2/12) nur solche Gebiete gelten, in denen Windenergienutzung faktisch ausgeschlossen oder gesetzlich verboten ist. Das trifft auf das benannte Kriterium nicht zu."
+"Sonstiges";"Hochstufung von Abwägung zu weichem Tabu";"ja";"Die Landesplanung hat sich bewusst entschieden, dieses Kriterium in der Abwägung zu belassen, um im Einzelfall entscheiden zu können, ob Windenergienutzung innerhalb eines solchen Bereiches zulässig sein kann oder nicht. Die theoretisch denkbare Hochstufung als weiches Tabu würde den verbleibenden Abwägungsspielraum zu stark einschränken, so dass der Nachweis, für die Windenergie substanziell Raum verschafft zu haben, nicht mehr fehlerfrei gelingen würde."

@@ -201,6 +201,9 @@ class AddonInstallFromZipCommand extends CoreCommand
                 $batch->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name, '-e', $environment]);
             }
             $batchReturn = $batch->run();
+            if($batch->hasException()) {
+                $output->error($batch->getLastException()->getMessage());
+            }
 
             if (0 === $batchReturn) {
                 $output->success("Addon {$name} successfully installed. Please remember to ".
@@ -507,7 +510,7 @@ class AddonInstallFromZipCommand extends CoreCommand
             $links = explode(',', $existingReposResponse->getHeaders()['link'][0]);
             foreach ($links as $link) {
                 if (str_contains($link, 'rel="next"')) {
-                    $nextLink = str_replace(['<', '>', 'rel="next"'], '', $link);
+                    $nextLink = trim(str_replace(['<', '>', 'rel="next"'], '', $link));
                     $nextRepositories = $this->fetchRepositories($ghOptions, $nextLink);
                 }
             }

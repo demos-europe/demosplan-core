@@ -61,10 +61,10 @@ class SegmentsExportController extends BaseController
         StatementHandler $statementHandler,
         SegmentExporterFileNameGenerator $fileNameGenerator,
         string $procedureId,
-        string $statementId
+        string $statementId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
@@ -96,22 +96,35 @@ class SegmentsExportController extends BaseController
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
-        string $procedureId
+        string $procedureId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
             $requestHandler->getObjectsByQueryParams($this->requestStack->getCurrentRequest()->query, $statementResourceType)->getList()
         );
 
-        $response = new StreamedResponse(
-            static function () use ($tableHeaders, $procedure, $statementEntities, $exporter) {
-                $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, ...$statementEntities);
-                $exportedDoc->save(self::OUTPUT_DESTINATION);
-            }
-        );
+        $censorParameter = $this->requestStack->getCurrentRequest()->query->get('censorParameter');
+
+        $censorParameter = filter_var($censorParameter, FILTER_VALIDATE_BOOLEAN);
+
+        if ($censorParameter) {
+            $response = new StreamedResponse(
+                static function () use ($tableHeaders, $procedure, $statementEntities, $exporter) {
+                    $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, true, ...$statementEntities);
+                    $exportedDoc->save(self::OUTPUT_DESTINATION);
+                }
+            );
+        } else {
+            $response = new StreamedResponse(
+                static function () use ($tableHeaders, $procedure, $statementEntities, $exporter) {
+                    $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, false, ...$statementEntities);
+                    $exportedDoc->save(self::OUTPUT_DESTINATION);
+                }
+            );
+        }
 
         $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx'));
 
@@ -136,7 +149,7 @@ class SegmentsExportController extends BaseController
         JsonApiActionService $jsonApiActionService,
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
-        string $procedureId
+        string $procedureId,
     ): StreamedResponse {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -184,11 +197,14 @@ class SegmentsExportController extends BaseController
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
         ZipExportService $zipExportService,
-        string $procedureId
+        string $procedureId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
-        $tableHeaders = $this->requestStack->getCurrentRequest()->query->get('tableHeaders', []);
+        $tableHeaders = $this->requestStack->getCurrentRequest()->query->all('tableHeaders');
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get('fileNameTemplate', '');
+        $censorParameter = $this->requestStack->getCurrentRequest()->query->get('censorParameter');
+
+        $censorParameter = filter_var($censorParameter, FILTER_VALIDATE_BOOLEAN);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // This method applies mostly the same restrictions as the generic API access to retrieve statements.
         // It validates filter and search parameters and limits the returned statement entities to those
@@ -200,17 +216,17 @@ class SegmentsExportController extends BaseController
         );
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
-        $statements = $exporter->mapStatementsToPathInZip($statements, $fileNameTemplate);
+        $statements = $exporter->mapStatementsToPathInZip($statements, $censorParameter, $fileNameTemplate);
 
         return $zipExportService->buildZipStreamResponse(
             $exporter->getSynopseFileName($procedure, 'zip'),
-            static function (ZipStream $zipStream) use ($statements, $exporter, $zipExportService, $procedure, $tableHeaders): void {
+            static function (ZipStream $zipStream) use ($statements, $exporter, $zipExportService, $procedure, $tableHeaders, $censorParameter): void {
                 array_map(
                     static function (
                         Statement $statement,
-                        string $filePathInZip
-                    ) use ($exporter, $zipExportService, $zipStream, $procedure, $tableHeaders): void {
-                        $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure, $tableHeaders);
+                        string $filePathInZip,
+                    ) use ($exporter, $zipExportService, $zipStream, $procedure, $tableHeaders, $censorParameter): void {
+                        $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure, $tableHeaders, $censorParameter);
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(
                             $writer,
@@ -229,7 +245,7 @@ class SegmentsExportController extends BaseController
 
     private function setResponseHeaders(
         StreamedResponse $response,
-        string $filename
+        string $filename,
     ): void {
         $response->headers->set('Pragma', 'public');
         $response->headers->set(

@@ -11,10 +11,10 @@
         {% block layerType %}
             {%- apply spaceless %}
 
-                <label class="u-mt-0_5 u-mb-0_5">
-                    {{ "map"|trans }}*
-                </label>
                {% if hasPermission('feature_map_baselayer') %}
+                   <label class="u-mt-0_5 u-mb-0_5">
+                       {{ "map"|trans }}*
+                   </label>
                     <ul class="layout__item u-4-of-5 o-list bg-color--grey-light-2 u-p-0_5 u-mb">
                         <li>
                             <label class="cursor-pointer u-mb-0_25" title="Mit Grundkarte können Sie weitere Karten anlegen.">

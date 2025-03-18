@@ -43,7 +43,7 @@
         <dp-inline-notification
           v-if="tagCategoriesWithTags.length === 0"
           type="info"
-          class="u-mt-1_5 u-mb"
+          class="u-mt-1_5 mb-4"
           :message="Translator.trans('explanation.noentries')" />
 
         <dp-tree-list
@@ -140,16 +140,20 @@ export default {
       this.listInstitutionTagCategories({
         fields: {
           InstitutionTagCategory: [
+            'creationDate',
             'name',
             'tags'
           ].join(),
           InstitutionTag: [
+            'creationDate',
             'isUsed',
-            'name'
+            'name',
+            'category'
           ].join()
         },
         include: [
-          'tags'
+          'tags',
+          'tags.category'
         ].join()
       })
         .then(() => {
@@ -220,27 +224,31 @@ export default {
     },
 
     transformTagsAndCategories () {
-      return Object.values(this.institutionTagCategories).map(category => {
-        const { attributes, id, type } = category
-        const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
+      return Object.values(this.institutionTagCategories)
+        .sort((a, b) => new Date(a.attributes.creationDate) - new Date(b.attributes.creationDate))
+        .map(category => {
+          const { attributes, id, type } = category
+          const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
 
-        return {
-          id,
-          name: attributes.name,
-          children: Object.values(tags).map(tag => {
-            const { id, attributes, type } = tag
+          return {
+            id,
+            name: attributes.name,
+            children: Object.values(tags)
+              .sort((a, b) => new Date(a.attributes.creationDate) - new Date(b.attributes.creationDate))
+              .map(tag => {
+                const { id, attributes, type } = tag
 
-            return {
-              id,
-              categoryId: category.id,
-              isUsed: attributes.isUsed,
-              name: attributes.name,
-              type
-            }
-          }),
-          type
-        }
-      })
+                return {
+                  id,
+                  categoryId: category.id,
+                  isUsed: attributes.isUsed,
+                  name: attributes.name,
+                  type
+                }
+              }),
+            type
+          }
+        })
     }
   },
 

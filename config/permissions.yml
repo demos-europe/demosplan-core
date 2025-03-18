@@ -76,6 +76,7 @@ area_admin_import:
 area_admin_map:
     description: |-
         Controls ResourceType and Access to Map Settings.
+    expose: true
     label: 'Verwalten Planzeichnung'
     loginRequired: true
     parent: area_admin
@@ -572,6 +573,12 @@ feature_admin_assessmenttable_export_docx:
     parent: feature_admin
 feature_admin_assessmenttable_export_docx_condensed:
     label: 'Abwägungstabelle in kompaktem Docx-Format exportieren'
+    loginRequired: true
+    parent: feature_admin
+feature_admin_assessmenttable_export_potential_areas_xlsx:
+    label: 'Export of potential areas in xlsx format'
+    description: 'Permission to enable the export of potential areas in xlsx format.'
+    expose: true
     loginRequired: true
     parent: feature_admin
 feature_admin_assessmenttable_export_statement_generic_xlsx:
@@ -1370,6 +1377,11 @@ feature_organisation_set_showlist:
     label: 'Anzeigen der Organisation in der Institutionen-Liste'
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
+feature_organisation_own_users_list:
+    description: 'used for organisation administration users to limit their access scope to their own organisation'
+    expose: false
+    label: 'allows to load the organisation and their users of the current organisation only'
+    loginRequired: true
 feature_organisation_user_list:
     description: 'allows to show Organisations list but does not allow access to the Organisation area in the menu'
     expose: true
@@ -1646,36 +1658,56 @@ feature_procedure_preview:
     label: 'Show preview of precedures'
     loginRequired: true
     parent: area_main_procedures
+feature_procedure_report_elements:
+    description: 'Enables ''elements'' section in protocol (report).'
+    expose: true
+    label: 'Show the elements procedure reports'
+    loginRequired: true
 feature_procedure_report_final_mails:
-    description: 'Enables ''final mail'' section in Protokoll (report).'
+    description: 'Enables ''final mail'' section in protocol (report).'
     expose: true
     label: 'Show the final mail procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_report_general:
-    description: 'Enables ''general'' section in Protokoll (report).'
+    description: 'Enables ''general'' section in protocol (report).'
     expose: true
     label: 'Show the general procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_report_invitations:
-    description: 'Enables ''invitations'' section in Protokoll (report).'
+    description: 'Enables ''invitations'' section in protocol (report).'
     expose: true
     label: 'Show the invitations procedure reports'
-    loginRequired: false
+    loginRequired: true
+feature_procedure_report_drawings:
+    description: 'Enables ''drawings'' section in protocol (report).'
+    expose: true
+    label: 'Show the drawings procedure reports'
+    loginRequired: true
+feature_procedure_report_paragraphs:
+    description: 'Enables ''paragraphs'' section in protocol (report).'
+    expose: true
+    label: 'Show the paragraphs procedure reports'
+    loginRequired: true
 feature_procedure_report_public_phase:
-    description: 'Enables ''public phase'' section in Protokoll (report).'
+    description: 'Enables ''public phase'' section in protocol (report).'
     expose: true
     label: 'Show the public phase procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_report_register_invitations:
-    description: 'Enables ''register invitations'' section in Protokoll (report).'
+    description: 'Enables ''register invitations'' section in protocol (report).'
     expose: true
     label: 'Show the register invitations procedure reports'
+    loginRequired: true
+feature_procedure_report_single_documents:
+    description: 'Enables ''single documents'' section in protocol (report).'
+    expose: true
+    label: 'Show the single documents procedure reports'
     loginRequired: false
 feature_procedure_report_statements:
-    description: 'Enables ''statements'' section in Protokoll (report).'
+    description: 'Enables ''statements'' section in protocol (report).'
     expose: true
     label: 'Show the statement procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_require_location:
     description: 'Require location of procedure on the map.'
     expose: true
@@ -2457,6 +2489,7 @@ feature_use_xplanbox:
     loginRequired: true
 feature_user_add:
     description: 'allows the user to create a new user'
+    expose: true
     label: 'add user'
     loginRequired: true
     parent: feature_user
@@ -2522,6 +2555,12 @@ field_imprint_text_customized_edit_orga:
     label: 'Edit customized imprint text for orga'
     parent: feature_imprint_text_customized_view
     expose: true
+feature_list_restricted_external_links:
+    description: |-
+        Some external links (lead to external platforms) are restricted to be shown only to specific user-roles.
+        This is used to reduce the load of information for users who not been able access the site behind the URL.
+    label: 'Some external links should only be shown to specific user-roles'
+    loginRequired: true
 field_municipality_list:
     label: 'betroffene Vorranggebiete'
     loginRequired: true
@@ -2653,6 +2692,10 @@ field_procedure_pictogram:
     label: Verfahrenspiktogramm
     loginRequired: false
     parent: field_procedure
+feature_procedure_pictogram_resolution_restriction:
+    label: 'restrict resolution of procedure pictogram'
+    loginRequired: true
+    parent: field_procedure
 field_procedure_recommendation_version:
     label: 'ältere Abwägungsempfehlungen'
     loginRequired: true
@@ -2677,6 +2720,7 @@ field_segment_assignee_filter:
     loginRequired: true
 field_send_final_email:
     label: 'Schlussmitteilung versenden'
+    expose: true
     loginRequired: true
 field_sign_language_overview_video_edit:
     description: 'User with this permission are able to upload a video file for their current customer including a title and description.'

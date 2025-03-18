@@ -251,6 +251,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      */
     protected function setGlobalPermissions(): void
     {
+        if ($this->user->hasAnyOfRoles([Role::PLANNING_AGENCY_ADMIN, Role::PLANNING_AGENCY_WORKER, Role::PRIVATE_PLANNING_AGENCY])) {
+            $this->enablePermissions([
+                'feature_list_restricted_external_links',
+            ]);
+        }
+
         if ($this->user->hasAnyOfRoles(
             [
                 Role::PUBLIC_AGENCY_COORDINATION,
@@ -940,7 +946,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             }
         } else {
             // Give devs a hint that the permissions here need to be reworked
-            $this->logger->info('This area has no explicit permission specified! '
+            $this->logger->debug('This area has no explicit permission specified! '
                         .'Please provide a permission to be checked using the attribute #[DplanPermissions] or annotation @DplanPermissions.', \debug_backtrace(0, 4));
         }
     }

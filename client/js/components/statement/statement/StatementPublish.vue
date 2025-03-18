@@ -72,6 +72,7 @@
 
       <dp-inline-notification
         v-if="hasPermission('feature_statements_vote')"
+        class="mt-3 mb-2"
         :message="Translator.trans('explanation.statement.public.activate.voting')"
         type="info" />
     </div>
@@ -84,7 +85,6 @@
 </template>
 
 <script>
-import { DpInlineNotification } from '@demos-europe/demosplan-ui'
 import VotingStatus from './VotingStatus'
 
 export default {

@@ -193,6 +193,12 @@ class OzgKeycloakUserDataMapper
          */
         if (User::ANONYMOUS_USER_ORGA_NAME !== $this->ozgKeycloakUserData->getOrganisationName()) {
             $existingOrga->setName($this->ozgKeycloakUserData->getOrganisationName());
+
+            $existingOrga->setStreet($this->ozgKeycloakUserData->getStreet());
+            $existingOrga->setAddressExtension($this->ozgKeycloakUserData->getAddressExtension());
+            $existingOrga->setHouseNumber($this->ozgKeycloakUserData->getHouseNumber());
+            $existingOrga->setPostalcode($this->ozgKeycloakUserData->getPostalCode());
+            $existingOrga->setCity($this->ozgKeycloakUserData->getCity());
         }
         // what OrgaTypes are needed to be set and accepted regarding the requested Roles?
         $orgaTypesNeededToBeAccepted = $this->getOrgaTypesToSetupRequestedRoles($requstedRoles);
@@ -530,6 +536,9 @@ class OzgKeycloakUserDataMapper
         if (0 !== $violations->count()) {
             throw ViolationsException::fromConstraintViolationList($violations);
         }
+
+        // user is provided by the identity provider
+        $dplanUser->setProvidedByIdentityProvider(true);
 
         $this->entityManager->persist($dplanUser);
         $this->entityManager->flush();

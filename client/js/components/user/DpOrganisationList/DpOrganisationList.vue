@@ -31,14 +31,16 @@
           class="o-list o-list--card u-mb"
           data-cy="pendingOrganisationList">
           <dp-organisation-list-item
-            class="o-list__item"
             v-for="(item, idx) in pendingOrgs"
             :key="`pendingOrganisation:${idx}`"
+            :additional-field-options="additionalFieldOptions"
             :available-orga-types="availableOrgaTypes"
+            class="o-list__item"
+            data-cy="pendingOrganisationListBlk"
+            module-name="Pending"
             :organisation="item"
             :selectable="false"
-            module-name="Pending"
-            data-cy="pendingOrganisationListBlk" />
+            @addonOptions:loaded="setAdditionalFieldOptions" />
         </ul>
         <dp-sliding-pagination
           v-if="pendingOrganisationsTotalPages > 1"
@@ -134,14 +136,16 @@
         data-cy="organisationList">
         <ul class="o-list o-list--card u-mb">
           <dp-organisation-list-item
-            class="o-list__item"
             v-for="(item, idx) in items"
             :key="`organisation:${idx}`"
+            :additional-field-options="additionalFieldOptions"
             :available-orga-types="availableOrgaTypes"
+            class="o-list__item"
+            data-cy="organisationListBlk"
             :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
             :selectable="hasPermission('feature_orga_delete')"
             :organisation="item"
-            data-cy="organisationListBlk"
+            @addonOptions:loaded="setAdditionalFieldOptions"
             @item:selected="dpToggleOne" />
         </ul>
 
@@ -181,6 +185,7 @@ const orgaFields = {
     'subdomain'
   ].join(),
   Orga: [
+    'addressExtension',
     'canCreateProcedures',
     'ccEmail2',
     'city',
@@ -303,6 +308,7 @@ export default {
 
   data () {
     return {
+      additionalFieldOptions: [],
       filterItems: this.availableOrgaTypes.map(el => ({ id: el.value, label: Translator.trans(el.label) })),
       filterLabel: Translator.trans('organisation.kind') + ':',
       isInitialLoad: true,
@@ -360,14 +366,19 @@ export default {
         return
       }
 
-      ids.forEach(id => {
+      const deleteOrganisations = ids.map(id =>
         this.deleteOrganisation(id)
           .then(() => {
             // Remove deleted item from itemSelections
             delete this.itemSelections[id]
             // Confirm notification for organisations is done in BE
           })
-      })
+      )
+
+      Promise.all(deleteOrganisations)
+        .then(() => {
+          this.getItemsByPage()
+        })
     },
 
     fetchFilteredOrganisations (selected, page) {
@@ -498,6 +509,10 @@ export default {
       this.searchTerm = ''
       this.noResults = false
       this.getItemsByPage()
+    },
+
+    setAdditionalFieldOptions (options) {
+      this.additionalFieldOptions = options
     }
   },
 

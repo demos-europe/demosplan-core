@@ -56,6 +56,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public const HEARING_AUTHORITY_ROLES = [RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER];
     public const PLANNING_AGENCY_ROLES = [RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER];
     public const PUBLIC_AGENCY_ROLES = [RoleInterface::PUBLIC_AGENCY_COORDINATION, RoleInterface::PUBLIC_AGENCY_WORKER];
+    public const CUSTOMER_MASTER_USER_ROLE = [RoleInterface::CUSTOMER_MASTER_USER];
     /**
      * @var string|null
      *
@@ -1109,6 +1110,19 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
         if ($this->departments instanceof Collection && $this->departments->contains($department)) {
             $this->departments->removeElement($department);
         }
+    }
+
+    public function removeRoleInCustomer(RoleInterface $role, CustomerInterface $customer): UserRoleInCustomerInterface
+    {
+        $roleInCustomer = $this->getRoleInCustomers()->filter(
+            function (UserRoleInCustomerInterface $roleInCustomer) use ($role, $customer) {
+                return $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId();
+            }
+        )->first();
+
+        $this->roleInCustomers->removeElement($roleInCustomer);
+
+        return $roleInCustomer;
     }
 
     /**
