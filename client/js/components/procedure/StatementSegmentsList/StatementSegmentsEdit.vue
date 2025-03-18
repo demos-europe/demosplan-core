@@ -388,6 +388,7 @@ export default {
     updateStatementText (val) {
       let fullText = val
       if (this.transformedText && this.transformedText !== fullText) {
+        
         fullText = this.transformedText
       }
 
