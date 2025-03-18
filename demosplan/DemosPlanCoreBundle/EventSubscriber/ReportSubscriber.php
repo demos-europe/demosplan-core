@@ -108,11 +108,11 @@ class ReportSubscriber extends BaseEventSubscriber
      */
     private function createPlanDrawReportOnDemand(ProcedureEditedEvent $event): void
     {
-        $originPlanPDF = $event->getOriginalProcedureArray()['planPDF'] ?? null;
-        $originPlanDrawPDF = $event->getOriginalProcedureArray()['planDrawPDF'] ?? null;
+        $originPlanPDF = $event->getOriginalProcedureArray()[ProcedureEditedEvent::PLAN_PDF] ?? null;
+        $originPlanDrawPDF = $event->getOriginalProcedureArray()[ProcedureEditedEvent::PLAN_DRAW_PDF] ?? null;
 
-        $incomingPlanPDF = $event->getInData()['planPDF'] ?? null;
-        $incomingPlanDrawPDF = $event->getInData()['planDrawPDF'] ?? null;
+        $incomingPlanPDF = $event->getInData()[ProcedureEditedEvent::PLAN_PDF] ?? null;
+        $incomingPlanDrawPDF = $event->getInData()[ProcedureEditedEvent::PLAN_DRAW_PDF] ?? null;
 
         if ((null !== $originPlanPDF && null !== $incomingPlanPDF)
             || (null !== $originPlanDrawPDF && null !== $incomingPlanDrawPDF)) {
