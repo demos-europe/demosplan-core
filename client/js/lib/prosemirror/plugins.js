@@ -76,6 +76,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
         console.log('meta: ', meta)
 
         if (meta && meta.editing) {
+          console.log('EDITING')
           /**
            * In case prosemirror updates are triggered inside the callback we want to avoid triggering the callback again.
            * This does not allow the calling code to react to changes made by their own callback but it removes
@@ -94,6 +95,8 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
             activeDecorationPosition: null
           }
         } else if (meta && !meta.editing) {
+          console.log('!EDITING')
+
           /**
            * In case prosemirror updates are triggered inside the callback we want to avoid triggering the callback again.
            * This does not allow the calling code to react to changes made by their own callback but it removes
@@ -110,6 +113,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
             activeDecorationPosition: null
           }
         } else if (move.moving) {
+          console.log('MOVING')
           const { fixed, active } = move.positions
           console.log('fixed: ', fixed)
           const selection = tr.selection
