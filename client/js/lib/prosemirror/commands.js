@@ -153,7 +153,6 @@ const setRangeEditingState = (view, rangeTrackerKey, editingDecorationsKey) => (
 const replaceMarkInRange = (state, from, to, markKey, markAttrs, tr = false) => {
   const pmId = uuidv4()
   const newAttrs = { ...markAttrs, pmId }
-  // Console.log('markKey', markKey)
   const markType = state.config.schema.marks[markKey]
   let transaction = tr || state.tr
 
@@ -243,7 +242,6 @@ const makeDecoration = (id, pos, isActive = false) => {
  *
  */
 const genEditingDecorations = (state, from, to, id, activePosition = null) => {
-  console.log('from to', from, to)
   const start = Decoration.widget(from, makeDecoration(id, from, activePosition === from), { id })
   const end = Decoration.widget(to, makeDecoration(id, to, activePosition === to), { id })
 
@@ -263,7 +261,7 @@ const genEditingDecorations = (state, from, to, id, activePosition = null) => {
  * @param {Number} activationPosition
  *
  */
-const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, rangeId, positions = { active: null, fixed: null }) => {
+const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, rangeId) => {
   const { state, dispatch } = view
   let tr = state.tr
 
@@ -271,12 +269,12 @@ const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, rangeId, 
    * This block sets the cursor near the activated range handle. It then toggles the range editing mode by notifying
    * the editStateTracker-plugin via a meta message.
    */
-  tr = tr.setSelection(TextSelection.near(state.doc.resolve(positions.active)))
   const range = rangeTrackerKey.getState(state)[rangeId]
-  console.log('activateRangeEdit - range: ', range)
-  tr = tr.setMeta(editStateTrackerKey, { id: rangeId, pos: positions.active, moving: true, positions: { active: range.to, fixed: range.from } })
+  const positions = { active: range.to, fixed: range.from }
 
-  //  Tr = tr.setMeta(editStateTrackerKey, { id: rangeId, pos: positions.active, moving: true, positions })
+  tr = tr.setSelection(TextSelection.near(state.doc.resolve(range.to)))
+  tr = tr.setMeta(editStateTrackerKey, { id: rangeId, pos: positions.active, moving: true, positions })
+
   dispatch(tr)
 
   /**

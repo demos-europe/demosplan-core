@@ -471,8 +471,7 @@ export default {
         this.prosemirror.view,
         rangeTrackerKey,
         editStateTrackerKey,
-        id,
-        { active: this.editingSegment.charEnd, fixed: this.editingSegment.charStart }
+        id
       )
       this.ignoreProsemirrorUpdates = false
     },
@@ -643,7 +642,7 @@ export default {
       setRange(this.prosemirror.view)(segment.charStart, segment.charEnd, { rangeId: segment.id, isConfirmed: true, isActive: false })
       const { rangeTrackerKey, editingDecorationsKey, editStateTrackerKey } = this.prosemirror.keyAccess
       setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(segment.id, true)
-      activateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id, { active: segment.charEnd, fixed: segment.charStart })
+      // ActivateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id, { active: segment.charEnd, fixed: segment.charStart })
       this.ignoreProsemirrorUpdates = false
     },
 

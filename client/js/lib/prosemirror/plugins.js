@@ -53,7 +53,6 @@ import { Schema } from 'prosemirror-model'
  *
  */
 const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editToggleCallback) => {
-  console.log('pluginKey', pluginKey)
   return new Plugin({
     callbackPayload: null,
     callbackRunning: false,
@@ -70,10 +69,6 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
       apply (tr, pluginState, _, newState) {
         const meta = tr.getMeta(pluginKey)
         const move = editingTrackerKey.getState(newState)
-
-        console.log('editingTrackerKey', editingTrackerKey)
-        console.log('pluginKey', pluginKey)
-        console.log('meta: ', meta)
 
         if (meta && meta.editing) {
           console.log('EDITING')
@@ -114,14 +109,9 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
           }
         } else if (move.moving) {
           console.log('MOVING')
-          const { fixed, active } = move.positions
-          console.log('fixed: ', fixed)
+          const { fixed } = move.positions
           const selection = tr.selection
-          console.log('selection: ', selection)
-          console.log('newState.selection.$head.pos: ', newState.selection.$head.pos)
-
           const newDecorationPosition = selection.$head.pos
-          console.log('newDecorationPosition: ', newDecorationPosition)
 
           const { from, to } = getMinMax(fixed, newDecorationPosition)
 
@@ -160,9 +150,6 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
     appendTransaction (_, oldState, newState) {
       const position = pluginKey.getState(newState).position
       const move = editingTrackerKey.getState(newState)
-
-      console.log('pluginKey.getState(oldState)', pluginKey.getState(oldState))
-      console.log('pluginKey.getState(newState)', pluginKey.getState(newState))
 
       /**
        * If a rangeselection handle is clicked, the from and to positions are temporarily set to the same value.
