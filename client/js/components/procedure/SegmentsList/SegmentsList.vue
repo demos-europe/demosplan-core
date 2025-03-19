@@ -193,9 +193,9 @@
             {{ placesObject[rowData.relationships.place.data.id].attributes.name }}
           </template>
           <template v-slot:text="rowData">
-            <div
-              v-cleanhtml="rowData.attributes.text"
-              class="overflow-word-break c-styled-html" />
+            <text-content-renderer
+              class="overflow-word-break c-styled-html"
+              :text="rowData.attributes.text" />
           </template>
           <template v-slot:recommendation="rowData">
             <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
@@ -300,6 +300,7 @@ import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
 export default {
   name: 'SegmentsList',
@@ -319,6 +320,7 @@ export default {
     ImageModal,
     StatementMetaTooltip,
     StatusBadge,
+    TextContentRenderer,
     VPopover
   },
 
