@@ -7,14 +7,12 @@
  * All rights reserved
  */
 
-import { createLocalVue } from '@vue/test-utils'
 import DpPublicStatement from '@DpJs/components/statement/publicStatementLists/DpPublicStatement'
 import { generateMenuItems } from '@DpJs/components/statement/publicStatementLists/menuItems'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('DpPublicStatement', () => {
   it('should mount', () => {
-    const localVue = createLocalVue()
     const wrapper = shallowMountWithGlobalMocks(DpPublicStatement, {
       propsData: {
         attachments: [],
@@ -38,8 +36,7 @@ describe('DpPublicStatement', () => {
         submittedDate: null,
         text: '',
         user: 'buerger new'
-      },
-      localVue
+      }
     })
 
     expect(wrapper).toBeDefined()
