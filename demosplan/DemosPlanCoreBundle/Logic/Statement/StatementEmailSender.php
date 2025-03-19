@@ -34,16 +34,16 @@ use Doctrine\DBAL\Exception;
 class StatementEmailSender extends CoreService
 {
     public function __construct(
-        protected AssignService                            $assignService,
-        protected PermissionsInterface                     $permissions,
-        protected StatementFragmentService                 $statementFragmentService,
-        protected ConsultationTokenService                 $consultationTokenService,
-        protected StatementAttachmentService               $statementAttachmentService,
-        protected CurrentProcedureService                  $currentProcedureService,
-        protected StatementService                         $statementService,
+        protected AssignService $assignService,
+        protected PermissionsInterface $permissions,
+        protected StatementFragmentService $statementFragmentService,
+        protected ConsultationTokenService $consultationTokenService,
+        protected StatementAttachmentService $statementAttachmentService,
+        protected CurrentProcedureService $currentProcedureService,
+        protected StatementService $statementService,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
-        private readonly UserService                       $userService,
-        private readonly MessageBagInterface               $messageBag, private readonly MailService $mailService, private readonly FileService $fileService, private readonly CurrentUserService $currentUserService,
+        private readonly UserService $userService,
+        private readonly MessageBagInterface $messageBag, private readonly MailService $mailService, private readonly FileService $fileService, private readonly CurrentUserService $currentUserService,
     ) {
     }
 
@@ -53,6 +53,7 @@ class StatementEmailSender extends CoreService
             $statement = $this->statementService->getStatement($statementId);
             if (null === $statement) {
                 $this->messageBag->add('error', 'error.statement.final.send');
+
                 return false;
             }
 
@@ -60,29 +61,27 @@ class StatementEmailSender extends CoreService
             $ccEmailAddresses = $this->detectCCEmailAddresses($sendEmailCC);
             $successMessageTranslationParams = [];
 
-
             $attachments = array_map($this->createSendableAttachment(...), $emailAttachments);
             $attachmentNames = array_column($attachments, 'name');
 
-
-           if (Statement::EXTERNAL === $statement->getPublicStatement()) {
-               if ('email' === $statement->getFeedback()) {
-                   $successMessageTranslationParams['sent_to'] = 'citizen_only';
-                   $this->sendFinalStatementEmail(
-                       $statement,
-                       $subject,
-                       $ccEmailAddresses,
-                       $emailVariables,
-                       $attachments,
-                       $attachmentNames,
-                       $statement->getMeta()->getOrgaEmail(),
-                   );
-                   // If the mail is sent once in CC, it doesn't need to be sent in CC again later.
-                   $ccEmailAddresses = [];
-               }
-           } elseif ('' != $statement->getMeta()->getOrgaEmail()) {
-                   $successMessageTranslationParams['sent_to'] = 'institution_only';
-                   $this->sendFinalStatementEmail(
+            if (Statement::EXTERNAL === $statement->getPublicStatement()) {
+                if ('email' === $statement->getFeedback()) {
+                    $successMessageTranslationParams['sent_to'] = 'citizen_only';
+                    $this->sendFinalStatementEmail(
+                        $statement,
+                        $subject,
+                        $ccEmailAddresses,
+                        $emailVariables,
+                        $attachments,
+                        $attachmentNames,
+                        $statement->getMeta()->getOrgaEmail(),
+                    );
+                    // If the mail is sent once in CC, it doesn't need to be sent in CC again later.
+                    $ccEmailAddresses = [];
+                }
+            } elseif ('' != $statement->getMeta()->getOrgaEmail()) {
+                $successMessageTranslationParams['sent_to'] = 'institution_only';
+                $this->sendFinalStatementEmail(
                     $statement,
                     $subject,
                     $ccEmailAddresses,
@@ -96,7 +95,7 @@ class StatementEmailSender extends CoreService
             } else {
                 /** @var User $user */
                 $user = $this->userService->getSingleUser($statement->getUId());
-                $recipientEmailAddress = $this->determineRecipientEmailAddressInstitution($statement,$user);
+                $recipientEmailAddress = $this->determineRecipientEmailAddressInstitution($statement, $user);
                 if (!empty($recipientEmailAddress)) {
                     $successMessageTranslationParams['sent_to'] = 'institution_only';
                     $this->sendFinalStatementEmail(
@@ -109,7 +108,7 @@ class StatementEmailSender extends CoreService
                         $recipientEmailAddress
                     );
                     // If the mail is sent once in CC, it doesn't need to be sent in CC again later.
-                    //If we dont do this, it will spam the $ccEmailAddresses when sending email to voters will happen
+                    // If we dont do this, it will spam the $ccEmailAddresses when sending email to voters will happen
                     $ccEmailAddresses = [];
                 }
 
@@ -129,7 +128,6 @@ class StatementEmailSender extends CoreService
                 }
             }
 
-
             if (!$statement->getVotes()->isEmpty()) {
                 $this->sendEmailToVoters($statement, $subject, $ccEmailAddresses, $emailVariables, $attachments, $attachmentNames);
                 $successMessageTranslationParams['voters_count'] = count($statement->getVotes());
@@ -139,25 +137,23 @@ class StatementEmailSender extends CoreService
                     $successMessageTranslationParams['sent_to'] = 'voters_only';
                 }
             }
-
-        }
-        catch (InvalidDataException) {
+        } catch (InvalidDataException) {
             $this->messageBag->add('error', 'error.statement.final.send.syntax.email.cc');
-            return false;
-        }
 
-        catch (InvalidArgumentException) {
+            return false;
+        } catch (InvalidArgumentException) {
             $this->messageBag->add('error', 'error.statement.final.send.noemail');
+
             return false;
         }
-
 
         $this->messageBag->add('confirm', 'confirm.statement.final.sent', $successMessageTranslationParams);
         $this->messageBag->add('confirm', 'confirm.statement.final.sent.emailCC');
+
         return true;
     }
 
-    private function determineRecipientEmailAddressInstitution($statement,$user): array
+    private function determineRecipientEmailAddressInstitution($statement, $user): array
     {
         // Regular submitted statement (ToeB)
         if ('' === $statement->getUId()) {
@@ -172,11 +168,10 @@ class StatementEmailSender extends CoreService
         }
 
         return [];
-
     }
 
-    private function determineRecipientEmailAddressInstitutionCoordinator ($statement, $user): string {
-
+    private function determineRecipientEmailAddressInstitutionCoordinator($statement, $user): string
+    {
         // Detect email address of the submitting institution coordinator, if not identical to the submitter
         if (null !== $statement->getMeta()->getSubmitUId()) {
             $submitUser = $this->userService->getSingleUser($statement->getMeta()->getSubmitUId());
@@ -189,24 +184,27 @@ class StatementEmailSender extends CoreService
         return '';
     }
 
-    private function detectRecipientParticipationEmailAddresses($user): array {
+    private function detectRecipientParticipationEmailAddresses($user): array
+    {
         $recipients = [];
         /** @var User $user */
 
-        //Participation email address is found on Statement details view > Grundeinstellungen > Intern section > E-Mail Verfahrensträger
+        // Participation email address is found on Statement details view > Grundeinstellungen > Intern section > E-Mail Verfahrensträger
         if (0 < strlen($user->getOrga()->getParticipationEmail())) {
             $recipients[] = $user->getOrga()->getParticipationEmail();
         }
 
-        //CcEmail2 addresses are found on Statement details view > Grundeinstellungen > Intern section > Weitere Empfänger*innen
+        // CcEmail2 addresses are found on Statement details view > Grundeinstellungen > Intern section > Weitere Empfänger*innen
         if (null !== $user->getOrga()->getCcEmail2()) {
             $ccUsersEmail = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $user->getOrga()->getCcEmail2());
             $recipients = array_merge($recipients, $ccUsersEmail);
         }
+
         return $recipients;
     }
 
-    private function sendEmailToVoters($statement, $subject, $emailcc, $vars, $attachments, $attachmentNames): void {
+    private function sendEmailToVoters($statement, $subject, $emailcc, $vars, $attachments, $attachmentNames): void
+    {
         /** @var StatementVote $vote */
         foreach ($statement->getVotes() as $vote) {
             $voteEmailAddress = $vote->getUserMail();
@@ -220,13 +218,12 @@ class StatementEmailSender extends CoreService
                     $attachmentNames,
                     $voteEmailAddress
                 );
-
             }
         }
     }
 
-    private function sendFinalStatementEmail ($statement, $subject, $emailcc, $vars, $attachments, $attachmentNames, $recipientEmailAddress): void {
-
+    private function sendFinalStatementEmail($statement, $subject, $emailcc, $vars, $attachments, $attachmentNames, $recipientEmailAddress): void
+    {
         $procedure = $this->currentProcedureService->getProcedureWithCertainty();
         $from = $procedure->getAgencyMainEmailAddress();
 
@@ -256,10 +253,10 @@ class StatementEmailSender extends CoreService
                 $attachmentNames
             );
         }
-
     }
 
-    private function detectCCEmailAddresses($sendEmailCC): array {
+    private function detectCCEmailAddresses($sendEmailCC): array
+    {
         $ccEmailAddresses = [];
 
         if ($this->permissions->hasPermission('feature_send_final_email_cc_to_self')) {
@@ -292,7 +289,8 @@ class StatementEmailSender extends CoreService
     /**
      * @throws InvalidDataException
      */
-    private function extractAndValidateCcEmails($sendEmailCC): array {
+    private function extractAndValidateCcEmails($sendEmailCC): array
+    {
         $syntaxEmailErrors = [];
         $emailcc = [];
         // Split string into individual email addresses

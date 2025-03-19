@@ -409,11 +409,11 @@ class MailService extends CoreService
                 foreach ($mail->getAttachments() as $attachment) {
                     try {
                         if ($attachment->getDeleteOnSent()
-                            && $mail->getStatus() === 'sent'
+                            && 'sent' === $mail->getStatus()
                             && $this->defaultStorage->fileExists($attachment->getFilename())
-                            ) {
-                                $this->defaultStorage->delete($attachment->getFilename());
-                            }
+                        ) {
+                            $this->defaultStorage->delete($attachment->getFilename());
+                        }
                     } catch (Exception $exception) {
                         $this->logger->warning('failed to remove email attachment', [$exception]);
                     }

@@ -358,7 +358,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->user
                 ->setRelationshipType($this->resourceTypeStore->getUserResourceType())
                 ->setReadableByPath();
-
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {

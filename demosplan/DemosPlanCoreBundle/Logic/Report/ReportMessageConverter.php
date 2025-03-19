@@ -116,19 +116,19 @@ class ReportMessageConverter
                 }
             } elseif (ReportEntry::GROUP_ELEMENT === $group) { // Planungsdokumentenkategorien
                 $message = match ($category) {
-                    ReportEntry::CATEGORY_ADD => $this->translator->trans('report.add.element', $this->createElementMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_ADD    => $this->translator->trans('report.add.element', $this->createElementMessageData($reportEntryMessage)),
                     ReportEntry::CATEGORY_UPDATE => $this->translator->trans('report.update.element', $this->createElementMessageData($reportEntryMessage)),
                     ReportEntry::CATEGORY_DELETE => $this->createDeleteElementMessage($reportEntryMessage),
                 };
             } elseif (ReportEntry::GROUP_PARAGRAPH === $group) { // Kapitel
                 $message = match ($category) {
-                    ReportEntry::CATEGORY_ADD => $this->translator->trans('report.add.paragraph', $this->createParagraphMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_ADD    => $this->translator->trans('report.add.paragraph', $this->createParagraphMessageData($reportEntryMessage)),
                     ReportEntry::CATEGORY_UPDATE => $this->translator->trans('report.update.paragraph', $this->createParagraphMessageData($reportEntryMessage)),
-                    ReportEntry::CATEGORY_DELETE => $this->translator->trans('report.delete.paragraph',$reportEntryMessage),
+                    ReportEntry::CATEGORY_DELETE => $this->translator->trans('report.delete.paragraph', $reportEntryMessage),
                 };
             } elseif (ReportEntry::GROUP_SINGLE_DOCUMENT === $group) { // Planungsdokumente
                 $message = match ($category) {
-                    ReportEntry::CATEGORY_ADD => $this->translator->trans('report.add.singleDocument', $this->createSingleDocumentMessageData($reportEntryMessage)),
+                    ReportEntry::CATEGORY_ADD    => $this->translator->trans('report.add.singleDocument', $this->createSingleDocumentMessageData($reportEntryMessage)),
                     ReportEntry::CATEGORY_UPDATE => $this->translator->trans('report.update.singleDocument', $this->createSingleDocumentMessageData($reportEntryMessage)),
                     ReportEntry::CATEGORY_DELETE => $this->translator->trans('report.delete.singleDocument', $reportEntryMessage),
                 };
@@ -874,22 +874,21 @@ class ReportMessageConverter
         $planDrawMessage = '';
 
         if (array_key_exists('planDrawFile', $reportEntryMessage)) {
-
             if ('' === $reportEntryMessage['planDrawFile']['old'] && '' !== $reportEntryMessage['planDrawFile']['new']) {
                 $planDrawMessage .= $this->translator->trans('report.create.planDrawingFile', [
-                        'fileName' => $this->getFileName($reportEntryMessage['planDrawFile']['new']),
-                    ]
+                    'fileName' => $this->getFileName($reportEntryMessage['planDrawFile']['new']),
+                ]
                 );
             } elseif ('' !== $reportEntryMessage['planDrawFile']['old'] && '' === $reportEntryMessage['planDrawFile']['new']) {
                 $planDrawMessage .= $this->translator->trans('report.delete.planDrawingFile', [
-                        'fileName' => $this->getFileName($reportEntryMessage['planDrawFile']['old']),
-                    ]
+                    'fileName' => $this->getFileName($reportEntryMessage['planDrawFile']['old']),
+                ]
                 );
             } else {
                 $planDrawMessage .= $this->translator->trans('report.update.planDrawingFile', [
-                        'oldFileName' => $this->getFileName($reportEntryMessage['planDrawFile']['old']),
-                        'newFileName' => $this->getFileName($reportEntryMessage['planDrawFile']['new']),
-                    ]
+                    'oldFileName' => $this->getFileName($reportEntryMessage['planDrawFile']['old']),
+                    'newFileName' => $this->getFileName($reportEntryMessage['planDrawFile']['new']),
+                ]
                 );
             }
         }
@@ -897,19 +896,19 @@ class ReportMessageConverter
         if (array_key_exists('planDrawingExplanation', $reportEntryMessage)) {
             if ('' === $reportEntryMessage['planDrawingExplanation']['old'] && '' !== $reportEntryMessage['planDrawingExplanation']['new']) {
                 $planDrawMessage .= $this->translator->trans('report.create.planDrawingExplanation', [
-                        'fileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['new']),
-                    ]
+                    'fileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['new']),
+                ]
                 );
             } elseif ('' !== $reportEntryMessage['planDrawingExplanation']['old'] && '' === $reportEntryMessage['planDrawingExplanation']['new']) {
                 $planDrawMessage .= $this->translator->trans('report.delete.planDrawingExplanation', [
-                        'fileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['old']),
-                    ]
+                    'fileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['old']),
+                ]
                 );
             } else {
                 $planDrawMessage .= $this->translator->trans('report.update.planDrawingExplanation', [
-                        'oldFileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['old']),
-                        'newFileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['new']),
-                    ]
+                    'oldFileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['old']),
+                    'newFileName' => $this->getFileName($reportEntryMessage['planDrawingExplanation']['new']),
+                ]
                 );
             }
         }
@@ -932,8 +931,8 @@ class ReportMessageConverter
 
         return $this->translator->trans('report.delete.element',
             [
-                'title' => $reportEntryMessage['title'],
-                'category' => $elementCategory,
+                'title'               => $reportEntryMessage['title'],
+                'category'            => $elementCategory,
                 'nameOfInternalPhase' => $reportEntryMessage['nameOfInternalPhase'],
                 'nameOfExternalPhase' => $reportEntryMessage['nameOfExternalPhase'],
             ]
