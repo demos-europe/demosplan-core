@@ -397,6 +397,5 @@ class SegmentsExporter
         return
             ($statement->isSubmittedByOrganisation() && $censorInstitutionData)
             || ($statement->isSubmittedByCitizen() && $censorCitizenData);
-
     }
 }
