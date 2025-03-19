@@ -210,14 +210,14 @@
                       <br>{{ Translator.trans('position') }}: {{ statement.userPosition }}
                     </template>
                   </template>
-                  <template v-else>
+                  <template v-if="!hasOwnProp(statement, 'initialOrganisationName')">
                     {{ Translator.trans('notspecified') }}
                   </template>
                 </v-popover>
               </div>
             </div>
             <div
-              v-else-if="true === statement.isCluster && statement.clusterName !== ''"
+              v-if="statement.isCluster && statement.clusterName !== ''"
               class="u-1-of-1 u-pb-0_25">
               <div class="o-hellip--nowrap u-1-of-1">
                 {{ Translator.trans('statement.cluster.name') }}: {{ statement.clusterName }}
@@ -540,73 +540,71 @@
             class="u-pb-0 u-pt-0"
             is-fullscreen-row
             :border-bottom="(statement.files.length > 0)">
-            <template>
-              <dp-claim
-                v-if="hasPermission('feature_statement_assignment')"
-                class="c-at-item__row-icon inline-block fullscreen-claim"
-                :assigned-id="(statement.assignee.id || '')"
-                :assigned-name="(statement.assignee.name || '')"
-                :assigned-organisation="(statement.assignee.orgaName || '')"
-                :current-user-id="currentUserId"
-                :current-user-name="currentUserName"
-                entity-type="statement"
-                :is-loading="updatingClaimState"
-                @click="updateClaim" />
-              <dl class="flex">
-                <!--
-                    Statement text
-                    With tiptap we can set obscure as prop always when the obscure button should be visible in the field,
-                    because the permission check (featureObscureText) takes place in tiptap
-                    -->
-                <editable-text
-                  class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right"
-                  title="statement"
-                  :procedure-id="procedureId"
-                  :initial-text="initText"
-                  :entity-id="statement.id"
-                  :editor-id="statement.id + '_statementText'"
-                  :initial-is-shortened="statement.textIsTruncated || false"
-                  full-text-fetch-route="dm_plan_assessment_get_statement_ajax"
-                  field-key="text"
-                  :editable="isClaimed"
-                  edit-label="statement.edit"
-                  mark
-                  :obscure="hasPermission('feature_obscure_text')"
-                  strikethrough
-                  height-limit-element-label="statement"
-                  @field:save="data => saveStatement(data, 'attribute', 'text')"
-                  ref="text" />
-                <!--
-                  Recommendation text
-               -->
-                <editable-text
-                  class="u-pb-0_25 u-pl-0_5 u-pt-0_25 u-1-of-2"
-                  title="recommendation"
-                  :procedure-id="procedureId"
-                  :initial-text="recommendationText"
-                  :entity-id="statement.id"
-                  :editor-id="statement.id + '_recommendation'"
-                  :initial-is-shortened="statement.recommendationIsTruncated || false"
-                  full-text-fetch-route="dm_plan_assessment_get_recommendation_ajax"
-                  field-key="recommendation"
-                  link-button
-                  :editable="isClaimed"
-                  edit-label="recommendation.of.statement.edit"
-                  height-limit-element-label="fragment"
-                  @field:save="data => saveStatement(data, 'attribute', 'recommendation')"
-                  ref="recommendation"
-                  :boiler-plate="hasPermission('area_admin_boilerplates')">
-                  <template
-                    v-slot:hint
-                    v-if="recommendationPubliclyVisible">
-                    {{ Translator.trans('recommendation.publicly.visible.short') }}
-                    <dp-contextual-help
-                      class="float-right u-mt-0_125"
-                      :text="Translator.trans('recommendation.publicly.visible')" />
-                  </template>
-                </editable-text>
-              </dl>
-            </template>
+            <dp-claim
+              v-if="hasPermission('feature_statement_assignment')"
+              class="c-at-item__row-icon inline-block fullscreen-claim"
+              :assigned-id="(statement.assignee.id || '')"
+              :assigned-name="(statement.assignee.name || '')"
+              :assigned-organisation="(statement.assignee.orgaName || '')"
+              :current-user-id="currentUserId"
+              :current-user-name="currentUserName"
+              entity-type="statement"
+              :is-loading="updatingClaimState"
+              @click="updateClaim" />
+            <dl class="flex">
+              <!--
+                  Statement text
+                  With tiptap we can set obscure as prop always when the obscure button should be visible in the field,
+                  because the permission check (featureObscureText) takes place in tiptap
+                  -->
+              <editable-text
+                class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right"
+                title="statement"
+                :procedure-id="procedureId"
+                :initial-text="initText"
+                :entity-id="statement.id"
+                :editor-id="statement.id + '_statementText'"
+                :initial-is-shortened="statement.textIsTruncated || false"
+                full-text-fetch-route="dm_plan_assessment_get_statement_ajax"
+                field-key="text"
+                :editable="isClaimed"
+                edit-label="statement.edit"
+                mark
+                :obscure="hasPermission('feature_obscure_text')"
+                strikethrough
+                height-limit-element-label="statement"
+                @field:save="data => saveStatement(data, 'attribute', 'text')"
+                ref="text" />
+              <!--
+                Recommendation text
+             -->
+              <editable-text
+                class="u-pb-0_25 u-pl-0_5 u-pt-0_25 u-1-of-2"
+                title="recommendation"
+                :procedure-id="procedureId"
+                :initial-text="recommendationText"
+                :entity-id="statement.id"
+                :editor-id="statement.id + '_recommendation'"
+                :initial-is-shortened="statement.recommendationIsTruncated || false"
+                full-text-fetch-route="dm_plan_assessment_get_recommendation_ajax"
+                field-key="recommendation"
+                link-button
+                :editable="isClaimed"
+                edit-label="recommendation.of.statement.edit"
+                height-limit-element-label="fragment"
+                @field:save="data => saveStatement(data, 'attribute', 'recommendation')"
+                ref="recommendation"
+                :boiler-plate="hasPermission('area_admin_boilerplates')">
+                <template
+                  v-slot:hint
+                  v-if="recommendationPubliclyVisible">
+                  {{ Translator.trans('recommendation.publicly.visible.short') }}
+                  <dp-contextual-help
+                    class="float-right u-mt-0_125"
+                    :text="Translator.trans('recommendation.publicly.visible')" />
+                </template>
+              </editable-text>
+            </dl>
           </dp-item-row><!--
          --><div
               v-if="statement.files.length > 0 || statement.sourceAttachment !== '' && statement.sourceAttachment?.filename"

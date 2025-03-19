@@ -38,8 +38,11 @@ export default {
   },
 
   watch: {
-    open (newVal) {
-      this.isOpen = newVal
+    open: {
+      handler (newVal) {
+        this.isOpen = newVal
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

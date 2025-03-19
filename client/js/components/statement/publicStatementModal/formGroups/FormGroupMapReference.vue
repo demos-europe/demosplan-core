@@ -166,6 +166,10 @@ export default {
     }
   },
 
+  emits: [
+    'statement-modal:goto-tab'
+  ],
+
   computed: {
     ...mapState('PublicStatement', ['activeActionBoxTab', 'highlighted']),
 
@@ -179,7 +183,7 @@ export default {
 
     gotoTab (tabName) {
       this.update({ key: 'activeActionBoxTab', val: 'draw' })
-      this.$parent.$parent.gotoTab(tabName)
+      this.$root.$emit('statement-modal:goto-tab', tabName)
     }
   }
 }

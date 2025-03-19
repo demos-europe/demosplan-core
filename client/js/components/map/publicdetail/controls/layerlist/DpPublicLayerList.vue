@@ -72,6 +72,10 @@ export default {
     }
   },
 
+  emits: [
+    'layer:toggleLayer'
+  ],
+
   computed: {
     showBaseLayers () {
       return hasPermission('feature_participation_area_procedure_detail_map_use_baselayerbox')
@@ -107,10 +111,13 @@ export default {
   },
 
   watch: {
-    isMapAndLayersReady () {
-      if (this.layerType === 'base' && this.firstActiveBaseLayerId === '') {
-        this.$root.$emit('layer:toggleLayer', { layerId: this.layers[0].id.replace(/-/g, ''), isVisible: true })
-      }
+    isMapAndLayersReady: {
+      handler () {
+        if (this.layerType === 'base' && this.firstActiveBaseLayerId === '') {
+          this.$root.$emit('layer:toggleLayer', { layerId: this.layers[0].id.replace(/-/g, ''), isVisible: true })
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

@@ -141,6 +141,12 @@ export default {
     }
   },
 
+  emits: [
+    'reset',
+    'save',
+    'toggleEditing'
+  ],
+
   data () {
     return {
       //  Is the item currently in editing mode (vs. just displaying its contents)?
@@ -174,10 +180,13 @@ export default {
     /*
      * When `editable` being set to false from outside, editing is also being disabled.
      */
-    editable (newVal) {
-      if (newVal === false) {
-        this.editingEnabled = false
-      }
+    editable: {
+      handler (newVal) {
+        if (newVal === false) {
+          this.editingEnabled = false
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
