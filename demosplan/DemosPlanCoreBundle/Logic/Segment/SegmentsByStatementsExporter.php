@@ -66,8 +66,15 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     /**
      * @throws Exception
      */
-    public function exportAll(array $tableHeaders, Procedure $procedure, bool $censored, bool $obscure, Statement ...$statements): WriterInterface
-    {
+    public function exportAll(
+        array $tableHeaders,
+        Procedure $procedure,
+        bool $censored,
+        bool $obscure,
+        bool $censorCitizenData = false,
+        bool $censorInstitutionData = false,
+        Statement ...$statements
+    ): WriterInterface {
         Settings::setOutputEscapingEnabled(true);
 
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
@@ -76,7 +83,16 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             return $this->exportEmptyStatements($phpWord, $procedure);
         }
 
-        return $this->exportStatements($phpWord, $procedure, $statements, $tableHeaders, $censored, $obscure);
+        return $this->exportStatements(
+            $phpWord,
+            $procedure,
+            $statements,
+            $tableHeaders,
+            $censored,
+            $censorCitizenData,
+            $censorInstitutionData,
+            $obscure
+        );
     }
 
     /**
@@ -180,6 +196,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         array $statements,
         array $tableHeaders,
         bool $censored,
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
         bool $obscure,
     ): WriterInterface {
         $section = $phpWord->addSection($this->styles['globalSection']);
@@ -187,6 +205,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $this->addHeader($section, $procedure);
 
         foreach ($statements as $index => $statement) {
+
+            $censored = $this->needsToBeCensored(
+                $statement,
+                $censorCitizenData,
+                $censorInstitutionData,
+            );
+
             $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscure);
             $section = $this->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
         }
@@ -232,11 +257,23 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @return array<string, Statement>
      */
-    public function mapStatementsToPathInZip(array $statements, bool $censored, string $fileNameTemplate = ''): array
-    {
+    public function mapStatementsToPathInZip(
+        array $statements,
+        bool $censored,
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
+        string $fileNameTemplate = ''
+    ): array {
         $pathedStatements = [];
         $previousKeysOfReaddedDuplicates = [];
         foreach ($statements as $statement) {
+
+            $censored = $this->needsToBeCensored(
+                $statement,
+                $censorCitizenData,
+                $censorInstitutionData,
+            );
+
             $pathInZip = $this->getPathInZip($statement, false, $fileNameTemplate, $censored);
             // in case of a duplicate, add the database ID to the name
             if (array_key_exists($pathInZip, $pathedStatements)) {
@@ -276,8 +313,12 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * the case that the extern ID is an empty string and the database ID is included in
      * the result.
      */
-    private function getPathInZip(Statement $statement, bool $withDbId, string $fileNameTemplate = '', bool $censored = false): string
-    {
+    private function getPathInZip(
+        Statement $statement,
+        bool $withDbId,
+        string $fileNameTemplate = '',
+        bool $censored = false
+    ): string {
         // prepare needed variables
         $dbId = $statement->getId();
 
@@ -363,5 +404,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $exportData['isClusterStatement'] = $segmentOrStatement->isClusterStatement();
 
         return $exportData;
+    }
+
+    public function needsToBeCensored(Statement $statement, bool $censorCitizenData, bool $censorInstitutionData): bool
+    {
+        return
+            ($statement->isSubmittedByOrganisation() && $censorInstitutionData)
+            || ($statement->isSubmittedByCitizen() && $censorCitizenData);
+
     }
 }
