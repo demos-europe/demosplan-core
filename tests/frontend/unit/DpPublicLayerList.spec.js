@@ -7,21 +7,21 @@
  * All rights reserved
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils'
+import { createApp } from 'vue'
+import { createStore } from 'vuex'
 import DpPublicLayerList from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerList'
-import Vuex from 'vuex'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
-const localVue = createLocalVue()
+const localVue = createApp({})
 
 const EventBusPlugin = {
-  install: function (localVue, options) {
-    localVue.prototype.emit = jest.fn()
-    localVue.prototype.on = jest.fn()
+  install: function (app, options) {
+    app.config.globalProperties.emit = jest.fn()
+    app.config.globalProperties.on = jest.fn()
   }
 }
 
 localVue.use(EventBusPlugin)
-localVue.use(Vuex)
 
 global.Bus = {
   emit: jest.fn(),
@@ -33,7 +33,7 @@ describe('DpPublicLayerList', () => {
   let getters
 
   beforeEach(() => {
-    store = new Vuex.Store({
+    store = createStore({
       getters
     })
 
@@ -46,14 +46,16 @@ describe('DpPublicLayerList', () => {
   })
 
   it('has the correct props', () => {
-    const wrapper = shallowMount(DpPublicLayerList, {
+    const wrapper = shallowMountWithGlobalMocks(DpPublicLayerList, {
       propsData: {
         layers: [],
         unfolded: false,
         layerType: 'overlay',
         layerGroupsAlternateVisibility: true
       },
-      store
+      global: {
+        plugins: [store]
+      }
     })
 
     expect(typeof wrapper.props().layers).toBe('object')
