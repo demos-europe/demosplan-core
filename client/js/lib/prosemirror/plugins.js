@@ -20,7 +20,7 @@ import {
 } from './utilities'
 import { genEditingDecorations, removeMarkByName, replaceMarkInRange, toggleRangeEdit } from './commands'
 import { Plugin, PluginKey } from 'prosemirror-state'
-import { rangeMark, rangeSelectionMark } from './marks'
+import { rangeSelectionMark, segmentsMark } from './marks'
 import { Schema } from 'prosemirror-model'
 
 /**
@@ -71,6 +71,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
         const move = editingTrackerKey.getState(newState)
 
         if (meta && meta.editing) {
+          console.log('EDITING')
           /**
            * In case prosemirror updates are triggered inside the callback we want to avoid triggering the callback again.
            * This does not allow the calling code to react to changes made by their own callback but it removes
@@ -89,6 +90,8 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
             activeDecorationPosition: null
           }
         } else if (meta && !meta.editing) {
+          console.log('!EDITING')
+
           /**
            * In case prosemirror updates are triggered inside the callback we want to avoid triggering the callback again.
            * This does not allow the calling code to react to changes made by their own callback but it removes
@@ -105,6 +108,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
             activeDecorationPosition: null
           }
         } else if (move.moving) {
+          console.log('MOVING')
           const { fixed } = move.positions
           const selection = tr.selection
           const newDecorationPosition = selection.$head.pos
@@ -256,7 +260,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
     key: rangeTrackerKey,
     state: {
       init (_, state) {
-        const ranges = getMarks(flattenNode(state.doc), 'range', 'rangeId')
+        const ranges = getMarks(flattenNode(state.doc), 'segmentsMark', 'rangeId')
 
         return ranges
       },
@@ -265,7 +269,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
           return pluginState
         }
 
-        const ranges = getMarks(flattenNode(newState.doc), 'range', 'rangeId')
+        const ranges = getMarks(flattenNode(newState.doc), 'segmentsMark', 'rangeId')
         const equal = ranges && pluginState && rangesEqual(pluginState, ranges)
         if (equal) {
           return pluginState
@@ -387,8 +391,13 @@ const rangeCreator = (pluginKey, rangeEditingKey) => {
  * @return {{schema, plugins: (prosemirror-plugin|*)[], keys: {rangeTrackerKey, editingDecorationsKey, rangeCreatorKey, editStateTrackerKey}}}
  */
 const initRangePlugin = (schema, rangeChangeCallback, editToggleCallback) => {
-  let marks = schema.spec.marks.addToStart('range', rangeMark)
-  marks = marks.addToStart('rangeselection', rangeSelectionMark)
+  // Let marks = schema.spec.marks.addToStart('range', rangeMark)
+  let marks = schema.spec.marks
+
+  if (!marks.get('rangeselection')) {
+    marks = marks.addToStart('rangeselection', rangeSelectionMark)
+  }
+
   const currentSchema = new Schema({
     nodes: schema.spec.nodes,
     marks
