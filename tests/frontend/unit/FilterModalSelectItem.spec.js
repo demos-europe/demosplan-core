@@ -7,24 +7,23 @@
  * All rights reserved
  */
 
+import { createStore } from 'vuex'
 import Filter from '@DpJs/store/statement/Filter'
 import FilterModalSelectItem from '@DpJs/components/statement/assessmentTable/FilterModalSelectItem'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
-import Vuex from 'vuex'
 
 describe('FilterModalSelectItem', () => {
   let wrapper
   let store
 
   beforeEach(() => {
-    store = new Vuex.Store({
+    store = createStore({
       modules: {
         Filter
       }
     })
 
     wrapper = shallowMountWithGlobalMocks(FilterModalSelectItem, {
-      store,
       propsData: {
         appliedFilterOptions: [],
         filterGroup: {},
@@ -36,6 +35,9 @@ describe('FilterModalSelectItem', () => {
           }
         },
         hidden: false
+      },
+      global: {
+        plugins: [store]
       }
     })
   })
