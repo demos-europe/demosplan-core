@@ -1,6 +1,6 @@
 runner:
     eslint:
-        cmd: "node_modules/.bin/eslint -c config/linters/eslintrc.js demosplan client"
+        cmd: "ESLINT_USE_FLAT_CONFIG=false eslint -c eslintrc.js --ext .js,.vue demosplan client"
 
     phpstan:
         cmd: "DEVELOPMENT_CONTAINER=1 php bin/test dplan:phpstan --ci -l1"
