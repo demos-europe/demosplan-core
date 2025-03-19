@@ -109,15 +109,32 @@ class SegmentsExportController extends BaseController
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
-            $requestHandler->getObjectsByQueryParams($this->requestStack->getCurrentRequest()->query, $statementResourceType)->getList()
+            $requestHandler->getObjectsByQueryParams(
+                $this->requestStack->getCurrentRequest()->query,
+                $statementResourceType
+            )->getList()
         );
 
         $censorParameter = $this->getBooleanQueryParameter(self::CENSOR_PARAMETER);
         $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
 
         $response = new StreamedResponse(
-            static function () use ($tableHeaders, $procedure, $statementEntities, $exporter, $censorParameter, $obscureParameter) {
-                $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, $censorParameter, $obscureParameter, ...$statementEntities);
+            static function () use (
+                $tableHeaders,
+                $procedure,
+                $statementEntities,
+                $exporter,
+                $censorParameter,
+                $obscureParameter
+            ) {
+                $exportedDoc = $exporter->exportAll(
+                    $tableHeaders,
+                    $procedure,
+                    $censorParameter,
+                    $obscureParameter,
+                    ...
+                    $statementEntities
+                );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );

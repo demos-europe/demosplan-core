@@ -64,8 +64,13 @@ class SegmentsExporter
     /**
      * @throws Exception
      */
-    public function export(Procedure $procedure, Statement $statement, array $tableHeaders, bool $isCensored, bool $isObscure): WriterInterface
-    {
+    public function export(
+        Procedure $procedure,
+        Statement $statement,
+        array $tableHeaders,
+        bool $isCensored,
+        bool $isObscure
+    ): WriterInterface {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
         $section = $phpWord->addSection($this->styles['globalSection']);
