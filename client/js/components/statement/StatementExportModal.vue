@@ -55,6 +55,13 @@
                 text: Translator.trans('export.docx.obscured'),
                 hint: Translator.trans('export.docx.obscured.hint')
               }" />
+            <dp-checkbox
+              id="isInsitution"
+              v-model="isInsitution"
+              :label="{
+                text: Translator.trans('export.docx.toeb'),
+                hint: Translator.trans('export.docx.toeb.hint')
+              }" />
           </template>
         </div>
       </fieldset>
@@ -75,10 +82,17 @@
               text: Translator.trans('export.docx.obscured'),
               hint: Translator.trans('export.docx.obscured.hint')
             }" />
+          <dp-checkbox
+            id="singleStatementInsitution"
+            v-model="isInsitution"
+            :label="{
+              text: Translator.trans('export.docx.toeb'),
+              hint: Translator.trans('export.docx.toeb.hint')
+            }" />
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored', 'docx_obscured', 'zip_obscured'].includes(this.active)">
+      <fieldset v-if="['docx_normal', 'zip_normal'].includes(this.active)">
         <legend
           id="docxColumnTitles"
           class="o-form__label text-base float-left mr-1"
