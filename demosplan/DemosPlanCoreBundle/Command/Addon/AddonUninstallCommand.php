@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command\Addon;
 
-use Composer\Console\Input\InputOption;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\PackageInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
@@ -29,6 +28,7 @@ use SplFileInfo;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -45,7 +45,7 @@ class AddonUninstallCommand extends CoreCommand
         private readonly AddonRegistry $registry,
         private readonly Registrator $registrator,
         ParameterBagInterface $parameterBag,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -151,6 +151,7 @@ class AddonUninstallCommand extends CoreCommand
     {
         $loader = new ArrayLoader();
         $installPath = $addonInfo->getInstallPath();
+        // uses local file, no need for flysystem
         $composerJsonArray = Json::decodeToArray(file_get_contents($installPath.'/composer.json'));
         if (!array_key_exists('version', $composerJsonArray)) {
             $composerJsonArray['version'] = PackageInformation::UNDEFINED_VERSION;
@@ -165,6 +166,7 @@ class AddonUninstallCommand extends CoreCommand
     private function deleteDirectory(AddonInfo $addonInfo, SymfonyStyle $output): void
     {
         $installPath = $addonInfo->getInstallPath();
+        // local file only, no need for flysystem
         $filesystem = new Filesystem();
         // remove files in symlinked target if they exist
         $symlinkedPath = $filesystem->readlink($installPath, true);
@@ -177,6 +179,7 @@ class AddonUninstallCommand extends CoreCommand
             $filesystem->remove($symlinkedPath);
         } else {
             // remove cache symlink to dev directory
+            // local file is valid, no need for flysystem
             unlink($cachePath);
         }
         $filesystem->remove($installPath);
@@ -205,12 +208,15 @@ class AddonUninstallCommand extends CoreCommand
 
     private function clearCache(SymfonyStyle $output): void
     {
+        // local file cache is deleted, no flysystem needed
+        $fs = new Filesystem();
+        $fs->remove(DemosPlanPath::getRootPath($this->parameterBag->get('kernel.cache_dir')));
+
         $kernel = $this->getApplication()->getKernel();
         $environment = $kernel->getEnvironment();
         /** @var DemosPlanKernel $kernel */
         $activeProject = $kernel->getActiveProject();
-        // do not warm up cache to avoid errors as the addon is still referenced in the container
-        $cacheClearCommand = ["bin/{$activeProject}", 'cache:clear', '-e', $environment, '--no-warmup', " && dp d:deploy {$activeProject} -ssync"];
+        $cacheClearCommand = ["bin/{$activeProject}", 'cache:clear', '-e', $environment];
 
         $batchReturn = Batch::create($this->getApplication(), $output)
             ->addShell($cacheClearCommand)

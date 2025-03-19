@@ -24,8 +24,8 @@ function initBarChart (elementId, elementLegendId) {
     return new BarChart({
       target: elementId,
       legendTarget: elementLegendId,
-      data: data,
-      texts: texts,
+      data,
+      texts,
       colors: getColorsFromCSS(cssColorClasses),
       activeColor: [getColorFromCSS('c-chart__color-active')]
     })

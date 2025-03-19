@@ -86,7 +86,7 @@ class SurveyTestUtils extends UnitTestCase
     }
 
     protected function checkFrontendVoteStructure(
-        array $frontendVote
+        array $frontendVote,
     ): void {
         $this->assertCount(3, $frontendVote);
         $this->assertArrayHasKey('id', $frontendVote);
@@ -96,7 +96,7 @@ class SurveyTestUtils extends UnitTestCase
 
     protected function checkFrontendVoteEqualsEntityVote(
         array $frontendVote,
-        SurveyVote $surveyVote
+        SurveyVote $surveyVote,
     ): void {
         $this->assertEquals($frontendVote['id'], $surveyVote->getId());
         $this->assertEquals($frontendVote['text'], $surveyVote->getText());
@@ -111,6 +111,7 @@ class SurveyTestUtils extends UnitTestCase
      */
     protected function getValidInputJson(string $mode = 'update'): string
     {
+        // uses local file, no need for flysystem
         $json = file_get_contents(__DIR__."/inputFiles/survey-input-$mode.json");
         $jsonArray = Json::decodeToArray($json);
         $jsonArray['procedureId'] = $this->getProcedureIdByReference('testProcedure');

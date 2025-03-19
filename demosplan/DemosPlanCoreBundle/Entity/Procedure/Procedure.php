@@ -1674,6 +1674,11 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->topics;
     }
 
+    public function detachAllTopics(): void
+    {
+        $this->topics->clear();
+    }
+
     /**
      * @return Collection<int, Orga>
      */
@@ -1941,6 +1946,22 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     public function getSubdomain(): string
+    {
+        // procedures should have a customer nowadays
+        if ($this->getCustomer() instanceof Customer) {
+            return $this->getCustomer()->getSubdomain();
+        }
+
+        return $this->getSubdomainByLegacyLogic();
+    }
+
+    /**
+     * This should not be used any more as it is not reliable and procedures
+     * should have a customer.
+     *
+     * @deprecated use {@link ProcedureInterface::getSubdomain()} instead
+     */
+    private function getSubdomainByLegacyLogic(): string
     {
         $orga = $this->getOrga();
         if (!$orga instanceof Orga) {

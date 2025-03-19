@@ -31,7 +31,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use LogicException;
 use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as EmailTwoFactorInterface;
 use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
 use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
@@ -57,6 +56,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public const HEARING_AUTHORITY_ROLES = [RoleInterface::HEARING_AUTHORITY_ADMIN, RoleInterface::HEARING_AUTHORITY_WORKER];
     public const PLANNING_AGENCY_ROLES = [RoleInterface::PLANNING_AGENCY_ADMIN, RoleInterface::PLANNING_AGENCY_WORKER];
     public const PUBLIC_AGENCY_ROLES = [RoleInterface::PUBLIC_AGENCY_COORDINATION, RoleInterface::PUBLIC_AGENCY_WORKER];
+    public const CUSTOMER_MASTER_USER_ROLE = [RoleInterface::CUSTOMER_MASTER_USER];
     /**
      * @var string|null
      *
@@ -1112,6 +1112,19 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
         }
     }
 
+    public function removeRoleInCustomer(RoleInterface $role, CustomerInterface $customer): UserRoleInCustomerInterface
+    {
+        $roleInCustomer = $this->getRoleInCustomers()->filter(
+            function (UserRoleInCustomerInterface $roleInCustomer) use ($role, $customer) {
+                return $roleInCustomer->getRole()->getId() === $role->getId() && $roleInCustomer->getCustomer()->getId() === $customer->getId();
+            }
+        )->first();
+
+        $this->roleInCustomers->removeElement($roleInCustomer);
+
+        return $roleInCustomer;
+    }
+
     /**
      * Unset Department.
      */
@@ -1825,11 +1838,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
 
     public function getEmailAuthCode(): string
     {
-        if (null === $this->authCode) {
-            throw new LogicException('The email authentication code was not set');
-        }
-
-        return $this->authCode;
+        return $this->authCode ?? '';
     }
 
     public function setEmailAuthCode(string $authCode): void

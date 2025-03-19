@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
@@ -31,9 +32,7 @@ use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\Shared\Html;
-use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -54,10 +53,11 @@ class SegmentsExporter
         private readonly ImageManager $imageManager,
         protected readonly ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,
-        TranslatorInterface $translator
+        StyleInitializer $styleInitializer,
+        TranslatorInterface $translator,
     ) {
         $this->translator = $translator;
-        $this->initializeStyles();
+        $this->styles = $styleInitializer->initialize();
         $this->slugify = $slugify;
     }
 
@@ -143,14 +143,23 @@ class SegmentsExporter
         return implode(', ', $submitterStrings);
     }
 
-    protected function addStatementInfo(Section $section, Statement $statement): void
+    protected function addStatementInfo(Section $section, Statement $statement, bool $censored = false): void
     {
         $table = $section->addTable($this->styles['statementInfoTable']);
-        $orgaInfoHeader = new ExportOrgaInfoHeader($statement, $this->currentUser, $this->translator);
+
+        if (!$censored) {
+            $orgaInfoHeader = new ExportOrgaInfoHeader($statement, $this->currentUser, $this->translator);
+        }
 
         if ('' !== $statement->getAuthoredDateString()) {
             $authoredDateRow = $table->addRow();
-            $this->addSegmentCell($authoredDateRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+
+            $this->addSegmentCell(
+                $authoredDateRow,
+                $censored ? '' : $orgaInfoHeader->getNextHeader(),
+                $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+            );
+
             $this->addSegmentCell($authoredDateRow, '', $this->styles['statementInfoEmptyCell']);
             $authoredAt = $this->translator->trans('statement.date.authored').': '.$statement->getAuthoredDateString();
             $this->addSegmentCell($authoredDateRow, $authoredAt, $this->styles['statementInfoTextCell']);
@@ -158,21 +167,39 @@ class SegmentsExporter
 
         if ('' !== $statement->getSubmitDateString()) {
             $submitDateRow = $table->addRow();
-            $this->addSegmentCell($submitDateRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+
+            $this->addSegmentCell(
+                $submitDateRow,
+                $censored ? '' : $orgaInfoHeader->getNextHeader(),
+                $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+            );
+
             $this->addSegmentCell($submitDateRow, '', $this->styles['statementInfoEmptyCell']);
             $submittedAt = $this->translator->trans('statement.date.submitted').': '.$statement->getSubmitDateString();
             $this->addSegmentCell($submitDateRow, $submittedAt, $this->styles['statementInfoTextCell']);
         }
 
         $textRow = $table->addRow();
-        $this->addSegmentCell($textRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+
+        $this->addSegmentCell(
+            $textRow,
+            $censored ? '' : $orgaInfoHeader->getNextHeader(),
+            $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+        );
+
         $this->addSegmentCell($textRow, '', $this->styles['statementInfoEmptyCell']);
         $externIdText = $this->translator->trans('segments.export.statement.extern.id', ['externId' => $statement->getExternId()]);
         $this->addSegmentCell($textRow, $externIdText, $this->styles['statementInfoTextCell']);
 
         if (null !== $statement->getInternId() && '' !== $statement->getInternId()) {
             $internIdRow = $table->addRow();
-            $this->addSegmentCell($internIdRow, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+
+            $this->addSegmentCell(
+                $internIdRow,
+                $censored ? '' : $orgaInfoHeader->getNextHeader(),
+                $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+            );
+
             $this->addSegmentCell($internIdRow, '', $this->styles['statementInfoEmptyCell']);
             $internIdText = $this->translator->trans('segments.export.statement.intern.id', ['internId' => $statement->getInternId()]);
             $this->addSegmentCell($internIdRow, $internIdText, $this->styles['statementInfoTextCell']);
@@ -180,12 +207,24 @@ class SegmentsExporter
 
         // formation only
         $row5 = $table->addRow();
-        $this->addSegmentCell($row5, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+
+        $this->addSegmentCell(
+            $row5,
+            $censored ? '' : $orgaInfoHeader->getNextHeader(),
+            $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+        );
+
         $this->addSegmentCell($row5, '', $this->styles['statementInfoEmptyCell']);
         $this->addSegmentCell($row5, '', $this->styles['statementInfoTextCell']);
 
         $row6 = $table->addRow();
-        $this->addSegmentCell($row6, $orgaInfoHeader->getNextHeader(), $this->styles['statementInfoTextCell']);
+
+        $this->addSegmentCell(
+            $row6,
+            $censored ? '' : $orgaInfoHeader->getNextHeader(),
+            $censored ? $this->styles['statementInfoEmptyCell'] : $this->styles['statementInfoTextCell']
+        );
+
         $this->addSegmentCell($row6, '', $this->styles['statementInfoEmptyCell']);
 
         $section->addTextBreak(2);
@@ -200,14 +239,14 @@ class SegmentsExporter
         }
     }
 
-    protected function addFooter(Section $section, Statement $statement): void
+    protected function addFooter(Section $section, Statement $statement, bool $censored = false): void
     {
         $footer = $section->addFooter();
         $table = $footer->addTable();
         $row = $table->addRow();
 
         $cell1 = $row->addCell($this->styles['footerCellWidth'], $this->styles['footerCell']);
-        $footerLeftString = $this->getFooterLeftString($statement);
+        $footerLeftString = $this->getFooterLeftString($statement, $censored);
         $cell1->addText($footerLeftString, $this->styles['footerStatementInfoFont'], $this->styles['footerStatementInfoParagraph']);
 
         $cell2 = $row->addCell($this->styles['footerCellWidth'], $this->styles['footerCell']);
@@ -309,6 +348,8 @@ class SegmentsExporter
 
     private function addSegmentHtmlCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
     {
+        // remove STX (start of text) EOT (end of text) special chars
+        $text = str_replace([chr(2), chr(3)], '', $text);
         $cell = $row->addCell(
             $cellExportStyle->getWidth(),
             $cellExportStyle->getCellStyle()
@@ -325,10 +366,10 @@ class SegmentsExporter
         $cell->addText($text, $cellExportStyle->getFontStyle(), $cellExportStyle->getParagraphStyle());
     }
 
-    private function getFooterLeftString(Statement $statement): string
+    private function getFooterLeftString(Statement $statement, bool $censored): string
     {
         $info = [];
-        if ($this->validInfoString($statement->getUserName())) {
+        if ($this->validInfoString($statement->getUserName()) && !$censored) {
             $info[] = $statement->getUserName();
         }
         if ($this->validInfoString($statement->getExternId())) {
@@ -344,79 +385,5 @@ class SegmentsExporter
     private function validInfoString(?string $text): bool
     {
         return null !== $text && '' !== trim($text);
-    }
-
-    private function initializeStyles(): void
-    {
-        // Global
-        $this->styles['globalSection'] = [
-            'orientation'  => 'landscape',
-            'marginLeft'   => Converter::cmToTwip(1.27),
-            'marginRight'  => Converter::cmToTwip(1.27),
-        ];
-        $this->styles['globalFont'] = ['name' => 'Arial'];
-
-        // Header
-        $this->styles['documentTitleFont'] = ['size' => 12, 'bold' => true];
-        $this->styles['documentTitleParagraph'] = ['alignment' => Jc::CENTER, 'spaceAfter' => Converter::cmToTwip(0.5)];
-
-        $this->styles['currentDateFont'] = [];
-        $this->styles['currentDateParagraph'] = ['alignment' => Jc::END, 'spaceAfter' => Converter::cmToTwip(0.5)];
-
-        $this->styles['statementInfoTable'] = [
-            'borderColor' => 'ffffff',
-            'borderSize'  => 0,
-            'cellSpacing' => Converter::cmToTwip(0),
-        ];
-        $this->styles['statementInfoTextCell'] = new CellExportStyle(4500);
-        $this->styles['statementInfoEmptyCell'] = new CellExportStyle(6500);
-
-        // Segments
-        $this->styles['noInfoMessageFont'] = ['size' => 12];
-        $wideColumnWidth = 6950;
-        $smallColumnWidth = 1550;
-        $headerCellStyle = ['borderSize'  => 5, 'borderColor' => '000000', 'bold' => true];
-        $headerPargraphStyle = ['spaceBefore' => Converter::cmToTwip(0.15), 'spaceAfter' => Converter::cmToTwip(0.15)];
-        $headerFontStyle = ['bold' => true];
-        $bodyCellStyle = ['borderSize'  => 5, 'borderColor' => '000000'];
-        $bodyParagraphStyle = ['lineHeight'  => 1.2, 'spaceBefore' => Converter::cmToTwip(0.15), 'spaceAfter' => Converter::cmToTwip(0.15)];
-
-        $this->styles['segmentsTable'] = [
-            'cellMargin' => Converter::cmToTwip(0.15),
-        ];
-        $this->styles['segmentsTableHeaderRow'] = ['tblHeader' => true];
-        $this->styles['segmentsTableHeaderRowHeight'] = Converter::cmToTwip(0.5);
-        $this->styles['segmentsTableHeaderCell'] = new CellExportStyle(
-            $wideColumnWidth,
-            $headerCellStyle,
-            $headerPargraphStyle,
-            $headerFontStyle
-        );
-        $this->styles['segmentsTableBodyCell'] = new CellExportStyle(
-            $wideColumnWidth,
-            $bodyCellStyle,
-            $bodyParagraphStyle
-        );
-
-        $this->styles['segmentsTableHeaderCellID'] = new CellExportStyle(
-            $smallColumnWidth,
-            $headerCellStyle,
-            $headerPargraphStyle,
-            $headerFontStyle
-        );
-        $this->styles['segmentsTableBodyCellID'] = new CellExportStyle(
-            $smallColumnWidth,
-            $bodyCellStyle,
-            $bodyParagraphStyle
-        );
-
-        // Footer
-        $this->styles['footerStatementInfoFont'] = [];
-        $this->styles['footerStatementInfoParagraph'] = ['alignment' => Jc::START];
-
-        $this->styles['footerPaginationFont'] = [];
-        $this->styles['footerPaginationParagraph'] = ['alignment' => Jc::END];
-        $this->styles['footerCellWidth'] = 7750;
-        $this->styles['footerCell'] = ['borderColor' => 'ffffff', 'borderSize' => 0];
     }
 }

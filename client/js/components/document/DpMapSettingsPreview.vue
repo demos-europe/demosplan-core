@@ -65,14 +65,14 @@
  --><div class="layout__item u-1-of-2">
       <ul>
         <li
-          v-for="(link, index) in permittedLinks"
-          class="layout__item"
-          :key="link.tooltipContent">
+          v-for="link in permittedLinks"
+          :key="link.tooltipContent"
+          class="layout__item">
           <a
             v-tooltip="Translator.trans(link.tooltipContent)"
             class="o-link"
             :class="{'color-status-complete-text': link.done()}"
-            :data-cy="`gisLayerLink:${index}`"
+            :data-cy="`gisLayerLink:${link.label}`"
             :href="href(link)">
             <i
               aria-hidden="true"
@@ -387,7 +387,9 @@ export default {
 
     isNotEmptyFeatureCollection (string) {
       try {
-        return JSON.parse(string).features.length > 0
+        const parsedFeatures = JSON.parse(string).features
+
+        return Array.isArray(parsedFeatures) ? parsedFeatures.length > 0 : Object.keys(parsedFeatures).length > 0
       } catch (e) {
         return true
       }

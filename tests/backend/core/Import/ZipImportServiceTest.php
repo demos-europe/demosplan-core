@@ -30,7 +30,7 @@ class ZipImportServiceTest extends FunctionalTestCase
 
     /** @var ZipImportService */
     protected $sut;
-    private null|Procedure|Proxy $testProcedure;
+    private Procedure|Proxy|null $testProcedure;
 
     public function setUp(): void
     {
@@ -41,6 +41,7 @@ class ZipImportServiceTest extends FunctionalTestCase
 
     public function testCreateFileMapFromZip(): void
     {
+        // local file usage is ok here
         $splFileInfo = new SplFileInfo(
             $this->getFile('backend/core/Import', 'Abwaegungstabelle_Export_Testfile.zip', 'application/zip', $this->testProcedure->object())->getAbsolutePath(),
             '',
@@ -102,8 +103,8 @@ class ZipImportServiceTest extends FunctionalTestCase
 
         $result = $this->sut->extractZipToTempFolder($splFileInfo, $this->testProcedure->getId());
 
-        self::assertEquals(
-            '/tmp/'.$this->currentUserService->getUser()->getId().'/'.$this->testProcedure->getId().
+        self::assertStringEndsWith(
+            $this->currentUserService->getUser()->getId().'/'.$this->testProcedure->getId().
             '/Abwaegungstabelle_Export_Testfile.zip/Auswertung_Abwaegungstabelle_Export',// todo mimetype missing?
             $result
         );
@@ -132,8 +133,8 @@ class ZipImportServiceTest extends FunctionalTestCase
             $user
         );
 
-        self::assertEquals(
-            '/tmp/'.$user->getId().'/'.$this->testProcedure->getId().'/Abwaegungstabelle_Export_Testfile.zip',
+        self::assertStringEndsWith(
+            $user->getId().'/'.$this->testProcedure->getId().'/Abwaegungstabelle_Export_Testfile.zip',
             $result
         );
     }

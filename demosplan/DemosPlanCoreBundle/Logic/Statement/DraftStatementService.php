@@ -66,6 +66,7 @@ use Elastica\Query\BoolQuery;
 use Elastica\Query\MatchQuery;
 use Elastica\Query\Terms;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use ReflectionException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -124,6 +125,7 @@ class DraftStatementService extends CoreService
         private readonly EntityHelper $entityHelper,
         Environment $twig,
         FileService $fileService,
+        private readonly FilesystemOperator $defaultStorage,
         private readonly ManualListSorter $manualListSorter,
         MapService $serviceMap,
         private readonly MessageBagInterface $messageBag,
@@ -140,7 +142,7 @@ class DraftStatementService extends CoreService
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         StatementService $statementService,
         StatementValidator $statementValidator,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->currentUser = $currentUser;
         $this->elementsService = $elementsService;
@@ -599,7 +601,7 @@ class DraftStatementService extends CoreService
         $user,
         ?NotificationReceiver $notificationReceiver = null,
         bool $gdprConsentReceived = false,
-        bool $convertToLegacy = true
+        bool $convertToLegacy = true,
     ): array {
         if (!is_array($draftStatementIds)) {
             $draftStatementIds = [$draftStatementIds];
@@ -628,7 +630,7 @@ class DraftStatementService extends CoreService
         $user,
         ?NotificationReceiver $notificationReceiver = null,
         bool $gdprConsentReceived = false,
-        bool $convertToLegacy = true
+        bool $convertToLegacy = true,
     ): array {
         $submittedStatements = [];
 
@@ -729,7 +731,7 @@ class DraftStatementService extends CoreService
     public function addDraftStatement($data)
     {
         // validate visibility of related paragraph in case of related paragraph is set
-        if (array_key_exists('paragraphId', $data) && !is_null($data['paragraphId'])) {
+        if (array_key_exists('paragraphId', $data) && !is_null($data['paragraphId']) && '' !== $data['paragraphId']) {
             $paragraph = $this->paragraphService->getParaDocumentObject($data['paragraphId']);
             if (!is_null($paragraph) && 1 != $paragraph->getVisible()) {
                 $this->getLogger()->error('On addDraftStatement(): selected paragraph '.$paragraph->getId().' is not released!');
@@ -989,7 +991,7 @@ class DraftStatementService extends CoreService
             $this->getLogger()->info('DraftStatement hat einen Screenshot.');
             $fileInfo = $this->fileService->getFileInfoFromFileString($statementArray['mapFile']);
             // Wenn der Screenshot da sein müsste, es aber nicht ist, versuche ihn neu zu generieren
-            if (!is_file($fileInfo->getAbsolutePath())) {
+            if (!$this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
                 $this->getLogger()->info('Screenshot konnte nicht gefunden werden');
                 if (0 < strlen((string) $statementArray['polygon'])) {
                     $this->getLogger()->info('Erzeuge Screenshot neu');
@@ -1043,12 +1045,12 @@ class DraftStatementService extends CoreService
     {
         $index = count($pictures);
 
-        if (is_file($file->getAbsolutePath())) {
-            $this->getLogger()->info('Bild auf der Platte gefunden');
-            $fileContent = file_get_contents($file->getAbsolutePath());
+        if ($this->defaultStorage->fileExists($file->getAbsolutePath())) {
+            $this->getLogger()->debug('Picture found: ', [$file->getAbsolutePath()]);
+            $fileContent = $this->defaultStorage->read($file->getAbsolutePath());
             $pictures['picture'.$index] = $file->getHash().'###'.$file->getFileName().'###'.base64_encode($fileContent);
         } else {
-            $this->getLogger()->error('Bild nicht gefunden');
+            $this->getLogger()->error('Picture not found: ', [$file->getAbsolutePath()]);
         }
 
         return $pictures;
@@ -1371,7 +1373,7 @@ class DraftStatementService extends CoreService
         $search,
         $sort,
         $user,
-        $manualSortScope = null
+        $manualSortScope = null,
     ): DraftStatementResult {
         try {
             $results = $this->draftStatementVersionRepository->getOwnReleasedList(

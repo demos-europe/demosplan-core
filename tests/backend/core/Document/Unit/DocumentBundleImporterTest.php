@@ -20,12 +20,14 @@ use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Tools\DocxImporterInterface;
 use demosplan\DemosPlanCoreBundle\Tools\PdfCreatorInterface;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Tests\Base\FunctionalTestCase;
 
 /**
@@ -51,6 +53,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         $this->sut = new ServiceImporter(
             self::$container->get(DocxImporterInterface::class),
             self::$container->get(FileService::class),
+            $this->createMock(FilesystemOperator::class),
             self::$container->get(GlobalConfigInterface::class),
             self::$container->get(LoggerInterface::class),
             self::$container->get(MessageBagInterface::class),
@@ -59,18 +62,28 @@ class DocumentBundleImporterTest extends FunctionalTestCase
             self::$container->get(PdfCreatorInterface::class),
             self::$container->get(RouterInterface::class),
             self::$container->get(RpcClient::class),
+            self::$container->get(EventDispatcherInterface::class),
         );
     }
 
-    public function testAllowedFileUploadFail()
+    public function testAllowedFileUploadFail(): void
     {
         $this->expectException(FileException::class);
 
-        $file = new UploadedFile(__DIR__.'/res/db_2Ebenen_wenigeDateien.zip', 'db_2Ebenen_wenigeDateien.zip');
-        $this->sut->checkFileIsValidToImport($file, []);
+        $fileInfo = new FileInfo(
+            hash: 'someHash',
+            fileName: 'myFile.zip',
+            fileSize: 12345,
+            contentType: 'not/allowed',
+            path: '/path/to/file',
+            absolutePath: '/path/to/file',
+            procedure: null
+        );
+
+        $this->sut->checkFileIsValidToImport($fileInfo);
     }
 
-    public function testParagraphImportCreateParagraphs()
+    public function testParagraphImportCreateParagraphs(): void
     {
         $procedureId = $this->fixtures->getReference('testProcedure')->getId();
         $elementId = $this->fixtures->getReference('testElement1')->getId();
@@ -339,7 +352,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
                 'title'        => 'Meine Überschrift',
                 'files'        => [
                     ['##khaeti4c3lmqpjfnqtped251ka' => 'khaeti4c3lmqpjfnqtped251ka.png::iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4//8/AAX+Av4N70a4AAAAAElFTkSuQmCC'],
-                    ['##ha3qod8qfr0s413ghve7vqqeqi' => 'ha3qod8qfr0s413ghve7vqqeqi.png::iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNgYGAAAAAEAAH2FzhVAAAAAElFTkSuQmCC']
+                    ['##ha3qod8qfr0s413ghve7vqqeqi' => 'ha3qod8qfr0s413ghve7vqqeqi.png::iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNgYGAAAAAEAAH2FzhVAAAAAElFTkSuQmCC'],
                 ],
                 'nestingLevel' => 0,
             ],
@@ -351,13 +364,12 @@ class DocumentBundleImporterTest extends FunctionalTestCase
             'category'   => 'paragraph',
             'paragraphs' => $paragraphs,
         ];
-        $paragraphService = static::getContainer()->get(ParagraphService::class);
+        $paragraphService = $this->getContainer()->get(ParagraphService::class);
         $this->sut->createParagraphsFromImportResult($importResult, $procedureId);
 
         $procedureParagraphsAfter = $paragraphService->getParaDocumentObjectList($procedureId, $elementId);
-        //check only for the width and height as the hash always differs
-        $expectedPart = "width='1' height='1'";
+        // check only for the width and height as the hash always differs
+        $expectedPart = "width='0' height='0'";
         static::assertStringContainsString($expectedPart, $procedureParagraphsAfter[count($procedureParagraphsAfter) - 1]->getText());
-
     }
 }

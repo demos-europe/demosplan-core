@@ -162,7 +162,7 @@ const AssessmentTable = {
     async applyBaseData ({ commit, state }, procedureId) {
       const data = await dpApi({
         method: 'GET',
-        url: Routing.generate('DemosPlan_assessment_base_ajax', { procedureId: procedureId })
+        url: Routing.generate('DemosPlan_assessment_base_ajax', { procedureId })
       })
         .then(this.api.checkResponse)
         .then(response => response.data)
@@ -181,7 +181,7 @@ const AssessmentTable = {
         commit('addBase', data)
         commit('setProperty', { prop: 'currentTableView', val: data.defaultToggleView })
         const emptyOptions = ['adviceValues', 'priorities', 'paragraph', 'agencies']
-        emptyOptions.forEach(field => commit('addOptionToProperty', { prop: field, value: { key: '', title: '-', name: '-', id: '' } }))
+        emptyOptions.forEach(field => commit('addOptionToProperty', { prop: field, value: { key: '', title: '-', name: '-', id: '', elementId: '' } }))
 
         return resolve(true)
       })

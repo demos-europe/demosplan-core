@@ -27,13 +27,18 @@ class Version20240716115746 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('ALTER TABLE workflow_place ADD solved TINYINT(1) DEFAULT FALSE');
+        $columnExists = $this->connection->fetchOne("SHOW COLUMNS FROM workflow_place LIKE 'solved'");
+
+        // check for column existence because down migration was added later
+        if (false === $columnExists) {
+            $this->addSql('ALTER TABLE workflow_place ADD solved TINYINT(1) DEFAULT FALSE');
+        }
     }
 
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        // no down migration possible.
+        $this->addSql('ALTER TABLE workflow_place DROP COLUMN solved');
     }
 
     /**

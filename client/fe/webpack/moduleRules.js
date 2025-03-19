@@ -161,9 +161,9 @@ const moduleRules =
           loader: 'sass-loader',
           options: {
             implementation: require('sass-embedded'),
-            additionalData: `$url-path-prefix: '${config.urlPathPrefix}';`,
             sassOptions: {
-              includePaths: [
+              additionalData: `$url-path-prefix: '${config.urlPathPrefix}';`,
+              loadPaths: [
                 config.projectRoot + 'web/',
                 config.publicPath
               ]

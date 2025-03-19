@@ -39,9 +39,12 @@ export default {
         .then(response => checkResponse(response))
     },
 
-    fetchProcedureMapSettings ({ commit }, procedureId) {
+    fetchProcedureMapSettings ({ commit }, { procedureId, isMaster = false }) {
+      if (!hasPermission('area_admin_map')) return
+
       try {
-        const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType: 'Procedure' })
+        const resourceType = isMaster ? 'ProcedureTemplate' : 'Procedure'
+        const url = Routing.generate('api_resource_get', { resourceId: procedureId, resourceType })
         const procedureMapSettingFields = ['availableScales',
           'boundingBox',
           'defaultBoundingBox',
@@ -58,7 +61,7 @@ export default {
 
         if (hasPermission('feature_map_feature_info')) {
           procedureMapSettingFields.push('informationUrl')
-          procedureMapSettingFields.push('featureInfoUrl')
+          procedureMapSettingFields.push('useGlobalInformationUrl')
         }
 
         if (hasPermission('feature_map_attribution')) {
@@ -75,7 +78,7 @@ export default {
 
         const params = {
           fields: {
-            Procedure: [
+            [resourceType]: [
               'mapSetting'
             ].join(),
             ProcedureMapSetting: procedureMapSettingFields.join()
@@ -93,11 +96,11 @@ export default {
             const procedureMapSettings = {
               attributes: {
                 availableScales: data.availableScales.map(scale => ({ label: `1:${scale.toLocaleString('de-DE')}`, value: scale })) ?? [],
-                coordinate: convertExtentToFlatArray(data.coordinate) ?? '',
+                coordinate: convertExtentToFlatArray(data.coordinate) ?? [],
                 copyright: data.copyright ?? '',
-                defaultBoundingBox: defaultBoundingBox,
-                defaultMapExtent: defaultMapExtent,
-                featureInfoUrl: data.featureInfoUrl ?? { global: false },
+                defaultBoundingBox,
+                defaultMapExtent,
+                useGlobalInformationUrl: data.useGlobalInformationUrl ?? false,
                 informationUrl: data.informationUrl ?? '',
                 showOnlyOverlayCategory: data.showOnlyOverlayCategory ?? false,
                 mapExtent: convertExtentToFlatArray(data.mapExtent) ?? defaultMapExtent, // Maximum extent of the map
@@ -106,11 +109,15 @@ export default {
                 territory: data.territory ?? {}
               },
               id: response.included[0].id,
-              type: 'ProcecdureMapSetting'
+              type: 'ProcedureMapSetting'
             }
 
             commit('setItem', { key: 'procedureMapSettings', value: procedureMapSettings })
+
             return procedureMapSettings
+          })
+          .catch(() => {
+            dplan.notify.error(Translator.trans('error.api.generic'))
           })
       } catch (e) {
         console.error(e)

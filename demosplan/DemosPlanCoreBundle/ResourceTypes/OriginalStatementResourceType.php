@@ -12,12 +12,21 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\IsOriginalStatementAvailableEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\OriginalStatementResourceTypeInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
+use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementProcedurePhaseResolver;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\OriginalStatementResourceConfigBuilder;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 
 /**
@@ -28,9 +37,18 @@ use EDT\PathBuilding\End;
  * @property-read End                   $deleted
  * @property-read StatementResourceType $headStatement
  * @property-read StatementResourceType $movedStatement
+ * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
  */
 final class OriginalStatementResourceType extends DplanResourceType implements OriginalStatementResourceTypeInterface
 {
+    public function __construct(
+        private readonly FileService $fileService,
+        private readonly StatementService $statementService,
+        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
+        private readonly FileContainerRepository $fileContainerRepository,
+    ) {
+    }
+
     public static function getName(): string
     {
         return 'OriginalStatement';
@@ -46,7 +64,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         /** @var IsOriginalStatementAvailableEvent $event * */
         $event = $this->eventDispatcher->dispatch(new IsOriginalStatementAvailableEvent(), IsOriginalStatementAvailableEventInterface::class);
 
-        return $event->isOriginalStatementeAvailable() || $this->currentUser->hasPermission('feature_json_api_original_statement');
+        return $event->isOriginalStatementeAvailable() || $this->hasAccessPermissions();
     }
 
     protected function getAccessConditions(): array
@@ -62,23 +80,86 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
             $this->conditionFactory->propertyIsNull($this->headStatement->id),
             $this->conditionFactory->propertyIsNull($this->movedStatement),
             $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
+            // filter out segments
+            $this->conditionFactory->propertyIsNull($this->parentStatementOfSegment),
         ];
     }
 
     public function isGetAllowed(): bool
     {
-        return $this->currentUser->hasPermission('feature_json_api_original_statement');
+        return $this->hasAccessPermissions();
     }
 
     public function isListAllowed(): bool
     {
-        return $this->currentUser->hasPermission('feature_json_api_original_statement');
+        return $this->hasAccessPermissions();
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): ResourceConfigBuilderInterface
     {
-        return [
-            $this->createIdentifier()->readable()->filterable(),
-        ];
+        $originalStatementConfig = $this->getConfig(OriginalStatementResourceConfigBuilder::class);
+        $originalStatementConfig->id->setReadableByPath()->SetFilterable();
+        $originalStatementConfig->externId->setReadableByPath();
+        $originalStatementConfig->meta->setRelationshipType(
+            $this->getTypes()->getStatementMetaResourceType()
+        )->setReadableByPath();
+        $originalStatementConfig->submitDate->setReadableByPath()->setAliasedPath(Paths::statement()->submit);
+        $originalStatementConfig->isSubmittedByCitizen
+            ->setReadableByCallable(static fn (Statement $statement): bool => $statement->isSubmittedByCitizen());
+        $originalStatementConfig->fullText->setReadableByPath()->setAliasedPath(Paths::statement()->text);
+        $originalStatementConfig->shortText->setReadableByCallable(
+            static fn (Statement $statement): string => $statement->getTextShort()
+        )->setAliasedPath(Paths::statement()->text);
+        $originalStatementConfig->textIsTruncated
+            ->setReadableByCallable(static fn (Statement $statement): bool => $statement->getText() !== $statement->getTextShort());
+        $originalStatementConfig->procedurePhase
+            ->setReadableByCallable(function (Statement $statement): ?array {
+                try {
+                    return $this->statementProcedurePhaseResolver->getProcedurePhaseVO($statement->getPhase(), $statement->isSubmittedByCitizen())->jsonSerialize();
+                } catch (UndefinedPhaseException $e) {
+                    $this->logger->error($e->getMessage());
+
+                    return null;
+                }
+            });
+        $originalStatementConfig->elements
+        ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryDetailsResourceType())
+        ->setReadableByPath()->aliasedPath(Paths::statement()->element);
+        $originalStatementConfig->document
+        ->setRelationshipType($this->resourceTypeStore->getSingleDocumentResourceType())
+        ->setReadableByCallable(
+            static fn (Statement $statement): ?SingleDocumentInterface => $statement->getDocument()?->getSingleDocument()
+        );
+        $originalStatementConfig->paragraph
+        ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
+        ->setReadableByPath();
+        $originalStatementConfig->polygon->setReadableByPath();
+        $originalStatementConfig->attachmentsDeleted->setReadableByCallable(
+            static fn (Statement $statement): bool => $statement->isAttachmentsDeleted()
+        );
+        $originalStatementConfig->submitterAndAuthorMetaDataAnonymized->setReadableByCallable(
+            static fn (Statement $statement): bool => $statement->isSubmitterAndAuthorMetaDataAnonymized()
+        );
+        $originalStatementConfig->textPassagesAnonymized->setReadableByCallable(
+            static fn (Statement $statement): bool => $statement->isTextPassagesAnonymized()
+        );
+        $originalStatementConfig->sourceAttachment
+            ->setRelationshipType($this->resourceTypeStore->getSourceStatementAttachmentResourceType())
+            ->setReadableByPath()
+            ->aliasedPath(Paths::statement()->attachments);
+        $originalStatementConfig->genericAttachments
+            ->setRelationshipType($this->resourceTypeStore->getGenericStatementAttachmentResourceType())
+            ->readable(false, function (Statement $statement): ?array {
+                $fileContainers = $this->fileContainerRepository->getStatementFileContainers($statement->getId());
+
+                return $fileContainers;
+            });
+
+        return $originalStatementConfig;
+    }
+
+    private function hasAccessPermissions(): bool
+    {
+        return $this->currentUser->hasPermission('feature_json_api_original_statement');
     }
 }

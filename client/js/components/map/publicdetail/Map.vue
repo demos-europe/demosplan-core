@@ -247,10 +247,10 @@ export default {
         const source = visiblility ? this.createLayerSource(layer) : null
 
         return new TileLayer({
-          name: name,
+          name,
           title: layer.attributes.name || '',
           visible: visiblility,
-          source: source,
+          source,
           opacity: 1,
           preload: 0
         })
@@ -312,7 +312,7 @@ export default {
 
       for (let i = 0; i < mapCustomZoomReset.length; i++) {
         mapCustomZoomReset[i].addEventListener('click', () => {
-          this.map.getView().fit(this.initialExtent, { duration: duration })
+          this.map.getView().fit(this.initialExtent, { duration })
         })
       }
 
@@ -402,7 +402,7 @@ export default {
           name: 'territory',
           source: new VectorSource({
             projection: this.mapprojection,
-            features: features
+            features
           }),
           style: new Style({
             stroke: new Stroke({
@@ -570,13 +570,13 @@ export default {
       const source = visibility ? this.createLayerSource(layer) : null
 
       return new TileLayer({
-        name: name,
+        name,
         title: layer.attributes.name || '',
-        visible: visible,
-        source: source,
+        visible,
+        source,
         serviceType: layer.attributes.serviceType,
-        opacity: opacity,
-        preload: preload,
+        opacity,
+        preload,
         isPrint: layer.attributes.isPrint,
         isEnabled: layer.attributes.isEnabled,
         treeOrder: layer.attributes.treeOrder,
@@ -1144,8 +1144,8 @@ export default {
                   y: isWmts ? tileCoord[2] : 0
                 },
                 projection: layerProjection,
-                url: url,
-                tileSize: tileSize,
+                url,
+                tileSize,
                 tileExtent: tileGrid.getTileCoordExtent(tileCoord)
               })
             })
@@ -1155,7 +1155,7 @@ export default {
               layerTitle: printLayer.getProperties().title,
               layerMapOrder: printLayer.getProperties().mapOrder,
               isBaseLayer: printLayer.getProperties().isBaseLayer,
-              layerProjection: layerProjection,
+              layerProjection,
               tiles: tilesInfo
             })
           })
@@ -1369,19 +1369,19 @@ export default {
           }
 
           source = new TileWMS({
-            url: url,
+            url,
             params: {
               LAYERS: layers || '',
               FORMAT: 'image/png'
             },
-            projection: projection
+            projection
           })
         } else {
           const options = optionsFromCapabilities(currentCapabilities, {
             layer: layers[0] || '',
             matrixSet: tileMatrixSet
           })
-          source = new WMTS({ ...options, layers: layers })
+          source = new WMTS({ ...options, layers })
         }
 
         const customLayer = new TileLayer({
@@ -1389,7 +1389,7 @@ export default {
           title: name,
           name: layerId,
           type: 'overlay',
-          source: source
+          source
         })
 
         this.map.addLayer(customLayer)
@@ -1429,8 +1429,8 @@ export default {
     //  Function to generate draw interaction
     drawInteraction (source, type) {
       return new Draw({
-        source: source,
-        type: type,
+        source,
+        type,
         style: this.drawStyle()
       })
     },
@@ -1562,7 +1562,7 @@ export default {
       })
 
       return new TileWMS({
-        url: url,
+        url,
         params: {
           LAYERS: layer.attributes.layers || '',
           FORMAT: 'image/png',
@@ -1702,7 +1702,7 @@ export default {
           }
           view.animate({
             zoom: newZoom,
-            duration: duration,
+            duration,
             easing: easeOut
           })
         } else {
@@ -1736,12 +1736,12 @@ export default {
       controls.push(new Attribution({
         collapsed: false,
         collapsible: false,
-        label: label,
+        label,
         tipLabel: label
       }))
 
       this.map = new Map({
-        controls: controls,
+        controls,
         interactions: defaultInteractions().extend([
           new DragZoom()
         ]),
@@ -1898,7 +1898,7 @@ export default {
       this.mapview = new View({
         center: [this.mapx, this.mapy],
         projection: this.mapprojection,
-        resolutions: resolutions,
+        resolutions,
         extent: this.maxExtent,
         minResolution: resolutions[(resolutions.length - 1)],
         maxResolution: resolutions[0],
@@ -1997,17 +1997,17 @@ export default {
       if (element.id === 'territorySwitcher' && hasOwnProp(this.scope, 'id')) {
         const layerId = this.scope.id.replace(/-/g, '')
         if (hasOwnProp(this.scope, 'attributes') && this.scope.attributes.visibilityGroupId !== '') {
-          this.$root.$emit('layer:toggleVisibiltyGroup', { visibilityGroupId: this.scope.attributes.visibilityGroupId, layerId: layerId, isVisible: newState })
+          this.$root.$emit('layer:toggleVisibiltyGroup', { visibilityGroupId: this.scope.attributes.visibilityGroupId, layerId, isVisible: newState })
         } else {
-          this.$root.$emit('layer:toggleLayer', { layerId: layerId, isVisible: newState })
+          this.$root.$emit('layer:toggleLayer', { layerId, isVisible: newState })
         }
       }
       if (element.id === 'bplanSwitcher' && hasOwnProp(this.bPlan, 'id')) {
         const layerId = this.bPlan.id.replace(/-/g, '')
         if (hasOwnProp(this.bPlan, 'attributes') && this.bPlan.attributes.visibilityGroupId !== '') {
-          this.$root.$emit('layer:toggleVisibiltyGroup', { visibilityGroupId: this.bPlan.attributes.visibilityGroupId, layerId: layerId, isVisible: newState })
+          this.$root.$emit('layer:toggleVisibiltyGroup', { visibilityGroupId: this.bPlan.attributes.visibilityGroupId, layerId, isVisible: newState })
         } else {
-          this.$root.$emit('layer:toggleLayer', { layerId: layerId, isVisible: newState })
+          this.$root.$emit('layer:toggleLayer', { layerId, isVisible: newState })
         }
       }
     },

@@ -15,33 +15,37 @@
       :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }">
       <div class="flex items-start mb-2">
         <custom-search
-          ref="customSearch"
           id="customSearch"
+          ref="customSearch"
           :elasticsearch-field-definition="{
             entity: 'statementSegment',
             function: 'search',
             accessGroup: 'planner'
           }"
           :search-term="searchTerm"
-          @change-fields="updateSearchFields"
-          @search="updateSearchQuery"
-          @reset="updateSearchQuery" />
-        <div class="bg-color--grey-light-2 rounded-md space-inline-xs ml-2">
-          <span class="color--grey ml-2 line-height--2">
-            {{ Translator.trans('filter') }}
-          </span>
+          @changeFields="updateSearchFields"
+          @search="term => updateSearchQuery(term)"
+          @reset="handleResetSearch" />
+        <div class="ml-2 space-x-1 space-x-reverse">
           <filter-flyout
-            v-for="filter in filters"
+            v-for="(filter, idx) in Object.values(filters)"
             ref="filterFlyout"
             :additional-query-params="{ searchPhrase: searchTerm }"
+            :category="{ id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }"
+            class="inline-block first:mr-1"
             :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
-            :initial-query="queryIds"
+            :groups-object="filter.groupsObject"
+            :initial-query-ids="queryIds"
+            :items-object="filter.itemsObject"
             :key="`filter_${filter.labelTranslationKey}`"
-            :label="Translator.trans(filter.labelTranslationKey)"
             :operator="filter.comparisonOperator"
             :path="filter.rootPath"
-            :procedure-id="procedureId"
-            @filter-apply="sendFilterQuery" />
+            :show-count="{
+              groupedOptions: true,
+              ungroupedOptions: true
+            }"
+            @filterApply="sendFilterQuery"
+            @filterOptions:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})" />
         </div>
         <dp-button
           class="ml-2 h-fit"
@@ -103,10 +107,10 @@
       <template v-if="items.length > 0">
         <image-modal
           ref="imageModal"
-          data-cy="segment:imgModal"/>
+          data-cy="segment:imgModal" />
         <dp-data-table
           ref="dataTable"
-          class="overflow-x-auto pb-3"
+          class="overflow-x-auto pb-3 min-h-12"
           :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
           data-cy="segmentsList"
           has-flyout
@@ -294,7 +298,7 @@ import ImageModal from '@DpJs/components/shared/ImageModal'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
-import StatusBadge from '../Shared/StatusBadge.vue'
+import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 
 export default {
@@ -330,6 +334,23 @@ export default {
       required: true
     },
 
+    /**
+     * {Object of objects}
+     * {
+     *   assignee: {
+     *     comparisonOperator: string,
+     *     grouping?: {
+     *       labelTranslationKey: string,
+     *       targetPath: string
+     *     },
+     *     labelTranslationKey: string,
+     *     rootPath: string,
+     *     selected: boolean
+     *   },
+     *   place: s. assignee,
+     *   tags: s. assignee
+     * }
+     */
     filters: {
       type: Object,
       required: false,
@@ -388,9 +409,10 @@ export default {
   },
 
   computed: {
-    ...mapGetters('SegmentFilter', {
-      getFilterQuery: 'filterQuery'
-    }),
+    ...mapGetters('FilterFlyout', [
+      'getFilterQuery',
+      'getIsExpandedByCategoryId'
+    ]),
 
     ...mapState('AssignableUser', {
       assignableUsersObject: 'items'
@@ -478,15 +500,24 @@ export default {
       fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('StatementSegment', {
-      listSegments: 'list'
-    }),
+    ...mapActions('FilterFlyout', [
+      'updateFilterQuery'
+    ]),
 
     ...mapActions('Place', {
       fetchPlaces: 'list'
     }),
 
-    ...mapMutations('SegmentFilter', ['updateFilterQuery']),
+    ...mapActions('StatementSegment', {
+      listSegments: 'list'
+    }),
+
+    ...mapMutations('FilterFlyout', {
+      setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
+      setIsLoadingFilterFlyout: 'setIsLoading',
+      setGroupedFilterOptions: 'setGroupedOptions',
+      setUngroupedFilterOptions: 'setUngroupedOptions'
+    }),
 
     applyQuery (page) {
       lscache.remove(this.lsKey.allSegments)
@@ -503,16 +534,48 @@ export default {
         }
       }
       const payload = {
-        include: ['assignee', 'place', 'tags', 'parentStatement.attachments.file'].join(),
+        include: [
+          'assignee',
+          'place',
+          'tags',
+          'parentStatement.genericAttachments.file',
+          'parentStatement.sourceAttachment.file'
+        ].join(),
         page: {
           number: page,
           size: this.pagination.perPage
         },
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
-        filter: filter,
+        filter,
         fields: {
+          File: [
+            'hash'
+          ].join(),
+          GenericStatementAttachment: [
+            'file'
+          ].join(),
           Place: [
             'name'
+          ].join(),
+          SourceStatementAttachment: ['file'].join(),
+          Statement: [
+            'authoredDate',
+            'authorName',
+            'genericAttachments',
+            'isSubmittedByCitizen',
+            'initialOrganisationDepartmentName',
+            'initialOrganisationName',
+            'initialOrganisationStreet',
+            'initialOrganisationHouseNumber',
+            'initialOrganisationPostalCode',
+            'initialOrganisationCity',
+            'internId',
+            'memo',
+            'sourceAttachment',
+            'status',
+            'submitDate',
+            'submitName',
+            'submitType'
           ].join(),
           StatementSegment: [
             'assignee',
@@ -524,27 +587,9 @@ export default {
             'text',
             'recommendation'
           ].join(),
-          Statement: [
-            'attachments',
-            'authoredDate',
-            'authorName',
-            'isSubmittedByCitizen',
-            'initialOrganisationDepartmentName',
-            'initialOrganisationName',
-            'initialOrganisationStreet',
-            'initialOrganisationHouseNumber',
-            'initialOrganisationPostalCode',
-            'initialOrganisationCity',
-            'internId',
-            'memo',
-            'status',
-            'submitDate',
-            'submitName',
-            'submitType'
-          ].join(),
-          Tag: 'title',
-          StatementAttachment: ['file', 'attachmentType'].join(),
-          File: 'hash'
+          Tag: [
+            'title'
+          ].join()
         }
       }
       if (this.searchTerm !== '') {
@@ -570,7 +615,7 @@ export default {
 
           // Get all segments (without pagination) to save them in localStorage for bulk editing
           this.fetchSegmentIds({
-            filter: filter,
+            filter,
             search: payload.search
           })
         })
@@ -622,6 +667,11 @@ export default {
       window.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
     },
 
+    handleResetSearch () {
+      this.resetSearchQuery()
+      this.applyQuery(1)
+    },
+
     handleSizeChange (newSize) {
       // Compute new page with current page for changed number of items per page
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
@@ -630,8 +680,7 @@ export default {
     },
 
     resetQuery () {
-      this.searchTerm = ''
-      this.$refs.customSearch.reset()
+      this.resetSearchQuery()
       this.appliedFilterQuery = []
       Object.keys(this.filters).forEach((filter, idx) => {
         this.$refs.filterFlyout[idx].reset()
@@ -639,6 +688,153 @@ export default {
       this.updateQueryHash()
       this.resetSelection()
       this.applyQuery(1)
+    },
+
+    resetSearchQuery () {
+      this.searchTerm = ''
+      this.$refs.customSearch.reset()
+    },
+
+    /**
+     *
+     * @param params {Object}
+     * @param params.additionalQueryParams {Object}
+     * @param params.category {Object} id, label
+     * @param params.filter {Object}
+     * @param params.isInitialWithQuery {Boolean}
+     * @param params.path {String}
+     * @param params.searchPhrase {String}
+     */
+    sendFilterOptionsRequest (params) {
+      const { additionalQueryParams, category, filter, isInitialWithQuery, path } = params
+      const requestParams = {
+        ...additionalQueryParams,
+        filter: {
+          ...filter,
+          sameProcedure: {
+            condition: {
+              path: 'parentStatement.procedure.id',
+              value: this.procedureId
+            }
+          }
+        },
+        path
+      }
+
+      // We have to set the searchPhrase to null if its empty to satisfy the backend
+      if (requestParams.searchPhrase === '') {
+        requestParams.searchPhrase = null
+      }
+
+      dpRpc('segments.facets.list', requestParams, 'filterList')
+        .then(response => checkResponse(response))
+        .then(response => {
+          const result = (hasOwnProp(response, 0) && response[0].id === 'filterList') ? response[0].result : null
+
+          if (result) {
+            const groupedOptions = []
+            const ungroupedOptions = []
+
+            result.included?.forEach(resource => {
+              const filter = result.data.find(type => type.attributes.path === path)
+              const resourceIsGroup = resource.type === 'AggregationFilterGroup'
+              const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
+              const groupBelongsToFilterType = resourceIsGroup && filterHasGroups ? !!filter.relationships.aggregationFilterGroups.data.find(group => group.id === resource.id) : false
+              const resourceIsFilterOption = resource.type === 'AggregationFilterItem'
+              const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
+              const filterOptionBelongsToFilterType = resourceIsFilterOption && filterHasFilterOptions ? !!filter.relationships.aggregationFilterItems.data.find(option => option.id === resource.id) : false
+
+              if (resourceIsGroup && groupBelongsToFilterType) {
+                const filterOptionsIds = resource.relationships.aggregationFilterItems?.data.length > 0 ? resource.relationships.aggregationFilterItems.data.map(item => item.id) : []
+                const filterOptions = filterOptionsIds.map(id => {
+                  const option = result.included.find(item => item.id === id)
+
+                  if (option) {
+                    const { attributes, id } = option
+                    const { count, description, label, selected } = attributes
+
+                    return {
+                      count,
+                      description,
+                      id,
+                      label,
+                      selected
+                    }
+                  }
+
+                  return null
+                }).filter(option => option !== null)
+
+                if (filterOptions.length > 0) {
+                  const { id, attributes } = resource
+                  const { label } = attributes
+                  const group = {
+                    id,
+                    label,
+                    options: filterOptions
+                  }
+
+                  groupedOptions.push(group)
+                }
+              }
+
+              // Ungrouped filter options
+              if (resourceIsFilterOption && filterOptionBelongsToFilterType) {
+                const { id, attributes } = resource
+                const { count, description, label, selected } = attributes
+
+                ungroupedOptions.push({
+                  id,
+                  count,
+                  description,
+                  label,
+                  selected,
+                  ungrouped: true
+                })
+              }
+            })
+
+            // Needs to be added to ungroupedOptions
+            if (result.data[0].attributes.path === 'assignee') {
+              ungroupedOptions.push({
+                id: 'unassigned',
+                count: result.data[0].attributes.missingResourcesSum,
+                label: Translator.trans('not.assigned'),
+                ungrouped: true,
+                selected: result.meta.unassigned_selected
+              })
+            }
+
+            if (isInitialWithQuery && this.queryIds.length > 0) {
+              const allOptions = [...groupedOptions.flatMap(group => group.options), ...ungroupedOptions]
+
+              const currentFlyoutFilterIds = this.queryIds.filter(queryId => {
+                const item = allOptions.find(item => item.id === queryId)
+                return item ? item.id : null
+              })
+
+              this.setInitialFlyoutFilterIds({
+                categoryId: category.id,
+                filterIds: currentFlyoutFilterIds
+              })
+            }
+
+            this.setGroupedFilterOptions({
+              categoryId: category.id,
+              groupedOptions
+            })
+
+            this.setUngroupedFilterOptions({
+              categoryId: category.id,
+              options: ungroupedOptions
+            })
+
+            this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: false })
+            if (this.getIsExpandedByCategoryId(category.id)) {
+              document.getElementById(`searchField_${path}`).focus()
+            }
+          }
+        })
     },
 
     setCurrentSelection (selection) {

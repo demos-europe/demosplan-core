@@ -9,6 +9,7 @@
 
 <template>
   <dp-inline-notification
+    class="mt-3 mb-2"
     :message="success ? descriptionSuccess : descriptionError"
     :type="success ? 'confirm' : 'error'">
     <slot />

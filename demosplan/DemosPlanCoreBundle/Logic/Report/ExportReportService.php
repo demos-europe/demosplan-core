@@ -19,7 +19,8 @@ use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\Writer\WriterInterface;
+use PhpOffice\PhpWord\Writer\PDF;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function Symfony\Component\String\u;
@@ -29,8 +30,12 @@ class ExportReportService extends CoreService
     /** @var array */
     private $styles;
 
-    public function __construct(private readonly ReportMessageConverter $messageConverter, private readonly ReportRepository $reportRepository, private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        private readonly ReportMessageConverter $messageConverter,
+        private readonly ReportRepository $reportRepository,
+        private readonly TranslatorInterface $translator,
+        private readonly UrlGeneratorInterface $urlGenerator,
+    ) {
         $this->initializeStyles();
     }
 
@@ -65,6 +70,22 @@ class ExportReportService extends CoreService
             $report['statements'] = $this->getStatementsReportInfo($procedureId);
         }
 
+        if ($permissions->hasPermission('feature_procedure_report_elements')) {
+            $report['elements'] = $this->getElementsReportInfo($procedureId);
+        }
+
+        if ($permissions->hasPermission('feature_procedure_report_single_documents')) {
+            $report['singleDocuments'] = $this->getSingleDocumentsReportInfo($procedureId);
+        }
+
+        if ($permissions->hasPermission('feature_procedure_report_paragraphs')) {
+            $report['paragraphs'] = $this->getParagraphsReportInfo($procedureId);
+        }
+
+        if ($permissions->hasPermission('feature_procedure_report_drawings')) {
+            $report['mapDrawings'] = $this->getMapDrawingsReportInfo($procedureId);
+        }
+
         return $report;
     }
 
@@ -73,17 +94,25 @@ class ExportReportService extends CoreService
      *
      * @param string $format - 'ODText', 'RTF', 'Word2007', 'HTML', 'PDF'
      *
-     * @return WriterInterface
-     *
      * @throws Exception
      */
-    public function generateProcedureReport(array $reportInfo, array $reportMeta, string $format = 'PDF')
-    {
+    public function generateProcedureReport(
+        string $procedureId,
+        array $reportInfo,
+        array $reportMeta,
+        string $format = 'PDF',
+    ): PDF {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection();
+        $procedureUrl = $this->urlGenerator->generate(
+            'DemosPlan_procedure_public_detail',
+            ['procedure' => $procedureId],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
 
         $docTitle = $reportMeta['name'].' - '.$this->translator->trans('protocol');
         $section->addText($docTitle, $this->styles['docTitleFont']);
+        $section->addText($procedureUrl, $this->styles['url']);
 
         $dateText = $this->translator->trans('exported.on', ['date' => $reportMeta['exportDate'], 'time' => $reportMeta['exportTime']]);
         $section->addText($dateText, $this->styles['baseFont']);
@@ -192,6 +221,8 @@ class ExportReportService extends CoreService
         $this->styles['tableHeader'] = ['bgColor' => 'f5f5f5', 'valign' => 'center'];
         $this->styles['tableHeaderFont'] = ['name' => 'helvetica', 'size' => 14, 'align' => 'center'];
         $this->styles['baseFont'] = ['name' => 'helvetica', 'color' => '696969', 'align' => 'left', 'size' => 12];
+        $this->styles['url'] = $this->styles['baseFont'];
+        $this->styles['url']['size'] = 10;
         $this->styles['tableRow'] = ['bgColor' => 'ffffff', 'valign' => 'center'];
         $this->styles['paragraph'] = ['spaceBefore' => '50', 'spaceAfter' => '50'];
         $this->styles['docTitleFont'] = ['name' => 'helvetica', 'size' => 18];
@@ -293,5 +324,51 @@ class ExportReportService extends CoreService
     private function getMessageParts(ReportEntry $reportEntry)
     {
         return explode('<br />', $this->messageConverter->convertMessage($reportEntry));
+    }
+
+    private function getElementsReportInfo(string $procedureId): array
+    {
+        return [
+            'titleMessage'  => 'plandocument.and.drawing.categories',
+            'reportEntries' => $this->reportRepository->getProcedureReportEntries(
+                $procedureId, [ReportEntry::GROUP_ELEMENT],
+                [ReportEntry::CATEGORY_ADD, ReportEntry::CATEGORY_UPDATE, ReportEntry::CATEGORY_DELETE]
+            ),
+        ];
+    }
+
+    private function getSingleDocumentsReportInfo(string $procedureId): array
+    {
+        return [
+            'titleMessage'  => 'plandocument.and.drawing.documents',
+            'reportEntries' => $this->reportRepository->getProcedureReportEntries(
+                $procedureId, [ReportEntry::GROUP_SINGLE_DOCUMENT],
+                [ReportEntry::CATEGORY_ADD, ReportEntry::CATEGORY_UPDATE, ReportEntry::CATEGORY_DELETE]
+            ),
+        ];
+    }
+
+    private function getParagraphsReportInfo(string $procedureId): array
+    {
+        return [
+            'titleMessage'  => 'plandocument.and.drawing.paragraphs',
+            'reportEntries' => $this->reportRepository->getProcedureReportEntries(
+                $procedureId,
+                [ReportEntry::GROUP_PARAGRAPH],
+                [ReportEntry::CATEGORY_ADD, ReportEntry::CATEGORY_UPDATE, ReportEntry::CATEGORY_DELETE]
+            ),
+        ];
+    }
+
+    private function getMapDrawingsReportInfo(string $procedureId)
+    {
+        return [
+            'titleMessage'  => 'plandocument.and.drawing.drawings',
+            'reportEntries' => $this->reportRepository->getProcedureReportEntries(
+                $procedureId,
+                [ReportEntry::GROUP_PLAN_DRAW],
+                [ReportEntry::CATEGORY_CHANGE]
+            ),
+        ];
     }
 }

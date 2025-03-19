@@ -21,7 +21,6 @@
         is-open
         :title="Translator.trans('customer.branding.label')">
         <customer-settings-branding
-          :branding="branding"
           :branding-id="customerBrandingId"
           @saveBrandingUpdate="fetchCustomerData" />
       </customer-settings-section>
@@ -331,10 +330,6 @@ export default {
 
   data () {
     return {
-      branding: {
-        cssvars: '',
-        logoHash: ''
-      },
       customer: {
         accessibilityExplanation: '',
         dataProtection: '',
@@ -412,17 +407,13 @@ export default {
       this.fetchCustomer(payload)
         .then(res => {
           // Update fields
-          const response = res.data
           const currentCustomer = this.customerList[this.currentCustomerId]
           const currentData = currentCustomer.attributes
-          const fileId = response.file ? Object.keys(response.file).toString() : ''
-          const fileHash = response.file ? response.file[fileId]?.attributes?.hash : ''
 
           this.customer = {
             ...this.customer,
             ...currentData
           }
-          this.branding.logoHash = fileHash
         })
         .catch(err => {
           console.error(err)
@@ -445,7 +436,7 @@ export default {
 
       if (hasPermission('feature_customer_branding_edit')) {
         this.requestIncludes.push('branding')
-        this.addAttributesToField('Branding', ['cssvars'])
+        this.addAttributesToField('Branding', ['styling'])
         this.addAttributesToField('Customer', ['branding'])
       }
 

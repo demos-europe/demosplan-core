@@ -91,7 +91,31 @@
           {{ organisation.attributes.houseNumber }}
         </p>
       </div><!--
-   --><div class="u-1-of-2 layout__item">
+   -->
+      <div
+        v-if="canEdit('addressExtension') || organisation.attributes.addressExtension !== ''"
+        class="layout__item u-2-of-12">
+        <label
+          :for="organisation.id + 'addressExtension'"
+          class="u-mb-0_25">
+          {{ Translator.trans('address.extension') }}
+        </label>
+        <input
+          v-if="canEdit('addressExtension')"
+          type="text"
+          :id="organisation.id + 'addressExtension'"
+          class="w-full u-mb-0_5"
+          style="height: 27px;"
+          data-cy="orgaFormField:addressExtension"
+          @input="emitOrganisationUpdate"
+          v-model="localOrganisation.attributes.addressExtension">
+        <p
+          v-else-if="false === canEdit('addressExtension') && organisation.attributes.addressExtension !== ''"
+          class="color--grey u-mb-0_5">
+          {{ organisation.attributes.addressExtension }}
+        </p>
+      </div>
+      <div class="u-1-of-2 layout__item">
         <div class="layout">
           <div class="layout__item u-2-of-6">
             <label
@@ -112,7 +136,7 @@
             <p
               v-else-if="false === canEdit('postalcode') && organisation.attributes.postalcode !== ''"
               class="color--grey u-mb-0_5">
-              {{ organisation.attributes.postalCode }}
+              {{ organisation.attributes.postalcode }}
             </p>
             <p
               v-else-if="false === canEdit('postalcode') && organisation.attributes.postalcode === ''"
@@ -176,6 +200,20 @@
           -
         </p>
       </div>
+
+      <addon-wrapper
+        hook-name="addon.additional.field"
+        :addon-props="{
+          additionalFieldOptions,
+          class: 'ml-4',
+          isValueRemovable: true,
+          relationshipId: this.organisationId,
+          relationshipKey: 'orga'
+        }"
+        class="w-1/2"
+        @resourceList:loaded="setAdditionalFieldOptions"
+        @selected="updateAddonPayload"
+        @blur="updateAddonPayload" />
 
       <div class="layout__item u-1-of-1 u-mt">
         <legend class="u-pb-0_5">
@@ -729,11 +767,13 @@
 
 <script>
 import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
   name: 'DpOrganisationFormFields',
 
   components: {
+    AddonWrapper,
     DpCheckbox,
     DpDetails,
     DpEditor,
@@ -755,6 +795,12 @@ export default {
   },
 
   props: {
+    additionalFieldOptions: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     availableOrgaTypes: {
       type: Array,
       required: true
@@ -772,6 +818,7 @@ export default {
       default: () => {
         return {
           attributes: {
+            addressExtension: '',
             canCreateProcedures: false,
             ccEmail2: '',
             city: '',
@@ -922,6 +969,17 @@ export default {
       return hasPermission('feature_orga_edit_all_fields') && this.writableFields.includes(field)
     },
 
+    /**
+     * On this event DpOrganisationListItem will call the set mutation to update the store so that on save the saveAction
+     * can use the data from the store
+     */
+    emitOrganisationUpdate () {
+      // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
+      Vue.nextTick(() => {
+        this.$emit('organisation-update', this.localOrganisation)
+      })
+    },
+
     hasChanged (field) {
       if (typeof this.initialOrganisation.attributes !== 'undefined') {
         return hasOwnProp(this.initialOrganisation.attributes, field)
@@ -952,17 +1010,6 @@ export default {
       return Translator.trans(orgaType.label)
     },
 
-    /**
-     * On this event DpOrganisationListItem will call the set mutation to update the store so that on save the saveAction
-     * can use the data from the store
-     */
-    emitOrganisationUpdate () {
-      // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
-      Vue.nextTick(() => {
-        this.$emit('organisation-update', this.localOrganisation)
-      })
-    },
-
     saveNewRegistrationStatus () {
       // Update the local organisation state
       this.localOrganisation.attributes.registrationStatuses.push({
@@ -972,6 +1019,14 @@ export default {
       })
       this.emitOrganisationUpdate()
       this.resetRegistrationStatus()
+    },
+
+    setAdditionalFieldOptions (options) {
+      this.$emit('addonOptions:loaded', options)
+    },
+
+    updateAddonPayload (payload) {
+      this.$emit('addon-update', payload)
     }
   },
 

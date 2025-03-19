@@ -104,12 +104,6 @@ class LoadRolesData extends ProdFixture
                 'groupName' => 'Moderator',
             ],
             [
-                'code'      => RoleInterface::PLANNING_AGENCY_ADMIN,
-                'name'      => 'Fachplaner-Admin',
-                'groupCode' => RoleInterface::GLAUTH,
-                'groupName' => 'Kommune',
-            ],
-            [
                 'code'      => RoleInterface::CONTENT_EDITOR,
                 'name'      => 'Redakteur',
                 'groupCode' => RoleInterface::GTEDIT,

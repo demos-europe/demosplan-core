@@ -52,6 +52,7 @@ final class FrontendAssetProvider
                 foreach ($entries['js'] as $entry) {
                     // Try to get the content of the actual asset
                     $entryFilePath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/dist/'.$entry;
+                    // uses local file, no need for flysystem
                     $assetContents[$entry] = file_get_contents($entryFilePath);
                 }
 
@@ -99,6 +100,7 @@ final class FrontendAssetProvider
      */
     private function getAssetPathsFromManifest(string $manifestPath, string $entryName): array
     {
+        // uses local file, no need for flysystem
         if (!file_exists($manifestPath)) {
             AddonException::invalidManifest($manifestPath);
         }

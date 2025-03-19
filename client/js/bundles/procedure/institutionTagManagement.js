@@ -10,14 +10,20 @@
 /**
  * This is the entrypoint for institution_tag_management.html.twig
  */
-import InstitutionTagManagement from '@DpJs/components/procedure/admin/InstitutionTagManagement'
+import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import { initialize } from '@DpJs/InitVue'
+import InstitutionTagManagement from '@DpJs/components/procedure/admin/InstitutionTagManagement/InstitutionTagManagement'
 
 const components = { InstitutionTagManagement }
 
+const stores = {
+  FilterFlyout: FilterFlyoutStore
+}
+
 const apiStores = [
-  'institutionTag',
-  'invitableInstitution'
+  'InstitutionTag',
+  'InstitutionTagCategory',
+  'InvitableInstitution'
 ]
 
-initialize(components, {}, apiStores)
+initialize(components, stores, apiStores)

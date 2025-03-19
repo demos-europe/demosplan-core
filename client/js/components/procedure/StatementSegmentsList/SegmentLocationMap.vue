@@ -18,6 +18,7 @@
         ref="map"
         :layers="mapData.layers"
         :procedure-id="procedureId"
+        map-id="segmentLocationMap"
         :map-options="{
           procedureMaxExtent: mapData.mapExtent ?? []
         }"
@@ -93,7 +94,7 @@
       </dp-ol-map>
       <dp-button-row
         class="u-mt"
-        :disabled="!hasChanges"
+        :disabled="{ primary: !hasChanges }"
         primary
         secondary
         @primary-action="save"
@@ -109,7 +110,6 @@ import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
 import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
 import { extend } from 'ol/extent'
-import { fromExtent } from 'ol/geom/Polygon'
 
 export default {
   name: 'SegmentLocationMap',
@@ -118,7 +118,7 @@ export default {
     DpButtonRow,
     DpOlMap,
     DpOlMapDrawFeature,
-    DpOlMapEditFeature,
+    DpOlMapEditFeature
   },
 
   props: {
@@ -243,7 +243,7 @@ export default {
           ...this.segment,
           relationships: {
             ...this.segment.relationships,
-            comments: comments
+            comments
           }
         }
         this.setItem({ ...segmentWithComments })
@@ -326,7 +326,7 @@ export default {
     }
   },
 
-  mounted() {
+  mounted () {
     this.$root.$on('segmentMap:show', () => {
       this.$nextTick(() => {
         this.initMap()

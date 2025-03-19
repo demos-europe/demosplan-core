@@ -164,6 +164,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
         }
 
         &__toolbar-content {
+            overflow-x: hidden;
             @include media-query('lap-up') {
                 overflow-y: auto;
                 height: $map-height;
@@ -441,7 +442,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
             margin-left: 44px;
 
-            @media only screen and (max-width: 620px) {
+            @media only screen and (width <= 620px) {
                 right: 44px;
                 top: 53px;
                 z-index: 1003;
@@ -565,11 +566,8 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
         //  overlay with hints
         &__hint {
-            bottom: 0;
-            left: 0;
+            inset: 0;
             position: absolute;
-            right: 0;
-            top: 0;
             z-index: $z-map-hint;
 
             transition: all #{$transition-speed-style-delay};
@@ -648,11 +646,8 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
 
             //  set popover fixed for mobile devices and handle long text-overflow
             @include media-query('palm') {
-                bottom: auto;
-                left: 2%;
+                inset: 2% 2% auto;
                 position: fixed;
-                right: 2%;
-                top: 2%;
                 z-index: 1040;
 
                 max-height: 96%;

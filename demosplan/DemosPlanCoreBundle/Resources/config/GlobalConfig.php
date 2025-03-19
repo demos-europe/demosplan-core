@@ -18,8 +18,10 @@ use Exception;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -113,6 +115,8 @@ class GlobalConfig implements GlobalConfigInterface
 
     /** @var string */
     protected $emailFromDomainValidRegex;
+
+    protected string $procedureMetricsReceiver = '';
     /**
      * @var string
      */
@@ -541,8 +545,6 @@ class GlobalConfig implements GlobalConfigInterface
 
     /** @var array */
     protected $publicIndexRouteParameters;
-    /** @var string[] */
-    protected $proxyTrusted;
 
     /**
      * @var bool
@@ -572,7 +574,7 @@ class GlobalConfig implements GlobalConfigInterface
     public function __construct(
         ParameterBagInterface $params,
         TranslatorInterface $translator,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
         $this->setParams($params, $translator);
     }
@@ -612,6 +614,7 @@ class GlobalConfig implements GlobalConfigInterface
         $this->emailSubjectPrefix = $parameterBag->get('email_subject_prefix');
         $this->emailUseSystemMailAsSender = $parameterBag->get('email_use_system_mail_as_sender');
         $this->emailFromDomainValidRegex = $parameterBag->get('email_from_domain_valid_regex');
+        $this->procedureMetricsReceiver = $parameterBag->get('procedure_metrics_receiver');
         $this->emailUseDataportBounceSystem = $parameterBag->get('email_use_bounce_dataport_system');
 
         // @todo this might be wrong (and is also deprecated)
@@ -675,7 +678,6 @@ class GlobalConfig implements GlobalConfigInterface
         $this->piwikSiteID = $parameterBag->get('piwik_site_id');
         // external proxy
         $this->proxyDsn = $parameterBag->get('proxy_dsn');
-        $this->proxyTrusted = $parameterBag->get('proxy_trusted');
 
         // request variable
         $this->urlScheme = trim($parameterBag->get('url_scheme'));
@@ -818,11 +820,7 @@ class GlobalConfig implements GlobalConfigInterface
 
         $this->advancedSupport = $parameterBag->get('advanced_support');
 
-        $externalLinks = $parameterBag->get('external_links');
-        if (is_array($externalLinks)) {
-            $externalLinks = array_map($this->addCustomerToUrl(...), $externalLinks);
-        }
-        $this->externalLinks = $this->getValidatedExternalLinks($externalLinks);
+        $this->externalLinks = $parameterBag->get('external_links');
     }
 
     /**
@@ -1031,6 +1029,11 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->emailFromDomainValidRegex;
     }
 
+    public function getProcedureMetricsReceiver(): string
+    {
+        return $this->procedureMetricsReceiver;
+    }
+
     /**
      * Get maximum Boundingbox.
      */
@@ -1227,14 +1230,6 @@ class GlobalConfig implements GlobalConfigInterface
         $parts = explode(':', $this->proxyDsn);
 
         return $parts[1] ?? '';
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getProxyTrusted(): array
-    {
-        return $this->proxyTrusted;
     }
 
     public function getProjectCoreVersion(): string
@@ -1752,22 +1747,57 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->externalLinks;
     }
 
+    public function addCurrentCustomerToUrl(): void
+    {
+        $externalLinks = array_map($this->addCustomerToUrl(...), $this->externalLinks);
+        $this->externalLinks = $this->getValidatedExternalLinks($externalLinks);
+    }
+
     /**
      * @return array<non-empty-string, non-empty-string>
      */
     private function getValidatedExternalLinks(array $externalLinks): array
     {
-        $violations = $this->validator->validate($externalLinks, [
-            new Type('array'),
-            new NotNull(),
-            new All([
-                new Type('string'),
-                new NotBlank(null, null, false),
-                new Url(),
-            ]),
-        ]);
-        if (0 !== $violations->count()) {
-            throw ViolationsException::fromConstraintViolationList($violations);
+        if (empty($externalLinks)) {
+            // Validation not needed
+            return $externalLinks;
+        }
+
+        // Validation for extended externalLinks
+        if (is_array(array_values($externalLinks)[0])) {
+            $violations = $this->validator->validate($externalLinks, [
+                new Type('array'),
+                new NotNull(),
+                new All([
+                    new Type('array'),
+                    new NotNull(),
+                    new AtLeastOneOf([
+                        new Type('string'),
+                        new NotBlank(null, null, false),
+                        new Url(),
+                    ]),
+                    new Optional([
+                        new Type('bool'),
+                        new NotBlank(null, null, false),
+                    ]),
+                ]),
+            ]);
+            if (0 !== $violations->count()) {
+                throw ViolationsException::fromConstraintViolationList($violations);
+            }
+        } else {
+            $violations = $this->validator->validate($externalLinks, [
+                new Type('array'),
+                new NotNull(),
+                new All([
+                    new Type('string'),
+                    new NotBlank(null, null, false),
+                    new Url(),
+                ]),
+            ]);
+            if (0 !== $violations->count()) {
+                throw ViolationsException::fromConstraintViolationList($violations);
+            }
         }
 
         $violations->addAll($this->validator->validate(array_keys($externalLinks), [
@@ -1783,8 +1813,14 @@ class GlobalConfig implements GlobalConfigInterface
         return $externalLinks;
     }
 
-    private function addCustomerToUrl(string $url): string
+    private function addCustomerToUrl(array|string $projectURLData): array|string
     {
-        return str_replace(self::CUSTOMER_PLACEHOLFER, $this->subdomain, $url);
+        if (is_string($projectURLData)) {
+            return str_replace(self::CUSTOMER_PLACEHOLFER, $this->subdomain, $projectURLData);
+        }
+
+        $projectURLData['url'] = str_replace(self::CUSTOMER_PLACEHOLFER, $this->subdomain, $projectURLData['url']);
+
+        return $projectURLData;
     }
 }

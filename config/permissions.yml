@@ -25,6 +25,7 @@ area_admin_analysis:
     loginRequired: true
     parent: area_admin
 area_admin_assessmenttable:
+    expose: true
     documentation: 'https://yaits.demos-deutschland.de/w/demosplan/functions/assessment_table/'
     label: 'Generally allows the user to view access / view the assessment table.'
     loginRequired: true
@@ -75,6 +76,7 @@ area_admin_import:
 area_admin_map:
     description: |-
         Controls ResourceType and Access to Map Settings.
+    expose: true
     label: 'Verwalten Planzeichnung'
     loginRequired: true
     parent: area_admin
@@ -146,9 +148,19 @@ area_admin_statement_list:
     label: 'Shows a list with all Statements belonging to a Procedure'
     loginRequired: true
     parent: area_admin
+area_admin_original_statement_list:
+    description: 'New list with Original Statements belonging to a Procedure showing basic info for each Statement so the planner can have a quick overview of the status of the Procedure.'
+    label: 'Shows a list with all Original Statements belonging to a Procedure'
+    loginRequired: true
+    expose: true
+    parent: area_admin
 area_admin_statements_tag:
     label: 'Verwaltung der Schlagworte'
     loginRequired: true
+area_admin_subheading_analysis:
+    label: 'Zwischenüberschrift Auswertung'
+    loginRequired: true
+    parent: area_admin
 area_admin_submitters:
     description: 'Grants access to admin the users which have submitted Statements to a Procedure'
     label: 'Admin Statement submitters in a Procedure'
@@ -563,6 +575,12 @@ feature_admin_assessmenttable_export_docx_condensed:
     label: 'Abwägungstabelle in kompaktem Docx-Format exportieren'
     loginRequired: true
     parent: feature_admin
+feature_admin_assessmenttable_export_potential_areas_xlsx:
+    label: 'Export of potential areas in xlsx format'
+    description: 'Permission to enable the export of potential areas in xlsx format.'
+    expose: true
+    loginRequired: true
+    parent: feature_admin
 feature_admin_assessmenttable_export_statement_generic_xlsx:
     label: 'Enable Excel Export'
     description: 'Permission to enable excel export for statement(s) with all data from assessmenttable.'
@@ -640,6 +658,11 @@ feature_admin_new_procedure:
     label: 'Neues Verfahren anlegen'
     loginRequired: true
     parent: feature_admin
+feature_allow_update_on_non_manual_statements:
+    description: 'Allow to update non-manual statements'
+    expose: false
+    label: 'Allow to update non-manual statements'
+    loginRequired: true
 feature_alternative_newsletter:
     description: 'Provides links to the service of the alternative (non-internal) newsletter and disables the internal newsletter.'
     expose: false
@@ -786,6 +809,11 @@ feature_customer_xplanning_edit:
     label: 'Permission to edit a xplanning page'
     loginRequired: true
     parent: area_main_xplanning
+feature_data_in_export:
+    description: 'This permission allows to configure which data of the statement should be included in the export.'
+    expose: true
+    label: 'Allow to configure which data of the statement should be included in the export.'
+    loginRequired: true
 feature_data_protection_text_customized_view:
     description: |-
         Each customer and each organisation has its own small text that is added to the overall text:
@@ -822,7 +850,7 @@ feature_department_edit:
     parent: feature_department
 feature_display_customer_names:
     description: 'In the orga edit details page some of the info displayed relates to the orga''s customers. With this permission we decide whether it will be shown or not.'
-    exposed: true
+    expose: true
     label: 'View Orga Customer names'
     parent: field_organisation
 feature_documents_category_use_file:
@@ -1349,6 +1377,11 @@ feature_organisation_set_showlist:
     label: 'Anzeigen der Organisation in der Institutionen-Liste'
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
+feature_organisation_own_users_list:
+    description: 'used for organisation administration users to limit their access scope to their own organisation'
+    expose: false
+    label: 'allows to load the organisation and their users of the current organisation only'
+    loginRequired: true
 feature_organisation_user_list:
     description: 'allows to show Organisations list but does not allow access to the Organisation area in the menu'
     expose: true
@@ -1513,6 +1546,13 @@ feature_procedure_export_include_assessment_table_original:
     expose: false
     label: 'Procedure export with original statements'
     loginRequired: true
+feature_procedure_export_include_cover_page:
+    description: |-
+        The procedure export generates a ZIP archive. If this permission is enabled
+        a document ("Deckblatt.pdf") will be included in each procedure directory in the export.
+    expose: false
+    label: 'Procedure export with cover page'
+    loginRequired: true
 feature_procedure_export_include_current_news:
     description: |-
         The procedure export generates a ZIP archive. If this permission is enabled
@@ -1618,36 +1658,56 @@ feature_procedure_preview:
     label: 'Show preview of precedures'
     loginRequired: true
     parent: area_main_procedures
+feature_procedure_report_elements:
+    description: 'Enables ''elements'' section in protocol (report).'
+    expose: true
+    label: 'Show the elements procedure reports'
+    loginRequired: true
 feature_procedure_report_final_mails:
-    description: 'Enables ''final mail'' section in Protokoll (report).'
+    description: 'Enables ''final mail'' section in protocol (report).'
     expose: true
     label: 'Show the final mail procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_report_general:
-    description: 'Enables ''general'' section in Protokoll (report).'
+    description: 'Enables ''general'' section in protocol (report).'
     expose: true
     label: 'Show the general procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_report_invitations:
-    description: 'Enables ''invitations'' section in Protokoll (report).'
+    description: 'Enables ''invitations'' section in protocol (report).'
     expose: true
     label: 'Show the invitations procedure reports'
-    loginRequired: false
+    loginRequired: true
+feature_procedure_report_drawings:
+    description: 'Enables ''drawings'' section in protocol (report).'
+    expose: true
+    label: 'Show the drawings procedure reports'
+    loginRequired: true
+feature_procedure_report_paragraphs:
+    description: 'Enables ''paragraphs'' section in protocol (report).'
+    expose: true
+    label: 'Show the paragraphs procedure reports'
+    loginRequired: true
 feature_procedure_report_public_phase:
-    description: 'Enables ''public phase'' section in Protokoll (report).'
+    description: 'Enables ''public phase'' section in protocol (report).'
     expose: true
     label: 'Show the public phase procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_report_register_invitations:
-    description: 'Enables ''register invitations'' section in Protokoll (report).'
+    description: 'Enables ''register invitations'' section in protocol (report).'
     expose: true
     label: 'Show the register invitations procedure reports'
+    loginRequired: true
+feature_procedure_report_single_documents:
+    description: 'Enables ''single documents'' section in protocol (report).'
+    expose: true
+    label: 'Show the single documents procedure reports'
     loginRequired: false
 feature_procedure_report_statements:
-    description: 'Enables ''statements'' section in Protokoll (report).'
+    description: 'Enables ''statements'' section in protocol (report).'
     expose: true
     label: 'Show the statement procedure reports'
-    loginRequired: false
+    loginRequired: true
 feature_procedure_require_location:
     description: 'Require location of procedure on the map.'
     expose: true
@@ -1877,6 +1937,13 @@ feature_send_email_on_procedure_ending_phase_send_mails:
 feature_send_final_email_cc_to_self:
     label: 'CC an den Absender bei Schlussmitteilung versenden'
     loginRequired: true
+feature_send_procedure_metrics_support_mail:
+    description: |-
+        On PostProcedureCreatedEvents this permission allows sending an email to the support
+        containing information about how many procedures an organisation has created within a specific customer
+    label: 'Sends an email containing procedure metrics to support.'
+    loginRequired: true
+    expose: false
 feature_short_url:
     expose: true
     label: 'ShortUrl nutzen'
@@ -2012,6 +2079,11 @@ feature_statement_delete:
         unclaimed.
     expose: true
     label: 'Delete (non-draft, non-original) statements.'
+    loginRequired: true
+feature_statement_file_filter_set:
+    description: 'Set file to filter in statement list.'
+    expose: true
+    label: 'Allow the user to set file as a filter'
     loginRequired: true
 feature_statement_fragment_bulk_edit:
     description: 'In assessment table, if this feature is active, after selecting multiple fragments, appears menu with options to edit them in batch.'
@@ -2259,6 +2331,11 @@ feature_statements_like_may_like:
     label: 'Stellungnahme als anonymer Nutzer liken (Aktion ausführen)'
     loginRequired: false
     parent: feature_statement
+feature_statements_location_and_document_refrence:
+    expose: true
+    label: 'Feature Statement with area und document reference'
+    loginRequired: true
+    parent: feature_statement
 feature_statements_manualsort:
     label: 'Manuelle Reihenfolge speichern'
     loginRequired: true
@@ -2291,6 +2368,11 @@ feature_statements_public_statement_recommendation_visible:
     expose: true
     label: 'Enables statement recommendations to be published in the public area.'
     loginRequired: false
+feature_statements_publication:
+    expose: true
+    label: 'Stellungnahme veroeffentlichen bereich'
+    loginRequired: true
+    parent: feature_statement
 feature_statements_publication_request_approval_or_rejection_notification_email:
     description: |-
         If citizens decided that one of their statements should be public, this still has to be verified by a planner,
@@ -2407,6 +2489,7 @@ feature_use_xplanbox:
     loginRequired: true
 feature_user_add:
     description: 'allows the user to create a new user'
+    expose: true
     label: 'add user'
     loginRequired: true
     parent: feature_user
@@ -2472,6 +2555,12 @@ field_imprint_text_customized_edit_orga:
     label: 'Edit customized imprint text for orga'
     parent: feature_imprint_text_customized_view
     expose: true
+feature_list_restricted_external_links:
+    description: |-
+        Some external links (lead to external platforms) are restricted to be shown only to specific user-roles.
+        This is used to reduce the load of information for users who not been able access the site behind the URL.
+    label: 'Some external links should only be shown to specific user-roles'
+    loginRequired: true
 field_municipality_list:
     label: 'betroffene Vorranggebiete'
     loginRequired: true
@@ -2603,6 +2692,10 @@ field_procedure_pictogram:
     label: Verfahrenspiktogramm
     loginRequired: false
     parent: field_procedure
+feature_procedure_pictogram_resolution_restriction:
+    label: 'restrict resolution of procedure pictogram'
+    loginRequired: true
+    parent: field_procedure
 field_procedure_recommendation_version:
     label: 'ältere Abwägungsempfehlungen'
     loginRequired: true
@@ -2627,13 +2720,8 @@ field_segment_assignee_filter:
     loginRequired: true
 field_send_final_email:
     label: 'Schlussmitteilung versenden'
-    loginRequired: true
-field_show_internal_procedure_phases_in_dropdown:
-    description: 'Some roles may not see internal phases in dropdown. This permission helps to discriminate them.'
     expose: true
-    label: 'Internal scope may filter for internal phase in procedure list'
     loginRequired: true
-    parent: area_main_procedures
 field_sign_language_overview_video_edit:
     description: 'User with this permission are able to upload a video file for their current customer including a title and description.'
     expose: true
@@ -2761,6 +2849,7 @@ field_statement_phase:
     parent: field_statement
 field_statement_polygon:
     description: 'Enable drawing as a map reference for statement.'
+    expose: true
     label: 'statement location reference - drawing'
     loginRequired: true
     parent: field_statement
