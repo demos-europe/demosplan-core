@@ -8,10 +8,10 @@
  */
 
 import AdminLayerList from '@DpJs/components/map/admin/AdminLayerList'
+import { createStore } from 'vuex'
 import LayersStore from '@DpJs/store/map/Layers'
-import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
-import Vuex from 'vuex'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('AdminLayerList', () => {
   let store
@@ -33,7 +33,7 @@ describe('AdminLayerList', () => {
       save: jest.fn()
     }
 
-    store = new Vuex.Store({
+    store = createStore({
       modules: {
         Layers: {
           namespaced: true,
@@ -51,7 +51,9 @@ describe('AdminLayerList', () => {
       propsData: {
         procedureId: 'some-id'
       },
-      store
+      global: {
+        plugins: [store]
+      }
     })
 
     expect(wrapper.props().procedureId).toBe('some-id')
@@ -62,7 +64,9 @@ describe('AdminLayerList', () => {
       propsData: {
         procedureId: 'some-id'
       },
-      store
+      global: {
+        plugins: [store]
+      }
     })
     expect(wrapper.html()).toMatchSnapshot()
   })
