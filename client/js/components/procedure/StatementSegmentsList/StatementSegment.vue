@@ -69,12 +69,9 @@
         :is-loading="claimLoading"
         @click="toggleClaimSegment" />
     </div>
-    <div
-      class="segment-list-col--l overflow-word-break c-styled-html">
-      <text-content-renderer
-        class="segment-list-col--l overflow-word-break c-styled-html"
-        :text="visibleSegmentText" />
-    </div>
+    <text-content-renderer
+      class="segment-list-col--l overflow-word-break c-styled-html"
+      :text="visibleSegmentText" />
     <div class="segment-list-col--s">
       <button
         v-if="!isFullscreen"

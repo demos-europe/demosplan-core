@@ -70,7 +70,7 @@
         <dp-editor
           hidden-input="statementText"
           required
-          :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
+          :toolbar-items="{ linkButton: true}"
           :value="statement.attributes.fullText || ''"
           @transformObscureTag="transformObscureTag"
           @input="updateStatementText" />
@@ -376,7 +376,7 @@ export default {
     },
 
     updateSegmentText (segmentId, val) {
-      const fullText = this.transformedText && this.transformedText !== val ? this.transformedText : val
+      const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
       const updated = {
         ...this.segments[segmentId],
         attributes: {
@@ -388,7 +388,7 @@ export default {
     },
 
     updateStatementText (val) {
-      const fullText = this.transformedText && this.transformedText !== val ? this.transformedText : val
+      const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
 
       this.$emit('statement-text-updated')
 
