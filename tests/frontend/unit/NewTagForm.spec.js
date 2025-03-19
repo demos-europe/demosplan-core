@@ -6,8 +6,6 @@
  *
  * All rights reserved
  */
-
-import { createLocalVue } from '@vue/test-utils'
 import NewTagForm from '@DpJs/components/procedure/admin/InstitutionTagManagement/NewTagForm'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
@@ -15,9 +13,7 @@ describe('NewTagForm', () => {
   let wrapper
 
   beforeEach(() => {
-    const localVue = createLocalVue()
     wrapper = shallowMountWithGlobalMocks(NewTagForm, {
-      localVue,
       propsData: {
         tagCategories: [
           {
