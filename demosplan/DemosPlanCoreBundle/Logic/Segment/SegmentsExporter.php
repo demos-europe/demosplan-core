@@ -69,7 +69,7 @@ class SegmentsExporter
         Statement $statement,
         array $tableHeaders,
         bool $isCensored,
-        bool $isObscure
+        bool $isObscure,
     ): WriterInterface {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);

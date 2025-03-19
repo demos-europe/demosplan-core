@@ -132,8 +132,7 @@ class SegmentsExportController extends BaseController
                     $procedure,
                     $censorParameter,
                     $obscureParameter,
-                    ...
-                    $statementEntities
+                    ...$statementEntities
                 );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }

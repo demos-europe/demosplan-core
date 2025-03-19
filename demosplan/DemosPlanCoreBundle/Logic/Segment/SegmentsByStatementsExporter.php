@@ -180,9 +180,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         array $statements,
         array $tableHeaders,
         bool $censored,
-        bool $obscure
+        bool $obscure,
     ): WriterInterface {
-
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
@@ -211,7 +210,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         Statement $statement,
         array $tableHeaders,
         $censored = false,
-        $obscure = false
+        $obscure = false,
     ): void {
         $this->addStatementInfo($section, $statement, $censored);
         $this->addSimilarStatementSubmitters($section, $statement);
