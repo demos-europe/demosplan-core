@@ -73,7 +73,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $obscure,
         bool $censorCitizenData = false,
         bool $censorInstitutionData = false,
-        Statement ...$statements
+        Statement ...$statements,
     ): WriterInterface {
         Settings::setOutputEscapingEnabled(true);
 
@@ -205,7 +205,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $this->addHeader($section, $procedure);
 
         foreach ($statements as $index => $statement) {
-
             $censored = $this->needsToBeCensored(
                 $statement,
                 $censorCitizenData,
@@ -262,12 +261,11 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $censored,
         bool $censorCitizenData,
         bool $censorInstitutionData,
-        string $fileNameTemplate = ''
+        string $fileNameTemplate = '',
     ): array {
         $pathedStatements = [];
         $previousKeysOfReaddedDuplicates = [];
         foreach ($statements as $statement) {
-
             $censored = $this->needsToBeCensored(
                 $statement,
                 $censorCitizenData,
@@ -317,7 +315,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         Statement $statement,
         bool $withDbId,
         string $fileNameTemplate = '',
-        bool $censored = false
+        bool $censored = false,
     ): string {
         // prepare needed variables
         $dbId = $statement->getId();
@@ -411,6 +409,5 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         return
             ($statement->isSubmittedByOrganisation() && $censorInstitutionData)
             || ($statement->isSubmittedByCitizen() && $censorCitizenData);
-
     }
 }

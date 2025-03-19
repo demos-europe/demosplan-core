@@ -269,7 +269,7 @@ class SegmentsExportController extends BaseController
                 $obscureParameter
             ): void {
                 array_map(
-                    static function (Statement $statement, string $filePathInZip,) use (
+                    static function (Statement $statement, string $filePathInZip) use (
                         $exporter,
                         $zipExportService,
                         $zipStream,
@@ -280,7 +280,6 @@ class SegmentsExportController extends BaseController
                         $censorInstitutionData,
                         $obscureParameter
                     ): void {
-
                         $censorParameter = $exporter->needsToBeCensored(
                             $statement,
                             $censorCitizenData,
