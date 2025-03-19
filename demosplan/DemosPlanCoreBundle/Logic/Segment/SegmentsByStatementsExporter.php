@@ -403,11 +403,4 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         return $exportData;
     }
-
-    public function needsToBeCensored(Statement $statement, bool $censorCitizenData, bool $censorInstitutionData): bool
-    {
-        return
-            ($statement->isSubmittedByOrganisation() && $censorInstitutionData)
-            || ($statement->isSubmittedByCitizen() && $censorCitizenData);
-    }
 }
