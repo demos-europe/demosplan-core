@@ -13,13 +13,10 @@
  * Used to run Jest-Tests
  */
 
-// Use Local Vue for testing
-import { createApp } from 'vue'
-import { shallowMount } from '@vue/test-utils'
-
-// Globally used
 import { DpMultiselect, DpObscure } from '@demos-europe/demosplan-ui'
+import { createApp } from 'vue'
 import lscache from 'lscache'
+import { shallowMount } from '@vue/test-utils'
 import { VTooltip } from 'v-tooltip'
 
 /*
@@ -73,6 +70,7 @@ const localVue = createApp({})
  * shouldn't it work when it's a globalMock ?
  * in my tests it doesn't :-(
  */
+global.Vue = localVue
 global.Translator = Translator
 global.hasPermission = hasPermission
 global.lscache = lscache
@@ -92,7 +90,10 @@ const shallowMountWithGlobalMocks = (component, options) => {
     component,
     {
       global: {
-        plugins: [DPVueCorePlugin],
+        plugins: [
+          DPVueCorePlugin,
+          ...(options.global?.plugins || [])
+        ],
         directives: {
           tooltip: VTooltip
         },
@@ -100,7 +101,12 @@ const shallowMountWithGlobalMocks = (component, options) => {
           DpObscure,
           DpMultiselect
         },
-        mocks: globalMocks,
+        config: {
+          globalProperties: {
+            ...globalMocks,
+            ...options.global?.config?.globalProperties
+          }
+        },
         ...options.global
       },
       ...options
