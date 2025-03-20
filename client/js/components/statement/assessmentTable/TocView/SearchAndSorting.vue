@@ -53,6 +53,7 @@
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import { DpButton } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 import DpEditSelectedItemsMenu from '@DpJs/components/statement/assessmentTable/DpEditSelectedItemsMenu'
 
 export default {
@@ -61,8 +62,8 @@ export default {
   components: {
     DpButton,
     DpEditSelectedItemsMenu,
-    DpFilterModal: () => import(/* webpackChunkName: "dp-filter-modal" */ '@DpJs/components/statement/assessmentTable/DpFilterModal'),
-    SearchModal: () => import(/* webpackChunkName: "dp-search-modal" */ '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal')
+    DpFilterModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpFilterModal')),
+    SearchModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'))
   },
 
   computed: {
@@ -85,16 +86,22 @@ export default {
   },
 
   watch: {
-    showFilterModal (val) {
-      if (val) {
-        this.$refs.filterModal.openModal()
-      }
+    showFilterModal: {
+      handler (val) {
+        if (val) {
+          this.$refs.filterModal.openModal()
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
 
-    showSearchModal (val) {
-      if (val) {
-        this.$refs.searchModal.toggleModal()
-      }
+    showSearchModal: {
+      handler (val) {
+        if (val) {
+          this.$refs.searchModal.toggleModal()
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

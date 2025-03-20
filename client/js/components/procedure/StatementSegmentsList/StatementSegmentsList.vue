@@ -78,7 +78,7 @@
           </li>
           <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
-              <template slot="trigger">
+              <template #trigger>
                 <span>
                   {{ Translator.trans('attachments') }}
                   <span v-text="attachmentsAndOriginalPdfCount" />
@@ -118,7 +118,7 @@
             <dp-flyout
               ref="metadataFlyout"
               :has-menu="false">
-              <template v-slot:trigger>
+              <template #trigger>
                 <span>
                   {{ Translator.trans('statement.metadata') }}
                   <i
@@ -453,8 +453,11 @@ export default {
   },
 
   watch: {
-    currentAction () {
-      this.showInfobox = this.currentAction === 'editText'
+    currentAction: {
+      handler () {
+        this.showInfobox = this.currentAction === 'editText'
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

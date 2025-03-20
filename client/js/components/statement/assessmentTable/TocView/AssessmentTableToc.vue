@@ -51,6 +51,10 @@ export default {
     }
   },
 
+  emits: [
+    'update-assessment-table'
+  ],
+
   computed: {
     ...mapGetters('AssessmentTable', [
       'isRefreshButtonVisible'
