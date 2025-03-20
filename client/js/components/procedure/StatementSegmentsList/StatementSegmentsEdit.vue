@@ -49,15 +49,14 @@
             @toggleEditing="() => addToEditing(segment.id)"
             @save="() => saveSegment(segment.id)">
             <template v-slot:display>
-              <div
-                class="u-mr"
-                v-cleanhtml="segment.attributes.text" />
+              <text-content-renderer :text="segment.attributes.text" />
             </template>
             <template v-slot:edit>
               <dp-editor
                 class="u-mr u-pt-0_25"
-                :toolbar-items="{ linkButton: true }"
+                :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
                 :value="segment.attributes.text"
+                @transformObscureTag="transformObscureTag"
                 @input="(val) => updateSegmentText(segment.id, val)" />
             </template>
           </dp-edit-field>
@@ -71,8 +70,9 @@
         <dp-editor
           hidden-input="statementText"
           required
-          :toolbar-items="{ linkButton: true }"
+          :toolbar-items="{ linkButton: true}"
           :value="statement.attributes.fullText || ''"
+          @transformObscureTag="transformObscureTag"
           @input="updateStatementText" />
         <dp-button-row
           class="u-mv"
@@ -114,6 +114,7 @@ import { defineAsyncComponent } from 'vue'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
 import { scrollTo } from 'vue-scrollto'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
 export default {
   name: 'StatementSegmentsEdit',
@@ -127,7 +128,8 @@ export default {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     }),
-    DpInlineNotification
+    DpInlineNotification,
+    TextContentRenderer
   },
 
   directives: {
@@ -165,7 +167,8 @@ export default {
       claimLoading: null,
       editingSegmentIds: [],
       hoveredSegment: null,
-      isLoading: false
+      isLoading: false,
+      obscuredText: ''
     }
   },
 
@@ -297,6 +300,12 @@ export default {
     },
 
     saveSegment (segmentId) {
+      // Use the transformed text if available
+      const textToSave = this.obscuredText || this.segments[segmentId].attributes.text
+
+      // Update the segment text with the transformed text
+      this.updateSegmentText(segmentId, textToSave)
+
       this.saveSegmentAction(segmentId)
         .catch(() => {
           this.restoreSegmentAction(segmentId)
@@ -368,14 +377,34 @@ export default {
     },
 
     updateSegmentText (segmentId, val) {
-      const updated = { ...this.segments[segmentId], ...{ attributes: { ...this.segments[segmentId].attributes, ...{ text: val } } } }
+      const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
+      const updated = {
+        ...this.segments[segmentId],
+        attributes: {
+          ...this.segments[segmentId].attributes,
+          text: fullText
+        }
+      }
       this.setSegment({ ...updated, id: segmentId })
     },
 
     updateStatementText (val) {
+      const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
+
       this.$emit('statement-text-updated')
-      const updated = { ...this.statement, ...{ attributes: { ...this.statement.attributes, ...{ fullText: val } } } }
+
+      const updated = {
+        ...this.statement,
+        attributes: {
+          ...this.statement.attributes,
+          fullText
+        }
+      }
       this.setStatement({ ...updated, id: this.statement.id })
+    },
+
+    transformObscureTag (val) {
+      this.obscuredText = val
     }
   },
 
