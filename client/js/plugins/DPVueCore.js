@@ -11,13 +11,13 @@
  * DPVueCorePlugin adds dplan object, globally used functions and filters to the main Vue instance
  */
 const DPVueCorePlugin = {
-  install: function (VueCore) {
+  install: function (app, options) {
     if (dplan?.settings?.debug) {
-      VueCore.config.performance = false
+      app.config.performance = false
     }
 
-    VueCore.prototype.dplan = window.dplan
-    VueCore.prototype.hasPermission = window.hasPermission
+    app.config.globalProperties.dplan = window.dplan
+    app.config.globalProperties.hasPermission = window.hasPermission
   }
 }
 

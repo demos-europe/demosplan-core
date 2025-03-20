@@ -93,6 +93,10 @@ export default {
     }
   },
 
+  emits: [
+    'layer-legend:unfolded'
+  ],
+
   data () {
     return {
       unfolded: false

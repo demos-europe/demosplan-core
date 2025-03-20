@@ -6,7 +6,7 @@ namespace demosplan\DemosPlanCoreBundle\Event;
 
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
-use function PHPUnit\Framework\assertContains;
+use Webmozart\Assert\Assert;
 
 class CreateReportEntryEvent extends DPlanEvent
 {
@@ -14,7 +14,7 @@ class CreateReportEntryEvent extends DPlanEvent
         protected readonly CoreEntity $entity,
         protected readonly string $category,
     ) {
-        assertContains($category, [ReportEntry::CATEGORY_ADD, ReportEntry::CATEGORY_UPDATE, ReportEntry::CATEGORY_DELETE]);
+        Assert::oneOf($category, [ReportEntry::CATEGORY_ADD, ReportEntry::CATEGORY_UPDATE, ReportEntry::CATEGORY_DELETE]);
     }
 
     public function getEntity(): CoreEntity

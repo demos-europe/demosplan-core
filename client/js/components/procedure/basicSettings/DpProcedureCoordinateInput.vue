@@ -76,8 +76,11 @@ export default {
   },
 
   watch: {
-    coordinate (coordinates) {
-      this.updateCoordinates(coordinates)
+    coordinate: {
+      handler (coordinates) {
+        this.updateCoordinates(coordinates)
+      },
+      deep: true
     }
   },
 

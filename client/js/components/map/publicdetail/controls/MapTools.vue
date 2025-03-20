@@ -120,6 +120,10 @@ export default {
 
   mixins: [prefixClassMixin],
 
+  emits: [
+    'map-tools:unfolded'
+  ],
+
   data () {
     return {
       isMobile: isMobile(window.navigator).any,
