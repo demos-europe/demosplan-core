@@ -78,7 +78,7 @@
           </li>
           <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
-              <template slot="trigger">
+              <template #trigger>
                 <span>
                   {{ Translator.trans('attachments') }}
                   <span v-text="attachmentsAndOriginalPdfCount" />
@@ -118,7 +118,7 @@
             <dp-flyout
               ref="metadataFlyout"
               :has-menu="false">
-              <template v-slot:trigger>
+              <template #trigger>
                 <span>
                   {{ Translator.trans('statement.metadata') }}
                   <i
@@ -453,8 +453,11 @@ export default {
   },
 
   watch: {
-    currentAction () {
-      this.showInfobox = this.currentAction === 'editText'
+    currentAction: {
+      handler () {
+        this.showInfobox = this.currentAction === 'editText'
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
@@ -738,7 +741,7 @@ export default {
       this.currentAction = action || defaultAction
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isCensored, isObscured }) {
       const parameters = {
         procedureId: this.procedure.id,
         statementId: this.statementId
@@ -755,6 +758,9 @@ export default {
       if (fileNameTemplate) {
         parameters.fileNameTemplate = fileNameTemplate
       }
+
+      isCensored && (parameters.isCensored = isCensored)
+      isObscured && (parameters.isObscured = isObscured)
 
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = Routing.generate(route, parameters)

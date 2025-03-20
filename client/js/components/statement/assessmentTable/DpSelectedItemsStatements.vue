@@ -137,6 +137,12 @@ export default {
     }
   },
 
+  emits: [
+    'exportModal:toggle',
+    'update-assessment-table',
+    'update-pagination-assessment-table'
+  ],
+
   data () {
     return {
       loading: false
@@ -196,8 +202,11 @@ export default {
   },
 
   watch: {
-    selectedElements () {
-      this.fetchRelatedFragments()
+    selectedElements: {
+      handler () {
+        this.fetchRelatedFragments()
+      },
+      deep: true
     }
   },
 

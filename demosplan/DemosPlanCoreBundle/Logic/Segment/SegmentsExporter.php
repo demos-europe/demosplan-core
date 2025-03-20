@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
@@ -31,9 +32,7 @@ use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\Shared\Html;
-use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -54,26 +53,27 @@ class SegmentsExporter
         private readonly ImageManager $imageManager,
         protected readonly ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,
+        StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
     ) {
         $this->translator = $translator;
-        $this->initializeStyles();
+        $this->styles = $styleInitializer->initialize();
         $this->slugify = $slugify;
     }
 
     /**
      * @throws Exception
      */
-    public function export(Procedure $procedure, Statement $statement, array $tableHeaders): WriterInterface
+    public function export(Procedure $procedure, Statement $statement, array $tableHeaders, bool $isCensored, bool $isObscure): WriterInterface
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
-        $this->addStatementInfo($section, $statement);
+        $this->addStatementInfo($section, $statement, $isCensored);
         $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement, $tableHeaders);
+        $this->addSegments($section, $statement, $tableHeaders, $isObscure);
         $this->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
@@ -230,12 +230,12 @@ class SegmentsExporter
         $section->addTextBreak(2);
     }
 
-    protected function addSegments(Section $section, Statement $statement, array $tableHeaders): void
+    protected function addSegments(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void
     {
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
             $this->addNoSegmentsMessage($section);
         } else {
-            $this->addSegmentsTable($section, $statement, $tableHeaders);
+            $this->addSegmentsTable($section, $statement, $tableHeaders, $isObscure);
         }
     }
 
@@ -263,13 +263,13 @@ class SegmentsExporter
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
     }
 
-    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders): void
+    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders, bool $isObscure): void
     {
         $table = $this->addSegmentsTableHeader($section, $tableHeaders);
         $sortedSegments = $this->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
 
         foreach ($sortedSegments as $segment) {
-            $this->addSegmentTableBody($table, $segment, $statement->getExternId());
+            $this->addSegmentTableBody($table, $segment, $statement->getExternId(), $isObscure);
         }
         $this->imageManager->addImages($section);
     }
@@ -324,11 +324,11 @@ class SegmentsExporter
         return $table;
     }
 
-    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId): void
+    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId, bool $isObscure): void
     {
         $textRow = $table->addRow();
         // Replace image tags in segment text and in segment recommendation text with text references.
-        $convertedSegment = $this->imageLinkConverter->convert($segment, $statementExternId);
+        $convertedSegment = $this->imageLinkConverter->convert($segment, $statementExternId, true, $isObscure);
         $this->addSegmentHtmlCell(
             $textRow,
             $segment->getExternId(),
@@ -385,79 +385,5 @@ class SegmentsExporter
     private function validInfoString(?string $text): bool
     {
         return null !== $text && '' !== trim($text);
-    }
-
-    private function initializeStyles(): void
-    {
-        // Global
-        $this->styles['globalSection'] = [
-            'orientation'  => 'landscape',
-            'marginLeft'   => Converter::cmToTwip(1.27),
-            'marginRight'  => Converter::cmToTwip(1.27),
-        ];
-        $this->styles['globalFont'] = ['name' => 'Arial'];
-
-        // Header
-        $this->styles['documentTitleFont'] = ['size' => 12, 'bold' => true];
-        $this->styles['documentTitleParagraph'] = ['alignment' => Jc::CENTER, 'spaceAfter' => Converter::cmToTwip(0.5)];
-
-        $this->styles['currentDateFont'] = [];
-        $this->styles['currentDateParagraph'] = ['alignment' => Jc::END, 'spaceAfter' => Converter::cmToTwip(0.5)];
-
-        $this->styles['statementInfoTable'] = [
-            'borderColor' => 'ffffff',
-            'borderSize'  => 0,
-            'cellSpacing' => Converter::cmToTwip(0),
-        ];
-        $this->styles['statementInfoTextCell'] = new CellExportStyle(4500);
-        $this->styles['statementInfoEmptyCell'] = new CellExportStyle(6500);
-
-        // Segments
-        $this->styles['noInfoMessageFont'] = ['size' => 12];
-        $wideColumnWidth = 6950;
-        $smallColumnWidth = 1550;
-        $headerCellStyle = ['borderSize'  => 5, 'borderColor' => '000000', 'bold' => true];
-        $headerPargraphStyle = ['spaceBefore' => Converter::cmToTwip(0.15), 'spaceAfter' => Converter::cmToTwip(0.15)];
-        $headerFontStyle = ['bold' => true];
-        $bodyCellStyle = ['borderSize'  => 5, 'borderColor' => '000000'];
-        $bodyParagraphStyle = ['lineHeight'  => 1.2, 'spaceBefore' => Converter::cmToTwip(0.15), 'spaceAfter' => Converter::cmToTwip(0.15)];
-
-        $this->styles['segmentsTable'] = [
-            'cellMargin' => Converter::cmToTwip(0.15),
-        ];
-        $this->styles['segmentsTableHeaderRow'] = ['tblHeader' => true];
-        $this->styles['segmentsTableHeaderRowHeight'] = Converter::cmToTwip(0.5);
-        $this->styles['segmentsTableHeaderCell'] = new CellExportStyle(
-            $wideColumnWidth,
-            $headerCellStyle,
-            $headerPargraphStyle,
-            $headerFontStyle
-        );
-        $this->styles['segmentsTableBodyCell'] = new CellExportStyle(
-            $wideColumnWidth,
-            $bodyCellStyle,
-            $bodyParagraphStyle
-        );
-
-        $this->styles['segmentsTableHeaderCellID'] = new CellExportStyle(
-            $smallColumnWidth,
-            $headerCellStyle,
-            $headerPargraphStyle,
-            $headerFontStyle
-        );
-        $this->styles['segmentsTableBodyCellID'] = new CellExportStyle(
-            $smallColumnWidth,
-            $bodyCellStyle,
-            $bodyParagraphStyle
-        );
-
-        // Footer
-        $this->styles['footerStatementInfoFont'] = [];
-        $this->styles['footerStatementInfoParagraph'] = ['alignment' => Jc::START];
-
-        $this->styles['footerPaginationFont'] = [];
-        $this->styles['footerPaginationParagraph'] = ['alignment' => Jc::END];
-        $this->styles['footerCellWidth'] = 7750;
-        $this->styles['footerCell'] = ['borderColor' => 'ffffff', 'borderSize' => 0];
     }
 }

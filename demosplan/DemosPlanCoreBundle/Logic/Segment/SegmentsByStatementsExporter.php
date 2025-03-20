@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
@@ -51,9 +52,10 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         ImageLinkConverter $imageLinkConverter,
         private readonly SegmentExporterFileNameGenerator $fileNameGenerator,
         Slugify $slugify,
+        StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
     ) {
-        parent::__construct($currentUser, $htmlHelper, $imageManager, $imageLinkConverter, $slugify, $translator);
+        parent::__construct($currentUser, $htmlHelper, $imageManager, $imageLinkConverter, $slugify, $styleInitializer, $translator);
     }
 
     public function getSynopseFileName(Procedure $procedure, string $suffix): string
@@ -64,7 +66,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     /**
      * @throws Exception
      */
-    public function exportAll(array $tableHeaders, Procedure $procedure, bool $censored, Statement ...$statements): WriterInterface
+    public function exportAll(array $tableHeaders, Procedure $procedure, bool $censored, bool $obscure, Statement ...$statements): WriterInterface
     {
         Settings::setOutputEscapingEnabled(true);
 
@@ -74,7 +76,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             return $this->exportEmptyStatements($phpWord, $procedure);
         }
 
-        return $this->exportStatements($phpWord, $procedure, $statements, $tableHeaders, $censored);
+        return $this->exportStatements($phpWord, $procedure, $statements, $tableHeaders, $censored, $obscure);
     }
 
     /**
@@ -172,36 +174,36 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @throws Exception
      */
-    private function exportStatements(PhpWord $phpWord, Procedure $procedure, array $statements, array $tableHeaders, bool $censored): WriterInterface
+    private function exportStatements(PhpWord $phpWord, Procedure $procedure, array $statements, array $tableHeaders, bool $censored, bool $obscure): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
 
         foreach ($statements as $index => $statement) {
-            $this->exportStatement($section, $statement, $tableHeaders, $censored);
+            $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscure);
             $section = $this->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
         }
 
         return IOFactory::createWriter($phpWord);
     }
 
-    public function exportStatementSegmentsInSeparateDocx(Statement $statement, Procedure $procedure, array $tableHeaders, bool $censored): PhpWord
+    public function exportStatementSegmentsInSeparateDocx(Statement $statement, Procedure $procedure, array $tableHeaders, bool $censored, bool $obscureParameter): PhpWord
     {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
-        $this->exportStatement($section, $statement, $tableHeaders, $censored);
+        $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscureParameter);
 
         return $phpWord;
     }
 
-    public function exportStatement(Section $section, Statement $statement, array $tableHeaders, $censored = false): void
+    public function exportStatement(Section $section, Statement $statement, array $tableHeaders, $censored = false, $obscure = false): void
     {
         $this->addStatementInfo($section, $statement, $censored);
         $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement, $tableHeaders);
+        $this->addSegments($section, $statement, $tableHeaders, $obscure);
         $this->addFooter($section, $statement, $censored);
     }
 
