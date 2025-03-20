@@ -39,7 +39,6 @@ class SegmentsExportController extends BaseController
     private const OUTPUT_DESTINATION = 'php://output';
     private const TABLE_HEADERS_PARAMETER = 'tableHeaders';
     private const FILE_NAME_TEMPLATE_PARAMETER = 'fileNameTemplate';
-    private const CENSOR_PARAMETER = 'isCensored';
     private const CITIZEN_CENSOR_PARAMETER = 'isCitizenDataCensored';
     private const INSTITUTION_CENSOR_PARAMETER = 'isInstitutionDataCensored';
     private const OBSCURE_PARAMETER = 'isObscured';
@@ -72,7 +71,6 @@ class SegmentsExportController extends BaseController
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->all(self::TABLE_HEADERS_PARAMETER);
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '');
-        $isCensored = $this->getBooleanQueryParameter(self::CENSOR_PARAMETER);
         $isObscure = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
@@ -124,7 +122,6 @@ class SegmentsExportController extends BaseController
             )->getList()
         );
 
-        $censorParameter = $this->getBooleanQueryParameter(self::CENSOR_PARAMETER);
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
         // geschwärzt
@@ -136,7 +133,6 @@ class SegmentsExportController extends BaseController
                 $procedure,
                 $statementEntities,
                 $exporter,
-                $censorParameter,
                 $censorCitizenData,
                 $censorInstitutionData,
                 $obscureParameter
@@ -144,7 +140,6 @@ class SegmentsExportController extends BaseController
                 $exportedDoc = $exporter->exportAll(
                     $tableHeaders,
                     $procedure,
-                    $censorParameter,
                     $obscureParameter,
                     $censorCitizenData,
                     $censorInstitutionData,
@@ -231,7 +226,6 @@ class SegmentsExportController extends BaseController
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->all(self::TABLE_HEADERS_PARAMETER);
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '');
 
-        $censorParameter = $this->getBooleanQueryParameter(self::CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
@@ -249,7 +243,6 @@ class SegmentsExportController extends BaseController
         $statements = array_values($statementResult->getList());
         $statements = $exporter->mapStatementsToPathInZip(
             $statements,
-            $censorParameter,
             $censorCitizenData,
             $censorInstitutionData,
             $fileNameTemplate
@@ -263,7 +256,6 @@ class SegmentsExportController extends BaseController
                 $zipExportService,
                 $procedure,
                 $tableHeaders,
-                $censorParameter,
                 $censorCitizenData,
                 $censorInstitutionData,
                 $obscureParameter
@@ -275,7 +267,6 @@ class SegmentsExportController extends BaseController
                         $zipStream,
                         $procedure,
                         $tableHeaders,
-                        $censorParameter,
                         $censorCitizenData,
                         $censorInstitutionData,
                         $obscureParameter

@@ -69,7 +69,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     public function exportAll(
         array $tableHeaders,
         Procedure $procedure,
-        bool $censored,
         bool $obscure,
         bool $censorCitizenData = false,
         bool $censorInstitutionData = false,
@@ -88,7 +87,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $procedure,
             $statements,
             $tableHeaders,
-            $censored,
             $censorCitizenData,
             $censorInstitutionData,
             $obscure
@@ -195,7 +193,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         Procedure $procedure,
         array $statements,
         array $tableHeaders,
-        bool $censored,
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscure,
