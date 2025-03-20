@@ -255,7 +255,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      */
     public function mapStatementsToPathInZip(
         array $statements,
-        bool $censored,
         bool $censorCitizenData,
         bool $censorInstitutionData,
         string $fileNameTemplate = '',
