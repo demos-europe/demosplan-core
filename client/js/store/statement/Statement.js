@@ -132,7 +132,7 @@ function transformStatementStructure ({ el, includes, meta }) {
   statement.attachments = statement.attachments || []
   statement.sourceAttachment = statement.sourceAttachment || ''
   statement.initialFilteredFragmentsCount = statement.filteredFragmentsCount || 0 // This Information is missing from BE-Side by now
-  statement.phase = Translator.trans(statement.phase)
+  statement.phase = 'Translator.trans(statement.phase)'
   statement.isFiltered = meta.isFiltered || false
   statement.orgaName = statement.organisationName
   statement.orgaDepartmentName = statement.organisationDepartmentName
@@ -649,7 +649,7 @@ export default {
         })
         .catch(e => {
           console.error(e)
-          dplan.notify.error(Translator.trans('error.api.generic'))
+          dplan.notify.error('test')
           return {}
         })
     },
@@ -899,7 +899,7 @@ export default {
           return dataToUpdate
         })
         .catch(err => {
-          dplan.notify.error(Translator.trans('statement.change.failed'))
+          dplan.notify.error('jajaa')
           return err
         })
     },
