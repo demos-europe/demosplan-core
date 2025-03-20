@@ -39,8 +39,8 @@ class SegmentsExportController extends BaseController
     private const OUTPUT_DESTINATION = 'php://output';
     private const TABLE_HEADERS_PARAMETER = 'tableHeaders';
     private const FILE_NAME_TEMPLATE_PARAMETER = 'fileNameTemplate';
-    private const CENSOR_PARAMETER = 'censorParameter';
-    private const OBSCURE_PARAMETER = 'obscureParameter';
+    private const CENSOR_PARAMETER = 'isCensored';
+    private const OBSCURE_PARAMETER = 'isObscured';
 
     public function __construct(
         private readonly NameGenerator $nameGenerator,

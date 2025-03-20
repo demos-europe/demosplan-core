@@ -68,6 +68,11 @@ export default {
     }
   },
 
+  emits: [
+    'fragments:show',
+    'fragments:load'
+  ],
+
   computed: {
     ...mapGetters('Fragment', ['fragmentsByStatement']),
 

@@ -70,7 +70,7 @@
         <dp-editor
           hidden-input="statementText"
           required
-          :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
+          :toolbar-items="{ linkButton: true}"
           :value="statement.attributes.fullText || ''"
           @transformObscureTag="transformObscureTag"
           @input="updateStatementText" />
@@ -110,6 +110,7 @@ import {
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
 import { scrollTo } from 'vue-scrollto'
@@ -123,10 +124,10 @@ export default {
     DpClaim,
     DpEditField,
     DpLoading,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
+    }),
     DpInlineNotification,
     TextContentRenderer
   },
@@ -376,7 +377,7 @@ export default {
     },
 
     updateSegmentText (segmentId, val) {
-      const fullText = this.transformedText && this.transformedText !== val ? this.transformedText : val
+      const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
       const updated = {
         ...this.segments[segmentId],
         attributes: {
@@ -388,7 +389,7 @@ export default {
     },
 
     updateStatementText (val) {
-      const fullText = this.transformedText && this.transformedText !== val ? this.transformedText : val
+      const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
 
       this.$emit('statement-text-updated')
 
@@ -441,7 +442,7 @@ export default {
     }
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.editingSegmentIds.length > 0 && hasPermission('area_statement_segmentation')) {
       this.editingSegmentIds.forEach(segment => this.reset(segment.id))
     }

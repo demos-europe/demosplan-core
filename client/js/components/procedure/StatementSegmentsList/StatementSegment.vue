@@ -69,12 +69,9 @@
         :is-loading="claimLoading"
         @click="toggleClaimSegment" />
     </div>
-    <div
-      class="segment-list-col--l overflow-word-break c-styled-html">
-      <text-content-renderer
-        class="segment-list-col--l overflow-word-break c-styled-html"
-        :text="visibleSegmentText" />
-    </div>
+    <text-content-renderer
+      class="segment-list-col--l overflow-word-break c-styled-html"
+      :text="visibleSegmentText" />
     <div class="segment-list-col--s">
       <button
         v-if="!isFullscreen"
@@ -160,6 +157,7 @@
                   v-for="(component, idx) in asyncComponents"
                   :key="idx"
                   :id="component.options.id"
+                  :is-active="activeId === component.options.id"
                   :label="Translator.trans(component.options.title)">
                   <slot>
                     <component
@@ -382,6 +380,7 @@ import {
   VPopover
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
@@ -404,10 +403,10 @@ export default {
     DpLabel,
     DpModal,
     DpMultiselect,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
+    }),
     DpTab,
     DpTabs,
     ImageModal,
@@ -556,7 +555,7 @@ export default {
 
   watch: {
     isCollapsed: {
-      handler: function (newVal, oldVal) {
+      handler (newVal) {
         if (!newVal) {
           this.$nextTick(() => {
             if (this.$refs.recommendationContainer) {
@@ -565,6 +564,7 @@ export default {
           })
         }
       },
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
       immediate: true // This ensures the handler is executed immediately after the component is created
     }
   },

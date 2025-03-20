@@ -296,7 +296,7 @@ export default {
     },
 
     tokenLength: {
-      type: length,
+      type: Number,
       required: false,
       default: 12
     }
