@@ -1402,7 +1402,7 @@ class DemosPlanProcedureController extends BaseController
 
                 $evaluatingPhase = null;
                 foreach ($templateVars['internalPhases'] as $internalPhase) {
-                    if ($internalPhase['key'] === 'evaluating') {
+                    if ('evaluating' === $internalPhase['key']) {
                         $evaluatingPhase = $internalPhase['name'];
 
                         break;
@@ -1446,10 +1446,10 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['synchronizedStatementCount'] = $entitySyncLinkRepository->getSynchronizedStatementCount($procedureId);
 
             $data = [
-                'templateVars' => $templateVars,
-                'procedure'    => $procedureId,
-                'title'        => $title,
-                'form'         => $form->createView(),
+                'templateVars'    => $templateVars,
+                'procedure'       => $procedureId,
+                'title'           => $title,
+                'form'            => $form->createView(),
                 'evaluatingPhase' => $evaluatingPhase ?? '',
             ];
             if (!null === $evaluatingPhase) {
