@@ -525,7 +525,7 @@
                                         }]) %}
                                     {% endfor %}
                                     <participation-phases
-                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: templateVars.evaluatingPhase|trans }) }}"
+                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: evaluatingPhase|trans|default('') }) }}"
                                         data-cy="internalPhase"
                                         field-name="r_phase"
                                         help-text="{{ 'text.procedure.edit.internal.change_phase'|trans }}"
