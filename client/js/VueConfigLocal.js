@@ -86,30 +86,46 @@ localVue.component('DpObscure', DpObscure)
 localVue.component('DpMultiselect', DpMultiselect)
 
 const shallowMountWithGlobalMocks = (component, options) => {
+  const { global, ...optionsWithoutGlobal } = options || {}
+
   return shallowMount(
     component,
     {
       global: {
         plugins: [
           DPVueCorePlugin,
-          ...(options.global?.plugins || [])
+          ...(global?.plugins || [])
         ],
-        directives: {
-          tooltip: VTooltip
-        },
-        components: {
-          DpObscure,
-          DpMultiselect
-        },
         config: {
           globalProperties: {
             ...globalMocks,
-            ...options.global?.config?.globalProperties
+            ...(global?.config?.globalProperties || {})
           }
         },
-        ...options.global
+        mixins: [
+          ...[global?.mixins || []]
+        ],
+        mocks: {
+          ...(global?.mocks || {})
+        },
+        provide: {
+          ...(global?.provide || {})
+        },
+        components: {
+          DpObscure,
+          DpMultiselect,
+          ...(global?.components || {})
+        },
+        directives: {
+          tooltip: VTooltip,
+          ...(global?.directives || {})
+        },
+        stubs: {
+          ...(global?.stubs || {})
+        },
+        renderStubDefaultSlot: global?.renderStubDefaultSlot || false
       },
-      ...options
+      ...optionsWithoutGlobal
     })
 }
 
