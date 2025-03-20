@@ -42,11 +42,16 @@
             @change="active = key" />
           <template v-if="active !== 'xlsx_normal'">
             <dp-checkbox
-              id="censored"
-              v-model="isCensored"
+              id="censoredCitizen"
+              v-model="isCitizenDataCensored"
               :label="{
-                text: Translator.trans('export.anonymous'),
-                hint: Translator.trans('export.anonymous.hint')
+                text: Translator.trans('export.censored.citizen')
+              }" />
+            <dp-checkbox
+              id="censoredInstitution"
+              v-model="isInstitutionDataCensored"
+              :label="{
+                text: Translator.trans('export.censored.institution')
               }" />
             <dp-checkbox
               id="obscured"
@@ -62,11 +67,16 @@
       <fieldset v-if="isSingleStatementExport">
         <div class="flex mt-1 mb-5">
           <dp-checkbox
-            id="singleStatementCensored"
-            v-model="isCensored"
+            id="singleStatementCitizen"
+            v-model="isCitizenDataCensored"
             :label="{
-              text: Translator.trans('export.anonymous'),
-              hint: Translator.trans('export.anonymous.hint')
+              text: Translator.trans('export.censored.citizen')
+            }" />
+          <dp-checkbox
+            id="singleStatementInstitution"
+            v-model="isInstitutionDataCensored"
+            :label="{
+              text: Translator.trans('export.censored.institution')
             }" />
           <dp-checkbox
             id="singleStatementObscure"
@@ -78,7 +88,7 @@
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored', 'docx_obscured', 'zip_obscured'].includes(this.active)">
+      <fieldset v-if="['docx_normal', 'zip_normal'].includes(this.active)">
         <legend
           id="docxColumnTitles"
           class="o-form__label text-base float-left mr-1"
@@ -212,7 +222,8 @@ export default {
         }
       },
       fileName: '',
-      isCensored: false,
+      isInstitutionDataCensored: false,
+      isCitizenDataCensored: false,
       isObscure: false,
       singleStatementExportPath: 'dplan_segments_export' /** Used in the statements detail page */
     }
@@ -274,8 +285,9 @@ export default {
         docxHeaders: ['docx_normal', 'zip_normal'].includes(this.active) ? columnTitles : null,
         fileNameTemplate: this.fileName || null,
         shouldConfirm,
-        isCensored: this.isCensored,
-        isObscured: this.isObscure
+        isObscured: this.isObscure,
+        isInstitutionDataCensored: this.isInstitutionDataCensored,
+        isCitizenDataCensored: this.isCitizenDataCensored
       })
       this.closeModal()
     },
