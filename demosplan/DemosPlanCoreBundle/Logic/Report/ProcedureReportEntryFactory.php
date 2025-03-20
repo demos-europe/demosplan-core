@@ -99,7 +99,7 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
 
     public function createProcedureDeletionEntry(
         array $data,
-        Procedure $procedure
+        Procedure $procedure,
     ): ReportEntry {
         $entry = $this->createReportEntry();
         $entry->setUser($this->getCurrentUser());
