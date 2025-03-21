@@ -24,6 +24,9 @@ describe('StatementExportModal', () => {
       },
       stubs: {
         DpModal
+      },
+      global: {
+        renderStubDefaultSlot: true
       }
     })
 
