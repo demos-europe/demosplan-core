@@ -2,7 +2,9 @@
 fos_elastica:
     clients:
         default:
-            connections: '%elasticsearch_urls%'
+            hosts: '%elasticsearch_urls%'
+            username: '%env(ELASTIC_USER)%'
+            password: '%env(ELASTIC_PASSWORD)%'
             connection_strategy: RoundRobin
     indexes:
         statementSegments:

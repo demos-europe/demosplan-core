@@ -224,8 +224,7 @@ parameters:
 
     fileservice_filepath: "../../files"
 
-    elasticsearch_urls:
-        -   url: "http://localhost:9200"
+    elasticsearch_urls: ["http://localhost:9200"]
 
     # #refactor: deprecated, project_prefix used, could be deleted
     advancedsearchservice_index_name_prefix: "dplan"

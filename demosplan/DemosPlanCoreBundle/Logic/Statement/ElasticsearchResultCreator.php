@@ -432,7 +432,7 @@ class ElasticsearchResultCreator extends CoreService
                 $query = $this->elasticSearchService->addEsAggregation(
                     $query,
                     'elementId',
-                    '_term',
+                    '_key',
                     'asc',
                     'elementId'
                 );

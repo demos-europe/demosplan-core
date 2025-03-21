@@ -30,7 +30,21 @@ class ConfigParametersDataCollector extends DataCollector
         Response $response,
         Throwable $exception = null
     ) {
-        $esUrls = collect($this->parameterBag->get('elasticsearch_urls'))->transform(static fn ($item) => $item['url'])->toArray();
+        $esUrls = [];
+        $elasticsearchUrls = $this->parameterBag->get('elasticsearch_urls');
+        
+        // Handle both string and array format for elasticsearch_urls
+        if (is_array($elasticsearchUrls)) {
+            foreach ($elasticsearchUrls as $item) {
+                if (is_array($item) && isset($item['url'])) {
+                    $esUrls[] = $item['url'];
+                } elseif (is_string($item)) {
+                    $esUrls[] = $item;
+                }
+            }
+        } elseif (is_string($elasticsearchUrls)) {
+            $esUrls[] = $elasticsearchUrls;
+        }
 
         $this->data = [
             'database_host'        => $this->parameterBag->get('database_host'),
