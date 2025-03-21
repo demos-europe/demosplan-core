@@ -176,25 +176,6 @@
     "enqueue/dsn": {
         "version": "0.10.8"
     },
-    "enqueue/elastica-bundle": {
-        "version": "0.13.0"
-    },
-    "enqueue/enqueue": {
-        "version": "0.10.9"
-    },
-    "enqueue/enqueue-bundle": {
-        "version": "0.9",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "0.9",
-            "ref": "c6ec89b63f963d10ad0d7a7bea170359c119c8bc"
-        },
-        "files": [
-            "demosplan/DemosPlanCoreBundle/Resources/config/packages/enqueue.yaml",
-            "demosplan/DemosPlanCoreBundle/Resources/config/packages/test/enqueue.yaml"
-        ]
-    },
     "enqueue/fs": {
         "version": "0.10",
         "recipe": {
@@ -203,9 +184,6 @@
             "version": "0.4",
             "ref": "822505a7de797bd869c5757bb9bae85f647d870d"
         }
-    },
-    "enqueue/null": {
-        "version": "0.10.9"
     },
     "erusev/parsedown": {
         "version": "1.7.4"
@@ -224,12 +202,6 @@
         "files": [
             "demosplan/DemosPlanCoreBundle/Resources/config/packages/exercise_html_purifier.yaml"
         ]
-    },
-    "ezimuel/guzzlestreams": {
-        "version": "3.0.1"
-    },
-    "ezimuel/ringphp": {
-        "version": "1.1.2"
     },
     "ezyang/htmlpurifier": {
         "version": "v4.13.0"
@@ -574,9 +546,6 @@
             "tests/bootstrap.php"
         ]
     },
-    "predis/predis": {
-        "version": "v1.1.10"
-    },
     "proj4php/proj4php": {
         "version": "2.0.12"
     },
@@ -606,9 +575,6 @@
     },
     "psr/simple-cache": {
         "version": "1.0.1"
-    },
-    "queue-interop/amqp-interop": {
-        "version": "0.8.2"
     },
     "queue-interop/queue-interop": {
         "version": "0.8.1"
@@ -894,6 +860,18 @@
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
     },
+    "symfony/messenger": {
+        "version": "6.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.0",
+            "ref": "ba1ac4e919baba5644d31b57a3284d6ba12d52ee"
+        },
+        "files": [
+            "config/packages/messenger.yaml"
+        ]
+    },
     "symfony/mime": {
         "version": "v5.3.4"
     },
@@ -1017,9 +995,6 @@
     },
     "symfony/security-csrf": {
         "version": "v5.3.4"
-    },
-    "symfony/security-guard": {
-        "version": "v4.4.27"
     },
     "symfony/security-http": {
         "version": "v4.4.27"

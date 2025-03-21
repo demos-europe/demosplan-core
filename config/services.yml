@@ -1371,6 +1371,15 @@ services:
 
     EDT\Querying\Contracts\PropertyAccessorInterface: '@EDT\DqlQuerying\PropertyAccessors\Iso8601PropertyAccessor'
 
+    FOS\ElasticaBundle\Message\Handler\AsyncPersistPageHandler:
+        arguments:
+            - '@fos_elastica.async_pager_persister'
+        tags: ['messenger.message_handler']
+
+    # Event subscriber to improve error reporting for Messenger failures
+    demosplan\DemosPlanCoreBundle\EventSubscriber\MessengerExceptionEventSubscriber:
+        tags: ['kernel.event_subscriber']
+
     demosplan\DemosPlanCoreBundle\Command\ClassGenerator\EntityCompanionGeneratorCommand:
         arguments:
             $resourceTypes: !tagged dplan.resourceType

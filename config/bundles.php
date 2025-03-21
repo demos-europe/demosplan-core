@@ -40,7 +40,6 @@ return [
     EFrane\TusBundle\Bundle\TusBundle::class                                           => ['all' => true],
     Knp\Bundle\MenuBundle\KnpMenuBundle::class                                         => ['all' => true],
     KnpU\OAuth2ClientBundle\KnpUOAuth2ClientBundle::class                              => ['all' => true],
-    Enqueue\ElasticaBundle\EnqueueElasticaBundle::class                                => ['all' => true],
     DemosEurope\DemosplanAddon\DemosPlanAddonBundle::class                             => ['all' => true],
     Zenstruck\Foundry\ZenstruckFoundryBundle::class                                    => ['dev' => true, 'test' => true],
     League\FlysystemBundle\FlysystemBundle::class                                      => ['all' => true],

@@ -6,6 +6,7 @@ fos_elastica:
             username: '%env(ELASTIC_USER)%'
             password: '%env(ELASTIC_PASSWORD)%'
             connection_strategy: RoundRobin
+    messenger: ~
     indexes:
         statementSegments:
             index_name: '%project_prefix%_segments'
