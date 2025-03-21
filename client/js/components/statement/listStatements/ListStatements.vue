@@ -447,7 +447,7 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute, docxHeaders, fileNameTemplate, censorParameter) => {
+      return (exportRoute, docxHeaders, fileNameTemplate, isCensored, isObscured) => {
         const parameters = {
           filter: {
             procedureId: {
@@ -463,7 +463,8 @@ export default {
             ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
           },
           sort: this.selectedSort,
-          censorParameter: censorParameter
+          isCensored,
+          isObscured
         }
 
         if (docxHeaders) {
@@ -930,8 +931,8 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, censorParameter }) {
-      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, censorParameter)
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, isCensored, isObscured }) {
+      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isCensored, isObscured)
       if (!shouldConfirm || window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = url
       }
