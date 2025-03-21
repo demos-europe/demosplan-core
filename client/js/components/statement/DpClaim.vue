@@ -44,7 +44,7 @@ the FB is ready with editing of fragments.
   <button
     class="flex items-center space-inline-xs btn--blank o-link--default"
     :class="{'cursor-pointer' : false === isLoading}"
-    :data-assigned="isAssignedToMe /* needed for checking checked elements*/"
+    :data-assigned="isAssignedToMe ? 'true' : 'false'"
     @click.prevent.stop="updateAssignment"
     data-cy="claimIcon"
     :aria-label="status.text"
