@@ -105,7 +105,7 @@ describe('ExportModal', () => {
   })
 
   afterEach(() => {
-    wrapper.destroy()
+    wrapper.unmount()
   })
 
   it('displays each optGroup as tab', () => {

@@ -34,7 +34,7 @@ describe('StatementExportModal', () => {
   })
 
   afterEach(() => {
-    wrapper.destroy()
+    wrapper.unmount()
   })
 
   it('opens the modal when the button is clicked', async () => {
