@@ -414,6 +414,7 @@ class OzgKeycloakUserDataMapper
         if (0 !== count($unIdentifiedRoles)) {
             $this->logger->error('at least one non recognizable role was requested!', $unIdentifiedRoles);
         }
+        $this->logger->info('Recognized Roles: ', [$recognizedRoleCodes]);
         $requestedRoles = $this->filterNonAvailableRolesInProject($recognizedRoleCodes);
         if (0 === count($requestedRoles)) {
             throw new AuthenticationCredentialsNotFoundException('no roles could be identified');
