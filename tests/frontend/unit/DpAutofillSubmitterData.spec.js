@@ -25,7 +25,7 @@ describe('Submitter', () => {
     const instance = shallowMountWithGlobalMocks(
       SubmitterComponent,
       {
-        propsData: {
+        props: {
           procedureId: 'procedureId',
           request: {},
           submitters: Submitters,
@@ -48,7 +48,7 @@ describe('Submitter', () => {
     const instance = shallowMountWithGlobalMocks(
       SubmitterComponent,
       {
-        propsData: {
+        props: {
           procedureId: 'procedureId',
           request: {},
           formDefinitions: {},
@@ -70,7 +70,7 @@ describe('Submitter', () => {
     const instance = shallowMountWithGlobalMocks(
       SubmitterComponent,
       {
-        propsData: {
+        props: {
           procedureId: 'procedureId',
           request: {},
           formDefinitions: {},

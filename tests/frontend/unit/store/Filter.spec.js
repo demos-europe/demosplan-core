@@ -7,19 +7,16 @@
  * All rights reserved
  */
 
-import { createLocalVue } from '@vue/test-utils'
+import { createStore } from 'vuex'
 import Filter from '@DpJs/store/statement/Filter'
 import { filterList } from '../__mocks__/Filter.mock'
 import { UserFilterSetResource } from '../__mocks__/UserFilterSetResource.mock'
-import Vuex from 'vuex'
 
 describe('FilterStore', () => {
   let store
 
   beforeEach(() => {
-    const localVue = createLocalVue()
-    localVue.use(Vuex)
-    store = new Vuex.Store(Filter)
+    store = createStore(Filter)
   })
 
   it('has filterGroups', () => {

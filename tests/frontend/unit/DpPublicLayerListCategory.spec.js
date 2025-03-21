@@ -10,7 +10,7 @@
 import DpPublicLayerListCategory from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListCategory'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
-const propsData = {
+const props = {
   group: {
     id: 'group-id',
     attributes: {
@@ -31,7 +31,7 @@ const propsData = {
 describe('DpPublicLayerListCategory', () => {
   it('should have the correct prop-values', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
-      propsData,
+      props,
       computed: {
         elementListForLayerSidebar: () => [],
         layers: () => []
@@ -59,7 +59,7 @@ describe('DpPublicLayerListCategory', () => {
     }])
 
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
-      propsData,
+      props,
       computed: {
         elementListForLayerSidebar: () => layerfromStoreMock
       },
@@ -99,7 +99,7 @@ describe('DpPublicLayerListCategory', () => {
     }])
 
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
-      propsData,
+      props,
       computed: {
         elementListForLayerSidebar: () => jest.fn().mockReturnValue([]),
         rootId: () => 'xxx-rootID'
@@ -114,7 +114,7 @@ describe('DpPublicLayerListCategory', () => {
 
   it('should render an empty layout if there are no layers', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
-      propsData,
+      props,
       computed: {
         elementListForLayerSidebar: () => [],
         layers: () => []
@@ -126,7 +126,7 @@ describe('DpPublicLayerListCategory', () => {
 
   it('should render a list if there are layers', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
-      propsData,
+      props,
       computed: {
         elementListForLayerSidebar: () => [],
         layers: () => [{
@@ -151,7 +151,7 @@ describe('DpPublicLayerListCategory', () => {
 
   it('should toggle its visibility when toggle is called', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
-      propsData,
+      props,
       computed: {
         elementListForLayerSidebar: () => [],
         layers: () => []
@@ -173,7 +173,7 @@ describe('DpPublicLayerListCategory', () => {
 
   it('should toggle its visibility when toggleFromSelf is called', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
-      propsData,
+      props,
       computed: {
         elementListForLayerSidebar: () => [],
         layers: () => []
@@ -195,7 +195,7 @@ describe('DpPublicLayerListCategory', () => {
 
   it('should toggle its visibility when toggleFromParent is called', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
-      propsData,
+      props,
       computed: {
         elementListForLayerSidebar: () => [],
         layers: () => []
@@ -219,7 +219,7 @@ describe('DpPublicLayerListCategory', () => {
     ]
 
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
-      propsData,
+      props,
       computed: {
         elementListForLayerSidebar: () => { return () => [] },
         layers: () => []

@@ -15,7 +15,7 @@ describe('Status', () => {
 
   beforeEach(() => {
     wrapper = shallowMountWithGlobalMocks(Status, {
-      propsData: {
+      props: {
         status: '',
         fragmentId: 'testId',
         archivedOrgaName: 'OrgaName',
