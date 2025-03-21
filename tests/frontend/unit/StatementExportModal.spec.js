@@ -30,9 +30,10 @@ describe('StatementExportModal', () => {
       }
     })
 
+    const modalStub = wrapper.findComponent(DpModal)
     const button = wrapper.find('[data-cy="exportModal:open"]')
     const mockEvent = { preventDefault: jest.fn() }
-    button.vm.$emit('click', mockEvent)
+    modalStub.vm.$emit('click', mockEvent)
     wrapper.vm.setInitialValues()
   })
 
@@ -41,8 +42,8 @@ describe('StatementExportModal', () => {
   })
 
   it('opens the modal when the button is clicked', async () => {
-    const modal = wrapper.findComponent({ name: 'DpModal' })
-    expect(modal.isVisible()).toBe(true)
+    const modalStub = wrapper.findComponent({ name: 'DpModal' })
+    expect(modalStub.isVisible()).toBe(true)
   })
 
   it('sets the initial values correctly', () => {
