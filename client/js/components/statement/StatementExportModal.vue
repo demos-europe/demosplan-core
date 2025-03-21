@@ -42,18 +42,22 @@
             @change="active = key" />
           <template v-if="active !== 'xlsx_normal'">
             <dp-checkbox
-              id="censored"
-              v-model="isCensored"
+              id="censoredCitizen"
+              v-model="isCitizenDataCensored"
               :label="{
-                text: Translator.trans('export.anonymous'),
-                hint: Translator.trans('export.anonymous.hint')
+                text: Translator.trans('export.censored.citizen')
+              }" />
+            <dp-checkbox
+              id="censoredInstitution"
+              v-model="isInstitutionDataCensored"
+              :label="{
+                text: Translator.trans('export.censored.institution')
               }" />
             <dp-checkbox
               id="obscured"
               v-model="isObscure"
               :label="{
-                text: Translator.trans('export.docx.obscured'),
-                hint: Translator.trans('export.docx.obscured.hint')
+                text: Translator.trans('export.docx.obscured')
               }" />
           </template>
         </div>
@@ -62,18 +66,22 @@
       <fieldset v-if="isSingleStatementExport">
         <div class="flex mt-1 mb-5">
           <dp-checkbox
-            id="singleStatementCensored"
-            v-model="isCensored"
+            id="singleStatementCitizen"
+            v-model="isCitizenDataCensored"
             :label="{
-              text: Translator.trans('export.anonymous'),
-              hint: Translator.trans('export.anonymous.hint')
+              text: Translator.trans('export.censored.citizen')
+            }" />
+          <dp-checkbox
+            id="singleStatementInstitution"
+            v-model="isInstitutionDataCensored"
+            :label="{
+              text: Translator.trans('export.censored.institution')
             }" />
           <dp-checkbox
             id="singleStatementObscure"
             v-model="isObscure"
             :label="{
-              text: Translator.trans('export.docx.obscured'),
-              hint: Translator.trans('export.docx.obscured.hint')
+              text: Translator.trans('export.docx.obscured')
             }" />
         </div>
       </fieldset>
@@ -212,7 +220,8 @@ export default {
         }
       },
       fileName: '',
-      isCensored: false,
+      isInstitutionDataCensored: false,
+      isCitizenDataCensored: false,
       isObscure: false,
       singleStatementExportPath: 'dplan_segments_export' /** Used in the statements detail page */
     }
@@ -274,7 +283,8 @@ export default {
         docxHeaders: ['docx_normal', 'zip_normal'].includes(this.active) ? columnTitles : null,
         fileNameTemplate: this.fileName || null,
         shouldConfirm,
-        isCensored: this.isCensored,
+        isInstitutionDataCensored: this.isInstitutionDataCensored,
+        isCitizenDataCensored: this.isCitizenDataCensored,
         isObscured: this.isObscure
       })
       this.closeModal()
