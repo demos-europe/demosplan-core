@@ -100,7 +100,6 @@ class FunctionalTestCase extends WebTestCase
         $this->entityManager = self::$container->get(EntityManagerInterface::class);
         $this->databaseTool = self::$container->get(DatabaseToolCollection::class)->get();
         $this->tokenStorage = self::$container->get('security.token_storage');
-
         $this->fixtures = $this->databaseTool->loadAllFixtures(['TestData'])->getReferenceRepository();
     }
 
