@@ -138,7 +138,7 @@ class ParagraphServiceTest extends FunctionalTestCase
     public function testGetList()
     {
         $elementId = $this->fixtures->getReference('testElement1')->getId();
-        $result = $this->sut->getParaDocumentList($this->fixtures->getReference('testProcedure')->getId(), $elementId);
+        $result = $this->sut->getParaDocumentList($this->fixtures->getReference('testProcedure2')->getId(), $elementId);
 
         static::assertCount(3, $result);
         $this->checkParaDocumentArray($result[1]);
@@ -165,7 +165,7 @@ class ParagraphServiceTest extends FunctionalTestCase
     public function testGetAdminList()
     {
         $elementId = $this->fixtures->getReference('testElement1')->getId();
-        $result = $this->sut->getParaDocumentAdminList($this->fixtures->getReference('testProcedure')->getId(), $elementId, null, true);
+        $result = $this->sut->getParaDocumentAdminList($this->fixtures->getReference('testProcedure2')->getId(), $elementId, null, true);
 
         static::assertTrue(is_array($result));
         static::assertEquals(5, sizeof($result));
@@ -211,14 +211,14 @@ class ParagraphServiceTest extends FunctionalTestCase
 
     public function testGetAdminListAll()
     {
-        $result = $this->sut->getParaDocumentAdminListAll([$this->fixtures->getReference('testProcedure')->getId()]);
+        $result = $this->sut->getParaDocumentAdminListAll([$this->fixtures->getReference('testProcedure2')->getId()]);
 
         static::assertTrue(is_array($result));
         static::assertEquals(5, sizeof($result));
 
         static::assertArrayHasKey('total', $result);
         static::assertTrue(is_integer($result['total']));
-        static::assertEquals(4, $result['total']);
+        static::assertEquals(15, $result['total']);
 
         static::assertArrayHasKey('search', $result);
         static::assertTrue(is_string($result['search']));
@@ -226,11 +226,11 @@ class ParagraphServiceTest extends FunctionalTestCase
 
         static::assertArrayHasKey('result', $result);
         static::assertTrue(is_array($result['result']));
-        static::assertEquals(4, sizeof($result['result']));
+        static::assertEquals(15, sizeof($result['result']));
         $this->checkParaDocumentArray($result['result'][0]);
 
-        $paraDocumentResult = $result['result'][1];
-        $referenceParaDocument = $this->testParaDocument;
+        $paraDocumentResult = $result['result'][0];
+        $referenceParaDocument = $this->testParaDocument; // TestParagraph1
         static::assertEquals($referenceParaDocument->getId(), $paraDocumentResult['ident']);
         static::assertEquals($referenceParaDocument->getElementId(), $paraDocumentResult['elementId']);
         static::assertEquals($referenceParaDocument->getCategory(), $paraDocumentResult['category']);
