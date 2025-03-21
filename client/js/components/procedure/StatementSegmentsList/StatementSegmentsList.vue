@@ -78,7 +78,7 @@
           </li>
           <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
-              <template #trigger>
+              <template v-slot:trigger>
                 <span>
                   {{ Translator.trans('attachments') }}
                   <span v-text="attachmentsAndOriginalPdfCount" />
@@ -118,7 +118,7 @@
             <dp-flyout
               ref="metadataFlyout"
               :has-menu="false">
-              <template #trigger>
+              <template v-slot:trigger>
                 <span>
                   {{ Translator.trans('statement.metadata') }}
                   <i
@@ -547,7 +547,6 @@ export default {
     getStatement () {
       const statementFields = [
         'assignee',
-        'availableProcedurePhases',
         'authoredDate',
         'authorName',
         'consentRevoked',
@@ -593,6 +592,10 @@ export default {
         statementFields.push('synchronized')
       }
 
+      if (hasPermission('field_statement_phase')) {
+        statementFields.push('availableProcedurePhases')
+      }
+
       if (hasPermission('area_statement_segmentation')) {
         statementFields.push('segmentDraftList')
       }
@@ -607,7 +610,7 @@ export default {
 
       const allFields = {
         ElementsDetails: [
-          'document',
+          'documents',
           'paragraphs',
           'title'
         ].join(),
