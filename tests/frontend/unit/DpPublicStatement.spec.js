@@ -14,7 +14,7 @@ import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 describe('DpPublicStatement', () => {
   it('should mount', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicStatement, {
-      propsData: {
+      props: {
         attachments: [],
         county: null,
         createdDate: '18.02.2021 15:02',

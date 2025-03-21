@@ -48,7 +48,7 @@ describe('AdminLayerList', () => {
 
   it('should have the correct prop-values', () => {
     const wrapper = shallowMountWithGlobalMocks(AdminLayerList, {
-      propsData: {
+      props: {
         procedureId: 'some-id'
       },
       global: {
@@ -61,7 +61,7 @@ describe('AdminLayerList', () => {
 
   it('should render a empty admin layer list', () => {
     const wrapper = shallowMountWithGlobalMocks(AdminLayerList, {
-      propsData: {
+      props: {
         procedureId: 'some-id'
       },
       global: {

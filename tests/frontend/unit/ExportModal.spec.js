@@ -100,7 +100,7 @@ describe('ExportModal', () => {
     wrapper = shallowMountWithGlobalMocks(
       ExportModal,
       {
-        propsData: props
+        props
       })
   })
 

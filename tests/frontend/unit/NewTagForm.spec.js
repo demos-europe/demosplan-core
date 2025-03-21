@@ -14,7 +14,7 @@ describe('NewTagForm', () => {
 
   beforeEach(() => {
     wrapper = shallowMountWithGlobalMocks(NewTagForm, {
-      propsData: {
+      props: {
         tagCategories: [
           {
             id: 1,

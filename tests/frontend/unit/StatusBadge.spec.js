@@ -8,7 +8,7 @@ describe('StatusBadge.vue', () => {
 
     statuses.forEach((status, index) => {
       const wrapper = shallowMountWithGlobalMocks(StatusBadge, {
-        propsData: { status }
+        props: { status }
       })
 
       expect(wrapper.vm.color).toBe(colors[index])
