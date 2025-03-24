@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Use less strict samesite cookie policy for session cookies to allow login via keycloak
+
 ## v2.26.2 (2025-03-14)
 - Create report entries on create, update, deletion of an element, paragraph , singleDocument, mapDrawing or mapDrawing-explanation
 - Enable to send Statement final notice using RpcRequest and Vue.js
