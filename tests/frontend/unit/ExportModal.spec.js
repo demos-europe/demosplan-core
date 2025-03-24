@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
+import { enableAutoUnmount } from '@vue/test-utils'
 import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
@@ -104,9 +105,7 @@ describe('ExportModal', () => {
       })
   })
 
-  afterEach(() => {
-    wrapper.unmount()
-  })
+  enableAutoUnmount(afterEach)
 
   it('displays each optGroup as tab', () => {
     const tabButtons = wrapper.findAll('button')
