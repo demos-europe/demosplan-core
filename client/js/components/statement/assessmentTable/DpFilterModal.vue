@@ -84,20 +84,24 @@
         </div>
 
           <!-- Tabs with filters -->
-          <dp-tabs tab-size="medium">
+          <dp-tabs
+            :active-id="activeTabId"
+            tab-size="medium"
+            @change="setActiveTabId">
             <dp-tab
               v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
-              class="u-pt-0_5"
-              :key="index"
               :id="filterGroup.label"
+              :key="index"
+              class="u-pt-0_5"
+              :is-active="activeTabId === filterGroup.type"
               :label="Translator.trans(filterGroup.label)"
               :suffix="createSelectedFiltersBadge(filterGroup)">
               <dp-filter-modal-select-item
                 v-for="filterItem in filterByType(filterGroup.type)"
                 :key="filterItem.id"
+                :applied-filter-options="appliedFilterOptions.filter(option => option.filterId === filterItem.id)"
                 :filter-item="filterItem"
                 :filter-group="filterGroup"
-                :applied-filter-options="appliedFilterOptions.filter(option => option.filterId === filterItem.id)"
                 @update-selected="updateSelectedOptions"
                 @updating-filters="disabledInteractions = true"
                 @updated-filters="disabledInteractions = false" />
@@ -364,10 +368,6 @@ export default {
       'resetSelectedOptions'
     ]),
 
-    setActiveTabId (id) {
-      this.activeTabId = id
-    },
-
     back () {
       this.saveFilterSetView = false
     },
@@ -460,6 +460,10 @@ export default {
         this.resetSelectedOptions(this.appliedFilterOptions)
         this.updateSelectedOptions()
       }
+    },
+
+    setActiveTabId (id) {
+      this.activeTabId = id
     },
 
     submitOrNext () {
