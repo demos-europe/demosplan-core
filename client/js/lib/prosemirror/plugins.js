@@ -70,6 +70,9 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
         const meta = tr.getMeta(pluginKey)
         const move = editingTrackerKey.getState(newState)
 
+        console.log('meta', meta)
+        console.log('move', move)
+
         if (meta && meta.editing) {
           console.log('EDITING')
           /**
@@ -113,6 +116,8 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
           const selection = tr.selection
           const newDecorationPosition = selection.$head.pos
 
+          console.log('newDecorationPosition', newDecorationPosition)
+
           const { from, to } = getMinMax(fixed, newDecorationPosition)
 
           return {
@@ -133,6 +138,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
       handleDOMEvents: {
         mousedown (view, e) {
           const isHandle = e.target.getAttribute('data-range-widget') !== null
+          console.log('e.target.getAttribute(\'data-range-widget\'): ', e.target.getAttribute('data-range-widget'))
           /**
            * Here, we need to check if the user clicked on a handle. If a handle was clicked, we need to prevent the
            * default behaviour. If we would not prevent the default behaviour, a prosemirror selection would be set close
