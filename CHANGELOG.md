@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v2.26.3 (2025-03-24)
 - Use less strict samesite cookie policy for session cookies to allow login via keycloak
 
 ## v2.26.2 (2025-03-14)
