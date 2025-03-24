@@ -589,15 +589,6 @@
                             class="o-box--dark u-mt-0_25 u-ph u-pv-0_5"
                             data-cy="statementPublishContainer">
 
-                            {% if hasPermission('feature_statements_vote') %}
-                                <div
-                                    class="flash flash-info">
-                                    <p class="u-mb-0">
-                                        {{ "explanation.statement.public.activate.voting"|trans }}
-                                    </p>
-                                </div>
-                            {% endif %}
-
                             <statement-publish :editable="true"></statement-publish>
                         </div>
                     </fieldset>
