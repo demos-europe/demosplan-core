@@ -100,12 +100,12 @@ describe('ExportModal', () => {
     wrapper = shallowMountWithGlobalMocks(
       ExportModal,
       {
-        propsData: props
+        props
       })
   })
 
   afterEach(() => {
-    wrapper.destroy()
+    wrapper.unmount()
   })
 
   it('displays each optGroup as tab', () => {

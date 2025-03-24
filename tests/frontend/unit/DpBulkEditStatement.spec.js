@@ -24,7 +24,7 @@ describe('DpBulkEditStatement', () => {
     })
 
     wrapper = shallowMountWithGlobalMocks(DpBulkEditStatement, {
-      propsData: {
+      props: {
         authorisedUsers: [],
         currentUserId: '1',
         procedureId: '1'

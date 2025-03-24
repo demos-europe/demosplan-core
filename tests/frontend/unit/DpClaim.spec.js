@@ -13,7 +13,7 @@ import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 describe('DpClaim', () => {
   it('should return the correct icons and text for fragments-claim-states', async () => {
     const wrapper = shallowMountWithGlobalMocks(DpClaim, {
-      propsData: {
+      props: {
         assignedOrganisation: 'Orga des Assingnee',
         assignedName: 'Aktueller Benutzer',
         assignedId: '',

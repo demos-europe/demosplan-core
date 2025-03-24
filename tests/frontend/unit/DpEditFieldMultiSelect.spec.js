@@ -43,7 +43,7 @@ describe('DpEditFieldMultiSelect', () => {
 
   it('should load assessmentBase', () => {
     const instance = shallowMountWithGlobalMocks(DpEditFieldMultiSelect, {
-      propsData: {
+      props: {
         entityId: 'entId',
         fieldKey: 'aaa',
         options: [],
