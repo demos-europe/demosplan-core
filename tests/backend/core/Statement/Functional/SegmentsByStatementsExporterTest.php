@@ -64,7 +64,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $statementA = $this->createMinimalTestStatement('a', 'a', 'a');
         $statementB = $this->createMinimalTestStatement('b', 'a', 'a');
 
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()], $censored, $censored,'');
+        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()], $censored, $censored, '');
 
         if ($censored) {
             $expectedAKey = 'statement-extern-id-a.docx';
