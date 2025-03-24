@@ -715,7 +715,6 @@ export default {
 
   mounted () {
     this.currentTab = this.defaultTab
-    this.$root.$on('exportModal:toggle', (tab) => this.toggleModal(tab))
   }
 }
 </script>
