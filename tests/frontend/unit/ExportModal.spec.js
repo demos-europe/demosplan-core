@@ -101,7 +101,18 @@ describe('ExportModal', () => {
     wrapper = shallowMountWithGlobalMocks(
       ExportModal,
       {
-        props
+        props,
+        global: {
+          renderStubDefaultSlot: true,
+          stubs: {
+            'dp-modal': {
+              template: '<div><slot /></div>',
+              methods: {
+                toggle: jest.fn()
+              }
+            }
+          }
+        }
       })
   })
 
@@ -130,10 +141,6 @@ describe('ExportModal', () => {
 
   it('triggers a "submit" event when the submit button is clicked', async () => {
     wrapper.vm.submit = jest.fn()
-    wrapper.vm.$refs.exportModal = {
-      toggle: jest.fn()
-    }
-
     wrapper.vm.handleSubmit()
 
     const event = wrapper.emitted('submit')
