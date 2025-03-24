@@ -447,7 +447,7 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute, docxHeaders, fileNameTemplate, isCensored, isObscured) => {
+      return (exportRoute, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored) => {
         const parameters = {
           filter: {
             procedureId: {
@@ -463,8 +463,9 @@ export default {
             ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
           },
           sort: this.selectedSort,
-          isCensored,
-          isObscured
+          isObscured,
+          isInstitutionDataCensored,
+          isCitizenDataCensored
         }
 
         if (docxHeaders) {
