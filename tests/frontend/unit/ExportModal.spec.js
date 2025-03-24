@@ -121,7 +121,7 @@ describe('ExportModal', () => {
   it('displays each optGroup as tab', () => {
     const tabButtons = wrapper.findAll('button')
     const optGroups = Object.keys(props.options)
-    const buttonTexts = tabButtons.wrappers.map(button => button.text())
+    const buttonTexts = tabButtons.map(button => button.text())
 
     optGroups.forEach(key => {
       expect(buttonTexts).toContain(props.options[key].tabLabel)
