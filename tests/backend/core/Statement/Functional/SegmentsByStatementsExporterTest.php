@@ -64,7 +64,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $statementA = $this->createMinimalTestStatement('a', 'a', 'a');
         $statementB = $this->createMinimalTestStatement('b', 'a', 'a');
 
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()], $censored, '');
+        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()], $censored, $censored,'');
 
         if ($censored) {
             $expectedAKey = 'statement-extern-id-a.docx';
@@ -90,7 +90,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $statementA = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
         $statementB = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
 
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()], $censored, '');
+        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()], $censored, $censored, '');
 
         $expectedAKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementA->getId().'.docx';
         self::assertArrayHasKey($expectedAKey, $statements);
