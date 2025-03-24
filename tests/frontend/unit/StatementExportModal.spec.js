@@ -22,18 +22,21 @@ describe('StatementExportModal', () => {
       props: {
         isSingleStatementExport: false
       },
-      stubs: {
-        DpModal
-      },
+
       global: {
-        renderStubDefaultSlot: true
+        renderStubDefaultSlot: true,
+
+        stubs: {
+          'dp-modal': {
+            template: '<div><slot /></div>',
+            methods: {
+              toggle: jest.fn()
+            }
+          }
+        }
       }
     })
 
-    const modalStub = wrapper.findComponent(DpModal)
-    const button = wrapper.find('[data-cy="exportModal:open"]')
-    const mockEvent = { preventDefault: jest.fn() }
-    modalStub.vm.$emit('click', mockEvent)
     wrapper.vm.setInitialValues()
   })
 
@@ -42,8 +45,11 @@ describe('StatementExportModal', () => {
   })
 
   it('opens the modal when the button is clicked', async () => {
-    const modalStub = wrapper.findComponent({ name: 'DpModal' })
-    expect(modalStub.isVisible()).toBe(true)
+    const modal = wrapper.findComponent(DpModal)
+    const mockEvent = { preventDefault: jest.fn() }
+    modal.vm.$emit('click', mockEvent)
+
+    expect(modal.isVisible()).toBe(true)
   })
 
   it('sets the initial values correctly', () => {
@@ -74,10 +80,11 @@ describe('StatementExportModal', () => {
   })
 
   it('emits export event with initial column titles when no changes are made', () => {
-    const emitSpy = jest.spyOn(wrapper.vm, '$emit')
     wrapper.vm.handleExport()
+    const exportEvent = wrapper.emitted('export')[0][0] /** It returns an array with all the occurrences of `this.$emit('export')` */
 
-    expect(emitSpy).toHaveBeenCalledWith('export', {
+    expect(exportEvent).toBeTruthy()
+    expect(exportEvent).toEqual({
       route: 'dplan_statement_segments_export',
       docxHeaders: {
         col1: sessionStorageValue,
@@ -91,15 +98,16 @@ describe('StatementExportModal', () => {
   })
 
   it('emits export event with updated col2 title', () => {
-    const spy = jest.spyOn(wrapper.vm, '$emit')
     wrapper.setData({
       docxColumns: {
         col2: { title: 'Test Column Title' }
       }
     })
     wrapper.vm.handleExport()
+    const exportEvent = wrapper.emitted('export')[0][0]
 
-    expect(spy).toHaveBeenCalledWith('export', {
+    expect(exportEvent).toBeTruthy()
+    expect(exportEvent).toEqual({
       route: 'dplan_statement_segments_export',
       docxHeaders: {
         col1: sessionStorageValue,
@@ -113,11 +121,12 @@ describe('StatementExportModal', () => {
   })
 
   it('emits export event with null docxHeaders for xlsx export type', () => {
-    const emitSpy = jest.spyOn(wrapper.vm, '$emit')
     wrapper.setData({ active: 'xlsx_normal' })
     wrapper.vm.handleExport()
+    const exportEvent = wrapper.emitted('export')[0][0]
 
-    expect(emitSpy).toHaveBeenCalledWith('export', {
+    expect(exportEvent).toBeTruthy()
+    expect(exportEvent).toEqual({
       route: 'dplan_statement_xls_export',
       docxHeaders: null,
       fileNameTemplate: null,
@@ -127,11 +136,12 @@ describe('StatementExportModal', () => {
   })
 
   it('emits export event with censorParameter true for docx_censored export type', () => {
-    const emitSpy = jest.spyOn(wrapper.vm, '$emit')
     wrapper.setData({ active: 'docx_censored' })
     wrapper.vm.handleExport()
+    const exportEvent = wrapper.emitted('export')[0][0]
 
-    expect(emitSpy).toHaveBeenCalledWith('export', {
+    expect(exportEvent).toBeTruthy()
+    expect(exportEvent).toEqual({
       route: 'dplan_statement_segments_export',
       docxHeaders: {
         col1: sessionStorageValue,
