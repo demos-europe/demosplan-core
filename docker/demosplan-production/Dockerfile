@@ -156,3 +156,6 @@ COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 WORKDIR /srv/www
 # only webfolder with frontcontroller and static files is needed for nginx
 COPY --from=build /srv/www/projects/$PROJECT_NAME/web /srv/www/projects/$PROJECT_NAME/web
+
+# Ensure text/csv is defined in mime.types
+RUN sed -i '/^}/i\    text/csv csv;' /etc/nginx/mime.types
