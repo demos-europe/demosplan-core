@@ -57,8 +57,7 @@
               id="obscured"
               v-model="isObscure"
               :label="{
-                text: Translator.trans('export.docx.obscured'),
-                hint: Translator.trans('export.docx.obscured.hint')
+                text: Translator.trans('export.docx.obscured')
               }" />
           </template>
         </div>
@@ -82,13 +81,12 @@
             id="singleStatementObscure"
             v-model="isObscure"
             :label="{
-              text: Translator.trans('export.docx.obscured'),
-              hint: Translator.trans('export.docx.obscured.hint')
+              text: Translator.trans('export.docx.obscured')
             }" />
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx_normal', 'zip_normal'].includes(this.active)">
+      <fieldset v-if="['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored', 'docx_obscured', 'zip_obscured'].includes(this.active)">
         <legend
           id="docxColumnTitles"
           class="o-form__label text-base float-left mr-1"
@@ -285,9 +283,9 @@ export default {
         docxHeaders: ['docx_normal', 'zip_normal'].includes(this.active) ? columnTitles : null,
         fileNameTemplate: this.fileName || null,
         shouldConfirm,
-        isObscured: this.isObscure,
         isInstitutionDataCensored: this.isInstitutionDataCensored,
-        isCitizenDataCensored: this.isCitizenDataCensored
+        isCitizenDataCensored: this.isCitizenDataCensored,
+        isObscured: this.isObscure
       })
       this.closeModal()
     },

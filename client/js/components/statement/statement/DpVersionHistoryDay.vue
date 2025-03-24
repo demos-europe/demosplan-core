@@ -43,15 +43,14 @@
         style="width: 5%" />
     </tr>
 
-    <template>
-      <dp-version-history-item
-        v-for="(time, idx) in filteredItems"
-        :key="idx"
-        :procedure-id="procedureId"
-        :day="day"
-        :time="time.attributes"
-        :entity="entity" />
-    </template>
+
+    <dp-version-history-item
+      v-for="(time, idx) in filteredItems"
+      :key="idx"
+      :procedure-id="procedureId"
+      :day="day"
+      :time="time.attributes"
+      :entity="entity" />
   </tbody>
 </template>
 

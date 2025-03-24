@@ -100,26 +100,9 @@ const postCssPluginsWithoutPurgeCss = [
 const moduleRules =
   [
     {
-      test: /\.vue$/,
-      loader: 'vue-loader'
-    },
-    {
-      test: /\.js$/,
-      include: transpiledModules,
-      exclude: [
-        resolveDir('demosplan/DemosPlanCoreBundle/Resources/client/js/legacy')
-      ],
-      use: {
-        loader: 'babel-loader'
-      }
-    },
-    {
-      test: /\.js$/,
-      use: ['source-map-loader'],
-      enforce: 'pre',
-      exclude: (path) => {
-        return /[\\/]node_modules[\\/]/.test(path) && !/[\\/]node_modules[\\/](@sentry|popper|portal-vue|tooltip|fscreen)/.test(path)
-      }
+      test: /\.css$/,
+      use: [MiniCssExtractPlugin.loader],
+      exclude: [ /client\/css\/(tailwind|preflight)\.css/ ] // Compiling and Purging happens in Tailwind config.
     },
     {
       test: /\.s?css$/,
@@ -148,10 +131,11 @@ const moduleRules =
               // Do not pass 3rd party css through postCss in dev mode to gain some speed
               const skipPostCss = /node_modules/.test(loaderContext.resourcePath) && config.isProduction === false
               // Do not purge styles that are already purged by tailwindcss postcss plugin
-              const tailwindProcessed = /client\/css\/index\.css/.test(loaderContext.resourcePath)
+              const tailwindProcessed = /client\/css\/(preflight|tailwind)\.css/.test(loaderContext.resourcePath)
+              const postCssPluginsApplied = tailwindProcessed ? postCssPluginsWithoutPurgeCss : postCssPlugins
 
               return {
-                plugins: skipPostCss ? [] : tailwindProcessed ? postCssPluginsWithoutPurgeCss : postCssPlugins
+                plugins: skipPostCss ? [] : postCssPluginsApplied
               }
             },
             sourceMap: false
@@ -171,6 +155,35 @@ const moduleRules =
           }
         }
       ]
+    },
+    {
+      test: /\.vue$/,
+      loader: 'vue-loader',
+      options: {
+        compilerOptions: {
+          compatConfig: {
+            MODE: 2
+          }
+        }
+      }
+    },
+    {
+      test: /\.js$/,
+      include: transpiledModules,
+      exclude: [
+        resolveDir('demosplan/DemosPlanCoreBundle/Resources/client/js/legacy')
+      ],
+      use: {
+        loader: 'babel-loader'
+      }
+    },
+    {
+      test: /\.js$/,
+      use: ['source-map-loader'],
+      enforce: 'pre',
+      exclude: (path) => {
+        return /[\\/]node_modules[\\/]/.test(path) && !/[\\/]node_modules[\\/](@sentry|popper|tooltip|fscreen)/.test(path)
+      }
     },
     {
       test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,

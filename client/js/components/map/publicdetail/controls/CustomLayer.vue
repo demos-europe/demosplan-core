@@ -59,6 +59,11 @@ export default {
     }
   },
 
+  emits: [
+    'addCustomlayer',
+    'custom-layer:unfolded'
+  ],
+
   data () {
     return {
       isMobile: isMobile(window.navigator).any,

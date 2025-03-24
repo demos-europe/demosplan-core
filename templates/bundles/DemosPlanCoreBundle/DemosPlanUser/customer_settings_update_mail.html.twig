@@ -1,10 +1,10 @@
 {% extends '@DemosPlanCore/DemosPlanCore/procedure.html.twig' %}
 
-
 {% block component_part %}
+    {% set urlBase = 'https://' ~ app.request.host %}
 
     <form
-        action="{{ path('dplan_customer_mail_send_all_users') }}"
+        :action="Routing.generate('dplan_customer_mail_send_all_users')"
         method="post"
         data-dp-validate>
         {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
@@ -17,26 +17,16 @@
             </legend>
 
             <p>{{ 'customer.settings.update.mail.help'|trans }}</p>
-            {% set urlBase = 'https://' ~ app.request.host %}
 
-            {{ uiComponent('form.row', {
-                elements: [
-                    {
-                        label: { text: 'subject'|trans },
-                        control: {
-                            name: 'r_email_subject',
-                            attributes: [
-                                'data-cy=customerSettingsMail:emailSubject',
-                                'maxlength=78'
-                            ]
-                        },
-                        id: 'r_email_subject',
-                        type: 'text',
-                        required: true,
-                        value: 'customer.settings.update.mail.default.subject'|trans
-                    }
-                ]
-            }) }}
+            <dp-input
+                :label="{ text: Translator.trans('subject') }"
+                id="r_email_subject"
+                data-cy="customerSettingsMail:emailSubject"
+                maxlength="78"
+                name="r_email_subject"
+                required
+                :value="Translator.trans('customer.settings.update.mail.default.subject')"
+            />
 
             <div class="{{ 'u-mb-0_75'|prefixClass }}">
                 <dp-label
@@ -52,25 +42,6 @@
                     }"
                     required
                     value="{{ 'customer.settings.update.mail.default.text'|trans({ termsOfUseUrl: urlBase ~ path('DemosPlan_misccontent_static_terms'), dataProtectionUrl: urlBase ~ path('DemosPlan_misccontent_static_dataprotection') }) }}">
-                    <template v-slot:modal="modalProps">
-                        <dp-boiler-plate-modal
-                            v-if="hasPermission('area_admin_boilerplates')"
-                            ref="boilerPlateModal"
-                            boiler-plate-type="email"
-                            procedure-id="{{ procedure }}"
-                            @insert="text => modalProps.handleInsertText(text)">
-                        </dp-boiler-plate-modal>
-                    </template>
-                    <template v-slot:button>
-                        <button
-                            v-if="hasPermission('area_admin_boilerplates')"
-                            class="{{ 'menubar__button'|prefixClass }}"
-                            type="button"
-                            v-tooltip="'{{ 'boilerplate.insert'|trans }}'"
-                            @click.stop="$refs.boilerPlateModal.toggleModal()">
-                            <i class="{{ 'fa fa-puzzle-piece'|prefixClass }}"></i>
-                        </button>
-                    </template>
                 </dp-editor>
             </div>
 
