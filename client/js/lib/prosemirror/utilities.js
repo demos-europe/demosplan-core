@@ -47,22 +47,27 @@ function flattenNode (node, descend = true) {
  */
 const getMarks = (nodes, markName, attrId) => {
   const marks = {}
+
   nodes.forEach(({ node, pos }) => {
     node.marks
       .filter(mark => mark.type.name === markName)
       .forEach(mark => {
-        let storedMark = marks[mark.attrs[attrId]]
+        const markAttr = mark.attrs[attrId]
+        let storedMark = marks[markAttr]
+
         if (!storedMark) {
           storedMark = { marks: [] }
-          storedMark.rangeId = mark.attrs[attrId]
+          storedMark.rangeId = markAttr
           storedMark.from = pos
-          marks[mark.attrs[attrId]] = storedMark
+          marks[markAttr] = storedMark
         }
+
         storedMark.to = pos + node.nodeSize
         storedMark.isConfirmed = mark.attrs.isConfirmed
         storedMark.marks = [...storedMark.marks, { from: pos, to: storedMark.to }]
       })
   })
+
   return marks
 }
 

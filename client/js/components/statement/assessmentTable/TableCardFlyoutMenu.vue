@@ -197,6 +197,14 @@ export default {
     }
   },
 
+  emits: [
+    'fragment-delete',
+    'show-slidebar',
+    'statement:copy',
+    'statement:move',
+    'version:history'
+  ],
+
   data () {
     return {
       procedureId: this.$store.state.Statement.procedureId

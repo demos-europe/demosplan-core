@@ -32,6 +32,10 @@ export default {
     }
   },
 
+  emits: [
+    'orga-deleted'
+  ],
+
   methods: {
     deleteOrga () {
       if (confirm(Translator.trans('check.mastertoeb.delete'))) {

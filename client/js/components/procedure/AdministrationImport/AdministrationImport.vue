@@ -18,6 +18,7 @@
         v-for="(option, index) in availableImportOptions"
         :key="index"
         :id="option.name"
+        :is-active="activeTabId === option.name"
         :label="Translator.trans(option.title)">
         <slot>
           <keep-alive>

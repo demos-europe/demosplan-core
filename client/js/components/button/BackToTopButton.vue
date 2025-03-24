@@ -1,7 +1,7 @@
 <template>
   <dp-button
     class="sticky z-above-zero"
-    :class="{ 'sr-only': hide }"
+    :class="{ 'sr-only border-none p-0': hide }"
     hide-text
     icon="arrow-up"
     icon-size="large"
@@ -17,7 +17,7 @@
 import { DpButton } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'DpBackToTop',
+  name: 'BackToTop',
 
   components: {
     DpButton

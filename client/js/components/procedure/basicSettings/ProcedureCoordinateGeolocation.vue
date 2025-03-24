@@ -119,13 +119,17 @@ export default {
   },
 
   watch: {
-    coordinate (coordinates) {
-      if (coordinates.length === 2) {
-        this.latitude = coordinates[0]
-        this.longitude = coordinates[1]
+    coordinate: {
+      handler (coordinates) {
+        if (coordinates.length === 2) {
+          this.latitude = coordinates[0]
+          this.longitude = coordinates[1]
 
-        this.queryLocation()
-      }
+          this.queryLocation()
+        }
+      },
+      deep: true
+
     }
   },
 

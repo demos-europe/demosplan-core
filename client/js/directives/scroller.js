@@ -48,7 +48,7 @@ const updateElement = function (element) {
 }
 
 const Scroller = {
-  inserted: function (element) {
+  mounted: function (element) {
     setTimeout(updateElement.bind(null, element), 60)
     window.addEventListener('resize', throttle(updateElement.bind(null, element), 60))
 
@@ -62,7 +62,7 @@ const Scroller = {
       subtree: true
     })
   },
-  unbind: function () {
+  unmounted: function () {
     window.removeEventListener('resize', updateElement)
   }
 }
