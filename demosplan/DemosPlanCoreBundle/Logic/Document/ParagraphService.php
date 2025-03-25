@@ -204,12 +204,7 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
         return $this->convertDateTime($res);
     }
 
-    /**
-     * @param string $ident
-     *
-     * @return Paragraph|null
-     */
-    public function getParaDocumentObject($ident): ?Paragraph
+    public function getParaDocumentObject(string $ident): ?Paragraph
     {
         return $this->paragraphRepository->find($ident);
     }
