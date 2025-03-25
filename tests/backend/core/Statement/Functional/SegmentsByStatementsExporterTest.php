@@ -61,9 +61,8 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
      */
     public function testMapStatementsToPathInZipWithSuperficialDuplicate(
         bool $censorCitizenData,
-        bool $censorInstitutionData
-    ): void
-    {
+        bool $censorInstitutionData,
+    ): void {
         $statementA = $this->createMinimalTestStatement('a', 'a', 'a');
         $statementB = $this->createMinimalTestStatement('b', 'a', 'a');
 
@@ -95,7 +94,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
      */
     public function testMapStatementsToPathInZipWithoutDuplicate(
         bool $censorCitizenData,
-        bool $censorInstitutionData
+        bool $censorInstitutionData,
     ): void {
         $statementA = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
         $statementB = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
