@@ -19861,21 +19861,21 @@
         },
         {
             "name": "goetas-webservices/xsd2php",
-            "version": "0.4.13",
+            "version": "0.4.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goetas-webservices/xsd2php.git",
-                "reference": "95db4b604bab8a893e59a403474e87430ef9972b"
+                "reference": "1c4d79e4572beaf4a786d16be690c6b18d575deb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goetas-webservices/xsd2php/zipball/95db4b604bab8a893e59a403474e87430ef9972b",
-                "reference": "95db4b604bab8a893e59a403474e87430ef9972b",
+                "url": "https://api.github.com/repos/goetas-webservices/xsd2php/zipball/1c4d79e4572beaf4a786d16be690c6b18d575deb",
+                "reference": "1c4d79e4572beaf4a786d16be690c6b18d575deb",
                 "shasum": ""
             },
             "require": {
                 "doctrine/inflector": "^2.0",
-                "goetas-webservices/xsd-reader": "^0.3.7 | ^0.4.1",
+                "goetas-webservices/xsd-reader": "^0.4.7",
                 "laminas/laminas-code": "^3.3.2|^4.0",
                 "php": ">=7.2|^8.0",
                 "psr/log": "^1.0 | ^2.0 | ^3.0",
@@ -19926,7 +19926,7 @@
             ],
             "support": {
                 "issues": "https://github.com/goetas-webservices/xsd2php/issues",
-                "source": "https://github.com/goetas-webservices/xsd2php/tree/0.4.13"
+                "source": "https://github.com/goetas-webservices/xsd2php/tree/0.4.14"
             },
             "funding": [
                 {
@@ -19942,7 +19942,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2024-03-22T12:45:50+00:00"
+            "time": "2025-03-13T19:59:00+00:00"
         },
         {
             "name": "liip/functional-test-bundle",
