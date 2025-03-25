@@ -59,12 +59,20 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     /**
      * @dataProvider getCensorParams
      */
-    public function testMapStatementsToPathInZipWithSuperficialDuplicate(bool $censored): void
+    public function testMapStatementsToPathInZipWithSuperficialDuplicate(
+        bool $censorCitizenData,
+        bool $censorInstitutionData
+    ): void
     {
         $statementA = $this->createMinimalTestStatement('a', 'a', 'a');
         $statementB = $this->createMinimalTestStatement('b', 'a', 'a');
 
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()], $censored, $censored, '');
+        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()],
+            $censorCitizenData,
+            $censorInstitutionData,
+            '');
+
+        $censored = $censorCitizenData && $censorInstitutionData;
 
         if ($censored) {
             $expectedAKey = 'statement-extern-id-a.docx';
@@ -85,12 +93,17 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     /**
      * @dataProvider getCensorParams
      */
-    public function testMapStatementsToPathInZipWithoutDuplicate(bool $censored): void
-    {
+    public function testMapStatementsToPathInZipWithoutDuplicate(
+        bool $censorCitizenData,
+        bool $censorInstitutionData
+    ): void {
         $statementA = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
         $statementB = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
 
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()], $censored, $censored, '');
+        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()],
+            $censorCitizenData,
+            $censorInstitutionData,
+            '');
 
         $expectedAKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementA->getId().'.docx';
         self::assertArrayHasKey($expectedAKey, $statements);
@@ -118,8 +131,8 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     public function getCensorParams(): array
     {
         return [
-            [true],
-            [false],
+            [true, true],
+            [false, false],
         ];
     }
 }
