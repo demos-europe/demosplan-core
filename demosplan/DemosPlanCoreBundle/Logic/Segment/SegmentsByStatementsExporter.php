@@ -220,7 +220,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         Procedure $procedure,
         array $tableHeaders,
         bool $censored,
-        bool $obscureParameter
+        bool $obscureParameter,
     ): PhpWord {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);

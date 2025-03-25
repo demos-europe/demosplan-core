@@ -14,7 +14,6 @@ namespace Tests\Core\Statement\Functional;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementMetaFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -65,9 +64,8 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
      */
     public function testCensorshipOnPathOnExportSegmentsInZip(
         bool $censorCitizenData,
-        bool $censorInstitutionData
+        bool $censorInstitutionData,
     ): void {
-
         $citizenOrganisation = $this->find(Orga::class, User::ANONYMOUS_USER_ORGA_ID);
 
         $internalStatement = StatementFactory::createOne();
@@ -105,7 +103,6 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         static::assertTrue($externalStatement->isSubmittedByCitizen());
         static::assertTrue($internalStatement->isSubmittedByOrganisation());
     }
-
 
     /**
      * @dataProvider getCensorParams
