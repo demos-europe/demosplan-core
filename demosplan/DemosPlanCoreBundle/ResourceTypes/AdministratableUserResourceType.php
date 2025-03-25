@@ -38,6 +38,7 @@ use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Elastica\Index;
+use InvalidArgumentException;
 
 /**
  * @template-implements ReadableEsResourceTypeInterface<User>
@@ -87,6 +88,11 @@ final class AdministratableUserResourceType extends DplanResourceType implements
     public function isUpdateAllowed(): bool
     {
         return $this->currentUser->hasPermission('feature_user_edit');
+    }
+
+    public function isDeleteAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('area_manage_users');
     }
 
     protected function getAccessConditions(): array
@@ -291,6 +297,13 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             );
 
         $configBuilder->addCreationBehavior(new FixedSetBehavior(function (User $user, EntityDataInterface $entityData): array {
+            if ($this->currentUser->hasPermission('feature_organisation_own_users_list')) {
+                $orgaToSet = $entityData->getToOneRelationships()[$this->orga->getAsNamesInDotNotation()];
+                if ($this->currentUser->getUser()->getOrga()->getId() !== $orgaToSet['id']) {
+                    $this->messageBag->add('error', 'error.user.administration.limited.to.own.organisation');
+                    throw new InvalidArgumentException('User is only allowed to administrate users of their own organisation.');
+                }
+            }
             $attributes = $entityData->getAttributes();
             $user->setLogin($attributes[$this->email->getAsNamesInDotNotation()]);
             $this->userRepository->persistEntities([$user]);
@@ -324,6 +337,16 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         }
 
         return parent::updateEntity($entityId, $entityData);
+    }
+
+    public function deleteEntity(string $userId): void
+    {
+        $nullEqualsSucceed = $this->userHandler->wipeUsersById([$userId]);
+        if (null !== $nullEqualsSucceed) {
+            // messageBag for errors has been filled already
+            throw new InvalidArgumentException(sprintf('Soft-deleting user with id %s failed via AdministratableUserResourceType', $userId));
+        }
+        // messageBag with confirmation has been filled already
     }
 
     private function updateRoles(UserInterface $user, array $newRoles): void

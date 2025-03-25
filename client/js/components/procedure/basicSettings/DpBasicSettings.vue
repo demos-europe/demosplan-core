@@ -23,6 +23,7 @@ import {
   sortAlphabetically
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { defineAsyncComponent } from 'vue'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'
 import ParticipationPhases from './ParticipationPhases'
@@ -42,11 +43,11 @@ export default {
     DpInlineNotification,
     DpInput,
     DpMultiselect,
-    DpProcedureCoordinate: () => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate'),
-    DpUploadFiles: async () => {
+    DpProcedureCoordinate: defineAsyncComponent(() => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate')),
+    DpUploadFiles: defineAsyncComponent(async () => {
       const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
       return DpUploadFiles
-    },
+    }),
     ExportSettings,
     ParticipationPhases
   },
@@ -168,15 +169,17 @@ export default {
       return {
         type: resourceType,
         attributes,
-        relationships: url === 'api_resource_update' ? undefined : {
-          procedure: {
-            data: {
-              type: 'Procedure',
-              id: this.procedureId
-            }
-          }
-        },
-        ...(url === 'api_resource_update' ? { id } : {}),
+        relationships: url === 'api_resource_update'
+          ? undefined
+          : {
+              procedure: {
+                data: {
+                  type: 'Procedure',
+                  id: this.procedureId
+                }
+              }
+            },
+        ...(url === 'api_resource_update' ? { id } : {})
       }
     },
 
@@ -207,7 +210,7 @@ export default {
       return addonRequest
         .then(checkResponse)
         .catch(error => {
-          /** the 'is-invalid' class would be added to the addon field in case of an error */
+          /** The 'is-invalid' class would be added to the addon field in case of an error */
           const input = document.getElementById('addonAdditionalField')
           input.classList.add('is-invalid')
 
@@ -240,7 +243,7 @@ export default {
       }
     },
 
-    submitConfigForm() {
+    submitConfigForm () {
       this.dpValidateAction('configForm', () => {
         this.$refs.configForm.submit()
       }, false)

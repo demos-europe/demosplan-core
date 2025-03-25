@@ -17,7 +17,7 @@
 
     <dp-modal
       ref="exportModalInner"
-      content-classes="w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12 h-[500px]"
+      content-classes="w-11/12 sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12 h-fit"
       content-body-classes="flex flex-col h-[95%]">
       <h2 class="mb-5">
         {{ exportModalTitle }}
@@ -27,12 +27,11 @@
         <legend
           class="o-form__label text-base"
           v-text="Translator.trans('export.type')" />
-        <div class="flex flex-row mb-5 mt-1 gap-3">
+        <div class="grid grid-cols-3 mt-2 mb-5 gap-x-2 gap-y-5">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
             :key="key"
             :id="key"
-            class="max-w-[70%]"
             :data-cy="`exportType:${key}`"
             :label="{
               hint: active === key ? exportType.hint : '',
@@ -41,10 +40,53 @@
             :value="key"
             :checked="active === key"
             @change="active = key" />
+          <template v-if="active !== 'xlsx_normal'">
+            <dp-checkbox
+              id="censoredCitizen"
+              v-model="isCitizenDataCensored"
+              :label="{
+                text: Translator.trans('export.censored.citizen')
+              }" />
+            <dp-checkbox
+              id="censoredInstitution"
+              v-model="isInstitutionDataCensored"
+              :label="{
+                text: Translator.trans('export.censored.institution')
+              }" />
+            <dp-checkbox
+              id="obscured"
+              v-model="isObscure"
+              :label="{
+                text: Translator.trans('export.docx.obscured')
+              }" />
+          </template>
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx', 'zip'].includes(this.active)">
+      <fieldset v-if="isSingleStatementExport">
+        <div class="flex mt-1 mb-5">
+          <dp-checkbox
+            id="singleStatementCitizen"
+            v-model="isCitizenDataCensored"
+            :label="{
+              text: Translator.trans('export.censored.citizen')
+            }" />
+          <dp-checkbox
+            id="singleStatementInstitution"
+            v-model="isInstitutionDataCensored"
+            :label="{
+              text: Translator.trans('export.censored.institution')
+            }" />
+          <dp-checkbox
+            id="singleStatementObscure"
+            v-model="isObscure"
+            :label="{
+              text: Translator.trans('export.docx.obscured')
+            }" />
+        </div>
+      </fieldset>
+
+      <fieldset v-if="['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored', 'docx_obscured', 'zip_obscured'].includes(this.active)">
         <legend
           id="docxColumnTitles"
           class="o-form__label text-base float-left mr-1"
@@ -103,6 +145,7 @@
 import {
   DpButton,
   DpButtonRow,
+  DpCheckbox,
   DpContextualHelp,
   DpInput,
   DpModal,
@@ -116,6 +159,7 @@ export default {
   components: {
     DpButton,
     DpButtonRow,
+    DpCheckbox,
     DpContextualHelp,
     DpInput,
     DpModal,
@@ -134,7 +178,7 @@ export default {
 
   data () {
     return {
-      active: 'docx',
+      active: 'docx_normal',
       docxColumns: {
         col1: {
           width: 'col-span-1',
@@ -156,19 +200,19 @@ export default {
         }
       },
       exportTypes: {
-        docx: {
+        docx_normal: {
           label: 'export.docx',
           hint: '',
           exportPath: 'dplan_statement_segments_export',
           dataCy: 'exportModal:export:docx'
         },
-        zip: {
+        zip_normal: {
           label: 'export.zip',
           hint: '',
           exportPath: 'dplan_statement_segments_export_packaged',
           dataCy: 'exportModal:export:zip'
         },
-        xlsx: {
+        xlsx_normal: {
           label: 'export.xlsx',
           hint: Translator.trans('export.xlsx.hint'),
           exportPath: 'dplan_statement_xls_export',
@@ -176,6 +220,9 @@ export default {
         }
       },
       fileName: '',
+      isInstitutionDataCensored: false,
+      isCitizenDataCensored: false,
+      isObscure: false,
       singleStatementExportPath: 'dplan_segments_export' /** Used in the statements detail page */
     }
   },
@@ -216,6 +263,7 @@ export default {
 
     handleExport () {
       const columnTitles = {}
+      const shouldConfirm = /^(docx|zip)_/.test(this.active)
 
       Object.keys(this.docxColumns).forEach(key => {
         const columnTitle = this.docxColumns[key].title
@@ -232,8 +280,12 @@ export default {
 
       this.$emit('export', {
         route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
-        docxHeaders: ['docx', 'zip'].includes(this.active) ? columnTitles : null,
-        fileNameTemplate: this.fileName || null
+        docxHeaders: ['docx_normal', 'zip_normal'].includes(this.active) ? columnTitles : null,
+        fileNameTemplate: this.fileName || null,
+        shouldConfirm,
+        isInstitutionDataCensored: this.isInstitutionDataCensored,
+        isCitizenDataCensored: this.isCitizenDataCensored,
+        isObscured: this.isObscure
       })
       this.closeModal()
     },
@@ -244,7 +296,7 @@ export default {
     },
 
     setInitialValues () {
-      this.active = 'docx'
+      this.active = 'docx_normal'
 
       Object.keys(this.docxColumns).forEach(key => {
         const storageKey = `exportModal:docxCol:${key}`

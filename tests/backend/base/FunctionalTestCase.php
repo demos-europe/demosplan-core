@@ -456,7 +456,7 @@ class FunctionalTestCase extends WebTestCase
     protected function checkIfArrayHasEqualDataToObject(
         array $objectAsArray,
         CoreEntity $object,
-        array $attributesToSkip = []
+        array $attributesToSkip = [],
     ): void {
         $class = get_class($object);
 
@@ -518,8 +518,8 @@ class FunctionalTestCase extends WebTestCase
     /**
      * @template T of object
      *
-     * @param class-string<T>        $classToMock
-     * @param MockMethodDefinition[] $definitions
+     * @param class-string<T>            $classToMock
+     * @param list<MockMethodDefinition> $definitions
      *
      * @return T
      */

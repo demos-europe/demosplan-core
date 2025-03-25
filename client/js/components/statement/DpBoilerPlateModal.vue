@@ -11,31 +11,30 @@
   <dp-modal
     ref="boilerPlateModal"
     content-classes="u-1-of-2">
-    <template>
-      <h3>{{ Translator.trans('boilerplate.insert') }}</h3>
-      <dp-boiler-plate
-        :title="Translator.trans('boilerplates.category', { category: Translator.trans(boilerPlateType) })"
-        :boiler-plates="displayedBoilerplates"
-        ref="boilerplateDropdown"
-        group-values="boilerplates"
-        group-label="groupName"
-        :group-select="false"
-        @boilerplate-text-added="addBoilerplateText" />
-      <div class="flex items-center u-mt">
-        <a
-          class="weight--bold font-size-small"
-          :href="Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })">
-          {{ Translator.trans('boilerplates.edit') }} ({{ Translator.trans('view.leave.hint') }})
-        </a>
-        <dp-button-row
-          class="ml-auto"
-          primary
-          :primary-text="Translator.trans('insert')"
-          secondary
-          @primary-action="insertBoilerPlate"
-          @secondary-action="resetAndClose" />
-      </div>
-    </template>
+    <h3>{{ Translator.trans('boilerplate.insert') }}</h3>
+    <dp-boiler-plate
+      :title="Translator.trans('boilerplates.category', { category: Translator.trans(boilerPlateType) })"
+      :boiler-plates="displayedBoilerplates"
+      ref="boilerplateDropdown"
+      group-values="boilerplates"
+      group-label="groupName"
+      :group-select="false"
+      @boilerplate-text-added="addBoilerplateText" />
+    <div class="flex items-center u-mt">
+      <a
+        class="weight--bold font-size-small"
+        :href="Routing.generate('DemosPlan_procedure_boilerplate_list', { procedure: procedureId })">
+        {{ Translator.trans('boilerplates.edit') }} ({{ Translator.trans('view.leave.hint') }})
+      </a>
+      <dp-button-row
+        class="ml-auto"
+        :disabled="{ primary: textToBeAdded === '' }"
+        primary
+        :primary-text="Translator.trans('insert')"
+        secondary
+        @primary-action="insertBoilerPlate"
+        @secondary-action="resetAndClose" />
+    </div>
   </dp-modal>
 </template>
 
@@ -129,6 +128,7 @@ export default {
 
     resetAndClose () {
       this.$refs.boilerplateDropdown.resetBoilerPlateMultiSelect()
+      this.textToBeAdded = ''
       this.toggleModal()
     },
 

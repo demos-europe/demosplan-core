@@ -7,12 +7,11 @@
  * All rights reserved
  */
 
-import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { initJsonApiPlugin, prepareModuleHashMap, StaticRouter } from '@efrane/vuex-json-api'
-import notify from './Notify'
-import Vue from 'vue'
-import Vuex from 'vuex'
 import { api1_0Routes, generateApi2_0Routes } from './VuexApiRoutes'
+import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { initJsonApiPlugin, prepareModuleHashMap, Route, StaticRoute, StaticRouter } from '@efrane/vuex-json-api'
+import notify from './Notify'
+import { createStore } from 'vuex'
 
 function registerPresetModules (store, presetStoreModules) {
   if (Object.keys(presetStoreModules).length > 0) {
@@ -35,8 +34,6 @@ function registerPresetModules (store, presetStoreModules) {
 }
 
 function initStore (storeModules, apiStoreModules, presetStoreModules) {
-  Vue.use(Vuex)
-
   const staticModules = { notify, ...storeModules }
   const VuexApiRoutes = [...generateApi2_0Routes(apiStoreModules), ...api1_0Routes]
   // This should probably be replaced with an adapter to our existing routes
@@ -57,9 +54,9 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
   return router
     .updateRoutes()
     .then(router => {
-      const store = new Vuex.Store({
+      const store = createStore({
         strict: process.env.NODE_ENV !== 'production',
-
+        devtools: process.env.NODE_ENV !== 'production',
         modules: prepareModuleHashMap(staticModules),
         plugins: [
           initJsonApiPlugin({
@@ -68,40 +65,61 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             baseUrl,
             headers: {
               'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
-              'X-Demosplan-Procedure-Id': dplan.procedureId
+              'X-Demosplan-Procedure-Id': dplan.procedureId,
+              'X-CSRF-Token': dplan.csrfToken
             },
             successCallbacks: [
               async (success) => {
-                const response = await success.json()
+                // If the response body is empty, contentType will be null
+                const contentType = success.headers.get('Content-Type')
 
-                const meta = response.data?.meta
-                  ? response.data.meta
-                  : response.meta || null
-                if (meta?.messages) {
-                  handleResponseMessages(meta)
+                if (contentType && contentType.includes('json')) {
+                  const response = await success.json()
+
+                  const meta = response.data?.meta
+                    ? response.data.meta
+                    : response.meta || null
+                  if (meta?.messages) {
+                    handleResponseMessages(meta)
+                  }
+
+                  return Promise.resolve(response)
                 }
 
-                return Promise.resolve(response)
+                return Promise.resolve(success)
               }
             ],
             errorCallbacks: [
               async (error) => {
-                const response = await error.json()
+                // If the response body is empty, contentType will be null
+                const contentType = error.headers.get('Content-Type')
 
-                const meta = response.data?.meta
-                  ? response.data.meta
-                  : response.meta || null
+                if (contentType && contentType.includes('json')) {
+                  const response = await error.json()
 
-                if (meta?.messages) {
-                  handleResponseMessages(meta)
+                  const meta = response.data?.meta
+                    ? response.data.meta
+                    : response.meta || null
+
+                  if (meta?.messages) {
+                    handleResponseMessages(meta)
+                  }
+
+                  return Promise.reject(response)
                 }
 
-                return Promise.reject(response)
+                return Promise.reject(error)
               }
             ]
           }),
           store => {
             store.api.checkResponse = checkResponse
+            store.api.newStaticRoute = (route) => {
+              return new StaticRoute(route)
+            }
+            store.api.newRoute = (route) => {
+              return new Route(route)
+            }
           }
         ]
       })

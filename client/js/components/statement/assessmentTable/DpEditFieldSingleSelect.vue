@@ -76,8 +76,8 @@
 </template>
 
 <script>
-import DpEditField from './DpEditField'
 import { DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
+import DpEditField from './DpEditField'
 
 export default {
   name: 'DpEditFieldSingleSelect',
@@ -141,8 +141,11 @@ export default {
   },
 
   watch: {
-    value () {
-      this.updateSelectedValue()
+    value: {
+      handler () {
+        this.updateSelectedValue()
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

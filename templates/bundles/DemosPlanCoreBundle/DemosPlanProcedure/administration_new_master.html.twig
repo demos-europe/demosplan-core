@@ -38,7 +38,7 @@
     <new-blueprint-form
         agency-main-email-id="{{ form.agencyMainEmailAddress.vars.id }}"
         agency-main-email-full-address="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}"
-        :csrf-token="{{ csrf_token('csrf')|json_encode }}"
+        csrf-token="{{ csrf_token('csrf')|json_encode }}"
         procedure-template-fields="{{ procedureTemplateFields }}"
         :init-email-addresses="JSON.parse('{{ emailAddresses|json_encode|e('js', 'utf-8') }}')"
         :is-customer-master-blueprint-existing="Boolean({{ templateVars.isCustomerMasterBlueprintExisting }})"

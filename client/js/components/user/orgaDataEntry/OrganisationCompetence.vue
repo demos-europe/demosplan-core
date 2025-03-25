@@ -12,7 +12,7 @@
         :hint="Translator.trans('explanation.organisation.competence')"
         :label="Translator.trans('competence.explanation')"
         :name="`${organisation.id}:competence`"
-        :value="organisation.competence"/>
+        :value="organisation.competence" />
     </div>
   </fieldset>
 </template>

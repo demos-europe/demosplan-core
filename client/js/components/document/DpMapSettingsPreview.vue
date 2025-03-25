@@ -41,33 +41,31 @@
         }"
         :procedure-id="procedureId"
         small>
-        <template>
-          <dp-ol-map-layer-vector
-            v-if="hasPermission('area_procedure_adjustments_general_location') && procedureCoordinate"
-            class="u-mb-0_5"
-            :features="features.procedureCoordinate"
-            name="mapSettingsPreviewCoordinate" />
-          <dp-ol-map-layer-vector
-            v-if="initExtent"
-            class="u-mb-0_5"
-            :features="features.initExtent"
-            name="mapSettingsPreviewInitExtent"
-            zoom-to-drawing />
-          <dp-ol-map-layer-vector
-            v-if="territory"
-            class="u-mb-0_5"
-            :draw-style="drawingStyles.territory"
-            :features="features.territory"
-            name="mapSettingsPreviewTerritory" />
-        </template>
+        <dp-ol-map-layer-vector
+          v-if="hasPermission('area_procedure_adjustments_general_location') && procedureCoordinate"
+          class="u-mb-0_5"
+          :features="features.procedureCoordinate"
+          name="mapSettingsPreviewCoordinate" />
+        <dp-ol-map-layer-vector
+          v-if="initExtent"
+          class="u-mb-0_5"
+          :features="features.initExtent"
+          name="mapSettingsPreviewInitExtent"
+          zoom-to-drawing />
+        <dp-ol-map-layer-vector
+          v-if="territory"
+          class="u-mb-0_5"
+          :draw-style="drawingStyles.territory"
+          :features="features.territory"
+          name="mapSettingsPreviewTerritory" />
       </dp-ol-map>
     </div><!--
  --><div class="layout__item u-1-of-2">
       <ul>
         <li
-          v-for="(link, index) in permittedLinks"
-          class="layout__item"
-          :key="link.tooltipContent">
+          v-for="link in permittedLinks"
+          :key="link.tooltipContent"
+          class="layout__item">
           <a
             v-tooltip="Translator.trans(link.tooltipContent)"
             class="o-link"
@@ -98,7 +96,8 @@
           class="inline-block u-3-of-4"
           v-model="planstatus"
           :calendars-before="2"
-          :disabled="!isPlanStatusEditing" /><!--
+          :disabled="!isPlanStatusEditing"
+          name="planstatus" /><!--
        --><div class="inline-block u-1-of-4 text-right">
             <button
               v-if="false === isPlanStatusEditing"
@@ -387,7 +386,9 @@ export default {
 
     isNotEmptyFeatureCollection (string) {
       try {
-        return JSON.parse(string).features.length > 0
+        const parsedFeatures = JSON.parse(string).features
+
+        return Array.isArray(parsedFeatures) ? parsedFeatures.length > 0 : Object.keys(parsedFeatures).length > 0
       } catch (e) {
         return true
       }

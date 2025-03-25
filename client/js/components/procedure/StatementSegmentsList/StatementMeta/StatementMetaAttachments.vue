@@ -148,7 +148,6 @@
 import {
   checkResponse,
   dpApi,
-  DpButton,
   DpButtonRow,
   DpIcon,
   DpLabel,
@@ -160,7 +159,6 @@ export default {
   name: 'StatementMetaAttachments',
 
   components: {
-    DpButton,
     DpButtonRow,
     DpIcon,
     DpLabel,
@@ -173,7 +171,7 @@ export default {
       type: Object,
       required: true,
       validator (value) {
-        return value.hasOwnProperty('originalAttachment') && value.hasOwnProperty('additionalAttachments')
+        return Object.hasOwn(value, 'originalAttachment') && Object.hasOwn(value, 'additionalAttachments')
       }
     },
 
@@ -232,7 +230,8 @@ export default {
           this.resetSourceAttachment()
           this.setLocalOriginalAttachment(this.initialAttachments.originalAttachment)
         }
-      }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
     'initialAttachments.additionalAttachments': {
       handler (newVal) {

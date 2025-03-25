@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
@@ -48,6 +49,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use UnexpectedValueException;
+use Webmozart\Assert\Assert;
 
 class DemosPlanOrganisationAPIController extends APIController
 {
@@ -93,7 +95,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *
      * @return APIResponse
      */
-    #[Route(path: '/api/1.0/organisation/', name: 'dplan_api_organisation_list', options: ['expose' => true], methods: ['GET'])]
+    #[Route(path: '/api/1.0/organisation', name: 'dplan_api_organisation_list', options: ['expose' => true], methods: ['GET'])]
     public function listAction(
         CustomerHandler $customerHandler,
         OrgaResourceType $orgaResourceType,
@@ -101,33 +103,40 @@ class DemosPlanOrganisationAPIController extends APIController
         PaginatorFactory $paginatorFactory,
         PermissionsInterface $permissions,
         Request $request,
+        CurrentUserService $currentUser,
         JsonApiPaginationParser $paginationParser,
     ) {
         try {
-            if ($permissions->hasPermission('area_organisations_view_of_customer')
-                || $permissions->hasPermission('area_manage_orgas_all')
-            ) {
-                $currentCustomer = $customerHandler->getCurrentCustomer();
-                $orgaList = $orgaService->getOrgasInCustomer($currentCustomer);
-                $filter = $request->query->has('filter') ? $request->query->get('filter') : [];
-                $filterRegisterStatus = $filter['registerStatus'] ?? '';
-                $orgaSubdomain = $currentCustomer->getSubdomain();
-                if (OrgaStatusInCustomer::STATUS_PENDING === $filterRegisterStatus) {
-                    $orgaList = $this->getPendingOrgas($orgaList, $orgaSubdomain);
-                } else {
-                    // consider a rejected or accepted orga (considering their status for different orga types and subdomains)
-                    $orgaList = $this->getRegisteredOrgas($orgaList, $orgaSubdomain);
-                }
-                $filterNameContains = $this->getFilterOrgaNameContains($filter);
-                if ('' !== $filterNameContains) {
-                    $orgaList = array_filter(
-                        $orgaList,
-                        static fn (Orga $orga) => false !== stripos($orga->getName(), (string) $filterNameContains)
-                    );
-                }
-            } else {
+            if (false === $permissions->hasPermissions(
+                ['area_organisations_view_of_customer', 'area_manage_orgas_all'],
+                'OR'
+            )) {
                 // The orgalist is required. If it's not loaded, there's no point in having this route.
                 throw new AccessDeniedException('User has no access rights to get $orgalist.');
+            }
+
+            $currentCustomer = $customerHandler->getCurrentCustomer();
+            $currentUserOrga = $currentUser->getUser()->getOrga();
+            Assert::notNull($currentUserOrga);
+
+            $orgaList = $permissions->hasPermission('feature_organisation_own_users_list') ?
+                [$currentUserOrga] : $orgaService->getOrgasInCustomer($currentCustomer);
+
+            $filter = $request->query->has('filter') ? $request->query->get('filter') : [];
+            $filterRegisterStatus = $filter['registerStatus'] ?? '';
+            $orgaSubdomain = $currentCustomer->getSubdomain();
+            if (OrgaStatusInCustomerInterface::STATUS_PENDING === $filterRegisterStatus) {
+                $orgaList = $this->getPendingOrgas($orgaList, $orgaSubdomain);
+            } else {
+                // consider a rejected or accepted orga (considering their status for different orga types and subdomains)
+                $orgaList = $this->getRegisteredOrgas($orgaList, $orgaSubdomain);
+            }
+            $filterNameContains = $this->getFilterOrgaNameContains($filter);
+            if ('' !== $filterNameContains) {
+                $orgaList = array_filter(
+                    $orgaList,
+                    static fn (Orga $orga) => false !== stripos($orga->getName(), (string) $filterNameContains)
+                );
             }
 
             // pagination
@@ -294,7 +303,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *
      * @throws MessageBagException
      */
-    #[Route(path: '/api/1.0/organisation/', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
+    #[Route(path: '/api/1.0/organisation', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
     public function createOrgaAction(Request $request,
         UserHandler $userHandler,
         CustomerHandler $customerHandler,

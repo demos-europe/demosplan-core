@@ -204,12 +204,14 @@
       <addon-wrapper
         hook-name="addon.additional.field"
         :addon-props="{
+          additionalFieldOptions,
           class: 'ml-4',
+          isValueRemovable: true,
           relationshipId: this.organisationId,
-          relationshipKey: 'orga',
-          isValueRemovable: true
+          relationshipKey: 'orga'
         }"
         class="w-1/2"
+        @resourceList:loaded="setAdditionalFieldOptions"
         @selected="updateAddonPayload"
         @blur="updateAddonPayload" />
 
@@ -220,36 +222,35 @@
 
         <!-- Currently assigned or requested permissions -->
         <template v-if="registrationStatuses.length > 0 && canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage')">
-          <template v-for="(registrationStatus, idx) in registrationStatuses">
-            <div
-              :key="`lbl${idx}`"
-              class="layout">
-              <div class="layout__item u-1-of-4">
-                <label
-                  class="u-mb-0_5"
-                  :for="`type_${registrationStatus.type}:${organisation.id}`">
-                  {{ registrationTypeLabel(registrationStatus.type) }}
-                </label>
-              </div><!--
-           --><div class="layout__item u-1-of-4">
-                <select
-                  class="u-1-of-1"
-                  :name="`type_${registrationStatus.type}:${organisation.id}`"
-                  :id="`type_${registrationStatus.type}:${organisation.id}`"
-                  data-cy="orgaFormField:editRegistrationStatus"
-                  @change="emitOrganisationUpdate"
-                  v-model="registrationStatuses[idx].status">
-                  <option
-                    v-for="typeStatus in typeStatuses"
-                    :value="typeStatus.value"
-                    :key="typeStatus.value"
-                    :selected="typeStatus.value === registrationStatus.status">
-                    {{ typeStatus.label }}
-                  </option>
-                </select>
-              </div>
+          <div
+            v-for="(registrationStatus, idx) in registrationStatuses"
+            :key="`lbl${idx}`"
+            class="layout">
+            <div class="layout__item u-1-of-4">
+              <label
+                class="u-mb-0_5"
+                :for="`type_${registrationStatus.type}:${organisation.id}`">
+                {{ registrationTypeLabel(registrationStatus.type) }}
+              </label>
+            </div><!--
+         --><div class="layout__item u-1-of-4">
+              <select
+                class="u-1-of-1"
+                :name="`type_${registrationStatus.type}:${organisation.id}`"
+                :id="`type_${registrationStatus.type}:${organisation.id}`"
+                data-cy="orgaFormField:editRegistrationStatus"
+                @change="emitOrganisationUpdate"
+                v-model="registrationStatuses[idx].status">
+                <option
+                  v-for="typeStatus in typeStatuses"
+                  :value="typeStatus.value"
+                  :key="typeStatus.value"
+                  :selected="typeStatus.value === registrationStatus.status">
+                  {{ typeStatus.label }}
+                </option>
+              </select>
             </div>
-          </template>
+          </div>
         </template>
 
         <!-- Readonly: Currently assigned or requested permissions -->
@@ -792,7 +793,17 @@ export default {
     cleanhtml: CleanHtml
   },
 
+  emits: [
+    'organisation-update'
+  ],
+
   props: {
+    additionalFieldOptions: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     availableOrgaTypes: {
       type: Array,
       required: true
@@ -950,8 +961,12 @@ export default {
     },
 
     registrationStatuses () {
-      return hasOwnProp(this.localOrganisation.attributes, 'registrationStatuses')
+      const registrationStatuses = hasOwnProp(this.localOrganisation.attributes, 'registrationStatuses')
         ? Object.values(this.localOrganisation.attributes.registrationStatuses).filter(el => el.subdomain === this.subdomain)
+        : []
+
+      return (this.canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage'))
+        ? registrationStatuses
         : []
     }
   },
@@ -959,6 +974,17 @@ export default {
   methods: {
     canEdit (field) {
       return hasPermission('feature_orga_edit_all_fields') && this.writableFields.includes(field)
+    },
+
+    /**
+     * On this event DpOrganisationListItem will call the set mutation to update the store so that on save the saveAction
+     * can use the data from the store
+     */
+    emitOrganisationUpdate () {
+      // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
+      Vue.nextTick(() => {
+        this.$emit('organisation-update', this.localOrganisation)
+      })
     },
 
     hasChanged (field) {
@@ -991,17 +1017,6 @@ export default {
       return Translator.trans(orgaType.label)
     },
 
-    /**
-     * On this event DpOrganisationListItem will call the set mutation to update the store so that on save the saveAction
-     * can use the data from the store
-     */
-    emitOrganisationUpdate () {
-      // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
-      Vue.nextTick(() => {
-        this.$emit('organisation-update', this.localOrganisation)
-      })
-    },
-
     saveNewRegistrationStatus () {
       // Update the local organisation state
       this.localOrganisation.attributes.registrationStatuses.push({
@@ -1013,9 +1028,13 @@ export default {
       this.resetRegistrationStatus()
     },
 
+    setAdditionalFieldOptions (options) {
+      this.$emit('addonOptions:loaded', options)
+    },
+
     updateAddonPayload (payload) {
       this.$emit('addon-update', payload)
-    },
+    }
   },
 
   created () {

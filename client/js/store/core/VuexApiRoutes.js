@@ -22,7 +22,7 @@ const api1_0Routes = [
   {
     module: 'Orga',
     action: 'create',
-    url: '/1.0/organisation/'
+    url: '/1.0/organisation'
   },
   {
     module: 'Orga',
@@ -35,7 +35,7 @@ const api1_0Routes = [
   {
     module: 'role',
     action: 'list',
-    url: '/1.0/role/'
+    url: '/1.0/role'
   },
   {
     module: 'report',
@@ -58,12 +58,12 @@ const api1_0Routes = [
   {
     module: 'User',
     action: 'list',
-    url: '/1.0/user/'
+    url: '/1.0/user'
   },
   {
     module: 'User',
     action: 'create',
-    url: '/1.0/user/'
+    url: '/1.0/user'
   },
   {
     module: 'User',
@@ -92,7 +92,7 @@ const api1_0Routes = [
   {
     module: 'FaqCategory',
     action: 'list',
-    url: '/1.0/FaqCategory/'
+    url: '/1.0/FaqCategory'
   }
 ]
 

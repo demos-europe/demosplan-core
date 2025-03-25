@@ -29,11 +29,9 @@ class SingleDocumentRepository extends CoreRepository implements ArrayInterface
     /**
      * Add single document entry.
      *
-     * @return SingleDocument
-     *
      * @throws Exception
      */
-    public function add(array $data)
+    public function add(array $data): SingleDocument
     {
         try {
             $em = $this->getEntityManager();

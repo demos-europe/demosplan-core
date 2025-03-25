@@ -327,20 +327,26 @@ export default {
   },
 
   watch: {
-    editModeActive (newVal) {
-      if (newVal) {
-        window.addEventListener('scroll', this.handleScroll, false)
-      } else {
-        window.removeEventListener('scroll', this.handleScroll, false)
-        this.displayScrollButton = false
-      }
+    editModeActive: {
+      handler (newVal) {
+        if (newVal) {
+          window.addEventListener('scroll', this.handleScroll, false)
+        } else {
+          window.removeEventListener('scroll', this.handleScroll, false)
+          this.displayScrollButton = false
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
 
-    initialData (newVal) {
-      this.calculateProcessingTime()
-      if (newVal) {
-        this.isLoading = false
-      }
+    initialData: {
+      handler (newVal) {
+        this.calculateProcessingTime()
+        if (newVal) {
+          this.isLoading = false
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
@@ -721,7 +727,16 @@ export default {
       this.ignoreProsemirrorUpdates = false
     },
 
+    // Matomo Tracking Event Tagging & Slicing
+    clickTrackerSaveButton () {
+      if (window._paq) {
+        window._paq.push(['trackEvent', 'ST Slicing Tagging', 'Click', Translator.trans('statement.split.complete')])
+      }
+    },
+
     async saveAndFinish () {
+      this.clickTrackerSaveButton()
+
       if (this.segments.length > 0) {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
@@ -810,17 +825,22 @@ export default {
   created () {
     this.setProperty({ prop: 'statementId', val: this.statementId })
     this.setProperty({ prop: 'procedureId', val: this.procedureId })
-
-    // Add event listener to close sidebar on esc
-    document.addEventListener('keydown', (e) => this.toggleSideBar(e))
-    this.$once('hook:destroyed', () => {
-      document.removeEventListener('keydown', (e) => this.toggleSideBar(e))
-    })
   },
 
   mounted () {
     this.fetchAssignableUsers()
     this.fetchAvailablePlaces()
+
+    // Add event listener to close sidebar on esc
+    document.addEventListener('keydown', (e) => this.toggleSideBar(e))
+  },
+
+  unmounted () {
+    /**
+     * Remove event listener when component is destroyed
+     * This is necessary to prevent memory leaks
+     */
+    document.removeEventListener('keydown', (e) => this.toggleSideBar(e))
   }
 }
 </script>

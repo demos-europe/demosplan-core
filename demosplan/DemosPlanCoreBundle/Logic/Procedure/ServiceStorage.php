@@ -14,13 +14,13 @@ use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PreNewProcedureCreatedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedureServiceStorageInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PreNewProcedureCreatedEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\ContentMandatoryFieldsException;
@@ -42,12 +42,15 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Webmozart\Assert\Assert;
 
+use function array_key_exists;
 use function is_string;
 
 /**
@@ -104,14 +107,16 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         private readonly ProcedureReportEntryFactory $procedureReportEntryFactory,
         private readonly ProcedureService $procedureService,
         private readonly ProcedureTypeService $procedureTypeService,
-        ParameterBagInterface $parameterBag,
+        private readonly ParameterBagInterface $parameterBag,
         private readonly ReportService $reportService,
         private readonly TranslatorInterface $translator,
+        private readonly FilesystemOperator $defaultStorage,
+        private readonly FileServiceInterface $fileService,
     ) {
         $this->contentService = $contentService;
         $this->customerService = $customerService;
         $this->eventDispatcher = $eventDispatcher;
-        $this->masterProcedurePhase = $parameterBag->get('master_procedure_phase');
+        $this->masterProcedurePhase = $this->parameterBag->get('master_procedure_phase');
         $this->procedureCategoryService = $procedureCategoryService;
         $this->procedureHandler = $procedureHandler;
     }
@@ -288,6 +293,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
      */
     public function administrationEditHandler($data, $checkMandatoryErrors = true)
     {
+        $result = true;
         $procedure = [];
         $procedure['settings'] = [];
 
@@ -620,6 +626,10 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         if ($this->permissions->hasPermission('field_procedure_pictogram')) {
             if (array_key_exists('r_pictogram', $data)
              && '' !== $data['r_pictogram']) {
+                // this permission can be set dynamically as a access control permission
+                if ($this->permissions->hasPermission('feature_procedure_pictogram_resolution_restriction')) {
+                    $this->validatePictogram($data['r_pictogram']);
+                }
                 $procedure['settings']['pictogram'] = $data['r_pictogram'];
             }
             if (array_key_exists('r_deletePictogram', $data)) {
@@ -646,6 +656,37 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $this->contentService->setProcedureFieldCompletions($procedure['ident'], $data['fieldCompletions']);
 
         return $this->procedureService->updateProcedure($procedure);
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    private function validatePictogram(string $fileString): void
+    {
+        try {
+            $pictogramFileInfo = $this->fileService->getFileInfoFromFileString($fileString);
+
+            $path = $this->fileService->ensureLocalFile($pictogramFileInfo->getAbsolutePath());
+            $imageInfo = getimagesize($path);
+
+        } catch (Exception $e) {
+            throw new InvalidArgumentException($e->getMessage());
+        }
+        Assert::isArray($imageInfo);
+        Assert::keyExists($imageInfo, 0, 'Unable to get pictogram image width');
+        Assert::keyExists($imageInfo, 1, 'Unable to get pictogram image height');
+        $width = $imageInfo[0] ?? 0;
+        $height = $imageInfo[1] ?? 0;
+        $this->fileService->deleteLocalFile($path);
+
+        $maxFileSize = $this->parameterBag->get('pictogram_max_file_size');
+        $minWidth = $this->parameterBag->get('pictogram_min_width');
+        $minHeight = $this->parameterBag->get('pictogram_min_height');
+
+        if ($width < $minWidth || $height < $minHeight || $pictogramFileInfo->getFileSize() > $maxFileSize) {
+            $this->messageBag->add('error', 'procedure.pictogram.resolution.tooLow');
+            throw new InvalidArgumentException('Pictogram resolution too low or file size too big');
+        }
     }
 
     /**

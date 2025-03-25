@@ -7,10 +7,6 @@
   All rights reserved
 </license>
 
-<documentation>
-<!--  This component is used as a wrapper for DpItem to display organisation data that can be editable -->
-</documentation>
-
 <template>
   <dp-table-card
     :id="organisation.id"
@@ -27,13 +23,13 @@
           data-cy="organisationItemSelect"
           @change="$emit('item:selected', organisation.id)">
         <div
-          @click="isOpen = false === isOpen"
+          @click="isOpen = !isOpen"
           class="weight--bold cursor-pointer o-hellip--nowrap u-pv-0_75 u-ph-0_25 grow"
           data-cy="organisationListTitle">
           {{ initialOrganisation.attributes.name }}
         </div>
         <button
-          @click="isOpen = false === isOpen"
+          @click="isOpen = !isOpen"
           type="button"
           data-cy="accordionToggleBtn"
           class="btn--blank o-link--default">
@@ -52,12 +48,14 @@
       data-dp-validate="organisationForm">
       <!-- Form fields -->
       <dp-organisation-form-fields
+        :additional-field-options="additionalFieldOptions"
         :available-orga-types="availableOrgaTypes"
         :initial-organisation="initialOrganisation"
         :organisation="organisation"
         :organisation-id="organisation.id"
-        @organisation-update="updateOrganisation"
-        @addon-update="updateAddonPayload" />
+        @addon-update="updateAddonPayload"
+        @addonOptions:loaded="setAdditionalFieldOptions"
+        @organisation-update="updateOrganisation" />
 
       <!-- Button row -->
       <dp-button-row
@@ -71,7 +69,8 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpButtonRow, DpIcon, dpValidateMixin} from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
 
@@ -81,7 +80,7 @@ export default {
   components: {
     DpButtonRow,
     DpIcon,
-    DpOrganisationFormFields: () => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields'),
+    DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields')),
     DpTableCard
   },
 
@@ -92,6 +91,12 @@ export default {
   ],
 
   props: {
+    additionalFieldOptions: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+
     availableOrgaTypes: {
       type: Array,
       required: false,
@@ -121,6 +126,12 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'get-items',
+    'item:selected',
+    'organisation-reset'
+  ],
 
   data () {
     return {
@@ -172,15 +183,17 @@ export default {
       return {
         type: this.addonPayload.resourceType,
         attributes: this.addonPayload.attributes,
-        relationships: this.addonPayload.url === 'api_resource_update' ? undefined : {
-          orga: {
-            data: {
-              type: 'Orga',
-              id: this.organisation.id
-            }
-          }
-        },
-        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {}),
+        relationships: this.addonPayload.url === 'api_resource_update'
+          ? undefined
+          : {
+              orga: {
+                data: {
+                  type: 'Orga',
+                  id: this.organisation.id
+                }
+              }
+            },
+        ...(this.addonPayload.url === 'api_resource_update' ? { id: this.addonPayload.id } : {})
       }
     },
 
@@ -227,7 +240,6 @@ export default {
         } else {
           this.submitOrganisationForm()
         }
-
       } else {
         dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
       }
@@ -250,6 +262,10 @@ export default {
             this.$root.$emit('get-items')
           }
         })
+    },
+
+    setAdditionalFieldOptions (options) {
+      this.$emit('addonOptions:loaded', options)
     },
 
     setItem (payload) {

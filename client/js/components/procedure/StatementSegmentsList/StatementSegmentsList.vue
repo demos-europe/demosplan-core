@@ -78,7 +78,7 @@
           </li>
           <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
-              <template slot="trigger">
+              <template #trigger>
                 <span>
                   {{ Translator.trans('attachments') }}
                   <span v-text="attachmentsAndOriginalPdfCount" />
@@ -118,7 +118,7 @@
             <dp-flyout
               ref="metadataFlyout"
               :has-menu="false">
-              <template v-slot:trigger>
+              <template #trigger>
                 <span>
                   {{ Translator.trans('statement.metadata') }}
                   <i
@@ -178,7 +178,6 @@
 import {
   checkResponse,
   dpApi,
-  DpButton,
   DpFlyout,
   DpSlidebar,
   DpStickyElement
@@ -194,14 +193,13 @@ import StatementMeta from './StatementMeta/StatementMeta'
 import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatementSegmentsEdit from './StatementSegmentsEdit'
-import StatusBadge from '../Shared/StatusBadge.vue'
+import StatusBadge from '../Shared/StatusBadge'
 
 export default {
   name: 'StatementSegmentsList',
 
   components: {
     DpClaim,
-    DpButton,
     DpFlyout,
     DpSlidebar,
     DpStickyElement,
@@ -455,8 +453,11 @@ export default {
   },
 
   watch: {
-    currentAction () {
-      this.showInfobox = this.currentAction === 'editText'
+    currentAction: {
+      handler () {
+        this.showInfobox = this.currentAction === 'editText'
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
@@ -600,6 +601,10 @@ export default {
         statementFields.push('similarStatementSubmitters')
       }
 
+      if (hasPermission('field_send_final_email')) {
+        statementFields.push('authorFeedback', 'feedback', 'initialOrganisationEmail', 'publicStatement', 'sentAssessment', 'sentAssessmentDate', 'user')
+      }
+
       const allFields = {
         ElementsDetails: [
           'document',
@@ -649,6 +654,12 @@ export default {
         ].join()
       }
 
+      if (hasPermission('field_send_final_email')) {
+        allFields.User = [
+          'orga'
+        ].join()
+      }
+
       const include = [
         'assignee',
         'document',
@@ -665,6 +676,10 @@ export default {
 
       if (hasPermission('feature_similar_statement_submitter')) {
         include.push('similarStatementSubmitters')
+      }
+
+      if (hasPermission('field_send_final_email')) {
+        include.push('user', 'user.orga')
       }
 
       return this.getStatementAction({
@@ -726,7 +741,7 @@ export default {
       this.currentAction = action || defaultAction
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
       const parameters = {
         procedureId: this.procedure.id,
         statementId: this.statementId
@@ -743,6 +758,10 @@ export default {
       if (fileNameTemplate) {
         parameters.fileNameTemplate = fileNameTemplate
       }
+
+      isObscured && (parameters.isObscured = isObscured)
+      isInstitutionDataCensored && (parameters.isInstitutionDataCensored = isInstitutionDataCensored)
+      isCitizenDataCensored && (parameters.isCitizenDataCensored = isCitizenDataCensored)
 
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = Routing.generate(route, parameters)

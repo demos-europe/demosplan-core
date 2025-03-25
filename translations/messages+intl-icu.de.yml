@@ -149,7 +149,6 @@ actions.statements.confirm: |
 activate: "aktivieren"
 activated: "Aktiviert"
 add: "Hinzufügen"
-add.entity: "{entity} anlegen"
 add_orga.email_hint: "Institutionen können erst hinzugefügt werden sobald eine E-Mail-Adresse hinterlegt ist."
 address: "Adresse"
 address.extension: "Adresszusatz"
@@ -437,7 +436,7 @@ check.survey.comment.disapprove: "Sind Sie sicher, dass Sie die Veröffentlichun
 check.tag.delete: "Sind Sie sicher, dass Sie das Schlagwort \"{tag}\" löschen möchten?"
 check.tag_is_used.delete: "Sind Sie sicher, dass Sie das Schlagwort löschen möchten? Es ist aktuell an mindestens eine Institution vergeben. Wenn Sie das Schlagwort löschen, wird es von den Institutionen entfernt."
 check.topic.delete.tags: "Sind Sie sicher, daß Sie das Thema \"{topic}\" und alle zugeordneten Schlagworte löschen möchten?"
-check.topic.delete: "Sind Sie sicher, daß Sie das Thema und alle Beiträge dazu löschen möchten?"
+check.topic.delete: "Sind Sie sicher, daß Sie das Thema \"{topic}\" löschen möchten?"
 check.user.delete: |
     {count, plural,
         =1 { Sind Sie sicher, dass Sie diese*n Nutzer*in löschen möchten? }
@@ -1124,6 +1123,8 @@ email.text.notification_for_unsubmitted_statement.statements: >
     }
 end: "Ende"
 enabled: "freigeschaltet"
+entity.create: "{entity} anlegen"
+entity.choose: "{entity} auswählen"
 entity.administration.select.on.page: "Alle {entities} auf dieser Seite markieren"
 entities.marked.delete: "{sum} markierte {entities} löschen"
 entry: "Eingang"
@@ -1394,6 +1395,7 @@ error.user.password.not.allowed: 'Das Passwort darf nicht gesetzt werden. Nutzer
 error.user.password.not.identical: 'Die Eingaben sind nicht identisch.'
 error.user.registration.password: "Bei der Registrierung ist ein Fehler aufgetreten. Bitte wenden Sie sich an den Support."
 error.user.update: "Die/der Nutzer*in {firstName} {lastName} konnte nicht aktualisiert werden."
+error.user.administration.limited.to.own.organisation: "Sie dürfen nur Nutzer der eigenen Organisation verwalten."
 error.userStory.voting.offline: "Die Punkte vor Ort konnten nicht gespeichert werden."
 error.userStory.voting.reset: "Ihre Bewertung konnte nicht zurückgesetzt werden."
 error.userStory.voting: "Die Bewertung konnte nicht gespeichert werden."
@@ -1627,16 +1629,22 @@ explanation.voting.online: "Die Online-Bepunktung läuft. Die Reihenfolge der Vo
 explanations: "Erläuterungen"
 export: "Export"
 export.anonymous: "Anonymisiert"
+export.anonymous.hint: "Der Export erfolgt ohne Namen."
+export.censored.citizen: "ohne Einreichendendaten der Öffentlichkeit"
+export.censored.institution: "ohne Einreichendendaten der Institutionen"
 export.compact: "Querformat (kompakt)"
 export.data: "Zu exportierende Daten"
 export.datasheet: "Export mit Datenblatt"
 export.docx.anonymous: "DOCX (ohne Namen)"
+export.docx.censored: "DOCX-Datei (anonymisiert)"
 export.docx.compact.anonymous: "DOCX (anonymisiert)"
 export.docx.compact.fragments.anonymous: "DOCX, Stellungnahmen oder Datensätze (anonymisiert)"
 export.docx.compact.fragments: "DOCX, Stellungnahmen oder Datensätze"
 export.docx.compact: "DOCX"
 export.docx.landscape.anonymous: "DOCX, Querformat (ohne Namen)"
 export.docx.landscape: "DOCX, Querformat"
+export.docx.obscured: "mit geschwärzten Inhalten"
+export.docx.obscured.hint: "Der Export erfolgt mit geschwärzten Inhalten."
 export.docx: "DOCX"
 export.filenames.statement.single.suffix: "_Stellungnahme"
 export.filenames.statement.list_final_group_citizen.suffix: "_Stellungnahmen"
@@ -1672,6 +1680,7 @@ export.xls: "XLS"
 export.xlsx: "XLSX"
 export.xlsx.hint: "Achtung: Darstellungen aus Stellungnahmen oder Erwiderungen, werden nicht im Excel-Export angezeigt."
 export.zip: "ZIP"
+export.zip.censored: "Einzelne DOCX-Dateien (anonymisiert)"
 exported.on: "Exportiert am {date} um {time} Uhr."
 
 extern: "Extern"
@@ -1699,6 +1708,7 @@ file.pdf.explanation: "Sie können an dieser Stelle Dateien des Typs PDF hochlad
 file.delete: "Datei löschen"
 file.download: "Anhang herunterladen"
 file.reference: "Dateibezug"
+file.related: "dokumentbezogen"
 file.upload.docx: ".docx hochladen"
 file.upload.pdf: ".pdf hochladen"
 file.upload.pdf.zip.mp4: ".pdf, .zip oder .mp4 hochladen"
@@ -1739,6 +1749,7 @@ filter.saveFilterSet.load.error: "Beim Laden der gespeicherten Filterkombination
 filter.saveFilterSet.load.success: "Die Filterkombination wurde erfolgreich geladen."
 filter.searchterm.active: "Aktive Filter und Suchbegriff"
 filter.verb: "Filtern"
+filters.more: "Weitere Filter"
 following: "folgendes"
 following.email.sent: "An folgende E-Mail-Adresse verschickt"
 format: "Format"
@@ -2441,6 +2452,7 @@ paragraph.notavailable: "Kapitelbezug nicht verfügbar"
 paragraph.parent.none: "oberste Ebene"
 paragraph.parent: "Übergeordnetes Kapitel"
 paragraph.reference: "Kapitelbezug"
+paragraph.related: "kapitelbezogen"
 paragraph.file: "Planungsdokument als Datei"
 paragraph.text: "Text des Kapitels"
 paragraph.title: "Absatz"
@@ -2524,6 +2536,10 @@ places.edit.infoProcedureTemplate: "Die Anpassungen werden in die auswählbaren 
 plandocument: "Planungsdokument"
 plandocument.add: "Planungsdokument hinzufügen"
 plandocument.and.drawing: 'Planungsdokumente und Planzeichnung'
+plandocument.and.drawing.categories: "Planungsdokumente - Kategorien"
+plandocument.and.drawing.documents: "Planungsdokumente - Dokumente"
+plandocument.and.drawing.drawings: "Planzeichnung"
+plandocument.and.drawing.paragraphs: "Planungsdokumente - Kapitel"
 plandocument.and.chapter: "Planungsdokument und -kapitel"
 plandocument.edit: "Planungsdokument bearbeiten"
 plandocument.file.attach: "Planungsdokument als Datei anhängen"
@@ -2743,6 +2759,7 @@ procedure.phases.external.earlyparticipation: "Frühzeitige Beteiligung Öffentl
 procedure.phases.external.participation: "Öffentliche Auslegung"
 procedure.phases.external.closed: "Beschlussfassung Öffentlichkeit"
 procedure.pictogram: "Übersichtskarte/Bild"
+procedure.pictogram.resolution.tooLow: "Bitte laden Sie ein Bild mit min. 500 x 300 px und einer maximal Größe von 5MB hoch."
 procedure.pictogram.altText: "Alternativtext des Bildes"
 procedure.pictogram.altText.toolTipp: "Geben Sie eine kurze Beschreibung des Bildinhalts ein, um die Barrierefreiheit zu gewährleisten."
 procedure.pictogram.copyright: "Urheberrecht des Bildes"
@@ -2944,6 +2961,85 @@ remove: "Entfernen"
 remove.from.list: "Aus Liste entfernen"
 rename: "umbenennen"
 replied.to: "Erwidert"
+report.add.element: |
+    Eine Kategorie wurde hinzugefügt:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorietyp: {category}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Berechtigte Institutionen: {organisations} <br />
+    Veröffentlicht: {enabled}
+report.update.element: |
+    Eine Kategorie wurde geändert zu:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorietyp: {category}<br />
+    Planungsdokument als Datei: {fileName}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Berechtigte Institutionen: {organisations} <br />
+    Veröffentlicht: {enabled}
+report.delete.element: |
+    Die Kategorie "{title}" ({category}) wurde gelöscht.<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+report.add.paragraph: |
+    Eine Kapitel wurde hinzugefügt:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Sichtbar: {visible}
+report.update.paragraph: |
+    Eine Kapitel wurde geändert zu:<br />
+    Titel: "{title}"<br />
+    Text: "{text}"<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Sichtbar: {visible}
+report.delete.paragraph: |
+    Das Kapitel "{title}" wurde gelöscht.<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+report.add.singleDocument: |
+    Eine Planungsdokument wurde hinzugefügt:<br />
+    Titel: "{title}"<br />
+    Datei: {fileName}<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Sichtbar: {visible}<br />
+    Stellungnahme möglich: {statement_enabled}
+report.update.singleDocument: |
+    Eine Planungsdokument wurde geändert zu:<br />
+    Titel: "{title}"<br />
+    Datei: {fileName}<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+    Sichtbar: {visible}<br />
+    Stellungnahme möglich: {statement_enabled}
+report.delete.singleDocument:  |
+    Das Planungsdokument "{title}" wurde gelöscht.<br />
+    Kategorie: {relatedElementTitle}<br />
+    Verfahrensschritt: {nameOfInternalPhase}<br />
+    Öffentlicher Verfahrensschritt: {nameOfExternalPhase}<br />
+report.create.planDrawingFile: |
+    Die Planzeichnung "{fileName}" wurde hinzugefügt.
+report.delete.planDrawingFile: |
+    Die Planzeichnung "{fileName}" wurde gelöscht.
+report.update.planDrawingFile: |
+    Die Planzeichnung wurde geändert von "{oldFileName}" zu "{newFileName}".
+report.create.planDrawingExplanation: |
+    Die Planzeichenerklärung "{fileName}" wurde hinzugefügt.
+report.delete.planDrawingExplanation: |
+    Die Planzeichenerklärung "{fileName}" wurde gelöscht.
+report.update.planDrawingExplanation: |
+    Die Planzeichenerklärung wurde geändert von "{oldFileName}" zu "{newFileName}".
 request: "Ihre Anfrage"
 requested: "angefragt"
 reset: "Zurücksetzen"
@@ -3000,7 +3096,6 @@ search: "Suche"
 search.advanced: "Erweiterte Suche"
 search.custom.explanation: "Wenn nichts ausgewählt ist, wird in allen Feldern gesucht."
 search.custom.limit_fields: "Suche einschränken auf:"
-search.custom.toggle_all: "Alle an/abwählen"
 search.filter.reset: "Suche und Filter zurücksetzen"
 search.in: "Suchen in:"
 search.list: "In dieser Liste suchen..."
@@ -3734,14 +3829,19 @@ tag.category: "Schlagwortkategorie"
 tag.category.name.unique.error: "Die Schlagwort-Kategorie existiert bereits. Bitte verwenden Sie einen anderen Namen."
 tag.category.new: "Neue Schlagwort-Kategorie"
 tag.category.new.create: "Schlagwort-Kategorie anlegen"
-tag.create: "Tag erstellen"
 tag.delete: "Schlagwort löschen"
 tag.move.toTopic: "in Thema verschieben"
+tag.move.toTopic.error: "Beim Schlagwort(e) Verschieben ist ein Fehler aufgetreten."
+tag.topic.create.error: "Beim Erstellen des Themas ist ein Fehler aufgetreten."
+tag.topic.update.error: "Beim Aktualisieren des Themas ist ein Fehler aufgetreten."
 tag.move: "Schlagwort verschieben"
 tag.name: "Name des neuen Schlagwortes"
 tag.name.unique.error: "Das Schlagwort existiert bereits. Bitte verwenden Sie einen anderen Namen."
+tag.name.empty.error: "Das Schlagwort muss einen Namen haben."
+tag.topic.name.empty.error: "Das Thema muss einen Namen haben."
+tag.topic.name.duplicate.error: "Das Thema existiert bereits. Bitte verwenden Sie einen anderen Namen."
+tag.or.topic.name.empty.error: "Das Schlagwort oder Thema muss einen Namen haben."
 tag.new: "Neues Schlagwort"
-tag.new.create: "Schlagwort anlegen"
 tag.rename: "Schlagwort umbenennen"
 tag.search: "Schlagwort suchen"
 tag.topic.new: "Schlagwort/Thema anlegen…"
@@ -3751,6 +3851,7 @@ tag: "Schlagwort"
 tag.create.duplicated.title: "Das Schlagwort existiert in diesem Verfahren bereits."
 tags: "Schlagworte"
 tags.assigned: "Zugewiesene Schlagworte"
+tags.can.only.be.moved.to.topics: "Schlagworte können nur in Themen verschoben werden. Eine manuelle Sortierung innerhalb eines Themas ist nicht möglich"
 tags.create: "Schlagworte anlegen"
 tags.import: "Schlagworte importieren"
 tags.import.help: "Importieren Sie Schlagworte aus einer Liste im Format CSV (Trennzeichen-getrennt)."
@@ -3913,6 +4014,7 @@ to.copy: "kopieren"
 to: "bis"
 toc: "Inhaltsverzeichnis"
 today: "Heute"
+toggle_all: "Alle an/abwählen"
 tool.active: "Aktives Werkzeug"
 topic: "Thema"
 topic.create.short: "Thema anlegen"
@@ -3937,6 +4039,7 @@ unsaved.changes: "Ungespeicherte Änderungen"
 unselect: "Auswahl aufheben"
 unselect.entity.first: "Aktuelle Auswahl aufheben, um {entity} auszuwählen"
 unpublished.statements.if.participation.ends: "nicht eingereichten Stellungnahmen, wenn die Beteiligung in einem Verfahren endet"
+unrestricted: "Uneingeschränkt"
 update: "Aktualisierung"
 upload: "Hochladen"
 upload.again: "Erneut hochladen"
@@ -4166,6 +4269,7 @@ warning.statements.procedure.clusters: "Gruppen konnten nicht geladen werden"
 warning.story.exist: "Die Userstory existiert bereits."
 warning.story.missing: "Die Userstory existiert nicht."
 warning.tag.deleted: "Das Schlagwort {tagname} konnte nicht gelöscht werden."
+warning.tag.bulk.delete.generic.error: "Beim Löschen Der Schlagworte bzw. Themen Gruppe ist ein Fehler aufgetreten."
 warning.tag.empty: "Der Name des Schlagwortes darf nicht leer sein."
 warning.tag.multiple.tags.found: "Im Verfahren wurden mehrere Schlagworte mit dem Namen {tagname} gefunden. Bitte prüfen Sie, ob das korrekte Schlagwort {tagname} den Abschnitten hinzugefügt wurde und passen Sie es ggf. an."
 warning.tag.in.use: "Das Schlagwort {tagname} kann nicht gelöscht werden, weil es verwendet wird."

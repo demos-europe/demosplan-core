@@ -7,13 +7,6 @@
   All rights reserved
 </license>
 
-<documentation>
-  <!--
-    Component that is used to display list of editable items
-  -->
-
-</documentation>
-
 <template>
   <div class="u-mt-0_5">
     <!-- List of pending organisations (if orga-self-registration is active) -->
@@ -31,14 +24,16 @@
           class="o-list o-list--card u-mb"
           data-cy="pendingOrganisationList">
           <dp-organisation-list-item
-            class="o-list__item"
             v-for="(item, idx) in pendingOrgs"
             :key="`pendingOrganisation:${idx}`"
+            :additional-field-options="additionalFieldOptions"
             :available-orga-types="availableOrgaTypes"
+            class="o-list__item"
+            data-cy="pendingOrganisationListBlk"
+            module-name="Pending"
             :organisation="item"
             :selectable="false"
-            module-name="Pending"
-            data-cy="pendingOrganisationListBlk" />
+            @addonOptions:loaded="setAdditionalFieldOptions" />
         </ul>
         <dp-sliding-pagination
           v-if="pendingOrganisationsTotalPages > 1"
@@ -64,7 +59,7 @@
     <div class="flow-root">
       <dp-search-field
         class="inline-block u-pv-0_5"
-        @search="searchVal => handleSearch(searchVal)"
+        @search="handleSearch"
         @reset="resetSearch" />
       <dp-checkbox-group
         class="inline-block u-pv-0_5 float-right"
@@ -72,7 +67,7 @@
         :label="filterLabel"
         :options="filterItems"
         inline
-        @update="selected => handleFilter(selected)" />
+        @update="handleFilter" />
 
       <div
         class="block u-mb"
@@ -134,14 +129,16 @@
         data-cy="organisationList">
         <ul class="o-list o-list--card u-mb">
           <dp-organisation-list-item
-            class="o-list__item"
             v-for="(item, idx) in items"
             :key="`organisation:${idx}`"
+            :additional-field-options="additionalFieldOptions"
             :available-orga-types="availableOrgaTypes"
+            class="o-list__item"
+            data-cy="organisationListBlk"
             :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
             :selectable="hasPermission('feature_orga_delete')"
             :organisation="item"
-            data-cy="organisationListBlk"
+            @addonOptions:loaded="setAdditionalFieldOptions"
             @item:selected="dpToggleOne" />
         </ul>
 
@@ -166,7 +163,8 @@ import {
   dpSelectAllMixin,
   DpSkeletonBox,
   DpSlidingPagination,
-  hasOwnProp
+  hasOwnProp,
+  hasPermission
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
@@ -182,7 +180,6 @@ const orgaFields = {
   ].join(),
   Orga: [
     'addressExtension',
-    'canCreateProcedures',
     'ccEmail2',
     'city',
     'competence',
@@ -210,6 +207,10 @@ const orgaFields = {
     'submissionType',
     'types'
   ].join()
+}
+
+if (hasPermission('feature_manage_procedure_creation_permission')) {
+  orgaFields.Orga.push('canCreateProcedures')
 }
 
 export default {
@@ -304,6 +305,7 @@ export default {
 
   data () {
     return {
+      additionalFieldOptions: [],
       filterItems: this.availableOrgaTypes.map(el => ({ id: el.value, label: Translator.trans(el.label) })),
       filterLabel: Translator.trans('organisation.kind') + ':',
       isInitialLoad: true,
@@ -381,7 +383,7 @@ export default {
       const filterObject = {}
 
       Object.keys(selected).forEach(filter => {
-        if (selected[filter] === true) {
+        if (selected[filter]) {
           filterObject[filter] = {
             condition: {
               path: 'statusInCustomers.orgaType.name',
@@ -504,6 +506,10 @@ export default {
       this.searchTerm = ''
       this.noResults = false
       this.getItemsByPage()
+    },
+
+    setAdditionalFieldOptions (options) {
+      this.additionalFieldOptions = options
     }
   },
 

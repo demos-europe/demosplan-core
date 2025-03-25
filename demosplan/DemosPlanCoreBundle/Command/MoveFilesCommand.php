@@ -58,6 +58,7 @@ class MoveFilesCommand extends CoreCommand
         $sourceStorage = 'local' === $source ? $this->localStorage : $this->s3Storage;
         $targetStorage = 'local' === $target ? $this->localStorage : $this->s3Storage;
 
+        $filesTotal = 0;
         $filesMoved = 0;
         try {
             $files = $sourceStorage->listContents('/', true);
@@ -80,8 +81,9 @@ class MoveFilesCommand extends CoreCommand
                         if (!$noDelete) {
                             $sourceStorage->delete($file->path());
                         }
+                        ++$filesMoved;
                     }
-                    ++$filesMoved;
+                    ++$filesTotal;
                 } catch (FilesystemException $e) {
                     $output->error('Could not move file '.$file->path().' '.$e->getMessage());
                 }
@@ -92,6 +94,7 @@ class MoveFilesCommand extends CoreCommand
             return Command::FAILURE;
         }
 
+        $output->info(sprintf('Number of files: %d', $filesTotal));
         $output->info(sprintf('Successfully moved %d files from %s to %s', $filesMoved, $source, $target));
 
         return Command::SUCCESS;
