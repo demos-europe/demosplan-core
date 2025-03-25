@@ -45,7 +45,7 @@ export default {
    * @return {*}
    */
   render () {
-    const sanitizedText = DomPurify.sanitize(this.text)
+    const sanitizedText = DomPurify.sanitize(this.text, { ADD_TAGS: ['dp-obscure'] })
 
     const immediateComponent = {
       template: `<div class='text-wrapper w-fit' data-cy='textWrapper'>${sanitizedText}</div>`,
