@@ -209,7 +209,7 @@ class ParagraphService extends CoreService implements ParagraphServiceInterface
      *
      * @return Paragraph|null
      */
-    public function getParaDocumentObject($ident): Paragraph
+    public function getParaDocumentObject($ident): ?Paragraph
     {
         return $this->paragraphRepository->find($ident);
     }
