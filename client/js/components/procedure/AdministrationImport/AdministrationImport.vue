@@ -185,10 +185,7 @@ export default {
   },
 
   mounted () {
-    const promises = [this.loadComponents('email.import')]
-    if (hasPermission('feature_import_statement_pdf')) {
-      promises.push(this.loadComponents('import.tabs'))
-    }
+    const promises = [this.loadComponents('email.import'), this.loadComponents('import.tabs')]
     Promise.allSettled(promises)
       .then(() => {
         this.allComponentsLoaded = true

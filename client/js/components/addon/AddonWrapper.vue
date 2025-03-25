@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="border">
     <component
       v-for="addon in loadedAddons"
       :is="addon.component"
@@ -12,10 +12,16 @@
 </template>
 
 <script>
+import { defineAsyncComponent, defineComponent, getCurrentInstance, reactive, shallowRef } from 'vue'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
+import { DpButton } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'AddonWrapper',
+
+  components: {
+    DpButton
+  },
 
   props: {
     /**
@@ -45,23 +51,40 @@ export default {
 
   data () {
     return {
-      loadedAddons: []
+      loadedAddons: reactive([])
     }
   },
 
-  mounted () {
-    loadAddonComponents(this.hookName)
-      .then(addons => {
-        addons.forEach(addon => {
-          this.$.appContext.components[addon.name] = window[addon.name].default
-          this.loadedAddons.push({
-            component: window[addon.name].default,
-            name: addon.name
-          })
-        })
+  async mounted () {
+    const app = getCurrentInstance().appContext.app
 
-        this.$emit('addons:loaded', this.loadedAddons.map(addon => addon.name))
+    console.log('test')
+    const addons = await loadAddonComponents(this.hookName)
+    addons.forEach(addon => {
+      if (!this.$.appContext.components.hasOwnProperty(addon.name)) {
+        app.component(addon.name, defineComponent(window[addon.name].default))
+      }
+
+      this.loadedAddons.push({
+        component: window[addon.name].default,
+        name: addon.name
       })
+    })
+
+    // const asyncComponent = defineAsyncComponent(() => new Promise((resolve, reject) => {
+    //   return resolve({
+    //     template: '<div>I am async!</div>'
+    //   })
+    // }))
+    //
+    // console.log(asyncComponent)
+    // this.loadedAddons.push({
+    //   component: asyncComponent,
+    //   name: 'testme'
+    // })
+    // app.component('testme', asyncComponent)
+
+    this.$emit('addons:loaded', this.loadedAddons.map(addon => addon.name))
   }
 }
 </script>

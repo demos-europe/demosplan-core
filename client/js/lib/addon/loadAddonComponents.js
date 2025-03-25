@@ -1,6 +1,7 @@
 import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
 
 export default async function loadAddonComponents (hookName) {
+  console.log('loadAddonComponents', hookName)
   while (window.dplan.loadedAddons[hookName] === 'pending') {
     await new Promise(resolve => setTimeout(resolve, 250))
   }
@@ -23,6 +24,7 @@ export default async function loadAddonComponents (hookName) {
 
       for (const key of Object.keys(result)) {
         const addon = result[key]
+
         if (addon === undefined) {
           /*
            * If for some reason we don't receive a valid response object from the backend
