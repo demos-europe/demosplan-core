@@ -215,8 +215,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         return IOFactory::createWriter($phpWord);
     }
 
-    public function exportStatementSegmentsInSeparateDocx(Statement $statement, Procedure $procedure, array $tableHeaders, bool $censored, bool $obscureParameter): PhpWord
-    {
+    public function exportStatementSegmentsInSeparateDocx(
+        Statement $statement,
+        Procedure $procedure,
+        array $tableHeaders,
+        bool $censored,
+        bool $obscureParameter
+    ): PhpWord {
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);

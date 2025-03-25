@@ -14,10 +14,13 @@ namespace Tests\Core\Statement\Functional;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementMetaFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use Tests\Base\FunctionalTestCase;
@@ -60,6 +63,53 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     /**
      * @dataProvider getCensorParams
      */
+    public function testCensorshipOnPathOnExportSegmentsInZip(
+        bool $censorCitizenData,
+        bool $censorInstitutionData
+    ): void {
+
+        $citizenOrganisation = $this->find(Orga::class, User::ANONYMOUS_USER_ORGA_ID);
+
+        $internalStatement = StatementFactory::createOne();
+        $externalStatement = StatementFactory::createOne(['organisation' => $citizenOrganisation]);
+
+        static::assertTrue($externalStatement->isSubmittedByCitizen());
+        static::assertTrue($internalStatement->isSubmittedByOrganisation());
+
+        $statements = $this->sut->mapStatementsToPathInZip(
+            [$externalStatement->_real(), $internalStatement->_real()],
+            $censorCitizenData,
+            $censorInstitutionData
+        );
+
+        foreach ($statements as $key => $statement) {
+            if ($statement->isSubmittedByCitizen()) {
+                if ($censorCitizenData) {
+                    $expectedAKey = $statement->getExternId().'.docx';
+                    static::assertEquals($expectedAKey, $key);
+                } else {
+                    $expectedAKey = $statement->getExternId().'-einreichende-person-unbekannt-eingangsnummer-unbekannt.docx';
+                    static::assertEquals($expectedAKey, $key);
+                }
+            } elseif ($statement->isSubmittedByOrganisation()) {
+                if ($censorInstitutionData) {
+                    $expectedAKey = $statement->getExternId().'.docx';
+                    static::assertEquals($expectedAKey, $key);
+                } else {
+                    $expectedAKey = $statement->getExternId().'-einreichende-person-unbekannt-eingangsnummer-unbekannt.docx';
+                    static::assertEquals($expectedAKey, $key);
+                }
+            }
+        }
+
+        static::assertTrue($externalStatement->isSubmittedByCitizen());
+        static::assertTrue($internalStatement->isSubmittedByOrganisation());
+    }
+
+
+    /**
+     * @dataProvider getCensorParams
+     */
     public function testMapStatementsToPathInZipWithSuperficialDuplicate(
         bool $censorCitizenData,
         bool $censorInstitutionData,
@@ -69,8 +119,8 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
 
         $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()],
             $censorCitizenData,
-            $censorInstitutionData,
-            '');
+            $censorInstitutionData
+        );
 
         $censored = $censorCitizenData && $censorInstitutionData;
 
@@ -138,6 +188,8 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         return [
             [true, true],
             [false, false],
+            [true, false],
+            [false, true],
         ];
     }
 }
