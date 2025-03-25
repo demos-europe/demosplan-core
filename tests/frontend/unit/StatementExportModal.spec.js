@@ -79,21 +79,27 @@ describe('StatementExportModal', () => {
     expect(inputs.length).toBe(0)
   })
 
-  it('renders checkboxes for isCensored and isObscure when export type is not xlsx', async () => {
-    await wrapper.setData({ active: 'docx_normal' })
-    const censored = wrapper.find('#censored')
+  it('renders checkboxes for isCitizenDataCensored, isInstitutionDataCensored and isObscure when export type is not xlsx', async () => {
+    await wrapper.setData({
+      active: 'docx_normal'
+    })
+    const censoredCitizen = wrapper.find('#censoredCitizen')
+    const censoredInstitution = wrapper.find('#censoredInstitution')
     const obscured = wrapper.find('#obscured')
 
-    expect(censored.exists()).toBe(true)
+    expect(censoredCitizen.exists()).toBe(true)
+    expect(censoredInstitution.exists()).toBe(true)
     expect(obscured.exists()).toBe(true)
   })
 
   it('does not render checkboxes for isCensored and isObscure when export type is xlsx', async () => {
     await wrapper.setData({ active: 'xlsx_normal' })
-    const censored = wrapper.find('#censored')
+    const censoredCitizen = wrapper.find('#censoredCitizen')
+    const censoredInstitution = wrapper.find('#censoredInstitution')
     const obscured = wrapper.find('#obscured')
 
-    expect(censored.exists()).toBe(false)
+    expect(censoredCitizen.exists()).toBe(false)
+    expect(censoredInstitution.exists()).toBe(false)
     expect(obscured.exists()).toBe(false)
   })
 
@@ -111,7 +117,8 @@ describe('StatementExportModal', () => {
       },
       fileNameTemplate: null,
       shouldConfirm: true,
-      isCensored: false,
+      isCitizenDataCensored: false,
+      isInstitutionDataCensored: false,
       isObscured: false
     })
   })
@@ -137,7 +144,8 @@ describe('StatementExportModal', () => {
       },
       fileNameTemplate: null,
       shouldConfirm: true,
-      isCensored: false,
+      isCitizenDataCensored: false,
+      isInstitutionDataCensored: false,
       isObscured: false
     })
   })
@@ -153,16 +161,17 @@ describe('StatementExportModal', () => {
       docxHeaders: null,
       fileNameTemplate: null,
       shouldConfirm: false,
-      isCensored: false,
+      isCitizenDataCensored: false,
+      isInstitutionDataCensored: false,
       isObscured: false
     })
   })
 
-  it('emits export event with isCensored true for docx_censored export type', () => {
-    const emitSpy = jest.spyOn(wrapper.vm, '$emit')
+  it('emits export event with isCitizenDataCensored true if censoredCitizen is selected', () => {
     wrapper.setData({
       active: 'docx_normal',
-      isCensored: true,
+      isCitizenDataCensored: true,
+      isInstitutionDataCensored: false,
       exportTypes: {
         docx_censored: { exportPath: 'dplan_statement_segments_export' }
       },
@@ -174,8 +183,30 @@ describe('StatementExportModal', () => {
     })
     wrapper.vm.handleExport()
 
-  it('emits export event with isCensored true for docx_censored export type', () => {
-    wrapper.setData({ active: 'docx_censored' })
+    const exportEvent = wrapper.emitted('export')[0][0]
+
+    expect(exportEvent).toBeTruthy()
+    expect(exportEvent).toEqual({
+      route: 'dplan_statement_segments_export',
+      docxHeaders: {
+        col1:sessionStorageValue,
+        col2: 'Test Column Title',
+        col3: null
+      },
+      fileNameTemplate: null,
+      shouldConfirm: true,
+      isCitizenDataCensored: true,
+      isInstitutionDataCensored: false,
+      isObscured: false
+    })
+  })
+
+  it('emits export event with isCitizenDataCensored true and isInstitutionDataCensored true for if censoredCitizen and censoredInstitution are selected', () => {
+    wrapper.setData({
+      active: 'docx_normal',
+      isInstitutionDataCensored: true,
+      isCitizenDataCensored: true
+    })
     wrapper.vm.handleExport()
     const exportEvent = wrapper.emitted('export')[0][0]
 
@@ -189,42 +220,41 @@ describe('StatementExportModal', () => {
       },
       fileNameTemplate: null,
       shouldConfirm: true,
-      isCensored: true,
+      isCitizenDataCensored: true,
+      isInstitutionDataCensored: true,
       isObscured: false
     })
   })
 
-    it('emits export event with isObscured true for docx_obscured export type', () => {
-      wrapper.setData({
-        active: 'docx_normal',
-        isObscure: true,
-        exportTypes: {
-          docx_normal: { exportPath: 'dplan_statement_segments_export' }
-        },
-        docxColumns: {
-          col1: { title: sessionStorageValue },
-          col2: { title: 'Test Column Title' },
-          col3: { title: null }
-        }
-      })
-      wrapper.vm.handleExport()
-
-      const exportEvent = wrapper.emitted('export')[0][0]
-
-      expect(exportEvent).toBeTruthy()
-      expect(exportEvent).toEqual({
-        route: 'dplan_statement_segments_export',
-        docxHeaders: {
-          col1: sessionStorageValue,
-          col2: 'Test Column Title',
-          col3: null
-        },
-        fileNameTemplate: null,
-        shouldConfirm: true,
-        isCensored: false,
-        isObscured: true
-      })
+  it('emits export event with isObscured true for docx_obscured export type', () => {
+    wrapper.setData({
+      active: 'docx_normal',
+      isObscure: true,
+      docxColumns: {
+        col1: { title: sessionStorageValue },
+        col2: { title: 'Test Column Title' },
+        col3: { title: null }
+      }
     })
+    wrapper.vm.handleExport()
+
+    const exportEvent = wrapper.emitted('export')[0][0]
+
+    expect(exportEvent).toBeTruthy()
+    expect(exportEvent).toEqual({
+      route: 'dplan_statement_segments_export',
+      docxHeaders: {
+        col1: sessionStorageValue,
+        col2: 'Test Column Title',
+        col3: null
+      },
+      fileNameTemplate: null,
+      shouldConfirm: true,
+      isCitizenDataCensored: false,
+      isInstitutionDataCensored: false,
+      isObscured: true
+    })
+  })
 
   it('closes the DpModal after executing the handleExport function', () => {
     const toggleSpy = jest.spyOn(wrapper.vm.$refs.exportModalInner, 'toggle')
