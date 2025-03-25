@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 /**
  * This file is part of the package demosplan.
+ *
  * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
  * All rights reserved
  */
 
@@ -104,11 +106,11 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
             '');
 
         $expectedAKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementA->getId(
-            ).'.docx';
+        ).'.docx';
         self::assertArrayHasKey($expectedAKey, $statements);
         self::assertSame($statementA->_real(), $statements[$expectedAKey]);
         $expectedBKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementB->getId(
-            ).'.docx';
+        ).'.docx';
         self::assertArrayHasKey($expectedBKey, $statements);
         self::assertSame($statementB->_real(), $statements[$expectedBKey]);
     }
@@ -116,7 +118,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     private function createMinimalTestStatement(
         string $idSuffix,
         string $internIdSuffix,
-        string $submitterNameSuffix
+        string $submitterNameSuffix,
     ): Statement|Proxy {
         $statement = StatementFactory::createOne();
         $statement->setExternId("statement_extern_id_$idSuffix");
