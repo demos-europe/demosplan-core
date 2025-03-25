@@ -65,6 +65,7 @@
 
     <export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
+      ref="exportModal"
       :has-selected-elements="Object.keys(selectedElements).length > 0"
       :procedure-id="procedureId"
       :options="exportOptions"
@@ -76,7 +77,8 @@
 
     <slot
       v-bind="{ procedureId, allItemsOnPageSelected, copyStatements }"
-      name="filter" />
+      name="filter"
+      :toggleExportModal="toggleExportModal" />
 
     <!-- If there are statements, display statement list -->
     <dp-loading
@@ -307,6 +309,10 @@ export default {
       }
 
       this.setSelectionAction(payload)
+    },
+
+    toggleExportModal (tab) {
+      this.$refs.exportModal.toggleModal(tab)
     },
 
     triggerApiCallForStatements () {
