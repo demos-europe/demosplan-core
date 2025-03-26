@@ -223,7 +223,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $censorInstitutionData,
         bool $obscureParameter,
     ): PhpWord {
-
         $censored = $this->needsToBeCensored(
             $statement,
             $censorCitizenData,

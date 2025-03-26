@@ -72,7 +72,6 @@ class SegmentsExporter
         bool $censorInstitutionData,
         bool $isObscure,
     ): WriterInterface {
-
         $isCensored = $this->needsToBeCensored(
             $statement,
             $censorCitizenData,
