@@ -12,7 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
+use demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use EDT\PathBuilding\End;
@@ -46,11 +51,12 @@ use EDT\PathBuilding\End;
  * @property-read End                           $externalStartDate
  * @property-read End                           $externalPhaseIdentifier
  * @property-read End                           $externalPhaseTranslationKey
+ * @property-read End                           $segmentCustomFieldsTemplate
  * @property-read CustomerResourceType          $customer
  */
 final class AdminProcedureResourceType extends DplanResourceType
 {
-    public function __construct(private readonly ProcedureResourceType $procedureResourceType, private readonly ProcedureService $procedureService)
+    public function __construct(private readonly ProcedureResourceType $procedureResourceType, private readonly ProcedureService $procedureService, private readonly CustomFieldList $customFieldList, private readonly CustomFieldType $customFieldType, private readonly CustomFieldService $customFieldService)
     {
     }
 
@@ -64,11 +70,36 @@ final class AdminProcedureResourceType extends DplanResourceType
         $id = $this->createIdentifier()->readable();
         $name = $this->createAttribute($this->name);
         $creationDate = $this->createAttribute($this->creationDate)->aliasedPath($this->createdDate);
+        $segmentCustomFieldsTemplate = $this->createAttribute($this->segmentCustomFieldsTemplate)
+            ->readable(false, function (Procedure $procedure): ?array {
+                if ($procedure->getSegmentCustomFieldsTemplate() === null) {
+                    return null;
+                }
+
+                $customFields= $procedure->getSegmentCustomFieldsTemplate()->toJson();
+
+                return $customFields;
+            })
+            ->updatable([], function (Procedure $procedure, array $customFieldsList): array {
+
+                $customFieldsObjectList = $this->customFieldService->loadFromJson($customFieldsList);
+                //if you send a fields that is not conformant wit what says in json, it will ignore it
+                // if you do not send a field that is supposed to be in the object, it will throw an exception
+                $listOfCustomFields = $customFieldsObjectList->getCustomFieldsList();
+
+                $procedure->setSegmentCustomFieldsTemplate($customFieldsObjectList);
+
+                //I need a way  that read the customFieldsList json, validates it and then it will store it in the database
+
+
+                return [];
+            });
 
         $properties = [
             $id,
             $name,
             $creationDate,
+            $segmentCustomFieldsTemplate
         ];
 
         if ($this->currentUser->hasPermission('area_search_submitter_in_procedures')) {
@@ -121,6 +152,8 @@ final class AdminProcedureResourceType extends DplanResourceType
                     return $externalPhases[$externalPhaseIdentifier]['name'] ?? $externalPhaseIdentifier;
                 }),
                 $this->createAttribute($this->externalStartDate)->readable()->aliasedPath($this->publicParticipationPhase->startDate)];
+
+
         }
 
         return $properties;
@@ -146,5 +179,10 @@ final class AdminProcedureResourceType extends DplanResourceType
         $resourceTypeConditions = $this->procedureResourceType->getResourceTypeConditions();
 
         return array_merge($adminProcedureConditions, $resourceTypeConditions);
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        return true;
     }
 }

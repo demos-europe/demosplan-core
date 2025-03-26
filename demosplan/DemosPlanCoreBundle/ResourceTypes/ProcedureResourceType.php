@@ -61,6 +61,7 @@ use EDT\PathBuilding\End;
  * @property-read End                                 $owningOrganisationName
  * @property-read End                                 $externalPhasePermissionset
  * @property-read End                                 $internalPhasePermissionset
+ * @property-read End                                 $segmentCustomFieldsTemplate
  * @property-read CustomerResourceType                $customer
  * @property-read PlanningDocumentCategoryDetailsResourceType                $availableElements
  * @property-read PlanningDocumentCategoryDetailsResourceType                $elements
@@ -252,6 +253,8 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
                 ->readable(false, $this->phasePermissionsetLoader->getInternalPhasePermissionset(...));
             $properties[] = $this->createAttribute($this->externalPhasePermissionset)
                 ->readable(false, $this->phasePermissionsetLoader->getExternalPhasePermissionset(...));
+
+
         }
 
         return $properties;

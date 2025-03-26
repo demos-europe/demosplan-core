@@ -35,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\ProcedureAllowedSegmentsConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTypeConstraint;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
@@ -587,6 +588,15 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Workflow\Place", mappedBy="procedure", cascade={"persist"})
      */
     private $segmentPlaces;
+
+    /**
+     * @var CustomFieldInterface
+     *
+     * @ORM\Column(type="dplan.segment_custom_fields_template", nullable=true)
+     */
+    protected $segmentCustomFieldsTemplate;
+
+
 
     public function __construct()
     {
@@ -2285,5 +2295,15 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function setPublicParticipationPhaseObject(ProcedurePhaseInterface $publicParticipationPhase): void
     {
         $this->publicParticipationPhase = $publicParticipationPhase;
+    }
+
+    public function setSegmentCustomFieldsTemplate(CustomFieldInterface $segmentCustomFieldsTemplate): void
+    {
+        $this->segmentCustomFieldsTemplate = $segmentCustomFieldsTemplate;
+    }
+
+    public function getSegmentCustomFieldsTemplate(): ?CustomFieldInterface
+    {
+        return $this->segmentCustomFieldsTemplate;
     }
 }
