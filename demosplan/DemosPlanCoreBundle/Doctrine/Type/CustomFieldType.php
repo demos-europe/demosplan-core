@@ -28,16 +28,12 @@ class CustomFieldType extends JsonType
         CustomFieldList::class,
     ];
 
-    /**
-     */
     public function loadFromJson(
-        ?array $json
+        ?array $json,
     ): ?CustomFieldInterface {
-
-        if (null === $json){
+        if (null === $json) {
             return null;
         }
-
 
         return collect(self::TYPE_CLASSES)
             ->map(
@@ -45,8 +41,7 @@ class CustomFieldType extends JsonType
                     // explicitly switch the classes to get IDE-findable class uses
                     $customField = null;
 
-
-                    if ($customFieldClass == CustomFieldList::class) {
+                    if (CustomFieldList::class == $customFieldClass) {
                         $customField = new CustomFieldList();
                     }
 
@@ -57,8 +52,7 @@ class CustomFieldType extends JsonType
                 static function (?CustomFieldInterface $customField) use (
                     $json
                 ) {
-
-                    if ($customField == null) {
+                    if (null == $customField) {
                         return null;
                     }
 
@@ -72,12 +66,11 @@ class CustomFieldType extends JsonType
 
     public function convertToPHPValue(
         $value,
-        AbstractPlatform $platform
+        AbstractPlatform $platform,
     ): ?CustomFieldInterface {
         $parsedJson = parent::convertToPHPValue($value, $platform);
 
         return $this->loadFromJson($parsedJson);
-
     }
 
     /**
@@ -90,7 +83,7 @@ class CustomFieldType extends JsonType
      */
     public function convertToDatabaseValue(
         $value,
-        AbstractPlatform $platform
+        AbstractPlatform $platform,
     ): string {
         if (!is_a($value, CustomFieldInterface::class)) {
             throw new RuntimeException('This field can only handle '.CustomFieldInterface::class.' as data');

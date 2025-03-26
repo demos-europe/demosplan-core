@@ -596,8 +596,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     protected $segmentCustomFieldsTemplate;
 
-
-
     public function __construct()
     {
         $this->organisation = new ArrayCollection();

@@ -253,8 +253,6 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
                 ->readable(false, $this->phasePermissionsetLoader->getInternalPhasePermissionset(...));
             $properties[] = $this->createAttribute($this->externalPhasePermissionset)
                 ->readable(false, $this->phasePermissionsetLoader->getExternalPhasePermissionset(...));
-
-
         }
 
         return $properties;

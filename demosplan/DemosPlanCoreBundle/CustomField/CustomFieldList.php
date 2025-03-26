@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
-
 class CustomFieldList extends AbstractCustomField
 {
     /**
@@ -18,21 +17,19 @@ class CustomFieldList extends AbstractCustomField
      */
     protected $name = '';
 
-
     /**
-     * List of custom custom fields
+     * List of custom custom fields.
      *
      * @var array
      */
     protected $customFields = [];
-
 
     /** @var string */
     protected $procedureId = '';
 
     private const TYPE_CLASSES = [
         'radio_button' => RadioButtonField::class,
-        //'dropdown' => DropdownField::class,
+        // 'dropdown' => DropdownField::class,
         // Add other custom field types here
     ];
 
@@ -48,20 +45,20 @@ class CustomFieldList extends AbstractCustomField
             $type = $fieldData['type'];
             if (!isset(self::TYPE_CLASSES[$type])) {
                 return [];
-                //throw new RuntimeException('Unknown custom field type: ' . $type);
+                // throw new RuntimeException('Unknown custom field type: ' . $type);
             }
             $customFieldClass = self::TYPE_CLASSES[$type];
             $customField = new $customFieldClass();
             $customField->fromJson($fieldData);
+
             return $customField;
         }, $json['customFields']);
     }
 
     public function toJson(): array
     {
-
         return [
-            'name' => $this->name,
+            'name'         => $this->name,
             'customFields' => array_map(function ($customField) {
                 return $customField->toJson();
             }, $this->customFields),

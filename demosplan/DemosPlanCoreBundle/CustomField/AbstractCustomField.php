@@ -10,11 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
-
 /**
  * Provide the generalized hashing functionality for stored queries.
  */
 abstract class AbstractCustomField implements CustomFieldInterface
 {
-
 }

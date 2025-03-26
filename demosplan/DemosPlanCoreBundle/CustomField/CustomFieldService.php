@@ -16,9 +16,8 @@ class CustomFieldService
         CustomFieldList::class,
     ];
 
-
     public function loadFromJson(
-        ?array $json
+        ?array $json,
     ): ?CustomFieldInterface {
         return collect(self::TYPE_CLASSES)
             ->map(
@@ -26,7 +25,7 @@ class CustomFieldService
                     // explicitly switch the classes to get IDE-findable class uses
                     $customField = null;
 
-                    if ($customFieldClass == CustomFieldList::class) {
+                    if (CustomFieldList::class == $customFieldClass) {
                         $customField = new CustomFieldList();
                     }
 
@@ -44,5 +43,4 @@ class CustomFieldService
             )
             ->first();
     }
-
 }

@@ -17,19 +17,17 @@ class RadioButtonField extends AbstractCustomField
      */
     protected $name = '';
 
-
-
     /**
      * @var string
      */
     protected $type = '';
 
     /**
-     * Radio button options
+     * Radio button options.
      *
      * @var array
      */
-    //protected $options = [];
+    // protected $options = [];
 
     /**
      * @var string
@@ -49,7 +47,7 @@ class RadioButtonField extends AbstractCustomField
         $this->type = $json['type'];
         $this->name = $json['name'];
         $this->caption = $json['caption'];
-       // $this->options = $json['options'];
+        // $this->options = $json['options'];
     }
 
     public function toJson(): array
@@ -58,7 +56,7 @@ class RadioButtonField extends AbstractCustomField
             'type'      => $this->type,
             'name'      => $this->name,
             'caption'   => $this->caption,
-           // 'options' => $this->options,
+            // 'options' => $this->options,
         ];
     }
 

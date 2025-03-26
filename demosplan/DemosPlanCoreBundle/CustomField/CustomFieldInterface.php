@@ -40,7 +40,6 @@ interface CustomFieldInterface
      */
     public function toJson(): array;
 
-
     /**
      * Get the ID of the procedure the query was generated in.
      */
