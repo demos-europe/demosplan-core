@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- new parameter cafile to set the path to the CA file for the symfony http client
+
 ## v2.26.3 (2025-03-24)
 - Use less strict samesite cookie policy for session cookies to allow login via keycloak
 
