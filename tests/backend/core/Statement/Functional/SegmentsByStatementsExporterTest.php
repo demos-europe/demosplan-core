@@ -108,7 +108,8 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     }
 
     /**
-     * Test censoring paths on exporting a multiple segments as zip
+     * Test censoring paths on exporting a multiple segments as zip.
+     *
      * @dataProvider getCensorParams
      */
     public function testCensorshipOnPathOnExportSegmentsInZip(
