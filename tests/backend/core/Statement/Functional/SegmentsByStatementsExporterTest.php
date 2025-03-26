@@ -14,6 +14,7 @@ namespace Tests\Core\Statement\Functional;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementMetaFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -60,6 +61,54 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     }
 
     /**
+     * @dataProvider getCensorParams
+     */
+    public function testInternalStatementNeedsToBeCensored(
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
+    ): void {
+        $procedure = ProcedureFactory::createOne();
+        $internalStatement = StatementFactory::createOne(['procedure' => $procedure->_real()]);
+
+        $censored = $this->sut->needsToBeCensored(
+            $internalStatement->_real(),
+            $censorCitizenData,
+            $censorInstitutionData
+        );
+
+        if ($censorInstitutionData) {
+            static::assertTrue($censored);
+        } else {
+            static::assertFalse($censored);
+        }
+    }
+
+    /**
+     * @dataProvider getCensorParams
+     */
+    public function testExternalStatementNeedsToBeCensored(
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
+    ): void {
+        $citizenOrganisation = $this->find(Orga::class, User::ANONYMOUS_USER_ORGA_ID);
+        $procedure = ProcedureFactory::createOne();
+        $externalStatement = StatementFactory::createOne(['organisation' => $citizenOrganisation, 'procedure' => $procedure]);
+
+        $censored = $this->sut->needsToBeCensored(
+            $externalStatement->_real(),
+            $censorCitizenData,
+            $censorInstitutionData
+        );
+
+        if ($censorCitizenData) {
+            static::assertTrue($censored);
+        } else {
+            static::assertFalse($censored);
+        }
+    }
+
+    /**
+     * Test censoring paths on exporting a multiple segments as zip
      * @dataProvider getCensorParams
      */
     public function testCensorshipOnPathOnExportSegmentsInZip(
