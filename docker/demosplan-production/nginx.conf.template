@@ -41,8 +41,8 @@ server
     fastcgi_read_timeout 600s;
     keepalive_timeout  600s;
 
-    # Handle requests to /web, /fonts, /css, /img, and /js directly by Nginx
-    location ~* ^/(web|fonts|css|img|js) {
+    # Handle requests to static files directly by Nginx
+    location ~* ^/(css|files|fonts|img|js) {
         try_files $uri $uri/ =404;
     }
 
