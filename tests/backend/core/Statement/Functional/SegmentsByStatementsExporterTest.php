@@ -169,16 +169,20 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
             $censorInstitutionData
         );
 
-        $censored = $censorCitizenData && $censorInstitutionData;
+        $shouldStatementABeCensored = ($censorCitizenData && $statementA->isSubmittedByCitizen())
+            || ($censorInstitutionData && $statementA->isSubmittedByOrganisation());
 
-        if ($censored) {
+        if ($shouldStatementABeCensored) {
             $expectedAKey = 'statement-extern-id-a.docx';
         } else {
             $expectedAKey = 'statement-extern-id-a-statement-author-name-a-statement-intern-id-a.docx';
         }
         self::assertArrayHasKey($expectedAKey, $statements);
         self::assertSame($statementA->_real(), $statements[$expectedAKey]);
-        if ($censored) {
+
+        $shouldStatementBBeCensored = ($censorCitizenData && $statementB->isSubmittedByCitizen())
+            || ($censorInstitutionData && $statementB->isSubmittedByOrganisation());
+        if ($shouldStatementBBeCensored) {
             $expectedBKey = 'statement-extern-id-b.docx';
         } else {
             $expectedBKey = 'statement-extern-id-b-statement-author-name-a-statement-intern-id-a.docx';
@@ -203,11 +207,11 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
             '');
 
         $expectedAKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementA->getId(
-        ).'.docx';
+            ).'.docx';
         self::assertArrayHasKey($expectedAKey, $statements);
         self::assertSame($statementA->_real(), $statements[$expectedAKey]);
         $expectedBKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementB->getId(
-        ).'.docx';
+            ).'.docx';
         self::assertArrayHasKey($expectedBKey, $statements);
         self::assertSame($statementB->_real(), $statements[$expectedBKey]);
     }
