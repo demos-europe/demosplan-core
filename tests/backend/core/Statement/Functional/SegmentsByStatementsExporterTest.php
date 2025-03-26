@@ -207,11 +207,11 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
             '');
 
         $expectedAKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementA->getId(
-            ).'.docx';
+        ).'.docx';
         self::assertArrayHasKey($expectedAKey, $statements);
         self::assertSame($statementA->_real(), $statements[$expectedAKey]);
         $expectedBKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementB->getId(
-            ).'.docx';
+        ).'.docx';
         self::assertArrayHasKey($expectedBKey, $statements);
         self::assertSame($statementB->_real(), $statements[$expectedBKey]);
     }
