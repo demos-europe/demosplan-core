@@ -399,6 +399,7 @@ class StatementSubmissionNotifier
         $mailTemplateVars['signature'] = [
             'nameLegal'                 => $orga->getName(),
             'street'                    => $orga->getStreet(),
+            'houseNumber'               => $orga->getHouseNumber(),
             'postalcode'                => $orga->getPostalcode(),
             'city'                      => $orga->getCity(),
             'email'                     => $from,
