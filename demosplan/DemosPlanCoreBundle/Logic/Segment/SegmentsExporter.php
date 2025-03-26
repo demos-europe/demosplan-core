@@ -68,9 +68,17 @@ class SegmentsExporter
         Procedure $procedure,
         Statement $statement,
         array $tableHeaders,
-        bool $isCensored,
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
         bool $isObscure,
     ): WriterInterface {
+
+        $isCensored = $this->needsToBeCensored(
+            $statement,
+            $censorCitizenData,
+            $censorInstitutionData,
+        );
+
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
         $section = $phpWord->addSection($this->styles['globalSection']);

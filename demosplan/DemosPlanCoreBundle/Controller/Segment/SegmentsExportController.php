@@ -74,16 +74,19 @@ class SegmentsExportController extends BaseController
         $isObscure = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
-
-        $isCensored = $exporter->needsToBeCensored(
-            $statement,
-            $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER),
-            $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER),
-        );
+        $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
+        $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
 
         $response = new StreamedResponse(
-            static function () use ($procedure, $statement, $exporter, $tableHeaders, $isCensored, $isObscure) {
-                $exportedDoc = $exporter->export($procedure, $statement, $tableHeaders, $isCensored, $isObscure);
+            static function () use ($procedure, $statement, $exporter, $tableHeaders, $censorCitizenData, $censorInstitutionData, $isObscure) {
+                $exportedDoc = $exporter->export(
+                    $procedure,
+                    $statement,
+                    $tableHeaders,
+                    $censorCitizenData,
+                    $censorInstitutionData,
+                    $isObscure
+                );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
@@ -271,17 +274,12 @@ class SegmentsExportController extends BaseController
                         $censorInstitutionData,
                         $obscureParameter
                     ): void {
-                        $censorParameter = $exporter->needsToBeCensored(
-                            $statement,
-                            $censorCitizenData,
-                            $censorInstitutionData
-                        );
-
                         $docx = $exporter->exportStatementSegmentsInSeparateDocx(
                             $statement,
                             $procedure,
                             $tableHeaders,
-                            $censorParameter,
+                            $censorCitizenData,
+                            $censorInstitutionData,
                             $obscureParameter
                         );
                         $writer = IOFactory::createWriter($docx);

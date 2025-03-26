@@ -219,9 +219,17 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         Statement $statement,
         Procedure $procedure,
         array $tableHeaders,
-        bool $censored,
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
         bool $obscureParameter,
     ): PhpWord {
+
+        $censored = $this->needsToBeCensored(
+            $statement,
+            $censorCitizenData,
+            $censorInstitutionData,
+        );
+
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
