@@ -69,6 +69,24 @@ describe('StatementExportModal', () => {
     expect(inputs.length).toBe(0)
   })
 
+  it('renders checkboxes for isCensored and isObscure when export type is not xlsx', async () => {
+    await wrapper.setData({ active: 'docx_normal' })
+    const censored = wrapper.find('#censored')
+    const obscured = wrapper.find('#obscured')
+
+    expect(censored.exists()).toBe(true)
+    expect(obscured.exists()).toBe(true)
+  })
+
+  it('does not render checkboxes for isCensored and isObscure when export type is xlsx', async () => {
+    await wrapper.setData({ active: 'xlsx_normal' })
+    const censored = wrapper.find('#censored')
+    const obscured = wrapper.find('#obscured')
+
+    expect(censored.exists()).toBe(false)
+    expect(obscured.exists()).toBe(false)
+  })
+
   it('emits export event with initial column titles when no changes are made', () => {
     const emitSpy = jest.spyOn(wrapper.vm, '$emit')
     wrapper.vm.handleExport()
@@ -82,7 +100,8 @@ describe('StatementExportModal', () => {
       },
       fileNameTemplate: null,
       shouldConfirm: true,
-      censorParameter: false
+      isCensored: false,
+      isObscured: false
     })
   })
 
@@ -90,7 +109,9 @@ describe('StatementExportModal', () => {
     const spy = jest.spyOn(wrapper.vm, '$emit')
     wrapper.setData({
       docxColumns: {
-        col2: { title: 'Test Column Title' }
+        col1: { title: sessionStorageValue },
+        col2: { title: 'Test Column Title' },
+        col3: { title: null }
       }
     })
     wrapper.vm.handleExport()
@@ -104,7 +125,8 @@ describe('StatementExportModal', () => {
       },
       fileNameTemplate: null,
       shouldConfirm: true,
-      censorParameter: false
+      isCensored: false,
+      isObscured: false
     })
   })
 
@@ -118,13 +140,25 @@ describe('StatementExportModal', () => {
       docxHeaders: null,
       fileNameTemplate: null,
       shouldConfirm: false,
-      censorParameter: false
+      isCensored: false,
+      isObscured: false
     })
   })
 
-  it('emits export event with censorParameter true for docx_censored export type', () => {
+  it('emits export event with isCensored true for docx_censored export type', () => {
     const emitSpy = jest.spyOn(wrapper.vm, '$emit')
-    wrapper.setData({ active: 'docx_censored' })
+    wrapper.setData({
+      active: 'docx_normal',
+      isCensored: true,
+      exportTypes: {
+        docx_censored: { exportPath: 'dplan_statement_segments_export' }
+      },
+      docxColumns: {
+        col1: { title: sessionStorageValue },
+        col2: { title: 'Test Column Title' },
+        col3: { title: null }
+      }
+    })
     wrapper.vm.handleExport()
 
     expect(emitSpy).toHaveBeenCalledWith('export', {
@@ -136,7 +170,38 @@ describe('StatementExportModal', () => {
       },
       fileNameTemplate: null,
       shouldConfirm: true,
-      censorParameter: true
+      isCensored: true,
+      isObscured: false
+    })
+  })
+
+  it('emits export event with isObscured true for docx_obscured export type', () => {
+    const emitSpy = jest.spyOn(wrapper.vm, '$emit')
+    wrapper.setData({
+      active: 'docx_normal',
+      isObscure: true,
+      exportTypes: {
+        docx_normal: { exportPath: 'dplan_statement_segments_export' }
+      },
+      docxColumns: {
+        col1: { title: sessionStorageValue },
+        col2: { title: 'Test Column Title' },
+        col3: { title: null }
+      }
+    })
+    wrapper.vm.handleExport()
+
+    expect(emitSpy).toHaveBeenCalledWith('export', {
+      route: 'dplan_statement_segments_export',
+      docxHeaders: {
+        col1: sessionStorageValue,
+        col2: 'Test Column Title',
+        col3: null
+      },
+      fileNameTemplate: null,
+      shouldConfirm: true,
+      isCensored: false,
+      isObscured: true
     })
   })
 

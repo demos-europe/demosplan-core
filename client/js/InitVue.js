@@ -31,11 +31,16 @@ import loadSentry from './loadSentry'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import { configureCompat } from '@vue/compat'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
   bootstrap()
 
   return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
+    configureCompat({
+      RENDER_FUNCTION: false
+    })
+
     const app = createApp({
       mounted () {
         window.dplan.notify = new NotificationStoreAdapter(this.$store)
