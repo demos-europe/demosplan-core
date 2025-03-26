@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { defineAsyncComponent, defineComponent, getCurrentInstance, reactive, shallowRef } from 'vue'
+import { defineAsyncComponent, defineComponent, getCurrentInstance, reactive, resolveComponent, shallowRef } from 'vue'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import { DpButton } from '@demos-europe/demosplan-ui'
 
@@ -62,12 +62,16 @@ export default {
     const addons = await loadAddonComponents(this.hookName)
     addons.forEach(addon => {
       if (!this.$.appContext.components.hasOwnProperty(addon.name)) {
-        app.component(addon.name, defineComponent(window[addon.name].default))
+        app.component(addon.name, window[addon.name].default)
       }
+    })
 
-      this.loadedAddons.push({
-        component: window[addon.name].default,
-        name: addon.name
+    this.$nextTick(() => {
+      addons.forEach(addon => {
+        this.loadedAddons.value.push({
+          component: this.$.appContext.components[addon.name],
+          name: addon.name
+        })
       })
     })
 

@@ -1,5 +1,5 @@
 import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
-
+import { defineComponent } from 'vue'
 export default async function loadAddonComponents (hookName) {
   console.log('loadAddonComponents', hookName)
   while (window.dplan.loadedAddons[hookName] === 'pending') {
@@ -44,7 +44,7 @@ export default async function loadAddonComponents (hookName) {
         eval(content)
 
         addons.push({
-          entry: content,
+          entry: defineComponent(content),
           name: addon.entry,
           options: addon.options ?? ''
         })
