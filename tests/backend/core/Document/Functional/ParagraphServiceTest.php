@@ -11,6 +11,7 @@
 namespace Tests\Core\Document\Functional;
 
 use DateTime;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\ElementsFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\ParagraphFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -89,18 +90,18 @@ class ParagraphServiceTest extends FunctionalTestCase
         self::markSkippedForCIIntervention();
         // Tests for filterArray and sortingArray in result are missing
 
-        $result = $this->sut->getParaDocumentList($this->fixtures->getReference('testProcedure2')->getId(), $this->testParaDocument->getCategory());
+        $result = $this->sut->getParaDocumentList($this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId(), $this->testParaDocument->getCategory());
         $this->checkFiltersAndSorting(['result' => $result]);
 
-        $result = $this->sut->getParaDocumentList($this->fixtures->getReference('testProcedure2')->getId(), null);
+        $result = $this->sut->getParaDocumentList($this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId(), null);
         $this->checkFiltersAndSorting(['result' => $result]);
 
         $elementId = $this->fixtures->getReference('testElement1')->getId();
-        $result = $this->sut->getParaDocumentAdminList($this->fixtures->getReference('testProcedure2')->getId(), $elementId, null, true);
+        $result = $this->sut->getParaDocumentAdminList($this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId(), $elementId, null, true);
         $this->checkFiltersAndSorting($result, 4);
         static::assertArrayHasKey('filters', $result['filterSet']);
 
-        $result = $this->sut->getParaDocumentAdminListAll([$this->fixtures->getReference('testProcedure2')->getId()]);
+        $result = $this->sut->getParaDocumentAdminListAll([$this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId()]);
         $this->checkFiltersAndSorting($result, 4);
         static::assertArrayHasKey('filters', $result['filterSet']);
     }
@@ -108,7 +109,7 @@ class ParagraphServiceTest extends FunctionalTestCase
     public function testgetParaDocumentAdminList()
     {
         $elementId = $this->fixtures->getReference('testElement1')->getId();
-        $procedureId = $this->fixtures->getReference('testProcedure2')->getId();
+        $procedureId = $this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId();
 
         $resultList = $this->sut->getParaDocumentAdminList($procedureId, $elementId, null);
 
@@ -138,7 +139,7 @@ class ParagraphServiceTest extends FunctionalTestCase
     public function testGetList()
     {
         $elementId = $this->fixtures->getReference('testElement1')->getId();
-        $result = $this->sut->getParaDocumentList($this->fixtures->getReference('testProcedure2')->getId(), $elementId);
+        $result = $this->sut->getParaDocumentList($this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId(), $elementId);
 
         static::assertCount(3, $result);
         $this->checkParaDocumentArray($result[1]);
@@ -158,14 +159,14 @@ class ParagraphServiceTest extends FunctionalTestCase
         static::assertEquals($referenceParaDocument->getPId(), $paraDocumentResult['pId']);
 
         // if category = null -> 0 results because of there are no entries with category = null
-        $result = $this->sut->getParaDocumentList($this->fixtures->getReference('testProcedure2')->getId(), null);
+        $result = $this->sut->getParaDocumentList($this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId(), null);
         static::assertCount(0, $result);
     }
 
     public function testGetAdminList()
     {
         $elementId = $this->fixtures->getReference('testElement1')->getId();
-        $result = $this->sut->getParaDocumentAdminList($this->fixtures->getReference('testProcedure2')->getId(), $elementId, null, true);
+        $result = $this->sut->getParaDocumentAdminList($this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId(), $elementId, null, true);
 
         static::assertTrue(is_array($result));
         static::assertEquals(5, sizeof($result));
@@ -211,7 +212,7 @@ class ParagraphServiceTest extends FunctionalTestCase
 
     public function testGetAdminListAll()
     {
-        $result = $this->sut->getParaDocumentAdminListAll([$this->fixtures->getReference('testProcedure2')->getId()]);
+        $result = $this->sut->getParaDocumentAdminListAll([$this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId()]);
 
         static::assertTrue(is_array($result));
         static::assertEquals(5, sizeof($result));

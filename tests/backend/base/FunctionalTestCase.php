@@ -247,7 +247,7 @@ class FunctionalTestCase extends WebTestCase
         $entityDate = strtotime(date('Y-m-d', $timestamp));
 
         return $this->isTimestamp($timestamp)
-            && $currentDate >= $entityDate; // this $timestamp might be cached and then this test fails
+            && $currentDate >= $entityDate; // this $entityDate might be cached and then an equal comparison fails
     }
 
     /**
