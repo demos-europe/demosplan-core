@@ -30,6 +30,7 @@ framework:
         default_options:
             max_redirects: 7
             proxy: '%proxy_dsn%'
+            cafile: '%cafile%'
 
     request:
         formats:
