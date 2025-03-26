@@ -64,8 +64,20 @@ class SegmentsExporter
     /**
      * @throws Exception
      */
-    public function export(Procedure $procedure, Statement $statement, array $tableHeaders, bool $isCensored, bool $isObscure): WriterInterface
-    {
+    public function export(
+        Procedure $procedure,
+        Statement $statement,
+        array $tableHeaders,
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
+        bool $isObscure,
+    ): WriterInterface {
+        $isCensored = $this->needsToBeCensored(
+            $statement,
+            $censorCitizenData,
+            $censorInstitutionData,
+        );
+
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
         $section = $phpWord->addSection($this->styles['globalSection']);
@@ -385,5 +397,12 @@ class SegmentsExporter
     private function validInfoString(?string $text): bool
     {
         return null !== $text && '' !== trim($text);
+    }
+
+    public function needsToBeCensored(Statement $statement, bool $censorCitizenData, bool $censorInstitutionData): bool
+    {
+        return
+            ($statement->isSubmittedByOrganisation() && $censorInstitutionData)
+            || ($statement->isSubmittedByCitizen() && $censorCitizenData);
     }
 }
