@@ -28,18 +28,16 @@
           <dp-radio
             id="searchall"
             name="searchselection"
-            :value="'all'"
+            :value="all"
             v-model="searchIn"
-            :label="{ text: Translator.trans('search.all.procedures') }"
-          />
+            :label="{ text: Translator.trans('search.all.procedures') }" />
         </div>
         <dp-radio
           id="searchselected"
           name="searchselection"
-          :value="'selected'"
+          :value="selected"
           v-model="searchIn"
-          :label="{ text: Translator.trans('select.procedures.search') }"
-        />
+          :label="{ text: Translator.trans('select.procedures.search') }" />
       </fieldset><!--
    --><div
         class="layout__item u-2-of-3 u-pl-0"
