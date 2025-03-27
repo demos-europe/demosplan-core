@@ -365,7 +365,8 @@ export default {
     ...mapMutations('Filter', [
       'loadAppliedFilterOptions',
       'loadSelectedFilterOptions',
-      'resetSelectedOptions'
+      'resetSelectedOptions',
+      'setLoading'
     ]),
 
     back () {
@@ -491,13 +492,15 @@ export default {
      * Update filterHash with currently selected options from store
      * emit event to FilterModalSelectItem which then loads updated options from store
      */
-    updateSelectedOptions () {
+    updateSelectedOptions (filterItemId = false) {
       window.updateFilterHash(this.procedureId, this.allSelectedFilterOptionsWithFilterName)
         .then((filterHash) => {
           // Get updated options for selected filters
           this.getFilterOptionsAction({ filterHash })
-            .then((filterHash) => {
-              this.$root.$emit('selected-updated', filterHash)
+            .then(() => {
+              if (filterItemId) {
+                this.setLoading({ filterId: filterItemId, isLoading: false })
+              }
               this.disabledInteractions = false
             })
         })
