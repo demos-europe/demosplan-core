@@ -1134,7 +1134,7 @@ class StatementService extends CoreService implements StatementServiceInterface
 
             // there are fields, which are only allowed to modify on a manual statement?
             $hasManualStatementUpdateFields = $this->hasManualStatementUpdateFields($updatedStatement, $currentStatementObject);
-            $updateForbidden = $hasManualStatementUpdateFields && !$currentStatementObject->isManual();
+            $updateForbidden = !$hasManualStatementUpdateFields;
             if ($updateForbidden) {
                 $this->messageBag->add('warning', 'warning.deny.update.manual.statement');
                 $this->getLogger()->warning('Trying to update manualStatementUpdateFields on a normal statement.');
