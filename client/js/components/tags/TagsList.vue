@@ -8,9 +8,10 @@
 
     <dp-tree-list
       v-if="transformedCategories"
-      class="mb-4"
       align-toggle="center"
-      :tree-data="transformedCategories"
+      :branch-identifier="isBranch"
+      class="mb-4"
+      :has-content="hasContent"
       :options="{
         branchesSelectable: false,
         dragAcrossBranches: true,
@@ -21,7 +22,7 @@
           childDeselect: true
         }
       }"
-      :branch-identifier="isBranch"
+      :tree-data="transformedCategories"
       @draggable:change="changeTopic">
       <template v-slot:header>
         <div class="flex">
@@ -125,6 +126,10 @@ export default {
     ...mapState('TagTopic', {
       TagTopic: 'items'
     }),
+
+    hasContent () {
+      return this.transformedCategories && this.transformedCategories.length > 0
+    },
 
     transformedCategories () {
       return Object.values(this.TagTopic).map(category => {
