@@ -649,7 +649,7 @@ export default {
         })
         .catch(e => {
           console.error(e)
-          dplan.notify.error('test')
+          dplan.notify.error(Translator.trans('error.api.generic'))
           return {}
         })
     },
@@ -899,7 +899,7 @@ export default {
           return dataToUpdate
         })
         .catch(err => {
-          dplan.notify.error('jajaa')
+          dplan.notify.error(Translator.trans('statement.change.failed'))
           return err
         })
     },
