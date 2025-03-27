@@ -220,9 +220,8 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         self::assertSame($statementB->_real(), $statements[$expectedBKey]);
     }
 
-
     /**
-     * Test censoring on exporting a segment of statement
+     * Test censoring on exporting a segment of statement.
      */
     public function testExportCensoredSegments(): void
     {
@@ -252,6 +251,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
 
     /**
      * Test censoring on exporting a single statement submitted by an institution.
+     *
      * @dataProvider getCensorParams
      */
     public function testExportCensoringOnInternalStatement(
@@ -259,8 +259,8 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         bool $censorInstitutionData,
     ): void {
         $procedure = ProcedureFactory::createOne();
-        $internalStatement = StatementFactory::createOne(['procedure' => $procedure->_real(), ]);
-        $authorName =$this->exportAndGetAuthorName($internalStatement->_real(), $censorCitizenData, $censorInstitutionData);
+        $internalStatement = StatementFactory::createOne(['procedure' => $procedure->_real()]);
+        $authorName = $this->exportAndGetAuthorName($internalStatement->_real(), $censorCitizenData, $censorInstitutionData);
 
         if ($censorInstitutionData) {
             static::assertEquals('', $authorName);
@@ -271,6 +271,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
 
     /**
      * Test censoring on exporting a single statement submitted by an citizen.
+     *
      * @dataProvider getCensorParams
      */
     public function testExportCensoringOnExternalStatement(
@@ -283,7 +284,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
             ['organisation' => $citizenOrganisation, 'procedure' => $procedure]
         );
 
-        $authorName =$this->exportAndGetAuthorName($externalStatement->_real(), $censorCitizenData, $censorInstitutionData);
+        $authorName = $this->exportAndGetAuthorName($externalStatement->_real(), $censorCitizenData, $censorInstitutionData);
 
         if ($censorCitizenData) {
             static::assertEquals('', $authorName);
@@ -295,7 +296,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
     private function exportAndGetAuthorName(
         Statement $statement,
         bool $censorCitizenData,
-        bool $censorInstitutionData
+        bool $censorInstitutionData,
     ): string {
         // Word2007
         $exportResult = $this->sut->export(
@@ -309,6 +310,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
 
         /** @var PhpWord $word */
         $section = $exportResult->getPhpWord()->getSection(0);
+
         return $section->getElements()[0]->getRows()[0]->getCells()[0]->getElements()[0]->getText();
     }
 

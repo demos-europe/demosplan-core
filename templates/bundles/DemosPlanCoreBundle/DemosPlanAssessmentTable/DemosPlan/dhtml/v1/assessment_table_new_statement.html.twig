@@ -522,6 +522,7 @@
                             data-cy="submitterForm:statementText"
                             required
                             :toolbar-items="{
+                                obscure: hasPermission('feature_obscure_text'),
                                 mark: true,
                                 strikethrough: true
                             }"

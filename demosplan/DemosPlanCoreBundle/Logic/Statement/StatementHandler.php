@@ -2285,22 +2285,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $reader->setEscape('');
         $reader->setDelimiter(';');
         $reader->setEnclosure('"');
-        // Ensure proper UTF-8 encoding by detecting and converting from potential encodings
         $records = $reader->getRecords();
-        $convertedRecords = [];
-
-        // Process records to ensure UTF-8 encoding
-        foreach ($records as $record) {
-            $convertedRow = [];
-            foreach ($record as $cell) {
-                $convertedRow[] = mb_convert_encoding($cell, 'UTF-8',
-                    mb_detect_encoding($cell, 'UTF-8, ISO-8859-1, ISO-8859-15', true));
-            }
-            $convertedRecords[] = $convertedRow;
-        }
-
-        // Create a new records collection from the converted data
-        $records = new \ArrayIterator($convertedRecords);
         $records->rewind();
         $columnTitles = [];
         if ($records->valid()) {

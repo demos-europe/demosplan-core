@@ -17,8 +17,7 @@ framework:
     session:
         handler_id: 'demosplan\DemosPlanCoreBundle\Logic\SessionHandler'
         cookie_secure: '%https_only%'
-        # could not be strict, as otherwise keycloak login does not work with an "invalid state" error
-        cookie_samesite: lax
+        cookie_samesite: strict
         storage_factory_id: session.storage.factory.native
 
     fragments:       ~
@@ -30,7 +29,6 @@ framework:
         default_options:
             max_redirects: 7
             proxy: '%proxy_dsn%'
-            cafile: '%cafile%'
 
     request:
         formats:

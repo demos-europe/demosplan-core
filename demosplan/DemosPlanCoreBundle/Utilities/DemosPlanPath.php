@@ -63,10 +63,9 @@ class DemosPlanPath
      */
     public static function getTemporaryPath(string $path = ''): string
     {
-        // store in a subdirectory to avoid conflicts with other applications
-        $tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR.'dplan';
-        if (!is_dir($tempDir) && !mkdir($tempDir, 0777, true) && !is_dir($tempDir)) {
-                throw new RuntimeException(sprintf('Directory "%s" was not created', $tempDir));
+        $tempDir = sys_get_temp_dir();
+        if (!is_dir($tempDir)) {
+            throw new RuntimeException('Could not determine temporary directory');
         }
 
         return $tempDir.DIRECTORY_SEPARATOR.$path;
@@ -75,6 +74,17 @@ class DemosPlanPath
     public static function getSystemFilesPath(string $path = ''): string
     {
         return 'system'.DIRECTORY_SEPARATOR.$path;
+    }
+
+    public static function makeTemporaryDir(string $path = '', $mode = 0777): string
+    {
+        $tempDir = static::getTemporaryPath($path);
+
+        if (!is_dir($tempDir) && !mkdir($tempDir, $mode, true) && !is_dir($tempDir)) {
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $tempDir));
+        }
+
+        return $tempDir;
     }
 
     /**

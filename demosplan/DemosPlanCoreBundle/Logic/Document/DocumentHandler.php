@@ -36,7 +36,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class DocumentHandler extends CoreHandler
 {
     final public const ACTION_SINGLE_DOCUMENT_NEW = 'singledocumentnew';
-    private const POSSIBLE_ENCODINGS = 'UTF-8, ISO-8859-1, ISO-8859-15';
 
     /**
      * @var SingleDocumentHandler
@@ -180,9 +179,7 @@ class DocumentHandler extends CoreHandler
         $createdDocuments = [];
 
         foreach ($entries as $entry) {
-            $fileName = (string) $entry['title'];
-            // Ensure the string is properly encoded to UTF-8
-            $fileName = mb_convert_encoding($fileName, 'UTF-8', mb_detect_encoding($fileName,self::POSSIBLE_ENCODINGS, true));
+            $fileName = utf8_decode((string) $entry['title']);
             if (in_array($entry['path'], $sessionElementImportList)) {
                 $keys = array_keys($sessionElementImportList, $entry['path']);
                 if (is_array($keys)
@@ -190,9 +187,6 @@ class DocumentHandler extends CoreHandler
                     && 0 < strlen((string) $request[$keys[0]])
                 ) {
                     $fileName = $request[$keys[0]];
-                    // Also ensure the string from request is properly encoded to UTF-8
-                    $fileName = mb_convert_encoding($fileName, 'UTF-8',
-                        mb_detect_encoding($fileName,self::POSSIBLE_ENCODINGS, true));
                 }
             }
             // Ordner werden als neue Elements abgespeichert
@@ -309,10 +303,8 @@ class DocumentHandler extends CoreHandler
                     ),
                 ];
             } else {
-                // Ensure proper UTF-8 encoding for filenames
-                $filename = basename($item->path());
-                $filename = mb_convert_encoding($filename, 'UTF-8',
-                    mb_detect_encoding($filename, self::POSSIBLE_ENCODINGS, true));
+                // utf8_decode filename, weil Zip Umlaute kaputt macht
+                $filename = utf8_decode(basename($item->path()));
 
                 $result[] = [
                     'isDir'  => false,

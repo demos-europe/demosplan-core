@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ec629af3080190bc0ee2416ba4f1c8cc",
+    "content-hash": "521ef5ed9d03cb543827b4c87554a4b3",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -4651,34 +4651,35 @@
         },
         {
             "name": "exercise/htmlpurifier-bundle",
-            "version": "5.0",
+            "version": "4.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Exercise/HTMLPurifierBundle.git",
-                "reference": "3a6420410366933841589552c680f42b8481b1e4"
+                "reference": "526c98e5b6ca712874d6422b98f32233b81f4c19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Exercise/HTMLPurifierBundle/zipball/3a6420410366933841589552c680f42b8481b1e4",
-                "reference": "3a6420410366933841589552c680f42b8481b1e4",
+                "url": "https://api.github.com/repos/Exercise/HTMLPurifierBundle/zipball/526c98e5b6ca712874d6422b98f32233b81f4c19",
+                "reference": "526c98e5b6ca712874d6422b98f32233b81f4c19",
                 "shasum": ""
             },
             "require": {
                 "ezyang/htmlpurifier": "~4.14",
-                "php": "^8.1",
-                "symfony/config": "^5.4 || ^6.0 || ^7.0",
-                "symfony/dependency-injection": "^5.4 || ^6.0 || ^7.0",
-                "symfony/http-kernel": "^5.4 || ^6.0 || ^7.0"
+                "php": "^7.1.3 || ^8.0.0",
+                "symfony/config": "~4.4 || ^5.0 || ^6.0",
+                "symfony/dependency-injection": "^4.4 || ^5.0 || ^6.0",
+                "symfony/http-kernel": "^4.4 || ^5.0 || ^6.0"
             },
             "require-dev": {
-                "symfony/form": "^5.4 || ^6.0 || ^7.0",
-                "symfony/phpunit-bridge": "^7.0",
-                "twig/twig": "^2.4.4 || ^3.0"
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "symfony/form": "^4.4 || ^5.0 || ^6.0",
+                "symfony/phpunit-bridge": "^6.0",
+                "twig/twig": "^1.35.0 || ^2.4.4 || ^3.0"
             },
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "5.x-dev"
+                    "dev-master": "4.x-dev"
                 }
             },
             "autoload": {
@@ -4706,9 +4707,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Exercise/HTMLPurifierBundle/issues",
-                "source": "https://github.com/Exercise/HTMLPurifierBundle/tree/v5.0-BETA1"
+                "source": "https://github.com/Exercise/HTMLPurifierBundle/tree/4.1.2"
             },
-            "time": "2023-11-16T11:41:23+00:00"
+            "time": "2023-07-05T07:14:30+00:00"
         },
         {
             "name": "ezimuel/guzzlestreams",
