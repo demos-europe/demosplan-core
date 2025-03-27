@@ -44,7 +44,7 @@ export default async function loadAddonComponents (hookName) {
         eval(content)
 
         addons.push({
-          entry: defineComponent(content),
+          component: defineComponent(content),
           name: addon.entry,
           options: addon.options ?? ''
         })

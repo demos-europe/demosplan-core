@@ -60,16 +60,16 @@ export default {
 
     console.log('test')
     const addons = await loadAddonComponents(this.hookName)
-    addons.forEach(addon => {
-      if (!this.$.appContext.components.hasOwnProperty(addon.name)) {
-        app.component(addon.name, window[addon.name].default)
-      }
-    })
+    // addons.forEach(addon => {
+    //   if (!this.$.appContext.components.hasOwnProperty(addon.name)) {
+    //     // app.component(addon.name, window[addon.name].default)
+    //   }
+    // })
 
     this.$nextTick(() => {
-      addons.forEach(addon => {
-        this.loadedAddons.value.push({
-          component: this.$.appContext.components[addon.name],
+      addons.forEach((addon, idx) => {
+        this.loadedAddons.push({
+          component: window[addon.name].default,
           name: addon.name
         })
       })
