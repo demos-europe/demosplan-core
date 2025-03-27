@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
+import { enableAutoUnmount } from '@vue/test-utils'
 import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
@@ -100,18 +101,27 @@ describe('ExportModal', () => {
     wrapper = shallowMountWithGlobalMocks(
       ExportModal,
       {
-        props
+        props,
+        global: {
+          renderStubDefaultSlot: true,
+          stubs: {
+            'dp-modal': {
+              template: '<div><slot /></div>',
+              methods: {
+                toggle: jest.fn()
+              }
+            }
+          }
+        }
       })
   })
 
-  afterEach(() => {
-    wrapper.unmount()
-  })
+  enableAutoUnmount(afterEach)
 
   it('displays each optGroup as tab', () => {
     const tabButtons = wrapper.findAll('button')
     const optGroups = Object.keys(props.options)
-    const buttonTexts = tabButtons.wrappers.map(button => button.text())
+    const buttonTexts = tabButtons.map(button => button.text())
 
     optGroups.forEach(key => {
       expect(buttonTexts).toContain(props.options[key].tabLabel)
@@ -131,10 +141,6 @@ describe('ExportModal', () => {
 
   it('triggers a "submit" event when the submit button is clicked', async () => {
     wrapper.vm.submit = jest.fn()
-    wrapper.vm.$refs.exportModal = {
-      toggle: jest.fn()
-    }
-
     wrapper.vm.handleSubmit()
 
     const event = wrapper.emitted('submit')

@@ -79,6 +79,30 @@ describe('StatementExportModal', () => {
     expect(inputs.length).toBe(0)
   })
 
+  it('renders checkboxes for isCitizenDataCensored, isInstitutionDataCensored and isObscure when export type is not xlsx', async () => {
+    await wrapper.setData({
+      active: 'docx_normal'
+    })
+    const censoredCitizen = wrapper.find('#censoredCitizen')
+    const censoredInstitution = wrapper.find('#censoredInstitution')
+    const obscured = wrapper.find('#obscured')
+
+    expect(censoredCitizen.exists()).toBe(true)
+    expect(censoredInstitution.exists()).toBe(true)
+    expect(obscured.exists()).toBe(true)
+  })
+
+  it('does not render checkboxes for isCensored and isObscure when export type is xlsx', async () => {
+    await wrapper.setData({ active: 'xlsx_normal' })
+    const censoredCitizen = wrapper.find('#censoredCitizen')
+    const censoredInstitution = wrapper.find('#censoredInstitution')
+    const obscured = wrapper.find('#obscured')
+
+    expect(censoredCitizen.exists()).toBe(false)
+    expect(censoredInstitution.exists()).toBe(false)
+    expect(obscured.exists()).toBe(false)
+  })
+
   it('emits export event with initial column titles when no changes are made', () => {
     wrapper.vm.handleExport()
     const exportEvent = wrapper.emitted('export')[0][0] /** It returns an array with all the occurrences of `this.$emit('export')` */
@@ -93,14 +117,18 @@ describe('StatementExportModal', () => {
       },
       fileNameTemplate: null,
       shouldConfirm: true,
-      censorParameter: false
+      isCitizenDataCensored: false,
+      isInstitutionDataCensored: false,
+      isObscured: false
     })
   })
 
   it('emits export event with updated col2 title', () => {
     wrapper.setData({
       docxColumns: {
-        col2: { title: 'Test Column Title' }
+        col1: { title: sessionStorageValue },
+        col2: { title: 'Test Column Title' },
+        col3: { title: null }
       }
     })
     wrapper.vm.handleExport()
@@ -116,7 +144,9 @@ describe('StatementExportModal', () => {
       },
       fileNameTemplate: null,
       shouldConfirm: true,
-      censorParameter: false
+      isCitizenDataCensored: false,
+      isInstitutionDataCensored: false,
+      isObscured: false
     })
   })
 
@@ -131,12 +161,52 @@ describe('StatementExportModal', () => {
       docxHeaders: null,
       fileNameTemplate: null,
       shouldConfirm: false,
-      censorParameter: false
+      isCitizenDataCensored: false,
+      isInstitutionDataCensored: false,
+      isObscured: false
     })
   })
 
-  it('emits export event with censorParameter true for docx_censored export type', () => {
-    wrapper.setData({ active: 'docx_censored' })
+  it('emits export event with isCitizenDataCensored true if censoredCitizen is selected', () => {
+    wrapper.setData({
+      active: 'docx_normal',
+      isCitizenDataCensored: true,
+      isInstitutionDataCensored: false,
+      exportTypes: {
+        docx_censored: { exportPath: 'dplan_statement_segments_export' }
+      },
+      docxColumns: {
+        col1: { title: sessionStorageValue },
+        col2: { title: 'Test Column Title' },
+        col3: { title: null }
+      }
+    })
+    wrapper.vm.handleExport()
+
+    const exportEvent = wrapper.emitted('export')[0][0]
+
+    expect(exportEvent).toBeTruthy()
+    expect(exportEvent).toEqual({
+      route: 'dplan_statement_segments_export',
+      docxHeaders: {
+        col1:sessionStorageValue,
+        col2: 'Test Column Title',
+        col3: null
+      },
+      fileNameTemplate: null,
+      shouldConfirm: true,
+      isCitizenDataCensored: true,
+      isInstitutionDataCensored: false,
+      isObscured: false
+    })
+  })
+
+  it('emits export event with isCitizenDataCensored true and isInstitutionDataCensored true for if censoredCitizen and censoredInstitution are selected', () => {
+    wrapper.setData({
+      active: 'docx_normal',
+      isInstitutionDataCensored: true,
+      isCitizenDataCensored: true
+    })
     wrapper.vm.handleExport()
     const exportEvent = wrapper.emitted('export')[0][0]
 
@@ -150,7 +220,39 @@ describe('StatementExportModal', () => {
       },
       fileNameTemplate: null,
       shouldConfirm: true,
-      censorParameter: true
+      isCitizenDataCensored: true,
+      isInstitutionDataCensored: true,
+      isObscured: false
+    })
+  })
+
+  it('emits export event with isObscured true for docx_obscured export type', () => {
+    wrapper.setData({
+      active: 'docx_normal',
+      isObscure: true,
+      docxColumns: {
+        col1: { title: sessionStorageValue },
+        col2: { title: 'Test Column Title' },
+        col3: { title: null }
+      }
+    })
+    wrapper.vm.handleExport()
+
+    const exportEvent = wrapper.emitted('export')[0][0]
+
+    expect(exportEvent).toBeTruthy()
+    expect(exportEvent).toEqual({
+      route: 'dplan_statement_segments_export',
+      docxHeaders: {
+        col1: sessionStorageValue,
+        col2: 'Test Column Title',
+        col3: null
+      },
+      fileNameTemplate: null,
+      shouldConfirm: true,
+      isCitizenDataCensored: false,
+      isInstitutionDataCensored: false,
+      isObscured: true
     })
   })
 
