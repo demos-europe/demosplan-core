@@ -22,7 +22,11 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\Shared\Converter;
+use PhpOffice\PhpWord\Style\Table;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
@@ -214,6 +218,98 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         ).'.docx';
         self::assertArrayHasKey($expectedBKey, $statements);
         self::assertSame($statementB->_real(), $statements[$expectedBKey]);
+    }
+
+
+    /**
+     * Test censoring on exporting a segment of statement
+     */
+    public function testExportCensoredSegments(): void
+    {
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
+
+        $styles = [
+            'orientation'  => 'landscape',
+            'marginLeft'   => Converter::cmToTwip(1.27),
+            'marginRight'  => Converter::cmToTwip(1.27),
+        ];
+
+        $section = $phpWord->addSection($styles);
+        $tableHeaders = [];
+        $statement = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
+
+        $this->sut->exportStatement($section, $statement->_real(), $tableHeaders, false);
+        /** @var Table $table */
+        $authorName = $section->getElements()[0]->getRows()[0]->getCells()[0]->getElements()[0]->getText();
+        static::assertEquals('statement_author_name_xyz', $authorName);
+
+        $section = $phpWord->addSection($styles);
+        $this->sut->exportStatement($section, $statement->_real(), $tableHeaders, true);
+        /** @var Table $table */
+        $authorName = $section->getElements()[0]->getRows()[0]->getCells()[0]->getElements()[0]->getText();
+        static::assertEquals('', $authorName);
+    }
+
+    /**
+     * Test censoring on exporting a single statement submitted by an institution.
+     * @dataProvider getCensorParams
+     */
+    public function testExportCensoringOnInternalStatement(
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
+    ): void {
+        $procedure = ProcedureFactory::createOne();
+        $internalStatement = StatementFactory::createOne(['procedure' => $procedure->_real(), ]);
+        $authorName =$this->exportAndGetAuthorName($internalStatement->_real(), $censorCitizenData, $censorInstitutionData);
+
+        if ($censorInstitutionData) {
+            static::assertEquals('', $authorName);
+        } else {
+            static::assertEquals('Einreichende Person unbekannt', $authorName);
+        }
+    }
+
+    /**
+     * Test censoring on exporting a single statement submitted by an citizen.
+     * @dataProvider getCensorParams
+     */
+    public function testExportCensoringOnExternalStatement(
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
+    ): void {
+        $citizenOrganisation = $this->find(Orga::class, User::ANONYMOUS_USER_ORGA_ID);
+        $procedure = ProcedureFactory::createOne();
+        $externalStatement = StatementFactory::createOne(
+            ['organisation' => $citizenOrganisation, 'procedure' => $procedure]
+        );
+
+        $authorName =$this->exportAndGetAuthorName($externalStatement->_real(), $censorCitizenData, $censorInstitutionData);
+
+        if ($censorCitizenData) {
+            static::assertEquals('', $authorName);
+        } else {
+            static::assertEquals('Einreichende Person unbekannt', $authorName);
+        }
+    }
+
+    private function exportAndGetAuthorName(
+        Statement $statement,
+        bool $censorCitizenData,
+        bool $censorInstitutionData
+    ): string {
+        // Word2007
+        $exportResult = $this->sut->export(
+            $statement->getProcedure(),
+            $statement,
+            [],
+            $censorCitizenData,
+            $censorInstitutionData,
+            false
+        );
+
+        /** @var PhpWord $word */
+        $section = $exportResult->getPhpWord()->getSection(0);
+        return $section->getElements()[0]->getRows()[0]->getCells()[0]->getElements()[0]->getText();
     }
 
     private function createMinimalTestStatement(
