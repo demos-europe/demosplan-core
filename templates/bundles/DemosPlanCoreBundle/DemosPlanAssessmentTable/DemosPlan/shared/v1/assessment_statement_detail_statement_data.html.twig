@@ -139,9 +139,6 @@
             {# submitter name #}
             {# editable only if manualStatement #}
             {% if hasPermission('field_statement_meta_submit_name') and formDefinitions.name.enabled == true %}
-                {% if not manualStatement or readonly %}
-                    {% set submittedAuthorDisabled = true %}
-                {% endif %}
 
                 <div class="u-1-of-2 inline-block u-pr-0_5">
                     {% block submitted_author_label %}
@@ -158,7 +155,7 @@
                         {{ uiComponent('form.label', {
                             id: submittedAuthorId,
                             text: 'name'|trans,
-                            disabled: submittedAuthorDisabled|default(false)
+                            disabled: false
                         }) }}
                     {% endblock submitted_author_label %}
 
@@ -206,7 +203,7 @@
                             name: submittedAuthorId,
                             class: submittedAuthorClass|default,
                             value: submittedAuthorValue,
-                            disabled: submittedAuthorDisabled|default(false),
+                            disabled: false,
                             attributes: ['data-cy=statementDetail:' ~ submittedAuthorId]
                         }) }}
                     {% endif %}
@@ -234,7 +231,6 @@
                     {% set submitterEmailAddressValue = statement.submitterEmailAddress %}
                 {% elseif readonly and manualStatement or not manualStatement %}
                     {# disable input #}
-                    {% set submitterEmailAddressDisabled = true %}
                     {% if statement.anonymous == true %}
                         {% set submitterEmailAddressValue = 'email.address.notavailable.anonymous'|trans %}
                     {% elseif statement.submitterEmailAddress is defined and statement.submitterEmailAddress|trim is not empty %}
@@ -261,7 +257,7 @@
                     elementSize: 'large',
                     elementStyle: submitterEmailAddressStyle|default,
                     elementClass: submitterEmailAddressClass|default,
-                    disabled: submitterEmailAddressDisabled|default(false),
+                    disabled: false,
                     attributes: ['data-cy=statementDetail:submitterEmailAddress']
                 }) }}
             {% endif %}
@@ -359,9 +355,6 @@
                     {% if (manualStatement and readonly) or not manualStatement %}
                         {# disable input fields #}
                         {% set houseNumberDisabled = true %}
-                        {% set streetDisabled = true %}
-                        {% set postalCodeDisabled = true %}
-                        {% set cityDisabled = true %}
 
                         {# if any of these is empty, set value to '-' #}
                         {% if statement.meta.orgaStreet|default == '' %}
@@ -391,7 +384,7 @@
                                 id: 'r_orga_street',
                                 elementClass: 'u-5-of-6 u-pr-0_5',
                                 elementStyle: 'inline-block',
-                                disabled: streetDisabled|default(false),
+                                disabled: false,
                                 attributes: ['data-cy=statementDetail:orgaStreet']
                             }) }}
 
@@ -403,7 +396,7 @@
                                     id: 'r_houseNumber',
                                     elementSize: 'tiny',
                                     elementStyle: 'inline-block',
-                                    disabled: houseNumberDisabled|default(false),
+                                    disabled: false,
                                     attributes: ['data-cy=statementDetail:houseNumber']
                                 }) }}
                             {% endif %}
@@ -418,7 +411,7 @@
                                 id: 'r_orga_postalcode',
                                 elementStyle: 'inline-block',
                                 elementSize: 'tiny',
-                                disabled: postalCodeDisabled|default(false),
+                                disabled: false,
                                 attributes: ['data-cy=statementDetail:orgaPostalcode']
                             }) }}
 
@@ -434,7 +427,7 @@
                                 id: 'r_orga_city',
                                 elementStyle: 'inline-block',
                                 elementClass: cityClasses,
-                                disabled: cityDisabled|default(false),
+                                disabled: false,
                                 attributes: ['data-cy=statementDetail:orgaCity']
                             }) }}
                         </div>
