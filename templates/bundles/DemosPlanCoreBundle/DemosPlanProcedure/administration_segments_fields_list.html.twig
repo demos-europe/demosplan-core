@@ -1,0 +1,15 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+        heading: 'Felder auf Abschnittsebene'|trans
+    } %}
+
+    <administration-segments-fields-list current-user-id="{{ currentUser.ident|default }}">
+    </administration-segments-fields-list>
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundle('procedure-administrationSegmentsFieldsList.js') }}
+{% endblock javascripts %}

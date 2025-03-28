@@ -2434,7 +2434,8 @@ class DemosPlanProcedureController extends BaseController
     #[Route(name: 'DemosPlan_procedure_template_places_list', path: '/verfahren/blaupause/{procedureId}/schritte')]
     public function showProcedurePlacesAction(string $procedureId)
     {
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_segments_fields_list.html.twig', [
+//        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
             'procedureId' => $procedureId,
         ]);
     }
