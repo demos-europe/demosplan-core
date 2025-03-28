@@ -10,8 +10,11 @@
 
 namespace Tests\Core\Document\Functional;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\ElementsFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\SingleDocumentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService;
 use Tests\Base\FunctionalTestCase;
 
@@ -258,7 +261,7 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertIsNumeric($result['modifydate']);
     }
 
-    public function testAdd()
+    public function testAdd(): void
     {
         $testElement = $this->fixtures->getReference('testSingleDocumentElement');
         $data = [
@@ -324,7 +327,102 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertCount(1, $versionsAfter);
     }
 
-    public function testUdpate()
+    public function testReportOnCreateSingleDocument(): void
+    {
+        $testElement = ElementsFactory::new()->create(['procedure' => $this->testProcedure]);
+
+        $data = [
+            'pId'               => $this->testProcedure->getId(),
+            'elementId'         => $testElement->getId(),
+            'category'          => 'category',
+            'order'             => 0,
+            'title'             => 'my title',
+            'text'              => 'my text',
+            'symbol'            => 'random symbol',
+            'document'          => 'some file',
+            'statement_enabled' => false,
+            'visible'           => true,
+            'deleted'           => false,
+        ];
+
+        $result = $this->sut->addSingleDocument($data);
+        $document = $this->find(SingleDocument::class, $result['id']);
+        static::assertInstanceOf(SingleDocument::class, $document);
+
+        $relatedReports = $this->getEntries(ReportEntry::class,
+            [
+                'group'           => 'singleDocument',
+                'category'        => ReportEntry::CATEGORY_ADD,
+                'identifierType'  => 'procedure',
+                'identifier'      => $this->testProcedure->getId(),
+            ]
+        );
+
+        static::assertCount(1, $relatedReports);
+        $relatedReport = $relatedReports[0];
+        static::assertInstanceOf(ReportEntry::class, $relatedReport);
+        $messageArray = $relatedReport->getMessageDecoded(false);
+
+        $this->assertSingleDocumentReportEntryMessageKeys($messageArray);
+        $this->assertSingleDocumentReportEntryMessageValues($document, $messageArray);
+    }
+
+    public function testReportOnUpdateSingleDocument(): void
+    {
+        $testDocument = SingleDocumentFactory::createOne();
+        $updatedDocument = $this->sut->updateSingleDocument([
+            'ident'             => $testDocument->getId(),
+            'title'             => 'my updated single document',
+            'text'              => 'a updated unique and nice text',
+            'statement_enabled' => true,
+            'visible'           => true,
+        ]);
+        $updatedDocument = $this->find(SingleDocument::class, $updatedDocument['ident']);
+
+        $relatedReports = $this->getEntries(ReportEntry::class,
+            [
+                'group'           => 'singleDocument',
+                'category'        => ReportEntry::CATEGORY_UPDATE,
+                'identifierType'  => 'procedure',
+                'identifier'      => $testDocument->getProcedure()->getId(),
+            ]
+        );
+
+        static::assertCount(1, $relatedReports);
+        $relatedReport = $relatedReports[0];
+        static::assertInstanceOf(ReportEntry::class, $relatedReport);
+        $messageArray = $relatedReport->getMessageDecoded(false);
+
+        $this->assertSingleDocumentReportEntryMessageKeys($messageArray);
+        $this->assertSingleDocumentReportEntryMessageValues($updatedDocument, $messageArray);
+    }
+
+    public function testReportOnDeleteSingleDocument(): void
+    {
+        $originDocument = SingleDocumentFactory::createOne();
+        $originId = $originDocument->getId();
+        $procedureId = $originDocument->getProcedure()->getId();
+        $result = $this->sut->deleteSingleDocument($originDocument->getId());
+        static::assertTrue($result);
+        $relatedReports = $this->getEntries(ReportEntry::class,
+            [
+                'group'           => 'singleDocument',
+                'category'        => ReportEntry::CATEGORY_DELETE,
+                'identifierType'  => 'procedure',
+                'identifier'      => $procedureId,
+            ]
+        );
+
+        static::assertCount(1, $relatedReports);
+        $relatedReport = $relatedReports[0];
+        static::assertInstanceOf(ReportEntry::class, $relatedReport);
+        $messageArray = $relatedReport->getMessageDecoded(false);
+
+        $this->assertSingleDocumentReportEntryMessageKeys($messageArray);
+        $this->assertSingleDocumentReportEntryMessageValues($originDocument->_real(), $messageArray, $originId);
+    }
+
+    public function testUpdate(): void
     {
         $data = [
             'ident'             => $this->testDocument->getId(),
@@ -340,5 +438,45 @@ class SingleDocumentServiceTest extends FunctionalTestCase
         static::assertEquals($data['statement_enabled'], $returnValue['statement_enabled']);
         static::assertEquals($data['visible'], $returnValue['visible']);
         static::assertEquals($data['title'], $returnValue['title']);
+    }
+
+    private function assertSingleDocumentReportEntryMessageKeys(array $messageArray): void
+    {
+        static::assertArrayHasKey('id', $messageArray);
+        static::assertArrayHasKey('title', $messageArray);
+        static::assertArrayHasKey('text', $messageArray);
+        static::assertArrayHasKey('category', $messageArray);
+        static::assertArrayHasKey('fileName', $messageArray);
+        static::assertArrayHasKey('relatedElementCategory', $messageArray);
+        static::assertArrayHasKey('relatedElementTitle', $messageArray);
+        static::assertArrayHasKey('visible', $messageArray);
+        static::assertArrayHasKey('statement_enabled', $messageArray);
+        static::assertArrayHasKey('keyOfInternalPhase', $messageArray);
+        static::assertArrayHasKey('keyOfEternalPhase', $messageArray);
+        static::assertArrayHasKey('nameOfInternalPhase', $messageArray);
+        static::assertArrayHasKey('nameOfExternalPhase', $messageArray);
+        static::assertArrayHasKey('date', $messageArray);
+    }
+
+    private function assertSingleDocumentReportEntryMessageValues(
+        SingleDocument $document,
+        array $messageArray,
+        ?string $originId = null,
+    ): void {
+        $id = $originId ?? $document->getId();
+
+        static::assertEquals($id, $messageArray['id']);
+        static::assertEquals($document->getTitle(), $messageArray['title']);
+        static::assertEquals($document->getText(), $messageArray['text']);
+        static::assertEquals($document->getCategory(), $messageArray['category']);
+        static::assertEquals($document->getFileInfo()->getFileName(), $messageArray['fileName']);
+        static::assertEquals($document->getElement()->getCategory(), $messageArray['relatedElementCategory']);
+        static::assertEquals($document->getElement()->getTitle(), $messageArray['relatedElementTitle']);
+        static::assertEquals($document->getVisible(), $messageArray['visible']);
+        static::assertEquals($document->isStatementEnabled(), $messageArray['statement_enabled']);
+        static::assertEquals($document->getProcedure()->getPhase(), $messageArray['keyOfInternalPhase']);
+        static::assertEquals($document->getProcedure()->getPublicParticipationPhase(), $messageArray['keyOfEternalPhase']);
+        static::assertEquals($document->getProcedure()->getPhaseName(), $messageArray['nameOfInternalPhase']);
+        static::assertEquals($document->getProcedure()->getPublicParticipationPhaseName(), $messageArray['nameOfExternalPhase']);
     }
 }
