@@ -128,7 +128,7 @@ export default {
     }),
 
     hasContent () {
-      return this.transformedCategories && this.transformedCategories.length > 0
+      return this.transformedCategories?.length > 0
     },
 
     transformedCategories () {
