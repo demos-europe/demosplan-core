@@ -82,7 +82,7 @@
                     tabindex="-1"
                     aria-haspopup="true"
                     aria-expanded="false"
-                    @click.prevent="$root.$emit('exportModal:toggle', '{{tab}}')"
+                    @click.prevent="toggleExportModal('{{tab}}')"
                 >
                     <i class="fa fa-share-square u-mr-0_125" aria-hidden="true"></i>
                     {{ buttonLabelSingle|trans }}

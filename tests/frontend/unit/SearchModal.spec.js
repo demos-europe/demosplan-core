@@ -6,7 +6,7 @@
  *
  * All rights reserved
  */
-
+import { beforeEach, describe, expect, it, jest } from '@jest/globals'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
@@ -40,7 +40,12 @@ describe('SearchModal', () => {
 
     const wrapper = shallowMountWithGlobalMocks(
       SearchModal,
-      { store }
+      {
+        store,
+        global: {
+          renderStubDefaultSlot: true
+        }
+      }
     )
 
     expect(wrapper.html()).toMatchSnapshot()

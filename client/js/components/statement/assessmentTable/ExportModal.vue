@@ -54,10 +54,10 @@
               v-model="exportChoice.pdf.anonymous"
               data-cy="exportModal:pdfAnonymous"
               :label="{
-                  bold: true,
-                  hint: Translator.trans('explanation.export.anonymous'),
-                  text: Translator.trans('export.anonymous')
-                }"
+                bold: true,
+                hint: Translator.trans('explanation.export.anonymous'),
+                text: Translator.trans('export.anonymous')
+              }"
               name="pdfAnonymous" />
           </fieldset>
 
@@ -72,9 +72,9 @@
               v-model="exportChoice.pdf.newPagePerStn"
               data-cy="exportModal:newPagePerStn"
               :label="{
-                  bold: true,
-                  text: Translator.trans('export.newPagePerStatement')
-                }"
+                bold: true,
+                text: Translator.trans('export.newPagePerStatement')
+              }"
               name="newPagePerStn" />
           </fieldset>
 
@@ -92,10 +92,10 @@
               :class="{ 'mb-1': index !== Object.keys(pdfTemplateOptions).length - 1 }"
               :data-cy="`exportModal:pdfTemplate_${identifier}`"
               :label="{
-                  bold: true,
-                  hint: pdfTemplateOptions[identifier].explanation || '',
-                  text: Translator.trans(pdfTemplateOptions[identifier].name)
-                }"
+                bold: true,
+                hint: pdfTemplateOptions[identifier].explanation || '',
+                text: Translator.trans(pdfTemplateOptions[identifier].name)
+              }"
               name="pdfTemplate"
               :value="identifier"
               @change="exportChoice.pdf.template = identifier" />
@@ -113,9 +113,9 @@
               class="mb-1"
               data-cy="exportModal:pdfExportTypeStatementsOnly"
               :label="{
-                  bold: true,
-                  text: Translator.trans('statements')
-                }"
+                bold: true,
+                text: Translator.trans('statements')
+              }"
               name="pdfExportType"
               value="statementsOnly"
               @change="exportChoice.pdf.exportType = 'statementsOnly'" />
@@ -124,10 +124,10 @@
               :checked="exportChoice.pdf.exportType === 'statementsAndFragments'"
               data-cy="exportModal:pdfExportTypeStatementsAndFragments"
               :label="{
-                  bold: true,
-                  hint: Translator.trans('explanation.export.statementsAndFragments'),
-                  text: Translator.trans('fragments')
-                }"
+                bold: true,
+                hint: Translator.trans('explanation.export.statementsAndFragments'),
+                text: Translator.trans('fragments')
+              }"
               name="pdfExportType"
               value="statementsAndFragments"
               @change="exportChoice.pdf.exportType = 'statementsAndFragments'" />
@@ -164,20 +164,20 @@
               class="mb-1"
               data-cy="exportModal:docxNumberStatements"
               :label="{
-                  bold: true,
-                  text: Translator.trans('export.numbered_statements'),
-                  hint: Translator.trans('explanation.export.numbered_statements')
-                  }"
+                bold: true,
+                text: Translator.trans('export.numbered_statements'),
+                hint: Translator.trans('explanation.export.numbered_statements')
+              }"
               v-model="exportChoice.docx.numberStatements" />
             <dp-checkbox
               id="docxAnonymous"
               v-model="exportChoice.docx.anonymous"
               data-cy="exportModal:docxObscure"
               :label="{
-                  bold: true,
-                  hint: Translator.trans('explanation.export.anonymous'),
-                  text: Translator.trans('export.anonymous')
-                }" />
+                bold: true,
+                hint: Translator.trans('explanation.export.anonymous'),
+                text: Translator.trans('export.anonymous')
+              }" />
           </fieldset>
 
           <fieldset
@@ -194,10 +194,10 @@
               :class="{ 'mb-1': index !== Object.keys(docxTemplateOptions).length - 1 }"
               :data-cy="`exportModal:docxTemplate_${identifier}`"
               :label="{
-                  bold: true,
-                  hint: docxTemplateOptions[identifier].explanation ? Translator.trans(docxTemplateOptions[identifier].explanation) : '',
-                  text: Translator.trans(docxTemplateOptions[identifier].name)
-                }"
+                bold: true,
+                hint: docxTemplateOptions[identifier].explanation ? Translator.trans(docxTemplateOptions[identifier].explanation) : '',
+                text: Translator.trans(docxTemplateOptions[identifier].name)
+              }"
               name="docxTemplate"
               :value="identifier"
               @change="exportChoice.docx.template = identifier" />
@@ -215,9 +215,9 @@
               class="mb-1"
               data-cy="exportModal:docxExportTypeStatementsOnly"
               :label="{
-                  bold: true,
-                  text: Translator.trans('statements')
-                }"
+                bold: true,
+                text: Translator.trans('statements')
+              }"
               value="statementsOnly"
               @change="() => handleDocxExportTypeChange('statementsOnly')" />
             <dp-radio
@@ -225,9 +225,9 @@
               :checked="exportChoice.docx.exportType === 'statementsAndFragments'"
               data-cy="exportModal:docxExportTypeStatementsAndFragments"
               :label="{
-                  bold: true,
-                  text: Translator.trans('fragments')
-                }"
+                bold: true,
+                text: Translator.trans('fragments')
+              }"
               value="statementsAndFragments"
               @change="() => handleDocxExportTypeChange('statementsAndFragments')" />
           </fieldset>
@@ -245,10 +245,10 @@
               class="mb-1"
               data-cy="exportModal:docxSortTypeDefault"
               :label="{
-                  bold: true,
-                  hint: exportChoice.docx.exportType === 'statementsAndFragments' ? Translator.trans('explanation.export.statementsAndFragments') : '',
-                  text: Translator.trans('assessmenttable.view.mode.default')
-                }"
+                bold: true,
+                hint: exportChoice.docx.exportType === 'statementsAndFragments' ? Translator.trans('explanation.export.statementsAndFragments') : '',
+                text: Translator.trans('assessmenttable.view.mode.default')
+              }"
               value="default"
               @change="exportChoice.docx.sortType = 'default'" />
             <dp-radio
@@ -256,17 +256,17 @@
               :checked="isDocxSortTypeByParagraphChecked"
               data-cy="exportModal:docxSortTypeByParagraph"
               :label="{
-                  bold: true,
-                  text: Translator.trans('groupedBy.elements')
-                }"
+                bold: true,
+                text: Translator.trans('groupedBy.elements')
+              }"
               :value="exportChoice.docx.exportType === 'statementsAndFragments' ? 'byParagraphFragmentsOnly' : 'byParagraph'"
               @change="handleDocxSortTypeByParagraphChange" />
           </fieldset>
           <!--end of sorting type-->
 
           <p
-            v-if="!options.docx.anonymize && !options.docx.obscure && !options.docx.exportTypes && !options.docx.templates">
-            class="ml-2 mt-2"
+            v-if="!options.docx.anonymize && !options.docx.obscure && !options.docx.exportTypes && !options.docx.templates"
+            class="ml-2 mt-2">
             {{ Translator.trans('explanation.export.anonymous') }}
           </p>
 
@@ -295,10 +295,10 @@
               v-model="exportChoice.xlsx.anonymous"
               data-cy="exportModal:xlsxAnonymous"
               :label="{
-                  bold: true,
-                  hint: Translator.trans('explanation.export.anonymous'),
-                  text: Translator.trans('export.anonymous')
-                }" />
+                bold: true,
+                hint: Translator.trans('explanation.export.anonymous'),
+                text: Translator.trans('export.anonymous')
+              }" />
           </fieldset>
 
           <fieldset
@@ -313,10 +313,10 @@
               class="mb-1"
               data-cy="exportModal:xlsxExportTypeTopicsAndTags"
               :label="{
-                  bold: true,
-                  hint: Translator.trans('explanation.export.topicsAndTags'),
-                  text: Translator.trans('export.topicsAndTags')
-                }"
+                bold: true,
+                hint: Translator.trans('explanation.export.topicsAndTags'),
+                text: Translator.trans('export.topicsAndTags')
+              }"
               name="xlsxExportType"
               value="topicsAndTags"
               @change="exportChoice.xlsx.exportType = 'topicsAndTags'" />
@@ -327,10 +327,10 @@
               :class="{'mb-1': hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx')}"
               data-cy="exportModal:xlsxExportTypePotentialAreas"
               :label="{
-                  bold: true,
-                  hint: Translator.trans('explanation.export.potentialAreas'),
-                  text: Translator.trans('export.potentialAreas')
-                }"
+                bold: true,
+                hint: Translator.trans('explanation.export.potentialAreas'),
+                text: Translator.trans('export.potentialAreas')
+              }"
               name="xlsxExportType"
               value="potentialAreas"
               @change="exportChoice.xlsx.exportType = 'potentialAreas'" />
@@ -340,10 +340,10 @@
               :checked="exportChoice.xlsx.exportType === 'statements'"
               data-cy="exportModal:xlsxExportTypeStatement"
               :label="{
-                  bold: true,
-                  hint: Translator.trans('explanation.export.statements', { hasSelectedElements: hasSelectedElements }),
-                  text: Translator.trans('statements')
-                }"
+                bold: true,
+                hint: Translator.trans('explanation.export.statements', { hasSelectedElements: hasSelectedElements }),
+                text: Translator.trans('statements')
+              }"
               name="xlsxExportType"
               value="statements"
               @change="exportChoice.xlsx.exportType = 'statements'" />
@@ -379,10 +379,10 @@
               :class="{ 'mb-1': index !== Object.keys(zipTemplateOptions).length - 1 }"
               :data-cy="`exportModal:zipTemplate_${identifier}`"
               :label="{
-                  bold: true,
-                  hint: zipTemplateOptions[identifier].explanation || '',
-                  text: Translator.trans(zipTemplateOptions[identifier].name)
-                }"
+                bold: true,
+                hint: zipTemplateOptions[identifier].explanation || '',
+                text: Translator.trans(zipTemplateOptions[identifier].name)
+              }"
               name="zipTemplate"
               :value="identifier"
               @change="exportChoice.zip.template = identifier" />
@@ -715,7 +715,6 @@ export default {
 
   mounted () {
     this.currentTab = this.defaultTab
-    this.$root.$on('exportModal:toggle', (tab) => this.toggleModal(tab))
   }
 }
 </script>

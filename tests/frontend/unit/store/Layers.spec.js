@@ -7,13 +7,10 @@
  * All rights reserved
  */
 
+import { createStore } from 'vuex'
 import { apiData } from '../__mocks__/layer_json.mock'
-import { createLocalVue } from '@vue/test-utils'
 import Layers from '@DpJs/store/map/Layers'
-import Vuex from 'vuex'
 
-const LocalVue = createLocalVue()
-LocalVue.use(Vuex)
 let StubStore
 
 // Non-instance tests
@@ -41,7 +38,7 @@ describe('Layer-Store', () => {
 // Active tests
 describe('Layers', () => {
   beforeEach(() => {
-    StubStore = new Vuex.Store({})
+    StubStore = createStore({})
     StubStore.registerModule('Layers', Layers)
   })
 

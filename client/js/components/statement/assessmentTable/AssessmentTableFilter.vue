@@ -61,7 +61,8 @@
       class="c-at__controls o-sticky o-sticky--border space-stack-xs u-pt-0_5 u-pb-0_25"
       ref="header">
       <search-and-sorting
-        :search-term="searchTerm" />
+        :search-term="searchTerm"
+        @exportModal:toggle="tab => $emit('exportModal:toggle', tab)" />
 
       <div class="flex items-center space-inline-m">
         <!-- mark all -->
@@ -87,7 +88,7 @@
             type="button"
             aria-haspopup="true"
             aria-expanded="false"
-            @click.prevent="$root.$emit('exportModal:toggle', exportModalOptions.tab)">
+            @click.prevent="$emit('exportModal:toggle', exportModalOptions.tab)">
             <i
               class="fa fa-share-square u-mr-0_125"
               aria-hidden="true" />
@@ -122,7 +123,7 @@
                   data-actionmenu-menuitem
                   role="menuitem"
                   tabindex="-1"
-                  @click.prevent="$root.$emit('exportModal:toggle', Object.keys(option)[0])">
+                  @click.prevent="$emit('exportModal:toggle', Object.keys(option)[0])">
                   {{ Translator.trans(Object.values(option)[0].buttonLabel) }}
                 </button>
               </div>
