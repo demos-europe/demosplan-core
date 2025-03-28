@@ -5,10 +5,12 @@
         heading: 'survey.comments.moderate'|trans,
         subnav: [
             {
+                datacy: 'administrationList:editSurvey',
                 href: path('dplan_survey_edit', { 'procedureId': procedure, 'surveyId': surveyId }),
                 label: 'survey.edit'
             },
             {
+                datacy: 'administrationList:moderateSurveyComments',
                 href: path('dplan_survey_show', { 'procedureId': procedure, 'surveyId': surveyId }),
                 label: 'survey.comments.moderate',
                 current: true

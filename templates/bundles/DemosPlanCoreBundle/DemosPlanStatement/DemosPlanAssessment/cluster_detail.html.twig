@@ -15,6 +15,7 @@
         {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
             heading: 'statement.cluster'|trans ~ ' ' ~ statement.externId|default,
             subnav: [{
+                datacy: 'clusterDetail:saveChanges',
                 href: '#',
                 id: 'groupHistory',
                 label: 'history',
