@@ -2435,7 +2435,7 @@ class DemosPlanProcedureController extends BaseController
     public function showProcedurePlacesAction(string $procedureId)
     {
         return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_segments_fields_list.html.twig', [
-//        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
+            //        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
             'procedureId' => $procedureId,
         ]);
     }
