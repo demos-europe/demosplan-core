@@ -158,10 +158,14 @@ export default {
   },
 
   methods: {
+    fold () {
+      this.unfolded = false
+    },
+
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
       if (unfolded) {
-        this.$root.$emit('map-tools:unfolded')
+        this.$emit('map-tools:unfolded')
       }
     },
 
@@ -176,8 +180,6 @@ export default {
   },
 
   created () {
-    this.$root.$on('custom-layer:unfolded layer-list:unfolded layer-legend:unfolded', () => { this.unfolded = false })
-
     this.$root.$on('changeActive', () => {
       this.checkIfActive()
     })

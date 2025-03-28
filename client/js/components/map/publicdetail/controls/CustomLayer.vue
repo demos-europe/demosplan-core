@@ -88,22 +88,20 @@ export default {
       }
     },
 
+    fold () {
+      this.unfolded = false
+    },
+
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
       if (unfolded) {
-        this.$root.$emit('custom-layer:unfolded')
+        this.$emit('custom-layer:unfolded')
       }
     },
 
     prefixClass (classList) {
       return prefixClass(classList)
     }
-  },
-
-  created () {
-    this.$root.$on('layer-list:unfolded map-tools:unfolded layer-legend:unfolded', () => {
-      this.unfolded = false
-    })
   }
 }
 </script>

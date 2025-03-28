@@ -36,6 +36,7 @@ const Filter = {
     filterList: [],
     // Available options for filters
     filterListOptions: {},
+    filters: {},
     original: false,
     procedureId: null,
     // Selected options for all filters
@@ -107,6 +108,13 @@ const Filter = {
 
     setCurrentSearch (state, searchTerm) {
       state.currentSearch = searchTerm
+    },
+
+    setLoading(state, { filterId, isLoading }) {
+      if (!state.filters[filterId]) {
+        state.filters[filterId] = {}
+      }
+      state.filters[filterId].isLoading = isLoading
     },
 
     /**
@@ -420,6 +428,8 @@ const Filter = {
       }
       return []
     },
+
+    isLoading: (state) => (filterId) => state.filters[filterId]?.isLoading || false,
 
     /**
      * Get procedure id
