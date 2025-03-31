@@ -50,7 +50,7 @@ const SplitStatementStore = {
     deleteSegment (state, id) {
       const index = state.segments.findIndex((el) => el.id === id)
       if (index >= 0) {
-        delete state.segments[index]
+        state.segments.splice(index, 1)
       }
     },
 
@@ -98,7 +98,7 @@ const SplitStatementStore = {
       state.segments = state.initialSegments
     },
 
-    setProperty (state, {prop, val}) {
+    setProperty (state, { prop, val }) {
       state[prop] = val
     },
 
@@ -123,7 +123,7 @@ const SplitStatementStore = {
         state[prop][titleIdx] = obj
       } else if (idIdx >= 0 && titleIdx >= 0) {
         // If id and title exist, delete element
-        delete state[prop][idIdx]
+        state[prop].splice(idIdx, 1)
       }
     }
   },
