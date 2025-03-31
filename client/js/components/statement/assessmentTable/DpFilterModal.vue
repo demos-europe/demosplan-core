@@ -249,6 +249,10 @@ export default {
     }
   },
 
+  emits: [
+    'close'
+  ],
+
   data () {
     return {
       activeTabId: null,

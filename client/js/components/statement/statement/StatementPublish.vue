@@ -103,10 +103,6 @@ export default {
     VotingStatus
   },
 
-  emits: [
-    'update'
-  ],
-
   props: {
     editable: {
       type: Boolean,
@@ -138,6 +134,10 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'update'
+  ],
 
   data () {
     return {

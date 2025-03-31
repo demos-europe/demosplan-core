@@ -99,12 +99,6 @@ export default {
     DpSearchField
   },
 
-  emits: [
-    'changeFields',
-    'reset',
-    'search'
-  ],
-
   props: {
     elasticsearchFieldDefinition: {
       required: true,
@@ -144,6 +138,12 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'changeFields',
+    'reset',
+    'search'
+  ],
 
   data () {
     return {

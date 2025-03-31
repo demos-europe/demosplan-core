@@ -176,6 +176,10 @@ export default {
     }
   },
 
+  emits: [
+    'export'
+  ],
+
   data () {
     return {
       active: 'docx_normal',

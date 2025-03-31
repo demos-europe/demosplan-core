@@ -107,11 +107,6 @@ export default {
     DpSelect
   },
 
-  emits: [
-    'date:changed',
-    'status:changed'
-  ],
-
   props: {
     dateId: {
       required: true,
@@ -177,6 +172,11 @@ export default {
       type: Array
     }
   },
+
+  emits: [
+    'date:changed',
+    'status:changed'
+  ],
 
   data () {
     return {

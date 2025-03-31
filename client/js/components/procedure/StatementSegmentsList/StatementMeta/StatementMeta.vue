@@ -217,6 +217,13 @@ export default {
     }
   },
 
+  emits: [
+    'close',
+    'input',
+    'save',
+    'updatedVoters'
+  ],
+
   data () {
     return {
       activeItem: 'entry',

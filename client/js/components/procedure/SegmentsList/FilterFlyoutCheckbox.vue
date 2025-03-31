@@ -39,10 +39,6 @@ export default {
     DpContextualHelp
   },
 
-  emits: [
-    'change'
-  ],
-
   props: {
     checked: {
       type: Boolean,
@@ -76,6 +72,10 @@ export default {
       default: false
     }
   },
+
+  emits: [
+    'change'
+  ],
 
   methods: {
     toggle () {

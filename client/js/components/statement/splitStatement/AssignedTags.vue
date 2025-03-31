@@ -40,10 +40,6 @@ export default {
     DpIcon
   },
 
-  emits: [
-    'remove'
-  ],
-
   props: {
     availableTags: {
       type: Array,
@@ -65,6 +61,10 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'remove'
+  ],
 
   methods: {
     assignTagSizeClasses (tag, idx) {

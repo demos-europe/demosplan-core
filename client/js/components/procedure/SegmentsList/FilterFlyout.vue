@@ -185,11 +185,6 @@ export default {
     FilterFlyoutCheckbox
   },
 
-  emits: [
-    'filterApply',
-    'filterOptions:request'
-  ],
-
   props: {
     additionalQueryParams: {
       type: Object,
@@ -252,6 +247,11 @@ export default {
       }
     }
   },
+
+  emits: [
+    'filterApply',
+    'filterOptions:request'
+  ],
 
   data () {
     return {

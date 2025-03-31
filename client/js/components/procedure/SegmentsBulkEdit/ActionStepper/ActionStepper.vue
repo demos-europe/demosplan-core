@@ -71,12 +71,6 @@ export default {
     DpButton
   },
 
-  emits: [
-    'apply',
-    'confirm',
-    'edit'
-  ],
-
   props: {
     busy: {
       type: Boolean,
@@ -104,6 +98,12 @@ export default {
       default: 1
     }
   },
+
+  emits: [
+    'apply',
+    'confirm',
+    'edit'
+  ],
 
   computed: {
     sanitizedReturnLink () {
