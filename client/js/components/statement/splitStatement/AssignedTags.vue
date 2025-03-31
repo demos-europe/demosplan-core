@@ -40,6 +40,10 @@ export default {
     DpIcon
   },
 
+  emits: [
+    'remove'
+  ],
+
   props: {
     availableTags: {
       type: Array,

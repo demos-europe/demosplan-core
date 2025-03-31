@@ -88,7 +88,6 @@
 import { defineAsyncComponent } from 'vue'
 import VotingStatus from './VotingStatus'
 
-
 export default {
   name: 'StatementPublish',
 
@@ -103,6 +102,10 @@ export default {
     }),
     VotingStatus
   },
+
+  emits: [
+    'update'
+  ],
 
   props: {
     editable: {

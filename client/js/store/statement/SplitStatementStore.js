@@ -98,7 +98,7 @@ const SplitStatementStore = {
       state.segments = state.initialSegments
     },
 
-    setProperty (state, {prop, val}) {
+    setProperty (state, { prop, val }) {
       state[prop] = val
     },
 

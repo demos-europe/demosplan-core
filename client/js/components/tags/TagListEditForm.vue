@@ -93,6 +93,13 @@ export default {
     DpInput
   },
 
+  emits: [
+    'abort',
+    'delete',
+    'edit',
+    'save'
+  ],
+
   props: {
     isInEditState: {
       type: String,

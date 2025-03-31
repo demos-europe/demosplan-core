@@ -39,6 +39,10 @@ export default {
     DpContextualHelp
   },
 
+  emits: [
+    'change'
+  ],
+
   props: {
     checked: {
       type: Boolean,
