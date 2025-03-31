@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
-class ManualOriginalStatementCreatedEvent extends StatementCreatedEvent
+use DemosEurope\DemosplanAddon\Contracts\Events\ManualOriginalStatementCreatedEventInterface;
+
+class ManualOriginalStatementCreatedEvent extends StatementCreatedEvent implements ManualOriginalStatementCreatedEventInterface
 {
 }
