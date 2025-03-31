@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
-
 use Doctrine\ORM\Mapping as ORM;
 
 /**

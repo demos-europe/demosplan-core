@@ -12,13 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceConfigBuilder;
 
-use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseStatementVoteResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomField;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
-use EDT\JsonApi\PropertyConfig\Builder\ToManyRelationshipConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
 
 /**
@@ -31,7 +27,6 @@ use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, CustomField> $fieldType
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, CustomField> $name
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, CustomField> $description
- *
  */
 class CustomFieldConfigBuilder extends MagicResourceConfigBuilder
 {

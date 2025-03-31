@@ -12,53 +12,44 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PhaseDTO;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\ConditionFactory\ConditionFactoryInterface;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
-use EDT\DqlQuerying\ObjectProviders\DoctrineOrmEntityProvider;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
 use EDT\Querying\Pagination\PagePagination;
 use Pagerfanta\Pagerfanta;
 use Webmozart\Assert\Assert;
 
 /**
-
  * @template-implements RepositoryInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, >
  */
 class CustomFieldJsonRepository implements RepositoryInterface
 {
-
     public function __construct(
         protected readonly EntityManagerInterface $entityManager,
-        protected readonly ConditionFactoryInterface       $conditionFactory,
+        protected readonly ConditionFactoryInterface $conditionFactory,
         private readonly CustomFieldService $customFieldService,
     ) {
-
     }
-
 
     public function getEntityByIdentifier(string $id, array $conditions, array $identifierPropertyPath): object
     {
-        //[$procedureId, $customFieldName] = explode('_', $id, 2);
+        // [$procedureId, $customFieldName] = explode('_', $id, 2);
         $identifierCondition = $this->conditionFactory->propertyHasValue($id, $identifierPropertyPath);
         $conditions[] = $identifierCondition;
         $entities = $this->entityManager->getEntities($conditions, [], null);
 
-
-
-       $this->customFieldService->loadFromJsonOnlyList();
+        $this->customFieldService->loadFromJsonOnlyList();
 
         return match (count($entities)) {
-            0       => throw new InvalidArgumentException("No matching BLABLA entity found."),
+            0       => throw new InvalidArgumentException('No matching BLABLA entity found.'),
             1       => array_pop($entities),
-            default => throw new InvalidArgumentException("Multiple matching BLABLA entities found.")
+            default => throw new InvalidArgumentException('Multiple matching BLABLA entities found.'),
         };
     }
 

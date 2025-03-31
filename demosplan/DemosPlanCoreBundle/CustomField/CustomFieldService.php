@@ -10,8 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
-use demosplan\DemosPlanCoreBundle\StoredQuery\StoredQueryInterface;
-
 class CustomFieldService
 {
     private const TYPE_CLASSES = [
@@ -48,7 +46,7 @@ class CustomFieldService
 
     public function loadFromJsonAParticularCustomField(
         ?array $json,
-        string $customFieldType
+        string $customFieldType,
     ): ?CustomFieldInterface {
         return collect(self::TYPE_CLASSES)
             ->map(

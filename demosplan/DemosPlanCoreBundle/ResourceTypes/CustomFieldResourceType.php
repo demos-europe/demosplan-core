@@ -12,13 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-
-
-
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiPaginationInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceTypeInjectionTrait;
-
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
@@ -34,12 +30,10 @@ use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilder;
 use EDT\JsonApi\PropertyConfig\Builder\IdentifierConfigBuilder;
 use EDT\JsonApi\ResourceConfig\ResourceConfigInterface;
 use EDT\JsonApi\ResourceTypes\AbstractResourceType;
-
-use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\PathBuilding\End;
 use EDT\PathBuilding\PropertyAutoPathInterface;
 use EDT\PathBuilding\PropertyAutoPathTrait;
-
+use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
@@ -47,30 +41,28 @@ use EDT\Wrapping\ResourceBehavior\ResourceUpdatability;
 use IteratorAggregate;
 use League\Fractal\TransformerAbstract;
 use Pagerfanta\Pagerfanta;
-use EDT\Querying\Contracts\PropertyPathInterface;
-
 
 /** LEARNINGS
- * implementing PropertyAutoPathInterface makes it available to attributes from the entity
+ * implementing PropertyAutoPathInterface makes it available to attributes from the entity.
  */
 
 /**
  * @template-extends DplanResourceType<CustomField>
+ *
  * @property-read End $name
  * @property-read End $caption
+ *
  * @method bool isNullSafe(int $index)
  */
-
 final class CustomFieldResourceType extends AbstractResourceType implements JsonApiResourceTypeInterface, PropertyPathInterface, IteratorAggregate, PropertyAutoPathInterface
 {
     use PropertyAutoPathTrait;
     use DoctrineResourceTypeInjectionTrait;
 
     public function __construct(private readonly CustomFieldService $customFieldService,
-                                protected readonly ConditionFactoryInterface $conditionFactory)
+        protected readonly ConditionFactoryInterface $conditionFactory)
     {
     }
-
 
     public function getEntityClass(): string
     {
@@ -85,15 +77,13 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     protected function getAccessConditions(): array
     {
         return [];
-        //return [$this->conditionFactory->true()];
+        // return [$this->conditionFactory->true()];
     }
-
 
     protected function getInstantiability(): ResourceInstantiability
     {
         return $this->getResourceConfig()->getInstantiability();
     }
-
 
     protected function getDefaultSortMethods(): array
     {
@@ -109,20 +99,18 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
         $configBuilder->id->readable();
         $configBuilder->name->readable();
-        //$configBuilder->type->readable();
+        // $configBuilder->type->readable();
 
         return $configBuilder->build();
     }
+
     protected function getIdentifierPropertyPath(): array
     {
         return ['name'];
     }
 
-
-
     public function getTransformer(): TransformerAbstract
     {
-
         return new DynamicTransformer(
             $this->getTypeName(),
             $this->getEntityClass(),
@@ -134,15 +122,13 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     protected function getProperties(): array
     {
-
         return [
             $this->createIdentifier()->readable(
                 ''),
             $this->createAttribute($this->name)->readable(true),
-            $this->createAttribute($this->caption)->readable(true)
+            $this->createAttribute($this->caption)->readable(true),
         ];
     }
-
 
     /**
      * @return IdentifierConfigBuilder<TEntity>
@@ -151,7 +137,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     {
         return $this->getPropertyBuilderFactory()->createIdentifier($this->getEntityClass());
     }
-
 
     /**
      * @return AttributeConfigBuilder<ClauseFunctionInterface<bool>, TEntity>
@@ -163,9 +148,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             $path
         );
     }
-
-
-
 
     public function isAvailable(): bool
     {
@@ -293,8 +275,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isIndex(int $index)
     {
-       return 0;
+        return 0;
     }
-
-
 }

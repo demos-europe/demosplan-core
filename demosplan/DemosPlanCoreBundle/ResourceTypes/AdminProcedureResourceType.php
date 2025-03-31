@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
 
 /**
@@ -72,14 +71,12 @@ final class AdminProcedureResourceType extends DplanResourceType
         $creationDate = $this->createAttribute($this->creationDate)->aliasedPath($this->createdDate);
         $segmentCustomFieldsTemplate = $this->createToManyRelationship($this->segmentCustomFieldsTemplate)
             ->readable(true, function (Procedure $procedure): ?ArrayCollection {
-
                 if (null === $procedure->getSegmentCustomFieldsTemplate()) {
                     return null;
                 }
 
                 /** @var CustomFieldList $segmentCustomfieldsTemplate */
                 $segmentCustomfieldsTemplate = $procedure->getSegmentCustomFieldsTemplate();
-
 
                 return new ArrayCollection($segmentCustomfieldsTemplate->getCustomFields());
             });

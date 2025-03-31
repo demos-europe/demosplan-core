@@ -350,7 +350,7 @@ class ResourceTypeStore
         UserFilterSetResourceType $userFilterSetResourceType,
         UserResourceType $userResourceType,
         UserRoleInCustomerResourceType $userRoleInCustomerResourceType,
-        CustomFieldResourceType $customFieldResourceType
+        CustomFieldResourceType $customFieldResourceType,
     ) {
         $this->adminProcedureResourceType = $adminProcedureResourceType;
         $this->administratableUserResourceType = $administratableUserResourceType;

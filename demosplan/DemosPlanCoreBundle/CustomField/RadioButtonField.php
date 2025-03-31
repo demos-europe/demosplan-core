@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 
 class RadioButtonField extends AbstractCustomField
 {
-
     /**
      * @var string
      */
