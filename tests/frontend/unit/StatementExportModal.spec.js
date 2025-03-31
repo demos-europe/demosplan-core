@@ -162,7 +162,7 @@ describe('StatementExportModal', () => {
     const exportEvent = wrapper.emitted('export')[0][0]
     const payload = {
       ...defaultPayload,
-      route: 'dplan_statement_segments_export',
+      route: 'dplan_statement_xls_export',
       docxHeaders: null,
       shouldConfirm: false
     }
@@ -181,6 +181,7 @@ describe('StatementExportModal', () => {
     const exportEvent = wrapper.emitted('export')[0][0]
     const payload = {
       ...defaultPayload,
+      isCitizenDataCensored: true,
       route: 'dplan_statement_segments_export',
       shouldConfirm: true
     }
