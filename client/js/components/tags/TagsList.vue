@@ -11,7 +11,6 @@
       align-toggle="center"
       :branch-identifier="isBranch"
       class="mb-4"
-      :has-content="hasContent"
       :options="{
         branchesSelectable: false,
         dragAcrossBranches: true,
