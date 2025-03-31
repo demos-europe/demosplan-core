@@ -132,7 +132,8 @@
               v-if="hasOwnProp(municipalityGroup,'options')"
               :label="municipalityGroup.label">
               <option
-                v-for="county in municipalityGroup.options"
+                v-for="(county, idx) in municipalityGroup.options"
+                :key="`county:${idx}`"
                 :selected="county.value === form.municipalCode"
                 :value="county.value">
                 {{ county.title }}
