@@ -61,7 +61,7 @@
     "goetas-webservices/xsd2php-runtime": "^0.2.2",
     "guzzlehttp/guzzle": "^7",
     "illuminate/collections": "^10.48",
-    "intervention/image": "^2.5",
+    "intervention/image": "^3.11",
     "jfcherng/php-diff": "^6.0",
     "jmikola/geojson": "^1.0",
     "jms/serializer-bundle": "^5.2",
