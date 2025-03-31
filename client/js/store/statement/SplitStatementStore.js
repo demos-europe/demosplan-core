@@ -237,7 +237,7 @@ const SplitStatementStore = {
              * (because often that are closing or opening tags)
              * and should probably not be needed in a real world scenario.
              */
-            .filter(segment => (segment.charEnd - segment.charStart) > 10)
+            .filter(segment => segment && (segment.charEnd - segment.charStart) > 10)
 
           // Check if we are getting overlapping segments from pipeline that would cause errors
           if (doUpdate) {
