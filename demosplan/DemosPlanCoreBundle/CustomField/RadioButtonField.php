@@ -12,6 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 
 class RadioButtonField extends AbstractCustomField
 {
+
+    /**
+     * @var string
+     */
+    protected $id = '123';
+
     /**
      * @var string
      */
@@ -98,5 +104,10 @@ class RadioButtonField extends AbstractCustomField
     public function getCustomFieldsList(): ?array
     {
         return [];
+    }
+
+    public function getType(): string
+    {
+        return 'radio_button';
     }
 }

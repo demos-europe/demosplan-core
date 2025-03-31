@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
+use demosplan\DemosPlanCoreBundle\StoredQuery\StoredQueryInterface;
+
 class CustomFieldService
 {
     private const TYPE_CLASSES = [
@@ -42,5 +44,64 @@ class CustomFieldService
                 }
             )
             ->first();
+    }
+
+    public function loadFromJsonAParticularCustomField(
+        ?array $json,
+        string $customFieldType
+    ): ?CustomFieldInterface {
+        return collect(self::TYPE_CLASSES)
+            ->map(
+                static function (string $customFieldClass) {
+                    // explicitly switch the classes to get IDE-findable class uses
+                    $customField = null;
+
+                    if (CustomFieldList::class == $customFieldClass) {
+                        $customField = new CustomFieldList();
+                    }
+
+                    return new CustomFieldList();
+                }
+            )
+            ->filter(
+                static fn (CustomFieldInterface $customField) => $customField->getType() === $customFieldType
+            )
+            ->map(
+                static function (CustomFieldInterface $customField) use (
+                    $json
+                ) {
+                    $customField->fromJson($json);
+
+                    return $customField;
+                }
+            )
+            ->first();
+    }
+
+    public function loadFromJsonOnlyList(
+        ?array $json,
+    ): ?CustomFieldInterface {
+        return collect(self::TYPE_CLASSES)
+            ->map(
+                static function (string $customFieldClass) {
+                    // explicitly switch the classes to get IDE-findable class uses
+                    $customField = null;
+
+                    if (CustomFieldList::class == $customFieldClass) {
+                        $customField = new CustomFieldList();
+                    }
+
+                    return new CustomFieldList();
+                }
+            )
+            ->map(
+                static function (CustomFieldInterface $customField) use (
+                    $json
+                ) {
+                    $customField->fromJson($json);
+
+                    return $customField;
+                }
+            );
     }
 }

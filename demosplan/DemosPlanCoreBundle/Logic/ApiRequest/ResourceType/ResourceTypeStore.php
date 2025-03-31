@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\CountyResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerContactResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerLoginSupportContactResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomFieldResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\DepartmentResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\EmailAddressResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\EmailResourceType;
@@ -264,6 +265,8 @@ class ResourceTypeStore
 
     protected UserRoleInCustomerResourceType $userRoleInCustomerResourceType;
 
+    protected CustomFieldResourceType $customFieldResourceType;
+
     public function __construct(
         AdminProcedureResourceType $adminProcedureResourceType,
         AdministratableUserResourceType $administratableUserResourceType,
@@ -347,6 +350,7 @@ class ResourceTypeStore
         UserFilterSetResourceType $userFilterSetResourceType,
         UserResourceType $userResourceType,
         UserRoleInCustomerResourceType $userRoleInCustomerResourceType,
+        CustomFieldResourceType $customFieldResourceType
     ) {
         $this->adminProcedureResourceType = $adminProcedureResourceType;
         $this->administratableUserResourceType = $administratableUserResourceType;
@@ -430,6 +434,7 @@ class ResourceTypeStore
         $this->userFilterSetResourceType = $userFilterSetResourceType;
         $this->userResourceType = $userResourceType;
         $this->userRoleInCustomerResourceType = $userRoleInCustomerResourceType;
+        $this->customFieldResourceType = $customFieldResourceType;
     }
 
     public function getAdminProcedureResourceType(): AdminProcedureResourceType
@@ -840,5 +845,10 @@ class ResourceTypeStore
     public function getUserRoleInCustomerResourceType(): UserRoleInCustomerResourceType
     {
         return $this->userRoleInCustomerResourceType;
+    }
+
+    public function getCustomFieldResourceType(): CustomFieldResourceType
+    {
+        return $this->customFieldResourceType;
     }
 }

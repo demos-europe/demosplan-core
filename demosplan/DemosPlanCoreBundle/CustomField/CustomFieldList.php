@@ -38,6 +38,11 @@ class CustomFieldList extends AbstractCustomField
         return 'segment_custom_fields';
     }
 
+    public function getType(): string
+    {
+        return 'segment_custom_fields';
+    }
+
     public function fromJson(array $json): void
     {
         $this->name = $json['name'];

@@ -18,6 +18,8 @@ use demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use EDT\PathBuilding\End;
 
 /**
@@ -49,7 +51,7 @@ use EDT\PathBuilding\End;
  * @property-read End                           $externalStartDate
  * @property-read End                           $externalPhaseIdentifier
  * @property-read End                           $externalPhaseTranslationKey
- * @property-read End                           $segmentCustomFieldsTemplate
+ * @property-read CustomFieldResourceType       $segmentCustomFieldsTemplate
  * @property-read CustomerResourceType          $customer
  */
 final class AdminProcedureResourceType extends DplanResourceType
@@ -68,27 +70,18 @@ final class AdminProcedureResourceType extends DplanResourceType
         $id = $this->createIdentifier()->readable();
         $name = $this->createAttribute($this->name);
         $creationDate = $this->createAttribute($this->creationDate)->aliasedPath($this->createdDate);
-        $segmentCustomFieldsTemplate = $this->createAttribute($this->segmentCustomFieldsTemplate)
-            ->readable(false, function (Procedure $procedure): ?array {
+        $segmentCustomFieldsTemplate = $this->createToManyRelationship($this->segmentCustomFieldsTemplate)
+            ->readable(true, function (Procedure $procedure): ?ArrayCollection {
+
                 if (null === $procedure->getSegmentCustomFieldsTemplate()) {
                     return null;
                 }
 
-                $customFields = $procedure->getSegmentCustomFieldsTemplate()->toJson();
+                /** @var CustomFieldList $segmentCustomfieldsTemplate */
+                $segmentCustomfieldsTemplate = $procedure->getSegmentCustomFieldsTemplate();
 
-                return $customFields;
-            })
-            ->updatable([], function (Procedure $procedure, array $customFieldsList): array {
-                $customFieldsObjectList = $this->customFieldService->loadFromJson($customFieldsList);
-                // if you send a fields that is not conformant wit what says in json, it will ignore it
-                // if you do not send a field that is supposed to be in the object, it will throw an exception
-                $listOfCustomFields = $customFieldsObjectList->getCustomFieldsList();
 
-                $procedure->setSegmentCustomFieldsTemplate($customFieldsObjectList);
-
-                // I need a way  that read the customFieldsList json, validates it and then it will store it in the database
-
-                return [];
+                return new ArrayCollection($segmentCustomfieldsTemplate->getCustomFields());
             });
 
         $properties = [

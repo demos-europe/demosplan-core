@@ -12,10 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
+
+use Doctrine\ORM\Mapping as ORM;
+
 /**
- * Type-checking interface for storable query sets.
- *
- * Query Sets are stored
+ * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository")
  */
 interface CustomFieldInterface
 {
@@ -24,6 +25,8 @@ interface CustomFieldInterface
      * the object to json mapping in the database.
      */
     public function getFormat(): string;
+
+    public function getType(): string;
 
     /**
      * Will be called during database fetch
