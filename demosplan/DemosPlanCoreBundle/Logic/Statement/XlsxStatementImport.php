@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\ManualOriginalStatementCreatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
@@ -89,7 +90,10 @@ class XlsxStatementImport
                 }
 
                 /** @var StatementCreatedEvent $statementCreatedEvent */
-                $statementCreatedEvent = $this->eventDispatcher->post(new ManualOriginalStatementCreatedEvent($statement));
+                $statementCreatedEvent = $this->eventDispatcher->dispatch(
+                    new ManualOriginalStatementCreatedEvent($statement),
+                    ManualOriginalStatementCreatedEventInterface::class,
+                );
 
                 // inform user about statement similarities is not necessary
 
