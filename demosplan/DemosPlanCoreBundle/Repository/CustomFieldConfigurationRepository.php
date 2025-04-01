@@ -12,14 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
-use DemosEurope\DemosplanAddon\Permission\AccessControl\AccessControlRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
-use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use Doctrine\ORM\NoResultException;
 use Exception;
 
 class CustomFieldConfigurationRepository extends CoreRepository
@@ -43,11 +36,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-    /**
-
-     *
-     */
-    public function getCustomFieldConfigurationByProcedureId(string $procedureId, string $valueEntityClasses = "segment"): ?CustomFieldConfiguration
+    public function getCustomFieldConfigurationByProcedureId(string $procedureId, string $valueEntityClasses = 'segment'): ?CustomFieldConfiguration
     {
         try {
             $criteria = ['templateEntityId' => $procedureId];
@@ -56,9 +45,9 @@ class CustomFieldConfigurationRepository extends CoreRepository
 
             return $this->findOneBy($criteria);
         } catch (Exception $e) {
-            $this->logger->warning('Error fetching CustomFieldConfiguration: ' . $e->getMessage());
+            $this->logger->warning('Error fetching CustomFieldConfiguration: '.$e->getMessage());
+
             return null;
         }
-
     }
 }

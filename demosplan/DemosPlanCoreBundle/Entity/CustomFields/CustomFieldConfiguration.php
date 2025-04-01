@@ -11,21 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\CustomFields;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Entities\FaqInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
-use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository")
- *
  */
 class CustomFieldConfiguration extends CoreEntity
 {
@@ -44,18 +36,21 @@ class CustomFieldConfiguration extends CoreEntity
 
     /**
      * @var string
+     *
      * @ORM\Column(name="template_entity_id", type="string", length=36, nullable=false)
      */
     protected $templateEntityId;
 
     /**
      * @var string
+     *
      * @ORM\Column(name="template_entity_class", type="string", nullable=false)
      */
     protected $templateEntityClass;
 
     /**
      * @var string
+     *
      * @ORM\Column(name="value_entity_class", type="string", nullable=false)
      */
     protected $valueEntityClass;
@@ -85,10 +80,8 @@ class CustomFieldConfiguration extends CoreEntity
      */
     protected $modifyDate;
 
-
-    public function getConfiguration() : ?CustomFieldList
+    public function getConfiguration(): ?CustomFieldList
     {
         return $this->configuration;
     }
-
 }

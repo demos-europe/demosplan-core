@@ -73,9 +73,7 @@ final class AdminProcedureResourceType extends DplanResourceType
         $creationDate = $this->createAttribute($this->creationDate)->aliasedPath($this->createdDate);
         $segmentCustomFieldsTemplate = $this->createToManyRelationship($this->segmentCustomFieldsTemplate)
             ->readable(true, function (Procedure $procedure): ?ArrayCollection {
-
                 /** @var CustomFieldConfiguration $customFieldConfiguration */
-
                 $customFieldConfiguration = $this->customFieldConfigurationRepository->getCustomFieldConfigurationByProcedureId($procedure->getId());
                 if (null === $customFieldConfiguration) {
                     return null;
