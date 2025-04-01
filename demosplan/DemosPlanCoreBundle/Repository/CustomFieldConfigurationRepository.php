@@ -50,4 +50,19 @@ class CustomFieldConfigurationRepository extends CoreRepository
             return null;
         }
     }
+
+    public function updateObject($entity): CustomFieldConfiguration
+    {
+        try {
+
+            $em = $this->getEntityManager();
+            $em->persist($entity);
+            $em->flush();
+
+            return $entity;
+        } catch (Exception $e) {
+            $this->logger->error('Update CustomFieldConfiguration failed Reason: ', [$e]);
+            throw $e;
+        }
+    }
 }

@@ -14,10 +14,13 @@ use DateTime;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Persistence\NotifyPropertyChanged;
+use Doctrine\Persistence\PropertyChangedListener;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository")
+ * @ORM\ChangeTrackingPolicy("DEFERRED_EXPLICIT")
  */
 class CustomFieldConfiguration extends CoreEntity
 {
@@ -80,8 +83,16 @@ class CustomFieldConfiguration extends CoreEntity
      */
     protected $modifyDate;
 
+
     public function getConfiguration(): ?CustomFieldList
     {
         return $this->configuration;
     }
+
+    public function setConfiguration(CustomFieldList $configuration): void
+    {
+        $this->configuration = $configuration;
+    }
+
+
 }

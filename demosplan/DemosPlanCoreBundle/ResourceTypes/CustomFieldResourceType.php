@@ -14,12 +14,19 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiPaginationInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceCreateFlushEvent;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceTypeInjectionTrait;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
+use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomField;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTypeTrait;
+use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldConfigBuilder;
 use EDT\ConditionFactory\ConditionFactoryInterface;
@@ -28,6 +35,7 @@ use EDT\JsonApi\InputHandling\RepositoryInterface;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilder;
 use EDT\JsonApi\PropertyConfig\Builder\IdentifierConfigBuilder;
+use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\ResourceConfigInterface;
 use EDT\JsonApi\ResourceTypes\AbstractResourceType;
 use EDT\PathBuilding\End;
@@ -35,9 +43,11 @@ use EDT\PathBuilding\PropertyAutoPathInterface;
 use EDT\PathBuilding\PropertyAutoPathTrait;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Wrapping\Contracts\AccessException;
+use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use EDT\Wrapping\ResourceBehavior\ResourceUpdatability;
+use Exception;
 use IteratorAggregate;
 use League\Fractal\TransformerAbstract;
 use Pagerfanta\Pagerfanta;
@@ -59,8 +69,9 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     use PropertyAutoPathTrait;
     use DoctrineResourceTypeInjectionTrait;
 
-    public function __construct(private readonly CustomFieldService $customFieldService,
-        protected readonly ConditionFactoryInterface $conditionFactory)
+
+    public function __construct(private readonly CustomFieldService          $customFieldService,
+                                protected readonly ConditionFactoryInterface $conditionFactory, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository, private readonly ResourceTypeService $resourceTypeService)
     {
     }
 
@@ -98,7 +109,11 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         );
 
         $configBuilder->id->readable();
-        $configBuilder->name->readable();
+        $configBuilder->name->readable()->initializable();
+        $configBuilder->caption->readable()->initializable();
+       // $configBuilder->templateEntity->readable()->initializable();
+        $configBuilder->templateEntityId->readable()->initializable();
+
         // $configBuilder->type->readable();
 
         return $configBuilder->build();
@@ -276,5 +291,92 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     public function isIndex(int $index)
     {
         return 0;
+    }
+
+    public function createEntity(CreationDataInterface $entityData): ModifiedEntity
+    {
+        try {
+            return $this->getTransactionService()->executeAndFlushInTransaction(
+                function () use ($entityData): ModifiedEntity {
+
+                    $attributes = $entityData->getAttributes();
+
+
+                    /** @var CustomFieldConfiguration $customFieldConfiguration */
+                    $customFieldConfiguration = $this->customFieldConfigurationRepository->getCustomFieldConfigurationByProcedureId( $attributes['templateEntityId']);
+
+                    //If exists, then merge this customField
+                    if($customFieldConfiguration){
+                        /** @var CustomFieldList $configuration */
+                        $configuration = $customFieldConfiguration->getConfiguration();
+
+                        $customFieldsList = $configuration->getCustomFieldsList();
+
+                        $radioButton = new RadioButtonField();
+                        $radioButton->setType('radio_button');
+                        $radioButton->setName($attributes['name']);
+                        $radioButton->setCaption($attributes['caption']);
+
+                        $customFieldsList[] = $radioButton;
+
+                        $configuration->setCustomFields($customFieldsList);
+
+
+
+                        // Mark the entity as changed
+
+                        $customFieldConfiguration->setConfiguration($configuration);
+
+
+                        $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
+
+
+
+                        //$this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent($this, $radioButton));
+
+                        return new ModifiedEntity($radioButton, []);
+
+                    }
+
+                    //if it does not exist, create new entry
+
+                   // $toOneRelationships = $entityData->getToOneRelationships();
+
+                    return new ModifiedEntity(null, []);
+
+                    /*$currentCustomer = $this->customFieldConfigurationRepository->getCustomFieldConfigurationByProcedureId();
+                    $attributes = $entityData->getAttributes();
+
+                    // create support contact
+                    $contact = new SupportContact(
+                        SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT,
+                        $attributes[$this->title->getAsNamesInDotNotation()],
+                        $attributes[$this->phoneNumber->getAsNamesInDotNotation()],
+                        $attributes[$this->eMailAddress->getAsNamesInDotNotation()],
+                        $attributes[$this->text->getAsNamesInDotNotation()],
+                        $currentCustomer,
+                        $attributes[$this->visible->getAsNamesInDotNotation()],
+                    );
+
+                    // update customer
+                    $currentCustomer->getContacts()->add($contact);
+
+                    // validate entities
+                    $this->resourceTypeService->validateObject($contact);
+                    $this->resourceTypeService->validateObject($currentCustomer);
+
+                    // persist created entities
+                    $this->supportContactRepository->persistEntities([$contact]);
+
+                    $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent($this, $contact));
+
+                    return new ModifiedEntity($contact, []);*/
+                }
+            );
+        } catch (Exception $exception) {
+            $this->addCreationErrorMessage([]);
+
+            throw $exception;
+        }
     }
 }

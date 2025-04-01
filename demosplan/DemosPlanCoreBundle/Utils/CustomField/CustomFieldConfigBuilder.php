@@ -13,13 +13,19 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
+use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
 use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
 
 /**
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, CustomFieldInterface> $type
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, CustomFieldInterface> $name
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, CustomFieldInterface> $caption
+ * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,CustomFieldInterface,Procedure> $templateEntity
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, CustomFieldInterface> $templateEntityId
  */
 class CustomFieldConfigBuilder extends MagicResourceConfigBuilder
 {
