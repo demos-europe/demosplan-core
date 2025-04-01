@@ -125,6 +125,10 @@ export default {
     }
   },
 
+  emits: [
+    'click'
+  ],
+
   computed: {
     isAssigned () {
       return typeof this.assignedId === 'string' && this.assignedId.length > 0

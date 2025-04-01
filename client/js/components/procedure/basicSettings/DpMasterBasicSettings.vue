@@ -8,8 +8,8 @@
 </license>
 
 <script>
-import { defineAsyncComponent } from 'vue'
 import { DpContextualHelp, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 import DpEmailList from './DpEmailList'
 
 export default {

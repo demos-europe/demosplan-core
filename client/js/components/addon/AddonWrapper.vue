@@ -43,6 +43,10 @@ export default {
     }
   },
 
+  emits: [
+    'addons:loaded'
+  ],
+
   data () {
     return {
       loadedAddons: []
