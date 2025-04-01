@@ -36,7 +36,7 @@ class OrgaDeleter extends CoreService
         // delete orga slugs
         $this->deleteOrgaSlug($orgaIds, $isDryRun);
 
-        $this->procedureDeleter->deleteslugs($slugsIds, $isDryRun);
+        $this->procedureDeleter->deleteSlugs($slugsIds, $isDryRun);
 
         // delete organisations address book entry
         $this->deleteAddressBookEntry($orgaIds, $isDryRun);
