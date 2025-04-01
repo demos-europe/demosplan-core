@@ -143,7 +143,11 @@ class ProcedureDeleter
         $this->deleteProcedureSettingsAllowedSegmentProcedures($procedureIds, $isDryRun);
 
         // procedure_slug
+        $slugsIds = array_column($this->queriesService->fetchFromTableByParameter(['s_id'], 'procedure_slug', 'p_id', $procedureIds), 's_id');
+
         $this->deleteProcedureSlug($procedureIds, $isDryRun);
+
+        $this->deleteSlugs($slugsIds, $isDryRun);
 
         // procedure_user
         $this->deleteProcedureUser($procedureIds, $isDryRun);
@@ -398,6 +402,14 @@ class ProcedureDeleter
     private function deleteProcedureSlug(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('procedure_slug', 'p_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function deleteSlugs(array $slugsIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('slug', 'id', $slugsIds, $isDryRun);
     }
 
     /**
