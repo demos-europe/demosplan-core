@@ -22,7 +22,7 @@ use RuntimeException;
  */
 class CustomFieldType extends JsonType
 {
-    final public const DPLAN_STORED_QUERY = 'dplan.segment_custom_fields_template';
+    final public const DPLAN_STORED_QUERY = 'dplan.custom_fields_template';
 
     private const TYPE_CLASSES = [
         CustomFieldList::class,

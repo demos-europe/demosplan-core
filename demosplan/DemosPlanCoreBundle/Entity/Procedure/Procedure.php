@@ -36,6 +36,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTypeConstraint;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
@@ -589,12 +590,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     private $segmentPlaces;
 
-    /**
-     * @var CustomFieldInterface
-     *
-     * @ORM\Column(type="dplan.segment_custom_fields_template", nullable=true)
-     */
-    protected $segmentCustomFieldsTemplate;
+    protected CustomFieldConfiguration $customFieldConfiguration;
 
     public function __construct()
     {
@@ -2303,5 +2299,11 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function getSegmentCustomFieldsTemplate(): ?CustomFieldInterface
     {
         return $this->segmentCustomFieldsTemplate;
+    }
+
+
+    public function getCustomFieldConfiguration(): ?CustomFieldConfiguration
+    {
+        return $this->customFieldConfiguration;
     }
 }

@@ -15,9 +15,11 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
 use demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldType;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use EDT\PathBuilding\End;
 
@@ -55,7 +57,7 @@ use EDT\PathBuilding\End;
  */
 final class AdminProcedureResourceType extends DplanResourceType
 {
-    public function __construct(private readonly ProcedureResourceType $procedureResourceType, private readonly ProcedureService $procedureService, private readonly CustomFieldList $customFieldList, private readonly CustomFieldType $customFieldType, private readonly CustomFieldService $customFieldService)
+    public function __construct(private readonly ProcedureResourceType $procedureResourceType, private readonly ProcedureService $procedureService, private readonly CustomFieldList $customFieldList, private readonly CustomFieldType $customFieldType, private readonly CustomFieldService $customFieldService, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
     {
     }
 
@@ -71,12 +73,16 @@ final class AdminProcedureResourceType extends DplanResourceType
         $creationDate = $this->createAttribute($this->creationDate)->aliasedPath($this->createdDate);
         $segmentCustomFieldsTemplate = $this->createToManyRelationship($this->segmentCustomFieldsTemplate)
             ->readable(true, function (Procedure $procedure): ?ArrayCollection {
-                if (null === $procedure->getSegmentCustomFieldsTemplate()) {
+
+                /** @var CustomFieldConfiguration $customFieldConfiguration */
+
+                $customFieldConfiguration = $this->customFieldConfigurationRepository->getCustomFieldConfigurationByProcedureId($procedure->getId());
+                if (null === $customFieldConfiguration) {
                     return null;
                 }
 
                 /** @var CustomFieldList $segmentCustomfieldsTemplate */
-                $segmentCustomfieldsTemplate = $procedure->getSegmentCustomFieldsTemplate();
+                $segmentCustomfieldsTemplate = $customFieldConfiguration->getConfiguration();
 
                 return new ArrayCollection($segmentCustomfieldsTemplate->getCustomFields());
             });
