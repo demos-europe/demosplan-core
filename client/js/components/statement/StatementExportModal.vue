@@ -86,7 +86,7 @@
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored', 'docx_obscured', 'zip_obscured'].includes(this.active)">
+      <fieldset v-if="['docx_normal', 'zip_normal'].includes(this.active)">
         <legend
           id="docxColumnTitles"
           class="o-form__label text-base float-left mr-1"

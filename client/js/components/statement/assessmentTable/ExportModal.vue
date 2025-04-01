@@ -265,8 +265,8 @@
           <!--end of sorting type-->
 
           <p
-            v-if="!options.docx.anonymize && !options.docx.obscure && !options.docx.exportTypes && !options.docx.templates">
-            class="ml-2 mt-2"
+            v-if="!options.docx.anonymize && !options.docx.obscure && !options.docx.exportTypes && !options.docx.templates"
+            class="ml-2 mt-2">
             {{ Translator.trans('explanation.export.anonymous') }}
           </p>
 
@@ -715,7 +715,6 @@ export default {
 
   mounted () {
     this.currentTab = this.defaultTab
-    this.$root.$on('exportModal:toggle', (tab) => this.toggleModal(tab))
   }
 }
 </script>

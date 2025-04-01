@@ -6,28 +6,31 @@
  *
  * All rights reserved
  */
+import { createStore } from 'vuex'
 import DpBulkEditStatement from '@DpJs/components/statement/assessmentTable/DpBulkEditStatement'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import StatementStore from '@DpJs/store/statement/Statement'
-import Vuex from 'vuex'
+
 
 describe('DpBulkEditStatement', () => {
   let store
   let wrapper
 
   beforeEach(() => {
-    store = new Vuex.Store({
+    store = createStore({
       modules: {
         Statement: StatementStore
       }
     })
 
     wrapper = shallowMountWithGlobalMocks(DpBulkEditStatement, {
-      store,
-      propsData: {
+      props: {
         authorisedUsers: [],
         currentUserId: '1',
         procedureId: '1'
+      },
+      global: {
+        plugins: [store]
       }
     })
   })
