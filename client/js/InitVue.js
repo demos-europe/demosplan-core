@@ -107,6 +107,12 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
 
     app.mount('#app')
 
+    /*
+     * We need a global vue instance
+     * so addons can use it, when evaluated on the fly
+     */
+    window.Vue = app
+
     Promise.resolve(app)
   })
 }
