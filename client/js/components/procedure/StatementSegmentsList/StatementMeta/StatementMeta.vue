@@ -217,6 +217,13 @@ export default {
     }
   },
 
+  emits: [
+    'close',
+    'input',
+    'save',
+    'updatedVoters'
+  ],
+
   data () {
     return {
       activeItem: 'entry',
@@ -372,7 +379,7 @@ export default {
     window.addEventListener('scroll', this.handleScroll)
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     window.removeEventListener('scroll', this.handleScroll)
   }
 }

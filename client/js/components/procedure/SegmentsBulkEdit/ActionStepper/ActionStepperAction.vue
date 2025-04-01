@@ -63,6 +63,10 @@ export default {
       required: true,
       type: String
     }
-  }
+  },
+
+  emits: [
+    'change'
+  ]
 }
 </script>

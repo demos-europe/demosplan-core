@@ -802,6 +802,12 @@ export default {
     }
   },
 
+  emits: [
+    'statement:addToSelection',
+    'statement:updated',
+    'statement:removeFromSelection'
+  ],
+
   data () {
     return {
       // We have to use $store.state... notation because at that moment the maps for state/getters are not yet initialized

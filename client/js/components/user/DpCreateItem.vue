@@ -49,8 +49,8 @@
 
 <script>
 import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
-import { mapActions } from 'vuex'
 import { defineAsyncComponent } from 'vue'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'DpCreateItem',

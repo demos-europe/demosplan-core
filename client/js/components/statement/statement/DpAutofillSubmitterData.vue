@@ -164,6 +164,7 @@ const emptySubmitterData = {
 
 export default {
   name: 'DpAutofillSubmitterData',
+
   components: {
     DpContextualHelp,
     DpInput,
@@ -231,6 +232,11 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'role-changed',
+    'submitter:chosen'
+  ],
 
   data () {
     return {

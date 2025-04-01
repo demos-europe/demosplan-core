@@ -79,7 +79,7 @@ export default {
   data () {
     return {
       options: {
-        dragLeaves: true,
+        dragLeaves: true
       },
       treeListData: null,
       categories: null,
@@ -177,31 +177,31 @@ export default {
         categoryIds = [parentId]
       }
 
-      // remove item from old category, add to new category
+      // Remove item from old category, add to new category
       categoryIds.forEach(id => {
         const category = JSON.parse(JSON.stringify(this.faqCategories[id]))
         const children = category.relationships.faq.data
         const itemIsChild = children.findIndex(child => child.id === item.id) !== -1
 
-        // move to another category
+        // Move to another category
         if (sourceId !== targetId) {
           if (itemIsChild) {
-            // remove item from old category
+            // Remove item from old category
             children.splice(event.oldIndex, 1)
             this.updateCategory({ ...category, id: category.id })
           } else {
-            // add item to new category
+            // Add item to new category
             children.splice(event.newIndex, 0, { id: item.id, type: item.type })
             this.updateCategory({ ...category, id: category.id })
           }
         }
 
-        // move inside the same category
+        // Move inside the same category
         if (sourceId === targetId) {
           if (itemIsChild) {
-            // remove item from old position
+            // Remove item from old position
             const item = children.splice(event.oldIndex, 1)[0]
-            // add item at new position
+            // Add item at new position
             children.splice(event.newIndex, 0, item)
             this.updateCategory({ ...category, id: category.id })
           }

@@ -75,6 +75,10 @@ export default {
     }
   },
 
+  emits: [
+    'insert'
+  ],
+
   data () {
     return {
       // Needed to make sure boilerplates are loaded from the BE before <dp-boiler-plate> component is mounted

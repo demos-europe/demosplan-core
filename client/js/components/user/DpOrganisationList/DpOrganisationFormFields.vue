@@ -793,10 +793,6 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  emits: [
-    'organisation-update'
-  ],
-
   props: {
     additionalFieldOptions: {
       type: Array,
@@ -883,6 +879,12 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'addon-update',
+    'addonOptions:loaded',
+    'organisation-update'
+  ],
 
   data () {
     return {
