@@ -32,8 +32,11 @@ class OrgaDeleter extends CoreService
      */
     public function deleteOrganisations(array $orgaIds, bool $isDryRun): void
     {
+        $slugsIds = array_column($this->queriesService->fetchFromTableByParameter(['s_id'], 'orga_slug', 'o_id', $orgaIds), 's_id');
         // delete orga slugs
         $this->deleteOrgaSlug($orgaIds, $isDryRun);
+
+        $this->procedureDeleter->deleteslugs($slugsIds, $isDryRun);
 
         // delete organisations address book entry
         $this->deleteAddressBookEntry($orgaIds, $isDryRun);
