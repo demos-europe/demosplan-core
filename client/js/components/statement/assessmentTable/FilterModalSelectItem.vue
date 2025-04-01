@@ -143,6 +143,7 @@ export default {
   },
 
   emits: [
+    'updated-filters',
     'updating-filters',
     'update-selected'
   ],

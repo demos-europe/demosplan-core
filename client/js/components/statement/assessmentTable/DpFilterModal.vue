@@ -46,31 +46,31 @@
           {{ Translator.trans('filter.modalTitle') }}
         </h2>
 
-          <!-- Select with saved filter sets -->
-          <div
-            v-if="userFilterSetSaveEnabled">
-            <dp-multiselect
-              id="userFilterSets"
-              v-model="selectedUserFilterSet"
-              :custom-label="nameFromAttributes"
-              data-cy="userFilterSets"
-              :options="userFilterSets"
-              track-by="id">
-              <template v-slot:option="{ props }">
-                <a
-                  class="multiselect__option-extention"
-                  href="#"
-                  @click.prevent="deleteSavedFilterSet(props.option.id)">
-                  <i
-                    class="fa fa-trash"
-                    aria-hidden="true" />
-                </a>
-                {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
-              </template>
-              <template v-slot:singleLabel="{ props }">
-                {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
-              </template>
-            </dp-multiselect>
+        <!-- Select with saved filter sets -->
+        <div
+          v-if="userFilterSetSaveEnabled">
+          <dp-multiselect
+            id="userFilterSets"
+            v-model="selectedUserFilterSet"
+            :custom-label="nameFromAttributes"
+            data-cy="userFilterSets"
+            :options="userFilterSets"
+            track-by="id">
+            <template v-slot:option="{ props }">
+              <a
+                class="multiselect__option-extention"
+                href="#"
+                @click.prevent="deleteSavedFilterSet(props.option.id)">
+                <i
+                  class="fa fa-trash"
+                  aria-hidden="true" />
+              </a>
+              {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
+            </template>
+            <template v-slot:singleLabel="{ props }">
+              {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
+            </template>
+          </dp-multiselect>
 
           <div class="text--right u-mb u-pt-0_5">
             <button
@@ -83,30 +83,30 @@
           </div>
         </div>
 
-          <!-- Tabs with filters -->
-          <dp-tabs
-            :active-id="activeTabId"
-            tab-size="medium"
-            @change="setActiveTabId">
-            <dp-tab
-              v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
-              :id="filterGroup.label"
-              :key="index"
-              class="u-pt-0_5"
-              :is-active="activeTabId === filterGroup.type"
-              :label="Translator.trans(filterGroup.label)"
-              :suffix="createSelectedFiltersBadge(filterGroup)">
-              <dp-filter-modal-select-item
-                v-for="filterItem in filterByType(filterGroup.type)"
-                :key="filterItem.id"
-                :applied-filter-options="appliedFilterOptions.filter(option => option.filterId === filterItem.id)"
-                :filter-item="filterItem"
-                :filter-group="filterGroup"
-                @update-selected="updateSelectedOptions"
-                @updating-filters="disabledInteractions = true"
-                @updated-filters="disabledInteractions = false" />
-            </dp-tab>
-          </dp-tabs>
+        <!-- Tabs with filters -->
+        <dp-tabs
+          :active-id="activeTabId"
+          tab-size="medium"
+          @change="setActiveTabId">
+          <dp-tab
+            v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
+            :id="filterGroup.label"
+            :key="index"
+            class="u-pt-0_5"
+            :is-active="activeTabId === filterGroup.type"
+            :label="Translator.trans(filterGroup.label)"
+            :suffix="createSelectedFiltersBadge(filterGroup)">
+            <dp-filter-modal-select-item
+              v-for="filterItem in filterByType(filterGroup.type)"
+              :key="filterItem.id"
+              :applied-filter-options="appliedFilterOptions.filter(option => option.filterId === filterItem.id)"
+              :filter-item="filterItem"
+              :filter-group="filterGroup"
+              @update-selected="updateSelectedOptions"
+              @updating-filters="disabledInteractions = true"
+              @updated-filters="disabledInteractions = false" />
+          </dp-tab>
+        </dp-tabs>
 
         <!-- hidden selects so selected fields can be saved via form submit -->
         <select
@@ -252,6 +252,10 @@ export default {
       type: String
     }
   },
+
+  emits: [
+    'close'
+  ],
 
   data () {
     return {

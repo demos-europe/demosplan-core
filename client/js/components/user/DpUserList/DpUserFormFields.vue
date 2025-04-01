@@ -160,10 +160,6 @@ export default {
     'projectName'
   ],
 
-  emits: [
-    'user-update'
-  ],
-
   props: {
     user: {
       type: Object,
@@ -200,6 +196,10 @@ export default {
       default: () => ''
     }
   },
+
+  emits: [
+    'user-update'
+  ],
 
   data () {
     return {

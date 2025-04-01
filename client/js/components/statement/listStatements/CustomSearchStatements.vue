@@ -103,6 +103,12 @@ export default {
     }
   },
 
+  emits: [
+    'changeFields',
+    'reset',
+    'search'
+  ],
+
   data: () => ({
     currentSearchTerm: '',
     explanations: [

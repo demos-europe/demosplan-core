@@ -162,6 +162,11 @@ export default {
     }
   },
 
+  emits: [
+    'save-statement',
+    'statement-text-updated'
+  ],
+
   data () {
     return {
       claimLoading: null,

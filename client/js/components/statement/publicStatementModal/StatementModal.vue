@@ -880,6 +880,11 @@ export default {
     }
   },
 
+  emits: [
+    'toggle-tabs',
+    'uploader-reset'
+  ],
+
   data () {
     return {
       addToUnsavedDrafts: true,
