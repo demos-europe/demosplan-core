@@ -7,6 +7,7 @@
 ## UNRELEASED
 - create deletion report entry when procedure is deleted
 - Migrate to Vue 3
+- Implement VirusCheckSocket to directly check files for viruses via remote sockets
 
 ## v2.26.4 (2025-03-26)
 - new parameter cafile to set the path to the CA file for the symfony http client
