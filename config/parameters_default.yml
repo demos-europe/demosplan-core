@@ -65,6 +65,8 @@ parameters:
     # Comma separated string of trusted proxies. See https://symfony.com/doc/6.4/deployment/proxies.html
     # This value is used to fill symfony's trusted_proxies parameter
     proxy_trusted: ''
+    # Cafile for http_client if needed e.g. to support self signed certificates for proxies
+    cafile: ~
 
     # Das HTTP-Schema kann explizit angegeben werden, wenn es nicht dynamisch generiert werden soll
     # wie bspw. hinter einem LoadBalancer. Nur das Schema ist anzugeben z.B. 'http'

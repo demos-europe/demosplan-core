@@ -65,6 +65,10 @@ export default {
     }
   },
 
+  emits: [
+    'heightLimit:toggle'
+  ],
+
   data () {
     return {
       isExpanded: false

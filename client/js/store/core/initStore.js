@@ -11,8 +11,7 @@ import { api1_0Routes, generateApi2_0Routes } from './VuexApiRoutes'
 import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { initJsonApiPlugin, prepareModuleHashMap, Route, StaticRoute, StaticRouter } from '@efrane/vuex-json-api'
 import notify from './Notify'
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createStore } from 'vuex'
 
 function registerPresetModules (store, presetStoreModules) {
   if (Object.keys(presetStoreModules).length > 0) {
@@ -35,8 +34,6 @@ function registerPresetModules (store, presetStoreModules) {
 }
 
 function initStore (storeModules, apiStoreModules, presetStoreModules) {
-  Vue.use(Vuex)
-
   const staticModules = { notify, ...storeModules }
   const VuexApiRoutes = [...generateApi2_0Routes(apiStoreModules), ...api1_0Routes]
   // This should probably be replaced with an adapter to our existing routes
@@ -57,9 +54,9 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
   return router
     .updateRoutes()
     .then(router => {
-      const store = new Vuex.Store({
+      const store = createStore({
         strict: process.env.NODE_ENV !== 'production',
-
+        devtools: process.env.NODE_ENV !== 'production',
         modules: prepareModuleHashMap(staticModules),
         plugins: [
           initJsonApiPlugin({

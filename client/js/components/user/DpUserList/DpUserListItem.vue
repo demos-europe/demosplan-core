@@ -153,6 +153,10 @@ export default {
     }
   },
 
+  emits: [
+    'item:selected'
+  ],
+
   data () {
     return {
       isOpen: false,

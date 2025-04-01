@@ -102,6 +102,13 @@ export default {
     }
   },
 
+  emits: [
+    'check-card-overlap',
+    'delete-segment',
+    'edit-segment',
+    'segment:confirm'
+  ],
+
   data () {
     return {
       offsetTop: 0,

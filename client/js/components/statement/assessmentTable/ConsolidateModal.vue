@@ -8,94 +8,149 @@
 </license>
 
 <template>
-  <portal to="vueModals">
-    <dp-modal
-      ref="consolidateModal"
-      content-classes="u-1-of-2"
-      @modal:toggled="handleToggle">
-      <!-- header -->
-      <template v-slot:header>
-        {{ Translator.trans('statement.consolidate') }}
-      </template>
+  <dp-modal
+    ref="consolidateModal"
+    content-classes="u-1-of-2"
+    @modal:toggled="handleToggle">
+    <!-- header -->
+    <template v-slot:header>
+      {{ Translator.trans('statement.consolidate') }}
+    </template>
 
-      <!-- content -->
-      <fieldset
-        class="u-pb-0 u-mt"
-        id="consolidationMethod">
-        <legend
-          class="sr-only"
-          v-text="Translator.trans('action.choose')" />
-        <input
-          type="radio"
-          id="consolidateStatements"
-          name="consolidationMethod"
-          value="consolidateStatements"
-          v-model="consolidationMethod"
-          checked="checked">
-        <label
-          class="u-mb-0 inline-block"
-          for="consolidateStatements">
-          {{ Translator.trans('statement.cluster.create') }}
-        </label>
-        <input
-          type="radio"
-          class="u-ml inline-block"
-          id="mergeIntoCluster"
-          name="consolidationMethod"
-          value="mergeIntoCluster"
-          v-model="consolidationMethod">
-        <label
-          class="u-mb-0 inline-block"
-          for="mergeIntoCluster">
-          {{ Translator.trans('cluster.add.statements') }}
-        </label>
-        <!-- display if the user has selected group statements and NO other statements -->
-        <div
-          class="flash flash-warning flow-root"
-          v-if="(selectedStatementsWithoutGroups.length === 0) && ('consolidateStatements' === consolidationMethod)">
-          <i
-            class="fa fa-exclamation-triangle u-mt-0_125 float-left"
-            aria-hidden="true" />
-          <div class="u-ml">
-            <p
-              class="u-mb-0"
-              :inner-html.prop="Translator.trans('warning.consolidate.only.clusters.selected')" />
-          </div>
-        </div>
-        <!-- display if the user has selected group statements -->
-        <div
-          class="flash flash-warning flow-root"
-          v-else-if="selectionHasGroups">
-          <i
-            class="fa fa-exclamation-triangle u-mt-0_125 float-left"
-            aria-hidden="true" />
-          <div class="u-ml">
-            <p
-              class="u-mb-0"
-              :inner-html.prop="Translator.trans('warning.statement.cluster.resolve')" />
-          </div>
-        </div>
-      </fieldset>
+    <!-- content -->
+    <fieldset
+      class="u-pb-0 u-mt"
+      id="consolidationMethod">
+      <legend
+        class="sr-only"
+        v-text="Translator.trans('action.choose')" />
+      <input
+        type="radio"
+        id="consolidateStatements"
+        name="consolidationMethod"
+        value="consolidateStatements"
+        v-model="consolidationMethod"
+        checked="checked">
       <label
-        class="u-mb-0_25 u-mt"
-        for="statementSelection">
-        {{ Translator.trans('statements.selected.no.count') }}
+        class="u-mb-0 inline-block"
+        for="consolidateStatements">
+        {{ Translator.trans('statement.cluster.create') }}
       </label>
+      <input
+        type="radio"
+        class="u-ml inline-block"
+        id="mergeIntoCluster"
+        name="consolidationMethod"
+        value="mergeIntoCluster"
+        v-model="consolidationMethod">
+      <label
+        class="u-mb-0 inline-block"
+        for="mergeIntoCluster">
+        {{ Translator.trans('cluster.add.statements') }}
+      </label>
+      <!-- display if the user has selected group statements and NO other statements -->
+      <div
+        class="flash flash-warning flow-root"
+        v-if="(selectedStatementsWithoutGroups.length === 0) && ('consolidateStatements' === consolidationMethod)">
+        <i
+          class="fa fa-exclamation-triangle u-mt-0_125 float-left"
+          aria-hidden="true" />
+        <div class="u-ml">
+          <p
+            class="u-mb-0"
+            :inner-html.prop="Translator.trans('warning.consolidate.only.clusters.selected')" />
+        </div>
+      </div>
+      <!-- display if the user has selected group statements -->
+      <div
+        class="flash flash-warning flow-root"
+        v-else-if="selectionHasGroups">
+        <i
+          class="fa fa-exclamation-triangle u-mt-0_125 float-left"
+          aria-hidden="true" />
+        <div class="u-ml">
+          <p
+            class="u-mb-0"
+            :inner-html.prop="Translator.trans('warning.statement.cluster.resolve')" />
+        </div>
+      </div>
+    </fieldset>
+    <label
+      class="u-mb-0_25 u-mt"
+      for="statementSelection">
+      {{ Translator.trans('statements.selected.no.count') }}
+    </label>
+    <dp-multiselect
+      id="statementSelection"
+      v-model="selectedStatements"
+      :allow-empty="false"
+      :class="validations.selection ? 'u-mb' : 'u-mb-0_25'"
+      :custom-label="option =>`${option.extid}`"
+      :max-height="150"
+      multiple
+      :options="initialStatementSelection"
+      track-by="id"
+      @input="checkSelectionValidity">
+      <template v-slot:option="{ props }">
+        {{ props.option.extid }}
+      </template>
+      <template v-slot:tag="{ props }">
+        <span class="multiselect__tag">
+          {{ props.option.extid }}
+          <i
+            aria-hidden="true"
+            class="multiselect__tag-icon"
+            tabindex="1"
+            @click="props.remove(props.option)" />
+        </span>
+      </template>
+    </dp-multiselect>
+    <div
+      class="u-mb inline-block"
+      v-if="false === validations.selection && 'consolidateStatements' === consolidationMethod">
+      <i
+        class="fa fa-exclamation-circle color-message-severe-fill"
+        aria-hidden="true" />
+      <span class="u-ml-0_25 color-message-severe-text">
+        {{ Translator.trans('confirm.consolidation.not.enough.statements') }}
+      </span>
+    </div>
+
+    <fieldset v-if="consolidationMethod === 'consolidateStatements'">
+      <legend
+        class="hide-visually"
+        v-text="Translator.trans('cluster.data')" />
+      <label
+        for="groupName"
+        class="u-mt u-mb-0_25">
+        {{ Translator.trans('statement.cluster.name') }}
+      </label>
+      <input
+        type="text"
+        id="groupName"
+        name="groupName"
+        class="w-full"
+        style="height: 28px"
+        v-model="groupName">
+
+      <label class="u-mt u-mb-0_25">{{ Translator.trans('statement.main') }}*</label>
+      <p class="color--grey">
+        {{ Translator.trans('statement.cluster.create.help') }}
+      </p>
       <dp-multiselect
-        id="statementSelection"
-        v-model="selectedStatements"
-        :allow-empty="false"
-        :class="validations.selection ? 'u-mb' : 'u-mb-0_25'"
-        :custom-label="option =>`${option.extid}`"
-        :max-height="150"
-        multiple
-        :options="initialStatementSelection"
+        id="clusters-single-select"
+        v-model="headStatement"
+        :class="{ 'u-mb': validations.headStatement, 'u-mb-0_25': false === validations.headStatement }"
+        :custom-label="option => option.extid"
+        :options="selectedStatementsWithoutGroups"
+        ref="multiselect"
         track-by="id"
-        @input="checkSelectionValidity">
+        @input="checkHeadStatementValidity">
         <template v-slot:option="{ props }">
           {{ props.option.extid }}
         </template>
-        <template v-slot:tag="{ props }">
+        <template
+          v-slot:tag="{ props }">
           <span class="multiselect__tag">
             {{ props.option.extid }}
             <i
@@ -107,102 +162,45 @@
         </template>
       </dp-multiselect>
       <div
-        class="u-mb inline-block"
-        v-if="false === validations.selection && 'consolidateStatements' === consolidationMethod">
+        class="inline-block"
+        v-if="false === validations.headStatement && 'consolidateStatements' === consolidationMethod">
         <i
           class="fa fa-exclamation-circle color-message-severe-fill"
           aria-hidden="true" />
         <span class="u-ml-0_25 color-message-severe-text">
-          {{ Translator.trans('confirm.consolidation.not.enough.statements') }}
+          {{ Translator.trans('field.required') }}
         </span>
       </div>
-
-      <fieldset v-if="consolidationMethod === 'consolidateStatements'">
-        <legend
-          class="sr-only"
-          v-text="Translator.trans('cluster.data')" />
-        <label
-          for="groupName"
-          class="u-mt u-mb-0_25">
-          {{ Translator.trans('statement.cluster.name') }}
-        </label>
-        <input
-          type="text"
-          id="groupName"
-          name="groupName"
-          class="w-full"
-          style="height: 28px"
-          v-model="groupName">
-
-        <label class="u-mt u-mb-0_25">{{ Translator.trans('statement.main') }}*</label>
-        <p class="color--grey">
-          {{ Translator.trans('statement.cluster.create.help') }}
-        </p>
-        <dp-multiselect
-          id="clusters-single-select"
-          v-model="headStatement"
-          :class="{ 'u-mb': validations.headStatement, 'u-mb-0_25': false === validations.headStatement }"
-          :custom-label="option => option.extid"
-          :options="selectedStatementsWithoutGroups"
-          ref="multiselect"
-          track-by="id"
-          @input="checkHeadStatementValidity">
-          <template v-slot:option="{ props }">
-            {{ props.option.extid }}
-          </template>
-          <template
-            v-slot:tag="{ props }">
-            <span class="multiselect__tag">
-              {{ props.option.extid }}
-              <i
-                aria-hidden="true"
-                class="multiselect__tag-icon"
-                tabindex="1"
-                @click="props.remove(props.option)" />
-            </span>
-          </template>
-        </dp-multiselect>
-        <div
-          class="inline-block"
-          v-if="false === validations.headStatement && 'consolidateStatements' === consolidationMethod">
-          <i
-            class="fa fa-exclamation-circle color-message-severe-fill"
-            aria-hidden="true" />
-          <span class="u-ml-0_25 color-message-severe-text">
-            {{ Translator.trans('field.required') }}
-          </span>
-        </div>
-      </fieldset>
-      <fieldset v-if="consolidationMethod === 'mergeIntoCluster'">
-        <legend
-          class="sr-only"
-          v-text="Translator.trans('cluster.choose')" />
-        <label class="u-mt u-mb-0_25 inline-block">{{ Translator.trans('consolidate.add.to.cluster') }}</label>
-        <div
-          class="u-ml inline-block"
-          v-if="false === validations.cluster && 'mergeIntoCluster' === consolidationMethod">
-          <i
-            class="fa fa-exclamation-circle color-message-severe-fill"
-            aria-hidden="true" />
-          <span class="u-ml-0_25 color-message-severe-text">
-            {{ Translator.trans('field.required') }}
-          </span>
-        </div>
-        <dp-select-statement-cluster
-          :class="{ 'u-mb': validations.cluster, 'u-mb-0_25': false === validations.cluster }"
-          :init-cluster-list="clusterList"
-          :current-user-id="currentUserId"
-          :procedure-id="procedureId"
-          @selected-cluster="setClusterSelection"
-          ref="clusterSelect" />
-      </fieldset>
-      <dp-button
-        class="sm:float-right"
-        :busy="isLoading"
-        :text="Translator.trans('send')"
-        @click.prevent="submitCluster" />
-    </dp-modal>
-  </portal>
+    </fieldset>
+    <fieldset v-if="consolidationMethod === 'mergeIntoCluster'">
+      <legend
+        class="hide-visually"
+        v-text="Translator.trans('cluster.choose')" />
+      <label class="u-mt u-mb-0_25 inline-block">{{ Translator.trans('consolidate.add.to.cluster') }}</label>
+      <div
+        class="u-ml inline-block"
+        v-if="false === validations.cluster && 'mergeIntoCluster' === consolidationMethod">
+        <i
+          class="fa fa-exclamation-circle color-message-severe-fill"
+          aria-hidden="true" />
+        <span class="u-ml-0_25 color-message-severe-text">
+          {{ Translator.trans('field.required') }}
+        </span>
+      </div>
+      <dp-select-statement-cluster
+        :class="{ 'u-mb': validations.cluster, 'u-mb-0_25': false === validations.cluster }"
+        :init-cluster-list="clusterList"
+        :current-user-id="currentUserId"
+        :procedure-id="procedureId"
+        @selected-cluster="setClusterSelection"
+        ref="clusterSelect" />
+    </fieldset>
+    <dp-button
+      class="sm:float-right"
+      :busy="isLoading"
+      :text="Translator.trans('send')"
+      @click.prevent="submitCluster" />
+  </dp-modal>
 </template>
 
 <script>
@@ -379,9 +377,9 @@ export default {
 
     checkConditionalValidity (consolidationMethodCondition, assertion, validationKey) {
       if (consolidationMethodCondition === this.consolidationMethod) {
-        Vue.set(this.validations, validationKey, assertion())
+        this.validations[validationKey] = assertion()
       } else {
-        Vue.set(this.validations, validationKey, true)
+        this.validations[validationKey] = true
       }
       return this.validations[validationKey]
     },
@@ -443,7 +441,9 @@ export default {
       this.headStatement = {}
       this.selectedCluster = {}
       this.groupName = ''
-      Object.keys(this.validations).forEach(key => this.$set(this.validations, key, true))
+      Object.keys(this.validations).forEach(key => {
+        this.validations[key] = true
+      })
     },
 
     // Set initialStatementSelection to show options in multiselect

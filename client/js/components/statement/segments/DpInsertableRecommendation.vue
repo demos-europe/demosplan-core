@@ -113,6 +113,10 @@ export default {
     }
   },
 
+  emits: [
+    'insert-recommendation'
+  ],
+
   data () {
     return {
       isExpanded: false,

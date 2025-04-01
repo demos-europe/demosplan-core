@@ -43,6 +43,10 @@ export default {
     }
   },
 
+  emits: [
+    'addons:loaded'
+  ],
+
   data () {
     return {
       loadedAddons: []
@@ -53,7 +57,7 @@ export default {
     loadAddonComponents(this.hookName)
       .then(addons => {
         addons.forEach(addon => {
-          this.$options.components[addon.name] = window[addon.name].default
+          this.$.appContext.components[addon.name] = window[addon.name].default
           this.loadedAddons.push({
             component: window[addon.name].default,
             name: addon.name

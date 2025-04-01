@@ -53,6 +53,10 @@ export default {
     }
   },
 
+  emits: [
+    'update'
+  ],
+
   computed: {
     ...mapGetters('SegmentSlidebar', [
       'commentsList',

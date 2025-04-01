@@ -164,6 +164,10 @@ export default {
     }
   },
 
+  emits: [
+    'save'
+  ],
+
   data () {
     return {
       localStatement: null,

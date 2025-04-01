@@ -43,6 +43,12 @@ export default {
     }
   },
 
+  emits: [
+    'hide',
+    'show',
+    'toggle-content-visibility'
+  ],
+
   methods: {
     toggleContentVisibility () {
       this.$emit('toggle-content-visibility', this.section)

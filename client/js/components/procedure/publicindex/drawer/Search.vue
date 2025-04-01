@@ -92,6 +92,10 @@ export default {
     }
   },
 
+  emits: [
+    'procedure-search-focused'
+  ],
+
   data () {
     return {
       focused: false,

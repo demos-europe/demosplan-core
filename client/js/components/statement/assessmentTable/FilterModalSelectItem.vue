@@ -58,7 +58,6 @@
             </template>
 
             <!-- sorting -->
-            <!-- don't remove slot-scope=props, without it, the button won't be displayed -->
             <template
               v-if="'fragment' !== filterGroup.type"
               v-slot:beforeList>
@@ -143,14 +142,17 @@ export default {
     }
   },
 
+  emits: [
+    'updated-filters',
+    'updating-filters',
+    'update-selected'
+  ],
+
   data () {
     return {
       isUpdating: false,
       sortingType: 'count',
       isInitialLoad: true,
-      isLoading: false,
-      // All available options for this filter
-      availableOptions: [],
       selected: []
     }
   },
@@ -159,6 +161,7 @@ export default {
     ...mapGetters('Filter', {
       // Available options for current filter
       getFilterOptionsByFilter: 'filterOptionsByFilter',
+      getIsLoading: 'isLoading',
       // Selected options for current filter
       selectedFilterOptionsFromStore: 'selectedFilterOptionsByFilter',
       optionsForFilterHash: 'allSelectedFilterOptionsWithFilterName'
@@ -170,8 +173,16 @@ export default {
       'selectedOptions'
     ]),
 
+    availableOptions () {
+      return this.getFilterOptionsByFilter(this.filterItem.id)
+    },
+
     filteredSelectedOptions () {
       return this.selectedFilterOptionsFromStore(this.filterItem.id)
+    },
+
+    isLoading () {
+      return this.getIsLoading(this.filterItem.id)
     },
 
     sortingLabel () {
@@ -184,8 +195,11 @@ export default {
   },
 
   watch: {
-    filteredSelectedOptions: function () {
-      this.selected = this.filteredSelectedOptions
+    filteredSelectedOptions: {
+      handler () {
+        this.selected = this.filteredSelectedOptions
+      },
+      deep: true
     }
   },
 
@@ -195,6 +209,7 @@ export default {
     ]),
 
     ...mapMutations('Filter', [
+      'setLoading',
       'sortFilterOptions',
       'updateSelectedOptions'
     ]),
@@ -210,7 +225,7 @@ export default {
     loadFilterOptions () {
       // Used in DpFilterModal to disable submit-button while updating
       this.$emit('updating-filters')
-      this.isLoading = true
+      this.setLoading({ filterId: this.filterItem.id, isLoading: true })
 
       const optionsForFilterHash = this.prepareOptionsForFilterHash()
 
@@ -219,14 +234,13 @@ export default {
           // Get filter options for current filter
           this.getFilterOptionsAction({ filterHash, filterId: this.filterItem.id })
             .then(() => {
-              this.availableOptions = this.getFilterOptionsByFilter(this.filterItem.id)
               if (this.isInitialLoad) {
                 this.sortFilterOptions({ id: this.filterItem.id, sortingType: 'alphabetic' })
                 this.isInitialLoad = false
               }
               // Used in DpFilterModal to enable submit-button after updating
               this.$emit('updated-filters')
-              this.isLoading = false
+              this.setLoading({ filterId: this.filterItem.id, isLoading: false })
             })
         })
     },
@@ -281,7 +295,7 @@ export default {
 
     // @close of filter dropdown
     updateFilterOptions () {
-      this.isLoading = true
+      this.setLoading({ filterId: this.filterItem.id, isLoading: true })
 
       // Used in DpFilterModal to disable submit-button while updating
       this.$emit('updating-filters')
@@ -290,14 +304,12 @@ export default {
        * Used in DpFilterModal to update the filterHash with all selected options; DpFilterModal then emits the filterHash
        * and gets updated filterOptions for the selected filters, which are then loaded from the store into this.availableOptions
        */
-      this.$emit('update-selected')
+      this.$emit('update-selected', this.filterItem.id)
     },
 
     toggleSorting (id) {
       // Sort options in store
       this.sortFilterOptions({ id, sortingType: this.sortingType })
-      // Get sorted options from store
-      this.availableOptions = this.getFilterOptionsByFilter(this.filterItem.id)
       this.sortingType = this.sortingType === 'count' ? 'alphabetic' : 'count'
     }
   },
@@ -309,15 +321,6 @@ export default {
      * Otherwise, selected filters are not shown.
      */
     this.selected = this.filteredSelectedOptions
-
-    /*
-     * Emitted by DpFilterModal after it updates filterHash after filterOption has been selected
-     * after the filterHash is updated, we get the updated options from the store
-     */
-    this.$root.$on('selected-updated', () => {
-      this.isLoading = false
-      this.availableOptions = this.getFilterOptionsByFilter(this.filterItem.id)
-    })
   }
 }
 </script>

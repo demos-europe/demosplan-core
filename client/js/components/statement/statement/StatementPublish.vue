@@ -85,20 +85,21 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue'
 import VotingStatus from './VotingStatus'
 
 export default {
   name: 'StatementPublish',
 
   components: {
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
-    DpInlineNotification: async () => {
+    }),
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
+    }),
     VotingStatus
   },
 
@@ -133,6 +134,10 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'update'
+  ],
 
   data () {
     return {

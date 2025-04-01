@@ -11,10 +11,11 @@
   <!-- Whenever there is an update to the assessment table, the hash must not be sent to the server -->
   <form
     id="start"
-    name="bpform"
     :action="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: initFilterHash })"
-    method="post"
     :data-statement-admin-container="procedureId"
+    name="bpform"
+    method="post"
+    ref="root"
     v-cloak>
     <input
       type="hidden"
@@ -117,6 +118,7 @@
       :sorting-options="sortingOptionsForDropdown"
       :view-mode="viewMode"
       ref="filter"
+      @exportModal:toggle="tab => $refs.exportModal.toggleModal(tab)"
       @handle-sort-change="option => handleSortChange(option)" />
 
     <!-- Version History Slidebar -->
@@ -168,23 +170,21 @@
         :csrf-token="csrfToken"
         :form-definitions="formDefinitions" />
       <!-- Loop statements in default viewMode -->
-      <template
+      <dp-assessment-table-card
         v-else
-        v-for="(statement, key, index) in statements">
-        <dp-assessment-table-card
-          :csrf-token="csrfToken"
-          :data-cy="`statementCard:index:${index}`"
-          :ref="'itemdisplay_' + statement.id"
-          :key="`statement:${statement.id}`"
-          class="o-list__item"
-          :init-statement="{}"
-          :statement-procedure-id="statement.procedureId"
-          :statement-id="statement.id"
-          :is-selected="getSelectionStateById(statement.id)"
-          @statement:updated="hasChangedStatements = true"
-          @statement:addToSelection="addToSelectionAction"
-          @statement:removeFromSelection="removeFromSelectionAction" />
-      </template>
+        v-for="statement in statements"
+        :ref="'itemdisplay_' + statement.id"
+        :key="`statement:${statement.id}`"
+        class="o-list__item"
+        :csrf-token="csrfToken"
+        :data-cy="`statementCard:index:${index}`"
+        :init-statement="{}"
+        :statement-procedure-id="statement.procedureId"
+        :statement-id="statement.id"
+        :is-selected="getSelectionStateById(statement.id)"
+        @statement:updated="hasChangedStatements = true"
+        @statement:addToSelection="addToSelectionAction"
+        @statement:removeFromSelection="removeFromSelectionAction" />
     </ul>
 
     <!-- If there are no statements: -->
@@ -240,6 +240,7 @@ import { CleanHtml, DpLoading, DpPager, handleResponseMessages, Stickier } from 
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
 import changeUrlforPager from './utils/changeUrlforPager'
+import { defineAsyncComponent } from 'vue'
 import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
 import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import { scrollTo } from 'vue-scrollto'
@@ -253,22 +254,22 @@ export default {
   name: 'DpTable',
 
   components: {
-    AssessmentTableGroupList: () => import(/* webpackChunkName: "assessment-table-group-list" */ './TocView/AssessmentTableGroupList'),
+    AssessmentTableGroupList: defineAsyncComponent(() => import(/* webpackChunkName: "assessment-table-group-list" */ './TocView/AssessmentTableGroupList')),
     AssessmentTableFilter,
-    AssignEntityModal: () => import(/* webpackChunkName: "assign-entity-modal" */ '@DpJs/components/statement/assessmentTable/AssignEntityModal'),
-    ConsolidateModal: () => import(/* webpackChunkName: "consolidate-modal" */ '@DpJs/components/statement/assessmentTable/ConsolidateModal'),
-    CopyStatementModal: () => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal'),
+    AssignEntityModal: defineAsyncComponent(() => import(/* webpackChunkName: "assign-entity-modal" */ '@DpJs/components/statement/assessmentTable/AssignEntityModal')),
+    ConsolidateModal: defineAsyncComponent(() => import(/* webpackChunkName: "consolidate-modal" */ '@DpJs/components/statement/assessmentTable/ConsolidateModal')),
+    CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal')),
     ExportModal,
     DpLoading,
-    DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal'),
-    DpMoveStatementModal: () => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal'),
+    DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
+    DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal')),
     DpPager,
-    DpSlidebar: async () => {
+    DpSlidebar: defineAsyncComponent(async () => {
       const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
       return DpSlidebar
-    },
+    }),
     DpAssessmentTableCard,
-    DpVersionHistory: () => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory')
+    DpVersionHistory: defineAsyncComponent(() => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory'))
   },
 
   directives: {
@@ -397,6 +398,10 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'assessment-table-loaded'
+  ],
 
   data () {
     return {
@@ -781,7 +786,7 @@ export default {
              * Initialize fixed header after all data has been processed (a.k.a. pager has been rendered)
              * to ensure dom manipulation of Stickier is executed last.
              */
-            this.stickyHeader = new Stickier(this.$refs.filter.$refs.header, this.$el, 0)
+            this.stickyHeader = new Stickier(this.$refs.filter.$refs.header, this.$refs.root, 0)
 
             this.$root.$emit('assessment-table-loaded')
           })
@@ -796,7 +801,7 @@ export default {
     })
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     this.stickyHeader.destroy()
   }
 }

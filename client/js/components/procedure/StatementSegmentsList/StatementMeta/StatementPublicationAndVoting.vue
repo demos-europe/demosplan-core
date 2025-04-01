@@ -241,6 +241,11 @@ export default {
     }
   },
 
+  emits: [
+    'save',
+    'updatedVoters'
+  ],
+
   data () {
     return {
       localStatement: null,

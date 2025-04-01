@@ -66,6 +66,12 @@ export default {
     }
   },
 
+  emits: [
+    'change',
+    'suitableScalesChange',
+    'update'
+  ],
+
   data () {
     return {
       areScalesSuitable: false,
@@ -74,8 +80,11 @@ export default {
   },
 
   watch: {
-    selectedScales (newVal) {
-      this.scales = newVal
+    selectedScales: {
+      handler (newVal) {
+        this.scales = newVal
+      },
+      deep: true
     }
   },
 
