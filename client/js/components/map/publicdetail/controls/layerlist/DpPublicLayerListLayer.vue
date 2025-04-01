@@ -109,7 +109,7 @@ export default {
     'layer:toggleOtherBaselayers',
     'layer:toggleVisibiltyGroup',
     'layer-opacity:change',
-    'layer-opacity:changed',
+    'layer-opacity:changed'
   ],
 
   data () {

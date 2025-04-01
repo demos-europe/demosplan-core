@@ -50,6 +50,11 @@ export default {
     }
   },
 
+  emits: [
+    'prosemirror-initialized',
+    'prosemirror-max-range'
+  ],
+
   data () {
     return {
       customMarks: {

@@ -14,7 +14,7 @@
       name="r_delete"
       data-cy="deleteSelectedItems"
       :data-form-actions-confirm="Translator.trans('check.items.marked.delete')">
-      <i class="fa fa-times-circle"></i> {{ Translator.trans('items.marked.delete') }}
+      <i class="fa fa-times-circle" /> {{ Translator.trans('items.marked.delete') }}
     </button>
   </div>
 </template>

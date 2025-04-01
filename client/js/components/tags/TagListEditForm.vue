@@ -115,6 +115,13 @@ export default {
     }
   },
 
+  emits: [
+    'abort',
+    'delete',
+    'edit',
+    'save'
+  ],
+
   data () {
     return {
       unsavedItem: {

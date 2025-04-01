@@ -54,6 +54,12 @@ export default {
     }
   },
 
+  emits: [
+    'delete-segment',
+    'edit-segment',
+    'segment:confirm'
+  ],
+
   data () {
     return {
       containerMinHeight: ''

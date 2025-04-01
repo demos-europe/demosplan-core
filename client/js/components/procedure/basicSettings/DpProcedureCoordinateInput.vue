@@ -60,6 +60,10 @@ export default {
     }
   },
 
+  emits: [
+    'input'
+  ],
+
   data () {
     return {
       latitudeValue: '', // 568400.97

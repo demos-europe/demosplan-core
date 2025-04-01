@@ -103,6 +103,10 @@ export default {
     }
   },
 
+  emits: [
+    'boilerplate-text-added'
+  ],
+
   data () {
     return {
       selectedBoilerPlate: '',
