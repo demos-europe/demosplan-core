@@ -1,31 +1,46 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from '@jest/globals'
+import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
 import { DpModal } from '@demos-europe/demosplan-ui'
+import { enableAutoUnmount } from '@vue/test-utils'
 import { sessionStorageMock } from './__mocks__/sessionStorage.mock'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 
 describe('StatementExportModal', () => {
-  let sessionStorageValue
+  Object.defineProperty(window, 'sessionStorage', {
+    value: sessionStorageMock
+  })
+
   let wrapper
 
-  beforeAll(() => {
-    Object.defineProperty(window, 'sessionStorage', {
-      value: sessionStorageMock
-    })
+  const findCheckboxes = () => {
+    return {
+      censoredCitizen: wrapper.find('#censoredCitizen'),
+      censoredInstitution: wrapper.find('#censoredInstitution'),
+      obscured: wrapper.find('#obscured')
+    }
+  }
 
-    sessionStorageValue = 'Stored Column Title'
-    window.sessionStorage.setItem('exportModal:docxCol:col1', JSON.stringify(sessionStorageValue))
-  })
+  const defaultDocxHeaders = {
+    col1: null,
+    col2: null,
+    col3: null
+  }
+
+  const defaultPayload = {
+    docxHeaders: defaultDocxHeaders,
+    fileNameTemplate: null,
+    isCitizenDataCensored: false,
+    isInstitutionDataCensored: false,
+    isObscured: false
+  }
 
   beforeEach(() => {
     wrapper = shallowMountWithGlobalMocks(StatementExportModal, {
       props: {
         isSingleStatementExport: false
       },
-
       global: {
         renderStubDefaultSlot: true,
-
         stubs: {
           'dp-modal': {
             template: '<div><slot /></div>',
@@ -37,12 +52,11 @@ describe('StatementExportModal', () => {
       }
     })
 
+    window.sessionStorage.clear()
     wrapper.vm.setInitialValues()
   })
 
-  afterEach(() => {
-    wrapper.unmount()
-  })
+  enableAutoUnmount(afterEach)
 
   it('opens the modal when the button is clicked', async () => {
     const modal = wrapper.findComponent(DpModal)
@@ -53,6 +67,10 @@ describe('StatementExportModal', () => {
   })
 
   it('sets the initial values correctly', () => {
+    const sessionStorageValue = 'Stored Column Title'
+    window.sessionStorage.setItem('exportModal:docxCol:col1', JSON.stringify(sessionStorageValue))
+    wrapper.vm.setInitialValues()
+
     expect(wrapper.vm.$data.active).toBe('docx_normal')
     expect(wrapper.vm.docxColumns.col1.title).toBe(sessionStorageValue)
     expect(wrapper.vm.docxColumns.col2.title).toBe(null)
@@ -60,7 +78,7 @@ describe('StatementExportModal', () => {
   })
 
   it('renders input fields when export type is docx or zip', () => {
-    const exportTypes = ['docx_normal', 'docx_censored', 'zip_normal', 'zip_censored']
+    const exportTypes = ['docx_normal', 'zip_normal']
 
     exportTypes.map(async exportType => {
       await wrapper.setData({ active: exportType })
@@ -83,9 +101,7 @@ describe('StatementExportModal', () => {
     await wrapper.setData({
       active: 'docx_normal'
     })
-    const censoredCitizen = wrapper.find('#censoredCitizen')
-    const censoredInstitution = wrapper.find('#censoredInstitution')
-    const obscured = wrapper.find('#obscured')
+    const { censoredCitizen, censoredInstitution, obscured } = findCheckboxes()
 
     expect(censoredCitizen.exists()).toBe(true)
     expect(censoredInstitution.exists()).toBe(true)
@@ -94,9 +110,7 @@ describe('StatementExportModal', () => {
 
   it('does not render checkboxes for isCensored and isObscure when export type is xlsx', async () => {
     await wrapper.setData({ active: 'xlsx_normal' })
-    const censoredCitizen = wrapper.find('#censoredCitizen')
-    const censoredInstitution = wrapper.find('#censoredInstitution')
-    const obscured = wrapper.find('#obscured')
+    const { censoredCitizen, censoredInstitution, obscured } = findCheckboxes()
 
     expect(censoredCitizen.exists()).toBe(false)
     expect(censoredInstitution.exists()).toBe(false)
@@ -106,135 +120,101 @@ describe('StatementExportModal', () => {
   it('emits export event with initial column titles when no changes are made', () => {
     wrapper.vm.handleExport()
     const exportEvent = wrapper.emitted('export')[0][0] /** It returns an array with all the occurrences of `this.$emit('export')` */
+    const payload = {
+      ...defaultPayload,
+      route: 'dplan_statement_segments_export',
+      shouldConfirm: true
+    }
+
 
     expect(exportEvent).toBeTruthy()
-    expect(exportEvent).toEqual({
-      route: 'dplan_statement_segments_export',
-      docxHeaders: {
-        col1: sessionStorageValue,
-        col2: null,
-        col3: null
-      },
-      fileNameTemplate: null,
-      shouldConfirm: true,
-      isCitizenDataCensored: false,
-      isInstitutionDataCensored: false,
-      isObscured: false
-    })
+    expect(exportEvent).toEqual(payload)
   })
 
   it('emits export event with updated col2 title', () => {
+    const docxColumns = {
+      col1: { title: null },
+      col2: { title: 'Test Column Title' },
+      col3: { title: null }
+    }
+    const docxHeaders = Object.fromEntries(Object.entries(docxColumns).map(([key, value]) => [key, value.title]))
+
     wrapper.setData({
-      docxColumns: {
-        col1: { title: sessionStorageValue },
-        col2: { title: 'Test Column Title' },
-        col3: { title: null }
-      }
+      docxColumns
     })
     wrapper.vm.handleExport()
     const exportEvent = wrapper.emitted('export')[0][0]
+    const payload = {
+      ...defaultPayload,
+      route: 'dplan_statement_segments_export',
+      docxHeaders,
+      shouldConfirm: true
+    }
+
 
     expect(exportEvent).toBeTruthy()
-    expect(exportEvent).toEqual({
-      route: 'dplan_statement_segments_export',
-      docxHeaders: {
-        col1: sessionStorageValue,
-        col2: 'Test Column Title',
-        col3: null
-      },
-      fileNameTemplate: null,
-      shouldConfirm: true,
-      isCitizenDataCensored: false,
-      isInstitutionDataCensored: false,
-      isObscured: false
-    })
+    expect(exportEvent).toEqual(payload)
   })
 
   it('emits export event with null docxHeaders for xlsx export type', () => {
     wrapper.setData({ active: 'xlsx_normal' })
     wrapper.vm.handleExport()
     const exportEvent = wrapper.emitted('export')[0][0]
-
-    expect(exportEvent).toBeTruthy()
-    expect(exportEvent).toEqual({
+    const payload = {
+      ...defaultPayload,
       route: 'dplan_statement_xls_export',
       docxHeaders: null,
-      fileNameTemplate: null,
-      shouldConfirm: false,
-      isCitizenDataCensored: false,
-      isInstitutionDataCensored: false,
-      isObscured: false
-    })
+      shouldConfirm: false
+    }
+
+    expect(exportEvent).toBeTruthy()
+    expect(exportEvent).toEqual(payload)
   })
 
   it('emits export event with isCitizenDataCensored true if censoredCitizen is selected', () => {
     wrapper.setData({
       active: 'docx_normal',
-      isCitizenDataCensored: true,
-      isInstitutionDataCensored: false,
-      exportTypes: {
-        docx_censored: { exportPath: 'dplan_statement_segments_export' }
-      },
-      docxColumns: {
-        col1: { title: sessionStorageValue },
-        col2: { title: 'Test Column Title' },
-        col3: { title: null }
-      }
-    })
-    wrapper.vm.handleExport()
-
-    const exportEvent = wrapper.emitted('export')[0][0]
-
-    expect(exportEvent).toBeTruthy()
-    expect(exportEvent).toEqual({
-      route: 'dplan_statement_segments_export',
-      docxHeaders: {
-        col1:sessionStorageValue,
-        col2: 'Test Column Title',
-        col3: null
-      },
-      fileNameTemplate: null,
-      shouldConfirm: true,
-      isCitizenDataCensored: true,
-      isInstitutionDataCensored: false,
-      isObscured: false
-    })
-  })
-
-  it('emits export event with isCitizenDataCensored true and isInstitutionDataCensored true for if censoredCitizen and censoredInstitution are selected', () => {
-    wrapper.setData({
-      active: 'docx_normal',
-      isInstitutionDataCensored: true,
       isCitizenDataCensored: true
     })
     wrapper.vm.handleExport()
+
+    const exportEvent = wrapper.emitted('export')[0][0]
+    const payload = {
+      ...defaultPayload,
+      isCitizenDataCensored: true,
+      route: 'dplan_statement_segments_export',
+      shouldConfirm: true
+    }
+
+    expect(exportEvent).toBeTruthy()
+    expect(exportEvent).toEqual(payload)
+  })
+
+  it('emits export event with isInstitutionDataCensored true if censoredInstitution is selected', () => {
+    wrapper.setData({
+      active: 'docx_normal',
+      isCitizenDataCensored: false,
+      isInstitutionDataCensored: true
+    })
+    wrapper.vm.handleExport()
     const exportEvent = wrapper.emitted('export')[0][0]
 
     expect(exportEvent).toBeTruthy()
     expect(exportEvent).toEqual({
       route: 'dplan_statement_segments_export',
-      docxHeaders: {
-        col1: sessionStorageValue,
-        col2: 'Test Column Title',
-        col3: null
-      },
+      docxHeaders: defaultDocxHeaders,
       fileNameTemplate: null,
       shouldConfirm: true,
-      isCitizenDataCensored: true,
+      isCitizenDataCensored: false,
       isInstitutionDataCensored: true,
       isObscured: false
     })
   })
 
-  it('emits export event with isObscured true for docx_obscured export type', () => {
+  it('emits export event with isObscured true if obscured checkbox is selected', () => {
     wrapper.setData({
       active: 'docx_normal',
-      isObscure: true,
-      docxColumns: {
-        col1: { title: sessionStorageValue },
-        col2: { title: 'Test Column Title' },
-        col3: { title: null }
-      }
+      isObscure: true
     })
     wrapper.vm.handleExport()
 
@@ -243,11 +223,7 @@ describe('StatementExportModal', () => {
     expect(exportEvent).toBeTruthy()
     expect(exportEvent).toEqual({
       route: 'dplan_statement_segments_export',
-      docxHeaders: {
-        col1: sessionStorageValue,
-        col2: 'Test Column Title',
-        col3: null
-      },
+      docxHeaders: defaultDocxHeaders,
       fileNameTemplate: null,
       shouldConfirm: true,
       isCitizenDataCensored: false,

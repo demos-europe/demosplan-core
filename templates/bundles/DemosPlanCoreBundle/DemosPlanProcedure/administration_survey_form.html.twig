@@ -5,11 +5,13 @@
         heading: (surveyId is defined ? 'survey.edit' : 'survey.new')|trans,
         subnav: surveyId is defined ? [
             {
+                datacy: 'administrationSurveyForm:edit',
                 href: path('dplan_survey_edit', { 'procedureId': procedure, 'surveyId': surveyId }),
                 label: 'survey.edit',
                 current: true
             },
             {
+                datacy: 'administrationSurveyForm:moderateComments',
                 href: path('dplan_survey_show', { 'procedureId': procedure, 'surveyId': surveyId }),
                 label: 'survey.comments.moderate'
             }
