@@ -84,20 +84,24 @@
         </div>
 
         <!-- Tabs with filters -->
-        <dp-tabs tab-size="medium">
+        <dp-tabs
+          :active-id="activeTabId"
+          tab-size="medium"
+          @change="setActiveTabId">
           <dp-tab
             v-for="(filterGroup, index) in filterGroupsToBeDisplayed"
-            class="u-pt-0_5"
-            :key="index"
             :id="filterGroup.label"
+            :key="index"
+            class="u-pt-0_5"
+            :is-active="activeTabId === filterGroup.type"
             :label="Translator.trans(filterGroup.label)"
             :suffix="createSelectedFiltersBadge(filterGroup)">
             <dp-filter-modal-select-item
               v-for="filterItem in filterByType(filterGroup.type)"
               :key="filterItem.id"
+              :applied-filter-options="appliedFilterOptions.filter(option => option.filterId === filterItem.id)"
               :filter-item="filterItem"
               :filter-group="filterGroup"
-              :applied-filter-options="appliedFilterOptions.filter(option => option.filterId === filterItem.id)"
               @update-selected="updateSelectedOptions"
               @updating-filters="disabledInteractions = true"
               @updated-filters="disabledInteractions = false" />
@@ -365,12 +369,9 @@ export default {
     ...mapMutations('Filter', [
       'loadAppliedFilterOptions',
       'loadSelectedFilterOptions',
-      'resetSelectedOptions'
+      'resetSelectedOptions',
+      'setLoading'
     ]),
-
-    setActiveTabId (id) {
-      this.activeTabId = id
-    },
 
     back () {
       this.saveFilterSetView = false
@@ -466,6 +467,10 @@ export default {
       }
     },
 
+    setActiveTabId (id) {
+      this.activeTabId = id
+    },
+
     submitOrNext () {
       //  If user does not want to save the current filter set, just submit the form (a.k.a. apply filters)
       if (this.saveFilterSet === false) {
@@ -491,13 +496,15 @@ export default {
      * Update filterHash with currently selected options from store
      * emit event to FilterModalSelectItem which then loads updated options from store
      */
-    updateSelectedOptions () {
+    updateSelectedOptions (filterItemId = false) {
       window.updateFilterHash(this.procedureId, this.allSelectedFilterOptionsWithFilterName)
         .then((filterHash) => {
           // Get updated options for selected filters
           this.getFilterOptionsAction({ filterHash })
-            .then((filterHash) => {
-              this.$root.$emit('selected-updated', filterHash)
+            .then(() => {
+              if (filterItemId) {
+                this.setLoading({ filterId: filterItemId, isLoading: false })
+              }
               this.disabledInteractions = false
             })
         })
