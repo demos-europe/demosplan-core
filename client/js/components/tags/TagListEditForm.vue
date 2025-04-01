@@ -71,12 +71,16 @@
             icon="xmark" />
         </button>
       </div>
+      <dp-confirm-dialog
+        ref="confirmDialog"
+        :message="setConfirmMessage()" />
     </div>
   </div>
 </template>
 
 <script>
 import {
+  DpConfirmDialog,
   DpContextualHelp,
   DpIcon,
   DpInput
@@ -88,6 +92,7 @@ export default {
 
   components: {
     AddonWrapper,
+    DpConfirmDialog,
     DpContextualHelp,
     DpIcon,
     DpInput
@@ -128,18 +133,26 @@ export default {
       this.$emit('abort')
     },
 
-    deleteItem () {
-      const { type, attributes, children, id } = this.nodeElement
+    async deleteItem () {
+      const { type, id } = this.nodeElement
+
+      if (this.$refs.confirmDialog?.open) {
+        const isConfirmed = await this.$refs.confirmDialog.open()
+
+        if (isConfirmed) {
+          this.$emit('delete', { id, type })
+        }
+      }
+    },
+
+    setConfirmMessage () {
+      const { type, attributes, children } = this.nodeElement
       const isTagTopic = type === 'TagTopic'
       const topicConfirmMessage = isTagTopic && children?.length === 0 ? 'check.topic.delete' : 'check.topic.delete.tags'
 
-      const confirmMessage = isTagTopic
+      return isTagTopic
         ? Translator.trans(topicConfirmMessage, { topic: attributes.title })
         : Translator.trans('check.tag.delete', { tag: attributes.title })
-
-      if (window.dpconfirm(confirmMessage)) {
-        this.$emit('delete', { id, type })
-      }
     },
 
     editItem () {
