@@ -236,10 +236,6 @@ export default {
   created () {
     // This.function has to be called if assessmentBase loads because of the ajax call, but also on mounted because of the paragraph inline edit
     this.setInitialValues()
-  },
-
-  mounted () {
-    this.$root.$on('reset', () => this.reset())
   }
 }
 </script>
