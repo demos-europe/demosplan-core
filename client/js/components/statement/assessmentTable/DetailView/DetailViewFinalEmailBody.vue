@@ -78,6 +78,10 @@ export default {
     }
   },
 
+  emits: [
+    'emailBody:input'
+  ],
+
   data () {
     return {
       text: this.initText,

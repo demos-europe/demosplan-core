@@ -69,6 +69,11 @@ export default {
     }
   },
 
+  emits: [
+    'newCategoryForm:close',
+    'newCategory:created'
+  ],
+
   data () {
     return {
       isLoading: false,

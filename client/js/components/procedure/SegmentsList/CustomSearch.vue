@@ -21,7 +21,7 @@
           class="top-px right-0 absolute"
           :has-menu="false"
           :padded="false">
-          <template #trigger>
+          <template v-slot:trigger>
             <dp-icon
               :class="{ 'color-message-severe-fill': selectedFields.length > 0 }"
               icon="settings" />
@@ -29,9 +29,9 @@
           <!-- Checkboxes to specify in which fields to search -->
           <div class="space-stack-s space-inset-s w-14">
             <div class="flex">
-            <span
-              class="weight--bold"
-              v-text="Translator.trans('search.custom.limit_fields')" />
+              <span
+                class="weight--bold"
+                v-text="Translator.trans('search.custom.limit_fields')" />
               <button
                 class="btn--blank o-link--default ml-auto"
                 data-cy="customSearch:searchCustomToggleAll"
@@ -48,8 +48,8 @@
                 :key="i"
                 :checked="selectedFields.includes(value)"
                 :label="{
-                text: Translator.trans(label)
-              }"
+                  text: Translator.trans(label)
+                }"
                 @change="handleChange(value, !selectedFields.includes(value))" />
             </div>
             <div
@@ -138,6 +138,12 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'changeFields',
+    'reset',
+    'search'
+  ],
 
   data () {
     return {

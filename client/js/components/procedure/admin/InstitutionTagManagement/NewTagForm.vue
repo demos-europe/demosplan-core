@@ -79,6 +79,11 @@ export default {
     }
   },
 
+  emits: [
+    'newTagForm:close',
+    'newTag:created'
+  ],
+
   data () {
     return {
       isLoading: false,

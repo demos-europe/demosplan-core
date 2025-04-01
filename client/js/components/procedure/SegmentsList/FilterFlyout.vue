@@ -248,6 +248,11 @@ export default {
     }
   },
 
+  emits: [
+    'filterApply',
+    'filterOptions:request'
+  ],
+
   data () {
     return {
       // Filters in the current flyout that have been applied to the segment list, contains only ids

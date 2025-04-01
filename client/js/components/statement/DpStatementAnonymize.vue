@@ -128,7 +128,7 @@
               v-for="(snippet, idx) in anonymizedTextSnippets"
               :key="idx + 'snippet'">
               <span v-if="idx !== 0">
-               ...
+                ...
               </span>
               <span
                 class="font-size-small u-mb-0_5 o-box bg-color--grey-light-2 u-pl-0_25 u-pr-0_25 u-mr-0_5"

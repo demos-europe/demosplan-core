@@ -110,6 +110,14 @@ export default {
       }
     },
 
+    foldOpenToolbarItems (items) {
+      items.forEach(item => {
+        if (this.$refs[item] && typeof this.$refs[item].toggle === 'function') {
+          this.$refs[item].fold()
+        }
+      })
+    },
+
     getFocusableElements () {
       this.focusableElements = [...document.getElementById('procedureDetailsMap').querySelectorAll('a, button:not([disabled]), input, textarea, select, details, [tabindex]:not([tabindex="-1"])')].filter(el => this.isElementVisible(el))
     },

@@ -162,7 +162,12 @@ class StatementSynchronizer
         $newOriginalStatement->setSubmitTypeTranslated($sourceStatement->getSubmitTypeTranslated());
         $newOriginalStatement->setMapFile($sourceStatement->getMapFile());
         $newOriginalStatement->setSubmit($sourceStatement->getSubmitObject()->add(new DateInterval('PT1S')));
-        $newOriginalStatement->setExternId($sourceStatement->getExternId());
+        $newOriginalStatement->setExternId(
+            $this->statementService->getNextValidExternalIdForProcedure(
+                $targetProcedure->getId(),
+                true
+            )
+        );
         $newOriginalStatement->setProcedure($targetProcedure);
         $newOriginalStatement->setOrganisation($sourceStatement->getOrganisation());
         $newOriginalStatement->setManual($sourceStatement->isManual());

@@ -70,7 +70,7 @@ const FilterFlyoutStore = {
       }
     },
 
-    addToFilterQuery (state, {value, updatePayload }) {
+    addToFilterQuery (state, { value, updatePayload }) {
       state.filterQuery[value] = updatePayload
     },
 
@@ -205,6 +205,7 @@ const FilterFlyoutStore = {
     /**
      * Adds or removes filters from the filterQuery
      * @param commit
+     * @param state
      * @param filter {Object} with the following structure:
      * {
      *   id: {
@@ -217,7 +218,7 @@ const FilterFlyoutStore = {
      *   }
      * }
      */
-    updateFilterQuery ({ commit }, filter) {
+    updateFilterQuery ({ commit, state }, filter) {
       const isEmptyPayload = Object.keys(filter).length === 0
 
       if (isEmptyPayload) {
