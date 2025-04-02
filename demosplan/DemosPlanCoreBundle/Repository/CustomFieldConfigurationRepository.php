@@ -36,12 +36,12 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-    public function getCustomFieldConfigurationByProcedureId(string $procedureId, string $valueEntityClasses = 'segment'): ?CustomFieldConfiguration
+    public function getCustomFieldConfigurationByProcedureId(string $sourceEntity, string $procedureId, string $targetEntity): ?CustomFieldConfiguration
     {
         try {
             $criteria = ['templateEntityId' => $procedureId];
-
-            $criteria['valueEntityClass'] = $valueEntityClasses;
+            $criteria['templateEntityClass'] = $sourceEntity;
+            $criteria['valueEntityClass'] = $targetEntity;
 
             return $this->findOneBy($criteria);
         } catch (Exception $e) {

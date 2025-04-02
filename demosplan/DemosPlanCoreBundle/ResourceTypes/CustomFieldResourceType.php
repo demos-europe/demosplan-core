@@ -21,9 +21,11 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
+use demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldType;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomField;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTypeTrait;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
@@ -59,7 +61,7 @@ use Pagerfanta\Pagerfanta;
  * @template-extends DplanResourceType<CustomField>
  *
  * @property-read End $name
- * @property-read End $caption
+ * @property-read End $description
  *
  * @method bool isNullSafe(int $index)
  */
@@ -68,8 +70,9 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     use PropertyAutoPathTrait;
     use DoctrineResourceTypeInjectionTrait;
 
-    public function __construct(private readonly CustomFieldService $customFieldService,
-        protected readonly ConditionFactoryInterface $conditionFactory, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository, private readonly ResourceTypeService $resourceTypeService)
+
+    public function __construct(private readonly CustomFieldService          $customFieldService,
+                                protected readonly ConditionFactoryInterface $conditionFactory, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository, private readonly ResourceTypeService $resourceTypeService)
     {
     }
 
@@ -108,9 +111,11 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
         $configBuilder->id->readable();
         $configBuilder->name->readable()->initializable();
-        $configBuilder->caption->readable()->initializable();
-        // $configBuilder->templateEntity->readable()->initializable();
-        $configBuilder->templateEntityId->readable()->initializable();
+        $configBuilder->fieldType->readable()->initializable();
+        $configBuilder->description->readable()->initializable();
+        $configBuilder->targetEntity->readable()->initializable();
+        $configBuilder->sourceEntity->readable()->initializable();
+        $configBuilder->sourceEntityId->readable()->initializable();
 
         // $configBuilder->type->readable();
 
@@ -139,7 +144,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             $this->createIdentifier()->readable(
                 ''),
             $this->createAttribute($this->name)->readable(true),
-            $this->createAttribute($this->caption)->readable(true),
+            $this->createAttribute($this->description)->readable(true),
         ];
     }
 
@@ -296,20 +301,23 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         try {
             return $this->getTransactionService()->executeAndFlushInTransaction(
                 function () use ($entityData): ModifiedEntity {
+
                     $attributes = $entityData->getAttributes();
 
-                    /** @var CustomFieldConfiguration $customFieldConfiguration */
-                    $customFieldConfiguration = $this->customFieldConfigurationRepository->getCustomFieldConfigurationByProcedureId($attributes['templateEntityId']);
 
-                    // If exists, then merge this customField
-                    if ($customFieldConfiguration) {
+                    /** @var CustomFieldConfiguration $customFieldConfiguration */
+                    $customFieldConfiguration = $this->customFieldConfigurationRepository->getCustomFieldConfigurationByProcedureId($attributes['sourceEntity'], $attributes['sourceEntityId'], $attributes['targetEntity']);
+                    //If exists, then merge this customField
+                    if($customFieldConfiguration) {
+
                         /** @var CustomFieldList $configuration */
                         $configuration = $customFieldConfiguration->getConfiguration();
 
+                        $customFieldsList = $configuration->getCustomFieldsList();
                         $radioButton = new RadioButtonField();
                         $radioButton->setType('radio_button');
                         $radioButton->setName($attributes['name']);
-                        $radioButton->setCaption($attributes['caption']);
+                        $radioButton->setDescription($attributes['description']);
 
                         $customFieldsList[] = $radioButton;
                         $configuration->setCustomFields($customFieldsList);
@@ -320,14 +328,17 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
                         $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
 
-                        // $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent($this, $radioButton));
+
+
+                        //$this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent($this, $radioButton));
 
                         return new ModifiedEntity($radioButton, []);
+
                     }
 
-                    // if it does not exist, create new entry
+                    //if it does not exist, create new entry
 
-                    // $toOneRelationships = $entityData->getToOneRelationships();
+                   // $toOneRelationships = $entityData->getToOneRelationships();
 
                     return new ModifiedEntity(null, []);
 

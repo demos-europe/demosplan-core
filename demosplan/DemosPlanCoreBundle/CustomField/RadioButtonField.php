@@ -37,7 +37,7 @@ class RadioButtonField extends AbstractCustomField
     /**
      * @var string
      */
-    protected $caption = '';
+    protected $description = '';
 
     /** @var string */
     protected $procedureId = '';
@@ -51,7 +51,7 @@ class RadioButtonField extends AbstractCustomField
     {
         $this->type = $json['type'];
         $this->name = $json['name'];
-        $this->caption = $json['caption'];
+        $this->description = $json['description'];
         // $this->options = $json['options'];
     }
 
@@ -60,7 +60,7 @@ class RadioButtonField extends AbstractCustomField
         return [
             'type'      => $this->type,
             'name'      => $this->name,
-            'caption'   => $this->caption,
+            'description'   => $this->description,
             // 'options' => $this->options,
         ];
     }
@@ -85,14 +85,14 @@ class RadioButtonField extends AbstractCustomField
         $this->options = $options;
     }
 
-    public function getCaption(): string
+    public function getDescription(): string
     {
-        return $this->caption;
+        return $this->description;
     }
 
-    public function setCaption(string $caption): void
+    public function setDescription(string $description): void
     {
-        $this->caption = $caption;
+        $this->description = $description;
     }
 
     public function getProcedureId(): string
