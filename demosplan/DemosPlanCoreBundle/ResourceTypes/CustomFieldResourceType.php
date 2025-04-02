@@ -107,7 +107,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         );
 
         $configBuilder->id->readable(
-            static fn (CustomFieldInterface $customField) => $customField->getType().'_'. random_int(1, 1000));
+            static fn (CustomFieldInterface $customField) => $customField->getType().'_'.random_int(1, 1000));
         $configBuilder->name->readable()->initializable();
         $configBuilder->fieldType->readable()->initializable();
         $configBuilder->options->readable()->initializable();

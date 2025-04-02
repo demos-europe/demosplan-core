@@ -32,7 +32,7 @@ class RadioButtonField extends AbstractCustomField
      *
      * @var array
      */
-     protected $options = [];
+    protected $options = [];
 
     /**
      * @var string
@@ -61,7 +61,7 @@ class RadioButtonField extends AbstractCustomField
             'type'          => $this->type,
             'name'          => $this->name,
             'description'   => $this->description,
-            'options' => $this->options,
+            'options'       => $this->options,
         ];
     }
 
