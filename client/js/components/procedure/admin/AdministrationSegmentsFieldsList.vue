@@ -149,6 +149,7 @@
 
 <script>
 import {
+  dpApi,
   DpButton,
   DpButtonRow,
   DpDataTable,
@@ -237,9 +238,38 @@ export default {
       this.isNewFieldFormOpen = false
     },
 
-    // TO DO Implement BE request
     fetchSegmentFields () {
-      console.log('Fetch segment fields')
+      this.isInitiallyLoading = true
+
+      dpApi.get(Routing.generate('api_resource_list', {
+        resourceType: 'AdminProcedure',
+        fields: {
+          AdminProcedure: [],
+          CustomField: [
+            'name',
+            'description',
+            'options'
+          ].join()
+        },
+        include: ['segmentCustomFieldsTemplate']
+      }))
+        .then(response => {
+          const fields = response.data.data
+
+          fields.forEach((field) => {
+            this.segmentFields.push({
+              id: field.id,
+              name: field.attributes.name,
+              description: field.attributes.description,
+              options: field.options,
+              open: false
+            })
+          })
+        })
+        .catch(err => console.error(err))
+        .finally(() => {
+          this.isInitiallyLoading = false
+        })
     },
 
     hideOptions (rowData) {
