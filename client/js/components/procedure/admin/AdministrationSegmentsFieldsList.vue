@@ -245,7 +245,7 @@ export default {
 
     fetchSegmentFields () {
       this.isInitiallyLoading = true
-      const url = Routing.generate('api_resource_list', { id: this.procedureId, resourceType: 'AdminProcedure' })
+      const url = Routing.generate('api_resource_get', { resourceType: 'AdminProcedure', resourceId: this.procedureId })
       const params = {
         fields: {
           AdminProcedure: [],
