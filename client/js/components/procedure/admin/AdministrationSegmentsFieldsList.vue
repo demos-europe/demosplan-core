@@ -181,6 +181,11 @@ export default {
     currentUserId: {
       type: String,
       required: true
+    },
+
+    procedureId: {
+      type: String,
+      required: true
     }
   },
 
@@ -240,9 +245,8 @@ export default {
 
     fetchSegmentFields () {
       this.isInitiallyLoading = true
-
-      dpApi.get(Routing.generate('api_resource_list', {
-        resourceType: 'AdminProcedure',
+      const url = Routing.generate('api_resource_list', { id: this.procedureId, resourceType: 'AdminProcedure' })
+      const params = {
         fields: {
           AdminProcedure: [],
           CustomField: [
@@ -252,7 +256,9 @@ export default {
           ].join()
         },
         include: ['segmentCustomFieldsTemplate']
-      }))
+      }
+
+      dpApi.get(url, params)
         .then(response => {
           const fields = response.data.data
 

@@ -5,7 +5,9 @@
         heading: 'Felder auf Abschnittsebene'|trans
     } %}
 
-    <administration-segments-fields-list current-user-id="{{ currentUser.ident|default }}">
+    <administration-segments-fields-list
+        current-user-id="{{ currentUser.ident|default }}"
+        procedure-id="{{ procedure }}">
     </administration-segments-fields-list>
 {% endblock component_part %}
 
