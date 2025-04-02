@@ -85,11 +85,13 @@ class CustomFieldType extends JsonType
         $value,
         AbstractPlatform $platform,
     ): string {
-        if (!is_a($value, CustomFieldInterface::class)) {
+       /* if (!is_a($value, CustomFieldInterface::class)) {
             throw new RuntimeException('This field can only handle '.CustomFieldInterface::class.' as data');
         }
 
-        return parent::convertToDatabaseValue($value->toJson(), $platform);
+        return parent::convertToDatabaseValue($value->toJson(), $platform);*/
+
+        return parent::convertToDatabaseValue($value, $platform);
     }
 
     public function getName(): string

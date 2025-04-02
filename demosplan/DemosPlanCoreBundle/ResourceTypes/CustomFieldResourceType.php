@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
+use demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldType;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomField;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -310,7 +311,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
                         /** @var CustomFieldList $configuration */
                         $configuration = $customFieldConfiguration->getConfiguration();
 
-                        $customFieldsList = $configuration->getCustomFieldsList();
 
                         $radioButton = new RadioButtonField();
                         $radioButton->setType('radio_button');
@@ -318,14 +318,11 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
                         $radioButton->setCaption($attributes['caption']);
 
                         $customFieldsList[] = $radioButton;
-
                         $configuration->setCustomFields($customFieldsList);
 
+                        $jsonConfig = $configuration->toJson();
 
-
-                        // Mark the entity as changed
-
-                        $customFieldConfiguration->setConfiguration($configuration);
+                        $customFieldConfiguration->setConfiguration($jsonConfig);
 
 
                         $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
