@@ -11,6 +11,7 @@ import DpBulkEditStatement from '@DpJs/components/statement/assessmentTable/DpBu
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import StatementStore from '@DpJs/store/statement/Statement'
 
+
 describe('DpBulkEditStatement', () => {
   let store
   let wrapper

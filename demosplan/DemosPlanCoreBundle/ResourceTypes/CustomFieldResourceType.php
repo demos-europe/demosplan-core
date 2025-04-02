@@ -137,7 +137,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         );
     }
 
-
     /**
      * @return IdentifierConfigBuilder<TEntity>
      */
