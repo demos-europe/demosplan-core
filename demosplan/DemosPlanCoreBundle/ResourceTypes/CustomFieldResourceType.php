@@ -338,37 +338,37 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
                     //if it does not exist, create new entry
 
+                    $customFieldConfiguration = new CustomFieldConfiguration();
+
+                    $customFieldConfiguration->setTemplateEntityClass($attributes['sourceEntity']);
+                    $customFieldConfiguration->setTemplateEntityId($attributes['sourceEntityId']);
+
+                    $customFieldConfiguration->setValueEntityClass($attributes['targetEntity']);
+
+                    $customFieldsList = new CustomFieldList();
+                    $customFieldsList->setName('DefaultName');
+
+                    $customFields = [];
+
+                    $radioButton = new RadioButtonField();
+                    $radioButton->setType('radio_button');
+                    $radioButton->setName($attributes['name']);
+                    $radioButton->setDescription($attributes['description']);
+
+                    $customFields[] = $radioButton;
+
+                    $customFieldsList->setCustomFields($customFields);
+
+                    $customFieldConfiguration->setConfiguration($customFieldsList->toJson());
+
+                    $this->customFieldConfigurationRepository->add($customFieldConfiguration);
+
+
+
                    // $toOneRelationships = $entityData->getToOneRelationships();
 
-                    return new ModifiedEntity(null, []);
+                    return new ModifiedEntity($radioButton, []);
 
-                    /*$currentCustomer = $this->customFieldConfigurationRepository->getCustomFieldConfigurationByProcedureId();
-                    $attributes = $entityData->getAttributes();
-
-                    // create support contact
-                    $contact = new SupportContact(
-                        SupportContact::SUPPORT_CONTACT_TYPE_DEFAULT,
-                        $attributes[$this->title->getAsNamesInDotNotation()],
-                        $attributes[$this->phoneNumber->getAsNamesInDotNotation()],
-                        $attributes[$this->eMailAddress->getAsNamesInDotNotation()],
-                        $attributes[$this->text->getAsNamesInDotNotation()],
-                        $currentCustomer,
-                        $attributes[$this->visible->getAsNamesInDotNotation()],
-                    );
-
-                    // update customer
-                    $currentCustomer->getContacts()->add($contact);
-
-                    // validate entities
-                    $this->resourceTypeService->validateObject($contact);
-                    $this->resourceTypeService->validateObject($currentCustomer);
-
-                    // persist created entities
-                    $this->supportContactRepository->persistEntities([$contact]);
-
-                    $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent($this, $contact));
-
-                    return new ModifiedEntity($contact, []);*/
                 }
             );
         } catch (Exception $exception) {

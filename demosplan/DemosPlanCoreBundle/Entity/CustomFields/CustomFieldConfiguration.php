@@ -88,8 +88,51 @@ class CustomFieldConfiguration extends CoreEntity
         $this->configuration = $configuration;
     }
 
-    public function setEntityTemplateClass(string $templateEntityClass)
+    /**
+     * @return string
+     */
+    public function getTemplateEntityId(): string
+    {
+        return $this->templateEntityId;
+    }
+
+    /**
+     * @param string $templateEntityId
+     */
+    public function setTemplateEntityId(string $templateEntityId): void
+    {
+        $this->templateEntityId = $templateEntityId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTemplateEntityClass(): string
+    {
+        return $this->templateEntityClass;
+    }
+
+    /**
+     * @param string $templateEntityClass
+     */
+    public function setTemplateEntityClass(string $templateEntityClass): void
     {
         $this->templateEntityClass = $templateEntityClass;
+    }
+
+    /**
+     * @return string
+     */
+    public function getValueEntityClass(): string
+    {
+        return $this->valueEntityClass;
+    }
+
+    /**
+     * @param string $valueEntityClass
+     */
+    public function setValueEntityClass(string $valueEntityClass): void
+    {
+        $this->valueEntityClass = $valueEntityClass;
     }
 }
