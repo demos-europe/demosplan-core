@@ -7,7 +7,7 @@
       v-model="unsavedItem.title" />
     <div
       v-else
-      class="flex-1"
+      class="flex-1 break-words"
       v-text="nodeElement.attributes.title" />
     <div class="text-center w-9">
       <dp-contextual-help
@@ -73,6 +73,7 @@
       </div>
       <dp-confirm-dialog
         ref="confirmDialog"
+        data-cy="removeTagOrTopic"
         :message="setConfirmMessage()" />
     </div>
   </div>
