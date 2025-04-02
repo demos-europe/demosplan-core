@@ -48,6 +48,4 @@ interface CustomFieldInterface
     public function getProcedureId(): string;
 
     public function getCustomFieldsList(): ?array;
-
-
 }

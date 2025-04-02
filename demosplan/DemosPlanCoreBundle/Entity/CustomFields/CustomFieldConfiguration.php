@@ -12,11 +12,8 @@ namespace demosplan\DemosPlanCoreBundle\Entity\CustomFields;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
-use demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldType;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Persistence\NotifyPropertyChanged;
-use Doctrine\Persistence\PropertyChangedListener;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
@@ -59,7 +56,6 @@ class CustomFieldConfiguration extends CoreEntity
     protected $valueEntityClass;
 
     /**
-     *
      * @ORM\Column(type="dplan.custom_fields_template", nullable=true)
      */
     protected $configuration;
@@ -82,7 +78,6 @@ class CustomFieldConfiguration extends CoreEntity
      */
     protected $modifyDate;
 
-
     public function getConfiguration(): ?CustomFieldList
     {
         return $this->configuration;
@@ -93,10 +88,8 @@ class CustomFieldConfiguration extends CoreEntity
         $this->configuration = $configuration;
     }
 
-    public function setEntityTemplateClass(string $templateEntityClass) {
+    public function setEntityTemplateClass(string $templateEntityClass)
+    {
         $this->templateEntityClass = $templateEntityClass;
     }
-
-
-
 }

@@ -110,8 +110,8 @@ class RadioButtonField extends AbstractCustomField
         return 'radio_button';
     }
 
-    public function setType(string $type ): void {
-
+    public function setType(string $type): void
+    {
         $this->type = $type;
     }
 }

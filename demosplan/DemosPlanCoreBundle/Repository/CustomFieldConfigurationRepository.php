@@ -54,7 +54,6 @@ class CustomFieldConfigurationRepository extends CoreRepository
     public function updateObject($entity): CustomFieldConfiguration
     {
         try {
-
             $em = $this->getEntityManager();
             $em->persist($entity);
             $em->flush();
