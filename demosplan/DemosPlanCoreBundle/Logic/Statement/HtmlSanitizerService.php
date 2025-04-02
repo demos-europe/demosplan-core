@@ -29,6 +29,7 @@ class HtmlSanitizerService
      * 3. Uses HTMLPurifier indirectly (through HTMLSanitizer) for final sanitization
      *
      * @param string $inputString The input text which may contain both valid HTML and text that looks like HTML
+     *
      * @return string The sanitized text with only allowed HTML tags preserved
      */
     public function escapeDisallowedTags(string $inputString): string
@@ -57,16 +58,16 @@ class HtmlSanitizerService
             'table', 'tbody', 'td', 'template', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track',
             'u', 'ul',
             'var', 'video',
-            'wbr'
+            'wbr',
         ];
 
         // Step 3: Create a map of encoded tags to their original form
         $encodedToOriginalMap = [];
         foreach ($allowedTags as $tag) {
             // Opening tags
-            $encodedToOriginalMap['&lt;' . $tag . '&gt;'] = '<' . $tag . '>';
+            $encodedToOriginalMap['&lt;'.$tag.'&gt;'] = '<'.$tag.'>';
             // Closing tags
-            $encodedToOriginalMap['&lt;/' . $tag . '&gt;'] = '</' . $tag . '>';
+            $encodedToOriginalMap['&lt;/'.$tag.'&gt;'] = '</'.$tag.'>';
         }
 
         // Special handling for DOCTYPE
@@ -80,13 +81,13 @@ class HtmlSanitizerService
 
         foreach ($tagsWithAttributes as $tagWithAttr) {
             // Match pattern for tags with attributes
-            $pattern = '/&lt;(' . preg_quote($tagWithAttr, '/') . '[^&]*)&gt;/';
+            $pattern = '/&lt;('.preg_quote($tagWithAttr, '/').'[^&]*)&gt;/';
 
             // Replace with actual HTML tags
             $decodedString = preg_replace_callback(
                 $pattern,
                 static function ($matches) {
-                    return '<' . $matches[1] . '>';
+                    return '<'.$matches[1].'>';
                 },
                 $decodedString
             );

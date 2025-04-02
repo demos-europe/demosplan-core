@@ -233,7 +233,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             }
 
             $text = $this->htmlSanitizerService->escapeDisallowedTags(implode(' ', array_column($correspondingSegments, 'Einwand')));
-            
+
             $statement[self::STATEMENT_TEXT] = $text;
 
             $generatedOriginalStatement = $this->createNewOriginalStatement($statement, $result->getStatementCount(), $statementLine, $statementWorksheetTitle);
@@ -647,7 +647,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         // Sanitize HTML to escape disallowed tags
         $sanitizedText = $this->htmlSanitizerService->escapeDisallowedTags($statementText);
-        
+
         return $this->replaceLineBreak($sanitizedText);
     }
 

@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace backend\core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\Logic\Statement\HtmlSanitizerService;
@@ -24,10 +32,10 @@ class HtmlSanitizerServiceTest extends TestCase
         parent::setUp();
 
         $this->htmlSanitizerMock = $this->createMock(HTMLSanitizer::class);
-        
+
         // Simulate the HTML purifier behavior - it should return the input for our test cases
         $this->htmlSanitizerMock->method('purify')
-            ->willReturnCallback(function($input) {
+            ->willReturnCallback(function ($input) {
                 return $input;
             });
 
@@ -81,7 +89,7 @@ class HtmlSanitizerServiceTest extends TestCase
         // However, we're mocking HTMLSanitizer so the test output may differ from the implementation
         $this->htmlSanitizerMock->expects($this->once())
             ->method('purify');
-            
+
         $this->sut->escapeDisallowedTags($input);
         // This test now just verifies the purify method was called
     }
