@@ -10,7 +10,7 @@
 
     <div
       v-if="!isNewFieldFormOpen"
-      class="text-right">
+      class="text-right mb-4">
       <dp-button
         data-cy="segmentFields:addField"
         @click="openNewFieldForm"
@@ -19,7 +19,7 @@
 
     <div
       v-if="isNewFieldFormOpen"
-      class="relative"
+      class="relative mb-4"
       data-dp-validate="addNewFieldForm">
       <dp-loading
         v-if="isLoading"
@@ -48,19 +48,22 @@
         <div>
           <dp-label
             class="mb-1"
+            required
             :text="Translator.trans('options')" />
           <dp-input
             id="newFieldOption:1"
             class="mb-2 w-[calc(100%-26px)]"
             data-cy="segmentFields:newFieldOption1"
             v-model="newField.options[0]"
-            maxlength="250" />
+            maxlength="250"
+            required />
           <dp-input
             id="newFieldOption:2"
             class="mb-2 w-[calc(100%-26px)]"
             data-cy="segmentFields:newFieldOption2"
             v-model="newField.options[1]"
-            maxlength="250" />
+            maxlength="250"
+            required />
 
           <div
             v-for="(option, idx) in additionalOptions"
@@ -93,10 +96,11 @@
           data-cy="segmentFields:addNewField"
           primary
           secondary
-          @primary-action="dpValidateAction('addNewFieldForm', () => saveNewField(newField), false)"
+          @primary-action="dpValidateAction('addNewFieldForm', () => saveNewField(), false)"
           @secondary-action="closeNewFieldForm" />
       </div>
     </div>
+
     <dp-data-table
       v-if="!isInitiallyLoading"
       data-cy="segmentFields:table"
@@ -160,6 +164,7 @@ import {
   DpLoading,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
+import { mapActions } from 'vuex'
 
 export default {
   name: 'AdministrationSegmentsFieldsList',
@@ -228,6 +233,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('CustomField', {
+      createCustomField: 'create'
+    }),
+
     addOptionInput () {
       this.newField.options.push('')
     },
@@ -293,9 +302,46 @@ export default {
       this.newField.options.splice(index, 1)
     },
 
+    resetNewFieldForm () {
+      this.newField = {
+        name: '',
+        description: '',
+        options: [
+          '',
+          ''
+        ]
+      }
+    },
+
     saveNewField () {
       this.isLoading = true
       this.newField.options = this.newField.options.filter(option => option !== '')
+      const { description, name, options } = this.newField
+
+      const payload = {
+        type: 'CustomField',
+        attributes: {
+          description,
+          name,
+          options,
+          sourceEntity: 'PROCEDURE',
+          sourceEntityId: this.procedureId,
+          targetEntity: 'SEGMENT',
+          type: 'radio_button'
+        },
+      }
+
+      this.createCustomField(payload)
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
+        .catch(err => {
+          console.error(err)
+        })
+        .finally(() => {
+          this.isLoading = false
+          this.resetNewFieldForm()
+        })
     },
 
     showOptions (rowData) {
