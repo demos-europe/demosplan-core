@@ -13,12 +13,12 @@
       v-if="transformedStatements.length === 0"
       :message="Translator.trans('statement.list.empty')"
       type="info" />
-    <draggable
+    <dp-draggable
       v-else
-      v-model="transformedStatements"
+      v-model:content-data="transformedStatements"
       class="space-stack-m"
       data-cy="publicStatementList"
-      :disabled="hasPermission('feature_statements_manualsort') === false"
+      :is-draggable="hasPermission('feature_statements_manualsort')"
       @change="saveSort">
       <dp-public-statement
         v-for="(statement, idx) in transformedStatements"
@@ -30,7 +30,7 @@
         :procedure-id="procedureId"
         :show-author="showAuthor"
         :show-checkbox="showCheckbox" />
-    </draggable>
+    </dp-draggable>
     <dp-map-modal
       ref="mapModal"
       :procedure-id="procedureId" />
@@ -38,10 +38,9 @@
 </template>
 
 <script>
-import { DpInlineNotification, dpSelectAllMixin, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
+import { DpDraggable, DpInlineNotification, dpSelectAllMixin, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
-import draggable from 'vuedraggable'
 import { generateMenuItems } from './menuItems'
 
 const editPermissions = {
@@ -69,10 +68,10 @@ export default {
   name: 'DpPublicStatementList',
 
   components: {
+    DpDraggable,
     DpInlineNotification,
     DpMapModal,
-    DpPublicStatement,
-    draggable
+    DpPublicStatement
   },
 
   mixins: [dpSelectAllMixin],
