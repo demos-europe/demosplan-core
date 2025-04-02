@@ -137,15 +137,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         );
     }
 
-    protected function getProperties(): array
-    {
-        return [
-            $this->createIdentifier()->readable(
-                ''),
-            $this->createAttribute($this->name)->readable(true),
-            $this->createAttribute($this->description)->readable(true),
-        ];
-    }
 
     /**
      * @return IdentifierConfigBuilder<TEntity>
