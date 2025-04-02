@@ -281,6 +281,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
                     $radioButton->setType('radio_button');
                     $radioButton->setName($attributes['name']);
                     $radioButton->setDescription($attributes['description']);
+                    $radioButton->setOptions($attributes['options']);
 
                     $customFields[] = $radioButton;
 
