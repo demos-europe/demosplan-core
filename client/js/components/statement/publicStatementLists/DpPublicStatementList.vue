@@ -13,32 +13,26 @@
       v-if="transformedStatements.length === 0"
       :message="Translator.trans('statement.list.empty')"
       type="info" />
-    <dp-draggable
-      v-else
-      v-model:content-data="transformedStatements"
-      class="space-stack-m"
-      data-cy="publicStatementList"
-      :is-draggable="hasPermission('feature_statements_manualsort')"
-      @change="saveSort">
+    <div class="space-stack-m">
       <dp-public-statement
         v-for="(statement, idx) in transformedStatements"
         v-bind="statement"
         :key="idx"
-        @open-map-modal="openMapModal"
-        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"
         :menu-items-generator="menuItemCallback"
         :procedure-id="procedureId"
         :show-author="showAuthor"
-        :show-checkbox="showCheckbox" />
-    </dp-draggable>
-    <dp-map-modal
-      ref="mapModal"
-      :procedure-id="procedureId" />
+        :show-checkbox="showCheckbox"
+        @open-map-modal="openMapModal"
+        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"/>
+      <dp-map-modal
+        ref="mapModal"
+        :procedure-id="procedureId" />
+    </div>
   </div>
 </template>
 
 <script>
-import { DpDraggable, DpInlineNotification, dpSelectAllMixin, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
+import { DpInlineNotification, dpSelectAllMixin, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
 import { generateMenuItems } from './menuItems'
@@ -68,7 +62,6 @@ export default {
   name: 'DpPublicStatementList',
 
   components: {
-    DpDraggable,
     DpInlineNotification,
     DpMapModal,
     DpPublicStatement
@@ -213,14 +206,6 @@ export default {
   methods: {
     openMapModal (polygon) {
       this.$refs.mapModal.toggleModal(polygon)
-    },
-
-    saveSort () {
-      document.querySelector('[data-flash-message]').innerText = Translator.trans('warning.sort.save')
-      const container = document.querySelector('[data-flash-container]')
-      container.classList.remove('flash-info')
-      container.classList.remove('flash-warning')
-      container.classList.add('flash-error')
     },
 
     transformStatement (statement) {
