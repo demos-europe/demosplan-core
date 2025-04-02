@@ -14,7 +14,12 @@
     } %}
 
     {% set form_action = templateVars.formAction|default(path("DemosPlan_statement_new_submitted", {'procedureId': templateVars.table.procedure.ident})) %}
-    {% set abort_path = templateVars.abortPath|default(path("dplan_assessmenttable_view_original_table", { 'procedureId': templateVars.table.procedure.ident })) %}
+    {% if hasPermission('area_statement_data_input_orga') %}
+        {% set abort_path = path('DemosPlan_statement_orga_list', { 'procedureId': templateVars.table.procedure.ident }) %}
+    {% else %}
+        {% set abort_path = templateVars.abortPath|default(path('dplan_assessmenttable_view_original_table', { 'procedureId': templateVars.table.procedure.ident })) %}
+    {% endif %}
+
     {% set user = currentUser %}
     {% set username = user.firstName ~ ' ' ~ user.lastName %}
 

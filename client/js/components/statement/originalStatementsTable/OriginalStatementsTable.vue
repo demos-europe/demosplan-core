@@ -78,7 +78,7 @@
     <slot
       v-bind="{ procedureId, allItemsOnPageSelected, copyStatements }"
       name="filter"
-      :toggleExportModal="toggleExportModal" />
+      :toggle-export-modal="toggleExportModal" />
 
     <!-- If there are statements, display statement list -->
     <dp-loading
