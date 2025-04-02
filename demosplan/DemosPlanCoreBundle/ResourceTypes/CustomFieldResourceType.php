@@ -137,25 +137,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         );
     }
 
-    /**
-     * @return IdentifierConfigBuilder<TEntity>
-     */
-    protected function createIdentifier(): IdentifierConfigBuilder
-    {
-        return $this->getPropertyBuilderFactory()->createIdentifier($this->getEntityClass());
-    }
-
-    /**
-     * @return AttributeConfigBuilder<ClauseFunctionInterface<bool>, TEntity>
-     */
-    protected function createAttribute(PropertyPathInterface $path): AttributeConfigBuilder
-    {
-        return $this->getPropertyBuilderFactory()->createAttribute(
-            $this->getEntityClass(),
-            $path
-        );
-    }
-
     public function isAvailable(): bool
     {
         return true;
@@ -248,41 +229,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     public function getUpdatability(): ResourceUpdatability
     {
         return $this->getResourceConfig()->getUpdatability();
-    }
-
-    public function __toString(): string
-    {
-        // TODO: Implement __toString() method.
-    }
-
-    public function getLength()
-    {
-        // TODO: Implement getLength() method.
-    }
-
-    public function getParent()
-    {
-        // TODO: Implement getParent() method.
-    }
-
-    public function getElements()
-    {
-        // TODO: Implement getElements() method.
-    }
-
-    public function getElement(int $index)
-    {
-        // TODO: Implement getElement() method.
-    }
-
-    public function isProperty(int $index)
-    {
-        // TODO: Implement isProperty() method.
-    }
-
-    public function isIndex(int $index)
-    {
-        return 0;
     }
 
     public function createEntity(CreationDataInterface $entityData): ModifiedEntity
