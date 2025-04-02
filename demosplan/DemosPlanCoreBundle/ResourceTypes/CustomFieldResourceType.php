@@ -106,9 +106,11 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             $this->propertyBuilderFactory
         );
 
-        $configBuilder->id->readable();
+        $configBuilder->id->readable(
+            static fn (CustomFieldInterface $customField) => $customField->getType().'_'. random_int(1, 1000));
         $configBuilder->name->readable()->initializable();
         $configBuilder->fieldType->readable()->initializable();
+        $configBuilder->options->readable()->initializable();
         $configBuilder->description->readable()->initializable();
         $configBuilder->targetEntity->readable()->initializable();
         $configBuilder->sourceEntity->readable()->initializable();
@@ -312,6 +314,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
                         $radioButton->setType('radio_button');
                         $radioButton->setName($attributes['name']);
                         $radioButton->setDescription($attributes['description']);
+                        $radioButton->setOptions($attributes['options']);
 
                         $customFieldsList[] = $radioButton;
                         $configuration->setCustomFields($customFieldsList);
