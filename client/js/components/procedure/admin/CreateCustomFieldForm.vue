@@ -1,0 +1,120 @@
+<template>
+  <div
+    v-if="!isOpen"
+    class="text-right mb-4">
+    <dp-button
+      data-cy="segmentFields:addField"
+      @click="open"
+      :text="Translator.trans('field.add')" />
+  </div>
+
+  <div
+    v-if="isOpen"
+    class="relative mb-4"
+    data-dp-validate="addNewFieldForm">
+    <dp-loading
+      v-if="isLoading"
+      overlay />
+    <div class="border rounded space-stack-m space-inset-m">
+      <dp-input
+        id="newFieldName"
+        class="w-[calc(100%-26px)]"
+        data-cy="segmentFields:newFieldName"
+        v-model="customField.name"
+        :label="{
+          text: Translator.trans('name')
+        }"
+        maxlength="250"
+        required />
+      <dp-input
+        id="newFieldDescription"
+        class="w-[calc(100%-26px)]"
+        data-cy="segmentFields:newFieldDescription"
+        v-model="customField.description"
+        :label="{
+          text: Translator.trans('description')
+        }"
+        maxlength="250" />
+
+      <slot />
+
+      <dp-button-row
+        :busy="isLoading"
+        data-cy="segmentFields:addNewField"
+        primary
+        secondary
+        @primary-action="handleSave"
+        @secondary-action="handleAbort" />
+    </div>
+  </div>
+</template>
+
+<script>
+import {
+  DpButton,
+  DpButtonRow,
+  DpInput,
+  DpLoading
+} from '@demos-europe/demosplan-ui'
+
+export default {
+  name: 'CreateCustomFieldForm',
+
+  components: {
+    DpButton,
+    DpButtonRow,
+    DpInput,
+    DpLoading
+  },
+
+  props: {
+    isLoading: {
+      type: Boolean,
+      default: false
+    }
+  },
+
+  emits: [
+    'abort',
+    'open',
+    'save'
+  ],
+
+  data () {
+    return {
+      customField: {
+        name: '',
+        description: ''
+      },
+      isOpen: false
+    }
+  },
+
+  methods: {
+    close () {
+      this.isOpen = false
+    },
+
+    handleAbort () {
+      this.$emit('abort')
+      this.close()
+      this.reset()
+    },
+
+    handleSave () {
+      this.$emit('save', this.customField)
+      this.reset()
+      this.close()
+    },
+
+    open () {
+      this.isOpen = true
+    },
+
+    reset () {
+      this.customField.name = ''
+      this.customField.description = ''
+    }
+  }
+}
+</script>
