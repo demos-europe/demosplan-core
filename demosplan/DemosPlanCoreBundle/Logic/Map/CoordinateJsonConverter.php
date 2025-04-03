@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use InvalidArgumentException;
 use Webmozart\Assert\Assert;
 
 class CoordinateJsonConverter
@@ -28,7 +29,7 @@ class CoordinateJsonConverter
     /**
      * Converts a flat list of coordinates to an array format.
      *
-     * @throws \InvalidArgumentException if the values are not numeric or the count is incorrect.
+     * @throws InvalidArgumentException if the values are not numeric or the count is incorrect
      */
     public function convertFlatListToCoordinates(string $rawCoordinateValues, bool $isExtendedFormat): ?array
     {
