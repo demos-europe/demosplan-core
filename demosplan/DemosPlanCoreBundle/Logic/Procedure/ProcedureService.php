@@ -908,7 +908,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             foreach ($procedureIds as $procedureId) {
                 $data = [
                     'ident'    => $procedureId,
-                    'customer' => null,
                     'deleted'  => true,
                 ];
 
