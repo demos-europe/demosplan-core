@@ -31,6 +31,7 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Email\Generator\CodeGeneratorInterface;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticatorInterface;
+use DateTime;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -198,6 +199,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             $user = $this->userHandler->changeEmailValidate($user, $key);
 
             if ($user instanceof User) {
+                // Invalidate the token to prevent reuse by setting lastLogin to current time
+                $user->setLastLogin(new DateTime());
+                // Save the user through the user service
+                $this->userService->updateUserObject($user);
                 $this->getMessageBag()->add('confirm', 'confirm.email.changed', ['emailAddress' => $user->getEmail()]);
 
                 return $this->redirectToRoute('DemosPlan_user_portal');
@@ -468,6 +473,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
             $userService->changePassword($uId, '', $newPassword, false);
             $this->userHandler->setAccessConfirmed($user);
+
+            // Invalidate the token to prevent reuse by setting lastLogin to current time
+            $user->setLastLogin(new DateTime());
+            $this->userService->updateUserObject($user);
 
             $this->messageBag->add('confirm', 'user.password.set');
 
