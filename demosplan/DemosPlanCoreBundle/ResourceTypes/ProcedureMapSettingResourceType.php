@@ -58,7 +58,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
                 return [];
             })
-            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent(), true));
+            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->coordinateJsonConverter->convertFlatListToCoordinates($procedureSettings->getMapExtent(), true));
 
         /*
          * FE sends mapExtent and BE stores it as boundingBox due to legacy reasons
@@ -71,7 +71,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
                     return [];
                 })
-                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), true));
+                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->coordinateJsonConverter->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), true));
         }
 
         $configBuilder->scales
@@ -157,7 +157,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
                     return [];
                 })
-                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getCoordinate(), false));
+                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->coordinateJsonConverter->convertFlatListToCoordinates($procedureSettings->getCoordinate(), false));
         }
 
         if ($this->currentUser->hasPermission('feature_map_use_territory')) {
@@ -204,7 +204,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             $setting = $this->globalConfig->$globalConfigMethod();
         }
 
-        return $this->convertFlatListToCoordinates($setting, true);
+        return $this->coordinateJsonConverter->convertFlatListToCoordinates($setting, true);
     }
 
     protected function getSetting(string $settingName, ProcedureSettings $procedureSetting): ?Setting
@@ -257,45 +257,6 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         return implode(',', [
             $coordinates['latitude'],
             $coordinates['longitude']]);
-    }
-
-    protected function convertFlatListToCoordinates(string $rawCoordinateValues, bool $isExtendedFormat): ?array
-    {
-        if ('' === $rawCoordinateValues) {
-            return null;
-        }
-
-        // Remove square brackets if present
-        $rawCoordinateValues = trim($rawCoordinateValues, '[]');
-        $rawCoordinateValues = explode(',', $rawCoordinateValues);
-        $coordinateValues = [];
-
-        foreach ($rawCoordinateValues as $value) {
-            Assert::numeric($value);
-            $coordinateValues[] = (float) $value;
-        }
-
-        if (!$isExtendedFormat) {
-            Assert::count($coordinateValues, 2);
-
-            return [
-                'latitude'  => $coordinateValues[0],
-                'longitude' => $coordinateValues[1],
-            ];
-        }
-
-        Assert::count($coordinateValues, 4);
-
-        return [
-            'start' => [
-                'latitude'  => $coordinateValues[0],
-                'longitude' => $coordinateValues[1],
-            ],
-            'end' => [
-                'latitude'  => $coordinateValues[2],
-                'longitude' => $coordinateValues[3],
-            ],
-        ];
     }
 
     /**

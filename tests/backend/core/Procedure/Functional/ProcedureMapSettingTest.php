@@ -29,17 +29,20 @@ class ProcedureMapSettingTest extends FunctionalTestCase
     /** @var GlobalConfigInterface */
     protected $globalConfig;
 
+    /** @var CoordinateJsonConverter */
+    protected $coordinateJsonConverter;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $contentService = $this->getContainer()->get(ContentService::class);
-        $coordinateJsonConverter = $this->getContainer()->get(CoordinateJsonConverter::class);
+        $this->coordinateJsonConverter = $this->getContainer()->get(CoordinateJsonConverter::class);
 
         $this->masterTemplateService = $this->getContainer()->get(MasterTemplateService::class);
         $this->globalConfig = $this->getContainer()->get(GlobalConfigInterface::class);
 
-        $this->procedureMapSettingResourceType = new ProcedureMapSettingResourceType($contentService, $this->masterTemplateService, $coordinateJsonConverter);
+        $this->procedureMapSettingResourceType = new ProcedureMapSettingResourceType($contentService, $this->masterTemplateService, $this->coordinateJsonConverter);
         $this->procedureMapSettingResourceType->setGlobalConfig($this->globalConfig);
     }
 
@@ -71,11 +74,7 @@ class ProcedureMapSettingTest extends FunctionalTestCase
         // Set an empty bounding box for the master template aka blueprint
         $this->masterTemplateService->getMasterTemplate()->getSettings()->setBoundingBox('');
 
-        $convertFlatListToCoordinatesMethod = new ReflectionMethod(ProcedureMapSettingResourceType::class, 'convertFlatListToCoordinates');
-        $convertFlatListToCoordinatesMethod->setAccessible(true);
-
-        // Detect the boundingBox of the global config
-        $expectedGlobalConfigBoundingBox = $convertFlatListToCoordinatesMethod->invoke($this->procedureMapSettingResourceType, $this->globalConfig->getMapMaxBoundingbox(), true);
+        $expectedGlobalConfigBoundingBox =  $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapMaxBoundingbox(), true);
 
         $getMapSettingMethod = new ReflectionMethod(ProcedureMapSettingResourceType::class, 'getMapSetting');
         $getMapSettingMethod->setAccessible(true);
