@@ -74,7 +74,7 @@ class ProcedureMapSettingTest extends FunctionalTestCase
         // Set an empty bounding box for the master template aka blueprint
         $this->masterTemplateService->getMasterTemplate()->getSettings()->setBoundingBox('');
 
-        $expectedGlobalConfigBoundingBox =  $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapMaxBoundingbox(), true);
+        $expectedGlobalConfigBoundingBox = $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapMaxBoundingbox(), true);
 
         $getMapSettingMethod = new ReflectionMethod(ProcedureMapSettingResourceType::class, 'getMapSetting');
         $getMapSettingMethod->setAccessible(true);
