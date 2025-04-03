@@ -192,6 +192,9 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         return $this->getMapSetting('getMapExtent', 'getMapPublicExtent');
     }
 
+    /**
+     * Retrieve a map setting from the master template or fallback to global config.
+     */
     private function getMapSetting(string $masterTemplateMethod, string $globalConfigMethod): ?array
     {
         $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
