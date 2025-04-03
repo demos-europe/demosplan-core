@@ -1063,7 +1063,7 @@ class DemosPlanDocumentController extends BaseController
         if (!empty($requestPost['r_action']) && 'singledocumentdelete' === $requestPost['r_action'] && array_key_exists('document_delete', $requestPost)) {
             $storageResult = $singleDocumentService->deleteSingleDocument($requestPost['document_delete']);
             if (true === $storageResult) {
-                $this->getMessageBag()->add('confirm', 'confirm.plandocument.deleted');
+                $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.deleted');
             }
         }
 
@@ -1090,7 +1090,7 @@ class DemosPlanDocumentController extends BaseController
 
                     $storageResult = $elementHandler->administrationElementDeleteHandler($inData['r_ident']);
                     if ($storageResult) {
-                        $this->getMessageBag()->add('confirm', 'confirm.plandocument.deleted');
+                        $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.deleted');
                     }
 
                     return $this->redirectToRoute('DemosPlan_element_administration', compact('procedure'));
