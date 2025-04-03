@@ -187,7 +187,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
         $boundingBox = $masterTemplateMapSetting->getBoundingBox();
 
-        if (null === $boundingBox) {
+        if (null === $boundingBox || '' === $boundingBox)  {
             $boundingBox = $this->globalConfig->getMapMaxBoundingbox();
         }
 
@@ -200,7 +200,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
         $mapExtent = $masterTemplateMapSetting->getMapExtent();
 
-        if (null === $mapExtent) {
+        if (null === $mapExtent || '' === $mapExtent)  {
             $mapExtent = $this->globalConfig->getMapPublicExtent();
         }
 
@@ -265,6 +265,8 @@ class ProcedureMapSettingResourceType extends DplanResourceType
             return null;
         }
 
+        // Remove square brackets if present
+        $rawCoordinateValues = trim($rawCoordinateValues, '[]');
         $rawCoordinateValues = explode(',', $rawCoordinateValues);
         $coordinateValues = [];
 
