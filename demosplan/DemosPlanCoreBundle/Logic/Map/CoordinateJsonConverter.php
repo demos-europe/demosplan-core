@@ -25,6 +25,11 @@ class CoordinateJsonConverter
         return '' === $rawCoordinateValues ? null : Json::decodeToArray($rawCoordinateValues);
     }
 
+    /**
+     * Converts a flat list of coordinates to an array format.
+     *
+     * @throws \InvalidArgumentException if the values are not numeric or the count is incorrect.
+     */
     public function convertFlatListToCoordinates(string $rawCoordinateValues, bool $isExtendedFormat): ?array
     {
         if ('' === $rawCoordinateValues) {
