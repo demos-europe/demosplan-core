@@ -126,6 +126,7 @@ describe('StatementExportModal', () => {
       shouldConfirm: true
     }
 
+
     expect(exportEvent).toBeTruthy()
     expect(exportEvent).toEqual(payload)
   })
@@ -149,6 +150,7 @@ describe('StatementExportModal', () => {
       docxHeaders,
       shouldConfirm: true
     }
+
 
     expect(exportEvent).toBeTruthy()
     expect(exportEvent).toEqual(payload)

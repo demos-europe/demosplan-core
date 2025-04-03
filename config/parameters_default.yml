@@ -170,10 +170,6 @@ parameters:
 
     # virus scan service url without trailing slash
     avscan_url: ""
-    # Variables to use for remote scan with VirusCheckSocket
-    avscan_host: "%env(string:AVSCAN_HOST)%"
-    avscan_port: "%env(int:AVSCAN_PORT)%"
-    avscan_timeout: "%env(int:AVSCAN_TIMEOUT)%"
 
     #RabbitMQ setting like amqp://:@localhost:5672/%2f
     rabbitmq_dsn: "%env(string:RABBITMQ_DSN)%"
