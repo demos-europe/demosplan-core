@@ -219,10 +219,6 @@ export default {
       updateAdministratableUser: 'setItem'
     }),
 
-    ...mapMutations('Orga', {
-      updateOrga: 'setItem'
-    }),
-
     changeTypeToPascalCase (payload) {
       const newPayload = {
         ...payload,
