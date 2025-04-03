@@ -3217,7 +3217,7 @@ segments.export.statement.extern.id: "ID: {externId}"
 segments.export.statement.intern.id: "Eingangsnummer: {internId}"
 segments.export.statement.label: "Einwendung / Stellungnahme"
 segments.export.statement.similar.submitters: 'Weitere Einreichende der gleichen Stellungnahme: {similarSubmitters}'
-segments.fields.edit.info: "Hier können Sie die in einem Verfahren an Abschnitten verfügbaren Felder anpassen."
+segments.fields.edit.info: "Hier können Sie die Felder anpassen, die in einem Verfahren an Abschnitten verfügbar sind."
 segments.import: "Abschnitte importieren"
 segments.import.error.submitType: "Unbekannte Einreichungsart {value}, valide Arten sind: {translatedSubmitTypes}."
 segments.none: "Es sind noch keine Abschnitte vorhanden."
