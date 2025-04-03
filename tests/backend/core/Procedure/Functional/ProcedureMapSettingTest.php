@@ -127,7 +127,7 @@ class ProcedureMapSettingTest extends FunctionalTestCase
         return [
             [
                 'mapExtentMasterTemplateValue' => '555555.41,9999999.13,611330.65,6089742.54',
-                'expectedResult' => [
+                'expectedResult'               => [
                     'start' => [
                         'latitude'  => 555555.41,
                         'longitude' => 9999999.13,
@@ -140,13 +140,12 @@ class ProcedureMapSettingTest extends FunctionalTestCase
             ],
             [
                 'mapExtentMasterTemplateValue' => '',
-                'expectedResult' => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapPublicExtent(), true)
+                'expectedResult'               => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapPublicExtent(), true),
             ],
             [
                 'mapExtentMasterTemplateValue' => null,
-                'expectedResult' => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapPublicExtent(), true)
-            ]
-            ];
+                'expectedResult'               => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapPublicExtent(), true),
+            ],
+        ];
     }
-
 }
