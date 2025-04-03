@@ -49,7 +49,7 @@
                         class="block u-pb-0_25"
                         data-cy="segments:fields"
                         href="{{ path('DemosPlan_procedure_places_list', { 'procedureId': procedure}) }}">
-                        Felder auf Abschnittsebene
+                        {{ 'segments.fields.configurable'|trans }}
                     </a>
                     {% if hasPermission('area_admin_protocol') %}
                         <a
