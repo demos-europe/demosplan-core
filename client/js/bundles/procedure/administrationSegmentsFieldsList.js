@@ -10,11 +10,12 @@
 /**
  * This is the entrypoint for administration_segments_fields_list.html.twig
  */
-import AdministrationSegmentsFieldsList from  '@DpJs/components/procedure/admin/AdministrationSegmentsFieldsList'
+import AdministrationSegmentsFieldsList from '@DpJs/components/procedure/admin/AdministrationSegmentsFieldsList'
 import { initialize } from '@DpJs/InitVue'
+const apiStores = ['AdminProcedure', 'CustomField']
 
 const components = {
   AdministrationSegmentsFieldsList
 }
 
-initialize(components)
+initialize(components, {}, apiStores)

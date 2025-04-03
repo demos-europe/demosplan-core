@@ -153,7 +153,6 @@
 
 <script>
 import {
-  dpApi,
   DpButton,
   DpButtonRow,
   DpDataTable,
@@ -237,6 +236,10 @@ export default {
       createCustomField: 'create'
     }),
 
+    ...mapActions('AdminProcedure', {
+      getAdminProcedureWithFields: 'get'
+    }),
+
     addOptionInput () {
       this.newField.options.push('')
     },
@@ -254,29 +257,33 @@ export default {
 
     fetchSegmentFields () {
       this.isInitiallyLoading = true
-      const url = Routing.generate('api_resource_get', { resourceType: 'AdminProcedure', resourceId: this.procedureId })
-      const params = {
+
+      const payload = {
+        id: this.procedureId,
         fields: {
-          AdminProcedure: [],
+          AdminProcedure: [
+            'segmentCustomFieldsTemplate'
+          ].join(),
           CustomField: [
             'name',
             'description',
             'options'
           ].join()
         },
-        include: ['segmentCustomFieldsTemplate']
+        include: ['segmentCustomFieldsTemplate'].join()
       }
 
-      dpApi.get(url, params)
+      this.getAdminProcedureWithFields(payload)
         .then(response => {
-          const fields = response.data.data
+          const fields = response.data.CustomField
 
-          fields.forEach((field) => {
+          Object.keys(fields).forEach(key => {
+            const field = fields[key]
             this.segmentFields.push({
               id: field.id,
               name: field.attributes.name,
               description: field.attributes.description,
-              options: field.options,
+              options: field.attributes.options,
               open: false
             })
           })
@@ -327,8 +334,8 @@ export default {
           sourceEntity: 'PROCEDURE',
           sourceEntityId: this.procedureId,
           targetEntity: 'SEGMENT',
-          type: 'radio_button'
-        },
+          fieldType: 'radio_button'
+        }
       }
 
       this.createCustomField(payload)
