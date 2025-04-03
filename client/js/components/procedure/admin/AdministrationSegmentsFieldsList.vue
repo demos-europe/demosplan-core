@@ -126,10 +126,11 @@
             :aria-label="Translator.trans('item.edit')"
             class="btn--blank o-link--default"
             data-cy="segmentFields:showOptions"
+            :disabled="rowData.options.length < 3"
             @click="showOptions(rowData)">
             <dp-icon
-              icon="caret-down"
-              aria-hidden="true" />
+              aria-hidden="true"
+              icon="caret-down" />
           </button>
           <template v-else>
             <button
@@ -138,8 +139,8 @@
               data-cy="segmentFields:hideOptions"
               @click="hideOptions(rowData)">
               <dp-icon
-                icon="caret-up"
-                aria-hidden="true" />
+                aria-hidden="true"
+                icon="caret-up" />
             </button>
           </template>
         </div>
