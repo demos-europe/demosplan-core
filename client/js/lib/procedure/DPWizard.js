@@ -85,7 +85,6 @@ export default function DpWizard () {
 
         $currentItem.find('legend').addClass('is-active-toggle')
         this.showElement($currentItem.find('.o-wizard__btn--next'))
-        console.log($currentItem.find('.o-wizard__btn--next'))
         this.showElement($wizardElements)
         $currentItem
           .addClass('o-wizard--active')
