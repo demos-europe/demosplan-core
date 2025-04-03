@@ -106,10 +106,8 @@
       data-cy="segmentFields:table"
       has-flyout
       :header-fields="headerFields"
-      is-draggable
       :items="segmentFields"
-      track-by="id"
-      @changed-order="changeManualsort">
+      track-by="id">
       <template v-slot:options="rowData">
         <ul>
           <li
@@ -244,13 +242,6 @@ export default {
       this.newField.options.push('')
     },
 
-    changeManualsort ({ newIndex, oldIndex }) {
-      const element = this.segmentFields.splice(oldIndex, 1)[0]
-
-      this.segmentFields.splice(newIndex, 0, element)
-      this.updateSortOrder({ id: element.id, newIndex: newIndex })
-    },
-
     closeNewFieldForm () {
       this.isNewFieldFormOpen = false
     },
@@ -358,11 +349,6 @@ export default {
       if (field) {
         field.open = true
       }
-    },
-
-    // TO DO: Implement BE request
-    updateSortOrder ({ id, newIndex }) {
-      console.log(`Update sort order for field with id ${id} to index ${newIndex}`)
     }
   },
 
