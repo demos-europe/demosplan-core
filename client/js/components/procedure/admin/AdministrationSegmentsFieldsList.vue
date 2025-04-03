@@ -276,6 +276,7 @@ export default {
       this.getAdminProcedureWithFields(payload)
         .then(response => {
           const fields = response.data.CustomField
+          this.segmentFields = []
 
           Object.keys(fields).forEach(key => {
             const field = fields[key]
@@ -348,6 +349,7 @@ export default {
         .finally(() => {
           this.isLoading = false
           this.resetNewFieldForm()
+          this.fetchSegmentFields()
         })
     },
 
