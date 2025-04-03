@@ -102,15 +102,14 @@ export default {
   data () {
     return {
       /**
-       * This fifo-queue performs all API request in order. If a request should be performed an API request has to be pushed
-       * to the end of the queue.
-       * The request MUST be set in a reactive way.
-       * The request MUST be a function returning a Promise.
-       * example
-       * let request = () => Promise.resolve(true)
-       * this.queue.push(request)
-       * see the queue-watcher for implementation details
+       * This queue ensures that API requests are executed sequentially (FIFO order). To enqueue a request,
+       * push a function (that returns a Promise) to the end of the queue. For example:
+       *
+       *   const request = () => Promise.resolve(true)
+       *   this.queue.push(request)
+       *   this.processQueue() // Starts processing the queued requests
        */
+      isProcessing: false,
       queue: []
     }
   },
@@ -147,6 +146,7 @@ export default {
           }
 
           this.queue.push(saveAction)
+          this.processQueue()
         }
       }
     },
@@ -173,21 +173,6 @@ export default {
         invitableInstitutionVisible: faq.invitableInstitutionVisible,
         publicVisible: faq.publicVisible
       }
-    }
-  },
-
-  watch: {
-    queue: {
-      handler (newQueue) {
-        if (newQueue.length) {
-          newQueue[0]()
-            .finally(() => {
-              newQueue.shift()
-              this.queue = newQueue
-            })
-        }
-      },
-      deep: true
     }
   },
 
@@ -240,6 +225,7 @@ export default {
         }
 
         this.queue.push(saveAction)
+        this.processQueue()
       }
     },
 
@@ -257,8 +243,20 @@ export default {
           })
         }
 
-        this.queue.push(deleteAction())
+        this.queue.push(deleteAction)
+        this.processQueue()
       }
+    },
+
+    processQueue () {
+      if (this.isProcessing || !this.queue.length) return
+
+      this.isProcessing = true
+      const action = this.queue.shift()
+      action().finally(() => {
+        this.isProcessing = false
+        this.processQueue()
+      })
     }
   }
 }
