@@ -148,4 +148,49 @@ class ProcedureMapSettingTest extends FunctionalTestCase
             ],
         ];
     }
+
+
+    /**
+     * @dataProvider defaultBoundingBoxDataProvider()
+     */
+    public function testDefaultBoundingBox($boundingBoxMasterTemplateValue, $expectedDefaultBoundingBox)
+    {
+        $this->masterTemplateService->getMasterTemplate()->getSettings()->setBoundingBox($boundingBoxMasterTemplateValue);
+
+        $getMapSettingMethod = new ReflectionMethod(ProcedureMapSettingResourceType::class, 'getMapSetting');
+        $getMapSettingMethod->setAccessible(true);
+
+        $result = $getMapSettingMethod->invoke($this->procedureMapSettingResourceType, 'getBoundingBox', 'getMapMaxBoundingbox');
+        static::assertEquals($expectedDefaultBoundingBox, $result);
+    }
+
+    public function defaultBoundingBoxDataProvider(): array
+    {
+        $this->setUp();
+
+        return [
+            [
+                'boundingBoxMasterTemplateValue' => '555555.41,9999999.13,611330.65,6089742.54',
+                'expectedResult' => [
+                    'start' => [
+                        'latitude'  => 555555.41,
+                        'longitude' => 9999999.13,
+                    ],
+                    'end' => [
+                        'latitude'  => 611330.65,
+                        'longitude' => 6089742.54,
+                    ],
+                ],
+            ],
+            [
+                'boundingBoxMasterTemplateValue' => '',
+                'expectedResult' => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapMaxBoundingbox(), true)
+            ],
+            [
+                'boundingBoxMasterTemplateValue' => null,
+                'expectedResult' => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapMaxBoundingbox(), true)
+            ]
+        ];
+    }
+
 }
