@@ -38,7 +38,6 @@ class TokenInvalidationTest extends TestCase
 
         // Create service with mocked dependencies
         $this->userHasher = new UserHasher($mockGlobalConfig);
-
     }
 
     /**
