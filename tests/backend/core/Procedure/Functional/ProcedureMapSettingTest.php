@@ -82,4 +82,71 @@ class ProcedureMapSettingTest extends FunctionalTestCase
         $result = $getMapSettingMethod->invoke($this->procedureMapSettingResourceType, 'getBoundingBox', 'getMapMaxBoundingbox');
         static::assertEquals($expectedGlobalConfigBoundingBox, $result);
     }
+
+    public function testGetMasterTemplateMapExtent()
+    {
+        // Set a bounding box for the master template aka blueprint
+        $this->masterTemplateService->getMasterTemplate()->getSettings()->setMapExtent('555555.41,9999999.13,611330.65,6089742.54');
+
+        $getMapSettingMethod = new ReflectionMethod(ProcedureMapSettingResourceType::class, 'getMapSetting');
+        $getMapSettingMethod->setAccessible(true);
+
+        $result = $getMapSettingMethod->invoke($this->procedureMapSettingResourceType, 'getMapExtent', 'getMapPublicExtent');
+
+        $expectedResult = [
+            'start' => [
+                'latitude'  => 555555.41,
+                'longitude' => 9999999.13,
+            ],
+            'end' => [
+                'latitude'  => 611330.65,
+                'longitude' => 6089742.54,
+            ],
+        ];
+        static::assertEquals($expectedResult, $result);
+    }
+
+    /**
+     * @dataProvider defaultMapExtentDataProvider()
+     */
+    public function testDefaultMapExtent($mapExtentMasterTemplateValue, $expectedDefaultMapExtent)
+    {
+        $this->masterTemplateService->getMasterTemplate()->getSettings()->setMapExtent($mapExtentMasterTemplateValue);
+
+        $getMapSettingMethod = new ReflectionMethod(ProcedureMapSettingResourceType::class, 'getMapSetting');
+        $getMapSettingMethod->setAccessible(true);
+
+        $result = $getMapSettingMethod->invoke($this->procedureMapSettingResourceType, 'getMapExtent', 'getMapPublicExtent');
+        static::assertEquals($expectedDefaultMapExtent, $result);
+    }
+
+    public function defaultMapExtentDataProvider(): array
+    {
+        $this->setUp();
+
+        return [
+            [
+                'mapExtentMasterTemplateValue' => '555555.41,9999999.13,611330.65,6089742.54',
+                'expectedResult' => [
+                    'start' => [
+                        'latitude'  => 555555.41,
+                        'longitude' => 9999999.13,
+                    ],
+                    'end' => [
+                        'latitude'  => 611330.65,
+                        'longitude' => 6089742.54,
+                    ],
+                ],
+            ],
+            [
+                'mapExtentMasterTemplateValue' => '',
+                'expectedResult' => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapPublicExtent(), true)
+            ],
+            [
+                'mapExtentMasterTemplateValue' => null,
+                'expectedResult' => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapPublicExtent(), true)
+            ]
+            ];
+    }
+
 }
