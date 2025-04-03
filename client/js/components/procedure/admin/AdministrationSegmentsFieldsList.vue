@@ -8,43 +8,9 @@
       :message="Translator.trans('segments.fields.edit.info')"
       type="info" />
 
-    <div
-      v-if="!isNewFieldFormOpen"
-      class="text-right mb-4">
-      <dp-button
-        data-cy="segmentFields:addField"
-        @click="openNewFieldForm"
-        :text="Translator.trans('field.add')" />
-    </div>
-
-    <div
-      v-if="isNewFieldFormOpen"
-      class="relative mb-4"
-      data-dp-validate="addNewFieldForm">
-      <dp-loading
-        v-if="isLoading"
-        overlay />
-      <div class="border rounded space-stack-m space-inset-m">
-        <dp-input
-          id="newFieldName"
-          class="w-[calc(100%-26px)]"
-          data-cy="segmentFields:newFieldName"
-          v-model="newField.name"
-          :label="{
-            text: Translator.trans('name')
-          }"
-          maxlength="250"
-          required />
-        <dp-input
-          id="newFieldDescription"
-          class="w-[calc(100%-26px)]"
-          data-cy="segmentFields:newFieldDescription"
-          v-model="newField.description"
-          :label="{
-            text: Translator.trans('description')
-          }"
-          maxlength="250" />
-
+    <create-custom-field-form
+      :is-loading="isLoading"
+      @save="customFieldData => saveNewField(customFieldData)">
         <div>
           <dp-label
             class="mb-1"
@@ -54,14 +20,14 @@
             id="newFieldOption:1"
             class="mb-2 w-[calc(100%-26px)]"
             data-cy="segmentFields:newFieldOption1"
-            v-model="newField.options[0]"
+            v-model="newFieldOptions[0]"
             maxlength="250"
             required />
           <dp-input
             id="newFieldOption:2"
             class="mb-2 w-[calc(100%-26px)]"
             data-cy="segmentFields:newFieldOption2"
-            v-model="newField.options[1]"
+            v-model="newFieldOptions[1]"
             maxlength="250"
             required />
 
@@ -70,8 +36,8 @@
             :key="`option:${idx}`">
             <div class="w-[calc(100%-26px)] inline-block mb-2">
               <dp-input
-                v-model="newField.options[idx + 2]"
-                :id="`option:${newField.options[idx + 2]}`"
+                v-model="newFieldOptions[idx + 2]"
+                :id="`option:${newFieldOptions[idx + 2]}`"
                 maxlength="250" />
             </div>
             <dp-button
@@ -90,16 +56,7 @@
             :text="Translator.trans('option.add')"
             @click="addOptionInput" />
         </div>
-
-        <dp-button-row
-          :busy="isLoading"
-          data-cy="segmentFields:addNewField"
-          primary
-          secondary
-          @primary-action="dpValidateAction('addNewFieldForm', () => saveNewField(), false)"
-          @secondary-action="closeNewFieldForm" />
-      </div>
-    </div>
+  </create-custom-field-form>
 
     <dp-data-table
       v-if="!isInitiallyLoading"
@@ -153,7 +110,6 @@
 <script>
 import {
   DpButton,
-  DpButtonRow,
   DpDataTable,
   DpIcon,
   DpInlineNotification,
@@ -163,13 +119,14 @@ import {
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions } from 'vuex'
+import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
 
 export default {
   name: 'AdministrationSegmentsFieldsList',
 
   components: {
+    CreateCustomFieldForm,
     DpButton,
-    DpButtonRow,
     DpDataTable,
     DpIcon,
     DpInlineNotification,
@@ -202,21 +159,17 @@ export default {
       isInitiallyLoading: false,
       isLoading: false,
       isNewFieldFormOpen: false,
-      newField: {
-        name: '',
-        description: '',
-        options: [
-          '',
-          ''
-        ]
-      },
+      newFieldOptions: [
+        '',
+        ''
+      ],
       segmentFields: []
     }
   },
 
   computed: {
     additionalOptions () {
-      return this.newField.options.filter((option, index) => index > 1)
+      return this.newFieldOptions.filter((option, index) => index > 1)
     },
 
     displayedOptions () {
@@ -240,11 +193,7 @@ export default {
     }),
 
     addOptionInput () {
-      this.newField.options.push('')
-    },
-
-    closeNewFieldForm () {
-      this.isNewFieldFormOpen = false
+      this.newFieldOptions.push('')
     },
 
     fetchSegmentFields () {
@@ -294,30 +243,28 @@ export default {
       }
     },
 
-    openNewFieldForm () {
-      this.isNewFieldFormOpen = true
-    },
-
     removeOptionInput (index) {
-      this.newField.options.splice(index, 1)
+      this.newFieldOptions.splice(index, 1)
     },
 
     resetNewFieldForm () {
-      this.newField = {
-        name: '',
-        description: '',
-        options: [
-          '',
-          ''
-        ]
-      }
+      this.newFieldOptions = [
+        '',
+        ''
+      ]
     },
 
-    saveNewField () {
+    /**
+     * Prepare payload and send create request for custom field
+     * @param customFieldData {Object}
+     * @param customFieldData.name {String}
+     * @param customFieldData.description {String}
+     */
+    saveNewField (customFieldData) {
       this.isLoading = true
-      this.newField.options = this.newField.options.filter(option => option !== '')
-      const { description, name, options } = this.newField
 
+      const { description, name } = customFieldData
+      const options = this.newFieldOptions.filter(option => option !== '')
       const payload = {
         type: 'CustomField',
         attributes: {
