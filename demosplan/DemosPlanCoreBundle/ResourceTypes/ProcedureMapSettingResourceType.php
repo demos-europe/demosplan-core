@@ -171,23 +171,40 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         }
 
         $configBuilder->defaultBoundingBox
-            ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
-                $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
-
-                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getBoundingBox(), true);
-            });
+            ->readable(false, fn (ProcedureSettings $procedureSetting): ?array => $this->getDefaultBoundingBox());
 
         $configBuilder->defaultMapExtent
-            ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
-                $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
-
-                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getMapExtent(), true);
-            });
+            ->readable(false, fn (ProcedureSettings $procedureSetting): ?array => $this->getDefaultMapExtent());
 
         $configBuilder->useGlobalInformationUrl
             ->readable(false, fn (ProcedureSettings $procedureSetting): bool => $this->globalConfig->isMapGetFeatureInfoUrlGlobal());
 
         return $configBuilder;
+    }
+
+    protected function getDefaultBoundingBox(): ?array
+    {
+        $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
+        $boundingBox = $masterTemplateMapSetting->getBoundingBox();
+
+        if (null === $boundingBox) {
+            $boundingBox = $this->globalConfig->getMapMaxBoundingbox();
+        }
+
+        return $this->convertFlatListToCoordinates($boundingBox, true);
+    }
+
+    protected function getDefaultMapExtent(): ?array
+    {
+
+        $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
+        $mapExtent = $masterTemplateMapSetting->getMapExtent();
+
+        if (null === $mapExtent) {
+            $mapExtent = $this->globalConfig->getMapPublicExtent();
+        }
+
+        return $this->convertFlatListToCoordinates($mapExtent, true);
     }
 
     protected function getSetting(string $settingName, ProcedureSettings $procedureSetting): ?Setting
