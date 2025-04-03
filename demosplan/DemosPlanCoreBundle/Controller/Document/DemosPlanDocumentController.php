@@ -1063,7 +1063,7 @@ class DemosPlanDocumentController extends BaseController
         if (!empty($requestPost['r_action']) && 'singledocumentdelete' === $requestPost['r_action'] && array_key_exists('document_delete', $requestPost)) {
             $storageResult = $singleDocumentService->deleteSingleDocument($requestPost['document_delete']);
             if (true === $storageResult) {
-                $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.deleted:');
+                $this->getMessageBag()->add('confirm', 'confirm.plandocument.category.deleted');
             }
         }
 
