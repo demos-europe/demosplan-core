@@ -48,8 +48,7 @@
             @reset="() => reset(segment.id)"
             @toggleEditing="() => addToEditing(segment.id)"
             @save="() => saveSegment(segment.id)">
-            <template
-              v-slot:display>
+            <template v-slot:display>
               <text-content-renderer
                 class="pr-3"
                 :text="segment.attributes.text" />
