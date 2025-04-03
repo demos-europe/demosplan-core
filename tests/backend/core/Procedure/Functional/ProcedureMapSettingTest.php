@@ -63,7 +63,7 @@ class ProcedureMapSettingTest extends FunctionalTestCase
                 'longitude' => 6089742.54,
             ],
         ];
-        $this->assertEquals($expectedResult, $result);
+        static::assertEquals($expectedResult, $result);
     }
 
     public function testGetConfigBoundingBox()
@@ -81,6 +81,6 @@ class ProcedureMapSettingTest extends FunctionalTestCase
         $getMapSettingMethod->setAccessible(true);
 
         $result = $getMapSettingMethod->invoke($this->procedureMapSettingResourceType, 'getBoundingBox', 'getMapMaxBoundingbox');
-        $this->assertEquals($expectedGlobalConfigBoundingBox, $result);
+        static::assertEquals($expectedGlobalConfigBoundingBox, $result);
     }
 }
