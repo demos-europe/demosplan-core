@@ -85,6 +85,7 @@ export default function DpWizard () {
 
         $currentItem.find('legend').addClass('is-active-toggle')
         this.showElement($currentItem.find('.o-wizard__btn--next'))
+        console.log($currentItem.find('.o-wizard__btn--next'))
         this.showElement($wizardElements)
         $currentItem
           .addClass('o-wizard--active')
@@ -107,7 +108,7 @@ export default function DpWizard () {
       showElement: function ($elements) {
         const elements = $elements.toArray()
         elements.forEach((element) => {
-          element.setAttribute('style', 'display: block !important')
+          element.style.display = 'block'
         })
       },
 
@@ -124,7 +125,7 @@ export default function DpWizard () {
       hideElement: function ($elements) {
         const elements = $elements.toArray()
         elements.forEach((element) => {
-          element.setAttribute('style', '')
+          element.style.display = 'none'
         })
       },
 
