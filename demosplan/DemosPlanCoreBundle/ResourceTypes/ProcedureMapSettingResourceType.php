@@ -184,28 +184,26 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
     protected function getDefaultBoundingBox(): ?array
     {
-        $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
-        $boundingBox = $masterTemplateMapSetting->getBoundingBox();
-
-        if (null === $boundingBox || '' === $boundingBox)  {
-            $boundingBox = $this->globalConfig->getMapMaxBoundingbox();
-        }
-
-        return $this->convertFlatListToCoordinates($boundingBox, true);
+        return $this->getMapSetting('getBoundingBox', 'getMapMaxBoundingbox');
     }
 
     protected function getDefaultMapExtent(): ?array
     {
+        return $this->getMapSetting('getMapExtent', 'getMapPublicExtent');
+    }
 
+    private function getMapSetting(string $masterTemplateMethod, string $globalConfigMethod): ?array
+    {
         $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
-        $mapExtent = $masterTemplateMapSetting->getMapExtent();
+        $setting = $masterTemplateMapSetting->$masterTemplateMethod();
 
-        if (null === $mapExtent || '' === $mapExtent)  {
-            $mapExtent = $this->globalConfig->getMapPublicExtent();
+        if (null === $setting || '' === $setting) {
+            $setting = $this->globalConfig->$globalConfigMethod();
         }
 
-        return $this->convertFlatListToCoordinates($mapExtent, true);
+        return $this->convertFlatListToCoordinates($setting, true);
     }
+
 
     protected function getSetting(string $settingName, ProcedureSettings $procedureSetting): ?Setting
     {
