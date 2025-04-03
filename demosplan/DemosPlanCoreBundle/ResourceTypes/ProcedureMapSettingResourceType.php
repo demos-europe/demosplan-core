@@ -207,7 +207,6 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         return $this->convertFlatListToCoordinates($setting, true);
     }
 
-
     protected function getSetting(string $settingName, ProcedureSettings $procedureSetting): ?Setting
     {
         $settings = $this->contentService->getSettings(
