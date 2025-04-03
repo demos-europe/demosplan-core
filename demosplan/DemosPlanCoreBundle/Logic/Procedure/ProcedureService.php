@@ -916,7 +916,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     throw ProcedureNotFoundException::createFromId($procedureId);
                 }
                 if ($procedure->isCustomerMasterBlueprint()) {
-                    //procedure deletion is just a flag, therefore additional logic is needed to ensure
+                    // procedure deletion is just a flag, therefore additional logic is needed to ensure
                     // this deleted procedure is not longer set as defaultProcedureBlueprint
                     $procedure->getCustomer()?->setDefaultProcedureBlueprint(null);
                     $this->customerService->updateCustomer($procedure->getCustomer());
