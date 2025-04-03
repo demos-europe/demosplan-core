@@ -149,7 +149,6 @@ class ProcedureMapSettingTest extends FunctionalTestCase
         ];
     }
 
-
     /**
      * @dataProvider defaultBoundingBoxDataProvider()
      */
@@ -171,7 +170,7 @@ class ProcedureMapSettingTest extends FunctionalTestCase
         return [
             [
                 'boundingBoxMasterTemplateValue' => '555555.41,9999999.13,611330.65,6089742.54',
-                'expectedResult' => [
+                'expectedResult'                 => [
                     'start' => [
                         'latitude'  => 555555.41,
                         'longitude' => 9999999.13,
@@ -184,13 +183,12 @@ class ProcedureMapSettingTest extends FunctionalTestCase
             ],
             [
                 'boundingBoxMasterTemplateValue' => '',
-                'expectedResult' => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapMaxBoundingbox(), true)
+                'expectedResult'                 => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapMaxBoundingbox(), true),
             ],
             [
                 'boundingBoxMasterTemplateValue' => null,
-                'expectedResult' => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapMaxBoundingbox(), true)
-            ]
+                'expectedResult'                 => $this->coordinateJsonConverter->convertFlatListToCoordinates($this->globalConfig->getMapMaxBoundingbox(), true),
+            ],
         ];
     }
-
 }
