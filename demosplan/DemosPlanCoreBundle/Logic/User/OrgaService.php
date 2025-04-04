@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\OrgaServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
@@ -56,7 +57,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class OrgaService extends CoreService
+class OrgaService extends CoreService implements OrgaServiceInterface
 {
     /** @var MailService */
     protected $mailService;
@@ -834,7 +835,7 @@ class OrgaService extends CoreService
     }
 
     /**
-     * Get single orgaobject by filter.
+     * Gets a list of orgaInterfaces by filter.
      *
      * @param array $filter
      *
