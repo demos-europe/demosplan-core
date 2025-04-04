@@ -40,9 +40,9 @@
     </div><!--
  --><div class="layout__item u-2-of-12 text-center u-pv-0_25">
       <dp-toggle
-        v-model="isFaqEnabled"
         class="u-mt-0_125"
         data-cy="enabledFaqItem"
+        :value="isFaqEnabled"
         @input="handleToggle" />
     </div><!--
  --><div class="layout__item u-2-of-12 text-center py-1">
