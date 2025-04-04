@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Logic\HeaderSanitizerService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -23,7 +24,8 @@ class CsrfSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
         private readonly MessageBagInterface $messageBag,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly HeaderSanitizerService $headerSanitizer
     ) {
     }
 
@@ -37,7 +39,9 @@ class CsrfSubscriber implements EventSubscriberInterface
 
         $tokenId = $request->request->get('_token');
         if ($request->headers->has('x-csrf-token')) {
-            $tokenId = $request->headers->get('x-csrf-token');
+            $tokenId = $this->headerSanitizer->sanitizeCsrfToken(
+                $request->headers->get('x-csrf-token')
+            );
         }
 
         if (null === $tokenId) {
