@@ -1,13 +1,5 @@
 <?php
 
-/**
- * This file is part of the package demosplan.
- *
- * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
- *
- * All rights reserved
- */
-
 namespace Tests\Core\Core\Unit\EventSubscriber;
 
 use demosplan\DemosPlanCoreBundle\EventSubscriber\RatelimitRequestSubscriber;
@@ -18,10 +10,15 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 /**
- * Tests for the RatelimitRequestSubscriber with focus on header sanitization.
+ * Tests for the RatelimitRequestSubscriber with focus on header sanitization
  */
 class RatelimitRequestSubscriberTest extends TestCase
 {
+    private const TEST_URL = '/test';
+    private const VALID_TOKEN = 'Bearer validToken123';
+    private const MALICIOUS_TOKEN = "Bearer validToken123\r\nX-Malicious: exploit";
+    private const SCRIPT_TOKEN = "Bearer <script>alert(1)</script>";
+
     private RatelimitRequestSubscriber $subscriber;
     private HeaderSanitizerService $headerSanitizer;
 
@@ -69,48 +66,44 @@ class RatelimitRequestSubscriberTest extends TestCase
     }
 
     /**
-     * Test that a standard authorization header works correctly.
+     * Test that a standard authorization header works correctly
      */
     public function testStandardAuthorizationHeader(): void
     {
-        $request = Request::create('/test');
-        $request->headers->set('X-JWT-Authorization', 'Bearer validToken123');
+        $request = Request::create(self::TEST_URL);
+        $request->headers->set('X-JWT-Authorization', self::VALID_TOKEN);
 
         $requestEvent = $this->createMock(RequestEvent::class);
         $requestEvent->method('getRequest')->willReturn($request);
 
         // No exception should be thrown
         $this->subscriber->onKernelRequest($requestEvent);
-        $this->assertEquals('Bearer validToken123', $this->subscriber->getSanitizedToken());
+        $this->assertEquals(self::VALID_TOKEN, $this->subscriber->getSanitizedToken());
     }
 
     /**
-     * Test that a malicious authorization header is properly sanitized.
+     * Test that a malicious authorization header is properly sanitized
      */
     public function testMaliciousAuthorizationHeader(): void
     {
-        $maliciousToken = "Bearer validToken123\r\nX-Malicious: exploit";
-
-        $request = Request::create('/test');
-        $request->headers->set('X-JWT-Authorization', $maliciousToken);
+        $request = Request::create(self::TEST_URL);
+        $request->headers->set('X-JWT-Authorization', self::MALICIOUS_TOKEN);
 
         $requestEvent = $this->createMock(RequestEvent::class);
         $requestEvent->method('getRequest')->willReturn($request);
 
         // No exception should be thrown
         $this->subscriber->onKernelRequest($requestEvent);
-        $this->assertEquals('Bearer validToken123', $this->subscriber->getSanitizedToken());
+        $this->assertEquals(self::VALID_TOKEN, $this->subscriber->getSanitizedToken());
     }
 
     /**
-     * Test that a header with script tags is properly sanitized.
+     * Test that a header with script tags is properly sanitized
      */
     public function testHeaderWithScriptTags(): void
     {
-        $maliciousToken = 'Bearer <script>alert(1)</script>';
-
-        $request = Request::create('/test');
-        $request->headers->set('X-JWT-Authorization', $maliciousToken);
+        $request = Request::create(self::TEST_URL);
+        $request->headers->set('X-JWT-Authorization', self::SCRIPT_TOKEN);
 
         $requestEvent = $this->createMock(RequestEvent::class);
         $requestEvent->method('getRequest')->willReturn($request);
@@ -119,17 +112,17 @@ class RatelimitRequestSubscriberTest extends TestCase
         $this->subscriber->onKernelRequest($requestEvent);
 
         // Verify that sanitization was applied correctly
-        $expected = $this->headerSanitizer->sanitizeAuthHeader($maliciousToken);
+        $expected = $this->headerSanitizer->sanitizeAuthHeader(self::SCRIPT_TOKEN);
         $this->assertEquals($expected, $this->subscriber->getSanitizedToken());
     }
 
     /**
-     * Test that too many requests throws an exception.
+     * Test that too many requests throws an exception
      */
     public function testTooManyRequests(): void
     {
-        $request = Request::create('/test');
-        $request->headers->set('X-JWT-Authorization', 'Bearer validToken123');
+        $request = Request::create(self::TEST_URL);
+        $request->headers->set('X-JWT-Authorization', self::VALID_TOKEN);
 
         $requestEvent = $this->createMock(RequestEvent::class);
         $requestEvent->method('getRequest')->willReturn($request);

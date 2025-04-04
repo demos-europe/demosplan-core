@@ -1,13 +1,5 @@
 <?php
 
-/**
- * This file is part of the package demosplan.
- *
- * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
- *
- * All rights reserved
- */
-
 namespace Tests\Core\Core\Unit\Middlewares;
 
 use demosplan\DemosPlanCoreBundle\Application\Header;
@@ -18,10 +10,14 @@ use TusPhp\Request;
 use TusPhp\Response;
 
 /**
- * Tests for the TusCors middleware with focus on header sanitization.
+ * Tests for the TusCors middleware with focus on header sanitization
  */
 class TusCorsTest extends TestCase
 {
+    private const STANDARD_ALLOW_HEADERS = 'Content-Type, X-Requested-With, Authorization';
+    private const STANDARD_EXPOSE_HEADERS = 'Content-Type, X-Requested-With';
+    private const MALICIOUS_HEADER = "Content-Type\r\nX-Malicious: exploit";
+
     private TusCors $tusCors;
     private HeaderSanitizerService $headerSanitizer;
 
@@ -32,7 +28,7 @@ class TusCorsTest extends TestCase
     }
 
     /**
-     * Test that standard headers are properly processed.
+     * Test that standard headers are properly processed
      */
     public function testStandardHeaders(): void
     {
@@ -40,8 +36,8 @@ class TusCorsTest extends TestCase
         $request = $this->createMock(Request::class);
 
         $headers = [
-            'Access-Control-Allow-Headers'  => 'Content-Type, X-Requested-With, Authorization',
-            'Access-Control-Expose-Headers' => 'Content-Type, X-Requested-With',
+            'Access-Control-Allow-Headers' => self::STANDARD_ALLOW_HEADERS,
+            'Access-Control-Expose-Headers' => self::STANDARD_EXPOSE_HEADERS,
         ];
 
         $response = $this->createMock(Response::class);
@@ -49,8 +45,8 @@ class TusCorsTest extends TestCase
 
         // It should call replaceHeaders with the correct values
         $expectedHeaders = $headers;
-        $expectedHeaders['Access-Control-Allow-Headers'] .= ', '.Header::FILE_HASH.', '.Header::FILE_ID;
-        $expectedHeaders['Access-Control-Expose-Headers'] .= ', '.Header::FILE_HASH.', '.Header::FILE_ID;
+        $expectedHeaders['Access-Control-Allow-Headers'] .= ', ' . Header::FILE_HASH . ', ' . Header::FILE_ID;
+        $expectedHeaders['Access-Control-Expose-Headers'] .= ', ' . Header::FILE_HASH . ', ' . Header::FILE_ID;
 
         $response->expects($this->once())
             ->method('replaceHeaders')
@@ -60,7 +56,7 @@ class TusCorsTest extends TestCase
     }
 
     /**
-     * Test that headers with malicious content are properly sanitized.
+     * Test that headers with malicious content are properly sanitized
      */
     public function testMaliciousHeaders(): void
     {
@@ -68,8 +64,8 @@ class TusCorsTest extends TestCase
         $request = $this->createMock(Request::class);
 
         $headers = [
-            'Access-Control-Allow-Headers'  => "Content-Type\r\nX-Malicious: exploit",
-            'Access-Control-Expose-Headers' => "Content-Type\r\nX-Malicious: exploit",
+            'Access-Control-Allow-Headers' => self::MALICIOUS_HEADER,
+            'Access-Control-Expose-Headers' => self::MALICIOUS_HEADER,
         ];
 
         $response = $this->createMock(Response::class);
@@ -83,8 +79,8 @@ class TusCorsTest extends TestCase
 
         // Expected headers after sanitization
         $expectedHeaders = [
-            'Access-Control-Allow-Headers'  => $sanitizedAllowHeaders.', '.$sanitizedFileHash.', '.$sanitizedFileId,
-            'Access-Control-Expose-Headers' => $sanitizedExposeHeaders.', '.$sanitizedFileHash.', '.$sanitizedFileId,
+            'Access-Control-Allow-Headers' => $sanitizedAllowHeaders . ', ' . $sanitizedFileHash . ', ' . $sanitizedFileId,
+            'Access-Control-Expose-Headers' => $sanitizedExposeHeaders . ', ' . $sanitizedFileHash . ', ' . $sanitizedFileId,
         ];
 
         $response->expects($this->once())

@@ -26,6 +26,12 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
  */
 class CsrfSubscriberTest extends TestCase
 {
+    private const TEST_URL = '/test';
+    private const VALID_TOKEN_ID = 'valid-token-1234';
+    private const MALICIOUS_TOKEN = "valid-token-1234\r\nX-Malicious: exploit";
+    private const SCRIPT_TOKEN = "valid-token-<script>alert(1)</script>";
+    private const TOKEN_VALUE = 'token-value';
+
     private CsrfSubscriber $subscriber;
     private MockObject $csrfTokenManager;
     private MockObject $messageBag;
@@ -52,7 +58,7 @@ class CsrfSubscriberTest extends TestCase
      */
     public function testGetRequestsAreIgnored(): void
     {
-        $request = Request::create('/test');
+        $request = Request::create(self::TEST_URL);
 
         $requestEvent = $this->createMock(RequestEvent::class);
         $requestEvent->method('getRequest')->willReturn($request);
@@ -68,17 +74,15 @@ class CsrfSubscriberTest extends TestCase
      */
     public function testStandardCsrfToken(): void
     {
-        $tokenId = 'valid-token-1234';
-
-        $request = Request::create('/test', 'POST');
-        $request->headers->set('x-csrf-token', $tokenId);
+        $request = Request::create(self::TEST_URL, 'POST');
+        $request->headers->set('x-csrf-token', self::VALID_TOKEN_ID);
 
         $requestEvent = $this->createMock(RequestEvent::class);
         $requestEvent->method('getRequest')->willReturn($request);
 
         // Mock a valid CSRF token
-        $token = new CsrfToken($tokenId, 'token-value');
-        $this->csrfTokenManager->method('getToken')->with($tokenId)->willReturn($token);
+        $token = new CsrfToken(self::VALID_TOKEN_ID, self::TOKEN_VALUE);
+        $this->csrfTokenManager->method('getToken')->with(self::VALID_TOKEN_ID)->willReturn($token);
         $this->csrfTokenManager->method('isTokenValid')->with($token)->willReturn(true);
 
         // No messages should be added to message bag
@@ -92,20 +96,19 @@ class CsrfSubscriberTest extends TestCase
      */
     public function testMaliciousCsrfToken(): void
     {
-        $maliciousToken = "valid-token-1234\r\nX-Malicious: exploit";
-        $sanitizedToken = $this->headerSanitizer->sanitizeCsrfToken($maliciousToken);
+        $sanitizedToken = $this->headerSanitizer->sanitizeCsrfToken(self::MALICIOUS_TOKEN);
 
         // Make sure sanitization actually removed the malicious part
-        $this->assertEquals('valid-token-1234', $sanitizedToken);
+        $this->assertEquals(self::VALID_TOKEN_ID, $sanitizedToken);
 
-        $request = Request::create('/test', 'POST');
-        $request->headers->set('x-csrf-token', $maliciousToken);
+        $request = Request::create(self::TEST_URL, 'POST');
+        $request->headers->set('x-csrf-token', self::MALICIOUS_TOKEN);
 
         $requestEvent = $this->createMock(RequestEvent::class);
         $requestEvent->method('getRequest')->willReturn($request);
 
         // Mock a valid CSRF token
-        $token = new CsrfToken($sanitizedToken, 'token-value');
+        $token = new CsrfToken($sanitizedToken, self::TOKEN_VALUE);
         $this->csrfTokenManager->method('getToken')->with($sanitizedToken)->willReturn($token);
         $this->csrfTokenManager->method('isTokenValid')->with($token)->willReturn(true);
 
@@ -120,17 +123,16 @@ class CsrfSubscriberTest extends TestCase
      */
     public function testTokenWithScriptTags(): void
     {
-        $maliciousToken = 'valid-token-<script>alert(1)</script>';
-        $sanitizedToken = $this->headerSanitizer->sanitizeCsrfToken($maliciousToken);
+        $sanitizedToken = $this->headerSanitizer->sanitizeCsrfToken(self::SCRIPT_TOKEN);
 
-        $request = Request::create('/test', 'POST');
-        $request->headers->set('x-csrf-token', $maliciousToken);
+        $request = Request::create(self::TEST_URL, 'POST');
+        $request->headers->set('x-csrf-token', self::SCRIPT_TOKEN);
 
         $requestEvent = $this->createMock(RequestEvent::class);
         $requestEvent->method('getRequest')->willReturn($request);
 
         // Mock a valid CSRF token
-        $token = new CsrfToken($sanitizedToken, 'token-value');
+        $token = new CsrfToken($sanitizedToken, self::TOKEN_VALUE);
         $this->csrfTokenManager->method('getToken')->with($sanitizedToken)->willReturn($token);
         $this->csrfTokenManager->method('isTokenValid')->with($token)->willReturn(true);
 

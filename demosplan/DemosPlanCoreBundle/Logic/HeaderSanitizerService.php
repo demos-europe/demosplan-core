@@ -88,7 +88,7 @@ class HeaderSanitizerService
         $sanitized = $this->sanitizeHeader($origin);
 
         // URL validation (allow only http/https origins with valid hostname characters)
-        if (!preg_match('/^https?:\/\/[a-zA-Z0-9\-\.]+(\:[0-9]+)?$/', $sanitized)) {
+        if (!preg_match('/^https?:\/\/[a-zA-Z0-9\-\.]+(\:\d+)?$/', $sanitized)) {
             // If not a valid origin, return empty string for safety
             return '';
         }
