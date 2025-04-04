@@ -106,7 +106,7 @@ class OrgaService extends CoreService implements OrgaServiceInterface
         private readonly SortMethodFactory $sortMethodFactory,
         TokenStorageInterface $tokenStorage,
         private readonly TranslatorInterface $translator,
-        private readonly UserService $userService
+        private readonly UserService $userService,
     ) {
         $this->addressService = $addressService;
         $this->contentService = $contentService;
@@ -159,7 +159,7 @@ class OrgaService extends CoreService implements OrgaServiceInterface
         string $userLastName,
         string $email,
         Customer $customer,
-        array $orgaTypeNames
+        array $orgaTypeNames,
     ): Orga {
         $masterUserRoles = $this->roleService->getUserRolesByCodes([Role::ORGANISATION_ADMINISTRATION]);
         $masterUserRole = $masterUserRoles[0];
