@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\CsrfSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\HeaderSanitizerService;
