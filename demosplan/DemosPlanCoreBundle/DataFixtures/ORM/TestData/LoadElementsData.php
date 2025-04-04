@@ -37,7 +37,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $element1->setIcon('icon-home1');
         $element1->setCategory('paragraph');
         $element1->setOrder(1);
-        $element1->setProcedure($this->getReference('testProcedure2'));
+        $element1->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $element1->setEnabled(true);
         $element1->setDeleted(false);
 
@@ -50,7 +50,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $element2->setIcon('icon-home2');
         $element2->setCategory('paragraph');
         $element2->setOrder(2);
-        $element2->setProcedure($this->getReference('testProcedure2'));
+        $element2->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $element2->setEnabled(true);
         $element2->setDeleted(false);
         $element2->setParent($element1);
@@ -64,7 +64,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $element3->setIcon('icon-home2');
         $element3->setCategory('paragraph');
         $element3->setOrder(3);
-        $element3->setProcedure($this->getReference('testProcedure2'));
+        $element3->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $element3->setEnabled(true);
         $element3->setDeleted(false);
         $element3->setParent($element2);
@@ -78,7 +78,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $element4->setIcon('icon-home2');
         $element4->setCategory('paragraph');
         $element4->setOrder(4);
-        $element4->setProcedure($this->getReference('testProcedure2'));
+        $element4->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $element4->setEnabled(true);
         $element4->setDeleted(false);
         $element4->setParent($element3);
@@ -92,7 +92,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $element5->setIcon('icon-home2');
         $element5->setCategory('paragraph');
         $element5->setOrder(5);
-        $element5->setProcedure($this->getReference('testProcedure2'));
+        $element5->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $element5->setEnabled(true);
         $element5->setDeleted(false);
         $element5->setParent($element1);
@@ -106,7 +106,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $element6->setIcon('icon-home3');
         $element6->setCategory('paragraph');
         $element6->setOrder(6);
-        $element6->setProcedure($this->getReference('testProcedure2'));
+        $element6->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $element6->setEnabled(false);
         $element6->setDesignatedSwitchDate(new DateTime());
         $element6->setDeleted(false);
@@ -241,7 +241,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $element12->setIcon('icon-home2');
         $element12->setCategory('statement');
         $element12->setOrder(12);
-        $element12->setProcedure($this->getReference('testProcedure2'));
+        $element12->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $element12->setEnabled(true);
         $element12->setDeleted(false);
 
@@ -256,7 +256,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $paragraph1->setVisible(1);
         $paragraph1->setDeleted(false);
         $paragraph1->setOrder(0);
-        $paragraph1->setProcedure($this->getReference(LoadProcedureData::TESTPROCEDURE));
+        $paragraph1->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $paragraph1->setTitle('testParagraph1');
         $paragraph1->setText('The text of the testparagraph1');
 
@@ -269,7 +269,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $paragraph2->setVisible(1);
         $paragraph2->setDeleted(false);
         $paragraph2->setOrder(1);
-        $paragraph2->setProcedure($this->getReference(LoadProcedureData::TESTPROCEDURE));
+        $paragraph2->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $paragraph2->setTitle('testParagraph2');
         $paragraph2->setText('The text of the testparagraph2');
 
@@ -281,7 +281,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $paragraph2Version->setCategory('begruendung');
         $paragraph2Version->setVisible(true);
         $paragraph2Version->setDeleted(false);
-        $paragraph2Version->setProcedure($this->getReference(LoadProcedureData::TESTPROCEDURE));
+        $paragraph2Version->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $paragraph2Version->setTitle('testParagraph2');
         $paragraph2Version->setText('The text of the testparagraph2');
         $paragraph2Version->setCreateDate(new DateTime());
@@ -298,7 +298,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $paragraph3Version->setCategory('begruendung');
         $paragraph3Version->setVisible(true);
         $paragraph3Version->setDeleted(false);
-        $paragraph3Version->setProcedure($this->getReference(LoadProcedureData::TESTPROCEDURE));
+        $paragraph3Version->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $paragraph3Version->setTitle('testParagraph3');
         $paragraph3Version->setText('The text of the testparagraph3');
         $paragraph3Version->setOrder(1);
@@ -333,7 +333,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $paragraph3->setVisible(1);
         $paragraph3->setDeleted(false);
         $paragraph3->setOrder(2);
-        $paragraph3->setProcedure($this->getReference(LoadProcedureData::TESTPROCEDURE));
+        $paragraph3->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $paragraph3->setTitle('testParagraph3');
         $paragraph3->setText('The text of the testparagraph3');
 
@@ -346,7 +346,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $testFileElement->setIcon('icon-home2');
         $testFileElement->setOrder(5);
         $testFileElement->setCategory('file');
-        $testFileElement->setProcedure($this->getReference('testProcedure2'));
+        $testFileElement->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $testFileElement->setEnabled(true);
         $testFileElement->setDeleted(false);
 
@@ -483,7 +483,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $elementToSwitch->setIcon('icon-home3');
         $elementToSwitch->setCategory('paragraph');
         $elementToSwitch->setOrder(6);
-        $elementToSwitch->setProcedure($this->getReference('testProcedure2'));
+        $elementToSwitch->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $elementToSwitch->setEnabled(true);
         $elementToSwitch->setDesignatedSwitchDate(Carbon::now()); // should be found
         $elementToSwitch->setDeleted(false);
@@ -498,7 +498,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         $elementToNotSwitch->setIcon('icon-home3');
         $elementToNotSwitch->setCategory('paragraph');
         $elementToNotSwitch->setOrder(6);
-        $elementToNotSwitch->setProcedure($this->getReference('testProcedure2'));
+        $elementToNotSwitch->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
         $elementToNotSwitch->setEnabled(true);
         $elementToNotSwitch->setDesignatedSwitchDate(Carbon::now()->addDays(17)); // should not be found
         $elementToNotSwitch->setDeleted(false);
@@ -519,7 +519,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
             $paragraph->setVisible(1);
             $paragraph->setDeleted(false);
             $paragraph->setOrder($order);
-            $paragraph->setProcedure($this->getReference('testProcedure2'));
+            $paragraph->setProcedure($this->getReference(LoadProcedureData::TEST_PROCEDURE_2));
             $paragraph->setTitle($key);
             $paragraph->setText("The text of the leaf $key in the paragraph tree");
             if (null != $parent) {
