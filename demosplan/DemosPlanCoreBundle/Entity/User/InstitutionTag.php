@@ -116,9 +116,19 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
         return $this->creationDate;
     }
 
+    public function setCreationDate(DateTime $creationDate): void
+    {
+        $this->creationDate = $creationDate;
+    }
+
     public function getModificationDate(): DateTime
     {
         return $this->modificationDate;
+    }
+
+    public function setModificationDate(DateTime $modificationDate): void
+    {
+        $this->modificationDate = $modificationDate;
     }
 
     /**
