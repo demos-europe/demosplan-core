@@ -40,9 +40,10 @@
     </div><!--
  --><div class="layout__item u-2-of-12 text-center u-pv-0_25">
       <dp-toggle
-        v-model="itemEnabled"
+        v-model="isFaqEnabled"
         class="u-mt-0_125"
-        data-cy="enabledFaqItem" />
+        data-cy="enabledFaqItem"
+        @input="handleToggle" />
     </div><!--
  --><div class="layout__item u-2-of-12 text-center py-1">
       <div class="flex flex-col sm:flex-row justify-center">
@@ -109,6 +110,7 @@ export default {
        *   this.queue.push(request)
        *   this.processQueue() // Starts processing the queued requests
        */
+      isFaqEnabled: false,
       isProcessing: false,
       queue: []
     }
@@ -124,31 +126,6 @@ export default {
 
     currentParentItem () {
       return this.faqCategories[this.parentId]
-    },
-
-    itemEnabled: {
-      get () {
-        return this.faqItems[this.faqItem.id].attributes.enabled
-      },
-
-      set (val) {
-        if (val !== this.faqItem.attributes.enabled) {
-          const faqCpy = JSON.parse(JSON.stringify(this.faqItem))
-          faqCpy.attributes.enabled = val
-
-          this.updateFaq({ ...faqCpy, id: faqCpy.id })
-          const saveAction = () => {
-            return this.saveFaq(this.faqItem.id).then(() => {
-              dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-            }).catch(() => {
-              dplan.notify.error(Translator.trans('error.changes.not.saved'))
-            })
-          }
-
-          this.queue.push(saveAction)
-          this.processQueue()
-        }
-      }
     },
 
     selectedGroups () {
@@ -179,6 +156,7 @@ export default {
   methods: {
     ...mapActions('Faq', {
       deleteFaq: 'delete',
+      restoreFaqAction: 'restoreFromInitial',
       saveFaq: 'save'
     }),
     ...mapMutations('Faq', {
@@ -187,6 +165,34 @@ export default {
     ...mapMutations('FaqCategory', {
       updateCategory: 'setItem'
     }),
+
+    handleToggle (isEnabled) {
+      if (isEnabled !== this.isFaqEnabled) {
+        const faqCopy = {
+          ...this.faqItem,
+          attributes: {
+            ...this.faqItem.attributes,
+            enabled: isEnabled
+          }
+        }
+
+        this.updateFaq({ ...faqCopy, id: faqCopy.id })
+
+        const saveAction = () => {
+          return this.saveFaq(this.faqItem.id)
+            .then(() => {
+              this.isFaqEnabled = isEnabled
+              dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+            })
+            .catch(() => {
+              this.restoreFaqAction(this.faqItem.id)
+              dplan.notify.error(Translator.trans('error.changes.not.saved'))
+            })
+        }
+        this.queue.push(saveAction)
+        this.processQueue()
+      }
+    },
 
     selectGroups (val) {
       const selectedGroups = val.reduce((acc, group) => {
@@ -217,11 +223,13 @@ export default {
       if (hasChangedAttributes === true) {
         this.updateFaq({ ...faqCpy, id: faqCpy.id })
         const saveAction = () => {
-          return this.saveFaq(this.faqItem.id).then(() => {
-            dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-          }).catch(() => {
-            dplan.notify.error(Translator.trans('error.changes.not.saved'))
-          })
+          return this.saveFaq(this.faqItem.id)
+            .then(() => {
+              dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+            })
+            .catch(() => {
+              dplan.notify.error(Translator.trans('error.changes.not.saved'))
+            })
         }
 
         this.queue.push(saveAction)
@@ -258,6 +266,10 @@ export default {
         this.processQueue()
       })
     }
+  },
+
+  mounted () {
+    this.isFaqEnabled = this.faqItem.attributes.enabled
   }
 }
 </script>
