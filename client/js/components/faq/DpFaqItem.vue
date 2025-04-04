@@ -111,7 +111,7 @@ export default {
        *   this.processQueue() // Starts processing the queued requests
        */
       isFaqEnabled: false,
-      isProcessing: false,
+      isQueueProcessing: false,
       queue: []
     }
   },
@@ -257,12 +257,12 @@ export default {
     },
 
     processQueue () {
-      if (this.isProcessing || !this.queue.length) return
+      if (this.isQueueProcessing || !this.queue.length) return
 
-      this.isProcessing = true
+      this.isQueueProcessing = true
       const action = this.queue.shift()
       action().finally(() => {
-        this.isProcessing = false
+        this.isQueueProcessing = false
         this.processQueue()
       })
     }
