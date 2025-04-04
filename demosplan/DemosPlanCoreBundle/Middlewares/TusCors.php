@@ -21,7 +21,7 @@ use TusPhp\Response;
 class TusCors implements TusMiddleware
 {
     public function __construct(
-        private readonly HeaderSanitizerService $headerSanitizer
+        private readonly HeaderSanitizerService $headerSanitizer,
     ) {
     }
 
@@ -36,8 +36,8 @@ class TusCors implements TusMiddleware
         $fileHashHeader = $this->headerSanitizer->sanitizeHeader(Header::FILE_HASH);
         $fileIdHeader = $this->headerSanitizer->sanitizeHeader(Header::FILE_ID);
 
-        $headers['Access-Control-Allow-Headers'] = $allowHeaders . ', ' . $fileHashHeader . ', ' . $fileIdHeader;
-        $headers['Access-Control-Expose-Headers'] = $exposeHeaders . ', ' . $fileHashHeader . ', ' . $fileIdHeader;
+        $headers['Access-Control-Allow-Headers'] = $allowHeaders.', '.$fileHashHeader.', '.$fileIdHeader;
+        $headers['Access-Control-Expose-Headers'] = $exposeHeaders.', '.$fileHashHeader.', '.$fileIdHeader;
 
         $response->replaceHeaders($headers);
     }

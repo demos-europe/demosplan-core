@@ -21,7 +21,7 @@ class RatelimitRequestSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly RateLimiterFactory $jwtTokenLimiter,
-        private readonly HeaderSanitizerService $headerSanitizer
+        private readonly HeaderSanitizerService $headerSanitizer,
     ) {
     }
 

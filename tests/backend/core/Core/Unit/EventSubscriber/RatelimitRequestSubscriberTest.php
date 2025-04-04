@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace Tests\Core\Core\Unit\EventSubscriber;
 
 use demosplan\DemosPlanCoreBundle\EventSubscriber\RatelimitRequestSubscriber;
@@ -10,7 +18,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 /**
- * Tests for the RatelimitRequestSubscriber with focus on header sanitization
+ * Tests for the RatelimitRequestSubscriber with focus on header sanitization.
  */
 class RatelimitRequestSubscriberTest extends TestCase
 {
@@ -61,7 +69,7 @@ class RatelimitRequestSubscriberTest extends TestCase
     }
 
     /**
-     * Test that a standard authorization header works correctly
+     * Test that a standard authorization header works correctly.
      */
     public function testStandardAuthorizationHeader(): void
     {
@@ -77,7 +85,7 @@ class RatelimitRequestSubscriberTest extends TestCase
     }
 
     /**
-     * Test that a malicious authorization header is properly sanitized
+     * Test that a malicious authorization header is properly sanitized.
      */
     public function testMaliciousAuthorizationHeader(): void
     {
@@ -95,11 +103,11 @@ class RatelimitRequestSubscriberTest extends TestCase
     }
 
     /**
-     * Test that a header with script tags is properly sanitized
+     * Test that a header with script tags is properly sanitized.
      */
     public function testHeaderWithScriptTags(): void
     {
-        $maliciousToken = "Bearer <script>alert(1)</script>";
+        $maliciousToken = 'Bearer <script>alert(1)</script>';
 
         $request = Request::create('/test');
         $request->headers->set('X-JWT-Authorization', $maliciousToken);
@@ -116,7 +124,7 @@ class RatelimitRequestSubscriberTest extends TestCase
     }
 
     /**
-     * Test that too many requests throws an exception
+     * Test that too many requests throws an exception.
      */
     public function testTooManyRequests(): void
     {

@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace Tests\Core\Core\Unit\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -14,7 +22,7 @@ use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
- * Tests for the CsrfSubscriber with focus on token sanitization
+ * Tests for the CsrfSubscriber with focus on token sanitization.
  */
 class CsrfSubscriberTest extends TestCase
 {
@@ -40,7 +48,7 @@ class CsrfSubscriberTest extends TestCase
     }
 
     /**
-     * Test that GET requests are ignored
+     * Test that GET requests are ignored.
      */
     public function testGetRequestsAreIgnored(): void
     {
@@ -56,7 +64,7 @@ class CsrfSubscriberTest extends TestCase
     }
 
     /**
-     * Test that standard CSRF token is handled correctly
+     * Test that standard CSRF token is handled correctly.
      */
     public function testStandardCsrfToken(): void
     {
@@ -80,7 +88,7 @@ class CsrfSubscriberTest extends TestCase
     }
 
     /**
-     * Test that malicious CSRF token is properly sanitized
+     * Test that malicious CSRF token is properly sanitized.
      */
     public function testMaliciousCsrfToken(): void
     {
@@ -108,11 +116,11 @@ class CsrfSubscriberTest extends TestCase
     }
 
     /**
-     * Test that a token with script tags is properly sanitized
+     * Test that a token with script tags is properly sanitized.
      */
     public function testTokenWithScriptTags(): void
     {
-        $maliciousToken = "valid-token-<script>alert(1)</script>";
+        $maliciousToken = 'valid-token-<script>alert(1)</script>';
         $sanitizedToken = $this->headerSanitizer->sanitizeCsrfToken($maliciousToken);
 
         $request = Request::create('/test', 'POST');

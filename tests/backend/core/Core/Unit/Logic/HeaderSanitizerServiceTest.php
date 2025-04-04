@@ -1,12 +1,20 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace Tests\Core\Core\Unit\Logic;
 
 use demosplan\DemosPlanCoreBundle\Logic\HeaderSanitizerService;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for the HeaderSanitizerService which sanitizes HTTP headers to prevent injection attacks
+ * Tests for the HeaderSanitizerService which sanitizes HTTP headers to prevent injection attacks.
  */
 class HeaderSanitizerServiceTest extends TestCase
 {
@@ -18,9 +26,7 @@ class HeaderSanitizerServiceTest extends TestCase
     }
 
     /**
-     * Test basic header sanitization
-     * 
-     * @return void
+     * Test basic header sanitization.
      */
     public function testSanitizeHeader(): void
     {
@@ -31,16 +37,14 @@ class HeaderSanitizerServiceTest extends TestCase
         // Test with header containing new lines (potential for HTTP header injection)
         $result = $this->headerSanitizer->sanitizeHeader("Content-Type: application/json\r\nX-Malicious: exploit");
         $this->assertEquals('Content-Type: application/json', $result);
-        
+
         // Test with header containing the other type of new line
         $result = $this->headerSanitizer->sanitizeHeader("Content-Type: application/json\nX-Malicious: exploit");
         $this->assertEquals('Content-Type: application/json', $result);
     }
 
     /**
-     * Test auth header sanitization
-     * 
-     * @return void
+     * Test auth header sanitization.
      */
     public function testSanitizeAuthHeader(): void
     {
@@ -62,9 +66,7 @@ class HeaderSanitizerServiceTest extends TestCase
     }
 
     /**
-     * Test CSRF token sanitization
-     * 
-     * @return void
+     * Test CSRF token sanitization.
      */
     public function testSanitizeCsrfToken(): void
     {
@@ -86,16 +88,14 @@ class HeaderSanitizerServiceTest extends TestCase
     }
 
     /**
-     * Test origin sanitization
-     * 
-     * @return void
+     * Test origin sanitization.
      */
     public function testSanitizeOrigin(): void
     {
         // Test with valid origins
         $validOrigin = 'https://example.com';
         $this->assertEquals($validOrigin, $this->headerSanitizer->sanitizeOrigin($validOrigin));
-        
+
         $validOriginWithPort = 'https://example.com:8080';
         $this->assertEquals($validOriginWithPort, $this->headerSanitizer->sanitizeOrigin($validOriginWithPort));
 
@@ -103,15 +103,15 @@ class HeaderSanitizerServiceTest extends TestCase
         $invalidOrigin = "https://evil.com\r\nX-Custom: malicious";
         // First-line extraction should remove the injection
         $this->assertEquals('https://evil.com', $this->headerSanitizer->sanitizeOrigin($invalidOrigin));
-        
+
         // Test with malformed URL
         $malformedUrl = 'not-a-url';
         $this->assertEquals('', $this->headerSanitizer->sanitizeOrigin($malformedUrl));
-        
+
         // Test with data URL (which should be blocked)
         $dataUrl = 'data:text/html,<script>alert(1)</script>';
         $this->assertEquals('', $this->headerSanitizer->sanitizeOrigin($dataUrl));
-        
+
         // Test with script in hostname
         $invalidOriginWithScript = 'https://<script>alert(1)</script>.com';
         $this->assertEquals('', $this->headerSanitizer->sanitizeOrigin($invalidOriginWithScript));

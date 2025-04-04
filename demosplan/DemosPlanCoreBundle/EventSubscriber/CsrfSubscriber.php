@@ -25,7 +25,7 @@ class CsrfSubscriber implements EventSubscriberInterface
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
         private readonly MessageBagInterface $messageBag,
         private readonly LoggerInterface $logger,
-        private readonly HeaderSanitizerService $headerSanitizer
+        private readonly HeaderSanitizerService $headerSanitizer,
     ) {
     }
 
