@@ -807,7 +807,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
             }
             // T34551 all procedures shall get a customer relation
-            // - defalt-customer-blueprint relations are set within the customer only
+            // - default-customer-blueprint relations are set within the customer only
             // if a customer is given inside the procedure related $data array then
             // that signals the procedure should be used as the default-customer-blueprint.
             $setProcedureAsDefaultCustomerBlueprint = false;
@@ -908,7 +908,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             foreach ($procedureIds as $procedureId) {
                 $data = [
                     'ident'    => $procedureId,
-                    'customer' => null,
                     'deleted'  => true,
                 ];
 
@@ -917,11 +916,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     throw ProcedureNotFoundException::createFromId($procedureId);
                 }
                 if ($procedure->isCustomerMasterBlueprint()) {
-                    $this->messageBag->add(
-                        'warning',
-                        'warning.customer.procedure.template.can.not.be.deleted'
-                    );
-                    continue;
+                    // procedure deletion is just a flag, therefore additional logic is needed to ensure
+                    // this deleted procedure is not longer set as defaultProcedureBlueprint
+                    $procedure->getCustomer()?->setDefaultProcedureBlueprint(null);
+                    $this->customerService->updateCustomer($procedure->getCustomer());
                 }
 
                 try {
@@ -1770,7 +1768,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         // use customer master blueprint if existing, (instead of global masterblueprint)
         if ($masterTemplateId === $incomingCopyMasterId) {
             $customerBlueprint = $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint();
-            if ($customerBlueprint instanceof Procedure) {
+            if ($customerBlueprint instanceof Procedure && !$customerBlueprint->isDeleted()) {
                 $incomingCopyMasterId = $customerBlueprint->getId();
             }
         }
