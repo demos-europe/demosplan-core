@@ -289,6 +289,15 @@ export default {
     }
   },
 
+  watch: {
+    user: {
+      handler () {
+        this.localUser = JSON.parse(JSON.stringify(this.user))
+      },
+      deep: true
+    }
+  },
+
   methods: {
     ...mapMutations('Orga', ['setItem']),
 
