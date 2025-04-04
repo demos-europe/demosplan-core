@@ -1,12 +1,20 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace Tests\Core\Core\Unit\Logic;
 
 use demosplan\DemosPlanCoreBundle\Logic\HeaderSanitizerService;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for the HeaderSanitizerService which sanitizes HTTP headers to prevent injection attacks
+ * Tests for the HeaderSanitizerService which sanitizes HTTP headers to prevent injection attacks.
  */
 class HeaderSanitizerServiceTest extends TestCase
 {
@@ -34,9 +42,7 @@ class HeaderSanitizerServiceTest extends TestCase
     }
 
     /**
-     * Test basic header sanitization
-     *
-     * @return void
+     * Test basic header sanitization.
      */
     public function testSanitizeHeader(): void
     {
@@ -54,9 +60,7 @@ class HeaderSanitizerServiceTest extends TestCase
     }
 
     /**
-     * Test auth header sanitization
-     *
-     * @return void
+     * Test auth header sanitization.
      */
     public function testSanitizeAuthHeader(): void
     {
@@ -75,9 +79,7 @@ class HeaderSanitizerServiceTest extends TestCase
     }
 
     /**
-     * Test CSRF token sanitization
-     *
-     * @return void
+     * Test CSRF token sanitization.
      */
     public function testSanitizeCsrfToken(): void
     {
@@ -96,9 +98,7 @@ class HeaderSanitizerServiceTest extends TestCase
     }
 
     /**
-     * Test origin sanitization
-     *
-     * @return void
+     * Test origin sanitization.
      */
     public function testSanitizeOrigin(): void
     {

@@ -29,7 +29,7 @@ class CsrfSubscriberTest extends TestCase
     private const TEST_URL = '/test';
     private const VALID_TOKEN_ID = 'valid-token-1234';
     private const MALICIOUS_TOKEN = "valid-token-1234\r\nX-Malicious: exploit";
-    private const SCRIPT_TOKEN = "valid-token-<script>alert(1)</script>";
+    private const SCRIPT_TOKEN = 'valid-token-<script>alert(1)</script>';
     private const TOKEN_VALUE = 'token-value';
 
     private CsrfSubscriber $subscriber;
