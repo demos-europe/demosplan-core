@@ -58,7 +58,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
                 return [];
             })
-            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getMapExtent(), true));
+            ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->coordinateJsonConverter->convertFlatListToCoordinates($procedureSettings->getMapExtent(), true));
 
         /*
          * FE sends mapExtent and BE stores it as boundingBox due to legacy reasons
@@ -71,7 +71,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
                     return [];
                 })
-                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), true));
+                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->coordinateJsonConverter->convertFlatListToCoordinates($procedureSettings->getBoundingBox(), true));
         }
 
         $configBuilder->scales
@@ -157,7 +157,7 @@ class ProcedureMapSettingResourceType extends DplanResourceType
 
                     return [];
                 })
-                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->convertFlatListToCoordinates($procedureSettings->getCoordinate(), false));
+                ->readable(false, fn (ProcedureSettings $procedureSettings): ?array => $this->coordinateJsonConverter->convertFlatListToCoordinates($procedureSettings->getCoordinate(), false));
         }
 
         if ($this->currentUser->hasPermission('feature_map_use_territory')) {
@@ -171,23 +171,40 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         }
 
         $configBuilder->defaultBoundingBox
-            ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
-                $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
-
-                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getBoundingBox(), true);
-            });
+            ->readable(false, fn (ProcedureSettings $procedureSetting): ?array => $this->getDefaultBoundingBox());
 
         $configBuilder->defaultMapExtent
-            ->readable(false, function (ProcedureSettings $procedureSetting): ?array {
-                $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
-
-                return $this->convertFlatListToCoordinates($masterTemplateMapSetting->getMapExtent(), true);
-            });
+            ->readable(false, fn (ProcedureSettings $procedureSetting): ?array => $this->getDefaultMapExtent());
 
         $configBuilder->useGlobalInformationUrl
             ->readable(false, fn (ProcedureSettings $procedureSetting): bool => $this->globalConfig->isMapGetFeatureInfoUrlGlobal());
 
         return $configBuilder;
+    }
+
+    protected function getDefaultBoundingBox(): ?array
+    {
+        return $this->getMapSetting('getBoundingBox', 'getMapMaxBoundingbox');
+    }
+
+    protected function getDefaultMapExtent(): ?array
+    {
+        return $this->getMapSetting('getMapExtent', 'getMapPublicExtent');
+    }
+
+    /**
+     * Retrieve a map setting from the master template or fallback to global config.
+     */
+    private function getMapSetting(string $masterTemplateMethod, string $globalConfigMethod): ?array
+    {
+        $masterTemplateMapSetting = $this->masterTemplateService->getMasterTemplate()->getSettings();
+        $setting = $masterTemplateMapSetting->$masterTemplateMethod();
+
+        if (null === $setting || '' === $setting) {
+            $setting = $this->globalConfig->$globalConfigMethod();
+        }
+
+        return $this->coordinateJsonConverter->convertFlatListToCoordinates($setting, true);
     }
 
     protected function getSetting(string $settingName, ProcedureSettings $procedureSetting): ?Setting
@@ -240,43 +257,6 @@ class ProcedureMapSettingResourceType extends DplanResourceType
         return implode(',', [
             $coordinates['latitude'],
             $coordinates['longitude']]);
-    }
-
-    protected function convertFlatListToCoordinates(string $rawCoordinateValues, bool $isExtendedFormat): ?array
-    {
-        if ('' === $rawCoordinateValues) {
-            return null;
-        }
-
-        $rawCoordinateValues = explode(',', $rawCoordinateValues);
-        $coordinateValues = [];
-
-        foreach ($rawCoordinateValues as $value) {
-            Assert::numeric($value);
-            $coordinateValues[] = (float) $value;
-        }
-
-        if (!$isExtendedFormat) {
-            Assert::count($coordinateValues, 2);
-
-            return [
-                'latitude'  => $coordinateValues[0],
-                'longitude' => $coordinateValues[1],
-            ];
-        }
-
-        Assert::count($coordinateValues, 4);
-
-        return [
-            'start' => [
-                'latitude'  => $coordinateValues[0],
-                'longitude' => $coordinateValues[1],
-            ],
-            'end' => [
-                'latitude'  => $coordinateValues[2],
-                'longitude' => $coordinateValues[3],
-            ],
-        ];
     }
 
     /**

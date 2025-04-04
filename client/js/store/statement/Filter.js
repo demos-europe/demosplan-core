@@ -110,7 +110,7 @@ const Filter = {
       state.currentSearch = searchTerm
     },
 
-    setLoading(state, { filterId, isLoading }) {
+    setLoading (state, { filterId, isLoading }) {
       if (!state.filters[filterId]) {
         state.filters[filterId] = {}
       }
