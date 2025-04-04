@@ -103,6 +103,7 @@ const bundlesConfig = merge(baseConfig, {
     alias: {
       '@DpJs': config.absoluteRoot + 'client/js',
       vue: config.absoluteRoot + 'node_modules/@vue/compat/dist/vue.esm-bundler',
+      // '@phosphor-icons/vue': config.absoluteRoot + 'node_modules/@phosphor-icons/vue/dist/index.mjs',
       // To Fix masterportal issues, we have to resolve olcs manually
       './olcs/olcsMap.js': config.absoluteRoot + 'node_modules/@masterportal/masterportalapi/src/maps/olcs/olcsMap.js',
       './olcs': config.absoluteRoot + 'node_modules/olcs/lib/olcs',
@@ -120,12 +121,13 @@ const bundlesConfig = merge(baseConfig, {
   plugins: [
     new DefinePlugin({
       URL_PATH_PREFIX: JSON.stringify(config.urlPathPrefix), // Path prefix for dynamically generated urls
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false, // Vue CLI is in maintenance mode, and probably won't merge my PR to fix this in their tooling  https://github.com/vuejs/vue-cli/pull/7443
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false
     }),
     new WebpackManifestPlugin({
       fileName: '../../dplan.manifest.json'
-    })
+    }),
   ]
 })
 

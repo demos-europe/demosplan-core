@@ -2025,9 +2025,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:0.4.8":
-  version: 0.4.8
-  resolution: "@demos-europe/demosplan-ui@npm:0.4.8"
+"@demos-europe/demosplan-ui@portal:/srv/www/local_modules/demosplan-ui::locator=root-workspace-0b6124%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@demos-europe/demosplan-ui@portal:/srv/www/local_modules/demosplan-ui::locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.4.5"
@@ -2079,9 +2079,8 @@ __metadata:
     vue-multiselect: "npm:^3.1.0"
     vue-omnibox: "npm:^0.3.7"
     vue-sliding-pagination: "npm:^1.3.2"
-  checksum: 10c0/41dbd20a0cd29d5b964baca4bcfe0be1cb4e5ecdab7d6208b9f2cad02b52048cd217bf8bc084180475a9fea3349182d2584fbbe98528c1ee7c69f347bfd0edc5
   languageName: node
-  linkType: hard
+  linkType: soft
 
 "@demos-europe/dp-consent@npm:^1.3":
   version: 1.3.0

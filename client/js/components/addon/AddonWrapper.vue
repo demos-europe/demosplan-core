@@ -2,7 +2,7 @@
   <div class="border">
     <component
       v-for="addon in loadedAddons"
-      :is="addon.component"
+      :is="addon.component.default"
       :key="`addon:${addon.name}`"
       :data-cy="`addon:${addon.name}`"
       :ref="`${addon.name}${refComponent}`"
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { defineAsyncComponent, defineComponent, getCurrentInstance, reactive, resolveComponent, shallowRef } from 'vue'
+import { defineAsyncComponent, defineComponent, getCurrentInstance, reactive, resolveComponent, shallowRef, markRaw } from 'vue'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import { DpButton } from '@demos-europe/demosplan-ui'
 
@@ -70,12 +70,10 @@ export default {
     //   }
     // })
 
-    this.$nextTick(() => {
-      addons.forEach((addon, idx) => {
-        this.loadedAddons.push({
-          component: window[addon.name].default,
-          name: addon.name
-        })
+    addons.forEach((addon, idx) => {
+      this.loadedAddons.push({
+        component: markRaw(window[addon.name]),
+        name: addon.name
       })
     })
 

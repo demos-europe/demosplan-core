@@ -98,20 +98,25 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.component('DpContextualHelp', DpContextualHelp)
 
     Object.keys(components).forEach(comp => {
-      if (components[comp]) {
+      if (app._context.components[comp]) {
+        console.log(`InitVue: ${comp} is already registered`)
+      }
+      else if (components[comp]) {
         app.component(comp, components[comp])
       } else {
-        console.log(`${components[comp]} is undefined}`, components)
+        console.log(`InitVue: components[${comp}] is undefined}`, components)
       }
     })
 
+
     app.mount('#app')
 
+    console.log('Vue instance created')
     /*
      * We need a global vue instance
      * so addons can use it, when evaluated on the fly
      */
-    window.Vue = app
+    // window.Vue = app
 
     Promise.resolve(app)
   })
