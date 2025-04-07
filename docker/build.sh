@@ -23,6 +23,7 @@ build_mode="prod"
 if [[ $6 == "dev" ]]
 then
   build_mode="dev"
+  imagename="${imagename}-dev"
 fi
 
 printf "Building %s in %s mode...\n" $folder $build_mode
@@ -41,9 +42,9 @@ cp -r $folder/* $context
 cp -r $folder/.dockerignore $context
 # use --progress=plain to see all build output
 DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname --build-arg BUILD_MODE=$build_mode --secret id=envlocal,src=../.env.local -t $imagename:$version -f $folder/Dockerfile --target fpm $context
-DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname -t $imagename/nginx:$version -f $folder/Dockerfile --target nginx $context
+DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname --build-arg BUILD_MODE=$build_mode -t $imagename/nginx:$version -f $folder/Dockerfile --target nginx $context
 # / is not always allowed in image names
-DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname -t $imagename-nginx:$version -f $folder/Dockerfile --target nginx $context
+DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname --build-arg BUILD_MODE=$build_mode -t $imagename-nginx:$version -f $folder/Dockerfile --target nginx $context
 
 rm -rf $context
 

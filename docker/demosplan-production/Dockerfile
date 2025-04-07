@@ -159,9 +159,12 @@ CMD ["/usr/sbin/php-fpm8.2", "-F"]
 FROM nginxinc/nginx-unprivileged:alpine3.21-slim AS nginx
 
 ARG PROJECT_NAME
-ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung
+ARG BUILD_MODE=prod
+ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung \
+    BUILD_MODE=$BUILD_MODE
 
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+# Copy appropriate nginx config template based on build mode
+COPY nginx.conf.template${BUILD_MODE:+-$BUILD_MODE} /etc/nginx/templates/default.conf.template
 
 WORKDIR /srv/www
 # only webfolder with frontcontroller and static files is needed for nginx
