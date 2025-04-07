@@ -467,7 +467,6 @@ export default {
     },
 
     setOrga (payload) {
-      console.log('setOrga payload', payloadRel.allowedRoles.data)
       const payloadRel = payload.relationships
       const payloadWithNewType = {
         ...payload,
