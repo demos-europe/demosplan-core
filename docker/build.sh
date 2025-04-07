@@ -23,7 +23,7 @@ build_mode="prod"
 if [[ $6 == "dev" ]]
 then
   build_mode="dev"
-  imagename="${imagename}-dev"
+  version="${version}-dev"
 fi
 
 printf "Building %s in %s mode...\n" $folder $build_mode
