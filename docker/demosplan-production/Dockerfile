@@ -2,10 +2,12 @@
 FROM debian:stable-20250317-slim AS build
 
 ARG PROJECT_NAME
+ARG BUILD_MODE=prod
 # ENV vars needs to be set to build the assets
 ENV PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
     EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de \
+    BUILD_MODE=$BUILD_MODE \
     TZ=Europe/Berlin
 
 # install default-mysql-client to be able to dump database
@@ -51,7 +53,11 @@ WORKDIR /srv/www
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
 # do not use --no-scripts, as we do not need all the aws stuff
 RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,uid=33,gid=33 \
-    composer install -o --prefer-dist --no-dev --no-progress && \
+    if [ "$BUILD_MODE" = "dev" ]; then \
+        composer install -o --prefer-dist --no-progress; \
+    else \
+        composer install -o --prefer-dist --no-dev --no-progress; \
+    fi && \
     yarn install --immutable && \
     yarn cache clean && \
     rm -rf /srv/www/.cache/*
@@ -82,8 +88,12 @@ USER www-data
 # the command is executed with "|| true" to prevent the build from failing
 RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
     --mount=type=cache,target=/var/www,uid=33,gid=33 \
-    ACTIVE_PROJECT=$PROJECT_NAME bin/console dplan:addon:autoinstall -e prod --no-debug || true && \
-     ./fe build $PROJECT_NAME --prod && \
+    ACTIVE_PROJECT=$PROJECT_NAME bin/console dplan:addon:autoinstall -e ${BUILD_MODE} --no-debug || true && \
+    if [ "$BUILD_MODE" = "dev" ]; then \
+        ./fe build $PROJECT_NAME; \
+    else \
+        ./fe build $PROJECT_NAME --prod; \
+    fi && \
     rm -rf /srv/www/node_modules && \
     rm -rf /srv/www/addons/cache/*/node_modules && \
     rm -rf /srv/www/addonZips && \
