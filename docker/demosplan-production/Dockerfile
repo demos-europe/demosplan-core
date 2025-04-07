@@ -1,5 +1,5 @@
 # due to BSI SYS.1.6.A6 we need to use excplicit versions
-FROM debian:stable-20250224-slim AS build
+FROM debian:stable-20250317-slim AS build
 
 ARG PROJECT_NAME
 # ENV vars needs to be set to build the assets
@@ -103,7 +103,7 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
     touch /var/log/php8.2-fpm.log && chown www-data:www-data /var/log/php8.2-fpm.log
 
-FROM debian:stable-20250224-slim AS fpm
+FROM debian:stable-20250317-slim AS fpm
 
 ARG PROJECT_NAME
 ENV PROJECT_PREFIX=$PROJECT_NAME \
@@ -146,7 +146,7 @@ RUN rm -rf /srv/www/var/cache/* && \
 USER www-data
 CMD ["/usr/sbin/php-fpm8.2", "-F"]
 
-FROM nginxinc/nginx-unprivileged:alpine3.19-slim AS nginx
+FROM nginxinc/nginx-unprivileged:alpine3.21-slim AS nginx
 
 ARG PROJECT_NAME
 ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung
