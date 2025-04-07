@@ -1,0 +1,38 @@
+services:
+    # Input validation middleware
+    demosplan.input_validation_listener:
+        class: demosplan\DemosPlanCoreBundle\EventListener\InputValidationListener
+        arguments:
+            - '@demosplan.input_validation_service'
+            - '@demosplan.validation_logger'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    # JsonAPI Request Validator
+    demosplan.jsonapi_request_validator:
+        class: demosplan\DemosPlanCoreBundle\Logic\JsonApiRequestValidator
+        arguments:
+            - '@router'
+
+    # Validation service
+    demosplan.input_validation_service:
+        class: demosplan\DemosPlanCoreBundle\Service\InputValidationService
+        arguments:
+            - '@demosplan.jsonapi_request_validator'
+            - '@demosplan.content_sanitizer'
+            - '@validator'
+            - '@request_stack'
+
+    # Content sanitizer
+    demosplan.content_sanitizer:
+        class: demosplan\DemosPlanCoreBundle\Validator\ContentSanitizer
+
+    # Validation logger
+    demosplan.validation_logger:
+        class: demosplan\DemosPlanCoreBundle\Logic\ValidationLogger
+        arguments:
+            - '@logger'
+            - '@security.token_storage'
+        tags:
+            - { name: monolog.logger, channel: validation }
+

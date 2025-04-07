@@ -1,3 +1,6 @@
+imports:
+    - { resource: services_middleware.yml }
+
 services:
     _defaults:
         # automatically injects dependencies in your services
