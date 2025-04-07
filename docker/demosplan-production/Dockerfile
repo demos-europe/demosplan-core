@@ -163,8 +163,17 @@ ARG BUILD_MODE=prod
 ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung \
     BUILD_MODE=$BUILD_MODE
 
-# Copy appropriate nginx config template based on build mode
-COPY nginx.conf.template${BUILD_MODE:+-$BUILD_MODE} /etc/nginx/templates/default.conf.template
+# Copy nginx config templates to context
+COPY nginx.conf.template /tmp/nginx.conf.template
+COPY nginx.conf.template-dev /tmp/nginx.conf.template-dev
+
+# Use appropriate template based on build mode
+RUN mkdir -p /etc/nginx/templates && \
+    if [ "$BUILD_MODE" = "dev" ] && [ -f /tmp/nginx.conf.template-dev ]; then \
+      cp /tmp/nginx.conf.template-dev /etc/nginx/templates/default.conf.template; \
+    else \
+      cp /tmp/nginx.conf.template /etc/nginx/templates/default.conf.template; \
+    fi
 
 WORKDIR /srv/www
 # only webfolder with frontcontroller and static files is needed for nginx
