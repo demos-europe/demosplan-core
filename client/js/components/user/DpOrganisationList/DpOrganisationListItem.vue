@@ -128,6 +128,7 @@ export default {
   },
 
   emits: [
+    'addonOptions:loaded',
     'get-items',
     'item:selected',
     'organisation-reset'

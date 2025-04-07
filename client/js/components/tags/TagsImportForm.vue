@@ -4,7 +4,6 @@
       :action="Routing.generate('DemosPlan_statement_administration_tags_csv_import', { procedureId: this.procedureId })"
       method="POST"
       name="tag_edit">
-
       <!-- csrf token -->
       <input
         name="_token"
@@ -17,7 +16,10 @@
           for="uploadTags"
           :hint="Translator.trans('tags.import.hint')"
           :tooltip="Translator.trans('tags.import.help')" />
-        <a download :href="availableEntity.exampleFile" target="_blank">{{ Translator.trans('example.file') }}</a>
+        <a
+          download
+          :href="availableEntity.exampleFile"
+          target="_blank">{{ Translator.trans('example.file') }}</a>
         <dp-upload-files
           allowed-file-types="csv"
           :basic-auth="dplan.settings.basicAuth"
@@ -29,11 +31,11 @@
         <input
           type="hidden"
           name="r_importCsv"
-          :value="this.uploadedCSV" />
+          :value="this.uploadedCSV">
         <input
           type="hidden"
           name="uploadedFiles"
-          :value="this.uploadedFiles" />
+          :value="this.uploadedFiles">
         <dp-button
           class="float-right mt-1"
           data-cy="listTags:tagsImport"

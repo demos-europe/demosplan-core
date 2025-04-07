@@ -99,6 +99,12 @@ export default {
     }
   },
 
+  emits: [
+    'apply',
+    'confirm',
+    'edit'
+  ],
+
   computed: {
     sanitizedReturnLink () {
       return sanitizeUrl(this.returnLink)

@@ -91,7 +91,7 @@
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
       data-cy="selectedItemsStatements:export"
-      @click.prevent="$root.$emit('exportModal:toggle', 'docx')">
+      @click.prevent="$emit('exportModal:toggle', 'docx')">
       <i
         aria-hidden="true"
         class="fa fa-share-square u-mr-0_125" />

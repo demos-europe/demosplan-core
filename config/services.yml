@@ -1184,6 +1184,8 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
 
+    DemosEurope\DemosplanAddon\Contracts\Services\OrgaServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\OrgaService'
+
     demosplan\DemosPlanCoreBundle\Logic\User\OrgaService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService

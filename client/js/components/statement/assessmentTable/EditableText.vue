@@ -242,6 +242,10 @@ export default {
     }
   },
 
+  emits: [
+    'field:save'
+  ],
+
   data () {
     return {
       fullText: '',

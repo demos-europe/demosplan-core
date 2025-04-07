@@ -207,6 +207,12 @@ export default {
     }
   },
 
+  emits: [
+    'abort',
+    'save',
+    'save-and-finish'
+  ],
+
   data () {
     return {
       isCollapsed: {

@@ -217,6 +217,13 @@ export default {
     }
   },
 
+  emits: [
+    'close',
+    'input',
+    'save',
+    'updatedVoters'
+  ],
+
   data () {
     return {
       activeItem: 'entry',
@@ -228,7 +235,7 @@ export default {
         { id: 'publicationAndVoting', transKey: 'publication.and.voting', condition: hasAnyPermissions(['feature_statements_vote', 'feature_statements_publication']) },
         { id: 'locationAndDocuments', transKey: hasPermission('field_statement_polygon') ? 'location.and.document.reference' : 'document.reference', condition: hasPermission('feature_statements_location_and_document_refrence') },
         { id: 'attachments', transKey: 'attachments' },
-        { id: 'finalEmail', transKey: 'statement.final.send' }
+        { id: 'finalEmail', transKey: 'statement.final.send', condition: hasPermission('field_send_final_email') }
       ]
     }
   },
