@@ -459,6 +459,8 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService'
 
+    DemosEurope\DemosplanAddon\Contracts\Services\OrgaServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\OrgaService'
+
     demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger: ~
 
     # Used in Migrations. As long as DI is not usable in Migrations yet these have to be public
