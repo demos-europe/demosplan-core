@@ -168,8 +168,8 @@ const AssessmentTable = {
         .then(this.api.checkResponse)
         .then(response => response.data)
 
-      return new Promise((resolve, reject) => {
-        // To prevent invalid type error missmatch of array and object
+      return new Promise((resolve) => {
+        // To prevent invalid type error mismatch of array and object
         if (Array.isArray(data.accessibleProcedures)) {
           data.accessibleProcedures = {}
         }
