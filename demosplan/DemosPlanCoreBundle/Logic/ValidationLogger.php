@@ -24,13 +24,13 @@ class ValidationLogger implements ValidationLoggerInterface
         private readonly TokenStorageInterface $tokenStorage
     ) {
     }
-    
+
     public function logValidationFailure(Request $request, InvalidDataException $exception): void
     {
         $token = $this->tokenStorage->getToken();
-        $user = $token ? $token->getUser() : null;
+        $user = $token?->getUser();
         $userId = $user && !is_string($user) ? $user->getUserIdentifier() : 'anonymous';
-        
+
         $logContext = [
             'path' => $request->getPathInfo(),
             'method' => $request->getMethod(),
@@ -39,7 +39,7 @@ class ValidationLogger implements ValidationLoggerInterface
             'errorCode' => $exception->getStatusCode(),
             'errorMessage' => $exception->getMessage(),
         ];
-        
+
         // Log the validation failure
         $this->logger->warning('Input validation failed', $logContext);
     }

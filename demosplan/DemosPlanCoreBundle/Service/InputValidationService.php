@@ -24,7 +24,6 @@ class InputValidationService
     public function __construct(
         private readonly JsonApiRequestValidator $jsonApiValidator,
         private readonly ContentSanitizer $contentSanitizer,
-        private readonly ValidatorInterface $validator,
         private readonly RequestStack $requestStack
     ) {
     }
@@ -32,7 +31,7 @@ class InputValidationService
     /**
      * Validate a request by checking various aspects
      * - Content type validation
-     * - Content sanitization 
+     * - Content sanitization
      * - Request parameters validation
      * - JSON structure validation
      */
@@ -45,83 +44,83 @@ class InputValidationService
                 throw new InvalidDataException('Invalid JSON:API request', $request, $response->getStatusCode());
             }
         }
-        
+
         // 2. Sanitize and validate query parameters
         $this->validateQueryParameters($request);
-        
+
         // 3. Sanitize and validate request body
         $this->validateRequestBody($request);
-        
+
         // 4. Store sanitized content back to request for further processing
         $this->requestStack->getCurrentRequest()?->attributes->set('validated', true);
     }
-    
+
     private function validateQueryParameters(Request $request): void
     {
         $queryParams = $request->query->all();
-        
+
         foreach ($queryParams as $key => $value) {
             // Sanitize each parameter
             $sanitizedValue = $this->contentSanitizer->sanitize($value);
             $request->query->set($key, $sanitizedValue);
-            
+
             // Additional validation logic as needed
             if ($this->isInvalidQueryParam($key, $sanitizedValue)) {
                 throw new InvalidDataException("Invalid query parameter: $key", $request);
             }
         }
     }
-    
+
     private function validateRequestBody(Request $request): void
     {
         $content = $request->getContent();
-        
+
         if (empty($content)) {
             return;
         }
-        
+
         // For JSON content
         if ($this->isJsonContentType($request)) {
             $this->validateJsonContent($request, $content);
             return;
         }
-        
+
         // For form data
         if ($this->isFormContentType($request)) {
             $this->validateFormData($request);
             return;
         }
-        
+
         // For other content types, general sanitization
         // ...
     }
-    
+
     private function validateJsonContent(Request $request, string $content): void
     {
-        $jsonData = json_decode($content, true);
-        
+        $jsonData = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+
         if (JSON_ERROR_NONE !== json_last_error()) {
             throw new InvalidDataException('Invalid JSON format', $request);
         }
-        
+
         // Recursive sanitization of JSON data
         $sanitizedData = $this->sanitizeRecursively($jsonData);
-        
+
         // Set sanitized data back to request
         $request->attributes->set('sanitized_json', $sanitizedData);
     }
-    
+
     private function validateFormData(Request $request): void
     {
         $requestData = $request->request->all();
         $files = $request->files->all();
-        
+
         // Sanitize form fields
         foreach ($requestData as $key => $value) {
             $sanitizedValue = $this->contentSanitizer->sanitize($value);
             $request->request->set($key, $sanitizedValue);
         }
-        
+
         // Validate file uploads
         foreach ($files as $key => $file) {
             if (!$this->isValidFile($file)) {
@@ -129,40 +128,39 @@ class InputValidationService
             }
         }
     }
-    
+
     private function sanitizeRecursively($data)
     {
         if (is_array($data)) {
-            $result = [];
-            foreach ($data as $key => $value) {
-                $result[$key] = $this->sanitizeRecursively($value);
-            }
-            return $result;
+            return array_map(function ($value)
+            {
+                return $this->sanitizeRecursively($value);
+            }, $data);
         }
-        
+
         return $this->contentSanitizer->sanitize($data);
     }
-    
+
     private function isJsonContentType(Request $request): bool
     {
         $contentType = $request->headers->get('Content-Type', '');
-        return str_contains($contentType, 'application/json') || 
+        return str_contains($contentType, 'application/json') ||
                str_contains($contentType, 'application/vnd.api+json');
     }
-    
+
     private function isFormContentType(Request $request): bool
     {
         $contentType = $request->headers->get('Content-Type', '');
-        return str_contains($contentType, 'application/x-www-form-urlencoded') || 
+        return str_contains($contentType, 'application/x-www-form-urlencoded') ||
                str_contains($contentType, 'multipart/form-data');
     }
-    
+
     private function isInvalidQueryParam($key, $value): bool
     {
         // Implement query parameter validation logic
         return false;
     }
-    
+
     private function isValidFile($file): bool
     {
         // Implement file validation logic

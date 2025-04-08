@@ -45,7 +45,7 @@ class InputValidationListener implements EventSubscriberInterface
         }
 
         $request = $event->getRequest();
-        
+
         // Skip validation for specific routes if needed
         if ($this->shouldSkipValidation($request)) {
             return;
@@ -57,7 +57,7 @@ class InputValidationListener implements EventSubscriberInterface
         } catch (InvalidDataException $exception) {
             // Log validation failures
             $this->validationLogger->logValidationFailure($request, $exception);
-            
+
             // Return appropriate error response
             $response = $this->createErrorResponse($exception);
             $event->setResponse($response);
@@ -68,19 +68,19 @@ class InputValidationListener implements EventSubscriberInterface
     {
         // Skip validation for assets, etc.
         $path = $request->getPathInfo();
-        
+
         // Skip validation for certain paths
         if (preg_match('~^/(css|js|images|fonts)/~', $path)) {
             return true;
         }
-        
+
         return false;
     }
 
     private function createErrorResponse(InvalidDataException $exception): Response
     {
         $statusCode = $exception->getStatusCode();
-        
+
         // For API requests
         if ($this->isApiRequest($exception->getRequest())) {
             return new JsonResponse([
@@ -91,7 +91,7 @@ class InputValidationListener implements EventSubscriberInterface
                 ]
             ], $statusCode);
         }
-        
+
         // For web requests, create HTML response
         return new Response(
             'Input validation failed. Please check your inputs and try again.',
@@ -101,7 +101,7 @@ class InputValidationListener implements EventSubscriberInterface
 
     private function isApiRequest(Request $request): bool
     {
-        return str_starts_with($request->getPathInfo(), '/api/') 
+        return str_starts_with($request->getPathInfo(), '/api/')
             || $request->isXmlHttpRequest();
     }
 }

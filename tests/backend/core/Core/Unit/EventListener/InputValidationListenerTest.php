@@ -29,8 +29,8 @@ class InputValidationListenerTest extends UnitTestCase
      * @var InputValidationListener
      */
     protected $sut;
-    private InputValidationService|MockObject $validationService;
-    private ValidationLoggerInterface|MockObject $validationLogger;
+    private ?InputValidationService $validationService;
+    private ?ValidationLoggerInterface $validationLogger;
 
     protected function setUp(): void
     {
