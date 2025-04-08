@@ -8,6 +8,7 @@
 - create deletion report entry when procedure is deleted
 - Migrate to Vue 3
 - Implement VirusCheckSocket to directly check files for viruses via remote sockets
+- bump demosplan-addon version to v0.51
 
 ## v2.26.5 (2025-03-28)
 - new parameter proxy_no_proxy to allow to exclude local services from the proxy
