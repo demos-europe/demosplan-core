@@ -17,6 +17,7 @@
 
         <div class="flex flex-wrap-reverse gap-4 items-center justify-between">
             <div>
+                {% if templateVars.list|length > 0 or templateVars.boilerplateGroups|length > 0 %}
                 {# mark all #}
                 <label class="mb-0 mx-3 inline-block">
                     <input
@@ -28,8 +29,7 @@
                     {{ "all"|trans }}
                 </label>
 
-                {# delete marked items #}
-                {% if templateVars.list|length > 0 or templateVars.boilerplateGroups|length > 0 %}
+                    {# delete marked items #}
                 <button
                     class="btn-icns m-0"
                     data-cy="deleteSelectedBoilerplate"
