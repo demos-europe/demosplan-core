@@ -156,6 +156,8 @@ const AssessmentTable = {
 
   actions: {
     /**
+     * @param commit
+     * @param state
      * @param {String} procedureId
      */
     async applyBaseData ({ commit, state }, procedureId) {
