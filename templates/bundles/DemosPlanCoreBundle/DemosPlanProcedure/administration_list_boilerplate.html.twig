@@ -17,26 +17,24 @@
 
         <div class="flex flex-wrap-reverse gap-4 items-center justify-between">
             <div>
-                {% if templateVars.list|length > 0 or templateVars.boilerplateGroups|length > 0 %}
                 {# mark all #}
-                    <label class="mb-0 mx-3 inline-block">
-                        <input
-                            class="mr-0"
-                            type="checkbox"
-                            data-cy="checkAllItems"
-                            data-form-actions-check-all
-                            name="checkAllItems">
-                        {{ "all"|trans }}
-                    </label>
+                <label class="mb-0 mx-3 inline-block">
+                    <input
+                        class="mr-0"
+                        type="checkbox"
+                        data-cy="checkAllItems"
+                        data-form-actions-check-all
+                        name="checkAllItems">
+                    {{ "all"|trans }}
+                </label>
 
-                        {# delete marked items #}
-                    <button
-                        class="btn-icns m-0"
-                        data-cy="deleteSelectedBoilerplate"
-                        name="boilerplateDeleteChecked">
-                        <i class="fa fa-times-circle"></i> {{ "items.marked.delete"|trans }}
-                    </button>
-                {% endif %}
+                    {# delete marked items #}
+                <button
+                    class="btn-icns m-0"
+                    data-cy="deleteSelectedBoilerplate"
+                    name="boilerplateDeleteChecked">
+                    <i class="fa fa-times-circle"></i> {{ "items.marked.delete"|trans }}
+                </button>
             </div>
 
             <div class="ml-3">
