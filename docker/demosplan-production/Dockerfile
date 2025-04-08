@@ -101,7 +101,9 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     chown -R root:root /srv/www/projects/$PROJECT_NAME/web && \
     chown -R www-data /opt/uploads && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
-    touch /var/log/php8.2-fpm.log && chown www-data:www-data /var/log/php8.2-fpm.log
+    touch /var/log/php8.2-fpm.log &&  \
+    chown www-data:www-data /var/log/php8.2-fpm.log && \
+    mv /srv/www/config/packages/monolog.yaml_container /srv/www/config/packages/monolog.yaml
 
 FROM demosdeutschland/demosplan-base:latest AS fpm
 
