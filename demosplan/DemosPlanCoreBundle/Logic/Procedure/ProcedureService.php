@@ -117,6 +117,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use TypeError;
+use Webmozart\Assert\Assert;
 
 class ProcedureService extends CoreService implements ProcedureServiceInterface
 {
@@ -839,6 +840,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             /** @var string|null $blueprintId */
             $blueprintId = $data['copymaster'] ?? null;
             $blueprintId = $blueprintId instanceof Procedure ? $blueprintId->getId() : $blueprintId;
+            Assert::false($this->getProcedure($blueprintId)?->isDeleted());
             $newProcedure = $this->setAuthorizedUsersToProcedure($newProcedure, $blueprintId, $currentUserId);
             $newProcedure = $this->addCurrentOrgaToPlanningOffices($newProcedure, $currentUserId);
 
