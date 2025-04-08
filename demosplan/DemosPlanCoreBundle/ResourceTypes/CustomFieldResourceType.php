@@ -105,16 +105,14 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             $this->propertyBuilderFactory
         );
 
-        $configBuilder->id->readable();
-        $configBuilder->name->readable()->initializable();
-        $configBuilder->fieldType->readable()->initializable();
-        $configBuilder->options->readable()->initializable();
-        $configBuilder->description->readable()->initializable();
-        $configBuilder->targetEntity->readable()->initializable();
-        $configBuilder->sourceEntity->readable()->initializable();
-        $configBuilder->sourceEntityId->readable()->initializable();
-
-        // $configBuilder->type->readable();
+        $configBuilder->id->setReadableByPath();
+        $configBuilder->name->setReadableByPath()->addPathCreationBehavior();
+        $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
+        $configBuilder->options->setReadableByPath()->addPathCreationBehavior();
+        $configBuilder->description->setReadableByPath()->addPathCreationBehavior();
+        $configBuilder->targetEntity->setReadableByPath()->addPathCreationBehavior();
+        $configBuilder->sourceEntity->setReadableByPath()->addPathCreationBehavior();
+        $configBuilder->sourceEntityId->setReadableByPath()->addPathCreationBehavior();
 
         return $configBuilder->build();
     }
