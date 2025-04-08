@@ -326,7 +326,7 @@
                         data-cy="submitterForm:elements"
                         :options="elements"
                         track-by="id"
-                        @input="checkForParagraphsAndFiles()">
+                        @input="selectedElement => checkForParagraphsAndFiles(selectedElement)">
                         <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.title }}{% endverbatim %}
                         </template>
