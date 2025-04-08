@@ -316,11 +316,13 @@
 
                     <label
                         v-if="hasPermission('field_procedure_elements')"
+                        for="element"
                         class="o-form__label">
                         {{ "plandocument"|trans }}
                     </label>
                     <dp-multiselect
                         v-model="values.element"
+                        id="element"
                         class="o-form__control-wrapper u-mb-0_75"
                         label="title"
                         data-cy="submitterForm:elements"
@@ -335,11 +337,14 @@
 
                     {% if hasPermission('field_procedure_paragraphs') %}
                         <template v-if="elementHasParagraphs">
-                            <label class="o-form__label">
+                            <label
+                                class="o-form__label"
+                                for="paragraph">
                                 {{ "paragraph"|trans }}*
                             </label>
                             <dp-multiselect
                                 v-model="values.paragraph"
+                                id="paragraph"
                                 class="o-form__control-wrapper u-mb-0_75"
                                 label="title"
                                 data-cy="submitterForm:paragraph"
@@ -356,11 +361,14 @@
 
                     {% if hasPermission('field_procedure_documents') %}
                         <template v-if="elementHasFiles">
-                            <label class="o-form__label">
+                            <label
+                                class="o-form__label"
+                                for="file">
                                 {{ "file"|trans }}*
                             </label>
                             <dp-multiselect
                                 v-model="values.document"
+                                id="file"
                                 class="o-form__control-wrapper u-mb-0_75"
                                 label="title"
                                 data-cy="submitterForm:document"
