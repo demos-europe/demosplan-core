@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- bump demosplan-addon version to v0.51
+
 ## v2.26.5 (2025-03-28)
 - new parameter proxy_no_proxy to allow to exclude local services from the proxy
 
