@@ -161,7 +161,6 @@ export default {
     toggleAllFields (selectAll) {
       this.selectedFields = selectAll ? this.filterCheckBoxesItems.map(({ value }) => value) : []
       this.broadcastChanges()
-      this.handleSearch(this.currentSearchTerm)
     },
 
     // Check or uncheck single field. To prevent duplication, the array is checked for the field.
