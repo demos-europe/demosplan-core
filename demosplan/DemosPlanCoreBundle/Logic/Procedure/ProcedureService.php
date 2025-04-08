@@ -1768,7 +1768,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         // use customer master blueprint if existing, (instead of global masterblueprint)
         if ($masterTemplateId === $incomingCopyMasterId) {
             $customerBlueprint = $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint();
-            if ($customerBlueprint instanceof Procedure && !$customerBlueprint->isDeleted()) {
+            if ($customerBlueprint instanceof Procedure) {
                 $incomingCopyMasterId = $customerBlueprint->getId();
             }
         }

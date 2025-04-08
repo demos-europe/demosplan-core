@@ -402,12 +402,9 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
         $this->xplanning = $xplanning;
     }
 
-    /**
-     * @return ProcedureInterface|null
-     */
-    public function getDefaultProcedureBlueprint()
+    public function getDefaultProcedureBlueprint(): ?ProcedureInterface
     {
-        return $this->defaultProcedureBlueprint;
+        return $this->defaultProcedureBlueprint->isDeleted() ? null : $this->defaultProcedureBlueprint;
     }
 
     /**
