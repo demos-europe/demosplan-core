@@ -19,24 +19,23 @@
             <div>
                 {% if templateVars.list|length > 0 or templateVars.boilerplateGroups|length > 0 %}
                 {# mark all #}
-                <label class="mb-0 mx-3 inline-block">
-                    <input
-                        class="mr-0"
-                        type="checkbox"
-                        data-cy="checkAllItems"
-                        data-form-actions-check-all
-                        name="checkAllItems">
-                    {{ "all"|trans }}
-                </label>
+                    <label class="mb-0 mx-3 inline-block">
+                        <input
+                            class="mr-0"
+                            type="checkbox"
+                            data-cy="checkAllItems"
+                            data-form-actions-check-all
+                            name="checkAllItems">
+                        {{ "all"|trans }}
+                    </label>
 
-                    {# delete marked items #}
-                <button
-                    class="btn-icns m-0"
-                    data-cy="deleteSelectedBoilerplate"
-                    name="boilerplateDeleteChecked"
-                    data-form-actions-confirm="{{ "check.entries.marked.delete" |trans }}">
-                    <i class="fa fa-times-circle"></i> {{ "items.marked.delete"|trans }}
-                </button>
+                        {# delete marked items #}
+                    <button
+                        class="btn-icns m-0"
+                        data-cy="deleteSelectedBoilerplate"
+                        name="boilerplateDeleteChecked">
+                        <i class="fa fa-times-circle"></i> {{ "items.marked.delete"|trans }}
+                    </button>
                 {% endif %}
             </div>
 
@@ -222,4 +221,17 @@
 {% block javascripts %}
     {{ parent() }}
     {{ webpackBundle('procedure-administrationListBoilerplate.js') }}
+    <script  nonce="{{ csp_nonce('script') }}">
+        document.addEventListener('DOMContentLoaded', () => {
+            const deleteButton = document.querySelector('[data-cy="deleteSelectedBoilerplate"]');
+            const checkboxes = Array.from(document.querySelectorAll('input[data-checkable-item]'));
+
+            deleteButton.addEventListener('click', () => {
+                if (checkboxes.some(checkbox => checkbox.checked) &&
+                    confirm("{{ 'check.entries.marked.delete'|trans }}")) {
+                    deleteButton.closest('form').submit();
+                }
+            })
+        })
+    </script>
 {% endblock javascripts %}
