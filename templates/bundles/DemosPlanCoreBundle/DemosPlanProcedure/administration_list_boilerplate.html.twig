@@ -29,6 +29,7 @@
                 </label>
 
                 {# delete marked items #}
+                {% if templateVars.list|length > 0 or templateVars.boilerplateGroups|length > 0 %}
                 <button
                     class="btn-icns m-0"
                     data-cy="deleteSelectedBoilerplate"
@@ -36,6 +37,7 @@
                     data-form-actions-confirm="{{ "check.entries.marked.delete" |trans }}">
                     <i class="fa fa-times-circle"></i> {{ "items.marked.delete"|trans }}
                 </button>
+                {% endif %}
             </div>
 
             <div class="ml-3">
