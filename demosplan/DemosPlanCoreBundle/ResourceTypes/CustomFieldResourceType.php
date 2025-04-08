@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomField;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -47,6 +48,7 @@ use Exception;
 use IteratorAggregate;
 use League\Fractal\TransformerAbstract;
 use Pagerfanta\Pagerfanta;
+use Ramsey\Uuid\Uuid;
 
 /** LEARNINGS
  * implementing PropertyAutoPathInterface makes it available to attributes from the entity.
@@ -65,8 +67,8 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     use PropertyAutoPathTrait;
     use DoctrineResourceTypeInjectionTrait;
 
-    public function __construct(private readonly CustomFieldService $customFieldService,
-        protected readonly ConditionFactoryInterface $conditionFactory, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository, private readonly ResourceTypeService $resourceTypeService)
+    public function __construct(private readonly CustomFieldService          $customFieldService,
+                                protected readonly ConditionFactoryInterface $conditionFactory, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository, private readonly ResourceTypeService $resourceTypeService, private readonly UuidV4Generator $uuidV4Generator)
     {
     }
 
@@ -103,8 +105,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             $this->propertyBuilderFactory
         );
 
-        $configBuilder->id->readable(
-            static fn (CustomFieldInterface $customField) => $customField->getType().'_'.random_int(1, 1000));
+        $configBuilder->id->readable();
         $configBuilder->name->readable()->initializable();
         $configBuilder->fieldType->readable()->initializable();
         $configBuilder->options->readable()->initializable();
@@ -244,6 +245,8 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
                         $customFieldsList = $configuration->getCustomFieldsList();
                         $radioButton = new RadioButtonField();
+                        $id = Uuid::uuid4()->toString();
+                        $radioButton->setId($id);
                         $radioButton->setType('radio_button');
                         $radioButton->setName($attributes['name']);
                         $radioButton->setDescription($attributes['description']);
