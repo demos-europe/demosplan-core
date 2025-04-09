@@ -26,7 +26,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
      *
      * @throws Exception
      */
-    public function add(CustomFieldConfiguration $customFieldConfiguration): CustomFieldConfiguration
+    private function add(CustomFieldConfiguration $customFieldConfiguration): CustomFieldConfiguration
     {
         try {
             $em = $this->getEntityManager();
@@ -80,7 +80,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
         return $customFieldConfiguration;
     }
 
-    public function updateObject($entity): CustomFieldConfiguration
+    private function updateObject($entity): CustomFieldConfiguration
     {
         try {
             $em = $this->getEntityManager();
