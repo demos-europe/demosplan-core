@@ -192,7 +192,8 @@
             {% endif %}
 
             {# email address #}
-            {% if hasPermission('field_statement_submitter_email_address') and (formDefinitions.emailAddress.enabled == true or formDefinitions.phoneOrEmail.enabled == true) %}
+            {# editable if manual statement #}
+            {% if hasPermission('field_statement_submitter_email_address') and (formDefinitions.emailAddress.enabled == true or formDefinitions.phoneOrEmail.enabled == true) or manualStatement %}
 
                 {# set styling for submitterEmailAddress uiComponent, should be moved to component #}
                 {% set submitterEmailAddressClass = 'u-mb-0_5' %}
@@ -206,7 +207,7 @@
                 {% endif %}
 
                 {# set value for submitterEmailAdress, see T10993#231880 for details about possible values #}
-                {% if not readonly %}
+                {% if manualStatement and not readonly %}
                     {# show email address for manual statements #}
                     {% set submitterEmailAddressValue = statement.submitterEmailAddress %}
                 {% elseif readonly and manualStatement or not manualStatement %}
