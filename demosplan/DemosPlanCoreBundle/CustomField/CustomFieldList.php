@@ -24,9 +24,6 @@ class CustomFieldList implements CustomFieldInterface
      */
     protected $customFields = [];
 
-    /** @var string */
-    protected $procedureId = '';
-
     public const TYPE_CLASSES = [
         'radio_button' => RadioButtonField::class,
         // 'dropdown' => DropdownField::class,
@@ -88,11 +85,6 @@ class CustomFieldList implements CustomFieldInterface
     public function setCustomFields(array $customFields): void
     {
         $this->customFields = $customFields;
-    }
-
-    public function getProcedureId(): string
-    {
-        return $this->procedureId;
     }
 
     public function getCustomFieldsList(): ?array
