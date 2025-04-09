@@ -404,7 +404,7 @@ class Customer extends CoreEntity implements UuidEntityInterface, CustomerInterf
 
     public function getDefaultProcedureBlueprint(): ?ProcedureInterface
     {
-        return $this->defaultProcedureBlueprint->isDeleted() ? null : $this->defaultProcedureBlueprint;
+        return $this->defaultProcedureBlueprint?->isDeleted() ? null : $this->defaultProcedureBlueprint;
     }
 
     /**
