@@ -57,6 +57,8 @@ class CustomFieldConfiguration extends CoreEntity
     protected $valueEntityClass;
 
     /**
+     * @var CustomFieldList
+     *
      * @ORM\Column(type="dplan.custom_fields_template", nullable=true)
      */
     protected $configuration;
