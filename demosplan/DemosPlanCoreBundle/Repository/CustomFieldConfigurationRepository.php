@@ -98,20 +98,10 @@ class CustomFieldConfigurationRepository extends CoreRepository
         /** @var CustomFieldConfiguration $customFieldConfiguration */
         $customFieldConfiguration = $this->detectCustomFieldConfigurationByProcedureId($attributes['sourceEntity'], $attributes['sourceEntityId'], $attributes['targetEntity']);
 
-        /** @var CustomFieldList $configuration */
-        $configuration = $customFieldConfiguration->getConfiguration();
-
-        $customFieldsList = $configuration->getCustomFieldsList();
-
         /** @var CustomFieldInterface $particularCustomField */
         $particularCustomField = $this->createParticularCustomField($attributes);
 
-        $customFieldsList[] = $particularCustomField;
-        $configuration->setCustomFields($customFieldsList);
-
-        $jsonConfig = $configuration->toJson();
-
-        $customFieldConfiguration->setConfiguration($jsonConfig);
+        $customFieldConfiguration->addCustomFieldToCustomFieldList($particularCustomField);
 
         $this->updateObject($customFieldConfiguration);
 
