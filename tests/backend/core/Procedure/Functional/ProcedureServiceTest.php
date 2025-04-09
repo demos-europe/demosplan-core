@@ -17,6 +17,8 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureTypeData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureSettingsFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
@@ -3494,5 +3496,74 @@ Email:',
         }
 
         return $fileStrings;
+    }
+
+    public function testDeleteDefaultCustomerBlueprint(): void
+    {
+        $currentUser = $this->currentUserService->getUser();
+        $currentCustomer = $currentUser->getCurrentCustomer();
+        $blueprintSetting = ProcedureSettingsFactory::createOne([
+            'procedure' => ProcedureFactory::createOne([
+                'master' => true,
+                'customer' => $currentCustomer,
+                'orgaName' => $currentUser->getOrga()->getName(),
+            ]),
+        ]);
+        $blueprint = $blueprintSetting->getProcedure();
+        $currentCustomer->setDefaultProcedureBlueprint($blueprint);
+        $customerBlueprint = $currentCustomer->getDefaultProcedureBlueprint();
+        $customerBlueprintId = $customerBlueprint->getId();
+
+
+        static::assertInstanceOf(Procedure::class, $customerBlueprint);
+        static::assertTrue($customerBlueprint->isCustomerMasterBlueprint());
+
+        $this->sut->deleteProcedure([$customerBlueprintId]);
+        $blueprint = $this->find(Procedure::class, $customerBlueprintId);
+
+        //Still there, but flagged as deleted
+        static::assertInstanceOf(Procedure::class, $blueprint);
+        static::assertTrue($blueprint->isDeleted());
+        static::assertNull($currentCustomer->getDefaultProcedureBlueprint());
+    }
+
+    /**
+     * Creation of new procedure/blueprint by using an deleted blueprint, should lead to an InvalidArgumentException.
+     */
+    public function testExceptionOnUsageOfDeletedBlueprint(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $currentUser = $this->currentUserService->getUser();
+        $currentCustomer = $currentUser->getCurrentCustomer();
+        $blueprintSetting = ProcedureSettingsFactory::createOne([
+            'procedure' => ProcedureFactory::createOne([
+                'name' => 'deletedBlueprint',
+                'master' => true,
+                'deleted' => true,
+                'customer' => $currentCustomer,
+                'orgaName' => $currentUser->getOrga()->getName(),
+            ]),
+        ]);
+        $deletedBlueprint = $blueprintSetting->getProcedure();
+        static::assertTrue($deletedBlueprint->getDeleted());
+
+        $this->sut->addProcedureEntity(
+            [
+                'copymaster' => $deletedBlueprint->getId(),
+                'desc' => '',
+                'startDate' => '01.02.2023',
+                'endDate' => '01.02.2024',
+                'externalName' => 'testAdded',
+                'name' => 'testAdded',
+                'master' => false,
+                'orgaId' => $currentUser->getOrganisationId(),
+                'orgaName' => $currentUser->getOrgaName(),
+                'logo' => 'some:logodata:string',
+                'publicParticipationPhase' => 'configuration',
+                'procedureType' => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            ],
+            $currentUser->getId()
+        );
     }
 }
