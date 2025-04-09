@@ -93,8 +93,8 @@
             class="container pt-2"
             v-else-if="initialData">
             <segmentation-editor
-              @prosemirror-initialized="runPostInitTasks"
-              @prosemirror-max-range="setMaxRange"
+              @prosemirror:initialized="runPostInitTasks"
+              @prosemirror:maxRange="setMaxRange"
               @focus="event => handleMouseOver(event)"
               @focusout="handleMouseLeave"
               @mouseover="event => handleMouseOver(event)"
@@ -115,8 +115,8 @@
                 :max-range="maxRange"
                 :offset="headerOffset"
                 @segment:confirm="handleSegmentConfirmation"
-                @edit-segment="enableEditMode"
-                @delete-segment="immediatelyDeleteSegment" />
+                @segment:edit="enableEditMode"
+                @segment:delete="immediatelyDeleteSegment" />
             </transition>
 
             <transition

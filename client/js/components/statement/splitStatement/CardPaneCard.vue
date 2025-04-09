@@ -62,7 +62,7 @@
       icon="edit"
       :text="Translator.trans('segment.edit')"
       variant="subtle"
-      @click="$emit('edit-segment', segment.id)" />
+      @click="$emit('segment:edit', segment.id)" />
     <addon-wrapper
       :addon-props="{
         class: 'mt-1',
@@ -76,7 +76,7 @@
       icon="delete"
       :text="Translator.trans('selection.tags.discard')"
       variant="subtle"
-      @click="$emit('delete-segment', segment.id)" />
+      @click="$emit('segment:delete', segment.id)" />
   </div>
 </template>
 
@@ -111,14 +111,14 @@ export default {
   },
 
   emits: [
-    'check-card-overlap',
-    'delete-segment',
-    'edit-segment',
+    'card:checkOverlap',
     'focusin',
     'focusout',
     'mouseenter',
     'mouseleave',
-    'segment:confirm'
+    'segment:confirm',
+    'segment:delete',
+    'segment:edit'
   ],
 
   data () {
@@ -163,7 +163,7 @@ export default {
         this.offsetTop = segmentOffset - mainOffset + 'px'
       }
 
-      this.$emit('check-card-overlap')
+      this.$emit('card:checkOverlap')
     }
   },
 
@@ -193,7 +193,7 @@ export default {
          * between segmentation-editor container and fixed header.
          */
         this.offsetTop = Math.abs(parent) + this.offset - 24 + 'px'
-        this.$emit('check-card-overlap')
+        this.$emit('card:checkOverlap')
       } else {
         this.calculateCardPosition()
       }

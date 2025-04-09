@@ -60,8 +60,8 @@ export default {
     'focusout',
     'mouseleave',
     'mouseover',
-    'prosemirror-initialized',
-    'prosemirror-max-range'
+    'prosemirror:initialized',
+    'prosemirror:maxRange'
   ],
 
   data () {
@@ -150,8 +150,8 @@ export default {
        */
       prosemirrorStateWrapper = Object.freeze(prosemirrorStateWrapper)
 
-      this.$emit('prosemirror-max-range', this.maxRange)
-      this.$emit('prosemirror-initialized', prosemirrorStateWrapper)
+      this.$emit('prosemirror:maxRange', this.maxRange)
+      this.$emit('prosemirror:initialized', prosemirrorStateWrapper)
     },
 
     transformSegments (segments) {
