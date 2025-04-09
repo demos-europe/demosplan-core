@@ -103,7 +103,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
         $customFieldConfiguration = $this->findOrCreateCustomFieldConfigurationByCriteria($attributes['sourceEntity'], $attributes['sourceEntityId'], $attributes['targetEntity']);
 
         /** @var CustomFieldInterface $particularCustomField */
-        $particularCustomField = $this->createParticularCustomField($attributes);
+        $particularCustomField = $this->buildCustomField($attributes);
 
         $customFieldConfiguration->addCustomFieldToCustomFieldList($particularCustomField);
 
@@ -112,7 +112,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
         return $particularCustomField;
     }
 
-    private function createParticularCustomField($attributes): CustomFieldInterface
+    private function buildCustomField($attributes): CustomFieldInterface
     {
         $type = $attributes['fieldType'];
         if (!isset(CustomFieldList::TYPE_CLASSES[$type])) {
