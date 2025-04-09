@@ -570,9 +570,9 @@ export default {
      * Adds highlighting background color to segment and border color to corresponding card
      * Updates currentlyHighlightedSegmentId in the store
      */
-    handleMouseOver (e) {
+    handleMouseOver (event) {
       if (!this.editModeActive) {
-        let segmentId = e.target.getAttribute('data-range') || e.target.closest('span[data-range]')?.getAttribute('data-range')
+        let segmentId = event.target.getAttribute('data-range') || event.target.closest('span[data-range]')?.getAttribute('data-range')
 
         /**
          * If the target element doesn't have the attribute 'data-range', it may be an html element inside the segment span,
@@ -581,7 +581,7 @@ export default {
          * exists, the hovered element is not inside a segment and highlighting is removed
          */
         if (!segmentId) {
-          const closestParent = e.target.closest('span[data-range]')
+          const closestParent = event.target.closest('span[data-range]')
           segmentId = closestParent ? closestParent.getAttribute('data-range') : null
         }
 
