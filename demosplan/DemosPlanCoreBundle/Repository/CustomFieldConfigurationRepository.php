@@ -17,8 +17,6 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldFactory;
 use Exception;
-use Ramsey\Uuid\Uuid;
-use UAParser\Exception\InvalidArgumentException;
 
 class CustomFieldConfigurationRepository extends CoreRepository
 {
@@ -116,6 +114,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
     private function buildCustomField($attributes): CustomFieldInterface
     {
         $customFieldFactory = new CustomFieldFactory();
+
         return $customFieldFactory->createCustomField($attributes);
     }
 }
