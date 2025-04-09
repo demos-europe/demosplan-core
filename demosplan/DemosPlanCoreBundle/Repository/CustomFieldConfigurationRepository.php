@@ -40,10 +40,10 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-    public function getCustomFieldConfigurationBySourceEntityId(string $sourceEntity, string $procedureId, string $targetEntity): ?CustomFieldConfiguration
+    public function findCustomFieldConfigurationByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity): ?CustomFieldConfiguration
     {
         try {
-            $criteria = ['templateEntityId' => $procedureId];
+            $criteria = ['templateEntityId' => $sourceEntityId];
             $criteria['templateEntityClass'] = $sourceEntity;
             $criteria['valueEntityClass'] = $targetEntity;
 
@@ -55,9 +55,9 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-    public function detectCustomFieldConfigurationByProcedureId(string $sourceEntity, string $procedureId, string $targetEntity): CustomFieldConfiguration
+    public function findOrCreateCustomFieldConfigurationByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity): CustomFieldConfiguration
     {
-        $customFieldConfiguration = $this->getCustomFieldConfigurationBySourceEntityId($sourceEntity, $procedureId, $targetEntity);
+        $customFieldConfiguration = $this->findCustomFieldConfigurationByCriteria($sourceEntity, $sourceEntityId, $targetEntity);
 
         if (null === $customFieldConfiguration) {
             // if it does not exist, create new entry
@@ -65,7 +65,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
             $customFieldConfiguration = new CustomFieldConfiguration();
 
             $customFieldConfiguration->setTemplateEntityClass($sourceEntity);
-            $customFieldConfiguration->setTemplateEntityId($procedureId);
+            $customFieldConfiguration->setTemplateEntityId($sourceEntityId);
 
             $customFieldConfiguration->setValueEntityClass($targetEntity);
             $customFieldsList = new CustomFieldList();
@@ -97,7 +97,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
     public function createCustomField($attributes): CustomFieldInterface
     {
         /** @var CustomFieldConfiguration $customFieldConfiguration */
-        $customFieldConfiguration = $this->detectCustomFieldConfigurationByProcedureId($attributes['sourceEntity'], $attributes['sourceEntityId'], $attributes['targetEntity']);
+        $customFieldConfiguration = $this->findOrCreateCustomFieldConfigurationByCriteria($attributes['sourceEntity'], $attributes['sourceEntityId'], $attributes['targetEntity']);
 
         /** @var CustomFieldInterface $particularCustomField */
         $particularCustomField = $this->createParticularCustomField($attributes);
