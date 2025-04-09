@@ -50,13 +50,13 @@ class CustomFieldConfigurationRepository extends CoreRepository
             return $this->findOneBy($criteria);
         } catch (Exception $e) {
             $this->logger->warning('Error fetching CustomFieldConfiguration: '.$e->getMessage());
+
             return null;
         }
     }
 
     public function detectCustomFieldConfigurationByProcedureId(string $sourceEntity, string $procedureId, string $targetEntity): CustomFieldConfiguration
     {
-
         $customFieldConfiguration = $this->getCustomFieldConfigurationByProcedureId($sourceEntity, $procedureId, $targetEntity);
 
         if (null === $customFieldConfiguration) {
@@ -73,6 +73,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
             $customFieldsList->setCustomFields([]);
             $customFieldConfiguration->setConfiguration($customFieldsList);
             $this->add($customFieldConfiguration);
+
             return $customFieldConfiguration;
         }
 
