@@ -19,9 +19,8 @@ use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 
 class CustomFieldCreator extends CoreService
 {
-    public function __construct(private readonly  CustomFieldFactory $customFieldFactory, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
+    public function __construct(private readonly CustomFieldFactory $customFieldFactory, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
     {
-
     }
 
     public function createCustomField($attributes): CustomFieldInterface
@@ -37,5 +36,4 @@ class CustomFieldCreator extends CoreService
 
         return $createdCustomField;
     }
-
 }
