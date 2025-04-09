@@ -59,7 +59,7 @@ class RadioButtonField extends AbstractCustomField
     public function toJson(): array
     {
         return [
-            'id'          => $this->id,
+            'id'            => $this->id,
             'type'          => $this->type,
             'name'          => $this->name,
             'description'   => $this->description,

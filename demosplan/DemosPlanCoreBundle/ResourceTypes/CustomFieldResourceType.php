@@ -14,17 +14,12 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiPaginationInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
-use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceCreateFlushEvent;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceTypeInjectionTrait;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\AbstractCustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
-use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomField;
-use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
@@ -42,9 +37,6 @@ use EDT\PathBuilding\PropertyAutoPathTrait;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\CreationDataInterface;
-use EDT\Wrapping\EntityDataInterface;
-use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
-use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use EDT\Wrapping\ResourceBehavior\ResourceUpdatability;
@@ -52,7 +44,6 @@ use Exception;
 use IteratorAggregate;
 use League\Fractal\TransformerAbstract;
 use Pagerfanta\Pagerfanta;
-use Ramsey\Uuid\Uuid;
 
 /** LEARNINGS
  * implementing PropertyAutoPathInterface makes it available to attributes from the entity.
@@ -71,8 +62,8 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     use PropertyAutoPathTrait;
     use DoctrineResourceTypeInjectionTrait;
 
-    public function __construct(private readonly CustomFieldService          $customFieldService,
-                                protected readonly ConditionFactoryInterface $conditionFactory, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository, private readonly ResourceTypeService $resourceTypeService, private readonly UuidV4Generator $uuidV4Generator)
+    public function __construct(private readonly CustomFieldService $customFieldService,
+        protected readonly ConditionFactoryInterface $conditionFactory, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository, private readonly ResourceTypeService $resourceTypeService, private readonly UuidV4Generator $uuidV4Generator)
     {
     }
 
@@ -238,6 +229,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
                 function () use ($entityData): ModifiedEntity {
                     $attributes = $entityData->getAttributes();
                     $customField = $this->customFieldConfigurationRepository->createCustomField($attributes);
+
                     return new ModifiedEntity($customField, []);
                 }
             );
