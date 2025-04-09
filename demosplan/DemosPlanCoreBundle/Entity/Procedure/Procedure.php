@@ -949,7 +949,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getDeleted()
     {
-        return \filter_var($this->deleted, FILTER_VALIDATE_BOOLEAN);
+        return $this->isDeleted();
     }
 
     /**
