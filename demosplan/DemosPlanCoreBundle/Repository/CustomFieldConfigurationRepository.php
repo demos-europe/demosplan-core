@@ -12,8 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
+use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
+use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use Exception;
+use Ramsey\Uuid\Uuid;
 
 class CustomFieldConfigurationRepository extends CoreRepository
 {
@@ -64,4 +69,69 @@ class CustomFieldConfigurationRepository extends CoreRepository
             throw $e;
         }
     }
+
+
+    public function createCustomField($attributes) : CustomFieldInterface
+    {
+        /** @var CustomFieldConfiguration $customFieldConfiguration */
+        $customFieldConfiguration = $this->getCustomFieldConfigurationByProcedureId($attributes['sourceEntity'], $attributes['sourceEntityId'], $attributes['targetEntity']);
+        // If exists, then merge this customField
+        if ($customFieldConfiguration) {
+            /** @var CustomFieldList $configuration */
+            $configuration = $customFieldConfiguration->getConfiguration();
+
+            $customFieldsList = $configuration->getCustomFieldsList();
+            $radioButton = new RadioButtonField();
+            $id = Uuid::uuid4()->toString();
+            $radioButton->setId($id);
+            $radioButton->setType('radio_button');
+            $radioButton->setName($attributes['name']);
+            $radioButton->setDescription($attributes['description']);
+            $radioButton->setOptions($attributes['options']);
+
+            $customFieldsList[] = $radioButton;
+            $configuration->setCustomFields($customFieldsList);
+
+            $jsonConfig = $configuration->toJson();
+
+            $customFieldConfiguration->setConfiguration($jsonConfig);
+
+            $this->updateObject($customFieldConfiguration);
+
+            return $radioButton;
+        }
+
+        // if it does not exist, create new entry
+
+        $customFieldConfiguration = new CustomFieldConfiguration();
+
+        $customFieldConfiguration->setTemplateEntityClass($attributes['sourceEntity']);
+        $customFieldConfiguration->setTemplateEntityId($attributes['sourceEntityId']);
+
+        $customFieldConfiguration->setValueEntityClass($attributes['targetEntity']);
+
+        $customFieldsList = new CustomFieldList();
+        $customFieldsList->setName('DefaultName');
+
+        $customFields = [];
+
+        $radioButton = new RadioButtonField();
+        $id = Uuid::uuid4()->toString();
+        $radioButton->setId($id);
+        $radioButton->setType('radio_button');
+        $radioButton->setName($attributes['name']);
+        $radioButton->setDescription($attributes['description']);
+        $radioButton->setOptions($attributes['options']);
+
+        $customFields[] = $radioButton;
+
+        $customFieldsList->setCustomFields($customFields);
+
+        $customFieldConfiguration->setConfiguration($customFieldsList->toJson());
+
+        $this->add($customFieldConfiguration);
+
+        return $radioButton;
+    }
+
 }

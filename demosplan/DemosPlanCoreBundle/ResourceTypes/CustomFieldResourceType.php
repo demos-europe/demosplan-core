@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceCreateFlushEvent;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceTypeInjectionTrait;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\AbstractCustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
@@ -41,6 +42,9 @@ use EDT\PathBuilding\PropertyAutoPathTrait;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\CreationDataInterface;
+use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\FixedConstructorBehavior;
+use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
 use EDT\Wrapping\ResourceBehavior\ResourceUpdatability;
@@ -233,68 +237,8 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             return $this->getTransactionService()->executeAndFlushInTransaction(
                 function () use ($entityData): ModifiedEntity {
                     $attributes = $entityData->getAttributes();
-
-                    /** @var CustomFieldConfiguration $customFieldConfiguration */
-                    $customFieldConfiguration = $this->customFieldConfigurationRepository->getCustomFieldConfigurationByProcedureId($attributes['sourceEntity'], $attributes['sourceEntityId'], $attributes['targetEntity']);
-                    // If exists, then merge this customField
-                    if ($customFieldConfiguration) {
-                        /** @var CustomFieldList $configuration */
-                        $configuration = $customFieldConfiguration->getConfiguration();
-
-                        $customFieldsList = $configuration->getCustomFieldsList();
-                        $radioButton = new RadioButtonField();
-                        $id = Uuid::uuid4()->toString();
-                        $radioButton->setId($id);
-                        $radioButton->setType('radio_button');
-                        $radioButton->setName($attributes['name']);
-                        $radioButton->setDescription($attributes['description']);
-                        $radioButton->setOptions($attributes['options']);
-
-                        $customFieldsList[] = $radioButton;
-                        $configuration->setCustomFields($customFieldsList);
-
-                        $jsonConfig = $configuration->toJson();
-
-                        $customFieldConfiguration->setConfiguration($jsonConfig);
-
-                        $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
-
-                        // $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent($this, $radioButton));
-
-                        return new ModifiedEntity($radioButton, []);
-                    }
-
-                    // if it does not exist, create new entry
-
-                    $customFieldConfiguration = new CustomFieldConfiguration();
-
-                    $customFieldConfiguration->setTemplateEntityClass($attributes['sourceEntity']);
-                    $customFieldConfiguration->setTemplateEntityId($attributes['sourceEntityId']);
-
-                    $customFieldConfiguration->setValueEntityClass($attributes['targetEntity']);
-
-                    $customFieldsList = new CustomFieldList();
-                    $customFieldsList->setName('DefaultName');
-
-                    $customFields = [];
-
-                    $radioButton = new RadioButtonField();
-                    $radioButton->setType('radio_button');
-                    $radioButton->setName($attributes['name']);
-                    $radioButton->setDescription($attributes['description']);
-                    $radioButton->setOptions($attributes['options']);
-
-                    $customFields[] = $radioButton;
-
-                    $customFieldsList->setCustomFields($customFields);
-
-                    $customFieldConfiguration->setConfiguration($customFieldsList->toJson());
-
-                    $this->customFieldConfigurationRepository->add($customFieldConfiguration);
-
-                    // $toOneRelationships = $entityData->getToOneRelationships();
-
-                    return new ModifiedEntity($radioButton, []);
+                    $customField = $this->customFieldConfigurationRepository->createCustomField($attributes);
+                    return new ModifiedEntity($customField, []);
                 }
             );
         } catch (Exception $exception) {
