@@ -14,11 +14,9 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
-use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use Exception;
 use Ramsey\Uuid\Uuid;
-use RuntimeException;
 use UAParser\Exception\InvalidArgumentException;
 
 class CustomFieldConfigurationRepository extends CoreRepository
@@ -113,10 +111,9 @@ class CustomFieldConfigurationRepository extends CoreRepository
 
     private function createParticularCustomField($attributes): CustomFieldInterface
     {
-
         $type = $attributes['fieldType'];
         if (!isset(CustomFieldList::TYPE_CLASSES[$type])) {
-            throw new InvalidArgumentException('Unknown custom field type: ' . $type);
+            throw new InvalidArgumentException('Unknown custom field type: '.$type);
         }
         $customFieldClass = CustomFieldList::TYPE_CLASSES[$type];
         $customField = new $customFieldClass();
