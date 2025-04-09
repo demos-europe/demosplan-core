@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
-class CustomFieldList extends AbstractCustomField
+class CustomFieldList implements CustomFieldInterface
 {
     /**
      * @var string
@@ -27,7 +27,7 @@ class CustomFieldList extends AbstractCustomField
     /** @var string */
     protected $procedureId = '';
 
-    private const TYPE_CLASSES = [
+    public const TYPE_CLASSES = [
         'radio_button' => RadioButtonField::class,
         // 'dropdown' => DropdownField::class,
         // Add other custom field types here

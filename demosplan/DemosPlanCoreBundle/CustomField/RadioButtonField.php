@@ -25,7 +25,7 @@ class RadioButtonField extends AbstractCustomField
     /**
      * @var string
      */
-    protected $type = '';
+    protected $type = 'radio_button';
 
     /**
      * Radio button options.
@@ -41,6 +41,8 @@ class RadioButtonField extends AbstractCustomField
 
     /** @var string */
     protected $procedureId = '';
+
+
 
     public function getFormat(): string
     {

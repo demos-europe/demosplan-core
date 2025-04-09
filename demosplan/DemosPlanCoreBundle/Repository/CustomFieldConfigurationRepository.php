@@ -18,6 +18,8 @@ use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use Exception;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
+use UAParser\Exception\InvalidArgumentException;
 
 class CustomFieldConfigurationRepository extends CoreRepository
 {
@@ -111,14 +113,23 @@ class CustomFieldConfigurationRepository extends CoreRepository
 
     private function createParticularCustomField($attributes): CustomFieldInterface
     {
-        $radioButton = new RadioButtonField();
-        $id = Uuid::uuid4()->toString();
-        $radioButton->setId($id);
-        $radioButton->setType('radio_button');
-        $radioButton->setName($attributes['name']);
-        $radioButton->setDescription($attributes['description']);
-        $radioButton->setOptions($attributes['options']);
 
-        return $radioButton;
+        $type = $attributes['fieldType'];
+        if (!isset(CustomFieldList::TYPE_CLASSES[$type])) {
+            throw new InvalidArgumentException('Unknown custom field type: ' . $type);
+        }
+        $customFieldClass = CustomFieldList::TYPE_CLASSES[$type];
+        $customField = new $customFieldClass();
+
+        $customField->setId(Uuid::uuid4()->toString());
+        $customField->setType($type);
+        $customField->setName($attributes['name']);
+        $customField->setDescription($attributes['description']);
+
+        if (isset($attributes['options']) && method_exists($customField, 'setOptions')) {
+            $customField->setOptions($attributes['options']);
+        }
+
+        return $customField;
     }
 }
