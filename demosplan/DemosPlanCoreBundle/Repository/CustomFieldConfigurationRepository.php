@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
-use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use Exception;
 use Ramsey\Uuid\Uuid;
 
@@ -70,8 +69,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-
-    public function createCustomField($attributes) : CustomFieldInterface
+    public function createCustomField($attributes): CustomFieldInterface
     {
         /** @var CustomFieldConfiguration $customFieldConfiguration */
         $customFieldConfiguration = $this->getCustomFieldConfigurationByProcedureId($attributes['sourceEntity'], $attributes['sourceEntityId'], $attributes['targetEntity']);
@@ -138,5 +136,4 @@ class CustomFieldConfigurationRepository extends CoreRepository
         return $radioButton;
 
     }
-
 }
