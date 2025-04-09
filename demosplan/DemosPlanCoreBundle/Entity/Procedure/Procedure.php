@@ -452,7 +452,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var Customer
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="proceure")
      *
      * @ORM\JoinColumn(name="customer", referencedColumnName="_c_id", nullable=true)
      */
