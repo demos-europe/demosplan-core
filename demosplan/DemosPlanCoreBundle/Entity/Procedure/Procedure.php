@@ -449,6 +449,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * T15644:.
+     *
      * @var Customer
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="proceure")
