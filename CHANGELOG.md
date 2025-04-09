@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v3.0.0 (2025-04-09)
 - create deletion report entry when procedure is deleted
 - Migrate to Vue 3
 - Implement VirusCheckSocket to directly check files for viruses via remote sockets
