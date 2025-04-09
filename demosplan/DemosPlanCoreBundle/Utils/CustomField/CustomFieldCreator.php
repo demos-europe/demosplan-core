@@ -27,15 +27,15 @@ class CustomFieldCreator extends CoreService
     public function createCustomField($attributes): CustomFieldInterface
     {
 
-        /** @var CustomFieldInterface $particularCustomField */
-        $particularCustomField =  $this->customFieldFactory->createCustomField($attributes);
+        /** @var CustomFieldInterface $createdCustomField */
+        $createdCustomField =  $this->customFieldFactory->createCustomField($attributes);
 
         /** @var CustomFieldConfiguration $customFieldConfiguration */
         $customFieldConfiguration = $this->customFieldConfigurationRepository->findOrCreateCustomFieldConfigurationByCriteria($attributes['sourceEntity'], $attributes['sourceEntityId'], $attributes['targetEntity']);
-        $customFieldConfiguration->addCustomFieldToCustomFieldList($particularCustomField);
+        $customFieldConfiguration->addCustomFieldToCustomFieldList($createdCustomField);
         $this->customFieldConfigurationRepository->updateObject($customFieldConfiguration);
 
-        return $particularCustomField;
+        return $createdCustomField;
     }
 
 }
