@@ -28,7 +28,7 @@
                     {{ "all"|trans }}
                 </label>
 
-                    {# delete marked items #}
+                {# delete marked items #}
                 <button
                     class="btn-icns m-0"
                     data-cy="deleteSelectedBoilerplate"
@@ -219,17 +219,4 @@
 {% block javascripts %}
     {{ parent() }}
     {{ webpackBundle('procedure-administrationListBoilerplate.js') }}
-    <script  nonce="{{ csp_nonce('script') }}">
-        document.addEventListener('DOMContentLoaded', () => {
-            const deleteButton = document.querySelector('[data-cy="deleteSelectedBoilerplate"]');
-            const checkboxes = Array.from(document.querySelectorAll('input[data-checkable-item]'));
-
-            deleteButton.addEventListener('click', () => {
-                if (checkboxes.some(checkbox => checkbox.checked) &&
-                    confirm("{{ 'check.entries.marked.delete'|trans }}")) {
-                    deleteButton.closest('form').submit();
-                }
-            })
-        })
-    </script>
 {% endblock javascripts %}
