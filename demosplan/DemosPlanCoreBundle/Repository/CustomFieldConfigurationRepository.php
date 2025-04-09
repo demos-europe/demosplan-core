@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldFactory;
 use Exception;
 use Ramsey\Uuid\Uuid;
 use UAParser\Exception\InvalidArgumentException;
@@ -114,22 +115,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
 
     private function buildCustomField($attributes): CustomFieldInterface
     {
-        $type = $attributes['fieldType'];
-        if (!isset(CustomFieldList::TYPE_CLASSES[$type])) {
-            throw new InvalidArgumentException('Unknown custom field type: '.$type);
-        }
-        $customFieldClass = CustomFieldList::TYPE_CLASSES[$type];
-        $customField = new $customFieldClass();
-
-        $customField->setId(Uuid::uuid4()->toString());
-        $customField->setFieldType($type);
-        $customField->setName($attributes['name']);
-        $customField->setDescription($attributes['description']);
-
-        if (isset($attributes['options']) && method_exists($customField, 'setOptions')) {
-            $customField->setOptions($attributes['options']);
-        }
-
-        return $customField;
+        $customFieldFactory = new CustomFieldFactory();
+        return $customFieldFactory->createCustomField($attributes);
     }
 }
