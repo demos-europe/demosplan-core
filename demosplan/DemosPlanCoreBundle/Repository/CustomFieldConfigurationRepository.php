@@ -83,7 +83,6 @@ class CustomFieldConfigurationRepository extends CoreRepository
             /** @var CustomFieldInterface $particularCustomField */
             $particularCustomField = $this->createParticularCustomField($attributes);
 
-
             $customFieldsList[] = $particularCustomField;
             $configuration->setCustomFields($customFieldsList);
 
@@ -124,7 +123,8 @@ class CustomFieldConfigurationRepository extends CoreRepository
         return $particularCustomField;
     }
 
-    private function createParticularCustomField($attributes): CustomFieldInterface {
+    private function createParticularCustomField($attributes): CustomFieldInterface
+    {
         $radioButton = new RadioButtonField();
         $id = Uuid::uuid4()->toString();
         $radioButton->setId($id);
@@ -134,6 +134,5 @@ class CustomFieldConfigurationRepository extends CoreRepository
         $radioButton->setOptions($attributes['options']);
 
         return $radioButton;
-
     }
 }
