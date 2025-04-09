@@ -40,7 +40,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-    public function getCustomFieldConfigurationByProcedureId(string $sourceEntity, string $procedureId, string $targetEntity): ?CustomFieldConfiguration
+    public function getCustomFieldConfigurationBySourceEntityId(string $sourceEntity, string $procedureId, string $targetEntity): ?CustomFieldConfiguration
     {
         try {
             $criteria = ['templateEntityId' => $procedureId];
@@ -57,7 +57,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
 
     public function detectCustomFieldConfigurationByProcedureId(string $sourceEntity, string $procedureId, string $targetEntity): CustomFieldConfiguration
     {
-        $customFieldConfiguration = $this->getCustomFieldConfigurationByProcedureId($sourceEntity, $procedureId, $targetEntity);
+        $customFieldConfiguration = $this->getCustomFieldConfigurationBySourceEntityId($sourceEntity, $procedureId, $targetEntity);
 
         if (null === $customFieldConfiguration) {
             // if it does not exist, create new entry
