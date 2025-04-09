@@ -81,15 +81,12 @@ class CustomFieldConfigurationRepository extends CoreRepository
             $configuration = $customFieldConfiguration->getConfiguration();
 
             $customFieldsList = $configuration->getCustomFieldsList();
-            $radioButton = new RadioButtonField();
-            $id = Uuid::uuid4()->toString();
-            $radioButton->setId($id);
-            $radioButton->setType('radio_button');
-            $radioButton->setName($attributes['name']);
-            $radioButton->setDescription($attributes['description']);
-            $radioButton->setOptions($attributes['options']);
 
-            $customFieldsList[] = $radioButton;
+            /** @var CustomFieldInterface $particularCustomField */
+            $particularCustomField = $this->createParticularCustomField($attributes);
+
+
+            $customFieldsList[] = $particularCustomField;
             $configuration->setCustomFields($customFieldsList);
 
             $jsonConfig = $configuration->toJson();
@@ -98,7 +95,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
 
             $this->updateObject($customFieldConfiguration);
 
-            return $radioButton;
+            return $particularCustomField;
         }
 
         // if it does not exist, create new entry
@@ -115,6 +112,21 @@ class CustomFieldConfigurationRepository extends CoreRepository
 
         $customFields = [];
 
+        /** @var CustomFieldInterface $particularCustomField */
+        $particularCustomField = $this->createParticularCustomField($attributes);
+
+        $customFields[] = $particularCustomField;
+
+        $customFieldsList->setCustomFields($customFields);
+
+        $customFieldConfiguration->setConfiguration($customFieldsList->toJson());
+
+        $this->add($customFieldConfiguration);
+
+        return $particularCustomField;
+    }
+
+    private function createParticularCustomField($attributes): CustomFieldInterface {
         $radioButton = new RadioButtonField();
         $id = Uuid::uuid4()->toString();
         $radioButton->setId($id);
@@ -123,15 +135,8 @@ class CustomFieldConfigurationRepository extends CoreRepository
         $radioButton->setDescription($attributes['description']);
         $radioButton->setOptions($attributes['options']);
 
-        $customFields[] = $radioButton;
-
-        $customFieldsList->setCustomFields($customFields);
-
-        $customFieldConfiguration->setConfiguration($customFieldsList->toJson());
-
-        $this->add($customFieldConfiguration);
-
         return $radioButton;
+
     }
 
 }
