@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldConfigBuilder;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
@@ -62,8 +63,9 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     use PropertyAutoPathTrait;
     use DoctrineResourceTypeInjectionTrait;
 
-    public function __construct(private readonly CustomFieldService $customFieldService,
-        protected readonly ConditionFactoryInterface $conditionFactory, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository, private readonly ResourceTypeService $resourceTypeService, private readonly UuidV4Generator $uuidV4Generator)
+    public function __construct(private readonly CustomFieldService          $customFieldService,
+                                protected readonly ConditionFactoryInterface $conditionFactory,
+                                private readonly CustomFieldCreator $customFieldCreator)
     {
     }
 
@@ -228,8 +230,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             return $this->getTransactionService()->executeAndFlushInTransaction(
                 function () use ($entityData): ModifiedEntity {
                     $attributes = $entityData->getAttributes();
-                    $customField = $this->customFieldConfigurationRepository->createCustomField($attributes);
-
+                    $customField = $this->customFieldCreator->createCustomField($attributes);
                     return new ModifiedEntity($customField, []);
                 }
             );

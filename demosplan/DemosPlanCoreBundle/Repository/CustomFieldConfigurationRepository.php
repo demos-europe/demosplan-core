@@ -82,7 +82,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
         return $customFieldConfiguration;
     }
 
-    private function updateObject($entity): CustomFieldConfiguration
+    public function updateObject($entity): CustomFieldConfiguration
     {
         try {
             $em = $this->getEntityManager();
@@ -94,27 +94,5 @@ class CustomFieldConfigurationRepository extends CoreRepository
             $this->logger->error('Update CustomFieldConfiguration failed Reason: ', [$e]);
             throw $e;
         }
-    }
-
-    public function createCustomField($attributes): CustomFieldInterface
-    {
-        /** @var CustomFieldConfiguration $customFieldConfiguration */
-        $customFieldConfiguration = $this->findOrCreateCustomFieldConfigurationByCriteria($attributes['sourceEntity'], $attributes['sourceEntityId'], $attributes['targetEntity']);
-
-        /** @var CustomFieldInterface $particularCustomField */
-        $particularCustomField = $this->buildCustomField($attributes);
-
-        $customFieldConfiguration->addCustomFieldToCustomFieldList($particularCustomField);
-
-        $this->updateObject($customFieldConfiguration);
-
-        return $particularCustomField;
-    }
-
-    private function buildCustomField($attributes): CustomFieldInterface
-    {
-        $customFieldFactory = new CustomFieldFactory();
-
-        return $customFieldFactory->createCustomField($attributes);
     }
 }
