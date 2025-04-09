@@ -25,7 +25,7 @@ class RadioButtonField extends AbstractCustomField
     /**
      * @var string
      */
-    protected $type = 'radio_button';
+    protected $fieldType = 'radio_button';
 
     /**
      * Radio button options.
@@ -39,9 +39,6 @@ class RadioButtonField extends AbstractCustomField
      */
     protected $description = '';
 
-    /** @var string */
-    protected $procedureId = '';
-
     public function getFormat(): string
     {
         return 'radio_button';
@@ -50,7 +47,7 @@ class RadioButtonField extends AbstractCustomField
     public function fromJson(array $json): void
     {
         $this->id = $json['id'];
-        $this->type = $json['type'];
+        $this->fieldType = $json['fieldType'];
         $this->name = $json['name'];
         $this->description = $json['description'];
         $this->options = $json['options'];
@@ -60,7 +57,7 @@ class RadioButtonField extends AbstractCustomField
     {
         return [
             'id'            => $this->id,
-            'type'          => $this->type,
+            'fieldType'     => $this->fieldType,
             'name'          => $this->name,
             'description'   => $this->description,
             'options'       => $this->options,
@@ -97,22 +94,17 @@ class RadioButtonField extends AbstractCustomField
         $this->description = $description;
     }
 
-    public function getProcedureId(): string
-    {
-        return $this->procedureId;
-    }
-
     public function getCustomFieldsList(): ?array
     {
         return [];
     }
 
-    public function getType(): string
+    public function getFieldType(): string
     {
         return 'radio_button';
     }
 
-    public function setType(string $type): void
+    public function setFieldType(string $type): void
     {
         $this->type = $type;
     }
@@ -120,5 +112,10 @@ class RadioButtonField extends AbstractCustomField
     public function setId(string $id): void
     {
         $this->id = $id;
+    }
+
+    public function getType(): string
+    {
+        return 'radio_button';
     }
 }

@@ -119,7 +119,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
         $customField = new $customFieldClass();
 
         $customField->setId(Uuid::uuid4()->toString());
-        $customField->setType($type);
+        $customField->setFieldType($type);
         $customField->setName($attributes['name']);
         $customField->setDescription($attributes['description']);
 

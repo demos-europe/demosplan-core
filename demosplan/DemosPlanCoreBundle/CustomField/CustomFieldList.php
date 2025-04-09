@@ -44,7 +44,7 @@ class CustomFieldList implements CustomFieldInterface
     {
         $this->name = $json['name'];
         $this->customFields = array_map(function ($fieldData) {
-            $type = $fieldData['type'];
+            $type = $fieldData['fieldType'];
             if (!isset(self::TYPE_CLASSES[$type])) {
                 return [];
                 // throw new RuntimeException('Unknown custom field type: ' . $type);
