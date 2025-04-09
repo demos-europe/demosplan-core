@@ -29,5 +29,4 @@ abstract class AbstractCustomField implements CustomFieldInterface
      * @var string
      */
     protected $description = '';
-
 }

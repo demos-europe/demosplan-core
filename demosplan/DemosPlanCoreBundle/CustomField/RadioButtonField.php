@@ -42,8 +42,6 @@ class RadioButtonField extends AbstractCustomField
     /** @var string */
     protected $procedureId = '';
 
-
-
     public function getFormat(): string
     {
         return 'radio_button';
