@@ -3504,7 +3504,7 @@ Email:',
         $currentCustomer = $currentUser->getCurrentCustomer();
         $blueprintSetting = ProcedureSettingsFactory::createOne([
             'procedure' => ProcedureFactory::createOne([
-                'master' => true,
+                'master'   => true,
                 'customer' => $currentCustomer,
                 'orgaName' => $currentUser->getOrga()->getName(),
             ]),
@@ -3514,14 +3514,13 @@ Email:',
         $customerBlueprint = $currentCustomer->getDefaultProcedureBlueprint();
         $customerBlueprintId = $customerBlueprint->getId();
 
-
         static::assertInstanceOf(Procedure::class, $customerBlueprint);
         static::assertTrue($customerBlueprint->isCustomerMasterBlueprint());
 
         $this->sut->deleteProcedure([$customerBlueprintId]);
         $blueprint = $this->find(Procedure::class, $customerBlueprintId);
 
-        //Still there, but flagged as deleted
+        // Still there, but flagged as deleted
         static::assertInstanceOf(Procedure::class, $blueprint);
         static::assertTrue($blueprint->isDeleted());
         static::assertNull($currentCustomer->getDefaultProcedureBlueprint());
@@ -3538,9 +3537,9 @@ Email:',
         $currentCustomer = $currentUser->getCurrentCustomer();
         $blueprintSetting = ProcedureSettingsFactory::createOne([
             'procedure' => ProcedureFactory::createOne([
-                'name' => 'deletedBlueprint',
-                'master' => true,
-                'deleted' => true,
+                'name'     => 'deletedBlueprint',
+                'master'   => true,
+                'deleted'  => true,
                 'customer' => $currentCustomer,
                 'orgaName' => $currentUser->getOrga()->getName(),
             ]),
@@ -3550,18 +3549,18 @@ Email:',
 
         $this->sut->addProcedureEntity(
             [
-                'copymaster' => $deletedBlueprint->getId(),
-                'desc' => '',
-                'startDate' => '01.02.2023',
-                'endDate' => '01.02.2024',
-                'externalName' => 'testAdded',
-                'name' => 'testAdded',
-                'master' => false,
-                'orgaId' => $currentUser->getOrganisationId(),
-                'orgaName' => $currentUser->getOrgaName(),
-                'logo' => 'some:logodata:string',
+                'copymaster'               => $deletedBlueprint->getId(),
+                'desc'                     => '',
+                'startDate'                => '01.02.2023',
+                'endDate'                  => '01.02.2024',
+                'externalName'             => 'testAdded',
+                'name'                     => 'testAdded',
+                'master'                   => false,
+                'orgaId'                   => $currentUser->getOrganisationId(),
+                'orgaName'                 => $currentUser->getOrgaName(),
+                'logo'                     => 'some:logodata:string',
                 'publicParticipationPhase' => 'configuration',
-                'procedureType' => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+                'procedureType'            => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
             ],
             $currentUser->getId()
         );
