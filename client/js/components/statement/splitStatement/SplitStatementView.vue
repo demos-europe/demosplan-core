@@ -95,8 +95,10 @@
             <segmentation-editor
               @prosemirror-initialized="runPostInitTasks"
               @prosemirror-max-range="setMaxRange"
-              @mouseover.native="handleMouseOver"
-              @mouseleave.native="handleMouseLeave"
+              @focus="event => handleMouseOver(event)"
+              @focusout="handleMouseLeave"
+              @mouseover="event => handleMouseOver(event)"
+              @mouseleave="handleMouseLeave"
               :init-statement-text="initText ?? ''"
               :segments="segments"
               :range-change-callback="handleSegmentChanges"

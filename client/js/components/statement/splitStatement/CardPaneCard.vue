@@ -12,7 +12,11 @@
     class="card space-stack-xs"
     :class="{ 'highlighted': isHighlighted }"
     :style="{ top: offsetTop, left: (position * 5) + 'px', 'margin-top': (position * 5) + 'px' }"
-    :id="'tag_' + segment.id">
+    :id="'tag_' + segment.id"
+    @focusin="$emit('focusin')"
+    @focusout="$emit('focusout')"
+    @mouseenter="$emit('mouseenter')"
+    @mouseleave="$emit('mouseleave')">
     <div class="u-pr-0_25">
       <i
         :title="Translator.trans('tags')"
@@ -106,6 +110,10 @@ export default {
     'check-card-overlap',
     'delete-segment',
     'edit-segment',
+    'focusin',
+    'focusout',
+    'mouseenter',
+    'mouseleave',
     'segment:confirm'
   ],
 
