@@ -50,9 +50,33 @@ class CustomFieldConfigurationRepository extends CoreRepository
             return $this->findOneBy($criteria);
         } catch (Exception $e) {
             $this->logger->warning('Error fetching CustomFieldConfiguration: '.$e->getMessage());
-
             return null;
         }
+    }
+
+    public function detectCustomFieldConfigurationByProcedureId(string $sourceEntity, string $procedureId, string $targetEntity): CustomFieldConfiguration
+    {
+
+        $customFieldConfiguration = $this->getCustomFieldConfigurationByProcedureId($sourceEntity, $procedureId, $targetEntity);
+
+        if (null === $customFieldConfiguration) {
+            // if it does not exist, create new entry
+
+            $customFieldConfiguration = new CustomFieldConfiguration();
+
+            $customFieldConfiguration->setTemplateEntityClass($sourceEntity);
+            $customFieldConfiguration->setTemplateEntityId($procedureId);
+
+            $customFieldConfiguration->setValueEntityClass($targetEntity);
+            $customFieldsList = new CustomFieldList();
+            $customFieldsList->setName('DefaultName');
+            $customFieldsList->setCustomFields([]);
+            $customFieldConfiguration->setConfiguration($customFieldsList);
+            $this->add($customFieldConfiguration);
+            return $customFieldConfiguration;
+        }
+
+        return $customFieldConfiguration;
     }
 
     public function updateObject($entity): CustomFieldConfiguration
@@ -72,53 +96,24 @@ class CustomFieldConfigurationRepository extends CoreRepository
     public function createCustomField($attributes): CustomFieldInterface
     {
         /** @var CustomFieldConfiguration $customFieldConfiguration */
-        $customFieldConfiguration = $this->getCustomFieldConfigurationByProcedureId($attributes['sourceEntity'], $attributes['sourceEntityId'], $attributes['targetEntity']);
-        // If exists, then merge this customField
-        if ($customFieldConfiguration) {
-            /** @var CustomFieldList $configuration */
-            $configuration = $customFieldConfiguration->getConfiguration();
+        $customFieldConfiguration = $this->detectCustomFieldConfigurationByProcedureId($attributes['sourceEntity'], $attributes['sourceEntityId'], $attributes['targetEntity']);
 
-            $customFieldsList = $configuration->getCustomFieldsList();
+        /** @var CustomFieldList $configuration */
+        $configuration = $customFieldConfiguration->getConfiguration();
 
-            /** @var CustomFieldInterface $particularCustomField */
-            $particularCustomField = $this->createParticularCustomField($attributes);
-
-            $customFieldsList[] = $particularCustomField;
-            $configuration->setCustomFields($customFieldsList);
-
-            $jsonConfig = $configuration->toJson();
-
-            $customFieldConfiguration->setConfiguration($jsonConfig);
-
-            $this->updateObject($customFieldConfiguration);
-
-            return $particularCustomField;
-        }
-
-        // if it does not exist, create new entry
-
-        $customFieldConfiguration = new CustomFieldConfiguration();
-
-        $customFieldConfiguration->setTemplateEntityClass($attributes['sourceEntity']);
-        $customFieldConfiguration->setTemplateEntityId($attributes['sourceEntityId']);
-
-        $customFieldConfiguration->setValueEntityClass($attributes['targetEntity']);
-
-        $customFieldsList = new CustomFieldList();
-        $customFieldsList->setName('DefaultName');
-
-        $customFields = [];
+        $customFieldsList = $configuration->getCustomFieldsList();
 
         /** @var CustomFieldInterface $particularCustomField */
         $particularCustomField = $this->createParticularCustomField($attributes);
 
-        $customFields[] = $particularCustomField;
+        $customFieldsList[] = $particularCustomField;
+        $configuration->setCustomFields($customFieldsList);
 
-        $customFieldsList->setCustomFields($customFields);
+        $jsonConfig = $configuration->toJson();
 
-        $customFieldConfiguration->setConfiguration($customFieldsList->toJson());
+        $customFieldConfiguration->setConfiguration($jsonConfig);
 
-        $this->add($customFieldConfiguration);
+        $this->updateObject($customFieldConfiguration);
 
         return $particularCustomField;
     }
