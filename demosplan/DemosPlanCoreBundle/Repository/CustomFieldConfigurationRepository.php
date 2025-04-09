@@ -59,23 +59,26 @@ class CustomFieldConfigurationRepository extends CoreRepository
     {
         $customFieldConfiguration = $this->findCustomFieldConfigurationByCriteria($sourceEntity, $sourceEntityId, $targetEntity);
 
-        if (null === $customFieldConfiguration) {
-            // if it does not exist, create new entry
-
-            $customFieldConfiguration = new CustomFieldConfiguration();
-
-            $customFieldConfiguration->setTemplateEntityClass($sourceEntity);
-            $customFieldConfiguration->setTemplateEntityId($sourceEntityId);
-
-            $customFieldConfiguration->setValueEntityClass($targetEntity);
-            $customFieldsList = new CustomFieldList();
-            $customFieldsList->setName('DefaultName');
-            $customFieldsList->setCustomFields([]);
-            $customFieldConfiguration->setConfiguration($customFieldsList);
-            $this->add($customFieldConfiguration);
-
+        if (null !== $customFieldConfiguration) {
             return $customFieldConfiguration;
         }
+
+        return $this->createCustomFieldConfiguration($sourceEntity, $sourceEntityId, $targetEntity);
+    }
+
+    private function createCustomFieldConfiguration(string $sourceEntity, string $sourceEntityId, string $targetEntity): CustomFieldConfiguration
+    {
+        $customFieldConfiguration = new CustomFieldConfiguration();
+
+        $customFieldConfiguration->setTemplateEntityClass($sourceEntity);
+        $customFieldConfiguration->setTemplateEntityId($sourceEntityId);
+
+        $customFieldConfiguration->setValueEntityClass($targetEntity);
+        $customFieldsList = new CustomFieldList();
+        $customFieldsList->setName('DefaultName');
+        $customFieldsList->setCustomFields([]);
+        $customFieldConfiguration->setConfiguration($customFieldsList);
+        $this->add($customFieldConfiguration);
 
         return $customFieldConfiguration;
     }
