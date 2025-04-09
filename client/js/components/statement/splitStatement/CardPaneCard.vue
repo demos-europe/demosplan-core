@@ -57,9 +57,11 @@
       </span>
     </p>
 
-    <dp-button-icon
-      icon="fa-pencil"
+    <dp-button
+      hide-text
+      icon="edit"
       :text="Translator.trans('segment.edit')"
+      variant="subtle"
       @click="$emit('edit-segment', segment.id)" />
     <addon-wrapper
       :addon-props="{
@@ -69,16 +71,18 @@
       class="inline-block"
       hook-name="split.statement.buttons"
       @segment:confirm="$emit('segment:confirm', segment.id)" />
-    <dp-button-icon
-      icon="fa-trash"
+    <dp-button
+      hide-text
+      icon="delete"
       :text="Translator.trans('selection.tags.discard')"
+      variant="subtle"
       @click="$emit('delete-segment', segment.id)" />
   </div>
 </template>
 
 <script>
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
-import { DpButtonIcon } from '@demos-europe/demosplan-ui'
+import { DpButton } from '@demos-europe/demosplan-ui'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -86,7 +90,7 @@ export default {
 
   components: {
     AddonWrapper,
-    DpButtonIcon
+    DpButton
   },
 
   props: {
