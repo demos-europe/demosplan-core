@@ -182,6 +182,7 @@ export default {
     handleChange (field, selected = null) {
       this.toggleField(field, selected)
       this.broadcastChanges()
+      this.handleSearch(this.currentSearchTerm)
     },
 
     handleSearch (term) {

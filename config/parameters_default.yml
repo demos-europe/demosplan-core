@@ -172,6 +172,8 @@ parameters:
 
     # virus scan service url without trailing slash
     avscan_url: ""
+    # Implementation to use for virus scan. Currently VirusCheckHttp, VirusCheckRabbitmq or VirusCheckSocket
+    avscan_implementation: 'VirusCheckHttp'
     # Variables to use for remote scan with VirusCheckSocket
     avscan_host: "%env(string:AVSCAN_HOST)%"
     avscan_port: "%env(int:AVSCAN_PORT)%"
