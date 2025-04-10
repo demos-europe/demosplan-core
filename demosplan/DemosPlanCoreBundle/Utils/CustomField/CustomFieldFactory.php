@@ -14,17 +14,20 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 
 class CustomFieldFactory
 {
+    public function __construct(private readonly CustomFieldValidator $customFieldValidator)
+    {
+    }
+
     public function createCustomField(array $attributes): CustomFieldInterface
     {
+        $this->customFieldValidator->validate($attributes);
+
         $type = $attributes['fieldType'];
-        if (!isset(CustomFieldList::TYPE_CLASSES[$type])) {
-            throw new InvalidArgumentException('Unknown custom field type: '.$type);
-        }
+
         $customFieldClass = CustomFieldList::TYPE_CLASSES[$type];
         $customField = new $customFieldClass();
 

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiPaginationInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceTypeInjectionTrait;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
@@ -20,10 +21,12 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomField;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
-use EDT\ConditionFactory\ConditionFactoryInterface;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldMapper;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
@@ -33,6 +36,7 @@ use EDT\PathBuilding\End;
 use EDT\PathBuilding\PropertyAutoPathInterface;
 use EDT\PathBuilding\PropertyAutoPathTrait;
 use EDT\Querying\Contracts\PropertyPathInterface;
+use EDT\Querying\Utilities\Reindexer;
 use EDT\Wrapping\Contracts\AccessException;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
@@ -52,6 +56,8 @@ use Pagerfanta\Pagerfanta;
  *
  * @property-read End $name
  * @property-read End $description
+ * @property-read End $targetEntity
+ * @property-read End $sourceEntity
  *
  * @method bool isNullSafe(int $index)
  */
@@ -61,8 +67,12 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     use DoctrineResourceTypeInjectionTrait;
 
     public function __construct(private readonly CustomFieldService $customFieldService,
-        protected readonly ConditionFactoryInterface $conditionFactory,
-        private readonly CustomFieldCreator $customFieldCreator)
+        protected readonly DqlConditionFactory $conditionFactory,
+        private readonly CustomFieldCreator $customFieldCreator,
+        private readonly AdminProcedureResourceType $adminProcedureResourceType,
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
+        private readonly CustomFieldMapper $customFieldMapper,
+        private readonly Reindexer $reindexer, private readonly CurrentUserInterface $currentUser)
     {
     }
 
@@ -79,7 +89,22 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     protected function getAccessConditions(): array
     {
         return [];
-        // return [$this->conditionFactory->true()];
+        /*$conditions = array_map(
+            function ($source, $target) {
+                $sourceCondition = $this->conditionFactory->propertyHasValue($source, $this->sourceEntity);
+                $targetCondition = $this->conditionFactory->propertyHasValue($target, $this->targetEntity);
+
+                // Group source and target conditions under allConditionsApply
+                return $this->conditionFactory->allConditionsApply($sourceCondition, $targetCondition);
+            },
+            array_keys(CustomFieldMapper::SOURCE_TO_TARGET_MAP),
+            CustomFieldMapper::SOURCE_TO_TARGET_MAP
+        );
+
+        // Combine all grouped conditions under anyConditionApplies
+        $combinedCondition = $this->conditionFactory->anyConditionApplies(...$conditions);
+
+        return [$combinedCondition];*/
     }
 
     protected function getInstantiability(): ResourceInstantiability
@@ -137,23 +162,24 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         return new CustomFieldJsonRepository(
             $this->getEntityManager(),
             $this->conditionFactory,
-            $this->customFieldService
+            $this->reindexer,
+            $this->customFieldConfigurationRepository
         );
     }
 
     public function isCreateAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('area_admin_custom_fields');
     }
 
     public function isDeleteAllowed(): bool
     {
-        return true;
+        return false;
     }
 
     public function isGetAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('area_admin_custom_fields');
     }
 
     public function addCreationErrorMessage(array $parameters): void
@@ -208,12 +234,12 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isListAllowed(): bool
     {
-        return true;
+        return false;
     }
 
     public function isUpdateAllowed(): bool
     {
-        return true;
+        return false;
     }
 
     public function getUpdatability(): ResourceUpdatability

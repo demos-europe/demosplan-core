@@ -76,7 +76,7 @@ final class AdminProcedureResourceType extends DplanResourceType
                 /** @var CustomFieldConfiguration $customFieldConfiguration */
                 $customFieldConfiguration = $this->customFieldConfigurationRepository->findCustomFieldConfigurationByCriteria('PROCEDURE', $procedure->getId(), 'SEGMENT');
                 if (null === $customFieldConfiguration) {
-                    return null;
+                    return new ArrayCollection();
                 }
 
                 /** @var CustomFieldList $segmentCustomfieldsTemplate */
