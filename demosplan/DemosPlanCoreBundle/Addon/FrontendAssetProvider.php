@@ -10,13 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Symfony\Component\Yaml\Yaml;
 
 final class FrontendAssetProvider
 {
-    public function __construct(private readonly AddonRegistry $registry)
+    public function __construct(private readonly PermissionsInterface $permissions, private readonly AddonRegistry $registry)
     {
     }
 
