@@ -36,6 +36,7 @@ use Exception;
 use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use stdClass;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterface
 {
@@ -102,6 +103,7 @@ abstract class AbstractRpcStatementBulkAction implements RpcMethodSolverInterfac
         StatementCopier $statementCopier,
         private readonly TransactionService $transactionService,
         protected readonly StatementDeleter $statementDeleter,
+        protected readonly EventDispatcherInterface $eventDispatcher,
     ) {
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
         $this->conditionFactory = $conditionFactory;
