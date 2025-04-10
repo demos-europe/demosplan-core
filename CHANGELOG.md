@@ -5,6 +5,9 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v2.27.1 (2025-04-09)
+- Fix zip import encoding and recursion
+
 ## v2.27.0 (2025-03-12)
 - Enable to send Statement final notice using RpcRequest and Vue.js
 - Add the possibility to export synopsis without personal data.
