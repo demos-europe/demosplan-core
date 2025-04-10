@@ -61,7 +61,9 @@ parameters:
     # Der Link muss mit abschließendem Slash angegeben werden.
     gateway_redirect_url: ""
 
+    # https://symfony.com/doc/6.4/http_client.html
     proxy_dsn: ""
+    proxy_no_proxy: ""
     # Comma separated string of trusted proxies. See https://symfony.com/doc/6.4/deployment/proxies.html
     # This value is used to fill symfony's trusted_proxies parameter
     proxy_trusted: ''
@@ -170,6 +172,12 @@ parameters:
 
     # virus scan service url without trailing slash
     avscan_url: ""
+    # Implementation to use for virus scan. Currently VirusCheckHttp, VirusCheckRabbitmq or VirusCheckSocket
+    avscan_implementation: 'VirusCheckHttp'
+    # Variables to use for remote scan with VirusCheckSocket
+    avscan_host: "%env(string:AVSCAN_HOST)%"
+    avscan_port: "%env(int:AVSCAN_PORT)%"
+    avscan_timeout: "%env(int:AVSCAN_TIMEOUT)%"
 
     #RabbitMQ setting like amqp://:@localhost:5672/%2f
     rabbitmq_dsn: "%env(string:RABBITMQ_DSN)%"

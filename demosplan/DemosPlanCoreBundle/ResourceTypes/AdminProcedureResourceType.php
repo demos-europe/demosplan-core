@@ -74,7 +74,7 @@ final class AdminProcedureResourceType extends DplanResourceType
         $segmentCustomFieldsTemplate = $this->createToManyRelationship($this->segmentCustomFieldsTemplate)
             ->readable(true, function (Procedure $procedure): ?ArrayCollection {
                 /** @var CustomFieldConfiguration $customFieldConfiguration */
-                $customFieldConfiguration = $this->customFieldConfigurationRepository->getCustomFieldConfigurationByProcedureId('PROCEDURE', $procedure->getId(), 'SEGMENT');
+                $customFieldConfiguration = $this->customFieldConfigurationRepository->findCustomFieldConfigurationByCriteria('PROCEDURE', $procedure->getId(), 'SEGMENT');
                 if (null === $customFieldConfiguration) {
                     return null;
                 }

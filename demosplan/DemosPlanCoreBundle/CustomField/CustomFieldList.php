@@ -10,7 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
-class CustomFieldList extends AbstractCustomField
+class CustomFieldList implements CustomFieldInterface
 {
     /**
      * @var string
@@ -24,10 +24,7 @@ class CustomFieldList extends AbstractCustomField
      */
     protected $customFields = [];
 
-    /** @var string */
-    protected $procedureId = '';
-
-    private const TYPE_CLASSES = [
+    public const TYPE_CLASSES = [
         'radio_button' => RadioButtonField::class,
         // 'dropdown' => DropdownField::class,
         // Add other custom field types here
@@ -47,7 +44,7 @@ class CustomFieldList extends AbstractCustomField
     {
         $this->name = $json['name'];
         $this->customFields = array_map(function ($fieldData) {
-            $type = $fieldData['type'];
+            $type = $fieldData['fieldType'];
             if (!isset(self::TYPE_CLASSES[$type])) {
                 return [];
                 // throw new RuntimeException('Unknown custom field type: ' . $type);
@@ -88,11 +85,6 @@ class CustomFieldList extends AbstractCustomField
     public function setCustomFields(array $customFields): void
     {
         $this->customFields = $customFields;
-    }
-
-    public function getProcedureId(): string
-    {
-        return $this->procedureId;
     }
 
     public function getCustomFieldsList(): ?array

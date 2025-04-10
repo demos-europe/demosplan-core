@@ -57,7 +57,7 @@
       <span :class="{ 'weight--bold' : (appliedQuery.length > 0) }">
         {{ category.label }}
         <span
-          class="o-badge o-badge--small o-badge--transparent mb-px"
+          class="o-badge o-badge--small o-badge--transparent mb-px mr-1"
           v-if="appliedQuery.length > 0">
           {{ appliedQuery.length }}
         </span>

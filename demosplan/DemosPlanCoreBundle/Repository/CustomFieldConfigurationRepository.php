@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use Exception;
 
@@ -22,7 +23,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
      *
      * @throws Exception
      */
-    public function add(CustomFieldConfiguration $customFieldConfiguration): CustomFieldConfiguration
+    private function add(CustomFieldConfiguration $customFieldConfiguration): CustomFieldConfiguration
     {
         try {
             $em = $this->getEntityManager();
@@ -36,10 +37,10 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-    public function getCustomFieldConfigurationByProcedureId(string $sourceEntity, string $procedureId, string $targetEntity): ?CustomFieldConfiguration
+    public function findCustomFieldConfigurationByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity): ?CustomFieldConfiguration
     {
         try {
-            $criteria = ['templateEntityId' => $procedureId];
+            $criteria = ['templateEntityId' => $sourceEntityId];
             $criteria['templateEntityClass'] = $sourceEntity;
             $criteria['valueEntityClass'] = $targetEntity;
 
@@ -49,6 +50,34 @@ class CustomFieldConfigurationRepository extends CoreRepository
 
             return null;
         }
+    }
+
+    public function findOrCreateCustomFieldConfigurationByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity): CustomFieldConfiguration
+    {
+        $customFieldConfiguration = $this->findCustomFieldConfigurationByCriteria($sourceEntity, $sourceEntityId, $targetEntity);
+
+        if (null !== $customFieldConfiguration) {
+            return $customFieldConfiguration;
+        }
+
+        return $this->createCustomFieldConfiguration($sourceEntity, $sourceEntityId, $targetEntity);
+    }
+
+    private function createCustomFieldConfiguration(string $sourceEntity, string $sourceEntityId, string $targetEntity): CustomFieldConfiguration
+    {
+        $customFieldConfiguration = new CustomFieldConfiguration();
+
+        $customFieldConfiguration->setTemplateEntityClass($sourceEntity);
+        $customFieldConfiguration->setTemplateEntityId($sourceEntityId);
+
+        $customFieldConfiguration->setValueEntityClass($targetEntity);
+        $customFieldsList = new CustomFieldList();
+        $customFieldsList->setName('DefaultName');
+        $customFieldsList->setCustomFields([]);
+        $customFieldConfiguration->setConfiguration($customFieldsList);
+        $this->add($customFieldConfiguration);
+
+        return $customFieldConfiguration;
     }
 
     public function updateObject($entity): CustomFieldConfiguration

@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Entity\CustomFields;
 
 use DateTime;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -56,6 +57,8 @@ class CustomFieldConfiguration extends CoreEntity
     protected $valueEntityClass;
 
     /**
+     * @var CustomFieldList
+     *
      * @ORM\Column(type="dplan.custom_fields_template", nullable=true)
      */
     protected $configuration;
@@ -116,5 +119,13 @@ class CustomFieldConfiguration extends CoreEntity
     public function setValueEntityClass(string $valueEntityClass): void
     {
         $this->valueEntityClass = $valueEntityClass;
+    }
+
+    public function addCustomFieldToCustomFieldList(CustomFieldInterface $particularCustomField): void
+    {
+        $customFieldsList = $this->configuration->getCustomFieldsList();
+        $customFieldsList[] = $particularCustomField;
+        $this->configuration->setCustomFields($customFieldsList);
+        $this->configuration = $this->configuration->toJson();
     }
 }
