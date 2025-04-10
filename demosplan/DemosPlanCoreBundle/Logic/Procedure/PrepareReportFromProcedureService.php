@@ -163,7 +163,7 @@ class PrepareReportFromProcedureService extends CoreService
         $update = [];
 
         // if the procedure is deleted, only a deletion entry will be created.
-        if (true === $destinationProcedure->getDeleted()) {
+        if (true === $destinationProcedure->isDeleted()) {
             $update = [
                 'ident'    => $destinationProcedure->getId(),
                 'customer' => null,
