@@ -20,22 +20,18 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class CustomFieldValidator
 {
-    private array $sourceToTargetMap;
-    private array $classNameToClassPathtMap;
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager, array $sourceToTargetMap = [
-        'PROCEDURE'          => 'SEGMENT',
-        'PROCEDURE_TEMPLATE' => 'SEGMENT',
-    ], array $classNameToClassPathtMap = [
-        'PROCEDURE'          => Procedure::class,
-        'PROCEDURE_TEMPLATE' => Procedure::class,
-        'SEGMENT'            => Segment::class,
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly array $sourceToTargetMap = [
+            'PROCEDURE'          => 'SEGMENT',
+            'PROCEDURE_TEMPLATE' => 'SEGMENT',
+        ],
+        private readonly array $classNameToClassPathtMap = [
+            'PROCEDURE'          => Procedure::class,
+            'PROCEDURE_TEMPLATE' => Procedure::class,
+            'SEGMENT'            => Segment::class,
     ])
     {
-        $this->sourceToTargetMap = $sourceToTargetMap;
-        $this->classNameToClassPathtMap = $classNameToClassPathtMap;
-        $this->entityManager = $entityManager;
     }
 
     public function validate(array $attributes): void
