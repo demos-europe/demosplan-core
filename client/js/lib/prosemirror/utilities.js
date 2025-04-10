@@ -240,7 +240,9 @@ const createCreatorMenu = (view, anchor, head) => {
     arrow: false,
     theme: 'light-border',
     getReferenceClientRect: () => {
-      const positions = view.coordsAtPos(head, -1)
+      const pickPositionProps = ({ top, bottom, left, right }) => ({ top, bottom, left, right })
+      const positions = pickPositionProps(view.coordsAtPos(head, -1))
+
       return {
         height: 10,
         width: 0,
