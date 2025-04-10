@@ -30,7 +30,7 @@ class CustomFieldValidator
             'PROCEDURE'          => Procedure::class,
             'PROCEDURE_TEMPLATE' => Procedure::class,
             'SEGMENT'            => Segment::class,
-    ])
+        ])
     {
     }
 
