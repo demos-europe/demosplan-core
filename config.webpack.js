@@ -151,7 +151,7 @@ const stylesConfig = merge(baseConfig, {
        * See https://webpack.js.org/configuration/output/#outputclean
        */
       keep (asset) {
-        return  !/style\.|style-public\./.test(asset)
+        return !/style\.|style-public\./.test(asset)
       }
     }
   },

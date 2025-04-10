@@ -7,8 +7,8 @@
  * All rights reserved
  */
 
-import availableTranslations from './generated/translations.json'
-import exposedRoutes from './generated/routes.json'
+import availableTranslations from '@DpJs/generated/translations.json'
+import exposedRoutes from '@DpJs/generated/routes.json'
 import { hasPermission } from '@demos-europe/demosplan-ui'
 import Routing from '../../vendor/friendsofsymfony/jsrouting-bundle/Resources/public/js/router'
 import Translator from '../../vendor/willdurand/js-translation-bundle/Resources/js/translator'
