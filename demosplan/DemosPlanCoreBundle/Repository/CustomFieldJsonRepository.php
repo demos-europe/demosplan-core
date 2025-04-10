@@ -12,11 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
-use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PhaseDTO;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
@@ -25,7 +21,6 @@ use EDT\JsonApi\InputHandling\RepositoryInterface;
 use EDT\Querying\Pagination\PagePagination;
 use EDT\Querying\Utilities\Reindexer;
 use Pagerfanta\Pagerfanta;
-use Webmozart\Assert\Assert;
 
 /**
  * @template-implements RepositoryInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, >
@@ -33,9 +28,9 @@ use Webmozart\Assert\Assert;
 class CustomFieldJsonRepository implements RepositoryInterface
 {
     public function __construct(
-        protected readonly EntityManagerInterface    $entityManager,
+        protected readonly EntityManagerInterface $entityManager,
         protected readonly ConditionFactoryInterface $conditionFactory,
-        private readonly Reindexer                   $reindexer,
+        private readonly Reindexer $reindexer,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
     ) {
     }

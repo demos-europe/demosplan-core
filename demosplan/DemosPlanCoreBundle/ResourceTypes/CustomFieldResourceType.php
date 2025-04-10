@@ -22,12 +22,9 @@ use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomField;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\AdminProcedureResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldMapper;
-use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
@@ -68,13 +65,13 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     use PropertyAutoPathTrait;
     use DoctrineResourceTypeInjectionTrait;
 
-    public function __construct(private readonly CustomFieldService         $customFieldService,
-                                protected readonly DqlConditionFactory      $conditionFactory,
-                                private readonly CustomFieldCreator         $customFieldCreator,
-                                private readonly AdminProcedureResourceType $adminProcedureResourceType,
-                                private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
-                                private readonly CustomFieldMapper $customFieldMapper,
-                                private readonly Reindexer $reindexer)
+    public function __construct(private readonly CustomFieldService $customFieldService,
+        protected readonly DqlConditionFactory $conditionFactory,
+        private readonly CustomFieldCreator $customFieldCreator,
+        private readonly AdminProcedureResourceType $adminProcedureResourceType,
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
+        private readonly CustomFieldMapper $customFieldMapper,
+        private readonly Reindexer $reindexer)
     {
     }
 
@@ -90,7 +87,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     protected function getAccessConditions(): array
     {
-
         return [];
         /*$conditions = array_map(
             function ($source, $target) {
@@ -162,12 +158,11 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     protected function getRepository(): RepositoryInterface
     {
-
-       return  new CustomFieldJsonRepository(
+        return new CustomFieldJsonRepository(
             $this->getEntityManager(),
             $this->conditionFactory,
             $this->reindexer,
-           $this->customFieldConfigurationRepository
+            $this->customFieldConfigurationRepository
         );
     }
 
