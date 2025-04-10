@@ -224,11 +224,11 @@ export default {
       }
     },
 
-    checkForParagraphsAndFiles () {
+    checkForParagraphsAndFiles (selectedElement) {
       this.values.paragraph = { id: '', title: '-' }
       this.values.document = { id: '', title: '-' }
-      this.elementHasParagraphs = hasOwnProp(this.paragraph, this.values.element.id)
-      this.elementHasFiles = hasOwnProp(this.documents, this.values.element.id)
+      this.elementHasParagraphs = hasOwnProp(this.paragraph, selectedElement.id)
+      this.elementHasFiles = hasOwnProp(this.documents, selectedElement.id)
     },
 
     handlePhaseSelect () {
