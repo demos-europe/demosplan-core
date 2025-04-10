@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTyp
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
@@ -2433,6 +2434,19 @@ class DemosPlanProcedureController extends BaseController
     #[Route(name: 'DemosPlan_procedure_places_list', path: '/verfahren/{procedureId}/schritte', options: ['expose' => true])]
     #[Route(name: 'DemosPlan_procedure_template_places_list', path: '/verfahren/blaupause/{procedureId}/schritte')]
     public function showProcedurePlacesAction(string $procedureId)
+    {
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
+            'procedureId' => $procedureId,
+        ]);
+    }
+
+    /**
+     * Creation and editing of places, each is either process or procedure template related.
+     * */
+    #[AttributeDplanPermissions('area_admin_custom_fields')]
+    #[Route(name: 'DemosPlan_procedure_custom_fields_list', path: '/verfahren/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
+    #[Route(name: 'DemosPlan_procedure_template_custom_fields_list', path: '/verfahren/blaupause/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
+    public function showProcedureCustomFieldsAction(string $procedureId)
     {
         return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
             'procedureId' => $procedureId,
