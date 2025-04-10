@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PhaseDTO;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\ConditionFactory\ConditionFactoryInterface;
@@ -22,6 +23,7 @@ use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
 use EDT\Querying\Pagination\PagePagination;
+use EDT\Querying\Utilities\Reindexer;
 use Pagerfanta\Pagerfanta;
 use Webmozart\Assert\Assert;
 
@@ -31,72 +33,31 @@ use Webmozart\Assert\Assert;
 class CustomFieldJsonRepository implements RepositoryInterface
 {
     public function __construct(
-        protected readonly EntityManagerInterface $entityManager,
+        protected readonly EntityManagerInterface    $entityManager,
         protected readonly ConditionFactoryInterface $conditionFactory,
-        private readonly CustomFieldService $customFieldService,
+        private readonly Reindexer                   $reindexer,
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
     ) {
     }
 
     public function getEntityByIdentifier(string $id, array $conditions, array $identifierPropertyPath): object
     {
-        // [$procedureId, $customFieldName] = explode('_', $id, 2);
-        $identifierCondition = $this->conditionFactory->propertyHasValue($id, $identifierPropertyPath);
-        $conditions[] = $identifierCondition;
-        $entities = $this->entityManager->getEntities($conditions, [], null);
-
-        $this->customFieldService->loadFromJsonOnlyList();
-
-        return match (count($entities)) {
-            0       => throw new InvalidArgumentException('No matching BLABLA entity found.'),
-            1       => array_pop($entities),
-            default => throw new InvalidArgumentException('Multiple matching BLABLA entities found.'),
-        };
+        throw new InvalidArgumentException();
     }
 
     public function getEntitiesByIdentifiers(array $identifiers, array $conditions, array $sortMethods, array $identifierPropertyPath): array
     {
         throw new InvalidArgumentException();
-        Assert::isEmpty($conditions);
-        Assert::isEmpty($sortMethods);
-
-        return [];
     }
 
     public function getEntities(array $conditions, array $sortMethods): array
     {
         throw new InvalidArgumentException();
-        Assert::isEmpty($conditions);
-        Assert::isEmpty($sortMethods);
-
-        $phases = [];
-        foreach ($this->globalConfig->getRawInternalPhases() as $internalPhase) {
-            $phases[] = $this->createPhaseDto($internalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL);
-        }
-
-        foreach ($this->globalConfig->getRawExternalPhases() as $externalPhase) {
-            $phases[] = $this->createPhaseDto($externalPhase, Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL);
-        }
-
-        return $phases;
-    }
-
-    private function createPhaseDto(array $phase, string $type)
-    {
-        $phaseDto = new PhaseDTO();
-        $phaseDto->setId($phase[self::PROCEDURE_PHASE_KEY]);
-        $phaseDto->setName($phase[self::PROCEDURE_PHASE_NAME]);
-        $phaseDto->setPermissionsSet($phase[self::PROCEDURE_PHASE_PERMISSIONS_SET]);
-        $phaseDto->setParticipationState($phase[self::PROCEDURE_PHASE_PARTICIPATION_STATE] ?? null);
-        $phaseDto->setType($type);
-
-        return $phaseDto->lock();
     }
 
     public function getEntitiesForPage(array $conditions, array $sortMethods, PagePagination $pagination): Pagerfanta
     {
         throw new InvalidArgumentException();
-        Assert::isEmpty($conditions);
-        Assert::isEmpty($sortMethods);
     }
 
     public function deleteEntityByIdentifier(string $entityIdentifier, array $conditions, array $identifierPropertyPath): void
