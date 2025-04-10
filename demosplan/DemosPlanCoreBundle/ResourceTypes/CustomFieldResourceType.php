@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ApiPaginationInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceTypeInjectionTrait;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
@@ -65,13 +66,13 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     use PropertyAutoPathTrait;
     use DoctrineResourceTypeInjectionTrait;
 
-    public function __construct(private readonly CustomFieldService $customFieldService,
-        protected readonly DqlConditionFactory $conditionFactory,
-        private readonly CustomFieldCreator $customFieldCreator,
-        private readonly AdminProcedureResourceType $adminProcedureResourceType,
-        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
-        private readonly CustomFieldMapper $customFieldMapper,
-        private readonly Reindexer $reindexer)
+    public function __construct(private readonly CustomFieldService                 $customFieldService,
+                                protected readonly DqlConditionFactory              $conditionFactory,
+                                private readonly CustomFieldCreator                 $customFieldCreator,
+                                private readonly AdminProcedureResourceType         $adminProcedureResourceType,
+                                private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
+                                private readonly CustomFieldMapper                  $customFieldMapper,
+                                private readonly Reindexer                          $reindexer, private readonly CurrentUserInterface $currentUser)
     {
     }
 
@@ -168,7 +169,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isCreateAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('area_admin_custom_fields');
     }
 
     public function isDeleteAllowed(): bool
@@ -178,7 +179,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isGetAllowed(): bool
     {
-        return true;
+        return $this->currentUser->hasPermission('area_admin_custom_fields');
     }
 
     public function addCreationErrorMessage(array $parameters): void
