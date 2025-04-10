@@ -12,6 +12,7 @@
 </template>
 
 <script>
+import { shallowRef } from 'vue'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 
 export default {
@@ -57,9 +58,8 @@ export default {
     loadAddonComponents(this.hookName)
       .then(addons => {
         addons.forEach(addon => {
-          this.$.appContext.components[addon.name] = window[addon.name].default
           this.loadedAddons.push({
-            component: window[addon.name].default,
+            component: shallowRef(window[addon.name].default),
             name: addon.name
           })
         })

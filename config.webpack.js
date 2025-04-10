@@ -120,6 +120,7 @@ const bundlesConfig = merge(baseConfig, {
   plugins: [
     new DefinePlugin({
       URL_PATH_PREFIX: JSON.stringify(config.urlPathPrefix), // Path prefix for dynamically generated urls
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false, // Vue CLI is in maintenance mode, and probably won't merge my PR to fix this in their tooling  https://github.com/vuejs/vue-cli/pull/7443
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false
     }),
@@ -150,7 +151,7 @@ const stylesConfig = merge(baseConfig, {
        * See https://webpack.js.org/configuration/output/#outputclean
        */
       keep (asset) {
-        return !/style\.|style-public\./.test(asset)
+        return  !/style\.|style-public\./.test(asset)
       }
     }
   },
