@@ -2435,15 +2435,15 @@ class DemosPlanProcedureController extends BaseController
     #[Route(name: 'DemosPlan_procedure_template_places_list', path: '/verfahren/blaupause/{procedureId}/schritte')]
     public function showProcedurePlacesAction(string $procedureId)
     {
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_segments_fields_list.html.twig', [
-            //        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
             'procedureId' => $procedureId,
         ]);
     }
 
     /**
-     * Creation and editing of places, each is either process or procedure template related.
-     * */
+     * Creation of custom fields, each is either procedure or procedure template related.
+     * @param string $procedureId
+     */
     #[AttributeDplanPermissions('area_admin_custom_fields')]
     #[Route(name: 'DemosPlan_procedure_custom_fields_list', path: '/verfahren/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
     #[Route(name: 'DemosPlan_procedure_template_custom_fields_list', path: '/verfahren/blaupause/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
