@@ -247,11 +247,14 @@ export default {
 
           Object.keys(fields).forEach(key => {
             const field = fields[key]
+            const { id, attributes } = field
+            const { description, name, options } = attributes
+
             this.segmentFields.push({
-              id: field.id,
-              name: field.attributes.name,
-              description: field.attributes.description,
-              options: field.attributes.options,
+              id,
+              name,
+              description,
+              options,
               open: false
             })
           })
