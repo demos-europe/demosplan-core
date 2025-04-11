@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ManualOriginalStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -417,7 +418,9 @@ class StatementService extends CoreService implements StatementServiceInterface
         }
 
         /** @var StatementCreatedEvent $statementCreatedEvent */
-        $statementCreatedEvent = $this->eventDispatcher->dispatch(new ManualOriginalStatementCreatedEvent($statement));
+        $statementCreatedEvent = $this->eventDispatcher->dispatch(
+            new ManualOriginalStatementCreatedEvent($statement),
+            ManualOriginalStatementCreatedEventInterface::class);
 
         // statement similarities are calculated?
         $statementSimilarities = $statementCreatedEvent->getStatementSimilarities();
