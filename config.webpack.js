@@ -85,11 +85,11 @@ const bundlesConfig = merge(baseConfig, {
   name: 'main',
   entry: () => {
     return {
+      ...bundleEntryPoints(config.clientBundleGlob),
       style: config.stylesEntryPoint,
       'style-public': config.publicStylesEntryPoint,
       preflight: resolveDir('./client/css/preflight.css'),
-      'demosplan-ui': resolveDir('./client/css/tailwind.css'), // In the End we will get the styling from demosplan-ui
-      ...bundleEntryPoints(config.clientBundleGlob)
+      'demosplan-ui-style': resolveDir('./client/css/tailwind.css') // In the End we will get the styling from demosplan-ui
     }
   },
   output: {
@@ -120,6 +120,7 @@ const bundlesConfig = merge(baseConfig, {
   plugins: [
     new DefinePlugin({
       URL_PATH_PREFIX: JSON.stringify(config.urlPathPrefix), // Path prefix for dynamically generated urls
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false, // Vue CLI is in maintenance mode, and probably won't merge my PR to fix this in their tooling  https://github.com/vuejs/vue-cli/pull/7443
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false
     }),
@@ -135,7 +136,7 @@ const stylesConfig = merge(baseConfig, {
     return {
       style: config.stylesEntryPoint,
       'style-public': config.publicStylesEntryPoint,
-      'demosplan-ui': './client/css/tailwind.css'
+      'demosplan-ui-style': './client/css/tailwind.css'
     }
   },
   output: {
