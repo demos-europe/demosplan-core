@@ -58,11 +58,15 @@
     </p>
 
     <dp-button
+      :class="{ 'mr-1': isFocused }"
       hide-text
       icon="edit"
       :text="Translator.trans('segment.edit')"
       variant="subtle"
-      @click="$emit('segment:edit', segment.id)" />
+      @blur="isFocused = false"
+      @click="$emit('segment:edit', segment.id)"
+      @focus="isFocused = !isMouseEvent"
+      @mousedown="isMouseEvent = true" />
     <addon-wrapper
       :addon-props="{
         class: 'mt-1',
@@ -72,11 +76,15 @@
       hook-name="split.statement.buttons"
       @segment:confirm="$emit('segment:confirm', segment.id)" />
     <dp-button
+      :class="{ 'ml-1': isFocused }"
       hide-text
       icon="delete"
       :text="Translator.trans('selection.tags.discard')"
       variant="subtle"
-      @click="$emit('segment:delete', segment.id)" />
+      @blur="isFocused = false"
+      @click="$emit('segment:delete', segment.id)"
+      @focus="isFocused = !isMouseEvent"
+      @mousedown="isMouseEvent = true" />
   </div>
 </template>
 
@@ -123,6 +131,8 @@ export default {
 
   data () {
     return {
+      isFocused: false,
+      isMouseEvent: false,
       offsetTop: 0,
       position: 0
     }
