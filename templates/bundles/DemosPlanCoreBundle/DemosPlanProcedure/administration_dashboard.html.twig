@@ -45,6 +45,14 @@
                             {{ 'places'|trans }}
                         </a>
                     {% endif %}
+                    {% if hasPermission('area_admin_custom_fields') %}
+                    <a
+                        class="block u-pb-0_25"
+                        data-cy="customFields"
+                        href="{{ path('DemosPlan_procedure_custom_fields_list', { 'procedureId': procedure}) }}">
+                        {{ 'segments.fields.configurable'|trans }}
+                    </a>
+                    {% endif %}
                     {% if hasPermission('area_admin_protocol') %}
                         <a
                             class="block u-pb-0_25"

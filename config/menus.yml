@@ -265,7 +265,7 @@ submenu_templates:
         link_attributes:
             data-cy: 'Bearbeitungsschritte'
     custom_fields:
-        label: 'custom.fields'
+        label: 'segments.fields.configurable'
         path: 'DemosPlan_procedure_custom_fields_list'
         path_params: [ 'procedureId' ]
         permission: 'area_admin_custom_fields'
