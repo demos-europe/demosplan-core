@@ -19,4 +19,16 @@ const components = { DpFlyout, DpButton }
 
 initialize(components).then(() => {
   AnimateById()
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const deleteButton = document.querySelector('[data-cy="deleteSelectedBoilerplate"]')
+    const checkboxes = Array.from(document.querySelectorAll('input[data-checkable-item]'))
+
+    deleteButton.addEventListener('click', () => {
+      if (checkboxes.some(checkbox => checkbox.checked) &&
+        confirm("{{ 'check.entries.marked.delete'|trans }}")) {
+        deleteButton.closest('form').submit()
+      }
+    })
+  })
 })
