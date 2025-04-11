@@ -1,50 +1,52 @@
 <template>
-  <div
-    v-if="!isOpen"
-    class="text-right mb-4">
-    <dp-button
-      data-cy="segmentFields:addField"
-      @click="open"
-      :text="Translator.trans('field.add')" />
-  </div>
+  <div data-dp-validate="createCustomFieldForm">
+    <div
+      v-if="!isOpen"
+      class="text-right mb-4">
+      <dp-button
+        data-cy="segmentFields:addField"
+        @click="open"
+        :text="Translator.trans('field.add')" />
+    </div>
 
-  <div
-    v-if="isOpen"
-    class="relative mb-4"
-    data-dp-validate="addNewFieldForm">
-    <dp-loading
-      v-if="isLoading"
-      overlay />
-    <div class="border rounded space-stack-m space-inset-m">
-      <dp-input
-        id="newFieldName"
-        class="w-[calc(100%-26px)]"
-        data-cy="segmentFields:newFieldName"
-        v-model="customField.name"
-        :label="{
+    <div
+      v-if="isOpen"
+      class="relative mb-4">
+      <dp-loading
+        v-if="isLoading"
+        overlay />
+      <div
+        class="border rounded space-stack-m space-inset-m">
+        <dp-input
+          id="newFieldName"
+          class="w-[calc(100%-26px)]"
+          data-cy="segmentFields:newFieldName"
+          v-model="customField.name"
+          :label="{
           text: Translator.trans('name')
         }"
-        maxlength="250"
-        required />
-      <dp-input
-        id="newFieldDescription"
-        class="w-[calc(100%-26px)]"
-        data-cy="segmentFields:newFieldDescription"
-        v-model="customField.description"
-        :label="{
+          maxlength="250"
+          required />
+        <dp-input
+          id="newFieldDescription"
+          class="w-[calc(100%-26px)]"
+          data-cy="segmentFields:newFieldDescription"
+          v-model="customField.description"
+          :label="{
           text: Translator.trans('description')
         }"
-        maxlength="250" />
+          maxlength="250" />
 
-      <slot />
+        <slot />
 
-      <dp-button-row
-        :busy="isLoading"
-        data-cy="segmentFields:addNewField"
-        primary
-        secondary
-        @primary-action="handleSave"
-        @secondary-action="handleAbort" />
+        <dp-button-row
+          :busy="isLoading"
+          data-cy="segmentFields:addNewField"
+          primary
+          secondary
+          @primary-action="dpValidateAction('createCustomFieldForm', () => handleSave(), false)"
+          @secondary-action="handleAbort" />
+      </div>
     </div>
   </div>
 </template>
@@ -54,7 +56,8 @@ import {
   DpButton,
   DpButtonRow,
   DpInput,
-  DpLoading
+  DpLoading,
+  dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -66,6 +69,8 @@ export default {
     DpInput,
     DpLoading
   },
+
+  mixins: [dpValidateMixin],
 
   props: {
     isLoading: {

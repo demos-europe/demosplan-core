@@ -115,8 +115,7 @@ import {
   DpInlineNotification,
   DpInput,
   DpLabel,
-  DpLoading,
-  dpValidateMixin
+  DpLoading
 } from '@demos-europe/demosplan-ui'
 import { mapActions } from 'vuex'
 import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
@@ -134,8 +133,6 @@ export default {
     DpLabel,
     DpLoading
   },
-
-  mixins: [dpValidateMixin],
 
   props: {
     currentUserId: {
@@ -294,6 +291,7 @@ export default {
 
     showOptions (rowData) {
       const field = this.segmentFields.find(field => field.id === rowData.id)
+
       if (field) {
         field.open = true
       }
