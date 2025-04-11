@@ -5,13 +5,13 @@
         heading: 'segments.fields.configurable'|trans
     } %}
 
-    <administration-segments-fields-list
+    <administration-custom-fields-list
         current-user-id="{{ currentUser.ident|default }}"
         procedure-id="{{ procedure }}">
-    </administration-segments-fields-list>
+    </administration-custom-fields-list>
 {% endblock component_part %}
 
 {% block javascripts %}
     {{ parent() }}
-    {{ webpackBundle('procedure-administrationSegmentsFieldsList.js') }}
+    {{ webpackBundle('procedure-administrationCustomFieldsList.js') }}
 {% endblock javascripts %}

@@ -1698,6 +1698,7 @@ feedbackto: "Rückmeldung an"
 field: "Feld"
 field.add: "Feld hinzufügen"
 field.empty: "Feld leeren"
+field_name: "Name des Feldes"
 field.required: "Pflichtfeld"
 field.selectionRequired: "Mindestens ein Feld muss ausgewählt werden."
 fields: "Felder"
@@ -3230,7 +3231,6 @@ segments.recommendations.oracle: "Vorschläge zu inhaltlicher Ähnlichkeit"
 segments.recommendations.oracle.none: "Zu diesem Abschnitt konnten keine ähnlichen Abschnitte mit Erwiderung gefunden werden."
 segments.recommendations.tags: "Vorschläge zu Schlagworten"
 segments.recommendations.tags.none: "Da für diesen Abschnitt keine Schlagworte hinterlegt sind, können keine Erwiderungs-Vorschläge angezeigt werden."
-segmentsFields.name: "Feldname"
 items.selected.multi.page: |
     {count, plural,
         =1 { Ein Element ausgewählt (u.U. nicht auf Seite 1). }

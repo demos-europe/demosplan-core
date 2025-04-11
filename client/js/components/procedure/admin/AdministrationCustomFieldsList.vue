@@ -20,14 +20,14 @@
           <dp-input
             id="newFieldOption:1"
             class="mb-2 w-[calc(100%-26px)]"
-            data-cy="segmentFields:newFieldOption1"
+            data-cy="customFields:newFieldOption1"
             v-model="newFieldOptions[0]"
             maxlength="250"
             required />
           <dp-input
             id="newFieldOption:2"
             class="mb-2 w-[calc(100%-26px)]"
-            data-cy="segmentFields:newFieldOption2"
+            data-cy="customFields:newFieldOption2"
             v-model="newFieldOptions[1]"
             maxlength="250"
             required />
@@ -39,10 +39,12 @@
               <dp-input
                 v-model="newFieldOptions[idx + 2]"
                 :id="`option:${newFieldOptions[idx + 2]}`"
+                :data-cy="`customFields:newFieldOption${idx + 2}`"
                 maxlength="250" />
             </div>
             <dp-button
               class="w-[20px] inline-block ml-1"
+              :data-cy="`customFields:removeOptionInput:${option}`"
               hide-text
               icon="x"
               :text="Translator.trans('remove')"
@@ -51,7 +53,7 @@
           </div>
 
           <dp-button
-            data-cy="segmentFields:addOption"
+            data-cy="customFields:addOption"
             icon="plus"
             variant="subtle"
             :text="Translator.trans('option.add')"
@@ -61,7 +63,7 @@
 
     <dp-data-table
       v-if="!isInitiallyLoading"
-      data-cy="segmentFields:table"
+      data-cy="customFields:table"
       has-flyout
       :header-fields="headerFields"
       :items="segmentFields"
@@ -72,7 +74,7 @@
             v-for="(option, index) in displayedOptions(rowData)"
             :key="index"
             class="mb-1"
-            data-cy="segmentFields:option">
+            :data-cy="`customFields:option${option}`">
             {{ option }}
           </li>
         </ul>
@@ -83,7 +85,7 @@
             v-if="!rowData.open"
             :aria-label="Translator.trans('item.edit')"
             class="btn--blank o-link--default"
-            data-cy="segmentFields:showOptions"
+            data-cy="customFields:showOptions"
             :disabled="rowData.options.length < 3"
             @click="showOptions(rowData)">
             <dp-icon
@@ -94,7 +96,7 @@
             <button
               :aria-label="Translator.trans('save')"
               class="btn--blank o-link--default u-mr-0_25 inline-block"
-              data-cy="segmentFields:hideOptions"
+              data-cy="customFields:hideOptions"
               @click="hideOptions(rowData)">
               <dp-icon
                 aria-hidden="true"
@@ -122,7 +124,7 @@ import { mapActions, mapState } from 'vuex'
 import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
 
 export default {
-  name: 'AdministrationSegmentsFieldsList',
+  name: 'AdministrationCustomFieldsList',
 
   components: {
     CreateCustomFieldForm,
@@ -150,7 +152,7 @@ export default {
   data () {
     return {
       headerFields: [
-        { field: 'name', label: Translator.trans('segmentsFields.name'), colClass: 'u-3-of-12' },
+        { field: 'name', label: Translator.trans('field_name'), colClass: 'u-3-of-12' },
         { field: 'options', label: Translator.trans('options'), colClass: 'u-4-of-12' },
         { field: 'description', label: Translator.trans('description'), colClass: 'u-5-of-12' }
       ],

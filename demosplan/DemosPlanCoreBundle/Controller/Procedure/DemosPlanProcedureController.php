@@ -2448,7 +2448,7 @@ class DemosPlanProcedureController extends BaseController
     #[Route(name: 'DemosPlan_procedure_template_custom_fields_list', path: '/verfahren/blaupause/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
     public function showProcedureCustomFieldsAction(string $procedureId)
     {
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_segments_fields_list.html.twig', [
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_custom_fields_list.html.twig', [
             'procedureId' => $procedureId,
         ]);
     }

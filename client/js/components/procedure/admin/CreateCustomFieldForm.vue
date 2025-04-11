@@ -20,21 +20,21 @@
         <dp-input
           id="newFieldName"
           class="w-[calc(100%-26px)]"
-          data-cy="segmentFields:newFieldName"
+          data-cy="customFields:newFieldName"
           v-model="customField.name"
           :label="{
-          text: Translator.trans('name')
-        }"
+            text: Translator.trans('name')
+          }"
           maxlength="250"
           required />
         <dp-input
           id="newFieldDescription"
           class="w-[calc(100%-26px)]"
-          data-cy="segmentFields:newFieldDescription"
+          data-cy="customFields:newFieldDescription"
           v-model="customField.description"
           :label="{
-          text: Translator.trans('description')
-        }"
+            text: Translator.trans('description')
+          }"
           maxlength="250" />
 
         <slot />
@@ -138,7 +138,6 @@ export default {
     reset () {
       this.customField.name = ''
       this.customField.description = ''
-      console.log('after reset', this.customField)
     }
   }
 }
