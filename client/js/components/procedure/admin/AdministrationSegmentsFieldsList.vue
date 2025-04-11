@@ -9,6 +9,7 @@
       type="info" />
 
     <create-custom-field-form
+      :handle-success="isSuccess"
       :is-loading="isLoading"
       @save="customFieldData => saveNewField(customFieldData)">
         <div>
@@ -117,7 +118,7 @@ import {
   DpLabel,
   DpLoading
 } from '@demos-europe/demosplan-ui'
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
 
 export default {
@@ -156,6 +157,7 @@ export default {
       isInitiallyLoading: false,
       isLoading: false,
       isNewFieldFormOpen: false,
+      isSuccess: false,
       newFieldOptions: [
         '',
         ''
@@ -165,6 +167,10 @@ export default {
   },
 
   computed: {
+    ...mapState('CustomField', {
+      customFields: 'items'
+    }),
+
     additionalOptions () {
       return this.newFieldOptions.filter((option, index) => index > 1)
     },
@@ -191,6 +197,27 @@ export default {
 
     addOptionInput () {
       this.newFieldOptions.push('')
+    },
+
+    /**
+     * @param name { string }
+     * @returns { boolean }
+     */
+    checkIfNameIsUnique (name) {
+      const identicalNames = Object.values(this.customFields).filter(field => field.attributes.name === name)
+
+      return identicalNames.length <= 1
+    },
+
+    /**
+     * @param options { array } Array of strings
+     * @param name { string }
+     * @returns { boolean }
+     */
+    checkIfOptionNameIsUnique (options, name) {
+      const identicalNames = options.filter(optionName => optionName === name)
+
+      return identicalNames.length <= 1
     },
 
     fetchSegmentFields () {
@@ -258,10 +285,16 @@ export default {
      * @param customFieldData.description {String}
      */
     saveNewField (customFieldData) {
-      this.isLoading = true
-
       const { description, name } = customFieldData
       const options = this.newFieldOptions.filter(option => option !== '')
+      const isDataValid = this.validateNamesAreUnique(name, options)
+
+      if (!isDataValid) {
+        return
+      }
+
+      this.isLoading = true
+
       const payload = {
         type: 'CustomField',
         attributes: {
@@ -277,6 +310,7 @@ export default {
 
       this.createCustomField(payload)
         .then(() => {
+          this.isSuccess = true
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(err => {
@@ -295,6 +329,30 @@ export default {
       if (field) {
         field.open = true
       }
+    },
+
+    /**
+     *
+     * @param customFieldName {String}
+     * @param customFieldOptions {Array} array of strings
+     */
+    validateNamesAreUnique (customFieldName, customFieldOptions) {
+      const isNameDuplicated = !this.checkIfNameIsUnique(customFieldName)
+
+      if (isNameDuplicated) {
+        return dplan.notify.error(Translator.trans('error.custom_field.name.duplicate'))
+      }
+
+      let isAnyOptionNameDuplicated = false
+      customFieldOptions.forEach(optionName => {
+        isAnyOptionNameDuplicated = !this.checkIfOptionNameIsUnique(customFieldOptions, optionName)
+      })
+
+      if (isAnyOptionNameDuplicated) {
+        return dplan.notify.error(Translator.trans('error.custom_field.option_name.duplicate'))
+      }
+
+      return true
     }
   },
 

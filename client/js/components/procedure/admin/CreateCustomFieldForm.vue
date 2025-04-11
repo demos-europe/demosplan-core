@@ -73,6 +73,11 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    handleSuccess: {
+      type: Boolean,
+      default: false
+    },
+
     isLoading: {
       type: Boolean,
       default: false
@@ -95,6 +100,17 @@ export default {
     }
   },
 
+  watch: {
+    handleSuccess: {
+      handler (newVal) {
+        if (newVal) {
+          this.onSuccess()
+        }
+      },
+      immediate: true
+    }
+  },
+
   methods: {
     close () {
       this.isOpen = false
@@ -108,6 +124,9 @@ export default {
 
     handleSave () {
       this.$emit('save', this.customField)
+    },
+
+    onSuccess () {
       this.reset()
       this.close()
     },
@@ -119,6 +138,7 @@ export default {
     reset () {
       this.customField.name = ''
       this.customField.description = ''
+      console.log('after reset', this.customField)
     }
   }
 }
