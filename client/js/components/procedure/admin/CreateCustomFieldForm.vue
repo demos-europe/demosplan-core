@@ -4,7 +4,7 @@
       v-if="!isOpen"
       class="text-right mb-4">
       <dp-button
-        data-cy="segmentFields:addField"
+        data-cy="customFields:addField"
         @click="open"
         :text="Translator.trans('field.add')" />
     </div>
@@ -41,7 +41,7 @@
 
         <dp-button-row
           :busy="isLoading"
-          data-cy="segmentFields:addNewField"
+          data-cy="customFields:addNewField"
           primary
           secondary
           @primary-action="dpValidateAction('createCustomFieldForm', () => handleSave(), false)"
