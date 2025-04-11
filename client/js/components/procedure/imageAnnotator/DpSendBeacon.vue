@@ -29,7 +29,7 @@ export default {
   },
 
   render () {
-    return this
+    return null
   }
 }
 </script>
