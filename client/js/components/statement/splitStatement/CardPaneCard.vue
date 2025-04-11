@@ -12,7 +12,11 @@
     class="card space-stack-xs"
     :class="{ 'highlighted': isHighlighted }"
     :style="{ top: offsetTop, left: (position * 5) + 'px', 'margin-top': (position * 5) + 'px' }"
-    :id="'tag_' + segment.id">
+    :id="'tag_' + segment.id"
+    @focusin="$emit('focusin')"
+    @focusout="$emit('focusout')"
+    @mouseenter="$emit('mouseenter')"
+    @mouseleave="$emit('mouseleave')">
     <div class="u-pr-0_25">
       <i
         :title="Translator.trans('tags')"
@@ -53,10 +57,16 @@
       </span>
     </p>
 
-    <dp-button-icon
-      icon="fa-pencil"
+    <dp-button
+      :class="{ 'mr-1': isFocused }"
+      hide-text
+      icon="edit"
       :text="Translator.trans('segment.edit')"
-      @click="$emit('edit-segment', segment.id)" />
+      variant="subtle"
+      @blur="isFocused = false"
+      @click="$emit('segment:edit', segment.id)"
+      @focus="isFocused = !isMouseEvent"
+      @mousedown="isMouseEvent = true" />
     <addon-wrapper
       :addon-props="{
         class: 'mt-1',
@@ -65,16 +75,22 @@
       class="inline-block"
       hook-name="split.statement.buttons"
       @segment:confirm="$emit('segment:confirm', segment.id)" />
-    <dp-button-icon
-      icon="fa-trash"
+    <dp-button
+      :class="{ 'ml-1': isFocused }"
+      hide-text
+      icon="delete"
       :text="Translator.trans('selection.tags.discard')"
-      @click="$emit('delete-segment', segment.id)" />
+      variant="subtle"
+      @blur="isFocused = false"
+      @click="$emit('segment:delete', segment.id)"
+      @focus="isFocused = !isMouseEvent"
+      @mousedown="isMouseEvent = true" />
   </div>
 </template>
 
 <script>
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
-import { DpButtonIcon } from '@demos-europe/demosplan-ui'
+import { DpButton } from '@demos-europe/demosplan-ui'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -82,7 +98,7 @@ export default {
 
   components: {
     AddonWrapper,
-    DpButtonIcon
+    DpButton
   },
 
   props: {
@@ -103,14 +119,20 @@ export default {
   },
 
   emits: [
-    'check-card-overlap',
-    'delete-segment',
-    'edit-segment',
-    'segment:confirm'
+    'card:checkOverlap',
+    'focusin',
+    'focusout',
+    'mouseenter',
+    'mouseleave',
+    'segment:confirm',
+    'segment:delete',
+    'segment:edit'
   ],
 
   data () {
     return {
+      isFocused: false,
+      isMouseEvent: false,
       offsetTop: 0,
       position: 0
     }
@@ -151,7 +173,7 @@ export default {
         this.offsetTop = segmentOffset - mainOffset + 'px'
       }
 
-      this.$emit('check-card-overlap')
+      this.$emit('card:checkOverlap')
     }
   },
 
@@ -181,7 +203,7 @@ export default {
          * between segmentation-editor container and fixed header.
          */
         this.offsetTop = Math.abs(parent) + this.offset - 24 + 'px'
-        this.$emit('check-card-overlap')
+        this.$emit('card:checkOverlap')
       } else {
         this.calculateCardPosition()
       }
