@@ -12,9 +12,9 @@
 </template>
 
 <script>
-import { shallowRef } from 'vue'
-import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import * as demosplanUi from '@demos-europe/demosplan-ui'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
+import { shallowRef } from 'vue'
 
 export default {
   name: 'AddonWrapper',

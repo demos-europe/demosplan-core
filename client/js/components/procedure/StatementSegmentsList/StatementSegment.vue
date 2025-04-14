@@ -382,8 +382,8 @@ import {
   Tooltip,
   VPopover
 } from '@demos-europe/demosplan-ui'
-import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent, shallowRef } from 'vue'
+import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
