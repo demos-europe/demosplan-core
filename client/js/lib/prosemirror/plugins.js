@@ -342,6 +342,7 @@ const rangeCreator = (pluginKey, rangeEditingKey) => {
     const { selection } = state
     const { empty, from, to, $anchor, $head } = selection
 
+    /** If no text is selected, clean up any existing tooltip and exit early to avoid unnecessary processing */
     if (empty) {
       tippy?.destroy()
       tippy = null
