@@ -360,12 +360,13 @@ const rangeCreator = (pluginKey, rangeEditingKey) => {
       Object.values(existingRanges).forEach(({ from, to }) => positionsCovered.push(...range(from, to)))
       const isFullyCovered = isSuperset(new Set(positionsCovered), selectedPositions)
 
+      tippy?.destroy()
+
       if (isFullyCovered) {
-        tippy?.destroy()
         tippy = null
         return
       }
-      tippy?.destroy()
+
       tippy = createCreatorMenu(view, $anchor.pos, $head.pos)
     }
   }
