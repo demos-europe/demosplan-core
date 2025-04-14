@@ -354,11 +354,11 @@ const rangeCreator = (pluginKey, rangeEditingKey) => {
 
     if (hasClickLocationChanged) {
       const existingRanges = rangeEditingKey.getState(state)
-      let positionsCovered = []
-      Object.values(existingRanges).forEach(({ from, to }) => positionsCovered.push(...range(from, to)))
       const selectedPositions = new Set(range(from, to))
-      positionsCovered = new Set(positionsCovered)
-      const isFullyCovered = isSuperset(positionsCovered, selectedPositions)
+      let positionsCovered = []
+      
+      Object.values(existingRanges).forEach(({ from, to }) => positionsCovered.push(...range(from, to)))
+      const isFullyCovered = isSuperset(new Set(positionsCovered), selectedPositions)
 
       if (isFullyCovered) {
         tippy?.destroy()
