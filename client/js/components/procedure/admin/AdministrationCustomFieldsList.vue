@@ -12,54 +12,54 @@
       :handle-success="isSuccess"
       :is-loading="isLoading"
       @save="customFieldData => saveNewField(customFieldData)">
-        <div>
-          <dp-label
-            class="mb-1"
-            required
-            :text="Translator.trans('options')" />
-          <dp-input
-            id="newFieldOption:1"
-            class="mb-2 w-[calc(100%-26px)]"
-            data-cy="customFields:newFieldOption1"
-            v-model="newFieldOptions[0]"
-            maxlength="250"
-            required />
-          <dp-input
-            id="newFieldOption:2"
-            class="mb-2 w-[calc(100%-26px)]"
-            data-cy="customFields:newFieldOption2"
-            v-model="newFieldOptions[1]"
-            maxlength="250"
-            required />
+      <div>
+        <dp-label
+          class="mb-1"
+          required
+          :text="Translator.trans('options')" />
+        <dp-input
+          id="newFieldOption:1"
+          class="mb-2 w-[calc(100%-26px)]"
+          data-cy="customFields:newFieldOption1"
+          v-model="newFieldOptions[0]"
+          maxlength="250"
+          required />
+        <dp-input
+          id="newFieldOption:2"
+          class="mb-2 w-[calc(100%-26px)]"
+          data-cy="customFields:newFieldOption2"
+          v-model="newFieldOptions[1]"
+          maxlength="250"
+          required />
 
-          <div
-            v-for="(option, idx) in additionalOptions"
-            :key="`option:${idx}`">
-            <div class="w-[calc(100%-26px)] inline-block mb-2">
-              <dp-input
-                v-model="newFieldOptions[idx + 2]"
-                :id="`option:${newFieldOptions[idx + 2]}`"
-                :data-cy="`customFields:newFieldOption${idx + 2}`"
-                maxlength="250" />
-            </div>
-            <dp-button
-              class="w-[20px] inline-block ml-1"
-              :data-cy="`customFields:removeOptionInput:${option}`"
-              hide-text
-              icon="x"
-              :text="Translator.trans('remove')"
-              variant="subtle"
-              @click="removeOptionInput(idx + 2)" />
+        <div
+          v-for="(option, idx) in additionalOptions"
+          :key="`option:${idx}`">
+          <div class="w-[calc(100%-26px)] inline-block mb-2">
+            <dp-input
+              v-model="newFieldOptions[idx + 2]"
+              :id="`option:${newFieldOptions[idx + 2]}`"
+              :data-cy="`customFields:newFieldOption${idx + 2}`"
+              maxlength="250" />
           </div>
-
           <dp-button
-            data-cy="customFields:addOption"
-            icon="plus"
+            class="w-[20px] inline-block ml-1"
+            :data-cy="`customFields:removeOptionInput:${option}`"
+            hide-text
+            icon="x"
+            :text="Translator.trans('remove')"
             variant="subtle"
-            :text="Translator.trans('option.add')"
-            @click="addOptionInput" />
+            @click="removeOptionInput(idx + 2)" />
         </div>
-  </create-custom-field-form>
+
+        <dp-button
+          data-cy="customFields:addOption"
+          icon="plus"
+          variant="subtle"
+          :text="Translator.trans('option.add')"
+          @click="addOptionInput" />
+      </div>
+    </create-custom-field-form>
 
     <dp-data-table
       v-if="!isInitiallyLoading"
