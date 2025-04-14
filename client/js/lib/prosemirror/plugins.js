@@ -355,13 +355,17 @@ const rangeCreator = (pluginKey, rangeEditingKey) => {
     if (hasClickLocationChanged) {
       const existingRanges = rangeEditingKey.getState(state)
       const selectedPositions = new Set(range(from, to))
-      let positionsCovered = []
-      
+      const positionsCovered = []
+
       Object.values(existingRanges).forEach(({ from, to }) => positionsCovered.push(...range(from, to)))
       const isFullyCovered = isSuperset(new Set(positionsCovered), selectedPositions)
 
       tippy?.destroy()
 
+      /**
+       * Prevent showing the tooltip if the user's selection is already fully covered by the selection before.
+       * This avoids redundant actions like trying to create a new selection inside an already selected area.
+       */
       if (isFullyCovered) {
         tippy = null
         return
