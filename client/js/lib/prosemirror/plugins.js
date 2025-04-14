@@ -345,6 +345,7 @@ const rangeCreator = (pluginKey, rangeEditingKey) => {
     if (empty) {
       tippy?.destroy()
       tippy = null
+
       return
     }
 
