@@ -150,11 +150,11 @@
                   v-tooltip="Translator.trans('segment.oracle.beta.tooltip')" />
               </div>
               <dp-tabs
-                v-if="allAddonsLoaded"
+                v-if="recommendationTabAddonsLoaded"
                 :active-id="activeId"
                 @change="handleTabChange">
                 <dp-tab
-                  v-for="addon in loadedAddons"
+                  v-for="addon in recommendationModalAddons"
                   :key="addon.options.id"
                   :id="addon.options.id"
                   :is-active="activeId === addon.options.id"
@@ -468,7 +468,6 @@ export default {
         segmentId: this.segment.id,
         procedureId: this.procedureId
       },
-      allAddonsLoaded: false,
       claimLoading: false,
       currentUserName: this.currentUserFirstName + ' ' + this.currentUserLastName,
       demosplanUi: shallowRef(demosplanUi),
@@ -476,7 +475,8 @@ export default {
       isEditing: false,
       isFullscreen: false,
       isHover: false,
-      loadedAddons: [],
+      recommendationModalAddons: [],
+      recommendationTabAddonsLoaded: false,
       refRecModal: 'recommendationModal',
       selectedAssignee: {},
       selectedPlace: { id: '', type: 'Place' },
@@ -528,11 +528,7 @@ export default {
     },
 
     hasRecommendationTabs () {
-      const recommendationTabs = ['TagRecommendationTab', 'OracleRecommendationTab']
-
-      return this.loadedAddons.some(addon =>
-        recommendationTabs.some(tab => addon.name.includes(tab))
-      )
+      return this.recommendationModalAddons.length > 0
     },
 
     places () {
@@ -953,9 +949,9 @@ export default {
         }
 
         this.activeId = (addons[0].options && addons[0].options.id) || ''
-        this.allAddonsLoaded = true
+        this.recommendationTabAddonsLoaded = true
 
-        this.loadedAddons = addons.map(addon => {
+        this.recommendationModalAddons = addons.map(addon => {
           const { name, options } = addon
 
           return {
