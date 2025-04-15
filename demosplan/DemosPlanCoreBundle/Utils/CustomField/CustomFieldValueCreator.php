@@ -28,36 +28,60 @@ class CustomFieldValueCreator extends CoreService
 
     public function createCustomFieldValue($fields, $sourceEntityClass, $sourceEntityId, $targetEntityClass, $targetEntityId): CustomFieldValue
     {
+        $customFieldConfiguration = $this->getCustomFieldConfiguration(
+            $sourceEntityClass,
+            $sourceEntityId,
+            $targetEntityClass
+        );
 
-        // Fetch the schema using the customFieldId
-        $customFieldConfiguration = $this->customFieldConfigurationRepository->findCustomFieldConfigurationByCriteria($sourceEntityClass, $sourceEntityId, $targetEntityClass);
+
+        $customField = $this->findCustomField($customFieldConfiguration, $fields['id']);
+
+        $this->validateCustomFieldValue($customField, $fields['value']);
+
+        return $this->buildCustomFieldValue($fields);
+    }
+
+    private function getCustomFieldConfiguration(
+        string $sourceEntityClass,
+        string $sourceEntityId,
+        string $targetEntityClass
+    ): CustomFieldConfiguration {
+        $customFieldConfiguration = $this->customFieldConfigurationRepository
+            ->findCustomFieldConfigurationByCriteria($sourceEntityClass, $sourceEntityId, $targetEntityClass);
 
         if (!$customFieldConfiguration) {
             throw new InvalidArgumentException('No custom field configuration found for CustomFieldId.');
         }
 
-        $customField = null;
-        foreach ($customFieldConfiguration->getConfiguration()->getCustomFieldsList() as $field) {
-            /** @var AbstractCustomField $customField */
-            if ($field->getId() === $fields['id']) {
-                $customField = $field;
-                break;
+        return $customFieldConfiguration;
+    }
+
+    private function findCustomField(CustomFieldConfiguration $configuration, string $customFieldId): AbstractCustomField
+    {
+        foreach ($configuration->getConfiguration()->getCustomFieldsList() as $field) {
+            if ($field->getId() === $customFieldId) {
+                return $field;
             }
         }
 
-        if (!$customField) {
-            throw new InvalidArgumentException(sprintf('Custom field with ID "%s" not found.', $fields['id']));
+        throw new InvalidArgumentException(sprintf('Custom field with ID "%s" not found.', $customFieldId));
+    }
+
+    private function validateCustomFieldValue(AbstractCustomField $customField, mixed $value): void
+    {
+        if (!$customField->isValueValid($value)) {
+            throw new InvalidArgumentException(sprintf(
+                'Value "%s" is not valid for custom field with ID "%s".',
+                $value,
+                $customField->getId()
+            ));
         }
+    }
 
-        //Validate that the value is compliant with the values accepted by customField
-        if (!$customField->isValueValid($fields['value'])) {
-            throw new InvalidArgumentException(sprintf('Value "%s" is not valid for custom field with ID "%s".', $fields['value'], $fields['id']));
-        }
-
-
+    private function buildCustomFieldValue(array $fields): CustomFieldValue
+    {
         $customFieldValue = new CustomFieldValue();
-        //Validate if ID corresponds to customField configuration
-        //Validate if value corresponds to customField configuration
         $customFieldValue->setId($fields['id']);
         $customFieldValue->setValue($fields['value']);
 
