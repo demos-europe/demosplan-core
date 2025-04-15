@@ -13,7 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
@@ -24,9 +27,11 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\PropertyConfig\Builder\PropertyConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use Elastica\Index;
 
 /**
@@ -189,7 +194,27 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         }
 
         if ($this->currentUser->hasPermission('area_admin_custom_fields')) {
-            $properties[] =  $this->createAttribute($this->customFields)->readable(true);
+            $properties[] =  $this->createAttribute($this->customFields)
+                ->setReadableByCallable(static fn (Segment $segment): ?array => $segment->getCustomFields()->toJson())
+                ->addUpdateBehavior(new CallbackAttributeSetBehaviorFactory([],  function (Segment $segment, array $customFields): array {
+                        $customFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
+
+                        foreach ($customFields as $field) {
+                            if (isset($field['id'], $field['value'])) {
+                                $customFieldValue = new CustomFieldValue();
+                                $customFieldValue->setId($field['id']);
+                                $customFieldValue->setValue($field['value']);
+                                $customFieldList->addCustomFieldValue($customFieldValue);
+                            }
+                        }
+
+                        $customFieldList->toJson();
+
+                        $segment->setCustomFields($customFieldList->toJson());
+
+                    return [];
+                }, OptionalField::YES)
+                );
         }
 
         return array_map(

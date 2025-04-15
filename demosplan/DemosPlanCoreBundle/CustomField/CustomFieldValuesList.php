@@ -47,4 +47,10 @@ class CustomFieldValuesList
     {
         return $this->customFieldValues;
     }
+
+    public function addCustomFieldValue(CustomFieldValue $customFieldValue): void
+    {
+        // If no matching ID is found, add the new custom field value
+        $this->customFieldValues[] = $customFieldValue;
+    }
 }
