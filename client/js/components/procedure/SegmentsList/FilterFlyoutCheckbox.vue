@@ -73,6 +73,10 @@ export default {
     }
   },
 
+  emits: [
+    'change'
+  ],
+
   methods: {
     toggle () {
       this.$emit('change', !this.checked, this.option)

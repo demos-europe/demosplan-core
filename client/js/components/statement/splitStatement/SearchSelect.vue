@@ -72,6 +72,10 @@ export default {
     }
   },
 
+  emits: [
+    'open-create-form'
+  ],
+
   computed: {
     ...mapGetters('SplitStatement', {
       availableTags: 'availableTags',

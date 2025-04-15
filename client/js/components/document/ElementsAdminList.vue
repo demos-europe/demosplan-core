@@ -342,7 +342,7 @@ export default {
       }
 
       // Do an optimistic FE update, so there is no lag until item is displayed in new position
-      this.moveElementInList({ indexToMoveFrom: oldIndex, indexToMoveTo: newIndex})
+      this.moveElementInList({ indexToMoveFrom: oldIndex, indexToMoveTo: newIndex })
 
       // Find the element that is directly following the moved element (only folders, no files)
       const nextSibling = this.treeData.filter(node => node.type === 'Elements')[newIndex + 1]
@@ -354,7 +354,7 @@ export default {
       dpRpc('planningCategoryList.reorder', {
         elementId: id,
         newIndex: newIndex === 0 ? newIndex : index,
-        parentId: parentId
+        parentId
       })
         .then(response => {
           /*
@@ -385,7 +385,7 @@ export default {
         })
         .catch(error => {
           // Undo optimistic FE update
-          this.moveElementInList({indexToMoveFrom: newIndex, indexToMoveTo: oldIndex})
+          this.moveElementInList({ indexToMoveFrom: newIndex, indexToMoveTo: oldIndex })
 
           console.error(error)
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
@@ -439,7 +439,7 @@ export default {
               ...this.elements[el.id],
               attributes: {
                 ...this.elements[el.id].attributes,
-                idx: idx,
+                idx,
                 parentId: updatedSort.nodeId
               }
             })

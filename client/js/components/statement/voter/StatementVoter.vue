@@ -279,6 +279,11 @@ export default {
     }
   },
 
+  emits: [
+    'updateAnonymVotes',
+    'updateVoter'
+  ],
+
   data () {
     return {
       formFields: {

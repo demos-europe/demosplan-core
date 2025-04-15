@@ -7,8 +7,6 @@
  * All rights reserved
  */
 
-import { del } from 'vue'
-
 const Voter = {
   namespaced: true,
 

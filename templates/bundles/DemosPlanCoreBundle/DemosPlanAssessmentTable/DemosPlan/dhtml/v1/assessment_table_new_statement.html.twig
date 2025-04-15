@@ -14,7 +14,12 @@
     } %}
 
     {% set form_action = templateVars.formAction|default(path("DemosPlan_statement_new_submitted", {'procedureId': templateVars.table.procedure.ident})) %}
-    {% set abort_path = templateVars.abortPath|default(path("dplan_assessmenttable_view_original_table", { 'procedureId': templateVars.table.procedure.ident })) %}
+    {% if hasPermission('area_statement_data_input_orga') %}
+        {% set abort_path = path('DemosPlan_statement_orga_list', { 'procedureId': templateVars.table.procedure.ident }) %}
+    {% else %}
+        {% set abort_path = templateVars.abortPath|default(path('dplan_assessmenttable_view_original_table', { 'procedureId': templateVars.table.procedure.ident })) %}
+    {% endif %}
+
     {% set user = currentUser %}
     {% set username = user.firstName ~ ' ' ~ user.lastName %}
 
@@ -311,17 +316,19 @@
 
                     <label
                         v-if="hasPermission('field_procedure_elements')"
+                        for="element"
                         class="o-form__label">
                         {{ "plandocument"|trans }}
                     </label>
                     <dp-multiselect
                         v-model="values.element"
+                        id="element"
                         class="o-form__control-wrapper u-mb-0_75"
                         label="title"
                         data-cy="submitterForm:elements"
                         :options="elements"
                         track-by="id"
-                        @input="checkForParagraphsAndFiles()">
+                        @input="selectedElement => checkForParagraphsAndFiles(selectedElement)">
                         <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.title }}{% endverbatim %}
                         </template>
@@ -330,11 +337,14 @@
 
                     {% if hasPermission('field_procedure_paragraphs') %}
                         <template v-if="elementHasParagraphs">
-                            <label class="o-form__label">
+                            <label
+                                class="o-form__label"
+                                for="paragraph">
                                 {{ "paragraph"|trans }}*
                             </label>
                             <dp-multiselect
                                 v-model="values.paragraph"
+                                id="paragraph"
                                 class="o-form__control-wrapper u-mb-0_75"
                                 label="title"
                                 data-cy="submitterForm:paragraph"
@@ -351,11 +361,14 @@
 
                     {% if hasPermission('field_procedure_documents') %}
                         <template v-if="elementHasFiles">
-                            <label class="o-form__label">
+                            <label
+                                class="o-form__label"
+                                for="file">
                                 {{ "file"|trans }}*
                             </label>
                             <dp-multiselect
                                 v-model="values.document"
+                                id="file"
                                 class="o-form__control-wrapper u-mb-0_75"
                                 label="title"
                                 data-cy="submitterForm:document"
@@ -522,7 +535,6 @@
                             data-cy="submitterForm:statementText"
                             required
                             :toolbar-items="{
-                                obscure: hasPermission('feature_obscure_text'),
                                 mark: true,
                                 strikethrough: true
                             }"
