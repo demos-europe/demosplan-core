@@ -6,7 +6,7 @@ describe('ParticipationPhases', () => {
 
   beforeEach(() => {
     wrapper = shallowMountWithGlobalMocks(ParticipationPhases, {
-      propsData: {
+      props: {
         autoswitchHint: 'Here comes a tooltip Hint',
         fieldName: 'some_name',
         helpText: 'Some Help Text',

@@ -39,7 +39,8 @@ class SegmentsExportController extends BaseController
     private const OUTPUT_DESTINATION = 'php://output';
     private const TABLE_HEADERS_PARAMETER = 'tableHeaders';
     private const FILE_NAME_TEMPLATE_PARAMETER = 'fileNameTemplate';
-    private const CENSOR_PARAMETER = 'isCensored';
+    private const CITIZEN_CENSOR_PARAMETER = 'isCitizenDataCensored';
+    private const INSTITUTION_CENSOR_PARAMETER = 'isInstitutionDataCensored';
     private const OBSCURE_PARAMETER = 'isObscured';
 
     public function __construct(
@@ -70,13 +71,22 @@ class SegmentsExportController extends BaseController
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->all(self::TABLE_HEADERS_PARAMETER);
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '');
-        $isCensored = $this->getBooleanQueryParameter(self::CENSOR_PARAMETER);
         $isObscure = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
+        $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
+        $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
+
         $response = new StreamedResponse(
-            static function () use ($procedure, $statement, $exporter, $tableHeaders, $isCensored, $isObscure) {
-                $exportedDoc = $exporter->export($procedure, $statement, $tableHeaders, $isCensored, $isObscure);
+            static function () use ($procedure, $statement, $exporter, $tableHeaders, $censorCitizenData, $censorInstitutionData, $isObscure) {
+                $exportedDoc = $exporter->export(
+                    $procedure,
+                    $statement,
+                    $tableHeaders,
+                    $censorCitizenData,
+                    $censorInstitutionData,
+                    $isObscure
+                );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
@@ -109,15 +119,35 @@ class SegmentsExportController extends BaseController
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
-            $requestHandler->getObjectsByQueryParams($this->requestStack->getCurrentRequest()->query, $statementResourceType)->getList()
+            $requestHandler->getObjectsByQueryParams(
+                $this->requestStack->getCurrentRequest()->query,
+                $statementResourceType
+            )->getList()
         );
 
-        $censorParameter = $this->getBooleanQueryParameter(self::CENSOR_PARAMETER);
+        $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
+        $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
+        // geschwärzt
         $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
 
         $response = new StreamedResponse(
-            static function () use ($tableHeaders, $procedure, $statementEntities, $exporter, $censorParameter, $obscureParameter) {
-                $exportedDoc = $exporter->exportAll($tableHeaders, $procedure, $censorParameter, $obscureParameter, ...$statementEntities);
+            static function () use (
+                $tableHeaders,
+                $procedure,
+                $statementEntities,
+                $exporter,
+                $censorCitizenData,
+                $censorInstitutionData,
+                $obscureParameter
+            ) {
+                $exportedDoc = $exporter->exportAll(
+                    $tableHeaders,
+                    $procedure,
+                    $obscureParameter,
+                    $censorCitizenData,
+                    $censorInstitutionData,
+                    ...$statementEntities
+                );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
@@ -199,7 +229,8 @@ class SegmentsExportController extends BaseController
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->all(self::TABLE_HEADERS_PARAMETER);
         $fileNameTemplate = $this->requestStack->getCurrentRequest()->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '');
 
-        $censorParameter = $this->getBooleanQueryParameter(self::CENSOR_PARAMETER);
+        $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
+        $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
@@ -213,17 +244,44 @@ class SegmentsExportController extends BaseController
         );
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
-        $statements = $exporter->mapStatementsToPathInZip($statements, $censorParameter, $fileNameTemplate);
+        $statements = $exporter->mapStatementsToPathInZip(
+            $statements,
+            $censorCitizenData,
+            $censorInstitutionData,
+            $fileNameTemplate
+        );
 
         return $zipExportService->buildZipStreamResponse(
             $exporter->getSynopseFileName($procedure, 'zip'),
-            static function (ZipStream $zipStream) use ($statements, $exporter, $zipExportService, $procedure, $tableHeaders, $censorParameter, $obscureParameter): void {
+            static function (ZipStream $zipStream) use (
+                $statements,
+                $exporter,
+                $zipExportService,
+                $procedure,
+                $tableHeaders,
+                $censorCitizenData,
+                $censorInstitutionData,
+                $obscureParameter
+            ): void {
                 array_map(
-                    static function (
-                        Statement $statement,
-                        string $filePathInZip,
-                    ) use ($exporter, $zipExportService, $zipStream, $procedure, $tableHeaders, $censorParameter, $obscureParameter): void {
-                        $docx = $exporter->exportStatementSegmentsInSeparateDocx($statement, $procedure, $tableHeaders, $censorParameter, $obscureParameter);
+                    static function (Statement $statement, string $filePathInZip) use (
+                        $exporter,
+                        $zipExportService,
+                        $zipStream,
+                        $procedure,
+                        $tableHeaders,
+                        $censorCitizenData,
+                        $censorInstitutionData,
+                        $obscureParameter
+                    ): void {
+                        $docx = $exporter->exportStatementSegmentsInSeparateDocx(
+                            $statement,
+                            $procedure,
+                            $tableHeaders,
+                            $censorCitizenData,
+                            $censorInstitutionData,
+                            $obscureParameter
+                        );
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(
                             $writer,

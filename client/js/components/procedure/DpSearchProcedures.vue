@@ -25,30 +25,19 @@
     <div class="u-mt-0_75">
       <fieldset class="u-pb-0 u-mb u-1-of-3 layout__item u-pl-0">
         <div class="u-mb-0_5">
-          <input
-            type="radio"
+          <dp-radio
             id="searchall"
             name="searchselection"
             value="all"
-            v-model="searchIn">
-          <label
-            for="searchall"
-            class="inline">
-            {{ Translator.trans('search.all.procedures') }}
-          </label>
+            v-model="searchIn"
+            :label="{ text: Translator.trans('search.all.procedures') }" />
         </div>
-        <input
-          type="radio"
-          class=""
+        <dp-radio
           id="searchselected"
           name="searchselection"
           value="selected"
-          v-model="searchIn">
-        <label
-          for="searchselected"
-          class="inline align-text-bottom">
-          {{ Translator.trans('select.procedures.search') }}
-        </label>
+          v-model="searchIn"
+          :label="{ text: Translator.trans('select.procedures.search') }" />
       </fieldset><!--
    --><div
         class="layout__item u-2-of-3 u-pl-0"
@@ -84,7 +73,7 @@
 </template>
 
 <script>
-import { CleanHtml, dpApi, DpButton, DpInput, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { CleanHtml, dpApi, DpButton, DpInput, DpMultiselect, DpRadio } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpSearchProcedures',
@@ -92,7 +81,8 @@ export default {
   components: {
     DpButton,
     DpMultiselect,
-    DpInput
+    DpInput,
+    DpRadio
   },
 
   directives: {

@@ -133,6 +133,12 @@ export default {
     }
   },
 
+  emits: [
+    'field:input',
+    'field:save',
+    'toggleEditing'
+  ],
+
   data () {
     return {
       selected: '',

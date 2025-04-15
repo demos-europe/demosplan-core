@@ -46,6 +46,10 @@ export default {
     }
   },
 
+  emits: [
+    'set-label'
+  ],
+
   data () {
     return {
       selectedLabel: ''

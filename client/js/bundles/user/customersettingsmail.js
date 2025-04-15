@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for customer_settings_update_mail.html.twig
  */
-import { DpEditor, DpLabel, DpInput, dpValidate, } from '@demos-europe/demosplan-ui'
+import { DpEditor, DpInput, DpLabel, dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

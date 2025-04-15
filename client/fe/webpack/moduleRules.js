@@ -102,7 +102,7 @@ const moduleRules =
     {
       test: /\.css$/,
       use: [MiniCssExtractPlugin.loader],
-      exclude: [ /client\/css\/(tailwind|preflight)\.css/ ] // Compiling and Purging happens in Tailwind config.
+      exclude: [/client\/css\/(tailwind|preflight)\.css/] // Compiling and Purging happens in Tailwind config.
     },
     {
       test: /\.s?css$/,

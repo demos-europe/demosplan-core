@@ -160,10 +160,6 @@ export default {
     'projectName'
   ],
 
-  emits: [
-    'user-update'
-  ],
-
   props: {
     user: {
       type: Object,
@@ -200,6 +196,10 @@ export default {
       default: () => ''
     }
   },
+
+  emits: [
+    'user-update'
+  ],
 
   data () {
     return {
@@ -286,6 +286,15 @@ export default {
 
     noOrgaSelected () {
       return Object.values(this.currentUserOrga.departments).length === 0
+    }
+  },
+
+  watch: {
+    user: {
+      handler () {
+        this.localUser = JSON.parse(JSON.stringify(this.user))
+      },
+      deep: true
     }
   },
 

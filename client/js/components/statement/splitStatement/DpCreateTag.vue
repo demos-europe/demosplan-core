@@ -98,6 +98,10 @@ export default {
 
   mixins: [dpValidateMixin],
 
+  emits: [
+    'close-create-form'
+  ],
+
   data () {
     return {
       showSelect: true,

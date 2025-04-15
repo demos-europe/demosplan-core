@@ -248,7 +248,7 @@ export default {
       const element = this.places.splice(oldIndex, 1)[0]
 
       this.places.splice(newIndex, 0, element)
-      this.updateSortOrder({ id: element.id, newIndex: newIndex })
+      this.updateSortOrder({ id: element.id, newIndex })
     },
 
     editPlace (rowData) {
