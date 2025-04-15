@@ -229,7 +229,7 @@ export default {
         id: this.procedureId,
         fields: {
           AdminProcedure: [
-            'segmentCustomFieldsTemplate'
+            'segmentCustomFields'
           ].join(),
           CustomField: [
             'name',
@@ -237,7 +237,7 @@ export default {
             'options'
           ].join()
         },
-        include: ['segmentCustomFieldsTemplate'].join()
+        include: ['segmentCustomFields'].join()
       }
 
       this.getAdminProcedureWithFields(payload)
