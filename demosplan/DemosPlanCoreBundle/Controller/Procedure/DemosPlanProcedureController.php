@@ -147,14 +147,14 @@ class DemosPlanProcedureController extends BaseController
     protected $procedureServiceOutput;
 
     public function __construct(
-        private readonly AssessmentHandler $assessmentHandler,
-        private readonly Environment $twig,
-        private readonly PermissionsInterface $permissions,
-        private readonly ProcedureHandler $procedureHandler,
-        ProcedureService $procedureService,
-        ProcedureServiceOutput $procedureServiceOutput,
+        private readonly AssessmentHandler         $assessmentHandler,
+        private readonly Environment               $twig,
+        private readonly PermissionsInterface      $permissions,
+        private readonly ProcedureHandler          $procedureHandler,
+        ProcedureService                           $procedureService,
+        ProcedureServiceOutput                     $procedureServiceOutput,
         private readonly ProcedureTypeResourceType $procedureTypeResourceType,
-        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly SortMethodFactory         $sortMethodFactory, private readonly CurrentProcedureService $currentProcedureService,
     ) {
         $this->procedureServiceOutput = $procedureServiceOutput;
         $this->procedureService = $procedureService;
@@ -2448,9 +2448,10 @@ class DemosPlanProcedureController extends BaseController
     #[Route(name: 'DemosPlan_procedure_template_custom_fields_list', path: '/verfahren/blaupause/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
     public function showProcedureCustomFieldsAction(string $procedureId)
     {
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_custom_fields_list.html.twig', [
-            'procedureId' => $procedureId,
-        ]);
+        $templateVars['procedureTemplate'] = $this->currentProcedureService->getProcedure()?->getMaster() ?? false;
+        $templateVars['procedureId'] = $procedureId;
+
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_custom_fields_list.html.twig', $templateVars);
     }
 
     /**

@@ -1903,7 +1903,7 @@ feature_segments_import_excel:
     expose: true
     label: 'Generate segments (with corresponding statements) from uploaded excel file'
     loginRequired: true
-    parent: area_statement_segmentation
+    parent: area_statement_segmentation, area_admin_import
 feature_segments_of_statement_list:
     description: |-
         The list will contain segments of a specific statement only. Additional
@@ -2317,7 +2317,7 @@ feature_statements_import_excel:
     expose: true
     label: 'Generate statements from uploaded excel file'
     loginRequired: true
-    parent: area_statements
+    parent: area_statements, area_admin_import
 feature_statements_participation_import_excel:
     description: |-
         Allows the user to upload a spreadsheet workbook file (e.g. an Excel-file) containing statements.
