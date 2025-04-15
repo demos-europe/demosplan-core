@@ -142,6 +142,7 @@
       <dp-input
         v-for="(element, index) in generalElements(idx)"
         v-bind="element"
+        v-model="submitterData[element.name]"
         class="layout__item u-1-of-2 u-mb-0_75"
         :key="`${element.id}_${index}`" />
     </div>
