@@ -26,7 +26,7 @@ initialize(components).then(() => {
 
     deleteButton.addEventListener('click', () => {
       if (checkboxes.some(checkbox => checkbox.checked) &&
-        confirm("{{ 'check.entries.marked.delete'|trans }}")) {
+        confirm(Translator.trans('check.entries.marked.delete'))) {
         deleteButton.closest('form').submit()
       }
     })
