@@ -121,9 +121,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertEquals(0, strlen($procedureList['search']));
         $procedureToTest = $procedureList['result'][0];
         $this->checkId($procedureToTest['ident']);
-        static::assertArrayHasKey('externalName', $procedureToTest);
-        static::assertArrayHasKey('settings', $procedureToTest);
-        static::assertArrayHasKey('boundingBox', $procedureToTest['settings']);
+        $this->checkMetaData($procedureToTest);
         static::assertArrayHasKey('planningOffices', $procedureToTest);
         static::assertCount(1, $procedureToTest['planningOffices']);
         static::assertArrayHasKey('nameLegal', $procedureToTest['planningOffices'][0]);
@@ -253,9 +251,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertEquals(0, strlen($procedureList['search']));
         $procedureToTest = $procedureList['result'][0];
         $this->checkId($procedureToTest['ident']);
-        static::assertArrayHasKey('externalName', $procedureToTest);
-        static::assertArrayHasKey('settings', $procedureToTest);
-        static::assertArrayHasKey('boundingBox', $procedureToTest['settings']);
+        $this->checkMetaData($procedureToTest);
     }
 
     public function testGetProcedureAdminListSearch(): void
@@ -277,9 +273,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertEquals(3, strlen($procedureList['search']));
         $procedureToTest = $procedureList['result'][0];
         $this->checkId($procedureToTest['ident']);
-        static::assertArrayHasKey('externalName', $procedureToTest);
-        static::assertArrayHasKey('settings', $procedureToTest);
-        static::assertArrayHasKey('boundingBox', $procedureToTest['settings']);
+        $this->checkMetaData($procedureToTest);
     }
 
     public function testGetProcedureFullList(): void
@@ -292,9 +286,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertEquals(0, strlen($procedureList['search']));
         $procedureToTest = array_pop($procedureList['result']);
         $this->checkId($procedureToTest['ident']);
-        static::assertArrayHasKey('externalName', $procedureToTest);
-        static::assertArrayHasKey('settings', $procedureToTest);
-        static::assertArrayHasKey('boundingBox', $procedureToTest['settings']);
+        $this->checkMetaData($procedureToTest);
     }
 
     public function testGetProcedurePublicList(): void
@@ -313,9 +305,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertEquals(0, strlen($procedureList['search']));
         $procedureToTest = $procedureList['result'][0];
         $this->checkId($procedureToTest['ident']);
-        static::assertArrayHasKey('externalName', $procedureToTest);
-        static::assertArrayHasKey('settings', $procedureToTest);
-        static::assertArrayHasKey('boundingBox', $procedureToTest['settings']);
+        $this->checkMetaData($procedureToTest);
     }
 
     public function testGetProcedurePublicListFilter(): void
@@ -3589,5 +3579,17 @@ Email:',
         static::assertEquals($oldPlanPDF, $messageArray['planDrawFile']['old']);
         static::assertEquals($procedure->getSettings()->getPlanDrawPDF(), $messageArray['planDrawingExplanation']['new']);
         static::assertEquals($oldPlanDrawPDF, $messageArray['planDrawingExplanation']['old']);
+    }
+
+    /**
+     * @param mixed $procedureToTest
+     *
+     * @return void
+     */
+    private function checkMetaData(mixed $procedureToTest): void
+    {
+        static::assertArrayHasKey('externalName', $procedureToTest);
+        static::assertArrayHasKey('settings', $procedureToTest);
+        static::assertArrayHasKey('boundingBox', $procedureToTest['settings']);
     }
 }
