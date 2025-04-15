@@ -267,9 +267,7 @@ class ProcedureServiceTest extends FunctionalTestCase
             false
         );
         $this->checkListResultStructure($procedureList);
-        static::assertArrayHasKey('total', $procedureList);
-        static::assertEquals(1, $procedureList['total']);
-        static::assertIsString($procedureList['search']);
+        $this->checkProcedureListESResult($procedureList);
         static::assertEquals(3, strlen($procedureList['search']));
         $procedureToTest = $procedureList['result'][0];
         $this->checkId($procedureToTest['ident']);
@@ -299,9 +297,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         ];
         $procedureList = $this->sut->getPublicList($filters, null, null);
         $this->checkListResultStructure($procedureList);
-        static::assertArrayHasKey('total', $procedureList);
-        static::assertEquals(1, $procedureList['total']);
-        static::assertIsString($procedureList['search']);
+        $this->checkProcedureListESResult($procedureList);
         static::assertEquals(0, strlen($procedureList['search']));
         $procedureToTest = $procedureList['result'][0];
         $this->checkId($procedureToTest['ident']);
@@ -319,9 +315,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         ];
         $procedureList = $this->sut->getPublicList($filters, null, null);
         $this->checkListResultStructure($procedureList);
-        static::assertArrayHasKey('total', $procedureList);
-        static::assertEquals(1, $procedureList['total']);
-        static::assertIsString($procedureList['search']);
+        $this->checkProcedureListESResult($procedureList);
         static::assertEquals(0, strlen($procedureList['search']));
 
         $filters = [
@@ -331,9 +325,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         ];
         $procedureList = $this->sut->getPublicList($filters, null, null);
         $this->checkListResultStructure($procedureList);
-        static::assertArrayHasKey('total', $procedureList);
-        static::assertEquals(1, $procedureList['total']);
-        static::assertIsString($procedureList['search']);
+        $this->checkProcedureListESResult($procedureList);
         static::assertEquals(0, strlen($procedureList['search']));
 
         $filters = [
@@ -355,9 +347,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         ];
         $procedureList = $this->sut->getPublicList($filters, null, null);
         $this->checkListResultStructure($procedureList);
-        static::assertArrayHasKey('total', $procedureList);
-        static::assertEquals(1, $procedureList['total']);
-        static::assertIsString($procedureList['search']);
+        $this->checkProcedureListESResult($procedureList);
         static::assertEquals(0, strlen($procedureList['search']));
 
         $filters = [
@@ -367,9 +357,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         ];
         $procedureList = $this->sut->getPublicList($filters, null, null);
         $this->checkListResultStructure($procedureList);
-        static::assertArrayHasKey('total', $procedureList);
-        static::assertEquals(1, $procedureList['total']);
-        static::assertIsString($procedureList['search']);
+        $this->checkProcedureListESResult($procedureList);
         static::assertEquals(0, strlen($procedureList['search']));
     }
 
@@ -384,9 +372,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         $search = 'procedure';
         $procedureList = $this->sut->getPublicList($filters, $search, null);
         $this->checkListResultStructure($procedureList);
-        static::assertArrayHasKey('total', $procedureList);
-        static::assertEquals(1, $procedureList['total']);
-        static::assertIsString($procedureList['search']);
+        $this->checkProcedureListESResult($procedureList);
         static::assertEquals($search, $procedureList['search']);
 
         $search = 'not Existant';
@@ -400,17 +386,13 @@ class ProcedureServiceTest extends FunctionalTestCase
         $search = $this->testProcedure->getMunicipalCode();
         $procedureList = $this->sut->getPublicList($filters, $search, null);
         $this->checkListResultStructure($procedureList);
-        static::assertArrayHasKey('total', $procedureList);
-        static::assertEquals(1, $procedureList['total']);
-        static::assertIsString($procedureList['search']);
+        $this->checkProcedureListESResult($procedureList);
         static::assertEquals($search, $procedureList['search']);
 
         $search = 'location';
         $procedureList = $this->sut->getPublicList($filters, $search, null);
         $this->checkListResultStructure($procedureList);
-        static::assertArrayHasKey('total', $procedureList);
-        static::assertEquals(1, $procedureList['total']);
-        static::assertIsString($procedureList['search']);
+        $this->checkProcedureListESResult($procedureList);
         static::assertEquals($search, $procedureList['search']);
     }
 
@@ -3591,5 +3573,17 @@ Email:',
         static::assertArrayHasKey('externalName', $procedureToTest);
         static::assertArrayHasKey('settings', $procedureToTest);
         static::assertArrayHasKey('boundingBox', $procedureToTest['settings']);
+    }
+
+    /**
+     * @param array $procedureList
+     *
+     * @return void
+     */
+    private function checkProcedureListESResult(array $procedureList): void
+    {
+        static::assertArrayHasKey('total', $procedureList);
+        static::assertEquals(1, $procedureList['total']);
+        static::assertIsString($procedureList['search']);
     }
 }
