@@ -128,4 +128,22 @@ class CustomFieldConfiguration extends CoreEntity
         $this->configuration->setCustomFields($customFieldsList);
         $this->configuration = $this->configuration->toJson();
     }
+
+    public function setId($id): void
+    {
+        $this->id = $id;
+    }
+
+    public function setCreateDate($createDate): void
+    {
+        $this->createDate = $createDate;
+    }
+
+
+    public function setModifyDate($modifyDate): void
+    {
+        $this->modifyDate = $modifyDate;
+    }
+
+
 }

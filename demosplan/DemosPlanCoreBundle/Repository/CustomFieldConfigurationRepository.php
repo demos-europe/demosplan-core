@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use Exception;
 
 class CustomFieldConfigurationRepository extends CoreRepository
@@ -91,6 +92,23 @@ class CustomFieldConfigurationRepository extends CoreRepository
         } catch (Exception $e) {
             $this->logger->error('Update CustomFieldConfiguration failed Reason: ', [$e]);
             throw $e;
+        }
+    }
+
+    public function copy(string $sourceProcedureId, Procedure $newProcedure): void
+    {
+        $sourceCustomFields = $this->findCustomFieldConfigurationByCriteria( 'PROCEDURE_TEMPLATE', $sourceProcedureId, 'SEGMENT');
+
+        if (null !== $sourceCustomFields) {
+            $newCustomFieldsConfiguration = clone $sourceCustomFields;
+            $newCustomFieldsConfiguration->setId(null);
+            $newCustomFieldsConfiguration->setTemplateEntityId($newProcedure->getId());
+            $newCustomFieldsConfiguration->setTemplateEntityClass('PROCEDURE');
+            $newCustomFieldsConfiguration->setCreateDate(null);
+            $newCustomFieldsConfiguration->setModifyDate(null);
+            $newCustomFieldsConfiguration->setConfiguration($sourceCustomFields->getConfiguration()->toJson());
+
+            $this->add($newCustomFieldsConfiguration);
         }
     }
 }
