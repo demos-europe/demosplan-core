@@ -130,7 +130,7 @@
     "caniuse-lite": "^1.0.30001685",
     "chalk": "4.1.2",
     "cli-progress": "^3.12.0",
-    "commander": "^12.1.0",
+    "commander": "^13.1.0",
     "copy-webpack-plugin": "^12.0.2",
     "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
