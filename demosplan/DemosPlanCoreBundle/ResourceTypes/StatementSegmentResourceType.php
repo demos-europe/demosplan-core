@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\StoredQuery\QuerySegment;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\PropertyConfig\Builder\PropertyConfigBuilderInterface;
 use EDT\PathBuilding\End;
@@ -61,10 +62,10 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
     private $esType;
 
     public function __construct(
-        private readonly QuerySegment $esQuery,
-        JsonApiEsService $jsonApiEsService,
-        private readonly PlaceResourceType $placeResourceType,
-        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly QuerySegment             $esQuery,
+        JsonApiEsService                          $jsonApiEsService,
+        private readonly PlaceResourceType        $placeResourceType,
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator, private readonly CustomFieldValueCreator $customFieldValueCreator,
     ) {
         $this->esType = $jsonApiEsService->getElasticaTypeForTypeName(self::getName());
     }
@@ -201,9 +202,8 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
 
                         foreach ($customFields as $field) {
                             if (isset($field['id'], $field['value'])) {
-                                $customFieldValue = new CustomFieldValue();
-                                $customFieldValue->setId($field['id']);
-                                $customFieldValue->setValue($field['value']);
+
+                                $customFieldValue = $this->customFieldValueCreator->createCustomFieldValue($field);
                                 $customFieldList->addCustomFieldValue($customFieldValue);
                             }
                         }
