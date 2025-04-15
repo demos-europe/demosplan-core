@@ -4222,7 +4222,6 @@ warning.password.weak: "Ihr Passwort ist leicht zu erraten. Bitte ändern Sie es
 warning.phase.voting.not.possible: "In dieser Phase können keine {points} vergeben werden!"
 warning.privacy.confirm: "Bitte bestätigen Sie, dass Sie keine anderen Personen namentlich genannt oder beschrieben haben."
 warning.procedure.proposal.notfound: "Der Verfahrensvorschlag konnte nicht gefunden werden."
-warning.customer.procedure.template.can.not.be.deleted: "Die Plattform-Blaupause kann nicht gelöscht werden."
 warning.resistFingerPrinting: "Um alle Funktionen dieser Seite nutzen zu können, deaktivieren Sie in Ihrem Browser die Einstellung \"privacy.resistFingerprinting\" unter \"about:config\"."
 warning.search.query.invalid: "Folgende Zeichen haben eine Sonderfunktion und können deshalb nicht ohne Weiteres verwendet werden:<br /><br /><strong> . ? + * | &lbrace; &rbrace; [ ] ( ) \" \\ # @ & < > ~ </strong><br /><br />Sonderzeichen können aufgrund ihrer besonderen Funktion nicht gefunden werden.<br /><br />Wenn ein Sonderzeichen in Ihrer Suche enthalten ist, schreiben Sie \"\\\" vor das Zeichen.<br />Haben Sie z.B. ein \"?\" in Ihrer Suche, müssen Sie \"\\?\" eingeben."
 warning.segment.needLock.generic: "Dieser Abschnitt ist zur Zeit in Bearbeitung. Um ihn zu bearbeiten, müssen Sie den Abschnitt zunächst für sich beanspruchen."
