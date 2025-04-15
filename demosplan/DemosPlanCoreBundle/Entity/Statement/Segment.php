@@ -14,6 +14,8 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentCommentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -77,10 +79,18 @@ class Segment extends Statement implements SegmentInterface
     #[Assert\NotBlank(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, SegmentInterface::VALIDATION_GROUP_IMPORT])]
     private $place;
 
+    /**
+     * @var CustomFieldValuesList
+     *
+     * @ORM\Column(type="dplan.custom_fields_value", nullable=true)
+     */
+    private $customFields;
+
     public function __construct()
     {
         parent::__construct();
         $this->comments = new ArrayCollection();
+        $this->customFields = null;
     }
 
     public function getParentStatementOfSegment(): StatementInterface

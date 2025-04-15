@@ -46,6 +46,7 @@ use Elastica\Index;
  * @property-read TagResourceType $tags
  * @property-read PlaceResourceType $place
  * @property-read SegmentCommentResourceType $comments
+ * @property-read End $customFields
  */
 final class StatementSegmentResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
 {
@@ -185,6 +186,10 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         }
         if ($this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
             $recommendation->updatable();
+        }
+
+        if ($this->currentUser->hasPermission('area_admin_custom_fields')) {
+            $properties[] =  $this->createAttribute($this->customFields)->readable(true);
         }
 
         return array_map(
