@@ -590,7 +590,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     private $segmentPlaces;
 
-    protected CustomFieldConfiguration $customFieldConfiguration;
+    protected ?CustomFieldConfiguration $customFieldConfiguration = null;
 
     public function __construct()
     {
@@ -613,6 +613,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->segmentPlaces = new ArrayCollection();
         $this->phase = new ProcedurePhase();
         $this->publicParticipationPhase = new ProcedurePhase();
+        $this->customFieldConfiguration = null;
     }
 
     /**
