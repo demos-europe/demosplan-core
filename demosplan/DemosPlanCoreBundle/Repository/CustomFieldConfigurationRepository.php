@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -62,6 +63,17 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
 
         return $this->createCustomFieldConfiguration($sourceEntity, $sourceEntityId, $targetEntity);
+    }
+
+    public function findCustomFieldConfigurationById(string $id): ?CustomFieldInterface
+    {
+        try {
+            return $this->find($id);
+        } catch (Exception $e) {
+            $this->logger->warning('Error fetching CustomFieldConfiguration by ID: '.$e->getMessage());
+
+            return null;
+        }
     }
 
     private function createCustomFieldConfiguration(string $sourceEntity, string $sourceEntityId, string $targetEntity): CustomFieldConfiguration

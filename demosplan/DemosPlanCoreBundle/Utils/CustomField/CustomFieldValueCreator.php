@@ -12,9 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
+use demosplan\DemosPlanCoreBundle\CustomField\AbstractCustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 
@@ -24,8 +26,34 @@ class CustomFieldValueCreator extends CoreService
     {
     }
 
-    public function createCustomFieldValue($fields): CustomFieldValue
+    public function createCustomFieldValue($fields, $sourceEntityClass, $sourceEntityId, $targetEntityClass, $targetEntityId): CustomFieldValue
     {
+
+        // Fetch the schema using the customFieldId
+        $customFieldConfiguration = $this->customFieldConfigurationRepository->findCustomFieldConfigurationByCriteria($sourceEntityClass, $sourceEntityId, $targetEntityClass);
+
+        if (!$customFieldConfiguration) {
+            throw new InvalidArgumentException('No custom field configuration found for CustomFieldId.');
+        }
+
+        $customField = null;
+        foreach ($customFieldConfiguration->getConfiguration()->getCustomFieldsList() as $field) {
+            /** @var AbstractCustomField $customField */
+            if ($field->getId() === $fields['id']) {
+                $customField = $field;
+                break;
+            }
+        }
+
+        if (!$customField) {
+            throw new InvalidArgumentException(sprintf('Custom field with ID "%s" not found.', $fields['id']));
+        }
+
+        //Validate that the value is compliant with the values accepted by customField
+        if (!$customField->isValueValid($fields['value'])) {
+            throw new InvalidArgumentException(sprintf('Value "%s" is not valid for custom field with ID "%s".', $fields['value'], $fields['id']));
+        }
+
 
         $customFieldValue = new CustomFieldValue();
         //Validate if ID corresponds to customField configuration

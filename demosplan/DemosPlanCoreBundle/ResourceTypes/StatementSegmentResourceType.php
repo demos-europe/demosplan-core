@@ -203,7 +203,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
                         foreach ($customFields as $field) {
                             if (isset($field['id'], $field['value'])) {
 
-                                $customFieldValue = $this->customFieldValueCreator->createCustomFieldValue($field);
+                                $customFieldValue = $this->customFieldValueCreator->createCustomFieldValue($field, 'PROCEDURE', $segment->getProcedure()->getId(), 'SEGMENT', $segment->getId());
                                 $customFieldList->addCustomFieldValue($customFieldValue);
                             }
                         }
