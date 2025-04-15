@@ -202,9 +202,23 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
 
                         foreach ($customFields as $field) {
                             if (isset($field['id'], $field['value'])) {
+                                // Check if the customFieldValue already exists
+                                $existingCustomFieldValue = $customFieldList->getCustomFieldsValues();
+                                $customFieldUpdated = false;
+                                foreach ($existingCustomFieldValue as $customFieldValue) {
+                                    if ($customFieldValue->getId() === $field['id']) {
+                                        // Update the existing custom field value
+                                        $customFieldValue->setValue($field['value']);
+                                        $customFieldUpdated = true;
+                                        break;
+                                    }
+                                }
 
-                                $customFieldValue = $this->customFieldValueCreator->createCustomFieldValue($field, 'PROCEDURE', $segment->getProcedure()->getId(), 'SEGMENT', $segment->getId());
-                                $customFieldList->addCustomFieldValue($customFieldValue);
+                                if (false ===$customFieldUpdated) {
+                                    $customFieldValue = $this->customFieldValueCreator->createCustomFieldValue($field, 'PROCEDURE', $segment->getProcedure()->getId(), 'SEGMENT', $segment);
+                                    $customFieldList->addCustomFieldValue($customFieldValue);
+                                }
+
                             }
                         }
 
