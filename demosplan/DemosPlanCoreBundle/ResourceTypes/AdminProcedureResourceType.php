@@ -52,7 +52,7 @@ use EDT\PathBuilding\End;
  * @property-read End                           $externalStartDate
  * @property-read End                           $externalPhaseIdentifier
  * @property-read End                           $externalPhaseTranslationKey
- * @property-read CustomFieldResourceType       $segmentCustomFieldsTemplate
+ * @property-read CustomFieldResourceType       $segmentCustomFields
  * @property-read CustomerResourceType          $customer
  */
 final class AdminProcedureResourceType extends DplanResourceType
@@ -71,7 +71,7 @@ final class AdminProcedureResourceType extends DplanResourceType
         $id = $this->createIdentifier()->readable();
         $name = $this->createAttribute($this->name);
         $creationDate = $this->createAttribute($this->creationDate)->aliasedPath($this->createdDate);
-        $segmentCustomFieldsTemplate = $this->createToManyRelationship($this->segmentCustomFieldsTemplate)
+        $segmentCustomFieldsTemplate = $this->createToManyRelationship($this->segmentCustomFields)
             ->readable(true, function (Procedure $procedure): ?ArrayCollection {
                 /** @var CustomFieldConfiguration $customFieldConfiguration */
                 $customFieldConfiguration = $this->customFieldConfigurationRepository->findCustomFieldConfigurationByCriteria('PROCEDURE', $procedure->getId(), 'SEGMENT');
