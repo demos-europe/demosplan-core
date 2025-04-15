@@ -118,4 +118,13 @@ class RadioButtonField extends AbstractCustomField
     {
         return 'radio_button';
     }
+
+    public function isValueValid(string $value): bool
+    {
+        if (in_array($value, $this->options, true)) {
+            return true;
+        }
+
+        return false;
+    }
 }
