@@ -199,31 +199,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
                 ->setReadableByCallable(static fn (Segment $segment): ?array => $segment->getCustomFields()?->toJson())
                 ->addUpdateBehavior(new CallbackAttributeSetBehaviorFactory([],  function (Segment $segment, array $customFields): array {
                         $customFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
-
-                        foreach ($customFields as $field) {
-                            if (isset($field['id'], $field['value'])) {
-                                // Check if the customFieldValue already exists
-                                $existingCustomFieldValue = $customFieldList->getCustomFieldsValues();
-                                $customFieldUpdated = false;
-                                foreach ($existingCustomFieldValue as $customFieldValue) {
-                                    if ($customFieldValue->getId() === $field['id']) {
-                                        // Update the existing custom field value
-                                        $customFieldValue->setValue($field['value']);
-                                        $customFieldUpdated = true;
-                                        break;
-                                    }
-                                }
-
-                                if (false ===$customFieldUpdated) {
-                                    $customFieldValue = $this->customFieldValueCreator->createCustomFieldValue($field, 'PROCEDURE', $segment->getProcedure()->getId(), 'SEGMENT', $segment);
-                                    $customFieldList->addCustomFieldValue($customFieldValue);
-                                }
-
-                            }
-                        }
-
-                        $customFieldList->toJson();
-
+                        $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues($customFieldList, $customFields, $segment);
                         $segment->setCustomFields($customFieldList->toJson());
 
                     return [];
