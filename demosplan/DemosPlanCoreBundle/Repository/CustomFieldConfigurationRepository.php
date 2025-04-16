@@ -12,9 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 
 class CustomFieldConfigurationRepository extends CoreRepository
@@ -98,5 +100,25 @@ class CustomFieldConfigurationRepository extends CoreRepository
             $this->add($newCustomFieldConfiguration);
         }
 
+    }
+
+    public function getCustomFields($sourceEntity, $sourceEntityId, $targetEntity): ArrayCollection
+    {
+        $customFieldConfigurations = $this->findCustomFieldConfigurationByCriteria($sourceEntity, $sourceEntityId, $targetEntity);
+
+        if (empty($customFieldConfigurations)) {
+            return new ArrayCollection();
+        }
+
+        return new ArrayCollection(
+            array_map(
+                static function (CustomFieldConfiguration $customFieldConfiguration): CustomFieldInterface {
+                    $customField = $customFieldConfiguration->getConfiguration();
+                    $customField->setId($customFieldConfiguration->getId());
+                    return $customField;
+                },
+                $customFieldConfigurations
+            )
+        );
     }
 }
