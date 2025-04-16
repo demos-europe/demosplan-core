@@ -17,7 +17,7 @@ class RadioButtonField extends AbstractCustomField
 
     protected string $name = '';
 
-    protected string $fieldType = 'radio_button';
+    protected string $fieldType = 'singleSelect';
 
     /**
      * Radio button options.
@@ -82,11 +82,6 @@ class RadioButtonField extends AbstractCustomField
     public function getCustomFieldsList(): ?array
     {
         return [];
-    }
-
-    public function getFieldType(): string
-    {
-        return 'singleSelect';
     }
 
     public function setFieldType(string $type): void
