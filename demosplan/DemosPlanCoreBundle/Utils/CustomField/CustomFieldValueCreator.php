@@ -26,16 +26,17 @@ class CustomFieldValueCreator extends CoreService
     {
     }
 
-    public function createCustomFieldValue($fields, $sourceEntityClass, $sourceEntityId, $targetEntityClass, $targetEntityId): CustomFieldValue
+    public function createCustomFieldValue($fields, $sourceEntityClass, $sourceEntityId, $targetEntityClass): CustomFieldValue
     {
         $customFieldConfiguration = $this->getCustomFieldConfiguration(
             $sourceEntityClass,
             $sourceEntityId,
-            $targetEntityClass
+            $targetEntityClass,
+            $fields['id']
         );
 
 
-        $customField = $this->findCustomField($customFieldConfiguration, $fields['id']);
+        $customField = $customFieldConfiguration->getConfiguration();
 
         $this->validateCustomFieldValue($customField, $fields['value']);
 
@@ -45,16 +46,17 @@ class CustomFieldValueCreator extends CoreService
     private function getCustomFieldConfiguration(
         string $sourceEntityClass,
         string $sourceEntityId,
-        string $targetEntityClass
+        string $targetEntityClass,
+        string $customFieldId
     ): CustomFieldConfiguration {
-        $customFieldConfiguration = $this->customFieldConfigurationRepository
-            ->findCustomFieldConfigurationByCriteria($sourceEntityClass, $sourceEntityId, $targetEntityClass);
+        $customFieldConfigurations = $this->customFieldConfigurationRepository
+            ->findCustomFieldConfigurationByCriteria($sourceEntityClass, $sourceEntityId, $targetEntityClass, $customFieldId);
 
-        if (!$customFieldConfiguration) {
+        if (!$customFieldConfigurations) {
             throw new InvalidArgumentException('No custom field configuration found for CustomFieldId.');
         }
 
-        return $customFieldConfiguration;
+       return $customFieldConfigurations[0];
     }
 
     private function findCustomField(CustomFieldConfiguration $configuration, string $customFieldId): AbstractCustomField
@@ -68,7 +70,7 @@ class CustomFieldValueCreator extends CoreService
         throw new InvalidArgumentException(sprintf('Custom field with ID "%s" not found.', $customFieldId));
     }
 
-    private function validateCustomFieldValue(AbstractCustomField $customField, mixed $value): void
+    private function validateCustomFieldValue(CustomFieldInterface $customField, mixed $value): void
     {
         if (!$customField->isValueValid($value)) {
             throw new InvalidArgumentException(sprintf(

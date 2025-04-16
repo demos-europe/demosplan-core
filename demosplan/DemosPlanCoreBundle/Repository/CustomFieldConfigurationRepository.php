@@ -40,12 +40,16 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-    public function findCustomFieldConfigurationByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity)
+    public function findCustomFieldConfigurationByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity, string $customFieldId = null): ?array
     {
         try {
             $criteria = ['sourceEntityId' => $sourceEntityId];
             $criteria['sourceEntityClass'] = $sourceEntity;
             $criteria['targetEntityClass'] = $targetEntity;
+
+            if ($customFieldId) {
+                $criteria['id'] = $customFieldId;
+            }
 
             return $this->findBy($criteria);
         } catch (Exception $e) {
@@ -54,6 +58,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
             return null;
         }
     }
+
 
     public function createCustomFieldConfiguration(string $sourceEntity, string $sourceEntityId, string $targetEntity, $customField): CustomFieldConfiguration
     {
