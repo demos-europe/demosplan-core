@@ -17,10 +17,22 @@ class Version20250415155558 extends AbstractMigration
     /**
      * @throws Exception
      */
-    public function up(Schema $schema): void
+     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('CREATE TABLE custom_field_configuration (id CHAR(36) NOT NULL, source_entity_id VARCHAR(36) NOT NULL, source_entity_class VARCHAR(255) NOT NULL, target_entity_class VARCHAR(255) NOT NULL, configuration JSON DEFAULT NULL COMMENT \'(DC2Type:dplan.custom_field_configuration)\', create_date DATETIME NOT NULL, modify_date DATETIME NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('
+            CREATE TABLE custom_field_configuration (
+                id CHAR(36) NOT NULL,
+                source_entity_id VARCHAR(36) NOT NULL,
+                source_entity_class VARCHAR(255) NOT NULL,
+                target_entity_class VARCHAR(255) NOT NULL,
+                configuration JSON DEFAULT NULL COMMENT \'(DC2Type:dplan.custom_field_configuration)\',
+                create_date DATETIME NOT NULL,
+                modify_date DATETIME NOT NULL,
+                PRIMARY KEY(id)
+            )
+            DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB
+        ');
     }
 
     /**
