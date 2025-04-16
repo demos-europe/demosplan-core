@@ -58,7 +58,10 @@ use EDT\PathBuilding\End;
  */
 final class AdminProcedureResourceType extends DplanResourceType
 {
-    public function __construct(private readonly ProcedureResourceType $procedureResourceType, private readonly ProcedureService $procedureService, private readonly CustomFieldList $customFieldList, private readonly CustomFieldType $customFieldType, private readonly CustomFieldService $customFieldService, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
+    public function __construct(
+        private readonly ProcedureResourceType $procedureResourceType,
+        private readonly ProcedureService $procedureService,
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
     {
     }
 
