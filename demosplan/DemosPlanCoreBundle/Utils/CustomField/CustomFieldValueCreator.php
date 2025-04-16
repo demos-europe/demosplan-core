@@ -39,9 +39,13 @@ class CustomFieldValueCreator extends CoreService
                 $existingCustomFieldValue = $this->findCustomFieldValue($customFieldList, $field['id']);
 
                 if ($existingCustomFieldValue) {
+                    $customField = $this->getCustomField(
+                        'PROCEDURE', $segment->getProcedure()->getId(), 'SEGMENT', $field);
+                    $this->validateCustomFieldValue($customField, $field['value']);
+
                     $existingCustomFieldValue->setValue($field['value']);
                 } else {
-                    $customFieldValue = $this->createCustomFieldValue($field, 'PROCEDURE', $segment->getProcedure()->getId(), 'SEGMENT', $segment);
+                    $customFieldValue = $this->createCustomFieldValue($field, 'PROCEDURE', $segment->getProcedure()->getId(), 'SEGMENT');
                     $customFieldList->addCustomFieldValue($customFieldValue);
                 }
             }
@@ -62,20 +66,32 @@ class CustomFieldValueCreator extends CoreService
 
 
 
+ private function getCustomField($sourceEntityClass,
+                                 $sourceEntityId,
+                                 $targetEntityClass,
+                                 $fields): CustomFieldInterface
+ {
+     $customFieldConfiguration = $this->getCustomFieldConfiguration(
+         $sourceEntityClass,
+         $sourceEntityId,
+         $targetEntityClass,
+         $fields['id']
+     );
 
+
+     return $customFieldConfiguration->getConfiguration();
+
+ }
 
     public function createCustomFieldValue($fields, $sourceEntityClass, $sourceEntityId, $targetEntityClass): CustomFieldValue
     {
-        $customFieldConfiguration = $this->getCustomFieldConfiguration(
+
+        $customField = $this->getCustomField(
             $sourceEntityClass,
             $sourceEntityId,
             $targetEntityClass,
-            $fields['id']
+            $fields
         );
-
-
-        $customField = $customFieldConfiguration->getConfiguration();
-
         $this->validateCustomFieldValue($customField, $fields['value']);
 
         return $this->buildCustomFieldValue($fields);
