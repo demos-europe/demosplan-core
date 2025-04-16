@@ -154,7 +154,7 @@ class DemosPlanProcedureController extends BaseController
         ProcedureService                           $procedureService,
         ProcedureServiceOutput                     $procedureServiceOutput,
         private readonly ProcedureTypeResourceType $procedureTypeResourceType,
-private readonly SortMethodFactory $sortMethodFactory,
+        private readonly SortMethodFactory $sortMethodFactory,
         private readonly CurrentProcedureService $currentProcedureService,
     ) {
         $this->procedureServiceOutput = $procedureServiceOutput;
