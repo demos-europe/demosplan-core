@@ -2451,7 +2451,8 @@ class DemosPlanProcedureController extends BaseController
         $templateVars['procedureTemplate'] = $this->currentProcedureService->getProcedure()?->getMaster() ?? false;
         $templateVars['procedureId'] = $procedureId;
 
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_custom_fields_list.html.twig', $templateVars);
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_custom_fields_list.html.twig',
+            ['templateVars' => $templateVars]);
     }
 
     /**
