@@ -91,7 +91,11 @@ class CustomFieldConfigurationRepository extends CoreRepository
 
     public function copy(string $sourceProcedureId, Procedure $newProcedure): void
     {
-        $customFieldsConfigurations = $this->findCustomFieldConfigurationByCriteria( 'PROCEDURE_TEMPLATE', $sourceProcedureId, 'SEGMENT');
+        $customFieldsConfigurations = $this->findCustomFieldConfigurationByCriteria(
+            'PROCEDURE_TEMPLATE',
+            $sourceProcedureId,
+            'SEGMENT'
+        );
 
         if (empty($customFieldsConfigurations)) {
             return;
