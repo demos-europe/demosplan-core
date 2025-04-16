@@ -53,14 +53,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-    public function findOrCreateCustomFieldConfigurationByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity, $customField): CustomFieldConfiguration
-    {
-        $customFieldConfiguration = $this->findCustomFieldConfigurationByCriteria($sourceEntity, $sourceEntityId, $targetEntity);
-
-        return $this->createCustomFieldConfiguration($sourceEntity, $sourceEntityId, $targetEntity, $customField);
-    }
-
-    private function createCustomFieldConfiguration(string $sourceEntity, string $sourceEntityId, string $targetEntity, $customField): CustomFieldConfiguration
+    public function createCustomFieldConfiguration(string $sourceEntity, string $sourceEntityId, string $targetEntity, $customField): CustomFieldConfiguration
     {
         $customFieldConfiguration = new CustomFieldConfiguration();
 

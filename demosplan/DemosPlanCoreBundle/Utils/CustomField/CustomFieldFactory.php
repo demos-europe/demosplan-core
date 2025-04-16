@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
+use demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldType;
 use Ramsey\Uuid\Uuid;
 
 class CustomFieldFactory

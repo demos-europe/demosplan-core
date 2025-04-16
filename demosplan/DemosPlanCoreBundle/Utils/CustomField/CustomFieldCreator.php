@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
-use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
+
 
 class CustomFieldCreator extends CoreService
 {
@@ -26,9 +26,7 @@ class CustomFieldCreator extends CoreService
     public function createCustomField($attributes): CustomFieldInterface
     {
         $createdCustomField = $this->customFieldFactory->createCustomField($attributes);
-
-        /** @var CustomFieldConfiguration $customFieldConfiguration */
-        $customFieldConfiguration = $this->customFieldConfigurationRepository->findOrCreateCustomFieldConfigurationByCriteria($attributes['sourceEntity'], $attributes['sourceEntityId'], $attributes['targetEntity'], $createdCustomField);
+        $this->customFieldConfigurationRepository->createCustomFieldConfiguration($attributes['sourceEntity'], $attributes['sourceEntityId'], $attributes['targetEntity'], $createdCustomField);
         return $createdCustomField;
     }
 }
