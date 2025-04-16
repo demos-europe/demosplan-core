@@ -102,7 +102,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
 
     }
 
-    public function getCustomFields($sourceEntity, $sourceEntityId, $targetEntity): ArrayCollection
+    public function getCustomFields(string $sourceEntity, string $sourceEntityId, string $targetEntity): ArrayCollection
     {
         $customFieldConfigurations = $this->findCustomFieldConfigurationByCriteria($sourceEntity, $sourceEntityId, $targetEntity);
 
