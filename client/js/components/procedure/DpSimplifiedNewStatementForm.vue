@@ -199,16 +199,16 @@
               :text="Translator.trans('statement.date.submitted')"
               :hint="Translator.trans('explanation.statement.date')"
               for="r_submitted_date" />
-            <dp-datepicker
-              class="o-form__control-wrapper"
-              data-cy="submitterForm:submittedDate"
-              name="r_submitted_date"
-              value=""
-              :calendars-before="2"
-              :max-date="nowDate"
-              :min-date="values.authoredDate"
-              id="r_submitted_date"
-              v-model="values.submittedDate" />
+<!--            <dp-datepicker-->
+<!--              class="o-form__control-wrapper"-->
+<!--              data-cy="submitterForm:submittedDate"-->
+<!--              name="r_submitted_date"-->
+<!--              value=""-->
+<!--              :calendars-before="2"-->
+<!--              :max-date="nowDate"-->
+<!--              :min-date="values.authoredDate"-->
+<!--              id="r_submitted_date"-->
+<!--              v-model="values.submittedDate" />-->
           </div><!--
        --><div
             class="u-mb"
@@ -217,15 +217,15 @@
               :text="Translator.trans('statement.date.authored')"
               :hint="Translator.trans('explanation.statement.date.authored')"
               for="r_authored_date" />
-            <dp-datepicker
-              class="o-form__control-wrapper"
-              data-cy="submitterForm:authoredDate"
-              name="r_authored_date"
-              value=""
-              :calendars-before="2"
-              :max-date="values.submittedDate || nowDate"
-              id="r_authored_date"
-              v-model="values.authoredDate" />
+<!--            <dp-datepicker-->
+<!--              class="o-form__control-wrapper"-->
+<!--              data-cy="submitterForm:authoredDate"-->
+<!--              name="r_authored_date"-->
+<!--              value=""-->
+<!--              :calendars-before="2"-->
+<!--              :max-date="values.submittedDate || nowDate"-->
+<!--              id="r_authored_date"-->
+<!--              v-model="values.authoredDate" />-->
           </div>
 
           <!-- Art der Einreichung, Eingangsnummer -->
