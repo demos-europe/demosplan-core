@@ -14,6 +14,7 @@ use BadMethodCallException;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Controller\AssessmentTable\DemosPlanAssessmentTableController;
@@ -24,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -46,6 +48,7 @@ use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
 use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class AssessmentTableServiceStorage
 {
@@ -101,6 +104,7 @@ class AssessmentTableServiceStorage
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
         private readonly StatementAttachmentService $statementAttachmentService,
         StatementHandler $statementHandler,
+        private readonly EventDispatcherInterface $eventDispatcher,
         StatementService $statementService,
         private readonly StatementDeleter $statementDeleter,
         FileService $fileService,
@@ -809,6 +813,8 @@ class AssessmentTableServiceStorage
         try {
             foreach ($items as $item) {
                 $updatedStatement = $this->statementService->copyStatementWithinProcedure($item);
+                $event = new StatementCreatedEvent($updatedStatement);
+                $this->eventDispatcher->dispatch($event, StatementCreatedEventInterface::class);
                 if ($updatedStatement instanceof Statement) {
                     ++$successful;
                 } else {
