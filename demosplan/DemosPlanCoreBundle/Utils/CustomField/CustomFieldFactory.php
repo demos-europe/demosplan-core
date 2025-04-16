@@ -30,8 +30,6 @@ class CustomFieldFactory
 
         $customFieldClass = CustomFieldList::TYPE_CLASSES[$type];
         $customField = new $customFieldClass();
-
-        $customField->setId(Uuid::uuid4()->toString());
         $customField->setFieldType($type);
         $customField->setName($attributes['name']);
         $customField->setDescription($attributes['description']);

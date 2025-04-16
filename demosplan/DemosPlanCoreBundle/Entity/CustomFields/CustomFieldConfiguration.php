@@ -38,28 +38,28 @@ class CustomFieldConfiguration extends CoreEntity
     /**
      * @var string
      *
-     * @ORM\Column(name="template_entity_id", type="string", length=36, nullable=false)
+     * @ORM\Column(name="source_entity_id", type="string", length=36, nullable=false)
      */
-    protected $templateEntityId;
+    protected $sourceEntityId;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="template_entity_class", type="string", nullable=false)
+     * @ORM\Column(name="source_entity_class", type="string", nullable=false)
      */
-    protected $templateEntityClass;
+    protected $sourceEntityClass;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="value_entity_class", type="string", nullable=false)
+     * @ORM\Column(name="target_entity_class", type="string", nullable=false)
      */
-    protected $valueEntityClass;
+    protected $targetEntityClass;
 
     /**
-     * @var CustomFieldList
+     * @var CustomFieldInterface
      *
-     * @ORM\Column(type="dplan.custom_fields_template", nullable=true)
+     * @ORM\Column(type="dplan.custom_field_configuration", nullable=true)
      */
     protected $configuration;
 
@@ -81,7 +81,7 @@ class CustomFieldConfiguration extends CoreEntity
      */
     protected $modifyDate;
 
-    public function getConfiguration(): ?CustomFieldList
+    public function getConfiguration(): CustomFieldInterface
     {
         return $this->configuration;
     }
@@ -91,34 +91,34 @@ class CustomFieldConfiguration extends CoreEntity
         $this->configuration = $configuration;
     }
 
-    public function getTemplateEntityId(): string
+    public function getSourceEntityId(): string
     {
-        return $this->templateEntityId;
+        return $this->sourceEntityId;
     }
 
-    public function setTemplateEntityId(string $templateEntityId): void
+    public function setSourceEntityId(string $templateEntityId): void
     {
-        $this->templateEntityId = $templateEntityId;
+        $this->sourceEntityId = $templateEntityId;
     }
 
-    public function getTemplateEntityClass(): string
+    public function getSourceEntityClass(): string
     {
-        return $this->templateEntityClass;
+        return $this->sourceEntityClass;
     }
 
-    public function setTemplateEntityClass(string $templateEntityClass): void
+    public function setSourceEntityClass(string $sourceEntityClass): void
     {
-        $this->templateEntityClass = $templateEntityClass;
+        $this->sourceEntityClass = $sourceEntityClass;
     }
 
-    public function getValueEntityClass(): string
+    public function getTargetEntityClass(): string
     {
-        return $this->valueEntityClass;
+        return $this->targetEntityClass;
     }
 
-    public function setValueEntityClass(string $valueEntityClass): void
+    public function setTargetEntityClass(string $targetEntityClass): void
     {
-        $this->valueEntityClass = $valueEntityClass;
+        $this->targetEntityClass = $targetEntityClass;
     }
 
     public function addCustomFieldToCustomFieldList(CustomFieldInterface $particularCustomField): void
@@ -143,6 +143,11 @@ class CustomFieldConfiguration extends CoreEntity
     public function setModifyDate($modifyDate): void
     {
         $this->modifyDate = $modifyDate;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
     }
 
 

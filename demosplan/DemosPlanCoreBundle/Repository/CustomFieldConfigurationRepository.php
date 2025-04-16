@@ -38,14 +38,14 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-    public function findCustomFieldConfigurationByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity): ?CustomFieldConfiguration
+    public function findCustomFieldConfigurationByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity)
     {
         try {
-            $criteria = ['templateEntityId' => $sourceEntityId];
-            $criteria['templateEntityClass'] = $sourceEntity;
-            $criteria['valueEntityClass'] = $targetEntity;
+            $criteria = ['sourceEntityId' => $sourceEntityId];
+            $criteria['sourceEntityClass'] = $sourceEntity;
+            $criteria['targetEntityClass'] = $targetEntity;
 
-            return $this->findOneBy($criteria);
+            return $this->findBy($criteria);
         } catch (Exception $e) {
             $this->logger->warning('Error fetching CustomFieldConfiguration: '.$e->getMessage());
 
@@ -53,29 +53,22 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-    public function findOrCreateCustomFieldConfigurationByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity): CustomFieldConfiguration
+    public function findOrCreateCustomFieldConfigurationByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity, $customField): CustomFieldConfiguration
     {
         $customFieldConfiguration = $this->findCustomFieldConfigurationByCriteria($sourceEntity, $sourceEntityId, $targetEntity);
 
-        if (null !== $customFieldConfiguration) {
-            return $customFieldConfiguration;
-        }
-
-        return $this->createCustomFieldConfiguration($sourceEntity, $sourceEntityId, $targetEntity);
+        return $this->createCustomFieldConfiguration($sourceEntity, $sourceEntityId, $targetEntity, $customField);
     }
 
-    private function createCustomFieldConfiguration(string $sourceEntity, string $sourceEntityId, string $targetEntity): CustomFieldConfiguration
+    private function createCustomFieldConfiguration(string $sourceEntity, string $sourceEntityId, string $targetEntity, $customField): CustomFieldConfiguration
     {
         $customFieldConfiguration = new CustomFieldConfiguration();
 
-        $customFieldConfiguration->setTemplateEntityClass($sourceEntity);
-        $customFieldConfiguration->setTemplateEntityId($sourceEntityId);
+        $customFieldConfiguration->setSourceEntityClass($sourceEntity);
+        $customFieldConfiguration->setSourceEntityId($sourceEntityId);
 
-        $customFieldConfiguration->setValueEntityClass($targetEntity);
-        $customFieldsList = new CustomFieldList();
-        $customFieldsList->setName('DefaultName');
-        $customFieldsList->setCustomFields([]);
-        $customFieldConfiguration->setConfiguration($customFieldsList);
+        $customFieldConfiguration->setTargetEntityClass($targetEntity);
+        $customFieldConfiguration->setConfiguration($customField);
         $this->add($customFieldConfiguration);
 
         return $customFieldConfiguration;
@@ -97,18 +90,20 @@ class CustomFieldConfigurationRepository extends CoreRepository
 
     public function copy(string $sourceProcedureId, Procedure $newProcedure): void
     {
-        $sourceCustomFields = $this->findCustomFieldConfigurationByCriteria( 'PROCEDURE_TEMPLATE', $sourceProcedureId, 'SEGMENT');
+        $customFieldsConfigurations = $this->findCustomFieldConfigurationByCriteria( 'PROCEDURE_TEMPLATE', $sourceProcedureId, 'SEGMENT');
 
-        if (null !== $sourceCustomFields) {
-            $newCustomFieldsConfiguration = clone $sourceCustomFields;
-            $newCustomFieldsConfiguration->setId(null);
-            $newCustomFieldsConfiguration->setTemplateEntityId($newProcedure->getId());
-            $newCustomFieldsConfiguration->setTemplateEntityClass('PROCEDURE');
-            $newCustomFieldsConfiguration->setCreateDate(null);
-            $newCustomFieldsConfiguration->setModifyDate(null);
-            $newCustomFieldsConfiguration->setConfiguration($sourceCustomFields->getConfiguration()->toJson());
-
-            $this->add($newCustomFieldsConfiguration);
+        if (empty($customFieldsConfigurations)) {
+            return;
         }
+
+        foreach ($customFieldsConfigurations as $customFieldConfiguration) {
+            $newCustomFieldConfiguration = new CustomFieldConfiguration();
+            $newCustomFieldConfiguration->setSourceEntityClass('PROCEDURE');
+            $newCustomFieldConfiguration->setSourceEntityId($newProcedure->getId());
+            $newCustomFieldConfiguration->setTargetEntityClass($customFieldConfiguration->getTargetEntityClass());
+            $newCustomFieldConfiguration->setConfiguration($customFieldConfiguration->getConfiguration());
+            $this->add($newCustomFieldConfiguration);
+        }
+
     }
 }

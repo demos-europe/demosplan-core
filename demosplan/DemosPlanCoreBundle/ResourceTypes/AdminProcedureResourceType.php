@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
 use demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldType;
@@ -73,16 +74,23 @@ final class AdminProcedureResourceType extends DplanResourceType
         $creationDate = $this->createAttribute($this->creationDate)->aliasedPath($this->createdDate);
         $segmentCustomFieldsTemplate = $this->createToManyRelationship($this->segmentCustomFields)
             ->readable(true, function (Procedure $procedure): ?ArrayCollection {
-                /** @var CustomFieldConfiguration $customFieldConfiguration */
-                $customFieldConfiguration = $this->customFieldConfigurationRepository->findCustomFieldConfigurationByCriteria('PROCEDURE', $procedure->getId(), 'SEGMENT');
-                if (null === $customFieldConfiguration) {
+                /** @var  $customFieldConfiguration */
+                $customFieldConfigurations = $this->customFieldConfigurationRepository->findCustomFieldConfigurationByCriteria('PROCEDURE', $procedure->getId(), 'SEGMENT');
+                if (null === $customFieldConfigurations) {
                     return new ArrayCollection();
                 }
 
-                /** @var CustomFieldList $segmentCustomfieldsTemplate */
-                $segmentCustomfieldsTemplate = $customFieldConfiguration->getConfiguration();
+                return new ArrayCollection(
+                    array_map(
+                        function (CustomFieldConfiguration $customFieldConfiguration): CustomFieldInterface {
+                            $customField = $customFieldConfiguration->getConfiguration();
+                            $customField->setId($customFieldConfiguration->getId());
+                            return $customField;
+                        },
+                        $customFieldConfigurations
+                    )
+                );
 
-                return new ArrayCollection($segmentCustomfieldsTemplate->getCustomFields());
             });
 
         $properties = [
