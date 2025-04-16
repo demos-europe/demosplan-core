@@ -21,7 +21,7 @@ updates:
         versions:
           - ">= 5"
 
-      # This dependencies have to be updated according to the needs of @masterportal/masterportalapi
+      # These dependencies have to be updated according to the needs of @masterportal/masterportalapi
       - dependency-name: ol
       - dependency-name: ol-mapbox-style
       - dependency-name: olcs
