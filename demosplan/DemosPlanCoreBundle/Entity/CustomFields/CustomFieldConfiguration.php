@@ -112,15 +112,7 @@ class CustomFieldConfiguration extends CoreEntity
     {
         $this->targetEntityClass = $targetEntityClass;
     }
-
-    public function addCustomFieldToCustomFieldList(CustomFieldInterface $particularCustomField): void
-    {
-        $customFieldsList = $this->configuration->getCustomFieldsList();
-        $customFieldsList[] = $particularCustomField;
-        $this->configuration->setCustomFields($customFieldsList);
-        $this->configuration = $this->configuration->toJson();
-    }
-
+    
     public function setId($id): void
     {
         $this->id = $id;

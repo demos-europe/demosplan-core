@@ -39,8 +39,12 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-    public function findCustomFieldConfigurationByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity, string $customFieldId = null): ?array
-    {
+    public function findCustomFieldConfigurationByCriteria(
+        string $sourceEntity,
+        string $sourceEntityId,
+        string $targetEntity,
+        string $customFieldId = null
+    ): ?array {
         try {
             $criteria = ['sourceEntityId' => $sourceEntityId];
             $criteria['sourceEntityClass'] = $sourceEntity;
@@ -58,9 +62,12 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-
-    public function createCustomFieldConfiguration(string $sourceEntity, string $sourceEntityId, string $targetEntity, $customField): CustomFieldConfiguration
-    {
+    public function createCustomFieldConfiguration(
+        string $sourceEntity,
+        string $sourceEntityId,
+        string $targetEntity,
+        CustomFieldInterface $customField
+    ): CustomFieldConfiguration {
         $customFieldConfiguration = new CustomFieldConfiguration();
 
         $customFieldConfiguration->setSourceEntityClass($sourceEntity);
@@ -73,7 +80,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
         return $customFieldConfiguration;
     }
 
-    public function updateObject($entity): CustomFieldConfiguration
+    public function updateObject(CustomFieldConfiguration $entity): CustomFieldConfiguration
     {
         try {
             $em = $this->getEntityManager();
@@ -89,11 +96,11 @@ class CustomFieldConfigurationRepository extends CoreRepository
 
     public function copy(string $sourceProcedureId, Procedure $newProcedure): void
     {
-        $customFieldsConfigurations = $this->findCustomFieldConfigurationByCriteria( 'PROCEDURE_TEMPLATE', $sourceProcedureId, 'SEGMENT');
-
-        if (empty($customFieldsConfigurations)) {
-            return;
-        }
+        $customFieldsConfigurations = $this->findCustomFieldConfigurationByCriteria(
+            'PROCEDURE_TEMPLATE',
+            $sourceProcedureId,
+            'SEGMENT'
+        );
 
         foreach ($customFieldsConfigurations as $customFieldConfiguration) {
             $newCustomFieldConfiguration = new CustomFieldConfiguration();

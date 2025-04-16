@@ -61,7 +61,6 @@ use EDT\PathBuilding\End;
  * @property-read End                                 $owningOrganisationName
  * @property-read End                                 $externalPhasePermissionset
  * @property-read End                                 $internalPhasePermissionset
- * @property-read End                                 $segmentCustomFieldsTemplate
  * @property-read CustomerResourceType                $customer
  * @property-read PlanningDocumentCategoryDetailsResourceType                $availableElements
  * @property-read PlanningDocumentCategoryDetailsResourceType                $elements
