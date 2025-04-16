@@ -39,8 +39,11 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-    public function findCustomFieldConfigurationByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity)
-    {
+    public function findCustomFieldConfigurationByCriteria(
+        string $sourceEntity,
+        string $sourceEntityId,
+        string $targetEntity
+    ): ?array {
         try {
             $criteria = ['sourceEntityId' => $sourceEntityId];
             $criteria['sourceEntityClass'] = $sourceEntity;
