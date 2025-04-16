@@ -13,32 +13,18 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 class RadioButtonField extends AbstractCustomField
 {
 
-    /**
-     * @var string
-     */
-    protected $id = '';
+    protected string $id = '';
 
-    /**
-     * @var string
-     */
-    protected $name = '';
+    protected string $name = '';
 
-    /**
-     * @var string
-     */
-    protected $fieldType = 'singleSelect';
+    protected string $fieldType = 'radio_button';
 
     /**
      * Radio button options.
-     *
-     * @var array
      */
-    protected $options = [];
+    protected array $options = [];
 
-    /**
-     * @var string
-     */
-    protected $description = '';
+    protected string $description = '';
 
     public function getFormat(): string
     {
