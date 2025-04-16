@@ -29,4 +29,11 @@ abstract class AbstractCustomField implements CustomFieldInterface
      * @var string
      */
     protected $description = '';
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    abstract public function isValueValid(string $value): bool;
 }
