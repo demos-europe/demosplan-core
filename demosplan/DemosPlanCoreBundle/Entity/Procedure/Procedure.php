@@ -2292,16 +2292,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->publicParticipationPhase = $publicParticipationPhase;
     }
 
-    public function setSegmentCustomFieldsTemplate(CustomFieldInterface $segmentCustomFieldsTemplate): void
-    {
-        $this->segmentCustomFieldsTemplate = $segmentCustomFieldsTemplate;
-    }
-
-    public function getSegmentCustomFieldsTemplate(): ?CustomFieldInterface
-    {
-        return $this->segmentCustomFieldsTemplate;
-    }
-
     public function getCustomFieldConfiguration(): ?CustomFieldConfiguration
     {
         return $this->customFieldConfiguration;

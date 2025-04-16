@@ -29,7 +29,7 @@ class CustomFieldFactory
 
         $type = $attributes['fieldType'];
 
-        $customFieldClass = CustomFieldList::TYPE_CLASSES[$type];
+        $customFieldClass = CustomFieldInterface::TYPE_CLASSES[$type];
         $customField = new $customFieldClass();
         $customField->setFieldType($type);
         $customField->setName($attributes['name']);

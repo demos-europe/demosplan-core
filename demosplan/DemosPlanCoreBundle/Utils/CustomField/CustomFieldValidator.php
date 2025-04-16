@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -49,7 +49,7 @@ class CustomFieldValidator
 
     private function validateFieldType(?string $fieldType): void
     {
-        if (!isset(CustomFieldList::TYPE_CLASSES[$fieldType])) {
+        if (!isset(CustomFieldInterface::TYPE_CLASSES[$fieldType])) {
             throw new InvalidArgumentException('Unknown custom field type: '.$fieldType);
         }
     }

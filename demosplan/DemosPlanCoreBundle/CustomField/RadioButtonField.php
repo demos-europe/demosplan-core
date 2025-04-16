@@ -13,36 +13,22 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 class RadioButtonField extends AbstractCustomField
 {
 
-    /**
-     * @var string
-     */
-    protected $id = '';
+    protected string $id = '';
 
-    /**
-     * @var string
-     */
-    protected $name = '';
+    protected string $name = '';
 
-    /**
-     * @var string
-     */
-    protected $fieldType = 'radio_button';
+    protected string $fieldType = 'singleSelect';
 
     /**
      * Radio button options.
-     *
-     * @var array
      */
-    protected $options = [];
+    protected array $options = [];
 
-    /**
-     * @var string
-     */
-    protected $description = '';
+    protected string $description = '';
 
     public function getFormat(): string
     {
-        return 'radio_button';
+        return 'singleSelect';
     }
 
     public function fromJson(array $json): void
@@ -98,11 +84,6 @@ class RadioButtonField extends AbstractCustomField
         return [];
     }
 
-    public function getFieldType(): string
-    {
-        return 'radio_button';
-    }
-
     public function setFieldType(string $type): void
     {
         $this->type = $type;
@@ -111,7 +92,7 @@ class RadioButtonField extends AbstractCustomField
 
     public function getType(): string
     {
-        return 'radio_button';
+        return 'singleSelect';
     }
 
     public function isValueValid(string $value): bool
@@ -123,12 +104,12 @@ class RadioButtonField extends AbstractCustomField
         return false;
     }
 
-    public function setId( $id): void
+    public function setId($id): void
     {
-        $this->id= $id;
+        $this->id = $id;
     }
 
-    public function getId( ): string
+    public function getId(): string
     {
         return $this->id;
     }

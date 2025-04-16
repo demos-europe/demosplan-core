@@ -19,6 +19,13 @@ use Doctrine\ORM\Mapping as ORM;
  */
 interface CustomFieldInterface
 {
+
+    public const TYPE_CLASSES = [
+        'singleSelect' => RadioButtonField::class,
+        // 'dropdown' => DropdownField::class,
+        // Add other custom field types here
+    ];
+
     /**
      * The format is a unique identifier which is used by
      * the object to json mapping in the database.
