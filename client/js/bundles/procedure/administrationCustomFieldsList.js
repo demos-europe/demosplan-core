@@ -12,7 +12,11 @@
  */
 import AdministrationCustomFieldsList from '@DpJs/components/procedure/admin/AdministrationCustomFieldsList'
 import { initialize } from '@DpJs/InitVue'
-const apiStores = ['AdminProcedure', 'CustomField']
+const apiStores = [
+  'AdminProcedure',
+  'ProcedureTemplate',
+  'CustomField'
+]
 
 const components = {
   AdministrationCustomFieldsList

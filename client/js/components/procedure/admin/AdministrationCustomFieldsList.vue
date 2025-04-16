@@ -66,7 +66,7 @@
       data-cy="customFields:table"
       has-flyout
       :header-fields="headerFields"
-      :items="segmentFields"
+      :items="customFieldsReduced"
       track-by="id">
       <template v-slot:options="rowData">
         <ul>
@@ -143,6 +143,11 @@ export default {
       required: true
     },
 
+    isProcedureTemplate: {
+      type: Boolean,
+      default: false
+    },
+
     procedureId: {
       type: String,
       required: true
@@ -163,8 +168,7 @@ export default {
       newFieldOptions: [
         '',
         ''
-      ],
-      segmentFields: []
+      ]
     }
   },
 
@@ -175,6 +179,28 @@ export default {
 
     additionalOptions () {
       return this.newFieldOptions.filter((option, index) => index > 1)
+    },
+
+    /**
+     * CustomFields reduced to the format we need in the FE
+     * @return {({id: *, name: *, description: *, options: *, open: boolean}|undefined)[]}
+     */
+    customFieldsReduced () {
+      return Object.keys(this.customFields).map(key => {
+        if (this.customFields[key]) {
+          const { id, attributes } = this.customFields[key]
+          const { description, name, options } = attributes
+
+          return {
+            id,
+            name,
+            description,
+            options,
+            open: false
+          }
+        }
+
+      })
     },
 
     displayedOptions () {
@@ -195,6 +221,10 @@ export default {
 
     ...mapActions('AdminProcedure', {
       getAdminProcedureWithFields: 'get'
+    }),
+
+    ...mapActions('ProcedureTemplate', {
+      getProcedureTemplateWithFields: 'get'
     }),
 
     addOptionInput () {
@@ -222,13 +252,20 @@ export default {
       return identicalNames.length <= 1
     },
 
-    fetchSegmentFields () {
+    /**
+     * Fetch custom fields that are available either in the procedure or in the procedure template
+     */
+    fetchCustomFields () {
       this.isInitiallyLoading = true
+
+      const sourceEntity = this.isProcedureTemplate
+        ? 'ProcedureTemplate'
+        : 'AdminProcedure'
 
       const payload = {
         id: this.procedureId,
         fields: {
-          AdminProcedure: [
+          [sourceEntity]: [
             'segmentCustomFields'
           ].join(),
           CustomField: [
@@ -240,25 +277,7 @@ export default {
         include: ['segmentCustomFields'].join()
       }
 
-      this.getAdminProcedureWithFields(payload)
-        .then(response => {
-          const fields = response.data.CustomField
-          this.segmentFields = []
-
-          Object.keys(fields).forEach(key => {
-            const field = fields[key]
-            const { id, attributes } = field
-            const { description, name, options } = attributes
-
-            this.segmentFields.push({
-              id,
-              name,
-              description,
-              options,
-              open: false
-            })
-          })
-        })
+      this.getCustomFields(payload)
         .catch(err => console.error(err))
         .finally(() => {
           this.isInitiallyLoading = false
@@ -266,7 +285,8 @@ export default {
     },
 
     hideOptions (rowData) {
-      const field = this.segmentFields.find(field => field.id === rowData.id)
+      const field = this.customFieldsReduced.find(field => field.id === rowData.id)
+
       if (field) {
         field.open = false
       }
@@ -306,10 +326,10 @@ export default {
           description,
           name,
           options,
-          sourceEntity: 'PROCEDURE',
+          sourceEntity: this.isProcedureTemplate ? 'PROCEDURE_TEMPLATE' : 'PROCEDURE',
           sourceEntityId: this.procedureId,
           targetEntity: 'SEGMENT',
-          fieldType: 'radio_button'
+          fieldType: 'singleSelect'
         }
       }
 
@@ -324,12 +344,24 @@ export default {
         .finally(() => {
           this.isLoading = false
           this.resetNewFieldForm()
-          this.fetchSegmentFields()
+          this.fetchCustomFields()
         })
     },
 
+    getCustomFields (payload) {
+      return this.isProcedureTemplate
+        ? this.getProcedureTemplateWithFields(payload)
+          .then(response => {
+            return response
+          })
+        : this.getAdminProcedureWithFields(payload)
+          .then(response => {
+            return response
+          })
+    },
+
     showOptions (rowData) {
-      const field = this.segmentFields.find(field => field.id === rowData.id)
+      const field = this.customFieldsReduced.find(field => field.id === rowData.id)
 
       if (field) {
         field.open = true
@@ -362,7 +394,7 @@ export default {
   },
 
   mounted () {
-    this.fetchSegmentFields()
+    this.fetchCustomFields()
   }
 }
 </script>
