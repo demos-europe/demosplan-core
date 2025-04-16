@@ -11,12 +11,10 @@
 namespace demosplan\DemosPlanCoreBundle\Doctrine\Type;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
-use RuntimeException;
 
 /**
  * Handle the storage and retrieval of `StoredQueryInterface`.
