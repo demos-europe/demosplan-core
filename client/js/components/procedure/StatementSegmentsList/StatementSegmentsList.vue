@@ -550,12 +550,11 @@ export default {
 
 
     fetchCustomFields () {
-      console.log('fdyöklhsyöhksdj ')
       const payload = {
         id: this.procedure.id,
         fields: {
           AdminProcedure: [
-            'segmentCustomFieldsTemplate'
+            'segmentCustomFields'
           ].join(),
           CustomField: [
             'name',
@@ -563,10 +562,9 @@ export default {
             'options'
           ].join()
         },
-        include: ['segmentCustomFieldsTemplate'].join()
+        include: ['segmentCustomFields'].join()
       }
 
-      console.log('fetchCustomFields', payload)
       this.getAdminProcedureWithFields(payload)
     },
 
