@@ -26,7 +26,7 @@ class RadioButtonField extends AbstractCustomField
     /**
      * @var string
      */
-    protected $fieldType = 'radio_button';
+    protected $fieldType = 'singleSelect';
 
     /**
      * Radio button options.
@@ -42,7 +42,7 @@ class RadioButtonField extends AbstractCustomField
 
     public function getFormat(): string
     {
-        return 'radio_button';
+        return 'singleSelect';
     }
 
     public function fromJson(array $json): void
@@ -100,7 +100,7 @@ class RadioButtonField extends AbstractCustomField
 
     public function getFieldType(): string
     {
-        return 'radio_button';
+        return 'singleSelect';
     }
 
     public function setFieldType(string $type): void
@@ -111,7 +111,7 @@ class RadioButtonField extends AbstractCustomField
 
     public function getType(): string
     {
-        return 'radio_button';
+        return 'singleSelect';
     }
 
     public function isValueValid(string $value): bool

@@ -25,7 +25,7 @@ class CustomFieldList implements CustomFieldInterface
     protected $customFields = [];
 
     public const TYPE_CLASSES = [
-        'radio_button' => RadioButtonField::class,
+        'singleSelect' => RadioButtonField::class,
         // 'dropdown' => DropdownField::class,
         // Add other custom field types here
     ];
