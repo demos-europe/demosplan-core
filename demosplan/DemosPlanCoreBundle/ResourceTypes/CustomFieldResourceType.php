@@ -66,13 +66,12 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     use PropertyAutoPathTrait;
     use DoctrineResourceTypeInjectionTrait;
 
-    public function __construct(private readonly CustomFieldService $customFieldService,
+    public function __construct(
         protected readonly DqlConditionFactory $conditionFactory,
         private readonly CustomFieldCreator $customFieldCreator,
-        private readonly AdminProcedureResourceType $adminProcedureResourceType,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
-        private readonly CustomFieldMapper $customFieldMapper,
-        private readonly Reindexer $reindexer, private readonly CurrentUserInterface $currentUser)
+        private readonly Reindexer $reindexer,
+        private readonly CurrentUserInterface $currentUser)
     {
     }
 
