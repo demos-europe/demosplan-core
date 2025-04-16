@@ -57,8 +57,12 @@ class CustomFieldConfigurationRepository extends CoreRepository
         }
     }
 
-    public function createCustomFieldConfiguration(string $sourceEntity, string $sourceEntityId, string $targetEntity, $customField): CustomFieldConfiguration
-    {
+    public function createCustomFieldConfiguration(
+        string $sourceEntity,
+        string $sourceEntityId,
+        string $targetEntity,
+        CustomFieldInterface $customField
+    ): CustomFieldConfiguration {
         $customFieldConfiguration = new CustomFieldConfiguration();
 
         $customFieldConfiguration->setSourceEntityClass($sourceEntity);
