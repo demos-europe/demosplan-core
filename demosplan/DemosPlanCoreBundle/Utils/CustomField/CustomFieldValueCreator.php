@@ -59,17 +59,6 @@ class CustomFieldValueCreator extends CoreService
        return $customFieldConfigurations[0];
     }
 
-    private function findCustomField(CustomFieldConfiguration $configuration, string $customFieldId): AbstractCustomField
-    {
-        foreach ($configuration->getConfiguration()->getCustomFieldsList() as $field) {
-            if ($field->getId() === $customFieldId) {
-                return $field;
-            }
-        }
-
-        throw new InvalidArgumentException(sprintf('Custom field with ID "%s" not found.', $customFieldId));
-    }
-
     private function validateCustomFieldValue(CustomFieldInterface $customField, mixed $value): void
     {
         if (!$customField->isValueValid($value)) {
