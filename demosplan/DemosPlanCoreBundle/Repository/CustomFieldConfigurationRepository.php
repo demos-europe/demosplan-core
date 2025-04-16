@@ -97,10 +97,6 @@ class CustomFieldConfigurationRepository extends CoreRepository
             'SEGMENT'
         );
 
-        if (empty($customFieldsConfigurations)) {
-            return;
-        }
-
         foreach ($customFieldsConfigurations as $customFieldConfiguration) {
             $newCustomFieldConfiguration = new CustomFieldConfiguration();
             $newCustomFieldConfiguration->setSourceEntityClass('PROCEDURE');
