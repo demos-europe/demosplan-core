@@ -66,13 +66,12 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     use PropertyAutoPathTrait;
     use DoctrineResourceTypeInjectionTrait;
 
-    public function __construct(private readonly CustomFieldService $customFieldService,
+    public function __construct(
         protected readonly DqlConditionFactory $conditionFactory,
         private readonly CustomFieldCreator $customFieldCreator,
-        private readonly AdminProcedureResourceType $adminProcedureResourceType,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
-        private readonly CustomFieldMapper $customFieldMapper,
-        private readonly Reindexer $reindexer, private readonly CurrentUserInterface $currentUser)
+        private readonly Reindexer $reindexer,
+        private readonly CurrentUserInterface $currentUser)
     {
     }
 
@@ -89,22 +88,6 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     protected function getAccessConditions(): array
     {
         return [];
-        /*$conditions = array_map(
-            function ($source, $target) {
-                $sourceCondition = $this->conditionFactory->propertyHasValue($source, $this->sourceEntity);
-                $targetCondition = $this->conditionFactory->propertyHasValue($target, $this->targetEntity);
-
-                // Group source and target conditions under allConditionsApply
-                return $this->conditionFactory->allConditionsApply($sourceCondition, $targetCondition);
-            },
-            array_keys(CustomFieldMapper::SOURCE_TO_TARGET_MAP),
-            CustomFieldMapper::SOURCE_TO_TARGET_MAP
-        );
-
-        // Combine all grouped conditions under anyConditionApplies
-        $combinedCondition = $this->conditionFactory->anyConditionApplies(...$conditions);
-
-        return [$combinedCondition];*/
     }
 
     protected function getInstantiability(): ResourceInstantiability

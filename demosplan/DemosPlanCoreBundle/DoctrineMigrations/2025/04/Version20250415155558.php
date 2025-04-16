@@ -1,14 +1,4 @@
-<?php
-
-declare(strict_types=1);
-
-/**
- * This file is part of the package demosplan.
- *
- * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
- *
- * All rights reserved
- */
+<?php declare(strict_types = 1);
 
 namespace Application\Migrations;
 
@@ -17,11 +7,11 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-class Version20250401075242 extends AbstractMigration
+class Version20250415155558 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T: ';
+        return 'refs DPLAN-15338: Create custom field configuration table ';
     }
 
     /**
@@ -30,8 +20,7 @@ class Version20250401075242 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-
-        $this->addSql('CREATE TABLE custom_field_configuration (id CHAR(36) NOT NULL, template_entity_id VARCHAR(36) NOT NULL, template_entity_class VARCHAR(255) NOT NULL, configuration JSON DEFAULT NULL COMMENT \'(DC2Type:dplan.custom_fields_template)\', create_date DATETIME NOT NULL, modify_date DATETIME NOT NULL, value_entity_class VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE custom_field_configuration (id CHAR(36) NOT NULL, source_entity_id VARCHAR(36) NOT NULL, source_entity_class VARCHAR(255) NOT NULL, target_entity_class VARCHAR(255) NOT NULL, configuration JSON DEFAULT NULL COMMENT \'(DC2Type:dplan.custom_field_configuration)\', create_date DATETIME NOT NULL, modify_date DATETIME NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
     }
 
     /**

@@ -154,7 +154,8 @@ class DemosPlanProcedureController extends BaseController
         ProcedureService                           $procedureService,
         ProcedureServiceOutput                     $procedureServiceOutput,
         private readonly ProcedureTypeResourceType $procedureTypeResourceType,
-        private readonly SortMethodFactory         $sortMethodFactory, private readonly CurrentProcedureService $currentProcedureService,
+private readonly SortMethodFactory $sortMethodFactory,
+        private readonly CurrentProcedureService $currentProcedureService,
     ) {
         $this->procedureServiceOutput = $procedureServiceOutput;
         $this->procedureService = $procedureService;
@@ -2451,7 +2452,8 @@ class DemosPlanProcedureController extends BaseController
         $templateVars['procedureTemplate'] = $this->currentProcedureService->getProcedure()?->getMaster() ?? false;
         $templateVars['procedureId'] = $procedureId;
 
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_custom_fields_list.html.twig', $templateVars);
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_custom_fields_list.html.twig',
+            ['templateVars' => $templateVars]);
     }
 
     /**

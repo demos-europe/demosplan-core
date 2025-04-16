@@ -12,41 +12,27 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 
 class RadioButtonField extends AbstractCustomField
 {
-    /**
-     * @var string
-     */
-    protected $id = '';
 
-    /**
-     * @var string
-     */
-    protected $name = '';
+    protected string $id = '';
 
-    /**
-     * @var string
-     */
-    protected $fieldType = 'radio_button';
+    protected string $name = '';
+
+    protected string $fieldType = 'singleSelect';
 
     /**
      * Radio button options.
-     *
-     * @var array
      */
-    protected $options = [];
+    protected array $options = [];
 
-    /**
-     * @var string
-     */
-    protected $description = '';
+    protected string $description = '';
 
     public function getFormat(): string
     {
-        return 'radio_button';
+        return 'singleSelect';
     }
 
     public function fromJson(array $json): void
     {
-        $this->id = $json['id'];
         $this->fieldType = $json['fieldType'];
         $this->name = $json['name'];
         $this->description = $json['description'];
@@ -56,7 +42,6 @@ class RadioButtonField extends AbstractCustomField
     public function toJson(): array
     {
         return [
-            'id'            => $this->id,
             'fieldType'     => $this->fieldType,
             'name'          => $this->name,
             'description'   => $this->description,
@@ -99,24 +84,15 @@ class RadioButtonField extends AbstractCustomField
         return [];
     }
 
-    public function getFieldType(): string
-    {
-        return 'radio_button';
-    }
-
     public function setFieldType(string $type): void
     {
         $this->type = $type;
     }
 
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
 
     public function getType(): string
     {
-        return 'radio_button';
+        return 'singleSelect';
     }
 
     public function isValueValid(string $value): bool
@@ -126,5 +102,15 @@ class RadioButtonField extends AbstractCustomField
         }
 
         return false;
+    }
+
+    public function setId($id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
     }
 }

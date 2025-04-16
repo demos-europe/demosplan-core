@@ -15,25 +15,10 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
  */
 abstract class AbstractCustomField implements CustomFieldInterface
 {
-    /**
-     * @var string
-     */
-    protected $id = '';
 
-    /**
-     * @var string
-     */
-    protected $name = '';
+    protected string $name = '';
 
-    /**
-     * @var string
-     */
-    protected $description = '';
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
+    protected string $description = '';
 
     abstract public function isValueValid(string $value): bool;
 }

@@ -13,8 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
-use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
@@ -58,19 +56,15 @@ final class ProcedureTemplateResourceType extends DplanResourceType
         $properties[] = $this->createAttribute($this->description)->readable()->aliasedPath($this->desc);
         $properties[] = $this->createToManyRelationship($this->agencyExtraEmailAddresses)->readable()->filterable();
         $properties[] = $this->createToOneRelationship($this->owningOrganisation)->readable()->aliasedPath($this->orga)->sortable()->filterable();
-        $properties[] = $this->createToManyRelationship($this->segmentCustomFields)
-            ->readable(true, function (Procedure $procedure): ?ArrayCollection {
-                /** @var CustomFieldConfiguration $customFieldConfiguration */
-                $customFieldConfiguration = $this->customFieldConfigurationRepository->findCustomFieldConfigurationByCriteria('PROCEDURE_TEMPLATE', $procedure->getId(), 'SEGMENT');
-                if (null === $customFieldConfiguration) {
-                    return new ArrayCollection();
-                }
 
-                /** @var CustomFieldList $segmentCustomfieldsTemplate */
-                $segmentCustomfieldsTemplate = $customFieldConfiguration->getConfiguration();
 
-                return new ArrayCollection($segmentCustomfieldsTemplate->getCustomFields());
-            });
+        if ($this->currentUser->hasAnyPermissions('area_admin_custom_fields')) {
+            $properties[] = $this->createToManyRelationship($this->segmentCustomFields)
+                ->readable(true, function (Procedure $procedure): ?ArrayCollection {
+                    return $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE_TEMPLATE', $procedure->getId(), 'SEGMENT');
+
+                });
+        }
 
         return $properties;
     }

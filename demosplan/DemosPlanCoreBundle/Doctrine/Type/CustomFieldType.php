@@ -11,21 +11,20 @@
 namespace demosplan\DemosPlanCoreBundle\Doctrine\Type;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
+use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
-use RuntimeException;
 
 /**
  * Handle the storage and retrieval of `StoredQueryInterface`.
  */
 class CustomFieldType extends JsonType
 {
-    final public const DPLAN_STORED_QUERY = 'dplan.custom_fields_template';
+    final public const DPLAN_STORED_QUERY = 'dplan.custom_field_configuration';
 
     private const TYPE_CLASSES = [
-        CustomFieldList::class,
+        RadioButtonField::class
     ];
 
     public function loadFromJson(
@@ -37,28 +36,26 @@ class CustomFieldType extends JsonType
 
         return collect(self::TYPE_CLASSES)
             ->map(
-                static function (string $customFieldClass) {
+                static function (string $queryClass) {
                     // explicitly switch the classes to get IDE-findable class uses
-                    $customField = null;
+                    $query = null;
 
-                    if (CustomFieldList::class == $customFieldClass) {
-                        $customField = new CustomFieldList();
+                    switch ($queryClass) {
+                        case RadioButtonField::class:
+                            $query = new RadioButtonField();
+                            break;
                     }
 
-                    return new CustomFieldList();
+                    return $query;
                 }
             )
             ->map(
-                static function (?CustomFieldInterface $customField) use (
+                static function (CustomFieldInterface $query) use (
                     $json
                 ) {
-                    if (null == $customField) {
-                        return null;
-                    }
+                    $query->fromJson($json);
 
-                    $customField->fromJson($json);
-
-                    return $customField;
+                    return $query;
                 }
             )
             ->first();
@@ -91,7 +88,7 @@ class CustomFieldType extends JsonType
 
          return parent::convertToDatabaseValue($value->toJson(), $platform);*/
 
-        return parent::convertToDatabaseValue($value, $platform);
+        return parent::convertToDatabaseValue($value->toJson(), $platform);
     }
 
     public function getName(): string

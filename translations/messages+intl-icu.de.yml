@@ -4237,6 +4237,7 @@ warning.segment.needLock.generic: "Dieser Abschnitt ist zur Zeit in Bearbeitung.
 warning.segment.too_short: "Der Abschnitt ist zu kurz. Bitte erweitern Sie ihn, um ihn speichern zu können."
 warning.select.entries: "Bitte wählen Sie Einträge aus."
 warning.select.entry: "Bitte wählen Sie einen Eintrag aus."
+warning.select.one.entry: "Bitte wählen Sie mindestens einen Eintrag aus."
 warning.selected.boilerplates.delete: "Es konnten nicht alle ausgewählten Textbausteine gelöscht werden."
 warning.selected.boilerplateGroups.delete: "Es konnten nicht alle ausgewählten Gruppen gelöscht werden."
 warning.session.expired: "Ihre Session ist abgelaufen. Bitte loggen Sie sich erneut ein. Wir bitten um Ihr Verständnis."
