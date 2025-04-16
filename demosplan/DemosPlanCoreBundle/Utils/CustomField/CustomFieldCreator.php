@@ -31,7 +31,7 @@ class CustomFieldCreator extends CoreService
             $attributes['sourceEntityId'],
             $attributes['targetEntity'],
             $createdCustomField
-        ););
+        );
         return $createdCustomField;
     }
 }
