@@ -22,7 +22,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class CustomFieldConfiguration extends CoreEntity
 {
     /**
-     * @var string|null
      *
      * @ORM\Column(type="string", length=36, options={"fixed":true})
      *
@@ -32,53 +31,47 @@ class CustomFieldConfiguration extends CoreEntity
      *
      * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
-    protected $id;
+    protected string $id;
 
     /**
-     * @var string
      *
      * @ORM\Column(name="source_entity_id", type="string", length=36, nullable=false)
      */
-    protected $sourceEntityId;
+    protected string $sourceEntityId;
 
     /**
-     * @var string
      *
      * @ORM\Column(name="source_entity_class", type="string", nullable=false)
      */
-    protected $sourceEntityClass;
+    protected string $sourceEntityClass;
 
     /**
-     * @var string
      *
      * @ORM\Column(name="target_entity_class", type="string", nullable=false)
      */
-    protected $targetEntityClass;
+    protected string $targetEntityClass;
 
     /**
-     * @var CustomFieldInterface
      *
      * @ORM\Column(type="dplan.custom_field_configuration", nullable=true)
      */
-    protected $configuration;
+    protected CustomFieldInterface $configuration;
 
     /**
-     * @var DateTime
      *
      * @Gedmo\Timestampable(on="create")
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
-    protected $createDate;
+    protected DateTime $createDate;
 
     /**
-     * @var DateTime
      *
      * @Gedmo\Timestampable(on="update")
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
-    protected $modifyDate;
+    protected DateTime $modifyDate;
 
     public function getConfiguration(): CustomFieldInterface
     {
