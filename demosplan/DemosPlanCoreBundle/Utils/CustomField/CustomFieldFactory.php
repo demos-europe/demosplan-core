@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
+use demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldType;
 use Ramsey\Uuid\Uuid;
 
 class CustomFieldFactory
@@ -30,8 +31,6 @@ class CustomFieldFactory
 
         $customFieldClass = CustomFieldList::TYPE_CLASSES[$type];
         $customField = new $customFieldClass();
-
-        $customField->setId(Uuid::uuid4()->toString());
         $customField->setFieldType($type);
         $customField->setName($attributes['name']);
         $customField->setDescription($attributes['description']);

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldService;
 use demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldType;
@@ -57,7 +58,10 @@ use EDT\PathBuilding\End;
  */
 final class AdminProcedureResourceType extends DplanResourceType
 {
-    public function __construct(private readonly ProcedureResourceType $procedureResourceType, private readonly ProcedureService $procedureService, private readonly CustomFieldList $customFieldList, private readonly CustomFieldType $customFieldType, private readonly CustomFieldService $customFieldService, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
+    public function __construct(
+        private readonly ProcedureResourceType $procedureResourceType,
+        private readonly ProcedureService $procedureService,
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
     {
     }
 
@@ -71,25 +75,11 @@ final class AdminProcedureResourceType extends DplanResourceType
         $id = $this->createIdentifier()->readable();
         $name = $this->createAttribute($this->name);
         $creationDate = $this->createAttribute($this->creationDate)->aliasedPath($this->createdDate);
-        $segmentCustomFieldsTemplate = $this->createToManyRelationship($this->segmentCustomFields)
-            ->readable(true, function (Procedure $procedure): ?ArrayCollection {
-                /** @var CustomFieldConfiguration $customFieldConfiguration */
-                $customFieldConfiguration = $this->customFieldConfigurationRepository->findCustomFieldConfigurationByCriteria('PROCEDURE', $procedure->getId(), 'SEGMENT');
-                if (null === $customFieldConfiguration) {
-                    return new ArrayCollection();
-                }
-
-                /** @var CustomFieldList $segmentCustomfieldsTemplate */
-                $segmentCustomfieldsTemplate = $customFieldConfiguration->getConfiguration();
-
-                return new ArrayCollection($segmentCustomfieldsTemplate->getCustomFields());
-            });
 
         $properties = [
             $id,
             $name,
             $creationDate,
-            $segmentCustomFieldsTemplate,
         ];
 
         if ($this->currentUser->hasPermission('area_search_submitter_in_procedures')) {
@@ -142,6 +132,15 @@ final class AdminProcedureResourceType extends DplanResourceType
                     return $externalPhases[$externalPhaseIdentifier]['name'] ?? $externalPhaseIdentifier;
                 }),
                 $this->createAttribute($this->externalStartDate)->readable()->aliasedPath($this->publicParticipationPhase->startDate)];
+
+
+            if ($this->currentUser->hasAnyPermissions('area_admin_custom_fields')) {
+                $properties[] = $this->createToManyRelationship($this->segmentCustomFields)
+                    ->readable(true, function (Procedure $procedure): ?ArrayCollection {
+                        return $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE', $procedure->getId(), 'SEGMENT');
+
+                    });
+            }
         }
 
         return $properties;

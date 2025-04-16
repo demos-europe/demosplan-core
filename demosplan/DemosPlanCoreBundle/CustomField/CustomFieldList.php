@@ -91,4 +91,14 @@ class CustomFieldList implements CustomFieldInterface
     {
         return $this->customFields;
     }
+
+    public function setId($id ): void
+    {
+
+    }
+
+    public function getId( ): string
+    {
+        return 'id';
+    }
 }
