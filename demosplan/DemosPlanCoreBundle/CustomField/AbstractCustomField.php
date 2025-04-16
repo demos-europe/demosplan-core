@@ -16,15 +16,9 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 abstract class AbstractCustomField implements CustomFieldInterface
 {
 
-    /**
-     * @var string
-     */
-    protected $name = '';
+    protected string $name = '';
 
-    /**
-     * @var string
-     */
-    protected $description = '';
+    protected string $description = '';
 
     abstract public function isValueValid(string $value): bool;
 }
