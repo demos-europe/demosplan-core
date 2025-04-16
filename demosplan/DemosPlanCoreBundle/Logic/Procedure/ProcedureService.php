@@ -216,7 +216,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         UserService                                $userService,
         private readonly ValidatorInterface        $validator,
         private readonly AccessControlService      $accessControlPermissionService,
-        private readonly string                    $environment, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
+        private readonly string                    $environment,
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
     ) {
         $this->contentService = $contentService;
         $this->elementsService = $elementsService;
