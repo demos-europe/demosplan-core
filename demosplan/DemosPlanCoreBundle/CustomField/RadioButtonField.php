@@ -125,7 +125,7 @@ class RadioButtonField extends AbstractCustomField
 
     public function setId( $id): void
     {
-        $this->id= $id;
+        $this->id = $id;
     }
 
     public function getId( ): string
