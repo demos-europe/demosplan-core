@@ -75,7 +75,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
         return $customFieldConfiguration;
     }
 
-    public function updateObject($entity): CustomFieldConfiguration
+    public function updateObject(CustomFieldConfiguration $entity): CustomFieldConfiguration
     {
         try {
             $em = $this->getEntityManager();
