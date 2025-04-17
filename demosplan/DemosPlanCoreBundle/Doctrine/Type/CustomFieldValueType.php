@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Doctrine\Type;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
@@ -42,7 +43,7 @@ class CustomFieldValueType extends JsonType
                         return new CustomFieldValuesList();
                     }
 
-                    throw new RuntimeException(
+                    throw new InvalidArgumentException(
                         sprintf(
                             'CustomFieldValueType does not support %s',
                             $customFieldClass
