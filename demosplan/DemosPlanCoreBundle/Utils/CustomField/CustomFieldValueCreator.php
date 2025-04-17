@@ -29,11 +29,11 @@ class CustomFieldValueCreator extends CoreService
     }
 
     public function updateOrAddCustomFieldValues(
-        CustomFieldValuesList $customFieldList,
-        array $customFields,
-        string $sourceEntityId,
-        string $sourceEntityClass,
-        string $targetEntityClass
+        CustomFieldValuesList $currentCustomFieldValuesList,
+        array                 $customFields,
+        string                $sourceEntityId,
+        string                $sourceEntityClass,
+        string                $targetEntityClass
     ): CustomFieldValuesList
     {
 
@@ -41,26 +41,26 @@ class CustomFieldValueCreator extends CoreService
         $newCustomFieldsValues = new CustomFieldValuesList();
         $newCustomFieldsValues->fromJson(['customFields' => $customFields],);
 
-        foreach ($newCustomFieldsValues->getCustomFieldsValues() as $field) {
-            /** @var CustomFieldValue $field */
+        foreach ($newCustomFieldsValues->getCustomFieldsValues() as $newCustomFieldValue) {
+            /** @var CustomFieldValue $newCustomFieldValue */
             $customField = $this->getCustomField(
                 $sourceEntityClass,
                 $sourceEntityId,
                 $targetEntityClass,
-                $field->getId());
-            $this->validateCustomFieldValue($customField, $field->getValue());
+                $newCustomFieldValue->getId());
+            $this->validateCustomFieldValue($customField, $newCustomFieldValue->getValue());
 
 
-            $existingCustomFieldValue = $this->findCustomFieldValue($customFieldList, $field->getId());
+            $existingCustomFieldValue = $this->findCustomFieldValue($currentCustomFieldValuesList, $newCustomFieldValue->getId());
 
             if ($existingCustomFieldValue) {
-                $existingCustomFieldValue->setValue($field->getValue());
+                $existingCustomFieldValue->setValue($newCustomFieldValue->getValue());
             } else {
-                $customFieldList->addCustomFieldValue($field);
+                $currentCustomFieldValuesList->addCustomFieldValue($newCustomFieldValue);
             }
         }
 
-        return $customFieldList;
+        return $currentCustomFieldValuesList;
     }
 
     private function findCustomFieldValue(CustomFieldValuesList $customFieldList, string $fieldId): ?CustomFieldValue
