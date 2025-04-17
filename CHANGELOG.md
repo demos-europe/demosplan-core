@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Add Custom Field feature: Allow users to add custom fields to their procedures
+
 ## v2.27.1 (2025-04-09)
 - Fix zip import encoding and recursion
 
