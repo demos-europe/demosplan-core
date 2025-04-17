@@ -28,7 +28,7 @@
 
         {# Styles. Leave in header until critical css is in place. #}
         {% block stylesheets %}
-            {{ webpackBundles(['preflight.css', 'style-public.css', 'demosplan-ui.css']) }}
+            {{ webpackBundles(['preflight.css', 'style-public.css', 'demosplan-ui-style.css']) }}
         {% endblock stylesheets %}
 
         {% block component_header %}
@@ -99,10 +99,8 @@
             {% endblock oeb %}
 
             {# Generic notification component (for cases where notifications are not handled in other Vue components) #}
-            <notify-container :notifications="JSON.parse('{{ app.session.flashbag.all|json_encode|e('js') }}')"></notify-container>
-
-            {# Vue Modals port their contents here #}
-            <portal-target name="vueModals" multiple></portal-target>
+            <notify-container :notifications="JSON.parse('{{ app.session.flashbag.all|json_encode|e('js') }}')">
+            </notify-container>
 
         </div>{# end #app #}
 

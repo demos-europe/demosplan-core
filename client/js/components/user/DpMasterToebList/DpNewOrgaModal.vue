@@ -56,6 +56,10 @@ export default {
     }
   },
 
+  emits: [
+    'save'
+  ],
+
   data () {
     return {
       formFields: {}

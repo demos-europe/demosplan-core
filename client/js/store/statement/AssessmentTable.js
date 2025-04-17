@@ -8,7 +8,6 @@
  */
 
 import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { set } from 'vue'
 
 const AssessmentTable = {
   namespaced: true,
@@ -114,7 +113,7 @@ const AssessmentTable = {
       if (Array.isArray(state.assessmentBase[data.prop])) {
         state.assessmentBase[data.prop].unshift(data.value)
       } else if (typeof state.assessmentBase[data.prop] === 'object' && data.prop !== 'paragraph') {
-        set(state.assessmentBase[data.prop], [data.value.key], data.value.title)
+        state.assessmentBase[data.prop][data.value.key] = data.value.title
       } else if (data.prop === 'paragraph') { // To paragraphs the empty option has to be passed differently because of the specific structure of data
         Object.entries(state.assessmentBase.paragraph).forEach(element => {
           element.forEach(array => {
@@ -138,12 +137,12 @@ const AssessmentTable = {
      * @TODO maybe extract stuff that is not related to a procedure into a more generic route/store
      */
     setAssessmentBaseProperty (state, data) {
-      set(state.assessmentBase, [data.prop], data.val)
+      state.assessmentBase[data.prop] = data.val
       state.assessmentBaseLoaded = true
     },
 
     setModalProperty (state, data) {
-      set(state.modals, [data.prop], data.val)
+      state.modals[data.prop] = data.val
     },
 
     /**
@@ -151,12 +150,14 @@ const AssessmentTable = {
      * @param data {Object<prop, val>}
      */
     setProperty (state, data) {
-      set(state, [data.prop], data.val)
+      state[data.prop] = data.val
     }
   },
 
   actions: {
     /**
+     * @param commit
+     * @param state
      * @param {String} procedureId
      */
     async applyBaseData ({ commit, state }, procedureId) {
@@ -167,8 +168,8 @@ const AssessmentTable = {
         .then(this.api.checkResponse)
         .then(response => response.data)
 
-      return new Promise((resolve, reject) => {
-        // To prevent invalid type error missmatch of array and object
+      return new Promise((resolve) => {
+        // To prevent invalid type error mismatch of array and object
         if (Array.isArray(data.accessibleProcedures)) {
           data.accessibleProcedures = {}
         }

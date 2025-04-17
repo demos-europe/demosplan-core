@@ -25,6 +25,7 @@ doctrine:
                 charset:  UTF8
         types:
             dplan.stored_query: \demosplan\DemosPlanCoreBundle\Doctrine\Type\StoredQueryType
+            dplan.custom_field_configuration: \demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldType
 
     orm:
         auto_generate_proxy_classes: true

@@ -14,7 +14,12 @@
     } %}
 
     {% set form_action = templateVars.formAction|default(path("DemosPlan_statement_new_submitted", {'procedureId': templateVars.table.procedure.ident})) %}
-    {% set abort_path = templateVars.abortPath|default(path("dplan_assessmenttable_view_original_table", { 'procedureId': templateVars.table.procedure.ident })) %}
+    {% if hasPermission('area_statement_data_input_orga') %}
+        {% set abort_path = path('DemosPlan_statement_orga_list', { 'procedureId': templateVars.table.procedure.ident }) %}
+    {% else %}
+        {% set abort_path = templateVars.abortPath|default(path('dplan_assessmenttable_view_original_table', { 'procedureId': templateVars.table.procedure.ident })) %}
+    {% endif %}
+
     {% set user = currentUser %}
     {% set username = user.firstName ~ ' ' ~ user.lastName %}
 
@@ -23,6 +28,11 @@
         {% set formDefinitions = formDefinitions|merge({ (definition.name): { id: definition.id, enabled: definition.enabled, required:definition.required } }) %}
     {% endfor %}
     {% set participationGuestOnly = templateVars.table.procedure.procedureBehaviorDefinition.participationGuestOnly ? true : false %}
+
+    {% set usedInternIds = [] %}
+    {% if hasPermission('field_statement_intern_id') %}
+        {% set usedInternIds = templateVars.table.usedInternIds|default([]) %}
+    {% endif %}
 
     <dp-new-statement
         inline-template
@@ -37,6 +47,7 @@
         :request-municipalities="JSON.parse('{{ app.request.get('r_municipalities')|default([])|json_encode|e('js', 'utf-8') }}')"
         :request-counties="JSON.parse('{{ app.request.get('r_counties')|default([])|json_encode|e('js', 'utf-8') }}')"
         :request-priority-areas="JSON.parse('{{ app.request.get('r_priorityAreas')|default([])|json_encode|e('js', 'utf-8') }}')"
+        used-intern-ids-pattern="{{ usedInternIds|length > 0 ? '^(?!(?:' ~ usedInternIds|join('|') ~ '+)$)[0-9a-zA-Z-_ ]{1,}$' : '^[0-9a-zA-Z-_ ]{1,}$' }}"
     >
         <form
             id="bpform"
@@ -47,6 +58,7 @@
             novalidate
             data-dp-validate="newStatementForm"
         >
+            {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
             <input type="hidden" name="r_ident" value="{{ templateVars.table.procedure.ident }}">
             <input type="hidden" name="r_action" value="new">
 
@@ -182,52 +194,50 @@
                             {% endfor %}
                         {% endif %}
 
-                        {% set usedInternIds = [] %}
-                        {% if hasPermission('field_statement_intern_id') %}
-                            {% set usedInternIds = templateVars.table.usedInternIds|default([]) %}
-                        {% endif %}
-
                         <div class="layout u-mb-0_75">
                             <div class="u-1-of-4 layout__item">
                                 <dp-label
+                                    class="mb-1"
+                                    for="r_submitted_date"
                                     text="{{ 'statement.date.submitted'|trans }}"
-                                    tooltip="{{ 'explanation.statement.date'|trans }}"
-                                    for="r_submitted_date"></dp-label>
+                                    tooltip="{{ 'explanation.statement.date'|trans }}"></dp-label>
                                 <dp-datepicker
-                                    class="o-form__control-wrapper"
-                                    name="r_submitted_date"
-                                    data-cy="submitterForm:submittedDate"
-                                    value="{{ app.request.get('r_submitted_date') }}"
                                     :calendars-before="2"
+                                    class="o-form__control-wrapper"
+                                    data-cy="submitterForm:submittedDate"
+                                    id="r_submitted_date"
                                     max-date="{{ 'now'|date('d.m.Y') }}"
                                     :min-date="values.authoredDate"
-                                    id="r_submitted_date"
+                                    name="r_submitted_date"
+                                    value="{{ app.request.get('r_submitted_date') }}"
                                     v-model="values.submittedDate"></dp-datepicker>
                             </div>
                             <div class="u-1-of-4 layout__item">
                                 <dp-label
+                                    class="mb-1"
+                                    for="r_authored_date"
                                     text="{{ 'statement.date.authored'|trans }}"
-                                    tooltip="{{ 'explanation.statement.date.authored'|trans }}"
-                                    for="r_authored_date"></dp-label>
+                                    tooltip="{{ 'explanation.statement.date.authored'|trans }}"></dp-label>
                                 <dp-datepicker
-                                    class="o-form__control-wrapper"
-                                    name="r_authored_date"
-                                    data-cy="submitterForm:authoredDate"
-                                    value="{{ app.request.get('r_authored_date') }}"
                                     :calendars-before="2"
-                                    :max-date="values.submittedDate ? values.submittedDate : '{{ 'now'|date('d.m.Y') }}'"
+                                    class="o-form__control-wrapper"
+                                    data-cy="submitterForm:authoredDate"
                                     id="r_authored_date"
+                                    :max-date="values.submittedDate ? values.submittedDate : '{{ 'now'|date('d.m.Y') }}'"
+                                    name="r_authored_date"
+                                    value="{{ app.request.get('r_authored_date') }}"
                                     v-model="values.authoredDate"></dp-datepicker>
                             </div>
                             <div class="u-1-of-4 layout__item">
                                 <dp-select
+                                    data-cy="submitterForm:submitType"
                                     id="r_submit_type"
                                     :label="{
+                                        class: 'mb-1',
                                         text: Translator.trans('submit.type'),
                                         tooltip: Translator.trans('explanation.statement.submit.type')
                                     }"
                                     name="r_submit_type"
-                                    data-cy="submitterForm:submitType"
                                     :options="JSON.parse('{{ submitTypeOptions|json_encode|e('js') }}')"
                                     selected="{{ selectedSubmitType }}"></dp-select>
                             </div>
@@ -242,7 +252,7 @@
                                     }"
                                     name="r_internId"
                                     data-cy="submitterForm:internId"
-                                    pattern="{{ usedInternIds|length > 0 ? '^(?!(?:' ~ usedInternIds|join('|') ~ '+)$)[0-9a-zA-Z-_ ]{1,}$' : '^[0-9a-zA-Z-_ ]{1,}$' }}"
+                                    :pattern="usedInternIdsPattern"
                                     value="{{ app.request.get('r_internId') }}">
                                 </dp-input>
                                 <p
@@ -258,35 +268,26 @@
                     {# depending on which option is selected in the role radio, internal or external phases are displayed
                        - unless only external phases should be displayed here in the project
                      #}
-                    {% if hasPermission('field_statement_phase') %}
-                        <div class="layout u-mb-0_75">
-                            <div class="u-1-of-2 layout__item">
-                                <label class="o-form__label">
-                                    {{ "procedure.public.phase"|trans }}*
-                                </label>
-                                <dp-multiselect
-                                    class="o-form__control-wrapper"
-                                    data-cy="submitterForm:procedurePublicPhase"
-                                    label="name"
-                                    :options="phases"
-                                    required
-                                    track-by="key"
-                                    :value="values.phase"
-                                    @input="setPhaseValue">
-                                    <template v-slot:option="{ props }">
-                                        <span
-                                            class="weight--normal"
-                                            :data-cy="`procedurePublicPhase-${props.option.name.replace(/\s+/g, '-').toLowerCase()}`">
-                                            {% verbatim %}{{ props.option.name }}{% endverbatim %}
-                                        </span>
-                                    </template>
-                                </dp-multiselect>
-                                <input type="hidden" :value="values.phase.key" name="r_phase"/>
-                            </div>
+                    <div
+                        v-if="hasPermission('field_statement_phase')"
+                        class="layout u-mb-0_75">
+                        <div class="u-1-of-2 layout__item">
+                            <dp-select
+                                class="o-form__control-wrapper"
+                                data-cy="submitterForm:procedurePublicPhase"
+                                :label="{
+                                    text: Translator.trans('procedure.public.phase')
+                                }"
+                                :options="phases"
+                                required
+                                :selected="values.phase.key"
+                                @select="setPhaseValue">
+                            </dp-select>
+                            <input type="hidden" :value="values.phase.key" name="r_phase"/>
                         </div>
-                    {% endif %}
+                    </div>
 
-                    {% if hasPermission('feature_statement_cluster') %}
+                    <template v-if="hasPermission('feature_statement_cluster')">
                         {% set clusters = [] %}
                         {% if templateVars.table.procedure.clusterStatements is defined %}
                             {% for key, clusterStatement in templateVars.table.procedure.clusterStatements %}
@@ -310,34 +311,40 @@
                             :ignore-last-claimed="true"
                             :key="'cluster_' + values.headStatement"
                         ></dp-select-statement-cluster>
-                    {% endif %}
+                    </template>
 
-                    {% if hasPermission('field_procedure_elements') %}
-                        <label class="o-form__label">
-                            {{ "plandocument"|trans }}
-                        </label>
-                        <dp-multiselect
-                            v-model="values.element"
-                            class="o-form__control-wrapper u-mb-0_75"
-                            label="title"
-                            data-cy="submitterForm:elements"
-                            :options="elements"
-                            track-by="id"
-                            @input="checkForParagraphsAndFiles()">
-                            <template v-slot:option="{ props }">
-                                {% verbatim %}{{ props.option.title }}{% endverbatim %}
-                            </template>
-                        </dp-multiselect>
-                        <input type="hidden" :value="values.element.id" name="r_element"/>
-                    {% endif %}
+
+                    <label
+                        v-if="hasPermission('field_procedure_elements')"
+                        for="element"
+                        class="o-form__label">
+                        {{ "plandocument"|trans }}
+                    </label>
+                    <dp-multiselect
+                        v-model="values.element"
+                        id="element"
+                        class="o-form__control-wrapper u-mb-0_75"
+                        label="title"
+                        data-cy="submitterForm:elements"
+                        :options="elements"
+                        track-by="id"
+                        @input="selectedElement => checkForParagraphsAndFiles(selectedElement)">
+                        <template v-slot:option="{ props }">
+                            {% verbatim %}{{ props.option.title }}{% endverbatim %}
+                        </template>
+                    </dp-multiselect>
+                    <input type="hidden" :value="values.element.id" name="r_element"/>
 
                     {% if hasPermission('field_procedure_paragraphs') %}
                         <template v-if="elementHasParagraphs">
-                            <label class="o-form__label">
+                            <label
+                                class="o-form__label"
+                                for="paragraph">
                                 {{ "paragraph"|trans }}*
                             </label>
                             <dp-multiselect
                                 v-model="values.paragraph"
+                                id="paragraph"
                                 class="o-form__control-wrapper u-mb-0_75"
                                 label="title"
                                 data-cy="submitterForm:paragraph"
@@ -354,11 +361,14 @@
 
                     {% if hasPermission('field_procedure_documents') %}
                         <template v-if="elementHasFiles">
-                            <label class="o-form__label">
+                            <label
+                                class="o-form__label"
+                                for="file">
                                 {{ "file"|trans }}*
                             </label>
                             <dp-multiselect
                                 v-model="values.document"
+                                id="file"
                                 class="o-form__control-wrapper u-mb-0_75"
                                 label="title"
                                 data-cy="submitterForm:document"
@@ -525,7 +535,6 @@
                             data-cy="submitterForm:statementText"
                             required
                             :toolbar-items="{
-                                obscure: hasPermission('feature_obscure_text'),
                                 mark: true,
                                 strikethrough: true
                             }"
@@ -591,15 +600,6 @@
                         <div
                             class="o-box--dark u-mt-0_25 u-ph u-pv-0_5"
                             data-cy="statementPublishContainer">
-
-                            {% if hasPermission('feature_statements_vote') %}
-                                <div
-                                    class="flash flash-info">
-                                    <p class="u-mb-0">
-                                        {{ "explanation.statement.public.activate.voting"|trans }}
-                                    </p>
-                                </div>
-                            {% endif %}
 
                             <statement-publish :editable="true"></statement-publish>
                         </div>

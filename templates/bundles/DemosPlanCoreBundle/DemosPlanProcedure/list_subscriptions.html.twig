@@ -14,7 +14,7 @@
             {% endif %}
 
             <list-subscriptions
-                :csrf-token="{{ csrf_token('csrf')|json_encode }}"
+                csrf-token="{{ csrf_token('csrf')|json_encode }}"
                 :subscriptions="JSON.parse('{{ subscriptions|default([])|map(el => {
                     id: el.ident|default,
                     postalcode: el.postcode|default,

@@ -93,10 +93,12 @@
             class="container pt-2"
             v-else-if="initialData">
             <segmentation-editor
-              @prosemirror-initialized="runPostInitTasks"
-              @prosemirror-max-range="setMaxRange"
-              @mouseover.native="handleMouseOver"
-              @mouseleave.native="handleMouseLeave"
+              @prosemirror:initialized="runPostInitTasks"
+              @prosemirror:maxRange="setMaxRange"
+              @focus="event => handleMouseOver(event)"
+              @focusout="handleMouseLeave"
+              @mouseover="event => handleMouseOver(event)"
+              @mouseleave="handleMouseLeave"
               :init-statement-text="initText ?? ''"
               :segments="segments"
               :range-change-callback="handleSegmentChanges"
@@ -113,8 +115,8 @@
                 :max-range="maxRange"
                 :offset="headerOffset"
                 @segment:confirm="handleSegmentConfirmation"
-                @edit-segment="enableEditMode"
-                @delete-segment="immediatelyDeleteSegment" />
+                @segment:edit="enableEditMode"
+                @segment:delete="immediatelyDeleteSegment" />
             </transition>
 
             <transition
@@ -327,20 +329,26 @@ export default {
   },
 
   watch: {
-    editModeActive (newVal) {
-      if (newVal) {
-        window.addEventListener('scroll', this.handleScroll, false)
-      } else {
-        window.removeEventListener('scroll', this.handleScroll, false)
-        this.displayScrollButton = false
-      }
+    editModeActive: {
+      handler (newVal) {
+        if (newVal) {
+          window.addEventListener('scroll', this.handleScroll, false)
+        } else {
+          window.removeEventListener('scroll', this.handleScroll, false)
+          this.displayScrollButton = false
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
 
-    initialData (newVal) {
-      this.calculateProcessingTime()
-      if (newVal) {
-        this.isLoading = false
-      }
+    initialData: {
+      handler (newVal) {
+        this.calculateProcessingTime()
+        if (newVal) {
+          this.isLoading = false
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
@@ -562,9 +570,9 @@ export default {
      * Adds highlighting background color to segment and border color to corresponding card
      * Updates currentlyHighlightedSegmentId in the store
      */
-    handleMouseOver (e) {
+    handleMouseOver (event) {
       if (!this.editModeActive) {
-        let segmentId = e.target.getAttribute('data-range') || e.target.closest('span[data-range]')?.getAttribute('data-range')
+        let segmentId = event.target.getAttribute('data-range') || event.target.closest('span[data-range]')?.getAttribute('data-range')
 
         /**
          * If the target element doesn't have the attribute 'data-range', it may be an html element inside the segment span,
@@ -573,7 +581,7 @@ export default {
          * exists, the hovered element is not inside a segment and highlighting is removed
          */
         if (!segmentId) {
-          const closestParent = e.target.closest('span[data-range]')
+          const closestParent = event.target.closest('span[data-range]')
           segmentId = closestParent ? closestParent.getAttribute('data-range') : null
         }
 
@@ -819,17 +827,22 @@ export default {
   created () {
     this.setProperty({ prop: 'statementId', val: this.statementId })
     this.setProperty({ prop: 'procedureId', val: this.procedureId })
-
-    // Add event listener to close sidebar on esc
-    document.addEventListener('keydown', (e) => this.toggleSideBar(e))
-    this.$once('hook:destroyed', () => {
-      document.removeEventListener('keydown', (e) => this.toggleSideBar(e))
-    })
   },
 
   mounted () {
     this.fetchAssignableUsers()
     this.fetchAvailablePlaces()
+
+    // Add event listener to close sidebar on esc
+    document.addEventListener('keydown', (e) => this.toggleSideBar(e))
+  },
+
+  unmounted () {
+    /**
+     * Remove event listener when component is destroyed
+     * This is necessary to prevent memory leaks
+     */
+    document.removeEventListener('keydown', (e) => this.toggleSideBar(e))
   }
 }
 </script>

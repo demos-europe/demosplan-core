@@ -137,6 +137,10 @@ export default {
     }
   },
 
+  emits: [
+    'setDrawingActive'
+  ],
+
   data () {
     return {
       selectInteraction: new Select({

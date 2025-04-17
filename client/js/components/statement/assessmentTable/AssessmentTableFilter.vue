@@ -62,7 +62,7 @@
       ref="header">
       <search-and-sorting
         :search-term="searchTerm"
-        :has-changed-statements="hasChangedStatements" />
+        @exportModal:toggle="tab => $emit('exportModal:toggle', tab)" />
 
       <div class="flex items-center space-inline-m">
         <!-- mark all -->
@@ -75,7 +75,7 @@
             v-model="allItemsOnPageSelected"
             data-cy="ToggleAllCheckboxes"
             :disabled="areFragmentsSelected"
-            :title="areFragmentsSelected ? Translator.trans('unselect.entity.first', {entity: Translator.trans('statements')}) : false">
+            :title="areFragmentsSelected ? Translator.trans('unselect.entity.first', {entity: Translator.trans('statements')}) : null">
           {{ Translator.trans('visible.entries') }}
         </label>
 
@@ -88,7 +88,7 @@
             type="button"
             aria-haspopup="true"
             aria-expanded="false"
-            @click.prevent="$root.$emit('exportModal:toggle', exportModalOptions.tab)">
+            @click.prevent="$emit('exportModal:toggle', exportModalOptions.tab)">
             <i
               class="fa fa-share-square u-mr-0_125"
               aria-hidden="true" />
@@ -123,7 +123,7 @@
                   data-actionmenu-menuitem
                   role="menuitem"
                   tabindex="-1"
-                  @click.prevent="$root.$emit('exportModal:toggle', Object.keys(option)[0])">
+                  @click.prevent="$emit('exportModal:toggle', Object.keys(option)[0])">
                   {{ Translator.trans(Object.values(option)[0].buttonLabel) }}
                 </button>
               </div>
@@ -187,7 +187,7 @@
               role="menuitem"
               tabindex="-1"
               data-actionmenu-menuitem
-              :data-actionmenu-current="currentTableView === 'statement'"
+              :data-actionmenu-current="currentTableView === 'statement' ? true : null"
               :class="{'pointer-events-none': !assessmentBaseLoaded }"
               @click.prevent="setProperty({ prop: 'currentTableView', val: 'statement' })">
               {{ Translator.trans(hasPermission('area_statements_fragment') ? 'statements' : 'display.list.expanded') }}
@@ -200,7 +200,7 @@
                 role="menuitem"
                 tabindex="-1"
                 data-actionmenu-menuitem
-                :data-actionmenu-current="currentTableView === 'fragments'"
+                :data-actionmenu-current="currentTableView === 'fragments' ? true : null"
                 :class="{'pointer-events-none': !assessmentBaseLoaded }"
                 @click.prevent="setProperty({ prop: 'currentTableView', val: 'fragments' })">
                 {{ Translator.trans('fragments') }}
@@ -211,7 +211,7 @@
                 role="menuitem"
                 tabindex="-1"
                 data-actionmenu-menuitem
-                :data-actionmenu-current="currentTableView === 'collapsed'"
+                :data-actionmenu-current="currentTableView === 'collapsed' ? true : null"
                 :class="{'pointer-events-none': !assessmentBaseLoaded }"
                 @click.prevent="setProperty({ prop: 'currentTableView', val: 'collapsed' })">
                 {{ Translator.trans('display.list') }}
@@ -224,7 +224,7 @@
                 role="menuitem"
                 tabindex="-1"
                 data-actionmenu-menuitem
-                :data-actionmenu-current="currentTableView === 'collapsed'"
+                :data-actionmenu-current="currentTableView === 'collapsed' ? true : null"
                 :class="{'pointer-events-none': !assessmentBaseLoaded }"
                 @click.prevent="setProperty({ prop: 'currentTableView', val: 'collapsed' })">
                 {{ Translator.trans('display.list.collapsed') }}
@@ -323,6 +323,11 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'exportModal:toggle',
+    'handle-sort-change'
+  ],
 
   data () {
     return {

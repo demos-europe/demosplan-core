@@ -13,15 +13,11 @@
  * Used to run Jest-Tests
  */
 
-// Use Local Vue for testing
-import { createLocalVue, shallowMount } from '@vue/test-utils'
-
-// Globally used
 import { DpMultiselect, DpObscure } from '@demos-europe/demosplan-ui'
+import { createApp } from 'vue'
 import lscache from 'lscache'
-import PortalVue from 'portal-vue'
+import { shallowMount } from '@vue/test-utils'
 import { VTooltip } from 'v-tooltip'
-import Vuex from 'vuex'
 
 /*
  * This is copied from DpVueCore.js
@@ -30,14 +26,13 @@ import Vuex from 'vuex'
  * make the tests run without refactoring everything
  */
 const DPVueCorePlugin = {
-  install: function (VueCore) {
-    VueCore.prototype.dplan = window.dplan
-    VueCore.prototype.hasPermission = window.hasPermission
+  install: function (app) {
+    app.config.globalProperties.dplan = window.dplan
+    app.config.globalProperties.hasPermission = window.hasPermission
   }
 }
 
 // Mocking global stuff
-const Vue = createLocalVue()
 const hasPermission = jest.fn(() => true)
 
 const Translator = {
@@ -62,47 +57,75 @@ const globalMocks = {
   Routing,
   Translator,
   dplan,
-  Vue,
   lscache,
   dpApi,
   checkResponse
 }
+
+// Create a local Vue instance
+const localVue = createApp({})
 
 /*
  * Necessary for Bus, Vue.nextTick etc.
  * shouldn't it work when it's a globalMock ?
  * in my tests it doesn't :-(
  */
-global.Vue = Vue
+global.Vue = localVue
 global.Translator = Translator
 global.hasPermission = hasPermission
 global.lscache = lscache
 global.dplan = dplan
 
 // Add plugins to Vue instance
-Vue.use(PortalVue)
+localVue.use(DPVueCorePlugin)
 
-Vue.use(Vuex)
-Vue.use(DPVueCorePlugin)
-
-Vue.directive('tooltip', VTooltip)
+localVue.directive('tooltip', VTooltip)
 
 // Register components that are used globally
-Vue.component('DpObscure', DpObscure)
-Vue.component('DpMultiselect', DpMultiselect)
+localVue.component('DpObscure', DpObscure)
+localVue.component('DpMultiselect', DpMultiselect)
 
 const shallowMountWithGlobalMocks = (component, options) => {
+  const { global, ...optionsWithoutGlobal } = options || {}
+
   return shallowMount(
     component,
     {
-      localVue: Vue,
-      mocks: Object.assign(globalMocks, options.mocks),
-      propsData: Object.assign({}, options.propsData),
-      computed: Object.assign({}, options.computed),
-      store: options.store,
-      methods: Object.assign({}, options.methods),
-      stubs: Object.assign({}, options.stubs),
-      slots: Object.assign({}, options.slots)
+      global: {
+        plugins: [
+          DPVueCorePlugin,
+          ...(global?.plugins || [])
+        ],
+        config: {
+          globalProperties: {
+            ...globalMocks,
+            ...(global?.config?.globalProperties || {})
+          }
+        },
+        mixins: [
+          ...[global?.mixins || []]
+        ],
+        mocks: {
+          ...(global?.mocks || {})
+        },
+        provide: {
+          ...(global?.provide || {})
+        },
+        components: {
+          DpObscure,
+          DpMultiselect,
+          ...(global?.components || {})
+        },
+        directives: {
+          tooltip: VTooltip,
+          ...(global?.directives || {})
+        },
+        stubs: {
+          ...(global?.stubs || {})
+        },
+        renderStubDefaultSlot: global?.renderStubDefaultSlot || false
+      },
+      ...optionsWithoutGlobal
     })
 }
 
