@@ -206,6 +206,7 @@
           v-if="showWorkflowActions"
           class="u-mv-0_5">
           <dp-label
+            class="mb-0.5 mt-2"
             :text="Translator.trans('assignee')"
             :bold="false"
             for="assignableUsersSegment" />
@@ -219,7 +220,7 @@
           <dp-label
             :text="Translator.trans('workflow.place')"
             :bold="false"
-            class="u-mt-0_5"
+            class="mb-0.5 mt-2"
             for="segmentPlace" />
           <dp-multiselect
             id="segmentPlace"
@@ -259,6 +260,22 @@
               </div>
             </template>
           </dp-multiselect>
+          <template v-for="field in Object.values(customFields)">
+            <dp-label
+              :bold="false"
+              class="mb-0.5 mt-2"
+              :for="field.id"
+              :text="field.attributes.name" />
+            <dp-multiselect
+              allow-empty
+              :id="field.id"
+              :value="customFieldValues[field.id]"
+              @select="(value) => setCustomFieldValue(field.id, value)"
+              label="name"
+              :options="customFieldsOptions[field.id]"
+              track-by="id">
+            </dp-multiselect>
+          </template>
         </div>
       </div>
       <dp-button-row
@@ -469,6 +486,7 @@ export default {
         procedureId: this.procedureId
       },
       claimLoading: false,
+      customFieldValues: [],
       currentUserName: this.currentUserFirstName + ' ' + this.currentUserLastName,
       demosplanUi: shallowRef(demosplanUi),
       isCollapsed: !(this.segment.relationships?.assignee?.data && this.segment.relationships.assignee.data.id === this.currentUserId),
@@ -489,6 +507,10 @@ export default {
 
     ...mapState('AssignableUser', {
       assignableUserItems: 'items'
+    }),
+
+    ...mapState('CustomField', {
+      customFields: 'items'
     }),
 
     assignableUsers () {
@@ -521,6 +543,18 @@ export default {
 
     commentCount () {
       return this.segment.relationships.comments?.data?.length || 0
+    },
+
+    customFieldsOptions () {
+      return Object.values(this.customFields).reduce((acc, el) => {
+        const opts =  [ ...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
+        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id})
+
+        return {
+          ...acc,
+          [el.id]: opts
+        }
+      }, {})
     },
 
     isAssignedToMe () {
@@ -753,6 +787,14 @@ export default {
           this.setProperty({ prop: 'isLoading', val: false })
           this.isEditing = false
         })
+    },
+
+    setActiveTabId (id) {
+      this.activeId = id
+    },
+
+    setCustomFieldValue (fieldId, value) {
+      this.customFieldValues[fieldId] = value
     },
 
     showComments () {
