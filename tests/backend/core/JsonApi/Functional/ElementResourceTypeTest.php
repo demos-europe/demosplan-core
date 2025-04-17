@@ -18,15 +18,18 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\RoleFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
 use Tests\Base\JsonApiTest;
+use Zenstruck\Foundry\Persistence\Proxy;
 
 class ElementResourceTypeTest extends JsonApiTest
 {
-    private \demosplan\DemosPlanCoreBundle\Entity\User\User|\Zenstruck\Foundry\Persistence\Proxy $user;
-    private Role|\Zenstruck\Foundry\Persistence\Proxy $role;
-    private $customer;
+    private null|User|Proxy $user;
+    private null|Role|Proxy $role;
+    private null|Customer|Proxy$customer;
 
     public function testCreate(): void
     {
