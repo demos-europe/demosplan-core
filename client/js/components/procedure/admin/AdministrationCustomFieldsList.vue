@@ -153,7 +153,7 @@ export default {
   data () {
     return {
       headerFields: [
-        { field: 'name', label: Translator.trans('field_name'), colClass: 'u-3-of-12' },
+        { field: 'name', label: Translator.trans('name'), colClass: 'u-3-of-12' },
         { field: 'options', label: Translator.trans('options'), colClass: 'u-4-of-12' },
         { field: 'description', label: Translator.trans('description'), colClass: 'u-5-of-12' }
       ],
