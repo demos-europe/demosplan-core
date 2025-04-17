@@ -186,21 +186,22 @@ export default {
      * @return {({id: *, name: *, description: *, options: *, open: boolean}|undefined)[]}
      */
     customFieldsReduced () {
-      return Object.keys(this.customFields).map(key => {
-        if (this.customFields[key]) {
-          const { id, attributes } = this.customFields[key]
-          const { description, name, options } = attributes
+      return Object.keys(this.customFields)
+        .map(key => {
+          if (this.customFields[key]) {
+            const { id, attributes } = this.customFields[key]
+            const { description, name, options } = attributes
 
-          return {
-            id,
-            name,
-            description,
-            options,
-            open: false
+            return {
+              id,
+              name,
+              description,
+              options,
+              open: false
+            }
           }
-        }
-
-      })
+        })
+        .filter(field => field !== undefined)
     },
 
     displayedOptions () {
