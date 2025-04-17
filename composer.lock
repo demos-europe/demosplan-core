@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e0faa2c3881008291ff4085c8f6559a8",
+    "content-hash": "390f661b3332fa218156e5afabb58f4b",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1637,16 +1637,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.50",
+            "version": "v0.51",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "8df8cf14cfb856cbb012e83aa81488f6d2af8d57"
+                "reference": "64248923b17d0be8f67aca6cfff813643403f6a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/8df8cf14cfb856cbb012e83aa81488f6d2af8d57",
-                "reference": "8df8cf14cfb856cbb012e83aa81488f6d2af8d57",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/64248923b17d0be8f67aca6cfff813643403f6a9",
+                "reference": "64248923b17d0be8f67aca6cfff813643403f6a9",
                 "shasum": ""
             },
             "require": {
@@ -1712,9 +1712,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.50"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.51"
             },
-            "time": "2025-03-31T09:45:16+00:00"
+            "time": "2025-04-04T08:57:29+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -22727,16 +22727,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.12.0",
+            "version": "3.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "2d1b63db139c3c6ea0c927698e5160f8b3b8d630"
+                "reference": "ea16a1f3719783345febd3aab41beb55c8c84bfd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/2d1b63db139c3c6ea0c927698e5160f8b3b8d630",
-                "reference": "2d1b63db139c3c6ea0c927698e5160f8b3b8d630",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/ea16a1f3719783345febd3aab41beb55c8c84bfd",
+                "reference": "ea16a1f3719783345febd3aab41beb55c8c84bfd",
                 "shasum": ""
             },
             "require": {
@@ -22807,7 +22807,7 @@
                     "type": "thanks_dev"
                 }
             ],
-            "time": "2025-03-18T05:04:51+00:00"
+            "time": "2025-04-04T12:57:55+00:00"
         },
         {
             "name": "symfony/debug-bundle",

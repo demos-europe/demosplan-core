@@ -1,25 +1,17 @@
 # due to BSI SYS.1.6.A6 we need to use excplicit versions
-FROM debian:stable-20250224-slim AS build
+FROM demosdeutschland/demosplan-base:latest AS build
 
 ARG PROJECT_NAME
+ARG BUILD_MODE=prod
 # ENV vars needs to be set to build the assets
 ENV PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
     EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de \
+    BUILD_MODE=$BUILD_MODE \
     TZ=Europe/Berlin
 
-# install default-mysql-client to be able to dump database
-RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone && \
-    apt update -y && \
-    apt --no-install-recommends install acl bind9-host composer curl gettext-base  \
-    npm php8.2 php8.2-apcu php8.2-bcmath php8.2-bz2 php8.2-cli  \
-    php8.2-common php8.2-curl php8.2-fpm php8.2-gd php8.2-intl php8.2-mbstring php8.2-mysqli  \
-    php8.2-soap php8.2-sqlite3 php8.2-xml php8.2-zip unzip -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Setup timezone
+RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
 COPY zzz-dplan.ini /etc/php/8.2/fpm/conf.d/zzz-dplan.ini
 COPY zzz-dplan-cli.ini /etc/php/8.2/cli/conf.d/zzz-dplan-cli.ini
 COPY php-fpm_www.conf /etc/php/8.2/fpm/pool.d/zzz-www.conf
@@ -51,7 +43,11 @@ WORKDIR /srv/www
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
 # do not use --no-scripts, as we do not need all the aws stuff
 RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,uid=33,gid=33 \
-    composer install -o --prefer-dist --no-dev --no-progress && \
+    if [ "$BUILD_MODE" = "dev" ]; then \
+        composer install -o --prefer-dist --no-progress; \
+    else \
+        composer install -o --prefer-dist --no-dev --no-progress; \
+    fi && \
     yarn install --immutable && \
     yarn cache clean && \
     rm -rf /srv/www/.cache/*
@@ -82,8 +78,12 @@ USER www-data
 # the command is executed with "|| true" to prevent the build from failing
 RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
     --mount=type=cache,target=/var/www,uid=33,gid=33 \
-    ACTIVE_PROJECT=$PROJECT_NAME bin/console dplan:addon:autoinstall -e prod --no-debug || true && \
-     ./fe build $PROJECT_NAME --prod && \
+    ACTIVE_PROJECT=$PROJECT_NAME bin/console dplan:addon:autoinstall -e ${BUILD_MODE} --no-debug || true && \
+    if [ "$BUILD_MODE" = "dev" ]; then \
+        ./fe build $PROJECT_NAME; \
+    else \
+        ./fe build $PROJECT_NAME --prod; \
+    fi && \
     rm -rf /srv/www/node_modules && \
     rm -rf /srv/www/addons/cache/*/node_modules && \
     rm -rf /srv/www/addonZips && \
@@ -103,25 +103,16 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web/uploads && \
     touch /var/log/php8.2-fpm.log && chown www-data:www-data /var/log/php8.2-fpm.log
 
-FROM debian:stable-20250224-slim AS fpm
+FROM demosdeutschland/demosplan-base:latest AS fpm
 
 ARG PROJECT_NAME
 ENV PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
-    EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de
+    EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de \
+    TZ=Europe/Berlin
 
-ENV TZ=Europe/Berlin
-RUN apt update -y && \
-    apt --no-install-recommends install acl bind9-host ca-certificates curl gettext-base  \
-    default-mysql-client lnav php8.2 php8.2-apcu php8.2-bcmath php8.2-bz2 php8.2-cli  \
-    php8.2-common php8.2-curl php8.2-fpm php8.2-gd php8.2-intl php8.2-mbstring php8.2-mysqli  \
-    php8.2-soap php8.2-sqlite3 php8.2-xml php8.2-zip unzip vim-tiny -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    mkdir -p /opt/config && \
+# Install additional packages needed for FPM
+RUN mkdir -p /opt/config && \
     chown -R www-data:www-data /opt/config
 
 COPY zzz-dplan.ini /etc/php/8.2/fpm/conf.d/zzz-dplan.ini
@@ -146,12 +137,24 @@ RUN rm -rf /srv/www/var/cache/* && \
 USER www-data
 CMD ["/usr/sbin/php-fpm8.2", "-F"]
 
-FROM nginxinc/nginx-unprivileged:alpine3.19-slim AS nginx
+FROM nginxinc/nginx-unprivileged:alpine3.21-slim AS nginx
 
 ARG PROJECT_NAME
-ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung
+ARG BUILD_MODE=prod
+ENV PHP_FPM_BETEILIGUNG_SERVICE=beteiligung \
+    BUILD_MODE=$BUILD_MODE
 
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+# Copy nginx config templates to context
+COPY nginx.conf.template /tmp/nginx.conf.template
+COPY nginx.conf.template-dev /tmp/nginx.conf.template-dev
+
+# Use appropriate template based on build mode
+RUN mkdir -p /etc/nginx/templates && \
+    if [ "$BUILD_MODE" = "dev" ] && [ -f /tmp/nginx.conf.template-dev ]; then \
+      cp /tmp/nginx.conf.template-dev /etc/nginx/templates/default.conf.template; \
+    else \
+      cp /tmp/nginx.conf.template /etc/nginx/templates/default.conf.template; \
+    fi
 
 WORKDIR /srv/www
 # only webfolder with frontcontroller and static files is needed for nginx

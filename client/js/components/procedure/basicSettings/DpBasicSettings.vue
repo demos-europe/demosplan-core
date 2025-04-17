@@ -234,19 +234,19 @@ export default {
       const addonExists = !!window.dplan.loadedAddons['addon.additional.field']
       const addonHasValue = !!this.addonPayload.value || !!this.addonPayload.initValue
 
-      if (addonExists && addonHasValue) {
-        this.handleAddonRequest().then(() => {
+      this.dpValidateAction('configForm', () => {
+        if (addonExists && addonHasValue) {
+          this.handleAddonRequest().then(() => {
+            this.submitConfigForm()
+          })
+        } else {
           this.submitConfigForm()
-        })
-      } else {
-        this.submitConfigForm()
-      }
+        }
+      }, false)
     },
 
     submitConfigForm () {
-      this.dpValidateAction('configForm', () => {
-        this.$refs.configForm.submit()
-      }, false)
+      this.$refs.configForm.submit()
     },
 
     unselectAllAuthUsers () {
