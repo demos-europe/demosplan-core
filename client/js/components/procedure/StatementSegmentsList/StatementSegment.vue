@@ -267,12 +267,11 @@
               :for="field.id"
               :text="field.attributes.name" />
             <dp-multiselect
-              allow-empty
               :id="field.id"
               :value="customFieldValues[field.id]"
               @select="(value) => setCustomFieldValue(field.id, value)"
               label="name"
-              :options="customFieldsOptions[field.id]"
+              :options="field.attributes.options.map(el => ({ name: el, id: `${field.id}:${el}`, fieldId: field.id }))"
               track-by="id">
             </dp-multiselect>
           </template>
@@ -543,18 +542,6 @@ export default {
 
     commentCount () {
       return this.segment.relationships.comments?.data?.length || 0
-    },
-
-    customFieldsOptions () {
-      return Object.values(this.customFields).reduce((acc, el) => {
-        const opts =  [ ...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
-        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id})
-
-        return {
-          ...acc,
-          [el.id]: opts
-        }
-      }, {})
     },
 
     isAssignedToMe () {
