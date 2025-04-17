@@ -36,16 +36,21 @@ class CustomFieldValueCreator extends CoreService
     {
         foreach ($customFields as $field) {
             if (isset($field['id'], $field['value'])) {
+
+                $customField = $this->getCustomField(
+                    'PROCEDURE',
+                    $segment->getProcedure()->getId(),
+                    'SEGMENT',
+                    $field);
+                $this->validateCustomFieldValue($customField, $field['value']);
+
+
                 $existingCustomFieldValue = $this->findCustomFieldValue($customFieldList, $field['id']);
 
                 if ($existingCustomFieldValue) {
-                    $customField = $this->getCustomField(
-                        'PROCEDURE', $segment->getProcedure()->getId(), 'SEGMENT', $field);
-                    $this->validateCustomFieldValue($customField, $field['value']);
-
                     $existingCustomFieldValue->setValue($field['value']);
                 } else {
-                    $customFieldValue = $this->createCustomFieldValue($field, 'PROCEDURE', $segment->getProcedure()->getId(), 'SEGMENT');
+                    $customFieldValue = $this->buildCustomFieldValue($field);
                     $customFieldList->addCustomFieldValue($customFieldValue);
                 }
             }
@@ -65,12 +70,11 @@ class CustomFieldValueCreator extends CoreService
     }
 
 
-
- private function getCustomField($sourceEntityClass,
+    private function getCustomField($sourceEntityClass,
                                  $sourceEntityId,
                                  $targetEntityClass,
                                  $fields): CustomFieldInterface
- {
+    {
      $customFieldConfiguration = $this->getCustomFieldConfiguration(
          $sourceEntityClass,
          $sourceEntityId,
@@ -78,23 +82,7 @@ class CustomFieldValueCreator extends CoreService
          $fields['id']
      );
 
-
      return $customFieldConfiguration->getConfiguration();
-
- }
-
-    public function createCustomFieldValue($fields, $sourceEntityClass, $sourceEntityId, $targetEntityClass): CustomFieldValue
-    {
-
-        $customField = $this->getCustomField(
-            $sourceEntityClass,
-            $sourceEntityId,
-            $targetEntityClass,
-            $fields
-        );
-        $this->validateCustomFieldValue($customField, $fields['value']);
-
-        return $this->buildCustomFieldValue($fields);
     }
 
     private function getCustomFieldConfiguration(
