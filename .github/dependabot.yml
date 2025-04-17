@@ -22,6 +22,7 @@ updates:
           - ">= 5"
 
       # These dependencies have to be updated according to the needs of @masterportal/masterportalapi
+      # on that note: we have to update the masterportalapi maually, because its hosted by bitbucket and not via npm
       - dependency-name: ol
       - dependency-name: ol-mapbox-style
       - dependency-name: olcs
