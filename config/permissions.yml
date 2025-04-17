@@ -47,12 +47,6 @@ area_admin_contextual_help_edit:
     label: 'Kontexthilfe verwalten'
     loginRequired: true
     parent: area_admin
-area_admin_custom_fields:
-    description: |-
-        Enables the use of custom fields for a procedure and procedure template.
-    label: 'Custom fields'
-    expose: true
-    loginRequired: true
 area_admin_dashboard:
     description: 'Displays a dashboard page with some metrics for a procedure'
     label: 'procedure dashboard page'

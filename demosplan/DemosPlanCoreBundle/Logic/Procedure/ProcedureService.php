@@ -71,7 +71,6 @@ use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
-use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
@@ -206,18 +205,17 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         private readonly ProcedureSubscriptionRepository $procedureSubscriptionRepository,
         private readonly ProcedureToLegacyConverter $procedureToLegacyConverter,
         private readonly ProcedureTypeService $procedureTypeService,
-        private readonly SettingRepository         $settingRepository,
-        private readonly SingleDocumentRepository  $singleDocumentRepository,
-        private readonly SortMethodFactory         $sortMethodFactory,
-        private readonly StatementRepository       $statementRepository,
-        private readonly TagTopicRepository        $tagTopicRepository,
+        private readonly SettingRepository $settingRepository,
+        private readonly SingleDocumentRepository $singleDocumentRepository,
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly StatementRepository $statementRepository,
+        private readonly TagTopicRepository $tagTopicRepository,
         private readonly InstitutionMailRepository $institutionMailRepository,
-        private readonly TranslatorInterface       $translator,
-        UserService                                $userService,
-        private readonly ValidatorInterface        $validator,
-        private readonly AccessControlService      $accessControlPermissionService,
-        private readonly string                    $environment,
-        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
+        private readonly TranslatorInterface $translator,
+        UserService $userService,
+        private readonly ValidatorInterface $validator,
+        private readonly AccessControlService $accessControlPermissionService,
+        private readonly string $environment,
     ) {
         $this->contentService = $contentService;
         $this->elementsService = $elementsService;
@@ -2739,8 +2737,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         $this->settingRepository->copy($blueprintId, $newProcedure);
 
         $this->copyPlaces($blueprintId, $newProcedure);
-
-        $this->customFieldConfigurationRepository->copy($blueprintId, $newProcedure);
 
         /** @var NewProcedureAdditionalDataEvent $additionalDataEvent */
         $additionalDataEvent = $this->eventDispatcher->dispatch(new NewProcedureAdditionalDataEvent($newProcedure));
