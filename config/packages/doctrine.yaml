@@ -26,6 +26,7 @@ doctrine:
         types:
             dplan.stored_query: \demosplan\DemosPlanCoreBundle\Doctrine\Type\StoredQueryType
             dplan.custom_field_configuration: \demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldType
+            dplan.custom_fields_value: \demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldValueType
 
     orm:
         auto_generate_proxy_classes: true
