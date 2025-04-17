@@ -10,14 +10,12 @@
 
 namespace demosplan\DemosPlanCoreBundle\Doctrine\Type;
 
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldList;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
-use RuntimeException;
+
 
 /**
  * Handle the storage and retrieval of `CustomFieldValuesList`.
@@ -45,7 +43,7 @@ class CustomFieldValueType extends JsonType
 
                     throw new InvalidArgumentException(
                         sprintf(
-                            'CustomFieldValueType does not support %s',
+                            'CustomFieldValueListType does not support %s',
                             $customFieldClass
                         )
                     );
@@ -55,7 +53,7 @@ class CustomFieldValueType extends JsonType
                 static function (?CustomFieldValuesList $customField) use (
                     $json
                 ) {
-                    if (null == $customField) {
+                    if (null === $customField) {
                         return null;
                     }
 
