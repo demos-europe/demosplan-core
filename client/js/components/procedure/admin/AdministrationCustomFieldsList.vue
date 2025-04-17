@@ -186,10 +186,10 @@ export default {
      * @return {({id: *, name: *, description: *, options: *, open: boolean}|undefined)[]}
      */
     customFieldsReduced () {
-      return Object.keys(this.customFields)
-        .map(key => {
-          if (this.customFields[key]) {
-            const { id, attributes } = this.customFields[key]
+      return Object.values(this.customFields)
+        .map(field => {
+          if (field) {
+            const { id, attributes } = field
             const { description, name, options } = attributes
 
             return {
