@@ -36,25 +36,27 @@ class CustomFieldValueCreator extends CoreService
         string $targetEntityClass
     ): CustomFieldValuesList
     {
-        foreach ($customFields as $field) {
-            if (isset($field['id'], $field['value'])) {
-
-                $customField = $this->getCustomField(
-                    $sourceEntityClass,
-                    $sourceEntityId,
-                    $targetEntityClass,
-                    $field['id']);
-                $this->validateCustomFieldValue($customField, $field['value']);
 
 
-                $existingCustomFieldValue = $this->findCustomFieldValue($customFieldList, $field['id']);
+        $newCustomFieldsValues = new CustomFieldValuesList();
+        $newCustomFieldsValues->fromJson(['customFields' => $customFields],);
 
-                if ($existingCustomFieldValue) {
-                    $existingCustomFieldValue->setValue($field['value']);
-                } else {
-                    $customFieldValue = $this->buildCustomFieldValue($field);
-                    $customFieldList->addCustomFieldValue($customFieldValue);
-                }
+        foreach ($newCustomFieldsValues->getCustomFieldsValues() as $field) {
+            /** @var CustomFieldValue $field */
+            $customField = $this->getCustomField(
+                $sourceEntityClass,
+                $sourceEntityId,
+                $targetEntityClass,
+                $field->getId());
+            $this->validateCustomFieldValue($customField, $field->getValue());
+
+
+            $existingCustomFieldValue = $this->findCustomFieldValue($customFieldList, $field->getId());
+
+            if ($existingCustomFieldValue) {
+                $existingCustomFieldValue->setValue($field->getValue());
+            } else {
+                $customFieldList->addCustomFieldValue($field);
             }
         }
 
@@ -112,14 +114,5 @@ class CustomFieldValueCreator extends CoreService
                 $customField->getId()
             ));
         }
-    }
-
-    private function buildCustomFieldValue(array $fields): CustomFieldValue
-    {
-        $customFieldValue = new CustomFieldValue();
-        $customFieldValue->setId($fields['id']);
-        $customFieldValue->setValue($fields['value']);
-
-        return $customFieldValue;
     }
 }
