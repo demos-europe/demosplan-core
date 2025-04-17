@@ -140,20 +140,21 @@ export default {
       countiesPromptAdded: false,
       municipalitiesPromptAdded: false,
       values: {
+        authoredDate: '',
+        counties: this.requestCounties,
+        document: '',
+        element: '',
+        headStatement: this.requestHeadStatement,
+        internId: '',
+        municipalities: this.requestMunicipalities,
+        paragraph: '',
+        phase: {},
+        priorityAreas: this.requestPriorityAreas,
+        submittedDate: '',
         submitter: {},
         submitType: this.defaultSubmitType,
-        phase: {},
-        headStatement: this.requestHeadStatement,
-        element: '',
-        paragraph: '',
-        document: '',
-        counties: this.requestCounties,
-        municipalities: this.requestMunicipalities,
-        priorityAreas: this.requestPriorityAreas,
         tags: [],
-        text: this.requestText,
-        submittedDate: '',
-        authoredDate: ''
+        text: this.requestText
       },
       elementHasParagraphs: false,
       elementHasFiles: false,
@@ -224,11 +225,11 @@ export default {
       }
     },
 
-    checkForParagraphsAndFiles () {
+    checkForParagraphsAndFiles (selectedElement) {
       this.values.paragraph = { id: '', title: '-' }
       this.values.document = { id: '', title: '-' }
-      this.elementHasParagraphs = hasOwnProp(this.paragraph, this.values.element.id)
-      this.elementHasFiles = hasOwnProp(this.documents, this.values.element.id)
+      this.elementHasParagraphs = hasOwnProp(this.paragraph, selectedElement.id)
+      this.elementHasFiles = hasOwnProp(this.documents, selectedElement.id)
     },
 
     handlePhaseSelect () {

@@ -2,7 +2,7 @@
   "name": "demos-europe/demosplan-core",
   "description": "demosplan is a web application for public participation in planning processes",
   "type": "project",
-  "version": "v2.27.0",
+  "version": "v3.0.0",
   "license": "EUPL-1.2",
   "minimum-stability": "stable",
   "require": {
@@ -36,7 +36,7 @@
     "cocur/slugify": "^4.0",
     "composer/composer": "^2.8",
     "composer/package-versions-deprecated": "1.11.99.5",
-    "demos-europe/demosplan-addon": "0.50",
+    "demos-europe/demosplan-addon": "0.51",
     "doctrine/annotations": "^2.0",
     "doctrine/common": "^3.2",
     "doctrine/doctrine-bundle": "^2",

@@ -5,9 +5,16 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v2.27.1 (2025-04-09)
+- Fix zip import encoding and recursion
+
+## v3.0.0 (2025-04-09)
 - create deletion report entry when procedure is deleted
 - Migrate to Vue 3
 - Implement VirusCheckSocket to directly check files for viruses via remote sockets
+
+## v2.26.5 (2025-03-28)
+- new parameter proxy_no_proxy to allow to exclude local services from the proxy
 
 ## v2.26.4 (2025-03-26)
 - new parameter cafile to set the path to the CA file for the symfony http client
