@@ -67,6 +67,11 @@ final class UserFactory extends PersistentProxyObjectFactory
         return [
             'authCodeEmailEnabled'       => self::faker()->boolean(),
             'createdDate'                => self::faker()->dateTime(),
+            'firstname'                  => self::faker()->firstName(),
+            'lastname'                   => self::faker()->lastName(),
+            'email'                      => self::faker()->email(),
+            'login'                      => self::faker()->email(),
+            'password'                   => self::faker()->password(),
             'deleted'                    => self::faker()->boolean(),
             'modifiedDate'               => self::faker()->dateTime(),
             'providedByIdentityProvider' => self::faker()->boolean(),

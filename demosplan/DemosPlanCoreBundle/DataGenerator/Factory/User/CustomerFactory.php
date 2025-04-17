@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use Zenstruck\Foundry\ModelFactory;
+use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;
 
@@ -35,7 +36,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Customer[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
  * @method static Customer[]|Proxy[]                 randomSet(int $number, array $attributes = [])
  */
-final class CustomerFactory extends ModelFactory
+final class CustomerFactory extends PersistentProxyObjectFactory
 {
     public function __construct()
     {
@@ -45,7 +46,7 @@ final class CustomerFactory extends ModelFactory
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
      */
-    protected function getDefaults(): array
+    protected function defaults(): array|callable
     {
         return [
             'accessibilityExplanation'            => self::faker()->text(),
@@ -66,12 +67,12 @@ final class CustomerFactory extends ModelFactory
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
      */
-    protected function initialize(): self
+    protected function initialize(): static
     {
         return $this;
     }
 
-    protected static function getClass(): string
+    public static function class(): string
     {
         return Customer::class;
     }
