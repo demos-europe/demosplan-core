@@ -42,6 +42,11 @@ abstract class AbstractApiTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->setUpHttpClient();
+    }
+
+    protected function setUpHttpClient()
+    {
         static::ensureKernelShutdown();
         // the createClient() method cannot be used when kernel is booted
         $this->client = static::createClient();
@@ -60,6 +65,7 @@ abstract class AbstractApiTest extends FunctionalTestCase
         $token = $this->tokenManager->create($user);
         $userToken = new JWTUserToken($user->getDplanRolesArray(), $user, $token);
         $this->tokenStorage->setToken($userToken);
+        $this->client->setServerParameter(SetHttpTestPermissionsListener::X_DPLAN_TEST_USER_ID, $user->getId());
 
         return $token;
     }
