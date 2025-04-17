@@ -38,14 +38,16 @@ class CustomFieldValueType extends JsonType
         return collect(self::TYPE_CLASSES)
             ->map(
                 static function (string $customFieldClass) {
-                    // explicitly switch the classes to get IDE-findable class uses
-                    $customField = null;
-
-                    if (CustomFieldValuesList::class == $customFieldClass) {
-                        $customField = new CustomFieldValuesList();
+                    if (CustomFieldValuesList::class === $customFieldClass) {
+                        return new CustomFieldValuesList();
                     }
 
-                    return new CustomFieldValuesList();
+                    throw new RuntimeException(
+                        sprintf(
+                            'CustomFieldValueType does not support %s',
+                            $customFieldClass
+                        )
+                    );
                 }
             )
             ->map(
