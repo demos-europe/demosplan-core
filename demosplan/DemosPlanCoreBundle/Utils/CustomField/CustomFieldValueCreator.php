@@ -66,22 +66,6 @@ class CustomFieldValueCreator extends CoreService
                                     string $targetEntityClass,
                                     string $customFieldId): CustomFieldInterface
     {
-     $customFieldConfiguration = $this->getCustomFieldConfiguration(
-         $sourceEntityClass,
-         $sourceEntityId,
-         $targetEntityClass,
-         $customFieldId
-     );
-
-     return $customFieldConfiguration->getConfiguration();
-    }
-
-    private function getCustomFieldConfiguration(
-        string $sourceEntityClass,
-        string $sourceEntityId,
-        string $targetEntityClass,
-        string $customFieldId
-    ): CustomFieldConfiguration {
         $customFieldConfigurations = $this->customFieldConfigurationRepository
             ->findCustomFieldConfigurationByCriteria($sourceEntityClass, $sourceEntityId, $targetEntityClass, $customFieldId);
 
@@ -89,7 +73,7 @@ class CustomFieldValueCreator extends CoreService
             throw new InvalidArgumentException('No custom field configuration found for CustomFieldId.');
         }
 
-       return $customFieldConfigurations[0];
+     return $customFieldConfigurations[0]->getConfiguration();
     }
 
     private function validateCustomFieldValue(CustomFieldInterface $customField, mixed $value): void
