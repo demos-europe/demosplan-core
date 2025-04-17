@@ -43,7 +43,7 @@ class CustomFieldValueCreator extends CoreService
                     $sourceEntityClass,
                     $sourceEntityId,
                     $targetEntityClass,
-                    $field);
+                    $field['id']);
                 $this->validateCustomFieldValue($customField, $field['value']);
 
 
@@ -72,16 +72,16 @@ class CustomFieldValueCreator extends CoreService
     }
 
 
-    private function getCustomField($sourceEntityClass,
-                                 $sourceEntityId,
-                                 $targetEntityClass,
-                                 $fields): CustomFieldInterface
+    private function getCustomField(string $sourceEntityClass,
+                                    string $sourceEntityId,
+                                    string $targetEntityClass,
+                                    string $customFieldId): CustomFieldInterface
     {
      $customFieldConfiguration = $this->getCustomFieldConfiguration(
          $sourceEntityClass,
          $sourceEntityId,
          $targetEntityClass,
-         $fields['id']
+         $customFieldId
      );
 
      return $customFieldConfiguration->getConfiguration();
