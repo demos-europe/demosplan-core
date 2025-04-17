@@ -930,7 +930,7 @@ class DemosPlanProcedureController extends BaseController
         MasterToebService $masterToebService,
         Request $request,
         ServiceStorage $serviceStorage,
-        $procedure,
+                                $procedure,
     ) {
         // Storage initialisieren
         $requestPost = $request->request->all();
@@ -991,7 +991,7 @@ class DemosPlanProcedureController extends BaseController
         AddressBookEntryService $addressBookEntryService,
         Request $request,
         TranslatorInterface $translator,
-        $procedureId,
+                                $procedureId,
     ): Response {
         $procedureService = $this->procedureService;
         $procedure = $procedureService->getProcedure($procedureId);
@@ -1872,7 +1872,7 @@ class DemosPlanProcedureController extends BaseController
 
                 if ($user->getId() == $draftStatement['uId']
                     || ($this->permissions->hasPermission('feature_statements_released_group_edit')
-                    && $user->getOrganisationId() == $draftStatement['oId'])) {
+                        && $user->getOrganisationId() == $draftStatement['oId'])) {
                     $templateVars['draftStatement'] = $draftStatement;
                     $templateVars['request']['r_text'] = $draftStatement['text'];
                     // Id des Kreises, dem die SN zugeordnet ist
@@ -2355,7 +2355,7 @@ class DemosPlanProcedureController extends BaseController
     public function boilerplateListAction(
         ProcedureHandler $procedureHandler,
         Request $request,
-        $procedure,
+                         $procedure,
     ) {
         $procedureId = $procedure;
         $requestPost = $request->request;
@@ -2442,21 +2442,6 @@ class DemosPlanProcedureController extends BaseController
     }
 
     /**
-     * Creation and editing of places, each is either process or procedure template related.
-     * */
-    #[AttributeDplanPermissions('area_admin_custom_fields')]
-    #[Route(name: 'DemosPlan_procedure_custom_fields_list', path: '/verfahren/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
-    #[Route(name: 'DemosPlan_procedure_template_custom_fields_list', path: '/verfahren/blaupause/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
-    public function showProcedureCustomFieldsAction(string $procedureId)
-    {
-        $templateVars['procedureTemplate'] = $this->currentProcedureService->getProcedure()?->getMaster() ?? false;
-        $templateVars['procedureId'] = $procedureId;
-
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_custom_fields_list.html.twig',
-            ['templateVars' => $templateVars]);
-    }
-
-    /**
      * Creation of custom fields, each is either procedure or procedure template related.
      */
     #[AttributeDplanPermissions('area_admin_custom_fields')]
@@ -2503,8 +2488,8 @@ class DemosPlanProcedureController extends BaseController
             }
         }
         $form = $formFactory->createNamed(
-            // we don't use form names for data evaluation, see
-            // https://symfony.com/doc/5.4/forms.html#changing-the-form-name
+        // we don't use form names for data evaluation, see
+        // https://symfony.com/doc/5.4/forms.html#changing-the-form-name
             '',
             BoilerplateType::class,
             $boilerplateValueObject,
@@ -2641,8 +2626,8 @@ class DemosPlanProcedureController extends BaseController
         }
 
         $form = $formFactory->createNamed(
-            // we don't use form names for data evaluation, see
-            // https://symfony.com/doc/5.4/forms.html#changing-the-form-name
+        // we don't use form names for data evaluation, see
+        // https://symfony.com/doc/5.4/forms.html#changing-the-form-name
             '',
             BoilerplateGroupType::class,
             $boilerplateGroupValueObject,
