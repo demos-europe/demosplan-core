@@ -86,7 +86,7 @@ class RadioButtonField extends AbstractCustomField
 
     public function setFieldType(string $type): void
     {
-        $this->type = $type;
+        $this->fieldType = $type;
     }
 
 
