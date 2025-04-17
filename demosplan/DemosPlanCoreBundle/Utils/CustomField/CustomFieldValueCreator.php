@@ -31,7 +31,7 @@ class CustomFieldValueCreator extends CoreService
     public function updateOrAddCustomFieldValues(
         CustomFieldValuesList $customFieldList,
         array $customFields,
-        Segment $segment
+        string $sourceEntityId
     ): CustomFieldValuesList
     {
         foreach ($customFields as $field) {
@@ -39,7 +39,7 @@ class CustomFieldValueCreator extends CoreService
 
                 $customField = $this->getCustomField(
                     'PROCEDURE',
-                    $segment->getProcedure()->getId(),
+                    $sourceEntityId,
                     'SEGMENT',
                     $field);
                 $this->validateCustomFieldValue($customField, $field['value']);
