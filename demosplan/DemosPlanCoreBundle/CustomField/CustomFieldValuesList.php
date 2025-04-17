@@ -53,4 +53,14 @@ class CustomFieldValuesList
         // If no matching ID is found, add the new custom field value
         $this->customFieldValues[] = $customFieldValue;
     }
+
+    public function findById(string $fieldId): ?CustomFieldValue
+    {
+        foreach ($this->getCustomFieldsValues() as $customFieldValue) {
+            if ($customFieldValue->getId() === $fieldId) {
+                return $customFieldValue;
+            }
+        }
+        return null;
+    }
 }

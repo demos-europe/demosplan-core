@@ -49,9 +49,7 @@ class CustomFieldValueCreator extends CoreService
                 $targetEntityClass,
                 $newCustomFieldValue->getId());
             $this->validateCustomFieldValue($customField, $newCustomFieldValue->getValue());
-
-
-            $existingCustomFieldValue = $this->findCustomFieldValue($currentCustomFieldValuesList, $newCustomFieldValue->getId());
+            $existingCustomFieldValue = $currentCustomFieldValuesList->findById($newCustomFieldValue->getId());
 
             if ($existingCustomFieldValue) {
                 $existingCustomFieldValue->setValue($newCustomFieldValue->getValue());
@@ -62,17 +60,6 @@ class CustomFieldValueCreator extends CoreService
 
         return $currentCustomFieldValuesList;
     }
-
-    private function findCustomFieldValue(CustomFieldValuesList $customFieldList, string $fieldId): ?CustomFieldValue
-    {
-        foreach ($customFieldList->getCustomFieldsValues() as $customFieldValue) {
-            if ($customFieldValue->getId() === $fieldId) {
-                return $customFieldValue;
-            }
-        }
-        return null;
-    }
-
 
     private function getCustomField(string $sourceEntityClass,
                                     string $sourceEntityId,
