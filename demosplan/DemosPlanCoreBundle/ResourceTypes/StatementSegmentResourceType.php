@@ -199,7 +199,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
                 ->setReadableByCallable(static fn (Segment $segment): ?array => $segment->getCustomFields()?->toJson())
                 ->addUpdateBehavior(new CallbackAttributeSetBehaviorFactory([],  function (Segment $segment, array $customFields): array {
                         $customFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
-                        $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues($customFieldList, $customFields, $segment->getProcedure()->getId());
+                        $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues($customFieldList, $customFields, $segment->getProcedure()->getId(), 'PROCEDURE', 'SEGMENT');
                         $segment->setCustomFields($customFieldList->toJson());
 
                     return [];

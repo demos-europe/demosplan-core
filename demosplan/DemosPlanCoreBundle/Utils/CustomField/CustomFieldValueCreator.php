@@ -31,16 +31,18 @@ class CustomFieldValueCreator extends CoreService
     public function updateOrAddCustomFieldValues(
         CustomFieldValuesList $customFieldList,
         array $customFields,
-        string $sourceEntityId
+        string $sourceEntityId,
+        string $sourceEntityClass,
+        string $targetEntityClass
     ): CustomFieldValuesList
     {
         foreach ($customFields as $field) {
             if (isset($field['id'], $field['value'])) {
 
                 $customField = $this->getCustomField(
-                    'PROCEDURE',
+                    $sourceEntityClass,
                     $sourceEntityId,
-                    'SEGMENT',
+                    $targetEntityClass,
                     $field);
                 $this->validateCustomFieldValue($customField, $field['value']);
 
