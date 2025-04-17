@@ -12,15 +12,10 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 
 class CustomFieldValue
 {
-    /**
-     * @var string
-     */
-    protected $id = '';
 
-    /**
-     * @var string
-     */
-    protected $value = '';
+    protected string $id = '';
+
+    protected string $value = '';
 
     public function fromJson(array $json): void
     {

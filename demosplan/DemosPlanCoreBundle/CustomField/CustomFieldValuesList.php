@@ -12,16 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 
 class CustomFieldValuesList
 {
-    /**
-     * List of custom custom fields values
-     *
-     * @var array
-     */
-    protected $customFieldValues = [];
+    protected array $customFieldValues = [];
 
     public function fromJson(array $json): void
     {
-        $this->customFieldValues = array_map(function ($fieldData) {
+        $this->customFieldValues = array_map(static function ($fieldData) {
             $customFieldValue = new CustomFieldValue();
             $customFieldValue->fromJson($fieldData);
 
@@ -32,7 +27,7 @@ class CustomFieldValuesList
     public function toJson(): array
     {
         return [
-            'customFields' => array_map(function ($customField) {
+            'customFields' => array_map(static function ($customField) {
                 return $customField->toJson();
             }, $this->customFieldValues),
         ];
