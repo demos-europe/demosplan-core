@@ -33,11 +33,6 @@ class CustomFieldValuesList
         ];
     }
 
-    public function setCustomFieldValues(array $customFieldValues): void
-    {
-        $this->customFieldValues = $customFieldValues;
-    }
-
     public function getCustomFieldsValues(): ?array
     {
         return $this->customFieldValues;
