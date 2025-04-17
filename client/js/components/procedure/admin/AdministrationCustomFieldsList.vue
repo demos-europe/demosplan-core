@@ -62,7 +62,7 @@
     </create-custom-field-form>
 
     <dp-data-table
-      v-if="!isInitiallyLoading"
+      v-if="isProcedureTemplate ? !procedureTemplateCustomFieldsLoading : !procedureCustomFieldsLoading"
       data-cy="customFields:table"
       has-flyout
       :header-fields="headerFields"
@@ -106,6 +106,7 @@
         </div>
       </template>
     </dp-data-table>
+
     <dp-loading v-else />
   </div>
 </template>
@@ -161,7 +162,6 @@ export default {
         { field: 'options', label: Translator.trans('options'), colClass: 'u-4-of-12' },
         { field: 'description', label: Translator.trans('description'), colClass: 'u-5-of-12' }
       ],
-      isInitiallyLoading: false,
       isLoading: false,
       isNewFieldFormOpen: false,
       isSuccess: false,
@@ -175,6 +175,14 @@ export default {
   computed: {
     ...mapState('CustomField', {
       customFields: 'items'
+    }),
+
+    ...mapState('AdminProcedure', {
+      procedureCustomFieldsLoading: 'loading'
+    }),
+
+    ...mapState('ProcedureTemplate', {
+      procedureTemplateCustomFieldsLoading: 'loading'
     }),
 
     additionalOptions () {
@@ -257,8 +265,6 @@ export default {
      * Fetch custom fields that are available either in the procedure or in the procedure template
      */
     fetchCustomFields () {
-      this.isInitiallyLoading = true
-
       const sourceEntity = this.isProcedureTemplate
         ? 'ProcedureTemplate'
         : 'AdminProcedure'
@@ -280,9 +286,6 @@ export default {
 
       this.getCustomFields(payload)
         .catch(err => console.error(err))
-        .finally(() => {
-          this.isInitiallyLoading = false
-        })
     },
 
     hideOptions (rowData) {
