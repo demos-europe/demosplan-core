@@ -139,11 +139,6 @@ export default {
   },
 
   props: {
-    currentUserId: {
-      type: String,
-      required: true
-    },
-
     isProcedureTemplate: {
       type: Boolean,
       default: false
@@ -219,7 +214,7 @@ export default {
     },
 
     helpTextDismissibleKey () {
-      return `${this.currentUserId}:procedureAdministrationSegmentsFieldsHint`
+      return 'customFieldsHint'
     }
   },
 

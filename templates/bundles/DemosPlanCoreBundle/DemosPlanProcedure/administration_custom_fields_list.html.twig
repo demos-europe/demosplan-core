@@ -6,7 +6,6 @@
     } %}
 
     <administration-custom-fields-list
-        current-user-id="{{ currentUser.ident|default }}"
         :is-procedure-template="Boolean({{ templateVars.procedureTemplate|default(false) }})"
         procedure-id="{{ templateVars.procedureId }}">
     </administration-custom-fields-list>
