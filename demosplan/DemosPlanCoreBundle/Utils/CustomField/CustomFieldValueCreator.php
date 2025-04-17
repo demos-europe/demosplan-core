@@ -30,7 +30,7 @@ class CustomFieldValueCreator extends CoreService
 
     public function updateOrAddCustomFieldValues(
         CustomFieldValuesList $currentCustomFieldValuesList,
-        array                 $customFields,
+        array                 $newCustomFieldValuesData,
         string                $sourceEntityId,
         string                $sourceEntityClass,
         string                $targetEntityClass
@@ -38,10 +38,10 @@ class CustomFieldValueCreator extends CoreService
     {
 
 
-        $newCustomFieldsValues = new CustomFieldValuesList();
-        $newCustomFieldsValues->fromJson(['customFields' => $customFields],);
+        $newCustomFieldValuesList = new CustomFieldValuesList();
+        $newCustomFieldValuesList->fromJson(['customFields' => $newCustomFieldValuesData],);
 
-        foreach ($newCustomFieldsValues->getCustomFieldsValues() as $newCustomFieldValue) {
+        foreach ($newCustomFieldValuesList->getCustomFieldsValues() as $newCustomFieldValue) {
             /** @var CustomFieldValue $newCustomFieldValue */
             $customField = $this->getCustomField(
                 $sourceEntityClass,
