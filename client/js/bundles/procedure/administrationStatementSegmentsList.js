@@ -37,9 +37,7 @@ if (hasPermission('area_admin_boilerplates')) {
 }
 
 const apiStores = [
-  'AdminProcedure',
   'AggregationFilterItems',
-  'CustomField',
   'AssignableUser',
   'ElementsDetails',
   'Place',

@@ -206,7 +206,6 @@
           v-if="showWorkflowActions"
           class="u-mv-0_5">
           <dp-label
-            class="mb-0.5 mt-2"
             :text="Translator.trans('assignee')"
             :bold="false"
             for="assignableUsersSegment" />
@@ -220,7 +219,7 @@
           <dp-label
             :text="Translator.trans('workflow.place')"
             :bold="false"
-            class="mb-0.5 mt-2"
+            class="u-mt-0_5"
             for="segmentPlace" />
           <dp-multiselect
             id="segmentPlace"
@@ -260,21 +259,6 @@
               </div>
             </template>
           </dp-multiselect>
-          <template v-for="field in Object.values(customFields)">
-            <dp-label
-              :bold="false"
-              class="mb-0.5 mt-2"
-              :for="field.id"
-              :text="field.attributes.name" />
-            <dp-multiselect
-              :id="field.id"
-              :value="customFieldValues[field.id]"
-              @select="(value) => setCustomFieldValue(field.id, value)"
-              label="name"
-              :options="field.attributes.options.map(el => ({ name: el, id: `${field.id}:${el}`, fieldId: field.id }))"
-              track-by="id">
-            </dp-multiselect>
-          </template>
         </div>
       </div>
       <dp-button-row
@@ -485,7 +469,6 @@ export default {
         procedureId: this.procedureId
       },
       claimLoading: false,
-      customFieldValues: [],
       currentUserName: this.currentUserFirstName + ' ' + this.currentUserLastName,
       demosplanUi: shallowRef(demosplanUi),
       isCollapsed: !(this.segment.relationships?.assignee?.data && this.segment.relationships.assignee.data.id === this.currentUserId),
@@ -506,10 +489,6 @@ export default {
 
     ...mapState('AssignableUser', {
       assignableUserItems: 'items'
-    }),
-
-    ...mapState('CustomField', {
-      customFields: 'items'
     }),
 
     assignableUsers () {
@@ -774,14 +753,6 @@ export default {
           this.setProperty({ prop: 'isLoading', val: false })
           this.isEditing = false
         })
-    },
-
-    setActiveTabId (id) {
-      this.activeId = id
-    },
-
-    setCustomFieldValue (fieldId, value) {
-      this.customFieldValues[fieldId] = value
     },
 
     showComments () {
