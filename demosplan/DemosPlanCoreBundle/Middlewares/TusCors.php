@@ -33,11 +33,8 @@ class TusCors implements TusMiddleware
         $allowHeaders = $this->headerSanitizer->sanitizeHeader($headers['Access-Control-Allow-Headers']);
         $exposeHeaders = $this->headerSanitizer->sanitizeHeader($headers['Access-Control-Expose-Headers']);
 
-        $fileHashHeader = $this->headerSanitizer->sanitizeHeader(Header::FILE_HASH);
-        $fileIdHeader = $this->headerSanitizer->sanitizeHeader(Header::FILE_ID);
-
-        $headers['Access-Control-Allow-Headers'] = $allowHeaders.', '.$fileHashHeader.', '.$fileIdHeader;
-        $headers['Access-Control-Expose-Headers'] = $exposeHeaders.', '.$fileHashHeader.', '.$fileIdHeader;
+        $headers['Access-Control-Allow-Headers'] = $allowHeaders.', '.Header::FILE_HASH.', '.Header::FILE_ID;
+        $headers['Access-Control-Expose-Headers'] = $exposeHeaders.', '.Header::FILE_HASH.', '.Header::FILE_ID;
 
         $response->replaceHeaders($headers);
     }
