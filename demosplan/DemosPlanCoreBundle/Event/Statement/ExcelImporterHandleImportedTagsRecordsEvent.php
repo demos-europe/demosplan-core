@@ -39,6 +39,6 @@ class ExcelImporterHandleImportedTagsRecordsEvent extends DPlanEvent implements 
 
     public function getRecords(): MapIterator
     {
-        return new MapIterator($this->records, fn($record) => $record);
+        return new MapIterator($this->records, fn ($record) => $record);
     }
 }
