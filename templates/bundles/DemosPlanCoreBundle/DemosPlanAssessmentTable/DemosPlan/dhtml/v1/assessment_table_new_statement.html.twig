@@ -47,7 +47,7 @@
         :request-municipalities="JSON.parse('{{ app.request.get('r_municipalities')|default([])|json_encode|e('js', 'utf-8') }}')"
         :request-counties="JSON.parse('{{ app.request.get('r_counties')|default([])|json_encode|e('js', 'utf-8') }}')"
         :request-priority-areas="JSON.parse('{{ app.request.get('r_priorityAreas')|default([])|json_encode|e('js', 'utf-8') }}')"
-        used-intern-ids-pattern="{{ usedInternIds|length > 0 ? '^(?!(?:' ~ usedInternIds|join('|') ~ '+)$)[0-9a-zA-Z-_ ]{1,}$' : '^[0-9a-zA-Z-_ ]{1,}$' }}"
+        used-intern-ids-pattern="{{ usedInternIds|length > 0 ? '^(?!(?:' ~ usedInternIds|join('|') ~ ')$)[0-9a-zA-Z_ \\- ]{1,}$' : '^[0-9a-zA-Z_ \\- ]{1,}$' }}"
     >
         <form
             id="bpform"
@@ -244,14 +244,15 @@
                             <div class="u-1-of-4 layout__item" v-if="hasPermission('field_statement_intern_id')">
                                 <dp-input
                                     id="r_internId"
+                                    v-model="values.internId"
                                     aria-describedby="lastUsedDescription"
                                     data-dp-validate-error="{{ 'validation.error.internId'|trans }} {{ 'validation.error.alphaNumericDashUnderscore'|trans }}"
+                                    data-cy="submitterForm:internId"
                                     :label="{
                                         text: Translator.trans('internId'),
                                         tooltip: `${Translator.trans('validation.error.internId')} ${Translator.trans('validation.error.alphaNumericDashUnderscore')}`
                                     }"
                                     name="r_internId"
-                                    data-cy="submitterForm:internId"
                                     :pattern="usedInternIdsPattern"
                                     value="{{ app.request.get('r_internId') }}">
                                 </dp-input>
@@ -316,17 +317,19 @@
 
                     <label
                         v-if="hasPermission('field_procedure_elements')"
+                        for="element"
                         class="o-form__label">
                         {{ "plandocument"|trans }}
                     </label>
                     <dp-multiselect
                         v-model="values.element"
+                        id="element"
                         class="o-form__control-wrapper u-mb-0_75"
                         label="title"
                         data-cy="submitterForm:elements"
                         :options="elements"
                         track-by="id"
-                        @input="checkForParagraphsAndFiles()">
+                        @input="selectedElement => checkForParagraphsAndFiles(selectedElement)">
                         <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.title }}{% endverbatim %}
                         </template>
@@ -335,11 +338,14 @@
 
                     {% if hasPermission('field_procedure_paragraphs') %}
                         <template v-if="elementHasParagraphs">
-                            <label class="o-form__label">
+                            <label
+                                class="o-form__label"
+                                for="paragraph">
                                 {{ "paragraph"|trans }}*
                             </label>
                             <dp-multiselect
                                 v-model="values.paragraph"
+                                id="paragraph"
                                 class="o-form__control-wrapper u-mb-0_75"
                                 label="title"
                                 data-cy="submitterForm:paragraph"
@@ -356,11 +362,14 @@
 
                     {% if hasPermission('field_procedure_documents') %}
                         <template v-if="elementHasFiles">
-                            <label class="o-form__label">
+                            <label
+                                class="o-form__label"
+                                for="file">
                                 {{ "file"|trans }}*
                             </label>
                             <dp-multiselect
                                 v-model="values.document"
+                                id="file"
                                 class="o-form__control-wrapper u-mb-0_75"
                                 label="title"
                                 data-cy="submitterForm:document"

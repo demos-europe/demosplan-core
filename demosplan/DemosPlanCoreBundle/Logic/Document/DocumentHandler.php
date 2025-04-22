@@ -296,8 +296,9 @@ class DocumentHandler extends CoreHandler
     {
         $result = [];
 
-        // Gehe rekursiv alle Verzeichnisse durch. Speichere Ordner als Elements, dateien als Files in den Elements
-        $contents = $this->defaultStorage->listContents($dir, true);
+        // Recursively go through all directories. Save folders as Elements, files as Files in the Elements
+        // Use false for recursive parameter to only get direct contents of this directory
+        $contents = $this->defaultStorage->listContents($dir, false);
         foreach ($contents as $item) {
             if ($item->isDir()) {
                 $result[] = [

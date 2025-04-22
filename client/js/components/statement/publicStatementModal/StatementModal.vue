@@ -474,6 +474,7 @@
 
         <fieldset
           aria-required="true"
+          :aria-hidden="step === 2"
           :class="prefixClass('mt-5')"
           id="personalInfoFieldset"
           role="radiogroup"
