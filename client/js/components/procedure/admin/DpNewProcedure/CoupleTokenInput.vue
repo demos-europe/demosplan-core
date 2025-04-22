@@ -12,6 +12,7 @@
     <dp-input
       aria-labelledby="token-notification"
       id="procedureCoupleToken"
+      v-model="currentToken"
       data-cy="procedureCoupleToken"
       data-dp-validate-if="#procedureCoupleToken!==''"
       :label="{
@@ -46,6 +47,7 @@ export default {
 
   data () {
     return {
+      currentToken: '',
       notification: null
     }
   },
