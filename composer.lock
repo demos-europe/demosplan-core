@@ -4197,16 +4197,16 @@
         },
         {
             "name": "enqueue/dsn",
-            "version": "0.10.19",
+            "version": "0.10.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-enqueue/dsn.git",
-                "reference": "f4991fe46dd01477deb566727170341b255e8479"
+                "reference": "83193ee9e3f83d2becc66f748bb5bec232281236"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-enqueue/dsn/zipball/f4991fe46dd01477deb566727170341b255e8479",
-                "reference": "f4991fe46dd01477deb566727170341b255e8479",
+                "url": "https://api.github.com/repos/php-enqueue/dsn/zipball/83193ee9e3f83d2becc66f748bb5bec232281236",
+                "reference": "83193ee9e3f83d2becc66f748bb5bec232281236",
                 "shasum": ""
             },
             "require": {
@@ -4246,7 +4246,7 @@
                 "issues": "https://github.com/php-enqueue/enqueue-dev/issues",
                 "source": "https://github.com/php-enqueue/enqueue-dev"
             },
-            "time": "2023-03-23T09:50:55+00:00"
+            "time": "2025-01-17T21:33:18+00:00"
         },
         {
             "name": "enqueue/elastica-bundle",
@@ -4481,16 +4481,16 @@
         },
         {
             "name": "enqueue/fs",
-            "version": "0.10.19",
+            "version": "0.10.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-enqueue/fs.git",
-                "reference": "3784404541b82fb5d915da90927411f1e5a8465d"
+                "reference": "54a784685483769feb6cb58ecd0fa539d617e7c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-enqueue/fs/zipball/3784404541b82fb5d915da90927411f1e5a8465d",
-                "reference": "3784404541b82fb5d915da90927411f1e5a8465d",
+                "url": "https://api.github.com/repos/php-enqueue/fs/zipball/54a784685483769feb6cb58ecd0fa539d617e7c3",
+                "reference": "54a784685483769feb6cb58ecd0fa539d617e7c3",
                 "shasum": ""
             },
             "require": {
@@ -4541,7 +4541,7 @@
                 "issues": "https://github.com/php-enqueue/enqueue-dev/issues",
                 "source": "https://github.com/php-enqueue/enqueue-dev"
             },
-            "time": "2023-03-23T09:50:55+00:00"
+            "time": "2025-01-17T21:33:18+00:00"
         },
         {
             "name": "enqueue/null",
@@ -11177,16 +11177,16 @@
         },
         {
             "name": "queue-interop/queue-interop",
-            "version": "0.8.1",
+            "version": "0.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/queue-interop/queue-interop.git",
-                "reference": "117043fd38490f8b5516622cd4b697b33a89ce2b"
+                "reference": "752db86fee6d9fd11d2e34191afe212c64b96fa7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/queue-interop/queue-interop/zipball/117043fd38490f8b5516622cd4b697b33a89ce2b",
-                "reference": "117043fd38490f8b5516622cd4b697b33a89ce2b",
+                "url": "https://api.github.com/repos/queue-interop/queue-interop/zipball/752db86fee6d9fd11d2e34191afe212c64b96fa7",
+                "reference": "752db86fee6d9fd11d2e34191afe212c64b96fa7",
                 "shasum": ""
             },
             "require": {
@@ -11222,9 +11222,9 @@
             ],
             "support": {
                 "issues": "https://github.com/queue-interop/queue-interop/issues",
-                "source": "https://github.com/queue-interop/queue-interop/tree/0.8.1"
+                "source": "https://github.com/queue-interop/queue-interop/tree/0.8.2"
             },
-            "time": "2020-12-21T13:14:51+00:00"
+            "time": "2025-02-21T08:24:49+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
