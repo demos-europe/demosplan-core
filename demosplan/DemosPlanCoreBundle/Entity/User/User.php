@@ -1723,10 +1723,8 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
         return new ArrayCollection();
     }
 
-
     public function getSurveyVote($surveyVoteId): ?SurveyVoteInterface
     {
-
         return null;
     }
 

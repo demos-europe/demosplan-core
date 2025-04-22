@@ -35,7 +35,6 @@ use demosplan\DemosPlanCoreBundle\Constraint\ProcedureAllowedSegmentsConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTypeConstraint;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
@@ -491,7 +490,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", mappedBy="procedure", cascade={"persist", "remove"})
      */
     protected $statements;
-
 
     /**
      * Defined as nullable=true, because of Procedure-Blueprints will not have a related ProcedureType.
@@ -2101,7 +2099,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return new ArrayCollection();
     }
 
-
     public function getSurvey($surveyId): ?SurveyInterface
     {
         return null;
@@ -2109,12 +2106,11 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function addSurvey(SurveyInterface $survey): void
     {
-        //removed
+        // removed
     }
 
     public function getFirstSurvey(): ?SurveyInterface
     {
-
         return null;
     }
 

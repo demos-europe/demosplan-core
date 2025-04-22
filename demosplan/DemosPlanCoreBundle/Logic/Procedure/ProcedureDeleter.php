@@ -18,7 +18,7 @@ use Exception;
 class ProcedureDeleter
 {
     public function __construct(
-        private readonly SqlQueriesService $queriesService
+        private readonly SqlQueriesService $queriesService,
     ) {
     }
 
@@ -102,7 +102,6 @@ class ProcedureDeleter
 
         // delete hashed queries
         $this->deleteHashedQueries($procedureIds, $isDryRun);
-
 
         // delete procedure-category relations
         $this->deleteProcedureCategoryRelation($procedureIds, $isDryRun);
@@ -685,7 +684,6 @@ class ProcedureDeleter
     {
         $this->queriesService->deleteFromTableByIdentifierArray('hashed_query', 'procedure_id', $procedureIds, $isDryRun);
     }
-
 
     /**
      * @throws Exception
