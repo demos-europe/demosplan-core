@@ -473,19 +473,6 @@ parameters:
     public_css_class_prefix: ""
 
     # #refactor: used only once, could be constants
-    survey.statuses:
-        - configuration
-        - participation
-        - evaluation
-        - completed
-    survey.status.default: 'configuration'
-
-    # #refactor: used only once, could be constants
-    survey.schema_path_create: "%kernel.project_dir%/config/Survey/survey-schema-create.json"
-    survey.schema_path_update: "%kernel.project_dir%/config/Survey/survey-schema-update.json"
-    surveyvote.schema_path_create: "%kernel.project_dir%/config/Survey/surveyvote-schema-create.json"
-
-    # #refactor: used only once, could be constants
     file.formats.doc: [doc, docx]
     file.formats.pdf: [pdf]
     file.formats.xls: [xls, xlsx]

@@ -103,8 +103,6 @@ class ProcedureDeleter
         // delete hashed queries
         $this->deleteHashedQueries($procedureIds, $isDryRun);
 
-        // delete surveys and their votes
-        $this->deleteSurveysAndVotes($procedureIds, $isDryRun);
 
         // delete procedure-category relations
         $this->deleteProcedureCategoryRelation($procedureIds, $isDryRun);
@@ -688,34 +686,6 @@ class ProcedureDeleter
         $this->queriesService->deleteFromTableByIdentifierArray('hashed_query', 'procedure_id', $procedureIds, $isDryRun);
     }
 
-    /**
-     * @throws Exception
-     */
-    private function deleteSurveysAndVotes(array $procedureIds, bool $isDryRun): void
-    {
-        $surveyIds = array_column(
-            $this->queriesService->fetchFromTableByParameter(
-                ['id'],
-                'survey',
-                'p_id',
-                $procedureIds
-            ),
-            'id'
-        );
-
-        $this->queriesService->deleteFromTableByIdentifierArray(
-            'survey_vote',
-            'survey_id',
-            $surveyIds,
-            $isDryRun
-        );
-        $this->queriesService->deleteFromTableByIdentifierArray(
-            'survey',
-            'p_id',
-            $procedureIds,
-            $isDryRun
-        );
-    }
 
     /**
      * @throws Exception

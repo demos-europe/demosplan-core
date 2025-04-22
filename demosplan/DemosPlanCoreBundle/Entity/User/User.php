@@ -304,14 +304,6 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     protected $currentCustomer;
 
     /**
-     * @var Collection<int, SurveyVoteInterface>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Survey\SurveyVote",
-     *      mappedBy="user", cascade={"persist", "remove"})
-     */
-    protected $surveyVotes;
-
-    /**
      * List of Role codes that are allowed in current project.
      *
      * @var array<int, string>
@@ -387,7 +379,6 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
         $this->orga = new ArrayCollection();
         $this->roleInCustomers = new ArrayCollection();
         $this->rolesAllowed = [];
-        $this->surveyVotes = new ArrayCollection();
         $this->authorizedProcedures = new ArrayCollection();
     }
 
@@ -1727,34 +1718,21 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
         return '';
     }
 
-    /**
-     * @return Collection<int, SurveyVoteInterface>
-     */
     public function getSurveyVotes(): Collection
     {
-        return $this->surveyVotes;
+        return new ArrayCollection();
     }
 
-    /**
-     * Returns SurveyVote with the given id or null if none exists.
-     *
-     * @param string $surveyVoteId
-     */
+
     public function getSurveyVote($surveyVoteId): ?SurveyVoteInterface
     {
-        /** @var SurveyVoteInterface $surveyVote */
-        foreach ($this->surveyVotes as $surveyVote) {
-            if ($surveyVote->getId() === $surveyVoteId) {
-                return $surveyVote;
-            }
-        }
 
         return null;
     }
 
     public function addSurveyVote(SurveyVoteInterface $surveyVote): void
     {
-        $this->surveyVotes[] = $surveyVote;
+        // removed
     }
 
     /**

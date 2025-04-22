@@ -88,8 +88,6 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementReportEntryResourceType
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementVoteResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyVoteResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagTopicResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\UserFilterSetResourceType;
@@ -251,10 +249,6 @@ class ResourceTypeStore
 
     protected StatementVoteResourceType $statementVoteResourceType;
 
-    protected SurveyResourceType $surveyResourceType;
-
-    protected SurveyVoteResourceType $surveyVoteResourceType;
-
     protected TagResourceType $tagResourceType;
 
     protected TagTopicResourceType $tagTopicResourceType;
@@ -343,8 +337,6 @@ class ResourceTypeStore
         StatementResourceType $statementResourceType,
         StatementSegmentResourceType $statementSegmentResourceType,
         StatementVoteResourceType $statementVoteResourceType,
-        SurveyResourceType $surveyResourceType,
-        SurveyVoteResourceType $surveyVoteResourceType,
         TagResourceType $tagResourceType,
         TagTopicResourceType $tagTopicResourceType,
         UserFilterSetResourceType $userFilterSetResourceType,
@@ -427,8 +419,6 @@ class ResourceTypeStore
         $this->statementResourceType = $statementResourceType;
         $this->statementSegmentResourceType = $statementSegmentResourceType;
         $this->statementVoteResourceType = $statementVoteResourceType;
-        $this->surveyResourceType = $surveyResourceType;
-        $this->surveyVoteResourceType = $surveyVoteResourceType;
         $this->tagResourceType = $tagResourceType;
         $this->tagTopicResourceType = $tagTopicResourceType;
         $this->userFilterSetResourceType = $userFilterSetResourceType;
@@ -810,16 +800,6 @@ class ResourceTypeStore
     public function getStatementVoteResourceType(): StatementVoteResourceType
     {
         return $this->statementVoteResourceType;
-    }
-
-    public function getSurveyResourceType(): SurveyResourceType
-    {
-        return $this->surveyResourceType;
-    }
-
-    public function getSurveyVoteResourceType(): SurveyVoteResourceType
-    {
-        return $this->surveyVoteResourceType;
     }
 
     public function getTagResourceType(): TagResourceType

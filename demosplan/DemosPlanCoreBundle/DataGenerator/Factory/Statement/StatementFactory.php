@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\SurveyInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
@@ -62,7 +62,7 @@ class StatementFactory extends PersistentProxyObjectFactory
             'modified'            => self::faker()->dateTime(),
             'negativeStatement'   => false,
             'numberOfAnonymVotes' => self::faker()->randomNumber(),
-            'phase'               => SurveyInterface::STATUS_PARTICIPATION,
+            'phase'               => ProcedureInterface::PROCEDURE_PARTICIPATION_PHASE,
             'planningDocument'    => self::faker()->text(4096),
             'polygon'             => self::faker()->text(65535),
             'priority'            => self::faker()->text(10),

@@ -13,7 +13,6 @@ import { DpButton, DpContextualHelp, DpModal, dpValidateMixin, prefixClassMixin 
 import { mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
-import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
 
 export default {
@@ -24,7 +23,6 @@ export default {
     DpButton,
     DpContextualHelp,
     DpModal,
-    DpPublicSurvey,
     DpPublicStatementList,
     DpMapModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpMapModal')),
     DpSelect: defineAsyncComponent(async () => {
@@ -123,7 +121,7 @@ export default {
     const currentHash = window.document.location.hash.split('?')[0]
     if (['#openStatementForm'].includes(currentHash)) {
       this.toggleStatementModal(true, {})
-    } else if (['#procedureDetailsMap', '#procedureDetailsDocumentlist', '#procedureDetailsStatementsPublic', '#procedureDetailsSurvey'].includes(currentHash)) {
+    } else if (['#procedureDetailsMap', '#procedureDetailsDocumentlist', '#procedureDetailsStatementsPublic'].includes(currentHash)) {
       this.toggleTabs(currentHash)
     }
 

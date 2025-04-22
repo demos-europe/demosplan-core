@@ -1128,45 +1128,6 @@ services:
         tags:
             -   name: dplan.json_api_transformer
 
-    # Survey Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyHandler:
-        $surveyStatuses: '%survey.statuses%'
-
-    # Survey New Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyNewHandler:
-        $defaultStatus: '%survey.status.default%'
-
-    # Survey Update Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyUpdateHandler:
-        $schemaFilePath: '%survey.schema_path_update%'
-
-    # Survey Create Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyCreateHandler:
-        $schemaFilePath: '%survey.schema_path_create%'
-
-    # Survey Show Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler: ~
-
-    # Survey Service
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService: ~
-
-    # Survey Validator
-    demosplan\DemosPlanCoreBundle\Validator\SurveyValidator: ~
-
-    # SurveyVote Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteHandler:
-        $permissions: '@DemosEurope\DemosplanAddon\Contracts\PermissionsInterface'
-
-    # SurveyVote Create Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteCreateHandler: ~
-
-    # SurveyVote Service
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteService: ~
-
-    # SurveyVote Validator
-    demosplan\DemosPlanCoreBundle\Validator\SurveyVoteValidator:
-        $schemaFilePath: '%surveyvote.schema_path_create%'
-
     demosplan\DemosPlanCoreBundle\Logic\User\UserService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService

@@ -14,7 +14,6 @@ import CustomLayer from '@DpJs/components/map/publicdetail/controls/CustomLayer'
 import { defineAsyncComponent } from 'vue'
 import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
 import DpPublicLayerListWrapper from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListWrapper'
-import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/DpUnfoldToolbarControl'
 import Map from '@DpJs/components/map/publicdetail/Map'
 import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
@@ -30,7 +29,6 @@ export default {
     'dp-map': Map,
     'dp-map-tools': MapTools,
     DpPublicLayerListWrapper,
-    DpPublicSurvey,
     DpUnfoldToolbarControl,
     DpVideoPlayer: defineAsyncComponent(async () => {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
@@ -170,7 +168,7 @@ export default {
 
   mounted () {
     const currentHash = window.document.location.hash.split('?')[0]
-    if (['#procedureDetailsMap', '#procedureDetailsDocumentlist', '#procedureDetailsStatementsPublic', '#procedureDetailsSurvey'].includes(currentHash)) {
+    if (['#procedureDetailsMap', '#procedureDetailsDocumentlist', '#procedureDetailsStatementsPublic'].includes(currentHash)) {
       this.toggleTabs(currentHash)
     }
   }

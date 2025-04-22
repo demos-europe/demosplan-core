@@ -74,8 +74,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementSubmissionNotifier;
-use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService;
-use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
@@ -231,7 +229,6 @@ class DemosPlanProcedureController extends BaseController
         PermissionsInterface $permissions,
         StatementFragmentService $statementFragmentService,
         StatementService $statementService,
-        SurveyService $surveyService,
         TranslatorInterface $translator,
         string $procedure,
     ) {
@@ -292,11 +289,6 @@ class DemosPlanProcedureController extends BaseController
             );
         }
 
-        if ($this->permissions->hasPermission('area_survey')) {
-            $templateVars['surveys'] = $procedureObject->getSurveys();
-            $templateVars['surveyStatistics'] = $surveyService->generateSurveyStatistics($procedureObject);
-        }
-
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_dashboard.html.twig',
             [
@@ -333,7 +325,7 @@ class DemosPlanProcedureController extends BaseController
      *       ],
      *   ];
      *
-     * @return array{statementPriorities?: list<PriorityPair>, statementStatusData?: list<array{Category: string, count: int, freq: array<string, int>, url?: string}>, movedStatementData?: MovedStatementData, procedureHasSurveys?: bool}
+     * @return array{statementPriorities?: list<PriorityPair>, statementStatusData?: list<array{Category: string, count: int, freq: array<string, int>, url?: string}>, movedStatementData?: MovedStatementData}
      *
      * @throws Exception
      */
@@ -379,7 +371,6 @@ class DemosPlanProcedureController extends BaseController
             if (null !== $movedStatementData) {
                 $templateVars['movedStatementData'] = $movedStatementData;
             }
-            $templateVars['procedureHasSurveys'] = count($procedure->getSurveys()) > 0;
         } catch (Exception $e) {
             $this->getLogger()->error('Failed to get moved procedures for dashboard', [$e]);
         }
@@ -1630,7 +1621,6 @@ class DemosPlanProcedureController extends BaseController
         Request $request,
         StatementHandler $statementHandler,
         StatementService $statementService,
-        SurveyShowHandler $surveyShowHandler,
         StatementSubmissionNotifier $statementSubmissionNotifier,
         CoordinateJsonConverter $coordinateJsonConverter,
         string $procedure,
@@ -1936,15 +1926,6 @@ class DemosPlanProcedureController extends BaseController
         }
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-
-        // Survey Info
-        if ($this->permissions->hasPermission('area_survey')) {
-            $survey = $procedure->getFirstSurvey();
-            $templateVars['survey'] = $surveyShowHandler->entityToFrontend(
-                $survey,
-                $user
-            );
-        }
 
         // Is autorisation via token available in current procedure
         if ($permissions->hasPermission('feature_public_consultation')) {
