@@ -50,6 +50,7 @@
     <dp-public-layer-list
       :layer-groups-alternate-visibility="layerGroupsAlternateVisibility"
       :layers="layers"
+      :parent-is-visible="isVisible"
       :unfolded="unfolded"
       :class="[appearsAsLayer ? prefixClass('sr-only') : prefixClass('c-map__group-item-child u-mr-0')]" />
   </li>

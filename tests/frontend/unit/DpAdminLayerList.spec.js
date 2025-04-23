@@ -20,8 +20,6 @@ describe('AdminLayerList', () => {
 
   beforeEach(() => {
     mutations = {
-      setDraggableOptions: jest.fn(),
-      setDraggableOptionsForBaseLayer: jest.fn(),
       setMinimapBaseLayer: jest.fn()
     }
 
