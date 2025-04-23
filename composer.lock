@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "390f661b3332fa218156e5afabb58f4b",
+    "content-hash": "7aa9763bc9c9a618a02d7cb33ad4d1e6",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1637,16 +1637,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.51",
+            "version": "v0.52",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "64248923b17d0be8f67aca6cfff813643403f6a9"
+                "reference": "e1499f645d775f0e7b03b9ced839fc47c11ca77d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/64248923b17d0be8f67aca6cfff813643403f6a9",
-                "reference": "64248923b17d0be8f67aca6cfff813643403f6a9",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/e1499f645d775f0e7b03b9ced839fc47c11ca77d",
+                "reference": "e1499f645d775f0e7b03b9ced839fc47c11ca77d",
                 "shasum": ""
             },
             "require": {
@@ -1657,6 +1657,7 @@
                 "demos-europe/edt-paths": "^0.25",
                 "doctrine/doctrine-bundle": "^2",
                 "illuminate/collections": "^10.48",
+                "league/csv": "^9.18",
                 "nesbot/carbon": "^2.0.0",
                 "php": "^8.1",
                 "proj4php/proj4php": "^2.0",
@@ -1712,9 +1713,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.51"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.52"
             },
-            "time": "2025-04-04T08:57:29+00:00"
+            "time": "2025-04-22T07:48:08+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
