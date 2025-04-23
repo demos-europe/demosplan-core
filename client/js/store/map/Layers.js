@@ -32,7 +32,6 @@ const LayersStore = {
   },
 
   mutations: {
-
     updateApiData (state, data) {
       state.apiData = data
     },
@@ -169,7 +168,7 @@ const LayersStore = {
 
     setVisibilityGroups (state) {
       const elementsWithVisibilityGroups = state.apiData.included.filter(elem => {
-        return (typeof elem.attributes.visibilityGroupId !== 'undefined' && elem.attributes.visibilityGroupId !== '')
+        return (typeof elem.attributes.visibilityGroupId !== 'undefined' && elem.attributes.visibilityGroupId !== '' && elem.attributes.visibilityGroupId !== null)
       })
 
       elementsWithVisibilityGroups.forEach((element) => {
@@ -372,6 +371,7 @@ const LayersStore = {
     deleteElement ({ state, commit }, element) {
       let currentType = 'GisLayer'
       let id = element.id
+      const visibilityGroupId = state.apiData.included.find(el => el.id === element.id).attributes.visibilityGroupId
 
       if (element.route === 'layer_category') {
         currentType = 'GisLayerCategory'
@@ -389,6 +389,15 @@ const LayersStore = {
             categoryId: element.categoryId,
             relationshipType: element.relationshipType
           })
+
+          if (visibilityGroupId !== '' && visibilityGroupId !== null) {
+            //  Remove the element from the visibilityGroup
+            const visibilityGroupMember = state.apiData.included.filter(el => el.attributes.visibilityGroupId === visibilityGroupId)
+            if (visibilityGroupMember.length < 2) {
+              commit('setAttributeForLayer', { id: visibilityGroupMember[0].id, attribute: 'visibilityGroupId', value: null })
+              commit('setVisibilityGroups')
+            }
+          }
         })
     }
 
@@ -517,10 +526,9 @@ const LayersStore = {
     },
 
     visibilityGroupSize: state => visibilityGroupId => {
-      if (visibilityGroupId === '' || typeof state.apiData.included === 'undefined') return 0
-      return state.apiData.included.filter(current => {
-        return current.attributes.visibilityGroupId === visibilityGroupId
-      }).length
+      if (visibilityGroupId === '' || visibilityGroupId === null || typeof state.apiData.included === 'undefined') return 0
+
+      return state.apiData.included.filter(current => current.attributes.visibilityGroupId === visibilityGroupId).length
     },
 
     /**
@@ -531,9 +539,12 @@ const LayersStore = {
      */
     attributeForElement: state => data => {
       if (typeof state.apiData.included === 'undefined' || data.id === '') return ''
-      return state.apiData.included.filter(current => {
+
+      const layers = state.apiData.included.filter(current => {
         return current.id === data.id
-      })[0].attributes[data.attribute]
+      })
+
+      return layers[0]?.attributes ? layers[0].attributes[data.attribute] : null
     },
 
     minimapLayer: state => {
