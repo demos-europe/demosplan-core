@@ -12,7 +12,6 @@
     <dp-input
       aria-labelledby="token-notification"
       id="procedureCoupleToken"
-      v-model="currentToken"
       data-cy="procedureCoupleToken"
       data-dp-validate-if="#procedureCoupleToken!==''"
       :label="{
@@ -20,6 +19,7 @@
       }"
       :maxlength="`${tokenLength}`"
       :minlength="`${tokenLength}`"
+      v-model="currentToken"
       name="procedureCoupleToken"
       @input="validateToken" />
     <dp-inline-notification
@@ -63,12 +63,14 @@ export default {
         if (sourceProcedure && targetProcedure) {
           notification.text = Translator.trans('procedure.couple_token.validation.already_used')
           notification.type = 'warning'
+          this.currentToken = ''
         } else if (sourceProcedure) {
           notification.text = Translator.trans('procedure.couple_token.validation.success', { orgaName: sourceProcedure.orgaName, procedureName: sourceProcedure.name })
           notification.type = 'confirm'
         } else {
           notification.text = Translator.trans('procedure.couple_token.validation.not_found')
           notification.type = 'error'
+          this.currentToken = ''
         }
 
         this.notification = notification
