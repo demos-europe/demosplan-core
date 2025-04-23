@@ -15,6 +15,11 @@
           id="header"
           class="u-pv-0_25 flow-root">
           <dp-inline-notification
+            v-if="!isLoading && availablePlaces.length < 1"
+            class="mt-3 mb-2"
+            :message="Translator.trans('error.split_statement.no_place.link', { href: Routing.generate('DemosPlan_procedure_places_list', { procedureId: this.procedureId }) })"
+            type="warning" />
+          <dp-inline-notification
             v-if="!isLoading && isSegmentDraftUpdated"
             class="mt-3 mb-2"
             :message="Translator.trans('last.saved', { date: lastSavedTime })"
@@ -290,6 +295,7 @@ export default {
 
   computed: {
     ...mapGetters('SplitStatement', [
+      'availablePlaces',
       'currentlyHighlightedSegmentId',
       'editingSegment',
       'editingSegmentId',

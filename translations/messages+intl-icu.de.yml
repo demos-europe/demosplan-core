@@ -1308,6 +1308,7 @@ error.save.organisation: "Leider ist beim Speichern der Organisation {organisati
 error.save.organisation.slug.bulk: "Der gleiche Direktlink zu Verfahren kann nicht für mehrere Organisationen verwendet werden"
 error.savedFilterSet.deleted: "Die Filterkombination konnte nicht gelöscht werden."
 error.split_statement.no_place: "Bitte fügen Sie vor dem Aufteilen mindestens einen Bearbeitungsschritt hinzu."
+"error.split_statement.no_place.link": "Bitte fügen Sie vor dem Aufteilen mindestens einen Bearbeitungsschritt <a class=\"o-link--default\" href=\"{href}\">hier</a> hinzu."
 error.split_statement.segments: "Aufgrund von fehlerhaften Daten können keine von KI vorgeschlagenenen Abschnitte angezeigt werden."
 error.statement.anonymize: "Ihre Daten konnten nicht von der Stellungnahme {externId} entfernt werden."
 error.statement.already.segmented: "Diese Stellungnahme wurde bereits aufgeteilt"
