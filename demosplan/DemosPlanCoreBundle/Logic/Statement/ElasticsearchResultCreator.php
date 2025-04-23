@@ -295,27 +295,9 @@ class ElasticsearchResultCreator extends CoreService
                 $query = $this->elasticSearchService->addEsAggregation($query, 'publicStatement');
             }
             // Institution/Name - institution - oName.raw
-            if ($addAllAggregations || \array_key_exists('institution', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation(
-                    $query,
-                    'oName.raw',
-                    null,
-                    null,
-                    'oName.raw'
-                );
-                $query = $this->elasticSearchService->addEsMissingAggregation($query, 'oName.raw');
-            }
+            $query = $this->handleAggregation($query, 'oName.raw', 'institution', $userFilters, $addAllAggregations);
             // Abteilung - department - dName.raw
-            if ($addAllAggregations || \array_key_exists('department', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation(
-                    $query,
-                    'dName.raw',
-                    null,
-                    null,
-                    'dName.raw'
-                );
-                $query = $this->elasticSearchService->addEsMissingAggregation($query, 'dName.raw');
-            }
+            $query = $this->handleAggregation($query, 'dName.raw', 'department', $userFilters, $addAllAggregations);
             // Verfahrensschritt - phase - phase
             if ($addAllAggregations || \array_key_exists('phase', $userFilters)) {
                 $query = $this->elasticSearchService->addEsAggregation($query, 'phase');
@@ -356,16 +338,7 @@ class ElasticsearchResultCreator extends CoreService
 
             /***************************************** STELLUNGNAHME ************************************************/
             // Sachbearbeiter - assignee_id - assignee.id
-            if ($addAllAggregations || \array_key_exists('assignee_id', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation(
-                    $query,
-                    'assignee.id',
-                    null,
-                    null,
-                    'assignee_id'
-                );
-                $query = $this->elasticSearchService->addEsMissingAggregation($query, 'assignee.id');
-            }
+            $query = $this->handleAggregation($query, 'assignee.id', 'assignee_id', $userFilters, $addAllAggregations);
             // Bearbeitungsstatus - status - status
             if ($addAllAggregations
                 || \array_key_exists(StatementService::AGGREGATION_STATEMENT_STATUS, $userFilters)
@@ -379,54 +352,15 @@ class ElasticsearchResultCreator extends CoreService
                 );
             }
             // Votum - votePla - votePla
-            if ($addAllAggregations || \array_key_exists('votePla', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation(
-                    $query,
-                    'votePla',
-                    null,
-                    null,
-                    'votePla'
-                ); // vote
-                $query = $this->elasticSearchService->addEsMissingAggregation($query, 'votePla');
-            }
+            $query = $this->handleAggregation($query, 'votePla', 'votePla', $userFilters, $addAllAggregations);
             // Kreis - countyNames - countyNames.raw
-            if ($addAllAggregations || \array_key_exists('countyNames', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation(
-                    $query,
-                    'countyNames.raw',
-                    null,
-                    null,
-                    'countyNames'
-                );
-                $query = $this->elasticSearchService->addEsMissingAggregation($query, 'countyNames.raw');
-            }
+            $query = $this->handleAggregation($query, 'countyNames.raw', 'countyNames', $userFilters, $addAllAggregations);
             // Gemeinde - municipalityNames - municipalityNames.raw
-            if ($addAllAggregations || \array_key_exists('municipalityNames', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation(
-                    $query,
-                    'municipalityNames.raw',
-                    null,
-                    null,
-                    'municipalityNames'
-                );
-                $query = $this->elasticSearchService->addEsMissingAggregation($query, 'municipalityNames.raw');
-            }
+            $query = $this->handleAggregation($query, 'municipalityNames.raw', 'municipalityNames', $userFilters, $addAllAggregations);
             // Schlagwort - tagNames - tagNames.raw
-            if ($addAllAggregations || \array_key_exists('tagNames', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation(
-                    $query,
-                    'tagNames.raw',
-                    null,
-                    null,
-                    'tagNames'
-                );
-                $query = $this->elasticSearchService->addEsMissingAggregation($query, 'tagNames.raw');
-            }
+            $query = $this->handleAggregation($query, 'tagNames.raw', 'tagNames', $userFilters, $addAllAggregations);
             // Potenzialflächen - priorityAreaKeys - priorityAreaKeys
-            if ($addAllAggregations || \array_key_exists('priorityAreaKeys', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'priorityAreaKeys');
-                $query = $this->elasticSearchService->addEsMissingAggregation($query, 'priorityAreaKeys');
-            }
+            $query = $this->handleAggregation($query, 'priorityAreaKeys', 'priorityAreaKeys', $userFilters, $addAllAggregations);
             // Dokument - planningDocument - elementId
             if ($addAllAggregations || \array_key_exists('elementId', $userFilters)) {
                 $query = $this->elasticSearchService->addEsAggregation(
@@ -715,13 +649,7 @@ class ElasticsearchResultCreator extends CoreService
             }
             // Institution/Name - institution - oName.raw
             if ($addAllAggregations || \array_key_exists('institution', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
-                    'oName.raw',
-                    'institution',
-                    $esResultAggregations,
-                    $processedAggregation
-                );
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
+                $processedAggregation = $this->processAggregationResults(
                     'oName.raw',
                     'institution',
                     $esResultAggregations,
@@ -748,47 +676,19 @@ class ElasticsearchResultCreator extends CoreService
             }
             // Verschobene Stellungnahmen in dieses Verfahren - movedFromProcedureId - movedFromProcedureId
             if ($addAllAggregations || \array_key_exists('movedFromProcedureId', $userFilters)) {
-                $movedStatementCount = 0;
-                $processedAggregation['movedFromProcedureId'] = [];
-                if (isset($esResultAggregations['movedFromProcedureId'])) {
-                    foreach ($esResultAggregations['movedFromProcedureId']['buckets'] as $agg) {
-                        $procedure = $this->procedureRepository->get($agg['key']);
-                        $label = $procedure instanceof Procedure ? $procedure->getName() : '';
-                        $processedAggregation['movedFromProcedureId'][] = [
-                            'count' => $agg['doc_count'],
-                            'label' => $label,
-                            'value' => $agg['key'],
-                        ];
-                        $movedStatementCount += $agg['doc_count'];
-                    }
-                }
-                array_unshift($processedAggregation['movedFromProcedureId'], [
-                    'label' => $this->translator->trans('all'),
-                    'value' => $this->elasticSearchService::EXISTING_FIELD_FILTER,
-                    'count' => $movedStatementCount,
-                ]);
+                $processedAggregation = $this->processProcedureMoveAggregation(
+                    'movedFromProcedureId',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
             // Verschobene Stellungnahmen aus diesem Verfahren - movedToProcedureId - movedToProcedureId
             if ($addAllAggregations || \array_key_exists('movedToProcedureId', $userFilters)) {
-                $movedStatementCount = 0;
-                $processedAggregation['movedToProcedureId'] = [];
-                if (isset($esResultAggregations['movedToProcedureId'])) {
-                    foreach ($esResultAggregations['movedToProcedureId']['buckets'] as $agg) {
-                        $procedure = $this->procedureRepository->get($agg['key']);
-                        $label = $procedure instanceof Procedure ? $procedure->getName() : '';
-                        $processedAggregation['movedToProcedureId'][] = [
-                            'count' => $agg['doc_count'],
-                            'label' => $label,
-                            'value' => $agg['key'],
-                        ];
-                        $movedStatementCount += $agg['doc_count'];
-                    }
-                }
-                array_unshift($processedAggregation['movedToProcedureId'], [
-                    'label' => $this->translator->trans('all'),
-                    'value' => $this->elasticSearchService::EXISTING_FIELD_FILTER,
-                    'count' => $movedStatementCount,
-                ]);
+                $processedAggregation = $this->processProcedureMoveAggregation(
+                    'movedToProcedureId',
+                    $esResultAggregations,
+                    $processedAggregation
+                );
             }
 
             if ($addAllAggregations || \array_key_exists('publicCheck', $userFilters)) {
@@ -850,14 +750,8 @@ class ElasticsearchResultCreator extends CoreService
             }
             // Kreis - countyNames
             if ($addAllAggregations || \array_key_exists('countyNames', $userFilters)) {
-                $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
+                $processedAggregation = $this->processAggregationResults(
                     'countyNames.raw',
-                    'countyNames',
-                    $esResultAggregations,
-                    $processedAggregation
-                );
-                $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
-                    'countyNames',
                     'countyNames',
                     $esResultAggregations,
                     $processedAggregation
@@ -1324,6 +1218,113 @@ class ElasticsearchResultCreator extends CoreService
         }
 
         return $elasticsearchResultStatement->lock();
+    }
+
+    /**
+     * Adds an aggregation to the query based on field name and conditions
+     *
+     * @param Query  $query              The query to add the aggregation to
+     * @param string $esField            Elasticsearch field name
+     * @param string $aliasField         Alias field name used in filters
+     * @param array  $userFilters        User filter array
+     * @param bool   $addAllAggregations Whether to add all aggregations
+     * @param string|null $sortField     Optional field to sort by
+     * @param string|null $sortOrder     Optional sort order
+     */
+    private function handleAggregation(
+        Query $query,
+        string $esField,
+        string $aliasField,
+        array $userFilters,
+        bool $addAllAggregations,
+        ?string $sortField = null,
+        ?string $sortOrder = null
+    ): Query {
+        if ($addAllAggregations || \array_key_exists($aliasField, $userFilters)) {
+            $query = $this->elasticSearchService->addEsAggregation(
+                $query,
+                $esField,
+                $sortField,
+                $sortOrder,
+                $aliasField
+            );
+            
+            // Check if this field needs a missing aggregation
+            if (\in_array($esField, self::NULL_VALUES, true) || strpos($esField, '.raw') !== false) {
+                $query = $this->elasticSearchService->addEsMissingAggregation($query, $esField);
+            }
+        }
+        
+        return $query;
+    }
+    
+    /**
+     * Processes aggregation results for a field
+     *
+     * @param string     $esField              Elasticsearch field name
+     * @param string     $aliasField           Alias field name used in filters
+     * @param array      $esResultAggregations Elasticsearch aggregation results
+     * @param array      $processedAggregation Processed aggregation array to update
+     * @param array|null $labelMap             Optional label mapping
+     */
+    private function processAggregationResults(
+        string $esField,
+        string $aliasField,
+        array $esResultAggregations,
+        array $processedAggregation,
+        ?array $labelMap = null
+    ): array {
+        if (\in_array($esField, self::NULL_VALUES, true) || strpos($esField, '.raw') !== false) {
+            $processedAggregation = $this->elasticSearchService->addMissingAggregationResultToArray(
+                $esField,
+                $aliasField,
+                $esResultAggregations,
+                $processedAggregation
+            );
+        }
+        
+        return $this->elasticSearchService->addAggregationResultToArray(
+            $esField,
+            $aliasField,
+            $esResultAggregations,
+            $processedAggregation,
+            $labelMap
+        );
+    }
+    
+    /**
+     * Process procedure move aggregation (for both moved from and moved to)
+     *
+     * @param string $fieldName            Field name for the move procedure
+     * @param array  $esResultAggregations Elasticsearch aggregation results
+     * @param array  $processedAggregation Processed aggregation array to update
+     */
+    private function processProcedureMoveAggregation(
+        string $fieldName,
+        array $esResultAggregations,
+        array $processedAggregation
+    ): array {
+        $movedStatementCount = 0;
+        $processedAggregation[$fieldName] = [];
+        if (isset($esResultAggregations[$fieldName])) {
+            foreach ($esResultAggregations[$fieldName]['buckets'] as $agg) {
+                $procedure = $this->procedureRepository->get($agg['key']);
+                $label = $procedure instanceof Procedure ? $procedure->getName() : '';
+                $processedAggregation[$fieldName][] = [
+                    'count' => $agg['doc_count'],
+                    'label' => $label,
+                    'value' => $agg['key'],
+                ];
+                $movedStatementCount += $agg['doc_count'];
+            }
+        }
+        array_unshift($processedAggregation[$fieldName], [
+            'label' => $this->translator->trans('all'),
+            'value' => $this->elasticSearchService::EXISTING_FIELD_FILTER,
+            'count' => $movedStatementCount,
+        ]);
+        
+        return $processedAggregation;
     }
 
     /**
