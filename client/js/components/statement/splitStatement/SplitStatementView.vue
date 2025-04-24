@@ -552,10 +552,8 @@ export default {
       if (card) {
         if (highlight) {
           card.classList.add('highlighted')
-        } else {
-          if (card.classList.contains('highlighted')) {
-            card.classList.remove('highlighted')
-          }
+        } else if (card.classList.contains('highlighted')) {
+          card.classList.remove('highlighted')
         }
       }
     },
@@ -765,6 +763,7 @@ export default {
             this.saveSegmentsFinal()
               .then(() => this.setProperty({ prop: 'isBusy', val: false }))
           } catch (err) {
+            console.error('An error occurred:', err)
             dplan.notify.error(Translator.trans('error.api.generic'))
             this.setProperty({ prop: 'isBusy', val: false })
           }
