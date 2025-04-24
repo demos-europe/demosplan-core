@@ -47,7 +47,7 @@
         :request-municipalities="JSON.parse('{{ app.request.get('r_municipalities')|default([])|json_encode|e('js', 'utf-8') }}')"
         :request-counties="JSON.parse('{{ app.request.get('r_counties')|default([])|json_encode|e('js', 'utf-8') }}')"
         :request-priority-areas="JSON.parse('{{ app.request.get('r_priorityAreas')|default([])|json_encode|e('js', 'utf-8') }}')"
-        used-intern-ids-pattern="{{ usedInternIds|length > 0 ? '^(?!(?:' ~ usedInternIds|join('|') ~ '+)$)[0-9a-zA-Z-_ ]{1,}$' : '^[0-9a-zA-Z-_ ]{1,}$' }}"
+        used-intern-ids-pattern="{{ usedInternIds|length > 0 ? '^(?!(?:' ~ usedInternIds|join('|') ~ ')$)[0-9a-zA-Z_ \\- ]{1,}$' : '^[0-9a-zA-Z_ \\- ]{1,}$' }}"
     >
         <form
             id="bpform"
@@ -244,14 +244,15 @@
                             <div class="u-1-of-4 layout__item" v-if="hasPermission('field_statement_intern_id')">
                                 <dp-input
                                     id="r_internId"
+                                    v-model="values.internId"
                                     aria-describedby="lastUsedDescription"
                                     data-dp-validate-error="{{ 'validation.error.internId'|trans }} {{ 'validation.error.alphaNumericDashUnderscore'|trans }}"
+                                    data-cy="submitterForm:internId"
                                     :label="{
                                         text: Translator.trans('internId'),
                                         tooltip: `${Translator.trans('validation.error.internId')} ${Translator.trans('validation.error.alphaNumericDashUnderscore')}`
                                     }"
                                     name="r_internId"
-                                    data-cy="submitterForm:internId"
                                     :pattern="usedInternIdsPattern"
                                     value="{{ app.request.get('r_internId') }}">
                                 </dp-input>
