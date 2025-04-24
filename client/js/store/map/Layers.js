@@ -167,12 +167,11 @@ const LayersStore = {
     },
 
     setVisibilityGroups (state) {
-      const elementsWithVisibilityGroups = state.apiData.included.filter(elem => {
-        return (typeof elem.attributes.visibilityGroupId !== 'undefined' && elem.attributes.visibilityGroupId !== '' && elem.attributes.visibilityGroupId !== null)
-      })
+      const elementsWithVisibilityGroups = state.apiData.included.filter(elem => !!elem.attributes.visibilityGroupId)
 
       elementsWithVisibilityGroups.forEach((element) => {
         const groupId = element.attributes.visibilityGroupId
+
         if (hasOwnProp(state.visibilityGroups, groupId) === false) {
           state.visibilityGroups[groupId] = state.visibilityGroups.length
         }
@@ -390,7 +389,7 @@ const LayersStore = {
             relationshipType: element.relationshipType
           })
 
-          if (visibilityGroupId !== '' && visibilityGroupId !== null) {
+          if (visibilityGroupId) {
             //  Remove the element from the visibilityGroup
             const visibilityGroupMember = state.apiData.included.filter(el => el.attributes.visibilityGroupId === visibilityGroupId)
             if (visibilityGroupMember.length < 2) {
@@ -526,7 +525,7 @@ const LayersStore = {
     },
 
     visibilityGroupSize: state => visibilityGroupId => {
-      if (visibilityGroupId === '' || visibilityGroupId === null || typeof state.apiData.included === 'undefined') return 0
+      if (!visibilityGroupId) return 0
 
       return state.apiData.included.filter(current => current.attributes.visibilityGroupId === visibilityGroupId).length
     },

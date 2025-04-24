@@ -185,13 +185,9 @@ export default {
     // If parent category is toggled, also toggle children
     toggleFromCategory (children, isVisible, visibilityGroupId) {
       if (children.filter(layer => layer.id === this.layer.id).length > 0) {
-        if (visibilityGroupId === '' || visibilityGroupId === null) {
+        // Check if toggled item and item have same visibilityGroupId or none at all. If so, don't toggle item
+        if (!visibilityGroupId || visibilityGroupId !== this.layer.attributes.visibilityGroupId) {
           this.toggle(isVisible)
-        } else if (visibilityGroupId) {
-          // Check if toggled item and item have same visibilityGroupId and if so, don't toggle item
-          if (visibilityGroupId !== this.layer.attributes.visibilityGroupId) {
-            this.toggle(isVisible)
-          }
         }
       }
     },

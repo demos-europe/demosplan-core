@@ -1996,7 +1996,7 @@ export default {
       // If item is in a visibility group, also toggle other items in that group
       if (element.id === 'territorySwitcher' && hasOwnProp(this.scope, 'id')) {
         const layerId = this.scope.id.replace(/-/g, '')
-        if (hasOwnProp(this.scope, 'attributes') && this.scope.attributes.visibilityGroupId !== '' && this.scope.attributes.visibilityGroupId !== null) {
+        if (this.scope.attributes?.visibilityGroupId) {
           this.$root.$emit('layer:toggleVisibiltyGroup', { visibilityGroupId: this.scope.attributes.visibilityGroupId, layerId, isVisible: newState })
         } else {
           this.$root.$emit('layer:toggleLayer', { layerId, isVisible: newState })
@@ -2004,7 +2004,7 @@ export default {
       }
       if (element.id === 'bplanSwitcher' && hasOwnProp(this.bPlan, 'id')) {
         const layerId = this.bPlan.id.replace(/-/g, '')
-        if (hasOwnProp(this.bPlan, 'attributes') && (this.bPlan.attributes.visibilityGroupId !== null || this.bPlan.attributes.visibilityGroupId !== '')) {
+        if (this.bPlan.attributes?.visibilityGroupId ) {
           this.$root.$emit('layer:toggleVisibiltyGroup', { visibilityGroupId: this.bPlan.attributes.visibilityGroupId, layerId, isVisible: newState })
         } else {
           this.$root.$emit('layer:toggleLayer', { layerId, isVisible: newState })
