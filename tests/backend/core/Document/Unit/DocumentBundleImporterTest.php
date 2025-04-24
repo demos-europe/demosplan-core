@@ -12,6 +12,7 @@ namespace Tests\Core\Document\Unit;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ServiceImporterException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
@@ -130,25 +131,25 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         $paragraphService = self::$container->get(ParagraphService::class);
 
         $procedureParagraphsBefore = $paragraphService->getParaDocumentList($procedureId, $elementId);
-        static::assertCount(3, $procedureParagraphsBefore);
+        static::assertCount(0, $procedureParagraphsBefore);
 
         $this->sut->createParagraphsFromImportResult($importResult, $procedureId);
 
         $procedureParagraphsAfter = $paragraphService->getParaDocumentList($procedureId, $elementId);
-        static::assertCount(8, $procedureParagraphsAfter);
-        static::assertNull($procedureParagraphsAfter[3]['parent']);
+        static::assertCount(5, $procedureParagraphsAfter);
+        static::assertNull($procedureParagraphsAfter[0]['parent']);
+        static::assertNotNull($procedureParagraphsAfter[0]['children']);
+        static::assertCount(2, $procedureParagraphsAfter[0]['children']);
+        static::assertNotNull($procedureParagraphsAfter[1]['parent']);
+        static::assertNotNull($procedureParagraphsAfter[1]['children']);
+        static::assertNotNull($procedureParagraphsAfter[2]['parent']);
+        static::assertNotNull($procedureParagraphsAfter[2]['children']);
+        static::assertCount(1, $procedureParagraphsAfter[2]['children']);
+        static::assertNotNull($procedureParagraphsAfter[3]['parent']);
         static::assertNotNull($procedureParagraphsAfter[3]['children']);
-        static::assertCount(2, $procedureParagraphsAfter[3]['children']);
-        static::assertNotNull($procedureParagraphsAfter[4]['parent']);
+        static::assertNull($procedureParagraphsAfter[4]['parent']);
         static::assertNotNull($procedureParagraphsAfter[4]['children']);
-        static::assertNotNull($procedureParagraphsAfter[5]['parent']);
-        static::assertNotNull($procedureParagraphsAfter[5]['children']);
-        static::assertCount(1, $procedureParagraphsAfter[5]['children']);
-        static::assertNotNull($procedureParagraphsAfter[6]['parent']);
-        static::assertNotNull($procedureParagraphsAfter[6]['children']);
-        static::assertNull($procedureParagraphsAfter[7]['parent']);
-        static::assertNotNull($procedureParagraphsAfter[7]['children']);
-        static::assertCount(0, $procedureParagraphsAfter[7]['children']);
+        static::assertCount(0, $procedureParagraphsAfter[4]['children']);
     }
 
     /**
@@ -253,7 +254,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         $paragraphService = self::$container->get(ParagraphService::class);
 
         $procedureParagraphsBefore = $paragraphService->getParaDocumentList($procedureId, $elementId);
-        static::assertCount(3, $procedureParagraphsBefore);
+        static::assertCount(0, $procedureParagraphsBefore);
 
         try {
             $this->sut->createParagraphsFromImportResult($importResult, $procedureId);
@@ -265,18 +266,18 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         }
 
         $procedureParagraphsAfter = $paragraphService->getParaDocumentList($procedureId, $elementId);
-        static::assertCount(7, $procedureParagraphsAfter);
+        static::assertCount(4, $procedureParagraphsAfter);
+        static::assertNull($procedureParagraphsAfter[0]['parent']);
+        static::assertNotNull($procedureParagraphsAfter[0]['children']);
+        static::assertCount(1, $procedureParagraphsAfter[0]['children']);
+        static::assertNotNull($procedureParagraphsAfter[1]['parent']);
+        static::assertNotNull($procedureParagraphsAfter[1]['children']);
+        static::assertNotNull($procedureParagraphsAfter[2]['parent']);
+        static::assertNotNull($procedureParagraphsAfter[2]['children']);
+        static::assertCount(0, $procedureParagraphsAfter[2]['children']);
         static::assertNull($procedureParagraphsAfter[3]['parent']);
         static::assertNotNull($procedureParagraphsAfter[3]['children']);
-        static::assertCount(1, $procedureParagraphsAfter[3]['children']);
-        static::assertNotNull($procedureParagraphsAfter[4]['parent']);
-        static::assertNotNull($procedureParagraphsAfter[4]['children']);
-        static::assertNotNull($procedureParagraphsAfter[5]['parent']);
-        static::assertNotNull($procedureParagraphsAfter[5]['children']);
-        static::assertCount(0, $procedureParagraphsAfter[5]['children']);
-        static::assertNull($procedureParagraphsAfter[6]['parent']);
-        static::assertNotNull($procedureParagraphsAfter[6]['children']);
-        static::assertCount(0, $procedureParagraphsAfter[6]['children']);
+        static::assertCount(0, $procedureParagraphsAfter[3]['children']);
     }
 
     public function testParagraphImportCreateParagraphsWithNonSequentialHeadings()
@@ -326,7 +327,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         $paragraphService = self::$container->get(ParagraphService::class);
 
         $procedureParagraphsBefore = $paragraphService->getParaDocumentList($procedureId, $elementId);
-        static::assertCount(3, $procedureParagraphsBefore);
+        static::assertCount(0, $procedureParagraphsBefore);
 
         try {
             $this->sut->createParagraphsFromImportResult($importResult, $procedureId);
@@ -335,11 +336,11 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         }
 
         $procedureParagraphsAfter = $paragraphService->getParaDocumentList($procedureId, $elementId);
-        static::assertCount(8, $procedureParagraphsAfter);
-        static::assertNotNull($procedureParagraphsAfter[4]['parent']);
-        static::assertEquals($procedureParagraphsAfter[3]['id'], $procedureParagraphsAfter[4]['parent']->getId());
-        static::assertNotNull($procedureParagraphsAfter[6]['parent']);
-        static::assertEquals($procedureParagraphsAfter[5]['id'], $procedureParagraphsAfter[6]['parent']->getId());
+        static::assertCount(5, $procedureParagraphsAfter);
+        static::assertNotNull($procedureParagraphsAfter[1]['parent']);
+        static::assertEquals($procedureParagraphsAfter[0]['id'], $procedureParagraphsAfter[1]['parent']->getId());
+        static::assertNotNull($procedureParagraphsAfter[3]['parent']);
+        static::assertEquals($procedureParagraphsAfter[2]['id'], $procedureParagraphsAfter[3]['parent']->getId());
     }
 
     public function testParagraphImportCreateParagraphsWithPicture(): void

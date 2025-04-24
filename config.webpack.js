@@ -8,7 +8,7 @@
  */
 const merge = require('webpack-merge').default
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const DefinePlugin = require('webpack').DefinePlugin
+const { DefinePlugin, NormalModuleReplacementPlugin } = require('webpack')
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
 
 const { config } = require('./client/fe/config/config') // All our configuration
@@ -85,11 +85,11 @@ const bundlesConfig = merge(baseConfig, {
   name: 'main',
   entry: () => {
     return {
+      ...bundleEntryPoints(config.clientBundleGlob),
       style: config.stylesEntryPoint,
       'style-public': config.publicStylesEntryPoint,
       preflight: resolveDir('./client/css/preflight.css'),
-      'demosplan-ui': resolveDir('./client/css/tailwind.css'), // In the End we will get the styling from demosplan-ui
-      ...bundleEntryPoints(config.clientBundleGlob)
+      'demosplan-ui-style': resolveDir('./client/css/tailwind.css') // In the End we will get the styling from demosplan-ui
     }
   },
   output: {
@@ -103,29 +103,32 @@ const bundlesConfig = merge(baseConfig, {
     alias: {
       '@DpJs': config.absoluteRoot + 'client/js',
       vue: config.absoluteRoot + 'node_modules/@vue/compat/dist/vue.esm-bundler',
-      // To Fix masterportal issues, we have to resolve olcs manually
+      // To Fix masterportal issues, we have to resolve some imports within olcs manually
       './olcs/olcsMap.js': config.absoluteRoot + 'node_modules/@masterportal/masterportalapi/src/maps/olcs/olcsMap.js',
       './olcs': config.absoluteRoot + 'node_modules/olcs/lib/olcs',
-      'olcs/lib': config.absoluteRoot + 'node_modules/olcs/lib',
-      'olcs/core': config.absoluteRoot + 'node_modules/olcs/lib/olcs/core',
-      'olcs/print': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print',
-      './olcs/print': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print',
-      './print/computeRectangle': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/computeRectangle.js',
-      './print/rawCesiumMask': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/rawCesiumMask.js',
-      './print/takeCesiumScreenshot': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/takeCesiumScreenshot.js',
-      './print/drawCesiumMask': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/drawCesiumMask.js'
+      'olcs/lib': config.absoluteRoot + 'node_modules/olcs/lib'
     }
   },
   optimization: optimization(),
   plugins: [
     new DefinePlugin({
       URL_PATH_PREFIX: JSON.stringify(config.urlPathPrefix), // Path prefix for dynamically generated urls
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false, // Vue CLI is in maintenance mode, and probably won't merge my PR to fix this in their tooling  https://github.com/vuejs/vue-cli/pull/7443
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false
     }),
     new WebpackManifestPlugin({
       fileName: '../../dplan.manifest.json'
-    })
+    }),
+    // To Fix masterportal issues, we have to resolve some imports within olcs manually
+    new NormalModuleReplacementPlugin(
+      /\.\.\/core$/,
+      (resource) => {
+        if (resource.context.includes('olcs')) {
+          resource.request = config.absoluteRoot + 'node_modules/olcs/lib/olcs/core.js'
+        }
+      }
+    )
   ]
 })
 
@@ -135,7 +138,7 @@ const stylesConfig = merge(baseConfig, {
     return {
       style: config.stylesEntryPoint,
       'style-public': config.publicStylesEntryPoint,
-      'demosplan-ui': './client/css/tailwind.css'
+      'demosplan-ui-style': './client/css/tailwind.css'
     }
   },
   output: {
