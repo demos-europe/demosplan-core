@@ -51,6 +51,7 @@ class CustomFieldValuesList
                 return $customFieldValue;
             }
         }
+
         return null;
     }
 }

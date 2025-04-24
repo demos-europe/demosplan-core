@@ -16,13 +16,11 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\JsonType;
 
-
 /**
  * Handle the storage and retrieval of `CustomFieldValuesList`.
  */
 class CustomFieldValueType extends JsonType
 {
-
     private const TYPE_CLASSES = [
         CustomFieldValuesList::class,
     ];
@@ -41,12 +39,7 @@ class CustomFieldValueType extends JsonType
                         return new CustomFieldValuesList();
                     }
 
-                    throw new InvalidArgumentException(
-                        sprintf(
-                            'CustomFieldValueListType does not support %s',
-                            $customFieldClass
-                        )
-                    );
+                    throw new InvalidArgumentException(sprintf('CustomFieldValueListType does not support %s', $customFieldClass));
                 }
             )
             ->map(
@@ -94,5 +87,4 @@ class CustomFieldValueType extends JsonType
 
         return parent::convertToDatabaseValue($value, $platform);
     }
-
 }

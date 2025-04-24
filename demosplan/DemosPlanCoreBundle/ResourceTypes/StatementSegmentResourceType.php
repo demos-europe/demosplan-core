@@ -60,9 +60,9 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
     private $esType;
 
     public function __construct(
-        private readonly QuerySegment             $esQuery,
-        JsonApiEsService                          $jsonApiEsService,
-        private readonly PlaceResourceType        $placeResourceType,
+        private readonly QuerySegment $esQuery,
+        JsonApiEsService $jsonApiEsService,
+        private readonly PlaceResourceType $placeResourceType,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
     ) {
@@ -194,12 +194,12 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         }
 
         if ($this->currentUser->hasPermission('area_admin_custom_fields')) {
-            $properties[] =  $this->createAttribute($this->customFields)
+            $properties[] = $this->createAttribute($this->customFields)
                 ->setReadableByCallable(static fn (Segment $segment): ?array => $segment->getCustomFields()?->toJson())
-                ->addUpdateBehavior(new CallbackAttributeSetBehaviorFactory([],  function (Segment $segment, array $customFields): array {
-                        $customFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
-                        $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues($customFieldList, $customFields, $segment->getProcedure()->getId(), 'PROCEDURE', 'SEGMENT');
-                        $segment->setCustomFields($customFieldList->toJson());
+                ->addUpdateBehavior(new CallbackAttributeSetBehaviorFactory([], function (Segment $segment, array $customFields): array {
+                    $customFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
+                    $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues($customFieldList, $customFields, $segment->getProcedure()->getId(), 'PROCEDURE', 'SEGMENT');
+                    $segment->setCustomFields($customFieldList->toJson());
 
                     return [];
                 }, OptionalField::YES)

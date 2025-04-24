@@ -154,7 +154,6 @@ class Segment extends Statement implements SegmentInterface
     public function getCustomFields(): ?CustomFieldValuesList
     {
         return $this->customFields;
-
     }
 
     public function setCustomFields($customFields): void

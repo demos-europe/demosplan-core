@@ -43,7 +43,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
         string $sourceEntity,
         string $sourceEntityId,
         string $targetEntity,
-        string $customFieldId = null
+        ?string $customFieldId = null,
     ): ?array {
         try {
             $criteria = ['sourceEntityId' => $sourceEntityId];
@@ -66,7 +66,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
         string $sourceEntity,
         string $sourceEntityId,
         string $targetEntity,
-        CustomFieldInterface $customField
+        CustomFieldInterface $customField,
     ): CustomFieldConfiguration {
         $customFieldConfiguration = new CustomFieldConfiguration();
 
@@ -110,7 +110,6 @@ class CustomFieldConfigurationRepository extends CoreRepository
             $newCustomFieldConfiguration->setConfiguration($customFieldConfiguration->getConfiguration());
             $this->add($newCustomFieldConfiguration);
         }
-
     }
 
     public function getCustomFields(string $sourceEntity, string $sourceEntityId, string $targetEntity): ArrayCollection
@@ -126,6 +125,7 @@ class CustomFieldConfigurationRepository extends CoreRepository
                 static function (CustomFieldConfiguration $customFieldConfiguration): CustomFieldInterface {
                     $customField = $customFieldConfiguration->getConfiguration();
                     $customField->setId($customFieldConfiguration->getId());
+
                     return $customField;
                 },
                 $customFieldConfigurations

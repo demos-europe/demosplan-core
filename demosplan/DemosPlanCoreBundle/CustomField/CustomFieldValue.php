@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 
 class CustomFieldValue
 {
-
     protected string $id = '';
 
     protected string $value = '';
@@ -27,10 +26,9 @@ class CustomFieldValue
     {
         return [
             'id'            => $this->id,
-            'value'     => $this->value,
+            'value'         => $this->value,
         ];
     }
-
 
     public function setId(string $id): void
     {
@@ -51,5 +49,4 @@ class CustomFieldValue
     {
         return $this->value;
     }
-
 }

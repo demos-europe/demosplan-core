@@ -27,16 +27,13 @@ class CustomFieldValueCreator extends CoreService
 
     public function updateOrAddCustomFieldValues(
         CustomFieldValuesList $currentCustomFieldValuesList,
-        array                 $newCustomFieldValuesData,
-        string                $sourceEntityId,
-        string                $sourceEntityClass,
-        string                $targetEntityClass
-    ): CustomFieldValuesList
-    {
-
-
+        array $newCustomFieldValuesData,
+        string $sourceEntityId,
+        string $sourceEntityClass,
+        string $targetEntityClass,
+    ): CustomFieldValuesList {
         $newCustomFieldValuesList = new CustomFieldValuesList();
-        $newCustomFieldValuesList->fromJson(['customFields' => $newCustomFieldValuesData],);
+        $newCustomFieldValuesList->fromJson(['customFields' => $newCustomFieldValuesData]);
 
         foreach ($newCustomFieldValuesList->getCustomFieldsValues() as $newCustomFieldValue) {
             /** @var CustomFieldValue $newCustomFieldValue */
@@ -59,9 +56,9 @@ class CustomFieldValueCreator extends CoreService
     }
 
     private function getCustomField(string $sourceEntityClass,
-                                    string $sourceEntityId,
-                                    string $targetEntityClass,
-                                    string $customFieldId): CustomFieldInterface
+        string $sourceEntityId,
+        string $targetEntityClass,
+        string $customFieldId): CustomFieldInterface
     {
         $customFieldConfigurations = $this->customFieldConfigurationRepository
             ->findCustomFieldConfigurationByCriteria($sourceEntityClass, $sourceEntityId, $targetEntityClass, $customFieldId);
@@ -70,17 +67,13 @@ class CustomFieldValueCreator extends CoreService
             throw new InvalidArgumentException('No custom field configuration found for CustomFieldId.');
         }
 
-     return $customFieldConfigurations[0]->getConfiguration();
+        return $customFieldConfigurations[0]->getConfiguration();
     }
 
     private function validateCustomFieldValue(CustomFieldInterface $customField, mixed $value): void
     {
         if (!$customField->isValueValid($value)) {
-            throw new InvalidArgumentException(sprintf(
-                'Value "%s" is not valid for custom field with ID "%s".',
-                $value,
-                $customField->getId()
-            ));
+            throw new InvalidArgumentException(sprintf('Value "%s" is not valid for custom field with ID "%s".', $value, $customField->getId()));
         }
     }
 }
