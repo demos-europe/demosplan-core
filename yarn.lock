@@ -1998,9 +1998,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:0.4.13":
-  version: 0.4.13
-  resolution: "@demos-europe/demosplan-ui@npm:0.4.13"
+"@demos-europe/demosplan-ui@npm:0.4.14":
+  version: 0.4.14
+  resolution: "@demos-europe/demosplan-ui@npm:0.4.14"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.4.5"
@@ -2028,10 +2028,10 @@ __metadata:
     "@tiptap/pm": "npm:^3.0.0"
     "@tiptap/suggestion": "npm:^3.0.0"
     "@tiptap/vue-3": "npm:^3.0.0"
-    "@uppy/core": "npm:^4.3.1"
-    "@uppy/drag-drop": "npm:^4.0.5"
-    "@uppy/progress-bar": "npm:^4.1.0"
-    "@uppy/tus": "npm:^3.0.1"
+    "@uppy/core": "npm:^4.4.4"
+    "@uppy/drag-drop": "npm:^4.1.2"
+    "@uppy/progress-bar": "npm:^4.2.1"
+    "@uppy/tus": "npm:^4.2.2"
     "@vue/server-renderer": "npm:^3.4.29"
     "@vue/vue3-jest": "npm:^29.2.6"
     "@vueuse/components": "npm:^13.0.0"
@@ -2052,7 +2052,7 @@ __metadata:
     vue-multiselect: "npm:^3.1.0"
     vue-omnibox: "npm:^0.3.7"
     vue-sliding-pagination: "npm:^v2.0.0-alpha-1"
-  checksum: 10c0/4f343c24fcd8abc42ad563d2500d9df96fac850c11f171940c77e9e23300bdf21adc78ab69d954ce1f056d970a98b400611abb56404c3bd6776287a1b1010062
+  checksum: 10c0/600d92a6029ab69ca4ac86dcbd69db8a05697301da880c63c5c8468c7363dab9faa5a846c00b7cc046e2dbb68753317b92d3dbf3e70f988149dc8fe78f7f1ab6
   languageName: node
   linkType: hard
 
@@ -3589,20 +3589,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/companion-client@npm:^3.8.1":
-  version: 3.8.2
-  resolution: "@uppy/companion-client@npm:3.8.2"
+"@uppy/companion-client@npm:^4.4.1":
+  version: 4.4.1
+  resolution: "@uppy/companion-client@npm:4.4.1"
   dependencies:
-    "@uppy/utils": "npm:^5.9.0"
+    "@uppy/utils": "npm:^6.1.1"
     namespace-emitter: "npm:^2.0.1"
     p-retry: "npm:^6.1.0"
   peerDependencies:
-    "@uppy/core": ^3.13.1
-  checksum: 10c0/523341e617e92bff572b6f180eab02c0bd294543328e355f91554b8b4ac9376e4183496ce95961f8e73aa8d1d3e62df05a8c4ceee8646ada02f207410e684fc2
+    "@uppy/core": ^4.4.1
+  checksum: 10c0/7550d7e18952b96e3be76b9942f04dcce47a3fa0873b0d58b5b82bb6fbc9d49404a190ff38479b3fb1dcc771ea4500bcaf7bf48d8ff757c9bacb7b827dcb6350
   languageName: node
   linkType: hard
 
-"@uppy/core@npm:^4.3.1, @uppy/core@npm:^4.4.1":
+"@uppy/core@npm:^4.4.1":
   version: 4.4.3
   resolution: "@uppy/core@npm:4.4.3"
   dependencies:
@@ -3618,7 +3618,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/drag-drop@npm:^4.0.5, @uppy/drag-drop@npm:^4.1.1":
+"@uppy/core@npm:^4.4.4":
+  version: 4.4.4
+  resolution: "@uppy/core@npm:4.4.4"
+  dependencies:
+    "@transloadit/prettier-bytes": "npm:^0.3.4"
+    "@uppy/store-default": "npm:^4.2.0"
+    "@uppy/utils": "npm:^6.1.3"
+    lodash: "npm:^4.17.21"
+    mime-match: "npm:^1.0.2"
+    namespace-emitter: "npm:^2.0.1"
+    nanoid: "npm:^5.0.9"
+    preact: "npm:^10.5.13"
+  checksum: 10c0/b4605333001d03fe09999f51e72525948a8bec839661066772a37c2c38ed1dc7dc9efbd5e27cf9851c85145af2881e97c3f75aa47ddd95ae04c19c87ce9eb4e8
+  languageName: node
+  linkType: hard
+
+"@uppy/drag-drop@npm:^4.1.1":
   version: 4.1.1
   resolution: "@uppy/drag-drop@npm:4.1.1"
   dependencies:
@@ -3630,7 +3646,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/progress-bar@npm:^4.1.0, @uppy/progress-bar@npm:^4.2.1":
+"@uppy/drag-drop@npm:^4.1.2":
+  version: 4.1.2
+  resolution: "@uppy/drag-drop@npm:4.1.2"
+  dependencies:
+    "@uppy/utils": "npm:^6.1.3"
+    preact: "npm:^10.5.13"
+  peerDependencies:
+    "@uppy/core": ^4.4.4
+  checksum: 10c0/9f729a7787ab505223c31b75dc790cf0a3f8f90466067cc8af67d40d7b9e92285dc364f048b0019b0d21521cd0438a62bd167369c9a32c093b93217d7bd900df
+  languageName: node
+  linkType: hard
+
+"@uppy/progress-bar@npm:^4.2.1":
   version: 4.2.1
   resolution: "@uppy/progress-bar@npm:4.2.1"
   dependencies:
@@ -3649,26 +3677,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/tus@npm:^3.0.1":
-  version: 3.5.5
-  resolution: "@uppy/tus@npm:3.5.5"
+"@uppy/tus@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@uppy/tus@npm:4.2.2"
   dependencies:
-    "@uppy/companion-client": "npm:^3.8.1"
-    "@uppy/utils": "npm:^5.9.0"
-    tus-js-client: "npm:^3.1.3"
+    "@uppy/companion-client": "npm:^4.4.1"
+    "@uppy/utils": "npm:^6.1.1"
+    tus-js-client: "npm:^4.2.3"
   peerDependencies:
-    "@uppy/core": ^3.11.3
-  checksum: 10c0/e67a66e217bcfc6d1986deab0e7f3483f420b7f5ed7cf7e8fe9a5ba5d4a6aa7895318f116749d20908c787f3765f9d2606220969a8ac2d73486156787520bbf6
-  languageName: node
-  linkType: hard
-
-"@uppy/utils@npm:^5.9.0":
-  version: 5.9.0
-  resolution: "@uppy/utils@npm:5.9.0"
-  dependencies:
-    lodash: "npm:^4.17.21"
-    preact: "npm:^10.5.13"
-  checksum: 10c0/857c8fa11814816f0a1d97ce78f86cac8c9f4e46267d2d64631f7cce8d3b8caf3796cccdd4cecdfe110862ebbed5a76896522a965f09b0940f0979b91f04c793
+    "@uppy/core": ^4.4.1
+  checksum: 10c0/5d2cf5c7b5d1cbbd93aa84402922ee0995f5d09ac81c83ab5263a30ca24a893ff419c5ab04995c70ba5ffbf45618edd667cb73bf749b4e89d30c1965b931af96
   languageName: node
   linkType: hard
 
@@ -3679,6 +3697,16 @@ __metadata:
     lodash: "npm:^4.17.21"
     preact: "npm:^10.5.13"
   checksum: 10c0/91a709825639acc78b194ae1f055e296d412728019cf5cce1ebed23aab209b1816e27eb77d5a625b25ee8922a7c0e51c27744fb9500980c066cf4e025d1562de
+  languageName: node
+  linkType: hard
+
+"@uppy/utils@npm:^6.1.3":
+  version: 6.1.3
+  resolution: "@uppy/utils@npm:6.1.3"
+  dependencies:
+    lodash: "npm:^4.17.21"
+    preact: "npm:^10.5.13"
+  checksum: 10c0/5474e0932a2379acb0767409992a7da9d4ef20d87e90e152ccbd614b8cf53ed6dfd3ea1dcb4bccc0a52c12be8ed8d794453a91285896e8e8f88352f1394c6e4f
   languageName: node
   linkType: hard
 
@@ -12379,7 +12407,7 @@ __metadata:
     "@babel/preset-flow": "npm:^7.25.9"
     "@babel/runtime": "npm:^7.26.0"
     "@cesium/engine": "npm:^15.0.0"
-    "@demos-europe/demosplan-ui": "npm:0.4.13"
+    "@demos-europe/demosplan-ui": "npm:0.4.14"
     "@demos-europe/dp-consent": "npm:^1.3"
     "@efrane/vuex-json-api": "npm:^0.1.3"
     "@fullhuman/postcss-purgecss": "npm:^7.0.2"
@@ -13959,9 +13987,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tus-js-client@npm:^3.1.3":
-  version: 3.1.3
-  resolution: "tus-js-client@npm:3.1.3"
+"tus-js-client@npm:^4.2.3":
+  version: 4.3.1
+  resolution: "tus-js-client@npm:4.3.1"
   dependencies:
     buffer-from: "npm:^1.1.2"
     combine-errors: "npm:^3.0.3"
@@ -13970,7 +13998,7 @@ __metadata:
     lodash.throttle: "npm:^4.1.1"
     proper-lockfile: "npm:^4.1.2"
     url-parse: "npm:^1.5.7"
-  checksum: 10c0/526a82147292cb31404866ef16c315fab231d3f8761dc17509ececcf264d8c32a4a02a377dff0939fb50026bfd4bf62ac6518f657cda7b09033e230814cbb467
+  checksum: 10c0/db36ec17cff0217f1199b84f355f8aa07abab47d98d003926f67d9bad08e15e77c3ef61f98aa360133f27ad4944cf519170ff5b5eb5b93a8a762c28dd49df59d
   languageName: node
   linkType: hard
 
