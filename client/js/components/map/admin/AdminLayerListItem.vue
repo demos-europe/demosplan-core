@@ -108,7 +108,7 @@
         <input
           type="checkbox"
           data-cy="adminLayerListItem:toggleDefaultVisibility"
-          :disabled="(!layer.attributes.visibilityGroupId || ('' !== layer.attributes.visibilityGroupId && null !== layer.attributes.visibilityGroupId)) || (true === isChildOfCategoryThatAppearsAsLayer)"
+          :disabled="!layer.attributes.visibilityGroupId || isChildOfCategoryThatAppearsAsLayer"
           @change.prevent="toggleHasDefaultVisibility"
           :checked="hasDefaultVisibility"
           :class="[iconClass, 'o-sortablelist__checkbox']">
@@ -321,7 +321,7 @@ export default {
        *
        */
       const toggleMyIconInSameGroup = (this.isLinkedWithCurrentlyHovered && this.showCurrentIconState)
-      const toggleMyIconWithoutGroup = (this.showCurrentIconState && (this.visibilityGroupIdOfHoveredLayer === '' || this.visibilityGroupIdOfHoveredLayer !== null))
+      const toggleMyIconWithoutGroup = (this.showCurrentIconState && !this.visibilityGroupIdOfHoveredLayer)
 
       if (this.isActive) {
         if (this.hasSettingsThatPreventGrouping) {
@@ -443,7 +443,7 @@ export default {
     },
 
     hasGroupId () {
-      return this.layer.attributes.visibilityGroupId !== '' && this.layer.attributes.visibilityGroupId !== null
+      return !!this.layer.attributes.visibilityGroupId
     },
 
     /**
@@ -518,7 +518,7 @@ export default {
     /**
      * Needed to return empty String whe active-layer ist not set
      *
-     * returns String|visibilitgroupId of the activeLayer (or empty String)
+     * returns String|visibilitgroupId of the activeLayer (or null)
      */
     activeLayerVisibilityGroupId () {
       return (typeof this.activeLayer.attributes === 'undefined') ? null : this.activeLayer.attributes.visibilityGroupId
@@ -562,7 +562,7 @@ export default {
       if (this.layer.attributes.canUserToggleVisibility === false) {
         return Translator.trans('explanation.gislayer.visibility.group.locked.different.not.togglable')
       }
-      if (this.layer.attributes.visibilityGroupId !== this.activeLayerVisibilityGroupId || this.layer.attributes.visibilityGroupId !== '' || this.layer.attributes.visibilityGroupId !== null) {
+      if (this.layer.attributes.visibilityGroupId && this.layer.attributes.visibilityGroupId !== this.activeLayerVisibilityGroupId) {
         return Translator.trans('explanation.gislayer.visibility.group.locked.different.group')
       }
       if (this.hasSameVisibilityAsCurrentlyActive === false) {
@@ -577,7 +577,7 @@ export default {
      * returns Boolean
      */
     isLinkedWithCurrentlyActive () {
-      return (this.layer.attributes.visibilityGroupId === this.activeLayerVisibilityGroupId && this.layer.attributes.visibilityGroupId !== '' && this.layer.attributes.visibilityGroupId !== null)
+      return (this.layer.attributes.visibilityGroupId && this.layer.attributes.visibilityGroupId === this.activeLayerVisibilityGroupId)
     },
     /**
      * Checks if this element is in the same visibility-group as the hovered Layer
@@ -586,8 +586,7 @@ export default {
      */
     isLinkedWithCurrentlyHovered () {
       return (this.layer.attributes.visibilityGroupId === this.visibilityGroupIdOfHoveredLayer
-        && this.layer.attributes.visibilityGroupId !== ''
-        && this.layer.attributes.visibilityGroupId !== null
+        && !!this.layer.attributes.visibilityGroupId
         && this.hoverLayerId !== this.layer.id)
     },
 
@@ -697,8 +696,6 @@ export default {
      * Removes element icon from store
      */
     deleteElement () {
-      console.log('deleteElement')
-
       let deleteData = {}
       if (this.isLoading) {
         return false
@@ -834,7 +831,7 @@ export default {
     toggleHasDefaultVisibility () {
       this.preventActiveFromToggeling = true
       // Can't be updated when it's a visiblityGroup
-      if ((this.layer.attributes.visibilityGroupId !== '' && this.layer.attributes.visibilityGroupId !== null && this.layer.type !== 'GisLayerCategory') || this.isLoading) {
+      if ((this.layer.attributes.visibilityGroupId && this.layer.type !== 'GisLayerCategory') || this.isLoading) {
         return
       }
 
@@ -865,20 +862,22 @@ export default {
       if (typeof this.activeLayer.id === 'undefined' ||
           this.layerType === 'base' ||
           this.isActive ||
-          (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && this.layer.attributes.visibilityGroupId !== '' && this.layer.attributes.visibilityGroupId !== null) ||
+          (this.layer.attributes.visibilityGroupId && this.layer.attributes.visibilityGroupId !== newVisibilityGroupId) ||
           this.hasSettingsThatPreventGrouping ||
           this.isLoading) {
         return false
       }
 
-      if (newVisibilityGroupId === null || newVisibilityGroupId === '' || typeof newVisibilityGroupId === 'undefined') {
+      if (!newVisibilityGroupId) {
         // If the active Layer has no visibilitygroupId, create one and attach it to the active and the clicked Layer
         newVisibilityGroupId = uuid()
+
         this.setAttributeForLayer({
           id: this.activeLayer.id,
           attribute: 'visibilityGroupId',
           value: newVisibilityGroupId
         })
+
         this.setAttributeForLayer({
           id: this.layer.id,
           attribute: 'visibilityGroupId',
