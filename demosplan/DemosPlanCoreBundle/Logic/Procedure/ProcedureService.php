@@ -118,6 +118,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use TypeError;
+use Webmozart\Assert\Assert;
 
 class ProcedureService extends CoreService implements ProcedureServiceInterface
 {
@@ -206,17 +207,17 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
         private readonly ProcedureSubscriptionRepository $procedureSubscriptionRepository,
         private readonly ProcedureToLegacyConverter $procedureToLegacyConverter,
         private readonly ProcedureTypeService $procedureTypeService,
-        private readonly SettingRepository         $settingRepository,
-        private readonly SingleDocumentRepository  $singleDocumentRepository,
-        private readonly SortMethodFactory         $sortMethodFactory,
-        private readonly StatementRepository       $statementRepository,
-        private readonly TagTopicRepository        $tagTopicRepository,
+        private readonly SettingRepository $settingRepository,
+        private readonly SingleDocumentRepository $singleDocumentRepository,
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly StatementRepository $statementRepository,
+        private readonly TagTopicRepository $tagTopicRepository,
         private readonly InstitutionMailRepository $institutionMailRepository,
-        private readonly TranslatorInterface       $translator,
-        UserService                                $userService,
-        private readonly ValidatorInterface        $validator,
-        private readonly AccessControlService      $accessControlPermissionService,
-        private readonly string                    $environment,
+        private readonly TranslatorInterface $translator,
+        UserService $userService,
+        private readonly ValidatorInterface $validator,
+        private readonly AccessControlService $accessControlPermissionService,
+        private readonly string $environment,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
     ) {
         $this->contentService = $contentService;
@@ -809,7 +810,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     $this->translator->trans('participation.invitation').': '.($data['name'] ?? '');
             }
             // T34551 all procedures shall get a customer relation
-            // - defalt-customer-blueprint relations are set within the customer only
+            // - default-customer-blueprint relations are set within the customer only
             // if a customer is given inside the procedure related $data array then
             // that signals the procedure should be used as the default-customer-blueprint.
             $setProcedureAsDefaultCustomerBlueprint = false;
@@ -841,6 +842,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             /** @var string|null $blueprintId */
             $blueprintId = $data['copymaster'] ?? null;
             $blueprintId = $blueprintId instanceof Procedure ? $blueprintId->getId() : $blueprintId;
+            Assert::false($this->getProcedure($blueprintId)?->isDeleted());
             $newProcedure = $this->setAuthorizedUsersToProcedure($newProcedure, $blueprintId, $currentUserId);
             $newProcedure = $this->addCurrentOrgaToPlanningOffices($newProcedure, $currentUserId);
 
@@ -910,7 +912,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             foreach ($procedureIds as $procedureId) {
                 $data = [
                     'ident'    => $procedureId,
-                    'customer' => null,
                     'deleted'  => true,
                 ];
 
@@ -919,11 +920,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     throw ProcedureNotFoundException::createFromId($procedureId);
                 }
                 if ($procedure->isCustomerMasterBlueprint()) {
-                    $this->messageBag->add(
-                        'warning',
-                        'warning.customer.procedure.template.can.not.be.deleted'
-                    );
-                    continue;
+                    // procedure deletion is just a flag, therefore additional logic is needed to ensure
+                    // this deleted procedure is not longer set as defaultProcedureBlueprint
+                    $procedure->getCustomer()?->setDefaultProcedureBlueprint(null);
+                    $this->customerService->updateCustomer($procedure->getCustomer());
                 }
 
                 try {
