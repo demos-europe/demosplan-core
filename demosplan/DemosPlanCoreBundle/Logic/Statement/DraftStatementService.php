@@ -1535,7 +1535,6 @@ class DraftStatementService extends CoreService
                 $boolMustFilter[] = new Terms('uId', $uId);
             }
 
-
             // Filters set by users.
             if (null !== $userFilters->getReleased()) {
                 $released = [$userFilters->getReleased()];
