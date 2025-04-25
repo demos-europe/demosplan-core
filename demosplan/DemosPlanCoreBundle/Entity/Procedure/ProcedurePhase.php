@@ -98,7 +98,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    protected ?DateTime $designatedSwitchDate;
+    protected ?DateTime $designatedSwitchDate = null;
 
     /**
      * OnDelete set NULL at this site, will set the userID to null in case of the user will be deleted.
@@ -116,7 +116,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    protected ?DateTime $designatedEndDate;
+    protected ?DateTime $designatedEndDate = null;
 
     /**
      * @ORM\Column(type="smallint", nullable=false, options={"unsigned":true, "default":1})

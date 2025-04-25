@@ -94,7 +94,7 @@ class DraftStatementHandler extends CoreHandler
         ProcedureHandler $procedureHandler,
         RouterInterface $router,
         TranslatorInterface $translator,
-        UserService $userService
+        UserService $userService,
     ) {
         parent::__construct($messageBag);
         $this->contentService = $serviceContent;
@@ -316,7 +316,7 @@ class DraftStatementHandler extends CoreHandler
     public function submitHandler(
         array $draftStatementIds,
         string $notificationReceiverId = '',
-        bool $gdprConsentReceived = false
+        bool $gdprConsentReceived = false,
     ): array {
         $county = null;
         if ('' != $notificationReceiverId) {
@@ -597,7 +597,6 @@ class DraftStatementHandler extends CoreHandler
             $userData['private'] = false;
         }
 
-
         return array_merge($data, $userData);
     }
 
@@ -625,7 +624,7 @@ class DraftStatementHandler extends CoreHandler
         $sort,
         $user,
         $manualSortScope,
-        $toLegacy = true
+        $toLegacy = true,
     ): StatementListHandlerResult {
         $sResult = $this->draftStatementService->getDraftStatementList(
             $procedure,
@@ -675,7 +674,7 @@ class DraftStatementHandler extends CoreHandler
         $procedure,
         $search,
         StatementListUserFilter $filter,
-        $sort
+        $sort,
     ): StatementListHandlerResult {
         $sResult = $this->draftStatementService->getDraftStatementListFromOtherCompanies(
             $procedure,

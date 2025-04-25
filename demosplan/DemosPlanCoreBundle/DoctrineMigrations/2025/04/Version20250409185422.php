@@ -17,11 +17,12 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-class Version20250425084830 extends AbstractMigration
+class Version20250409185422 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T:DPLAN-12794 adds private<bool> to Draftstatements setting its visibility scope';
+        return 'refs DPLAN-15442: Readjustment of procedure-customer relationship in code seems to lead to this rename, without further impact.
+        To keep the diff in sync, allow this renaming.';
     }
 
     /**
@@ -31,7 +32,7 @@ class Version20250425084830 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE _draft_statement ADD private TINYINT(1) DEFAULT 1 NOT NULL');
+        $this->addSql('ALTER TABLE _procedure RENAME INDEX fk_d1a01d0281398e09 TO IDX_D1A01D0281398E09');
     }
 
     /**
@@ -41,7 +42,7 @@ class Version20250425084830 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE _draft_statement DROP private');
+        $this->addSql('ALTER TABLE _procedure RENAME INDEX idx_d1a01d0281398e09 TO FK_D1A01D0281398E09');
     }
 
     /**
