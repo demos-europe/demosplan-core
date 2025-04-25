@@ -55,7 +55,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     /**
      * used to either limit the visibility scope within the drafts-folder to only the author
      * or in case this value is set to false - the scope is set
-     * visible for all members of the {{ @link self::$organisation }}
+     * visible for all members of the {{ @see self::$organisation }}.
      *
      * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
