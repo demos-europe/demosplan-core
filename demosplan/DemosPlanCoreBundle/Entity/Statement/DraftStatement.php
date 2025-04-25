@@ -53,6 +53,13 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     protected $id;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
+     */
+    protected bool $private = true;
+
+    /**
      * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
@@ -495,6 +502,16 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     public function getIdent(): ?string
     {
         return $this->getId();
+    }
+
+    public function isPrivate(): bool
+    {
+        return $this->private;
+    }
+
+    public function setPrivate(bool $private): void
+    {
+        $this->private = $private;
     }
 
     /**

@@ -3621,7 +3621,7 @@ statements.assign.other.confirmation: "Stellungnahmen werden folgender Person zu
 statements.assign.reset: "Stellungnahmen werden freigegeben"
 statements.collected.list: "Liste der erfassten Stellungnahmen"
 statements.county.choose: "Auswahl der Kreiszugehörigkeit"
-statements.draft: "Meine Entwürfe"
+statements.draft: "Entwürfe"
 statements.edit: "Stellungnahmen bearbeiten"
 statements.final: "Einreichungen der Institution"
 statements.final_other: "Einreichungen anderer Institutionen"

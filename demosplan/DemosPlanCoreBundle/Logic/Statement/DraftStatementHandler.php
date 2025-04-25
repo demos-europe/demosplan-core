@@ -591,6 +591,12 @@ class DraftStatementHandler extends CoreHandler
             'oId'   => $user->getOrganisationId(),
             'oName' => $user->getOrganisationNameLegal(),
         ];
+        // check if user is institution.... - if true set private to false
+        // in order to be indicated visible for other organisation members
+        if ($user->isPublicAgency()) {
+            $userData['private'] = false;
+        }
+
 
         return array_merge($data, $userData);
     }
