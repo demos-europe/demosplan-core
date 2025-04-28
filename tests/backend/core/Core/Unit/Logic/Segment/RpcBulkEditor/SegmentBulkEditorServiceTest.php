@@ -66,7 +66,7 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
         self::assertNull($this->segment1->getAssignee());
         self::assertNull($this->segment2->getAssignee());
 
-        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], $this->user, null);
+        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], $this->user, null, []);
 
         self::assertEquals($this->user->getId(), $this->segment1->getAssignee()->getId());
         self::assertEquals($this->user->getId(), $this->segment2->getAssignee()->getId());
@@ -80,7 +80,7 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
         self::assertEquals($this->user->getId(), $this->segment1->getAssignee()->getId());
         self::assertEquals($this->user->getId(), $this->segment2->getAssignee()->getId());
 
-        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], null, null);
+        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], null, null, []);
 
         self::assertNull($this->segment1->getAssignee());
         self::assertNull($this->segment2->getAssignee());
