@@ -80,20 +80,17 @@ class CustomFieldValueType extends JsonType
         $value,
         AbstractPlatform $platform,
     ): ?string {
-
         if (null === $value) {
             return parent::convertToDatabaseValue($value, $platform);
         }
 
         if (!is_a($value, CustomFieldValuesList::class)) {
             throw new RuntimeException('This field can only handle '.CustomFieldValuesList::class.' as data');
-         }
-
+        }
 
         return parent::convertToDatabaseValue($value->toJson(), $platform);
-
-
     }
+
     public function getName(): string
     {
         return self::DPLAN_STORED_QUERY;

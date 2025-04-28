@@ -25,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Tests\Base\RpcApiTest;
 
@@ -87,13 +86,11 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
         $radioButton->setFieldType('singleSelect');
         $radioButton->setOptions(['Blue', 'Orange', 'Green']);
 
-
         $customField1 = CustomFieldConfigurationFactory::createOne([
             'sourceEntityClass' => 'PROCEDURE',
-            'sourceEntityId' => $procedure->getId(),
+            'sourceEntityId'    => $procedure->getId(),
             'targetEntityClass' => 'SEGMENT',
-            'configuration' => $radioButton
-
+            'configuration'     => $radioButton,
         ]);
 
         $radioButton2 = new RadioButtonField();
@@ -102,28 +99,22 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
         $radioButton2->setFieldType('singleSelect');
         $radioButton2->setOptions(['Pizza', 'Sushi', 'Bread']);
 
-
         $customField2 = CustomFieldConfigurationFactory::createOne([
             'sourceEntityClass' => 'PROCEDURE',
-            'sourceEntityId' => $procedure->getId(),
+            'sourceEntityId'    => $procedure->getId(),
             'targetEntityClass' => 'SEGMENT',
-            'configuration' => $radioButton2
-
+            'configuration'     => $radioButton2,
         ]);
-
 
         $customFields = [
             ['id' => $customField1->getId(), 'value' => 'Orange'],
-            ['id' => $customField2->getId(), 'value' => 'Bread']
+            ['id' => $customField2->getId(), 'value' => 'Bread'],
         ];
-
 
         $this->sut->updateSegments([$segment1, $segment2], [], [], $this->user, null, $customFields);
 
-
-        self::assertEquals('Orange',$segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
+        self::assertEquals('Orange', $segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
         self::assertEquals('Bread', $segment2->getCustomFields()->getCustomFieldsValues()[1]->getValue());
-
     }
 
     public function testUpdateSegmentsWithNullAssignee(): void

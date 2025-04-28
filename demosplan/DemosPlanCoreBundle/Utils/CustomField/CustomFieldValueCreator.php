@@ -52,7 +52,7 @@ class CustomFieldValueCreator extends CoreService
             }
         }
 
-       return clone $currentCustomFieldValuesList;
+        return clone $currentCustomFieldValuesList;
     }
 
     private function getCustomField(string $sourceEntityClass,
