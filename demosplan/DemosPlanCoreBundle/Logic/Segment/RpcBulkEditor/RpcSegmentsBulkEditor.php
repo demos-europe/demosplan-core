@@ -257,9 +257,10 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         if (empty($rawCustomFields)) {
             return [];
         }
-        return json_decode(json_encode($rawCustomFields), true);
 
+        return json_decode(json_encode($rawCustomFields), true);
     }
+
     /**
      * @throws Exception
      */
