@@ -29,7 +29,7 @@
         section="tags"
         :is-visible="showFloatingContextButton.tags"
         :is-content-collapsed="isCollapsed.tags"
-        @toggle-content-visibility="toggleVisibility"
+        @toggleContentVisibility="toggleVisibility"
         @show="showFloatingContextButton.tags = true"
         @hide="showFloatingContextButton.tags = false" />
     </div>
@@ -55,7 +55,7 @@
           <!-- search available tags -->
           <search-select
             v-if="showCreateForm === false"
-            @open-create-form="showCreateForm = true"
+            @openCreateForm="showCreateForm = true"
             :selected="selectedTags"
             :place-holder="Translator.trans('tag.search')"
             :options="searchableTags" />
@@ -63,7 +63,7 @@
           <!-- create tags + topics -->
           <dp-create-tag
             v-else
-            @close-create-form="showCreateForm = false" />
+            @closeCreateForm="showCreateForm = false" />
         </div>
 
         <div
@@ -99,7 +99,7 @@
         section="placesAndAssignee"
         :is-visible="showFloatingContextButton.placesAndAssignee"
         :is-content-collapsed="isCollapsed.placesAndAssignee"
-        @toggle-content-visibility="toggleVisibility"
+        @toggleContentVisibility="toggleVisibility"
         @show="showFloatingContextButton.placesAndAssignee = true"
         @hide="showFloatingContextButton.placesAndAssignee = false" />
 
@@ -210,7 +210,7 @@ export default {
   emits: [
     'abort',
     'save',
-    'save-and-finish'
+    'saveAndFinish'
   ],
 
   data () {
@@ -319,7 +319,7 @@ export default {
 
     handleClick () {
       this.setProperty({ prop: 'isBusy', val: true })
-      this.$emit('save-and-finish')
+      this.$emit('saveAndFinish')
     },
 
     hasOwnProp (obj, prop) {

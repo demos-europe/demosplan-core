@@ -19,7 +19,7 @@
         :per-page="pagination.perPage"
         :total-items="pagination.total"
         :total-pages="pagination.totalPages"
-        @page-change="fetchOriginalStatementsByPage"
+        @pageChange="fetchOriginalStatementsByPage"
         @size-change="handleSizeChange" />
 
       <dp-data-table

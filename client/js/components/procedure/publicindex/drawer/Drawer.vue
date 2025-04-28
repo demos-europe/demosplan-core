@@ -13,7 +13,7 @@
     :class="{ 'is-open': isDrawerOpened }">
     <div class="bg-color--grey-light-2 u-p-0_5">
       <dp-search
-        @procedure-search-focused="openDrawer"
+        @procedureSearch:focused="openDrawer"
         :show-suggestions="false" />
       <template v-if="!isLoading">
         <dp-handle

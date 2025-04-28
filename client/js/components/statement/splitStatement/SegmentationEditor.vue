@@ -51,8 +51,8 @@ export default {
   },
 
   emits: [
-    'prosemirror-initialized',
-    'prosemirror-max-range'
+    'prosemirror:initialized',
+    'prosemirrorMaxRange'
   ],
 
   data () {
@@ -141,8 +141,8 @@ export default {
        */
       prosemirrorStateWrapper = Object.freeze(prosemirrorStateWrapper)
 
-      this.$emit('prosemirror-max-range', this.maxRange)
-      this.$emit('prosemirror-initialized', prosemirrorStateWrapper)
+      this.$emit('prosemirrorMaxRange', this.maxRange)
+      this.$emit('prosemirror:initialized', prosemirrorStateWrapper)
     },
 
     transformSegments (segments) {

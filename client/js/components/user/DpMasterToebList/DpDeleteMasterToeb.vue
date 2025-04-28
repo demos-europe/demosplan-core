@@ -33,14 +33,14 @@ export default {
   },
 
   emits: [
-    'orga-deleted'
+    'orga:deleted'
   ],
 
   methods: {
     deleteOrga () {
       if (confirm(Translator.trans('check.mastertoeb.delete'))) {
         makeFormPost({ oId: this.orgaId }, Routing.generate('DemosPlan_user_mastertoeblist_delete_ajax'))
-          .then(() => this.$emit('orga-deleted', this.orgaId))
+          .then(() => this.$emit('orga:deleted', this.orgaId))
       }
     }
   }

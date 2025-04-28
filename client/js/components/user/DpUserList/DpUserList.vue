@@ -91,7 +91,7 @@
         :current="currentPage"
         :total="totalPages"
         :non-sliding-size="10"
-        @page-change="getItemsByPage" />
+        @pageChange="getItemsByPage" />
     </template>
   </div>
 </template>

@@ -94,7 +94,7 @@ export default {
   },
 
   emits: [
-    'layer-legend:unfolded'
+    'layerLegend:unfolded'
   ],
 
   data () {
@@ -137,7 +137,7 @@ export default {
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
       if (unfolded) {
-        this.$emit('layer-legend:unfolded')
+        this.$emit('layerLegend:unfolded')
       }
     }
   }

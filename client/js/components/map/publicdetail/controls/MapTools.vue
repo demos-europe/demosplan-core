@@ -121,7 +121,7 @@ export default {
   mixins: [prefixClassMixin],
 
   emits: [
-    'map-tools:unfolded'
+    'mapTools:unfolded'
   ],
 
   data () {
@@ -165,7 +165,7 @@ export default {
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
       if (unfolded) {
-        this.$emit('map-tools:unfolded')
+        this.$emit('mapTools:unfolded')
       }
     },
 

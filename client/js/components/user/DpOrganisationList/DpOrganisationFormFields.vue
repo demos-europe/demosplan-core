@@ -881,9 +881,9 @@ export default {
   },
 
   emits: [
-    'addon-update',
+    'addon:update',
     'addonOptions:loaded',
-    'organisation-update'
+    'organisation:update'
   ],
 
   data () {
@@ -985,7 +985,7 @@ export default {
     emitOrganisationUpdate () {
       // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
       Vue.nextTick(() => {
-        this.$emit('organisation-update', this.localOrganisation)
+        this.$emit('organisation:update', this.localOrganisation)
       })
     },
 
@@ -1035,7 +1035,7 @@ export default {
     },
 
     updateAddonPayload (payload) {
-      this.$emit('addon-update', payload)
+      this.$emit('addon:update', payload)
     }
   },
 
@@ -1047,7 +1047,7 @@ export default {
   },
 
   mounted () {
-    this.$root.$on('organisation-reset', () => {
+    this.$root.$on('organisation:reset', () => {
       this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
     })
     if (this.registrationStatuses.length === 0) {

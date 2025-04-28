@@ -35,7 +35,7 @@
           :data-cy="`roleInput-${role.dataCy}`"
           name="r_role"
           :value="role.value"
-          @change="() => $emit('role-changed', currentRole)"
+          @change="() => $emit('role:changed', currentRole)"
           :id="`r_role_${role.value}`"
           v-model="currentRole"><!--
      --><label
@@ -234,7 +234,7 @@ export default {
   },
 
   emits: [
-    'role-changed',
+    'role:changed',
     'submitter:chosen'
   ],
 

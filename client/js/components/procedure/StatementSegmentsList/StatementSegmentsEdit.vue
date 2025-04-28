@@ -165,8 +165,8 @@ export default {
   },
 
   emits: [
-    'save-statement',
-    'statement-text-updated'
+    'saveStatement',
+    'statementText:updated'
   ],
 
   data () {
@@ -330,7 +330,7 @@ export default {
     },
 
     saveStatement () {
-      this.$emit('save-statement', this.statement)
+      this.$emit('saveStatement', this.statement)
     },
 
     scrollToSegment () {
@@ -398,7 +398,7 @@ export default {
     updateStatementText (val) {
       const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
 
-      this.$emit('statement-text-updated')
+      this.$emit('statementText:updated')
 
       const updated = {
         ...this.statement,

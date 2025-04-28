@@ -77,7 +77,7 @@
                             :init-submitter="values.submitter"
                             ref="submitter"
                             @submitter:chosen="addLocationPrompt"
-                            @role-changed="handleRoleChange"
+                            @role:changed="handleRoleChange"
                             :form-definitions="JSON.parse('{{ formDefinitions|json_encode|e('js', 'utf-8') }}')"
                             :participation-guest-only="JSON.parse('{{ participationGuestOnly|json_encode|e('js', 'utf-8') }}')"
                         ></dp-autofill-submitter-data>
@@ -87,7 +87,7 @@
                             Additional user fields: userState, userGroup, userOrganisation, userPosition.
                             These fields are not part of <dp-autofill-submitter-data> because they shared no behavior
                             with it when first being implemented. However, now some of the fields interact with
-                            <dp-autofill-submitter-data> via @role-changed.
+                            <dp-autofill-submitter-data> via @role:changed.
                         #}
                         <div class="layout">
                             {% if hasPermission('field_statement_user_state') and templateVars.formOptions.userState %}

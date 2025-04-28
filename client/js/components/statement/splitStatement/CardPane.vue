@@ -19,11 +19,11 @@
       :offset="offset"
       ref="card"
       @segment:confirm="$emit('segment:confirm', segment.id)"
-      @edit-segment="$emit('edit-segment', segment.id)"
-      @delete-segment="$emit('delete-segment', segment.id)"
+      @editSegment="$emit('editSegment', segment.id)"
+      @deleteSegment="$emit('deleteSegment', segment.id)"
       @mouseenter.native="handleMouseEnter(segment.id)"
       @mouseleave.native="handleMouseLeave(segment.id)"
-      @check-card-overlap="positionCards" />
+      @checkCardOverlap="positionCards" />
   </div>
 </template>
 
@@ -55,8 +55,8 @@ export default {
   },
 
   emits: [
-    'delete-segment',
-    'edit-segment',
+    'deleteSegment',
+    'editSegment',
     'segment:confirm'
   ],
 

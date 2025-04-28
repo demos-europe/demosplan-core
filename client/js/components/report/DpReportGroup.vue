@@ -40,7 +40,7 @@
             :total="totalPages"
             :non-sliding-size="10"
             :aria-label="paginationLabel"
-            @page-change="handlePageChange" />
+            @pageChange="handlePageChange" />
         </div><!--
      --><div class="layout__item u-1-of-2">
         <dp-loading
@@ -110,7 +110,7 @@ export default {
   },
 
   emits: [
-    'page-change'
+    'pageChange'
   ],
 
   data () {
@@ -155,7 +155,7 @@ export default {
     },
 
     handlePageChange (requestedPage) {
-      this.$emit('page-change', requestedPage)
+      this.$emit('pageChange', requestedPage)
     }
   }
 }

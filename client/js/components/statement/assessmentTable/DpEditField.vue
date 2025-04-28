@@ -215,7 +215,7 @@ export default {
   },
 
   mounted () {
-    this.$root.$on('save-success', () => {
+    this.$root.$on('saveSuccess', () => {
       this.loading = false
       this.editingEnabled = false
     })

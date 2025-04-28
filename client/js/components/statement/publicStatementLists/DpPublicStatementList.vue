@@ -22,7 +22,7 @@
         :procedure-id="procedureId"
         :show-author="showAuthor"
         :show-checkbox="showCheckbox"
-        @open-map-modal="openMapModal"
+        @openMapModal="openMapModal"
         @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"/>
       <dp-map-modal
         ref="mapModal"

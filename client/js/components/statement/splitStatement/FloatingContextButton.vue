@@ -46,12 +46,12 @@ export default {
   emits: [
     'hide',
     'show',
-    'toggle-content-visibility'
+    'toggleContentVisibility'
   ],
 
   methods: {
     toggleContentVisibility () {
-      this.$emit('toggle-content-visibility', this.section)
+      this.$emit('toggleContentVisibility', this.section)
     },
 
     show () {

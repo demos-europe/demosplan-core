@@ -60,7 +60,7 @@ All rights reserved
           :switch-state="rowData.designatedState ? 'released' : 'blocked'"
           :news-status="rowData.enabled"
           :determined-to-switch="rowData.determinedToSwitch || false"
-          @status-changed="setItemStatus($event, rowData.id)" />
+          @statusChanged="setItemStatus($event, rowData.id)" />
       </template>
       <template v-slot:picture="{ picture }">
         <i

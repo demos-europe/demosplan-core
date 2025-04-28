@@ -143,9 +143,9 @@ export default {
   },
 
   emits: [
-    'updated-filters',
-    'updating-filters',
-    'update-selected'
+    'updatedFilters',
+    'updatingFilters',
+    'updateSelected'
   ],
 
   data () {
@@ -224,7 +224,7 @@ export default {
      */
     loadFilterOptions () {
       // Used in DpFilterModal to disable submit-button while updating
-      this.$emit('updating-filters')
+      this.$emit('updatingFilters')
       this.setLoading({ filterId: this.filterItem.id, isLoading: true })
 
       const optionsForFilterHash = this.prepareOptionsForFilterHash()
@@ -239,7 +239,7 @@ export default {
                 this.isInitialLoad = false
               }
               // Used in DpFilterModal to enable submit-button after updating
-              this.$emit('updated-filters')
+              this.$emit('updatedFilters')
               this.setLoading({ filterId: this.filterItem.id, isLoading: false })
             })
         })
@@ -276,13 +276,13 @@ export default {
       }
 
       // Used in DpFilterModal to disable submit-button while updating
-      this.$emit('updating-filters')
+      this.$emit('updatingFilters')
 
       // Remove option from selectedOptions in store
       this.updateSelectedOptions({ selectedOption: option, filterId: this.filterItem.id })
 
       // Used in DpFilterModal to update filterHash and get all selected options from store
-      this.$emit('update-selected', this.filterItem.id)
+      this.$emit('updateSelected', this.filterItem.id)
     },
 
     // @select of filter dropdown
@@ -298,13 +298,13 @@ export default {
       this.setLoading({ filterId: this.filterItem.id, isLoading: true })
 
       // Used in DpFilterModal to disable submit-button while updating
-      this.$emit('updating-filters')
+      this.$emit('updatingFilters')
 
       /*
        * Used in DpFilterModal to update the filterHash with all selected options; DpFilterModal then emits the filterHash
        * and gets updated filterOptions for the selected filters, which are then loaded from the store into this.availableOptions
        */
-      this.$emit('update-selected', this.filterItem.id)
+      this.$emit('updateSelected', this.filterItem.id)
     },
 
     toggleSorting (id) {

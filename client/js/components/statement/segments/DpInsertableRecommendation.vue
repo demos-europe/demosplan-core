@@ -14,7 +14,7 @@ All rights reserved
         :aria-label="Translator.trans('segment.recommendation.paste')"
         v-tooltip="{ boundariesElement: body, content: Translator.trans('segment.recommendation.paste'), classes: 'z-ultimate' }"
         class="btn--blank color--grey"
-        @click="$emit('insert-recommendation')">
+        @click="$emit('insertRecommendation')">
         <i
           class="fa fa-files-o color--grey"
           aria-hidden="true" />
@@ -114,7 +114,7 @@ export default {
   },
 
   emits: [
-    'insert-recommendation'
+    'insertRecommendation'
   ],
 
   data () {

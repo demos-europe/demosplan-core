@@ -11,7 +11,7 @@
   <div>
     <dp-toggle
       :value="newsStatus"
-      @input="e => $emit('status-changed', e)" />
+      @input="e => $emit('statusChanged', e)" />
     <dp-contextual-help
       v-if="determinedToSwitch"
       class="u-ml-0_25"
@@ -55,7 +55,7 @@ export default {
   },
 
   emits: [
-    'status-changed'
+    'statusChanged'
   ],
 
   computed: {
