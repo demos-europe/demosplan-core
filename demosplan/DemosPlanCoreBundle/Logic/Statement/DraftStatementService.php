@@ -200,7 +200,7 @@ class DraftStatementService extends CoreService
                 $conditions[] = $this->conditionFactory->propertyHasValue($userOrganisationGatewayName, ['organisation', 'gatewayName']);
             }
             if ('ownCitizen' === $scope) {
-                // ownCitizen bleibt so wie es ist.
+                // In case of ownCitizen, previous ('own'-)logic can be executed:
                 $conditions[] = $this->conditionFactory->propertyHasValue($user->getId(), ['user']);
                 // add filter to be seen by elasticsearch
                 $filters->setSomeOnesUserId($user->getId());
