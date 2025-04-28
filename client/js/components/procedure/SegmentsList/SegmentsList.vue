@@ -131,7 +131,7 @@
                 {{ rowData.attributes.externId }}
               </div>
               <template v-slot:popover>
-                <statement-meta-tooltFip
+                <statement-meta-tooltip
                   :assignable-users="assignableUsers"
                   :statement="statementsObject[rowData.relationships.parentStatement.data.id]"
                   :segment="rowData"
