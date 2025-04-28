@@ -21,7 +21,7 @@ class Version20250425084830 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs T:DPLAN-12794 adds private<bool> to Draftstatements setting its visibility scope';
+return 'refs DPLAN-12794: adds private<bool> to Draftstatements setting its visibility scope';
     }
 
     /**
