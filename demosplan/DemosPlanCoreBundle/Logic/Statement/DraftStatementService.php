@@ -206,8 +206,8 @@ class DraftStatementService extends CoreService
                 $filters->setSomeOnesUserId($user->getId());
             }
             if ('own' === $scope) {
-                // own means own orga in this context.
-                // filter out all private draftStatements of own orga if they are mot authored by currentUser
+                // own means own organisation in this context.
+                // filter out all private DraftStatements of own organisation if they are not authored by currentUser
                 $conditions[] = $this->conditionFactory->anyConditionApplies(
                     $this->conditionFactory->propertyHasValue(false, ['private']),
                     $this->conditionFactory->propertyHasValue($user->getId(), ['user']),
