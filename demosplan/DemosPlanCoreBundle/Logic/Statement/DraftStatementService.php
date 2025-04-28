@@ -175,10 +175,11 @@ class DraftStatementService extends CoreService
             throw new AccessDeniedException('No user given');
         }
         try {
-            // the released draftstatements have to be fetched differently from the database
-            // - do not use the default strategy in this case
-            // 'own' in combination with getReleased means the draftstatement belongs to the users orga
-            // and has been created by the given user.
+             /**
+             * Special fetching strategy for DraftStatements is needed:
+             * 'own' in combination with getReleased to indicate
+             * the DraftStatement belongs to the users organisation and has been created by the given user.
+             */
             if ('own' === $scope && true === $filters->getReleased()
                 && (null === $filters->getSubmitted() || false === $filters->getSubmitted())) {
                 return $this->getDraftStatementReleasedOwnList($procedureId, $filters, $search, $sort, $user, $manualSortScope);
