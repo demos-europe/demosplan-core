@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFacto
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -81,49 +82,35 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
         $segment1 = SegmentFactory::createOne()->setProcedure($procedure->_real());
         $segment2 = SegmentFactory::createOne()->setProcedure($procedure->_real());
 
-        $radioButton = new RadioButtonField();
-        $radioButton->setName('Favourite Color');
-        $radioButton->setDescription('Your favourite color');
-        $radioButton->setFieldType('singleSelect');
-        $radioButton->setOptions(['Blue', 'Orange', 'Green']);
+        $customField1 = $this->createCustomField($procedure, 'Favourite Color', 'Your favourite color', ['Blue', 'Orange', 'Green']);
+        $customField2 = $this->createCustomField($procedure, 'Favourite Food', 'Your favourite food', ['Pizza', 'Sushi', 'Bread']);
 
-
-        $customField1 = CustomFieldConfigurationFactory::createOne([
-            'sourceEntityClass' => 'PROCEDURE',
-            'sourceEntityId' => $procedure->getId(),
-            'targetEntityClass' => 'SEGMENT',
-            'configuration' => $radioButton
-
-        ]);
-
-        $radioButton2 = new RadioButtonField();
-        $radioButton2->setName('Favourite Food');
-        $radioButton2->setDescription('Your favourite food');
-        $radioButton2->setFieldType('singleSelect');
-        $radioButton2->setOptions(['Pizza', 'Sushi', 'Bread']);
-
-
-        $customField2 = CustomFieldConfigurationFactory::createOne([
-            'sourceEntityClass' => 'PROCEDURE',
-            'sourceEntityId' => $procedure->getId(),
-            'targetEntityClass' => 'SEGMENT',
-            'configuration' => $radioButton2
-
-        ]);
-
-
-        $customFields = [
+        $customFieldsValuesToUpdate = [
             ['id' => $customField1->getId(), 'value' => 'Orange'],
             ['id' => $customField2->getId(), 'value' => 'Bread']
         ];
 
 
-        $this->sut->updateSegments([$segment1, $segment2], [], [], $this->user, null, $customFields);
+        $this->sut->updateSegments([$segment1, $segment2], [], [], $this->user, null, $customFieldsValuesToUpdate);
 
-
-        self::assertEquals('Orange',$segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
+        self::assertEquals('Orange', $segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
         self::assertEquals('Bread', $segment2->getCustomFields()->getCustomFieldsValues()[1]->getValue());
+    }
 
+    private function createCustomField($procedure, string $name, string $description, array $options): CustomFieldConfiguration
+    {
+        $radioButton = new RadioButtonField();
+        $radioButton->setName($name);
+        $radioButton->setDescription($description);
+        $radioButton->setFieldType('singleSelect');
+        $radioButton->setOptions($options);
+
+        return CustomFieldConfigurationFactory::createOne([
+            'sourceEntityClass' => 'PROCEDURE',
+            'sourceEntityId' => $procedure->getId(),
+            'targetEntityClass' => 'SEGMENT',
+            'configuration' => $radioButton
+        ])->_real();
     }
 
     public function testUpdateSegmentsWithNullAssignee(): void
