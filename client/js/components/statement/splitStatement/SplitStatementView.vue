@@ -15,11 +15,6 @@
           id="header"
           class="u-pv-0_25 flow-root">
           <dp-inline-notification
-            v-if="!isLoading && availablePlaces.length < 1"
-            class="mt-3 mb-2"
-            :message="Translator.trans('error.split_statement.no_place.link', { href: Routing.generate('DemosPlan_procedure_places_list', { procedureId: this.procedureId }) })"
-            type="warning" />
-          <dp-inline-notification
             v-if="!isLoading && isSegmentDraftUpdated"
             class="mt-3 mb-2"
             :message="Translator.trans('last.saved', { date: lastSavedTime })"
@@ -295,7 +290,6 @@ export default {
 
   computed: {
     ...mapGetters('SplitStatement', [
-      'availablePlaces',
       'currentlyHighlightedSegmentId',
       'editingSegment',
       'editingSegmentId',
@@ -552,8 +546,10 @@ export default {
       if (card) {
         if (highlight) {
           card.classList.add('highlighted')
-        } else if (card.classList.contains('highlighted')) {
-          card.classList.remove('highlighted')
+        } else {
+          if (card.classList.contains('highlighted')) {
+            card.classList.remove('highlighted')
+          }
         }
       }
     },
@@ -763,7 +759,6 @@ export default {
             this.saveSegmentsFinal()
               .then(() => this.setProperty({ prop: 'isBusy', val: false }))
           } catch (err) {
-            console.error('An error occurred:', err)
             dplan.notify.error(Translator.trans('error.api.generic'))
             this.setProperty({ prop: 'isBusy', val: false })
           }

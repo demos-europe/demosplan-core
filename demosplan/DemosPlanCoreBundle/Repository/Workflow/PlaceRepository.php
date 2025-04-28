@@ -34,7 +34,7 @@ class PlaceRepository extends CoreRepository
         return $place;
     }
 
-    public function findFirstOrderedBySortIndex(string $procedureId): ?Place
+    public function findFirstOrderedBySortIndex(string $procedureId): Place
     {
         return $this->findOneBy([
             'procedure' => $procedureId,

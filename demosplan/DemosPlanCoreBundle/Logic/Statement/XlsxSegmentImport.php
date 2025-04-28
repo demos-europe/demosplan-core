@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedViaExcelEventInterface;
-use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
@@ -70,7 +69,6 @@ class XlsxSegmentImport
      * @throws Exception
      * @throws RowAwareViolationsException
      * @throws ConnectionException
-     * @throws AddonResourceNotFoundException
      */
     public function importFromFile(FileInfo $file): SegmentExcelImportResult
     {

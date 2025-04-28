@@ -32,7 +32,7 @@ class PlaceService extends CoreService implements PlaceServiceInterface
         return $this->placeRepository->findWithCertainty($id);
     }
 
-    public function findFirstOrderedBySortIndex(string $procedureId): ?Place
+    public function findFirstOrderedBySortIndex(string $procedureId): Place
     {
         return $this->placeRepository->findFirstOrderedBySortIndex($procedureId);
     }
