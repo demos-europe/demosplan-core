@@ -9,3 +9,4 @@ web/img
 web/js
 web/video
 parameters.yml
+release.sh
