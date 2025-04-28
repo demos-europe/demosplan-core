@@ -893,7 +893,6 @@ export default {
     },
 
     setCurrentSelection (selection) {
-      console.log('setting currentSelection to', selection)
       this.currentSelection = selection
     },
 
