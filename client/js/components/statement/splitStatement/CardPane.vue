@@ -18,12 +18,14 @@
       :data-range="segment.id"
       :offset="offset"
       ref="card"
+      @card:checkOverlap="positionCards"
       @segment:confirm="$emit('segment:confirm', segment.id)"
-      @editSegment="$emit('editSegment', segment.id)"
-      @deleteSegment="$emit('deleteSegment', segment.id)"
-      @mouseenter.native="handleMouseEnter(segment.id)"
-      @mouseleave.native="handleMouseLeave(segment.id)"
-      @checkCardOverlap="positionCards" />
+      @segment:edit="$emit('segment:edit', segment.id)"
+      @segment:delete="$emit('segment:delete', segment.id)"
+      @focusin="handleMouseEnter(segment.id)"
+      @focusout="handleMouseLeave(segment.id)"
+      @mouseenter="handleMouseEnter(segment.id)"
+      @mouseleave="handleMouseLeave(segment.id)" />
   </div>
 </template>
 
@@ -55,8 +57,8 @@ export default {
   },
 
   emits: [
-    'deleteSegment',
-    'editSegment',
+    'segment:delete',
+    'segment:edit',
     'segment:confirm'
   ],
 

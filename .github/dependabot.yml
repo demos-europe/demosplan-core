@@ -16,25 +16,18 @@ updates:
           - ">= 0.8.0"
           - "< 99"
 
-      # Jest upgrade is blocked because the vue-test-utils don't support it yet for Vue 2
-      - dependency-name: jest
-        versions:
-          - ">= 27"
-
-      # Until we are ready to migrate to Vue 3
-      - dependency-name: vue
-        versions:
-          - ">= 3"
-
-      # Is Vue 3 only
-      - dependency-name: vue-loader
-        versions:
-          - ">= 16"
-
       # Can't be used as CommonJs but only ESM which will break our FE build atm
       - dependency-name: chalk
         versions:
           - ">= 5"
+
+      # These dependencies have to be updated according to the needs of @masterportal/masterportalapi
+      # on that note: we have to update the masterportalapi maually, because its hosted by bitbucket and not via npm
+      - dependency-name: ol
+      - dependency-name: ol-mapbox-style
+      - dependency-name: olcs
+      - dependency-name: cesium
+      - dependency-name: @cesium/engine
     groups:
       babel:
         patterns:

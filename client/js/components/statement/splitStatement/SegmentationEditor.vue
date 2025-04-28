@@ -8,7 +8,12 @@
 </license>
 
 <template>
-  <div class="segmentation-editor">
+  <div
+    class="segmentation-editor"
+    @focus="event => $emit('focus', event)"
+    @focusout="$emit('focusout')"
+    @mouseleave="$emit('mouseleave')"
+    @mouseover="event => $emit('mouseover', event)">
     <div id="editor" />
   </div>
 </template>
@@ -51,8 +56,12 @@ export default {
   },
 
   emits: [
+    'focus',
+    'focusout',
+    'mouseleave',
+    'mouseover',
     'prosemirror:initialized',
-    'prosemirrorMaxRange'
+    'prosemirror:maxRange'
   ],
 
   data () {
@@ -141,7 +150,7 @@ export default {
        */
       prosemirrorStateWrapper = Object.freeze(prosemirrorStateWrapper)
 
-      this.$emit('prosemirrorMaxRange', this.maxRange)
+      this.$emit('prosemirror:maxRange', this.maxRange)
       this.$emit('prosemirror:initialized', prosemirrorStateWrapper)
     },
 
