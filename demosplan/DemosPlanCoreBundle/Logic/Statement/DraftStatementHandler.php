@@ -575,21 +575,6 @@ class DraftStatementHandler extends CoreHandler
 
     /**
      * Adds User Metadata to Statement.
-     *
-     * @param array $data
-     *
-     * @return array
-     */
-    protected function addStatementUserData($data)
-    {
-        $user = $this->currentUser->getUser();
-        $userData = [
-            'uId'   => $user->getIdent(),
-            'uName' => $user->getFullname(),
-            'dId'   => $user->getDepartmentId(),
-            'dName' => $user->getDepartmentNameLegal(),
-    /**
-     * Adds User Metadata to Statement.
      */
     protected function addStatementUserData(array $data): array
     {
