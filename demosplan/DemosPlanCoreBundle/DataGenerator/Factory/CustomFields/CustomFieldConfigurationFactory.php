@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields;
 
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
@@ -68,10 +76,10 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'createDate' => self::faker()->dateTime(),
-            'modifyDate' => self::faker()->dateTime(),
+            'createDate'        => self::faker()->dateTime(),
+            'modifyDate'        => self::faker()->dateTime(),
             'sourceEntityClass' => self::faker()->text(),
-            'sourceEntityId' => self::faker()->text(36),
+            'sourceEntityId'    => self::faker()->text(36),
             'targetEntityClass' => self::faker()->text(),
         ];
     }

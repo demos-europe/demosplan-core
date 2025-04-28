@@ -26,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Tests\Base\RpcApiTest;
 
@@ -87,9 +86,8 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
 
         $customFieldsValuesToUpdate = [
             ['id' => $customField1->getId(), 'value' => 'Orange'],
-            ['id' => $customField2->getId(), 'value' => 'Bread']
+            ['id' => $customField2->getId(), 'value' => 'Bread'],
         ];
-
 
         $this->sut->updateSegments([$segment1, $segment2], [], [], $this->user, null, $customFieldsValuesToUpdate);
 
@@ -107,9 +105,9 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
 
         return CustomFieldConfigurationFactory::createOne([
             'sourceEntityClass' => 'PROCEDURE',
-            'sourceEntityId' => $procedure->getId(),
+            'sourceEntityId'    => $procedure->getId(),
             'targetEntityClass' => 'SEGMENT',
-            'configuration' => $radioButton
+            'configuration'     => $radioButton,
         ])->_real();
     }
 
