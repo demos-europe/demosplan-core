@@ -175,7 +175,7 @@ class DraftStatementService extends CoreService
             throw new AccessDeniedException('No user given');
         }
         try {
-             /**
+            /*
              * Special fetching strategy for DraftStatements is needed:
              * 'own' in combination with getReleased to indicate
              * the DraftStatement belongs to the users organisation and has been created by the given user.
