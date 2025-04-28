@@ -21,6 +21,7 @@ use Doctrine\DBAL\Types\JsonType;
  */
 class CustomFieldValueType extends JsonType
 {
+    final public const DPLAN_STORED_QUERY = 'dplan.custom_fields_value';
     private const TYPE_CLASSES = [
         CustomFieldValuesList::class,
     ];
@@ -79,12 +80,22 @@ class CustomFieldValueType extends JsonType
         $value,
         AbstractPlatform $platform,
     ): ?string {
-        /* if (!is_a($value, CustomFieldInterface::class)) {
-             throw new RuntimeException('This field can only handle '.CustomFieldInterface::class.' as data');
+
+        if (null === $value) {
+            return parent::convertToDatabaseValue($value, $platform);
+        }
+
+        if (!is_a($value, CustomFieldValuesList::class)) {
+            throw new RuntimeException('This field can only handle '.CustomFieldValuesList::class.' as data');
          }
 
-         return parent::convertToDatabaseValue($value->toJson(), $platform);*/
 
-        return parent::convertToDatabaseValue($value, $platform);
+        return parent::convertToDatabaseValue($value->toJson(), $platform);
+
+
+    }
+    public function getName(): string
+    {
+        return self::DPLAN_STORED_QUERY;
     }
 }

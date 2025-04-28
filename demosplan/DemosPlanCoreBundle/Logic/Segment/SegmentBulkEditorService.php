@@ -58,7 +58,7 @@ class SegmentBulkEditorService
             if (!empty($customFields)) {
                 $customFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
                 $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues($customFieldList, $customFields, $segment->getProcedure()->getId(), 'PROCEDURE', 'SEGMENT');
-                $segment->setCustomFields($customFieldList->toJson());
+                $segment->setCustomFields($customFieldList);
             }
         }
 
