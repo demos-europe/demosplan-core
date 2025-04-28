@@ -114,7 +114,7 @@
           :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
           data-cy="segmentsList"
           has-flyout
-          :header-fields="headerFields"
+          :header-fields="availableHeaderFields"
           is-resizable
           is-selectable
           :items="items"
@@ -420,6 +420,10 @@ export default {
       assignableUsersObject: 'items'
     }),
 
+    ...mapState('CustomField', {
+      customFields: 'items'
+    }),
+
     ...mapState('Orga', {
       orgaObject: 'items'
     }),
@@ -448,6 +452,21 @@ export default {
             id: user.id
           }))
         : []
+    },
+
+    availableHeaderFields () {
+      const customFields = Object.values(this.customFields)
+      const selectedCustomFields = customFields
+        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
+        .map(customField => ({
+          field: `customField_${customField.id}`,
+          label: customField.attributes.name
+        }))
+
+      return [
+        ...this.headerFields,
+        ...selectedCustomFields
+      ]
     },
 
     headerFields () {
@@ -488,8 +507,18 @@ export default {
       return ids
     },
 
+    /**
+     * Returns both static and custom headerFields that can be selected in the ColumnSelector
+     * @return {[string, string][]}
+     */
     selectableColumns () {
-      return this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+      const staticColumns = this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+      const customFields = Object.values(this.customFields).map(customField => ([`customField_${customField.id}`, customField.attributes.name]))
+
+      return [
+        ...staticColumns,
+        ...customFields
+      ]
     },
 
     storageKeyPagination () {
@@ -500,6 +529,10 @@ export default {
   methods: {
     ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list'
+    }),
+
+    ...mapActions('AdminProcedure', {
+      getCustomFieldsForProcedure: 'get'
     }),
 
     ...mapActions('FilterFlyout', [
@@ -639,6 +672,26 @@ export default {
           this.storeAllSegments(allSegments)
           this.allItemsCount = allSegments.length
         })
+    },
+
+    getCustomFields () {
+      const payload = {
+        id: this.procedureId,
+        fields: {
+          AdminProcedure: [
+            'segmentCustomFields'
+          ].join(),
+          CustomField: [
+            'name',
+            'description'
+          ].join()
+        },
+        include: [
+          'segmentCustomFields'
+        ].join()
+      }
+
+      this.getCustomFieldsForProcedure(payload)
     },
 
     getTagsBySegment (id) {
@@ -840,6 +893,7 @@ export default {
     },
 
     setCurrentSelection (selection) {
+      console.log('setting currentSelection to', selection)
       this.currentSelection = selection
     },
 
@@ -931,6 +985,7 @@ export default {
       })
     }
     this.initPagination()
+    this.getCustomFields()
     this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces()
