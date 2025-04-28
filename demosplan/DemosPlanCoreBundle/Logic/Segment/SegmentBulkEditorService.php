@@ -30,14 +30,13 @@ use Doctrine\ORM\ORMException;
 
 class SegmentBulkEditorService
 {
-
     public function __construct(protected UserHandler $userHandler,
-                                protected CurrentUserInterface $currentUser,
-                                protected SegmentHandler $segmentHandler,
-                                protected SegmentValidator $segmentValidator,
-                                protected TagService $tagService,
-                                protected TagValidator $tagValidator,
-                                protected CustomFieldValueCreator $customFieldValueCreator,
+        protected CurrentUserInterface $currentUser,
+        protected SegmentHandler $segmentHandler,
+        protected SegmentValidator $segmentValidator,
+        protected TagService $tagService,
+        protected TagValidator $tagValidator,
+        protected CustomFieldValueCreator $customFieldValueCreator,
     ) {
     }
 
@@ -61,7 +60,6 @@ class SegmentBulkEditorService
                 $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues($customFieldList, $customFields, $segment->getProcedure()->getId(), 'PROCEDURE', 'SEGMENT');
                 $segment->setCustomFields($customFieldList->toJson());
             }
-
         }
 
         return $segments;
