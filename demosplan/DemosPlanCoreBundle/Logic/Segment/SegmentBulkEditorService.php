@@ -55,7 +55,7 @@ class SegmentBulkEditorService
                 $segment->setPlace($workflowPlace);
             }
 
-            if (null !== $customFields) {
+            if (!empty($customFields)) {
                 $customFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
                 $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues($customFieldList, $customFields, $segment->getProcedure()->getId(), 'PROCEDURE', 'SEGMENT');
                 $segment->setCustomFields($customFieldList->toJson());

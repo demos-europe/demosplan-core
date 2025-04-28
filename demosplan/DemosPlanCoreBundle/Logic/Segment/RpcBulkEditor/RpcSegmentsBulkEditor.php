@@ -254,12 +254,12 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     private function extractCustomFields(object $rpcRequest): array
     {
         $rawCustomFields = data_get($rpcRequest, 'params.customFields', []);
+        if (empty($rawCustomFields)) {
+            return [];
+        }
+        return json_decode(json_encode($rawCustomFields), true);
 
-        $customFieldsArray = json_decode(json_encode($rawCustomFields), true);
-
-        return $customFieldsArray;
     }
-
     /**
      * @throws Exception
      */
