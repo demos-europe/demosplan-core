@@ -1174,6 +1174,10 @@ class DraftStatementService extends CoreService
         }
         $statementAttributes = $draftStatement->getStatementAttributes();
         $draftStatement = $this->entityHelper->toArray($draftStatement);
+        if (array_key_exists('private', $draftStatement)) {
+            $draftStatement['isPrivate'] = $draftStatement['private'];
+            unset($draftStatement['private']);
+        }
         if ($draftStatement['element'] instanceof Elements) {
             $draftStatement['element'] = $this->entityHelper->toArray($draftStatement['element']);
             if ($draftStatement['element']['documents'] instanceof Collection) {
