@@ -61,7 +61,6 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
      */
     protected function defaults(): array|callable
     {
