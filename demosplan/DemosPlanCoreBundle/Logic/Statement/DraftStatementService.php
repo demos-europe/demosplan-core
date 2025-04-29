@@ -175,10 +175,11 @@ class DraftStatementService extends CoreService
             throw new AccessDeniedException('No user given');
         }
         try {
-            // the released draftstatements have to be fetched differently from the database
-            // - do not use the default strategy in this case
-            // 'own' in combination with getReleased means the draftstatement belongs to the users orga
-            // and has been created by the given user.
+            /*
+             * Special fetching strategy for DraftStatements is needed:
+             * 'own' in combination with getReleased to indicate
+             * the DraftStatement belongs to the users organisation and has been created by the given user.
+             */
             if ('own' === $scope && true === $filters->getReleased()
                 && (null === $filters->getSubmitted() || false === $filters->getSubmitted())) {
                 return $this->getDraftStatementReleasedOwnList($procedureId, $filters, $search, $sort, $user, $manualSortScope);
@@ -199,14 +200,14 @@ class DraftStatementService extends CoreService
                 $conditions[] = $this->conditionFactory->propertyHasValue($userOrganisationGatewayName, ['organisation', 'gatewayName']);
             }
             if ('ownCitizen' === $scope) {
-                // ownCitizen bleibt so wie es ist.
+                // In case of ownCitizen, previous ('own'-)logic can be executed:
                 $conditions[] = $this->conditionFactory->propertyHasValue($user->getId(), ['user']);
                 // add filter to be seen by elasticsearch
                 $filters->setSomeOnesUserId($user->getId());
             }
             if ('own' === $scope) {
-                // own means own orga in this context.
-                // filter out all private draftStatements of own orga if they are mot authored by currentUser
+                // own means own organisation in this context.
+                // filter out all private DraftStatements of own organisation if they are not authored by currentUser
                 $conditions[] = $this->conditionFactory->anyConditionApplies(
                     $this->conditionFactory->propertyHasValue(false, ['private']),
                     $this->conditionFactory->propertyHasValue($user->getId(), ['user']),

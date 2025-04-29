@@ -575,27 +575,19 @@ class DraftStatementHandler extends CoreHandler
 
     /**
      * Adds User Metadata to Statement.
-     *
-     * @param array $data
-     *
-     * @return array
      */
-    protected function addStatementUserData($data)
+    protected function addStatementUserData(array $data): array
     {
         $user = $this->currentUser->getUser();
         $userData = [
-            'uId'   => $user->getIdent(),
-            'uName' => $user->getFullname(),
-            'dId'   => $user->getDepartmentId(),
-            'dName' => $user->getDepartmentNameLegal(),
-            'oId'   => $user->getOrganisationId(),
-            'oName' => $user->getOrganisationNameLegal(),
+            'uId'       => $user->getId(),
+            'uName'     => $user->getFullname(),
+            'dId'       => $user->getDepartmentId(),
+            'dName'     => $user->getDepartmentNameLegal(),
+            'oId'       => $user->getOrganisationId(),
+            'oName'     => $user->getOrganisationNameLegal(),
+            'private'   => !$user->isPublicAgency(), // Indicates visibility to other organisation members
         ];
-        // check if user is institution.... - if true set private to false
-        // in order to be indicated visible for other organisation members
-        if ($user->isPublicAgency()) {
-            $userData['private'] = false;
-        }
 
         return array_merge($data, $userData);
     }
