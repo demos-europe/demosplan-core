@@ -131,7 +131,14 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
                     $customFields = $this->extractCustomFields($rpcRequest);
 
-                    $segments = $this->segmentBulkEditorService->updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace, $customFields);
+                    $segments = $this->segmentBulkEditorService->updateSegments(
+                        $segments,
+                        $addTagIds,
+                        $removeTagIds,
+                        $assignee,
+                        $workflowPlace,
+                        $customFields
+                    );
 
                     $resultSegments = [...$resultSegments, ...$segments];
                     $resultResponse[] = $this->generateMethodResult($rpcRequest);
