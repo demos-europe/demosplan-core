@@ -127,7 +127,7 @@ export default {
     },
 
     toggleChildren (isVisible, visibilityGroupId) {
-      visibilityGroupId = visibilityGroupId || false
+      visibilityGroupId = visibilityGroupId || null
 
       const visible = isVisible || this.isVisible
       this.$root.$emit('layer:toggleChildCategories', { categories: this.group.relationships.categories.data, isVisible: visible })

@@ -91,7 +91,7 @@ export const apiData = {
       treeOrder: 1040101,
       categoryId: 'bbac18e1-47a5-11e8-b9d0-782bcb0d78b1',
       canUserToggleVisibility: true,
-      visibilityGroupId: '',
+      visibilityGroupId: null,
       isScope: false,
       createdAt: '2018-04-06T15:39:15+00:00'
     },
@@ -134,7 +134,7 @@ export const apiData = {
       treeOrder: 1080101,
       categoryId: '7b614b15-dc3c-11e8-884a-782bcb0d78b1',
       canUserToggleVisibility: true,
-      visibilityGroupId: '',
+      visibilityGroupId: null,
       isScope: false,
       createdAt: '2018-05-09T19:06:02+00:00'
     },
@@ -169,7 +169,7 @@ export const apiData = {
       treeOrder: 1080102,
       categoryId: '7b614b15-dc3c-11e8-884a-782bcb0d78b1',
       canUserToggleVisibility: true,
-      visibilityGroupId: '',
+      visibilityGroupId: null,
       isScope: false,
       createdAt: '2018-08-01T17:29:33+00:00'
     },
@@ -443,7 +443,7 @@ export const apiData = {
       treeOrder: 4,
       categoryId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
       canUserToggleVisibility: true,
-      visibilityGroupId: '',
+      visibilityGroupId: null,
       isScope: false,
       createdAt: '2016-03-30T17:15:42+00:00'
     }
@@ -470,7 +470,7 @@ export const apiData = {
       treeOrder: 5,
       categoryId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
       canUserToggleVisibility: true,
-      visibilityGroupId: '',
+      visibilityGroupId: null,
       isScope: false,
       createdAt: '2016-03-30T17:15:42+00:00'
     },
@@ -505,7 +505,7 @@ export const apiData = {
       treeOrder: 0,
       categoryId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
       canUserToggleVisibility: true,
-      visibilityGroupId: '',
+      visibilityGroupId: null,
       isScope: false,
       createdAt: '2016-03-30T17:15:42+00:00'
     },
@@ -540,7 +540,7 @@ export const apiData = {
       treeOrder: 6,
       categoryId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
       canUserToggleVisibility: true,
-      visibilityGroupId: '',
+      visibilityGroupId: '12345',
       isScope: false,
       createdAt: '2016-03-30T17:15:42+00:00'
     }
@@ -567,7 +567,7 @@ export const apiData = {
       treeOrder: 7,
       categoryId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
       canUserToggleVisibility: true,
-      visibilityGroupId: '',
+      visibilityGroupId: '123345',
       isScope: false,
       createdAt: '2016-10-20T16:48:54+00:00'
     },
@@ -602,7 +602,7 @@ export const apiData = {
       treeOrder: 0,
       categoryId: '1b6d38af-4225-11e8-b9d0-782bcb0d78b1',
       canUserToggleVisibility: true,
-      visibilityGroupId: '',
+      visibilityGroupId: '55555',
       isScope: false,
       createdAt: '2018-08-07T13:20:39+00:00'
     },
