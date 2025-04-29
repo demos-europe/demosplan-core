@@ -586,7 +586,7 @@ class DraftStatementHandler extends CoreHandler
             'dName'     => $user->getDepartmentNameLegal(),
             'oId'       => $user->getOrganisationId(),
             'oName'     => $user->getOrganisationNameLegal(),
-            'private'   => !$user->isPublicAgency(), //Indicates visibility to other organisation members
+            'private'   => !$user->isPublicAgency(), // Indicates visibility to other organisation members
         ];
 
         return array_merge($data, $userData);
