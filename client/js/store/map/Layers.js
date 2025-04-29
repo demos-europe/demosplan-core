@@ -370,7 +370,7 @@ const LayersStore = {
     deleteElement ({ state, commit }, element) {
       let currentType = 'GisLayer'
       let id = element.id
-      const visibilityGroupId = state.apiData.included.find(el => el.id === element.id).attributes.visibilityGroupId
+      const visibilityGroupId = state.apiData.included.find(el => el.id === element.id).attributes.visibilityGroupId || null
 
       if (element.route === 'layer_category') {
         currentType = 'GisLayerCategory'
