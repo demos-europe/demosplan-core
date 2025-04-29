@@ -209,7 +209,7 @@ class DraftStatementService extends CoreService
                 // own means own organisation in this context.
                 // filter out all private DraftStatements of own organisation if they are not authored by currentUser
                 $conditions[] = $this->conditionFactory->anyConditionApplies(
-                    $this->conditionFactory->propertyHasValue(false, ['private']),
+                    $this->conditionFactory->propertyHasValue(false, ['authorOnly']),
                     $this->conditionFactory->propertyHasValue($user->getId(), ['user']),
                 );
                 $filters->setSomeOnesUserId($user->getId());
@@ -1174,10 +1174,6 @@ class DraftStatementService extends CoreService
         }
         $statementAttributes = $draftStatement->getStatementAttributes();
         $draftStatement = $this->entityHelper->toArray($draftStatement);
-        if (array_key_exists('private', $draftStatement)) {
-            $draftStatement['isPrivate'] = $draftStatement['private'];
-            unset($draftStatement['private']);
-        }
         if ($draftStatement['element'] instanceof Elements) {
             $draftStatement['element'] = $this->entityHelper->toArray($draftStatement['element']);
             if ($draftStatement['element']['documents'] instanceof Collection) {
@@ -1532,7 +1528,7 @@ class DraftStatementService extends CoreService
                 // 'own' means own organisation in this context
                 // filters private drafts from orga if not owned by user
                 $shouldBool = new BoolQuery();
-                $shouldBool->addShould(new Terms('private', [false]));
+                $shouldBool->addShould(new Terms('authorOnly', [false]));
                 $shouldBool->addShould(new Terms('uId', [$userFilters->getSomeOnesUserId()]));
                 $boolMustFilter[] = $shouldBool;
             } elseif (null !== $userFilters->getSomeOnesUserId()) {

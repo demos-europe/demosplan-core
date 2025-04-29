@@ -59,7 +59,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
      *
      * @ORM\Column(type="boolean", nullable=false, options={"default":true})
      */
-    protected bool $private = true;
+    protected bool $authorOnly = true;
 
     /**
      * @var ProcedureInterface
@@ -506,14 +506,14 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         return $this->getId();
     }
 
-    public function isPrivate(): bool
+    public function getAuthorOnly(): bool
     {
-        return $this->private;
+        return $this->authorOnly;
     }
 
-    public function setPrivate(bool $private): void
+    public function setAuthorOnly(bool $authorOnly): void
     {
-        $this->private = $private;
+        $this->authorOnly = $authorOnly;
     }
 
     /**

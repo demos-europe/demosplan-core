@@ -21,7 +21,7 @@ class Version20250425084830 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs DPLAN-12794: adds private<bool> to Draftstatements setting its visibility scope';
+        return 'refs DPLAN-12794: adds authorOnly<bool> to Draftstatements setting its visibility scope';
     }
 
     /**
@@ -31,7 +31,7 @@ class Version20250425084830 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE _draft_statement ADD private TINYINT(1) DEFAULT 1 NOT NULL');
+        $this->addSql('ALTER TABLE _draft_statement ADD author_only TINYINT(1) DEFAULT 1 NOT NULL');
     }
 
     /**
@@ -41,7 +41,7 @@ class Version20250425084830 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('ALTER TABLE _draft_statement DROP private');
+        $this->addSql('ALTER TABLE _draft_statement DROP author_only');
     }
 
     /**
