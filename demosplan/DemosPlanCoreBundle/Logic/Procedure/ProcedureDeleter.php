@@ -51,6 +51,10 @@ class ProcedureDeleter
         // delete procedure news
         $this->deleteProcedureNews($procedureIds, $isDryRun);
 
+        // delete custom fields
+
+        $this->deleteCustomFields($procedureIds, $isDryRun);
+
         // delete tag topics -> tags
         $this->processTags($procedureIds, $isDryRun);
 
@@ -825,6 +829,22 @@ class ProcedureDeleter
         $this->queriesService->deleteFromTableByIdentifierArray('_news', '_p_id', $procedureIds, $isDryRun);
     }
 
+    /**
+     * @throws Exception
+     */
+    private function deleteCustomFields(array $procedureIds, bool $isDryRun): void {
+
+        $this->queriesService->deleteFromTableByMultipleConditions(
+            'custom_field_configuration',
+            'source_entity_id',
+            $procedureIds,
+            [
+                'source_entity_class' => 'PROCEDURE'
+            ],
+            $isDryRun
+        );
+
+    }
     /**
      * @throws Exception
      */
