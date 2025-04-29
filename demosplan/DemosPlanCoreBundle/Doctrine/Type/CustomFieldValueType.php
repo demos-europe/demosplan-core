@@ -85,7 +85,7 @@ class CustomFieldValueType extends JsonType
         }
 
         if (!is_a($value, CustomFieldValuesList::class)) {
-            throw new RuntimeException('This field can only handle '.CustomFieldValuesList::class.' as data');
+            throw new InvalidArgumentException('This field can only handle '.CustomFieldValuesList::class.' as data');
         }
 
         return parent::convertToDatabaseValue($value->toJson(), $platform);
