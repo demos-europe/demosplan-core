@@ -84,7 +84,7 @@ class CustomFieldValueType extends JsonType
             return parent::convertToDatabaseValue($value, $platform);
         }
 
-        if (!$value instanceof CustomFieldValuesList ) {
+        if (!$value instanceof CustomFieldValuesList) {
             throw new InvalidArgumentException('This field can only handle '.CustomFieldValuesList::class.' as data');
         }
 
