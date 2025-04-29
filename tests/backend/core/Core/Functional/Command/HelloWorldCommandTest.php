@@ -53,7 +53,7 @@ class HelloWorldCommandTest extends FunctionalTestCase
         // Act
         $exitCode = $commandTester->execute([
             'command' => $command->getName(),
-            'name' => $name,
+            'name'    => $name,
         ]);
         $output = $commandTester->getDisplay();
 
@@ -89,7 +89,7 @@ class HelloWorldCommandTest extends FunctionalTestCase
         $application = new ConsoleApplication($kernel, false);
 
         $parameterBag = $this->createMock(ParameterBagInterface::class);
-        
+
         $application->add(
             new HelloWorldCommand($parameterBag)
         );
