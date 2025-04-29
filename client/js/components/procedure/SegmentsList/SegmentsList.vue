@@ -544,7 +544,7 @@ export default {
     }),
 
     ...mapActions('StatementSegment', {
-      listSegments: 'list'
+      fetchSegments: 'list'
     }),
 
     ...mapMutations('FilterFlyout', {
@@ -614,6 +614,7 @@ export default {
           ].join(),
           StatementSegment: [
             'assignee',
+            'customFields',
             'externId',
             'orderInProcedure',
             'parentStatement',
@@ -634,7 +635,7 @@ export default {
         }
       }
       this.isLoading = true
-      this.listSegments(payload)
+      this.fetchSegments(payload)
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
