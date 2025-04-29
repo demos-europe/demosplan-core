@@ -30,7 +30,8 @@ use Doctrine\ORM\ORMException;
 
 class SegmentBulkEditorService
 {
-    public function __construct(protected UserHandler $userHandler,
+    public function __construct(
+        protected UserHandler $userHandler,
         protected CurrentUserInterface $currentUser,
         protected SegmentHandler $segmentHandler,
         protected SegmentValidator $segmentValidator,
