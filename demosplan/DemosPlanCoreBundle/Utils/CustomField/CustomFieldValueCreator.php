@@ -51,7 +51,8 @@ class CustomFieldValueCreator extends CoreService
                 $currentCustomFieldValuesList->addCustomFieldValue($newCustomFieldValue);
             }
         }
-        /**
+
+        /*
          * Clone `$currentCustomFieldValuesList` to ensure Doctrine detects changes to JSON-like columns.
          * Doctrine only tracks updates when the object reference changes.
          * @see CustomFieldValuesList
