@@ -35,7 +35,6 @@ use demosplan\DemosPlanCoreBundle\Constraint\ProcedureAllowedSegmentsConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureMasterTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTemplateConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureTypeConstraint;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
@@ -454,7 +453,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var Customer
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer", inversedBy="proceure")
      *
      * @ORM\JoinColumn(name="customer", referencedColumnName="_c_id", nullable=true)
      */
@@ -954,7 +953,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getDeleted()
     {
-        return \filter_var($this->deleted, FILTER_VALIDATE_BOOLEAN);
+        return $this->isDeleted();
     }
 
     /**
@@ -2290,16 +2289,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function setPublicParticipationPhaseObject(ProcedurePhaseInterface $publicParticipationPhase): void
     {
         $this->publicParticipationPhase = $publicParticipationPhase;
-    }
-
-    public function setSegmentCustomFieldsTemplate(CustomFieldInterface $segmentCustomFieldsTemplate): void
-    {
-        $this->segmentCustomFieldsTemplate = $segmentCustomFieldsTemplate;
-    }
-
-    public function getSegmentCustomFieldsTemplate(): ?CustomFieldInterface
-    {
-        return $this->segmentCustomFieldsTemplate;
     }
 
     public function getCustomFieldConfiguration(): ?CustomFieldConfiguration

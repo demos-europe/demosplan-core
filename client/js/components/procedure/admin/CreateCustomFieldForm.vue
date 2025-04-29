@@ -6,7 +6,7 @@
       <dp-button
         data-cy="customFields:addField"
         @click="open"
-        :text="Translator.trans('field.add')" />
+        :text="Translator.trans('add')" />
     </div>
 
     <div
