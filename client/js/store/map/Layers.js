@@ -36,14 +36,6 @@ const LayersStore = {
       state[key] = value
     },
 
-    setDraggableOptions (state, data) {
-      state.draggableOptions = data
-    },
-
-    setDraggableOptionsForBaseLayer (state, data) {
-      state.draggableOptionsForBaseLayer = data
-    },
-
     saveOriginalState (state, data) {
       state.originalApiData = JSON.parse(JSON.stringify(data))
     },
@@ -188,7 +180,6 @@ const LayersStore = {
     setIsMapLoaded (state) {
       state.isMapLoaded = true
     }
-
   },
 
   actions: {

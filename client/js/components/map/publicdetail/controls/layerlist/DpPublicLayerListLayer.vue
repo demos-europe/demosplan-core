@@ -63,6 +63,7 @@
 
 <script>
 import { DpContextualHelp, prefixClass } from '@demos-europe/demosplan-ui'
+import { mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'DpPublicLayerListLayer',
@@ -174,6 +175,8 @@ export default {
   },
 
   methods: {
+    ...mapMutations('Layers', ['updateState']),
+
     setStatusIcon () {
       if (this.layer.attributes.canUserToggleVisibility === false) {
         return 'fa-lock'
@@ -196,6 +199,8 @@ export default {
 
       const exclusively = this.layer.attributes.isBaseLayer
       this.$root.$emit('layer:toggle', { id: this.id, exclusively, isVisible: this.isVisible })
+
+      this.updateState('visibleLayers', )
 
       this.$root.$emit('layer:toggleLegend', { id: this.id, isVisible: this.isVisible })
     },

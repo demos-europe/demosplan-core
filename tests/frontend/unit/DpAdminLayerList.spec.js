@@ -25,7 +25,6 @@ describe('AdminLayerList', () => {
 
     actions = {
       get: jest.fn(),
-      setDraggableOptions: jest.fn(),
       setListOrder: jest.fn(),
       resetOrder: jest.fn(),
       save: jest.fn()
