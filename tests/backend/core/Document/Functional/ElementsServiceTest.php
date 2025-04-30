@@ -501,6 +501,12 @@ class ElementsServiceTest extends FunctionalTestCase
         self::assertFalse($elementB->getDeleted());
         self::assertFalse($elementC->getDeleted());
 
+        // Update the designatedSwitchDate to yesterday to ensure it's treated as in the past
+        $yesterday = new \DateTime('yesterday');
+        $elementA->setDesignatedSwitchDate($yesterday);
+        $elementB->setDesignatedSwitchDate($yesterday);
+        $this->getEntityManager()->flush();
+
         $affectedElementsCount = $this->sut->autoSwitchElementsState();
         self::assertEquals(2, $affectedElementsCount);
 
