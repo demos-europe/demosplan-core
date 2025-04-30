@@ -26,6 +26,7 @@
       large
       :text="designatedSwitchDate" />
     <dp-toggle
+      v-if="element.attributes.category !== 'paragraph'"
       class="u-mt-0_125"
       data-cy="categoryStatusSwitcher"
       :disabled="element.attributes.designatedSwitchDate !== null"
