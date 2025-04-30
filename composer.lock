@@ -3805,18 +3805,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/eFrane/TusBundle.git",
-                "reference": "934dd9d2095f2b9c3229c334cc327d4c1b65cf41"
+                "reference": "1c45b93009d4f907855e5f918273a9c6cd5a0663"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eFrane/TusBundle/zipball/934dd9d2095f2b9c3229c334cc327d4c1b65cf41",
-                "reference": "934dd9d2095f2b9c3229c334cc327d4c1b65cf41",
+                "url": "https://api.github.com/repos/eFrane/TusBundle/zipball/1c45b93009d4f907855e5f918273a9c6cd5a0663",
+                "reference": "1c45b93009d4f907855e5f918273a9c6cd5a0663",
                 "shasum": ""
             },
             "require": {
                 "ankitpokhrel/tus-php": "^2.4",
-                "nesbot/carbon": "^2.42",
-                "php": ">=7.3",
+                "nesbot/carbon": "^2.73",
+                "php": ">=8.1",
                 "symfony/config": "^6.4",
                 "symfony/console": "^6.4",
                 "symfony/dependency-injection": "^6.4",
@@ -3858,7 +3858,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-04-29T09:21:09+00:00"
+            "time": "2025-04-29T14:26:09+00:00"
         },
         {
             "name": "egulias/email-validator",
