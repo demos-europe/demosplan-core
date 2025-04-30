@@ -833,17 +833,17 @@ class ProcedureDeleter
      * @throws Exception
      */
     private function deleteCustomFields(array $procedureIds, bool $isDryRun): void {
-
-        $this->queriesService->deleteFromTableByMultipleConditions(
-            'custom_field_configuration',
-            'source_entity_id',
-            $procedureIds,
-            [
-                'source_entity_class' => 'PROCEDURE'
-            ],
-            $isDryRun
-        );
-
+        $entityClasses = ['PROCEDURE', 'PROCEDURE_TEMPLATE'];
+        
+        foreach ($entityClasses as $entityClass) {
+            $this->queriesService->deleteFromTableByMultipleConditions(
+                'custom_field_configuration',
+                'source_entity_id',
+                $procedureIds,
+                ['source_entity_class' => $entityClass],
+                $isDryRun
+            );
+        }
     }
     /**
      * @throws Exception
