@@ -53,6 +53,15 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     protected $id;
 
     /**
+     * used to either limit the visibility scope within the drafts-folder to only the author
+     * or in case this value is set to false - the scope is set
+     * visible for all members of the {{ @see self::$organisation }}.
+     *
+     * @ORM\Column(type="boolean", nullable=false, options={"default":true})
+     */
+    protected bool $authorOnly = true;
+
+    /**
      * @var ProcedureInterface
      *
      * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
@@ -495,6 +504,16 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     public function getIdent(): ?string
     {
         return $this->getId();
+    }
+
+    public function getAuthorOnly(): bool
+    {
+        return $this->authorOnly;
+    }
+
+    public function setAuthorOnly(bool $authorOnly): void
+    {
+        $this->authorOnly = $authorOnly;
     }
 
     /**
@@ -1051,9 +1070,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         return $this->uStreet;
     }
 
-    /**
-     * @return mixed
-     */
     public function getCategories()
     {
         if ($this->categories instanceof Collection) {
@@ -1063,9 +1079,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         return [];
     }
 
-    /**
-     * @param mixed $categories
-     */
     public function setCategories($categories)
     {
         $this->categories = $categories;
@@ -1740,7 +1753,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
 
     /**
      * @param string $key
-     * @param mixed  $value
      *
      * @return DraftStatementInterface
      */

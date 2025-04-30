@@ -33,7 +33,7 @@ class CustomFieldValueCreator extends CoreService
         string $targetEntityClass,
     ): CustomFieldValuesList {
         $newCustomFieldValuesList = new CustomFieldValuesList();
-        $newCustomFieldValuesList->fromJson(['customFields' => $newCustomFieldValuesData]);
+        $newCustomFieldValuesList->fromJson($newCustomFieldValuesData);
 
         foreach ($newCustomFieldValuesList->getCustomFieldsValues() as $newCustomFieldValue) {
             /** @var CustomFieldValue $newCustomFieldValue */
