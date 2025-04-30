@@ -38,7 +38,7 @@ class AccessControlService extends CoreService
     public function __construct(
         private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
-        private readonly OrgaService $orgaService
+        private readonly OrgaService $orgaService,
     ) {
     }
 
@@ -53,7 +53,6 @@ class AccessControlService extends CoreService
                 $permission->setRole($role);
                 $this->accessControlPermissionRepository->add($permission);
             }
-
         } catch (UniqueConstraintViolationException $exception) {
             $this->logger->warning('Unique constraint violation occurred while trying to create a permission.', [
                 'exception'      => $exception->getMessage(),
@@ -239,8 +238,8 @@ class AccessControlService extends CoreService
 
             // check whether role to grant the permission is allowed in the given orga type
             // to avoid e.g. granting planner permission to institution orga
-            if (array_key_exists($orgaTypeInCustomer, OrgaTypeInterface::ORGATYPE_ROLE) &&
-                !in_array($role->getCode(), OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeInCustomer],true)) {
+            if (array_key_exists($orgaTypeInCustomer, OrgaTypeInterface::ORGATYPE_ROLE)
+                && !in_array($role->getCode(), OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeInCustomer], true)) {
                 continue;
             }
 

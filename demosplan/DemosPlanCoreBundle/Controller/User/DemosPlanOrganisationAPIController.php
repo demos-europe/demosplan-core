@@ -60,22 +60,21 @@ use UnexpectedValueException;
 
 class DemosPlanOrganisationAPIController extends APIController
 {
+    use CanTransformRequestVariablesTrait;
+
     public function __construct(ApiLoggerInterface $apiLogger,
-                                PrefilledTypeProvider $resourceTypeProvider,
-                                FieldsValidator $fieldsValidator,
-                                private readonly TranslatorInterface $translator,
-                                LoggerInterface $logger,
-                                GlobalConfigInterface $globalConfig,
-                                MessageBagInterface $messageBag,
-                                SchemaPathProcessor $schemaPathProcessor,
-                                MessageFormatter $messageFormatter,
-                                private readonly RoleHandler $roleHandler,
-    )
-    {
+        PrefilledTypeProvider $resourceTypeProvider,
+        FieldsValidator $fieldsValidator,
+        private readonly TranslatorInterface $translator,
+        LoggerInterface $logger,
+        GlobalConfigInterface $globalConfig,
+        MessageBagInterface $messageBag,
+        SchemaPathProcessor $schemaPathProcessor,
+        MessageFormatter $messageFormatter,
+        private readonly RoleHandler $roleHandler,
+    ) {
         parent::__construct($apiLogger, $resourceTypeProvider, $fieldsValidator, $translator, $logger, $globalConfig, $messageBag, $schemaPathProcessor, $messageFormatter);
     }
-
-    use CanTransformRequestVariablesTrait;
 
     /**
      * Get organisation by ID.
@@ -317,8 +316,8 @@ class DemosPlanOrganisationAPIController extends APIController
         // filter out only orga with accepted status in customer
         $onlyAcceptedOrgaStatusInCustomers = [];
         foreach ($orgaStatusInCustomers as $orgaStatusInCustomer) {
-            if ($orgaStatusInCustomer->getStatus() === OrgaStatusInCustomer::STATUS_ACCEPTED) {
-                $onlyAcceptedOrgaStatusInCustomers[] =  $orgaStatusInCustomer ;
+            if (OrgaStatusInCustomer::STATUS_ACCEPTED === $orgaStatusInCustomer->getStatus()) {
+                $onlyAcceptedOrgaStatusInCustomers[] = $orgaStatusInCustomer;
             }
         }
 
@@ -332,13 +331,13 @@ class DemosPlanOrganisationAPIController extends APIController
         $isPrivatePlanningAgencyRoleAvailable = in_array(OrgaType::PLANNING_AGENCY, $orgaTypes, true);
         $isPlanningAgencyAdminRoleAvailable = in_array(OrgaType::MUNICIPALITY, $orgaTypes, true);
 
-        $trueCount = (int)$isPlanningAgencyAdminRoleAvailable + (int)$isPrivatePlanningAgencyRoleAvailable;
+        $trueCount = (int) $isPlanningAgencyAdminRoleAvailable + (int) $isPrivatePlanningAgencyRoleAvailable;
 
         $availableOrgaRoles = [];
-        if ($trueCount === 2) {
+        if (2 === $trueCount) {
             $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PLANNING_AGENCY_ADMIN);
             $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
-        } elseif ($trueCount === 1) {
+        } elseif (1 === $trueCount) {
             if ($isPlanningAgencyAdminRoleAvailable) {
                 $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PLANNING_AGENCY_ADMIN);
             } else {
@@ -400,7 +399,6 @@ class DemosPlanOrganisationAPIController extends APIController
             $canCreateProcedures = null;
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission')
                 && array_key_exists('canCreateProcedures', $orgaDataArray) && !empty($availableOrgaRoles)) {
-
                 try {
                     if (true === $orgaDataArray['canCreateProcedures']) {
                         $canCreateProcedures = true;
@@ -485,7 +483,6 @@ class DemosPlanOrganisationAPIController extends APIController
             $canCreateProcedures = null;
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission') && is_array($orgaDataArray['attributes'])
                 && array_key_exists('canCreateProcedures', $orgaDataArray['attributes']) && !empty($availableOrgaRoles)) {
-
                 try {
                     if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
                         $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
