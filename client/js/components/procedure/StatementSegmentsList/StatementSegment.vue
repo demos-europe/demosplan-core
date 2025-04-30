@@ -208,7 +208,7 @@
           :id="'showWorkflowActions_' + segment.id"
           v-model="showWorkflowActions"
           :label="{
-            text: Translator.trans('workflow.change.assignee.place')
+            text: displayEditableFieldsLabel
           }" />
         <div
           v-if="showWorkflowActions"
@@ -566,6 +566,10 @@ export default {
           [el.id]: opts
         }
       }, {})
+    },
+
+    displayEditableFieldsLabel () {
+      return Translator.trans(hasPermission('field_segments_custom_fields') ? 'fields.more.edit' : 'workflow.change.assignee.place')
     },
 
     isAssignedToMe () {
