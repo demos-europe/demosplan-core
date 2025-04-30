@@ -30,21 +30,21 @@ class DateHelperTest extends FunctionalTestCase
         $dateStringToCreate = '2014-10-26T02:30:00';
         $date = new DateTime($dateStringToCreate);
         $convertedString = $this->sut->convertDateToString($date);
-        
+
         // Test that the date string follows ISO 8601 format with a timezone offset
         $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/', $convertedString);
-        
+
         // Test that we can parse it back to the same date
         $parsedDate = new DateTime($convertedString);
         $this->assertEquals($date->getTimestamp(), $parsedDate->getTimestamp());
     }
-    
+
     public function testConvertDateToStringUsesSystemTimezone(): void
     {
         // Create a date with the system's timezone
         $date = new DateTime();
         $convertedString = $this->sut->convertDateToString($date);
-        
+
         // The timezone in the output should match PHP's current timezone
         $expectedTimezoneOffset = (new DateTime())->format('P');
         $this->assertStringEndsWith($expectedTimezoneOffset, $convertedString);
