@@ -26,7 +26,7 @@ class CustomFieldValuesList
 
     public function toJson(): array
     {
-        return  array_map(static function ($customField) {
+        return array_map(static function ($customField) {
             return $customField->toJson();
         }, $this->customFieldValues);
     }
