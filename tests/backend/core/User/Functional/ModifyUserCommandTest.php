@@ -58,7 +58,7 @@ class ModifyUserCommandTest extends FunctionalTestCase
         parent::setUp();
 
         /* @var GlobalConfigInterface|GlobalConfig $globalConfig */
-        $this->globalConfig = self::$container->get(GlobalConfigInterface::class);
+        $this->globalConfig = self::getContainer()->get(GlobalConfigInterface::class);
         $this->parameterBag = new ParameterBag(
             [
                 'alternative_login_testuser_defaultpass' => 'testpassword',
@@ -66,7 +66,7 @@ class ModifyUserCommandTest extends FunctionalTestCase
                 'roles_allowed'                          => $this->globalConfig->getRolesAllowed(),
             ]
         );
-        $userService = self::$container->get(UserService::class);
+        $userService = self::getContainer()->get(UserService::class);
         $this->sut = new ModifyUserCommand($this->parameterBag, $userService);
 
         $this->streamOutput = $this->getMockBuilder(StreamOutput::class)

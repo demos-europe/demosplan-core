@@ -41,7 +41,7 @@ class SurveyValidJsonTest extends SurveyTestUtils
             '2020-20-10',
         ];
         /* @var SurveyValidator sut */
-        $this->sut = self::$container->get(SurveyValidator::class);
+        $this->sut = self::getContainer()->get(SurveyValidator::class);
     }
 
     /**

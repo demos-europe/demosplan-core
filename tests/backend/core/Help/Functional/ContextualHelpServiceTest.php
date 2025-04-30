@@ -27,7 +27,7 @@ class ContextualHelpServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(HelpService::class);
+        $this->sut = self::getContainer()->get(HelpService::class);
     }
 
     public function testGetAllContextualHelp()

@@ -36,8 +36,8 @@ class PrintLayerToMapLayerConverterTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(PrintLayerToMapLayerConverter::class);
-        $this->imageManager = self::$container->get(ImageManager::class);
+        $this->sut = self::getContainer()->get(PrintLayerToMapLayerConverter::class);
+        $this->imageManager = self::getContainer()->get(ImageManager::class);
     }
 
     public function testConversion(): void

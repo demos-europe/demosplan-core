@@ -40,7 +40,7 @@ class ConvertToLegacyExtensionTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->twigExtension = new ConvertToLegacyExtension(self::$container, self::$container->get(DraftStatementService::class), self::$container->get(StatementService::class));
+        $this->twigExtension = new ConvertToLegacyExtension(self::getContainer(), self::getContainer()->get(DraftStatementService::class), self::getContainer()->get(StatementService::class));
 
         $this->testDraftStatements = [$this->getReference('testDraftStatement')];
         $this->testStatements = [$this->getReference('testStatement')];

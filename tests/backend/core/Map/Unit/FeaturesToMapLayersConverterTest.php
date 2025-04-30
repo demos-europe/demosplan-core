@@ -39,8 +39,8 @@ class FeaturesToMapLayersConverterTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(FeaturesToMapLayersConverter::class);
-        $this->imageManager = self::$container->get(ImageManager::class);
+        $this->sut = self::getContainer()->get(FeaturesToMapLayersConverter::class);
+        $this->imageManager = self::getContainer()->get(ImageManager::class);
     }
 
     public function testConversion(): void

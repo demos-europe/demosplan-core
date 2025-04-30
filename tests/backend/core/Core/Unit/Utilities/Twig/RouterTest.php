@@ -207,7 +207,7 @@ class RouterTest extends FunctionalTestCase
     public function testProcedureDecodeMatch()
     {
         /** @var Router $sut */
-        $sut = self::$container->get(RouterInterface::class);
+        $sut = self::getContainer()->get(RouterInterface::class);
         /** @var Procedure $testProcedure */
         $testProcedure = $this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE);
         $dataArray = $this->getDataArrayMatch($testProcedure);
@@ -220,7 +220,7 @@ class RouterTest extends FunctionalTestCase
     public function testProcedureDecodeMatchRequest()
     {
         /** @var Router $sut */
-        $sut = self::$container->get(Router::class);
+        $sut = self::getContainer()->get(Router::class);
         /** @var Procedure $testProcedure */
         $testProcedure = $this->fixtures->getReference(LoadProcedureData::TESTPROCEDURE);
         $dataArray = $this->getDataArrayMatch($testProcedure);

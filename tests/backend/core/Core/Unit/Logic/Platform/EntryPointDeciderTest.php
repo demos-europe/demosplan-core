@@ -26,7 +26,7 @@ class EntryPointDeciderTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(EntryPointDecider::class);
+        $this->sut = self::getContainer()->get(EntryPointDecider::class);
     }
 
 //    /**
@@ -67,7 +67,7 @@ class EntryPointDeciderTest extends FunctionalTestCase
 
     public function entryPointDataProvider(): array
     {
-        $permissions = self::$container->get(PermissionsInterface::class);
+        $permissions = self::getContainer()->get(PermissionsInterface::class);
 
         $entryPointCombinations = [];
 

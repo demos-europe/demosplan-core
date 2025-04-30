@@ -257,7 +257,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(StatementFragmentService::class);
+        $this->sut = self::getContainer()->get(StatementFragmentService::class);
         $this->testDraftStatement = $this->getDraftStatementReference('testDraftStatement');
 
         $this->mockSession = $this->setUpMockSession();

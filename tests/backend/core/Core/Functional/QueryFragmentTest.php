@@ -30,7 +30,7 @@ class QueryFragmentTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(QueryFragment::class);
+        $this->sut = self::getContainer()->get(QueryFragment::class);
         $this->loginTestUser();
     }
 

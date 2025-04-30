@@ -36,7 +36,7 @@ class EditorServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(EditorService::class);
+        $this->sut = self::getContainer()->get(EditorService::class);
         $this->testDocument = $this->fixtures->getReference('testSingleDocument1');
         $this->testProcedure = $this->fixtures->getReference('testProcedure');
     }

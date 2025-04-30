@@ -39,7 +39,7 @@ class ElementsServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(ElementsService::class);
+        $this->sut = self::getContainer()->get(ElementsService::class);
         $this->testElement = $this->fixtures->getReference('testElement1');
         $this->testProcedure2 = $this->fixtures->getReference('testProcedure2');
     }

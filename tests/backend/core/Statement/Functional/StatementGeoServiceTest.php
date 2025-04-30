@@ -39,10 +39,10 @@ class StatementGeoServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->serviceDraftStatement = self::$container->get(DraftStatementService::class);
-        $this->statementService = self::$container->get(StatementService::class);
+        $this->serviceDraftStatement = self::getContainer()->get(DraftStatementService::class);
+        $this->statementService = self::getContainer()->get(StatementService::class);
         $this->testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $this->sut = self::$container->get(StatementGeoService::class);
+        $this->sut = self::getContainer()->get(StatementGeoService::class);
     }
 
     public function testAddGeoMultiPointData()

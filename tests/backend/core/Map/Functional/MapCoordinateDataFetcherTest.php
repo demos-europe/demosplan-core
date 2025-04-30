@@ -179,7 +179,7 @@ class MapCoordinateDataFetcherTest extends FunctionalTestCase
             ->with(ReverseQuery::fromCoordinates($lat, $lon))
             ->willReturn($addressCollection);
 
-        $mapProjectionConverter = self::$container->get(MapProjectionConverter::class);
+        $mapProjectionConverter = self::getContainer()->get(MapProjectionConverter::class);
 
         return new MapCoordinateDataFetcher($locationService, $logger, $mapProjectionConverter, $nominatim);
     }

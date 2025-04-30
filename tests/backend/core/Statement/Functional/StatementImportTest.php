@@ -59,7 +59,7 @@ class StatementImportTest extends FunctionalTestCase
             $this->createMock(StatementService::class),
             $this->createMock(EntityManagerInterface::class)
         );
-        $this->fileService = self::$container->get(FileService::class);
+        $this->fileService = self::getContainer()->get(FileService::class);
     }
 
     public function testGenerateStatementsFromExcel(): void
@@ -88,7 +88,7 @@ class StatementImportTest extends FunctionalTestCase
     private function setProcedureAndLogin(): void
     {
         /** @var CurrentProcedureService $currentProcedureService */
-        $currentProcedureService = self::$container->get(CurrentProcedureService::class);
+        $currentProcedureService = self::getContainer()->get(CurrentProcedureService::class);
         $currentProcedureService->setProcedure($this->getProcedureReference(LoadProcedureData::TESTPROCEDURE));
         $this->logIn($this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY));
     }

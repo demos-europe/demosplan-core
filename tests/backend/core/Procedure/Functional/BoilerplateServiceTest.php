@@ -35,7 +35,7 @@ class BoilerplateServiceTest extends FunctionalTestCase
         parent::setUp();
 
         $this->dateHelper = new DateHelper();
-        $this->sut = self::$container->get(ProcedureService::class);
+        $this->sut = self::getContainer()->get(ProcedureService::class);
     }
 
     public function testGetBoilerplate()

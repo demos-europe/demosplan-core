@@ -71,8 +71,8 @@ class DraftStatementServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(DraftStatementService::class);
-        $this->elementsService = self::$container->get(ElementsService::class);
+        $this->sut = self::getContainer()->get(DraftStatementService::class);
+        $this->elementsService = self::getContainer()->get(ElementsService::class);
         $this->testDraftStatement = $this->fixtures->getReference('testDraftStatement');
     }
 
