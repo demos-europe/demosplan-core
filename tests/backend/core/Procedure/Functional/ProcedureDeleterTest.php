@@ -10,7 +10,10 @@
 
 namespace backend\core\Procedure\Functional;
 
+use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
@@ -38,7 +41,7 @@ class ProcedureDeleterTest extends FunctionalTestCase
         $this->testProcedures = ProcedureFactory::createMany(2);
     }
 
-    public function testDeleteProcedure()
+    public function testDeleteProcedure(): void
     {
         $entriesIds = [];
         foreach ($this->getEntries(Procedure::class) as $procedure) {
@@ -54,7 +57,7 @@ class ProcedureDeleterTest extends FunctionalTestCase
         static::assertSame($totalAmountOfProceduresBeforeDeletion - 1, $this->countEntries(Procedure::class));
     }
 
-    public function testDeleteProcedures()
+    public function testDeleteProcedures(): void
     {
         $ids = [];
         foreach ($this->testProcedures as $procedure) {
@@ -72,5 +75,59 @@ class ProcedureDeleterTest extends FunctionalTestCase
         $this->sut->deleteProcedures($ids, false);
 
         static::assertSame($totalAmountOfProceduresBeforeDeletion - 2, $this->countEntries(Procedure::class));
+    }
+
+    public function testProcedureDeleteCustomFields(): void {
+        // Arrange
+        $ids = [];
+        foreach ($this->testProcedures as $procedure) {
+            $ids[] = $procedure->getId();
+        }
+
+        // Create custom fields for both procedure and procedure template entity classes
+        $customFieldsCount = 4;
+        $customFieldIds = [];
+
+        foreach ($this->testProcedures as $procedure) {
+            // Create PROCEDURE custom fields
+            $customField1 = $this->createCustomField($procedure, 'PROCEDURE', 'Favourite Color', 'Your favourite color', ['Blue', 'Orange', 'Green']);
+            $customField2 = $this->createCustomField($procedure, 'PROCEDURE', 'Favourite Food', 'Your favourite food', ['Pizza', 'Sushi', 'Bread']);
+        }
+
+        // Verify custom fields were created
+        $this->assertEquals($customFieldsCount, $this->countEntries(CustomFieldConfiguration::class));
+
+        // Act
+        $this->sut->deleteProcedures($ids, false);
+
+        // Assert
+        // Verify custom fields were deleted - we should have 0 custom fields for the deleted procedures
+        $remainingCustomFields = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('c')
+            ->from(CustomFieldConfiguration::class, 'c')
+            ->where('c.sourceEntityId IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+
+        $this->assertCount(0, $remainingCustomFields, "Custom fields should have been deleted for both PROCEDURE and PROCEDURE_TEMPLATE entity classes");
+    }
+
+
+    private function createCustomField($procedure, string $sourceEntityClass, string $name, string $description, array $options): CustomFieldConfiguration
+    {
+        $radioButton = new RadioButtonField();
+        $radioButton->setName($name);
+        $radioButton->setDescription($description);
+        $radioButton->setFieldType('singleSelect');
+        $radioButton->setOptions($options);
+
+        return CustomFieldConfigurationFactory::createOne([
+            'sourceEntityClass' => $sourceEntityClass,
+            'sourceEntityId'    => $procedure->getId(),
+            'targetEntityClass' => 'SEGMENT',
+            'configuration'     => $radioButton,
+        ])->_real();
     }
 }
