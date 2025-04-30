@@ -9,49 +9,63 @@
 
 <template>
   <div>
-    <h3>{{Translator.trans('statements.draft.organisation')}}</h3>
-    <dp-inline-notification
-      v-if="transformedStatements.filter(s => !s.authorOnly).length === 0"
-      :message="Translator.trans('statement.list.empty')"
-      type="info" />
-    <div class="space-stack-m">
-      <dp-public-statement
-        v-for="(statement, idx) in transformedStatements.filter(s => !s.authorOnly)"
-        v-bind="statement"
-        :key="idx"
-        :menu-items-generator="menuItemCallback"
-        :procedure-id="procedureId"
-        :show-author="showAuthor"
-        :show-checkbox="showCheckbox"
-        @open-map-modal="openMapModal"
-        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"/>
-      <dp-map-modal
-        ref="mapModal"
-      :procedure-id="procedureId"
-      class="pb-2"/>
-    </div>
-  </div>
-  <div>
-    <h3>{{Translator.trans('statements.draft')}}</h3>
-    <dp-inline-notification
-      v-if="transformedStatements.filter(s => s.authorOnly).length === 0"
-      :message="Translator.trans('statement.list.empty')"
-      type="info" />
-    <dp-public-statement
-      v-for="(statement, idx) in transformedStatements.filter(s => s.authorOnly)"
-      v-bind="statement"
-      :key="'authorOnly-' + idx"
-      :menu-items-generator="menuItemCallback"
-      :procedure-id="procedureId"
-      :show-author="showAuthor"
-      :show-checkbox="showCheckbox"
-      @open-map-modal="openMapModal"
-      @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)" />
+  <dp-tabs
+    :active-id="activeTabId"
+    @change="id => activeTabId = id">
+    <slot>
+      <dp-tab
+        id="public-statements"
+        :is-active="activeTabId === 'public-statements'"
+        :label="Translator.trans('statements.draft.organisation')">
+        <dp-inline-notification
+          v-if="transformedStatements.filter(s => !s.authorOnly).length === 0"
+          :message="Translator.trans('statement.list.empty')"
+          type="info" />
+        <div class="space-stack-m">
+          <dp-public-statement
+            v-for="(statement, idx) in transformedStatements.filter(s => !s.authorOnly)"
+            v-bind="statement"
+            :key="idx"
+            :menu-items-generator="menuItemCallback"
+            :procedure-id="procedureId"
+            :show-author="showAuthor"
+            :show-checkbox="showCheckbox"
+            @open-map-modal="openMapModal"
+            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"/>
+          <dp-map-modal
+            ref="mapModal"
+            :procedure-id="procedureId"
+            class="pb-2"/>
+        </div>
+      </dp-tab>
+      <dp-tab
+        id="private-statements"
+        :is-active="activeTabId === 'private-statements'"
+        :label="Translator.trans('statements.draft')">
+        <dp-inline-notification
+          v-if="transformedStatements.filter(s => s.authorOnly).length === 0"
+          :message="Translator.trans('statement.list.empty')"
+          type="info" />
+        <div class="space-stack-m">
+          <dp-public-statement
+          v-for="(statement, idx) in transformedStatements.filter(s => s.authorOnly)"
+          v-bind="statement"
+          :key="'authorOnly-' + idx"
+          :menu-items-generator="menuItemCallback"
+          :procedure-id="procedureId"
+          :show-author="showAuthor"
+          :show-checkbox="showCheckbox"
+          @open-map-modal="openMapModal"
+          @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)" />
+        </div>
+      </dp-tab>
+    </slot>
+  </dp-tabs>
   </div>
 </template>
 
 <script>
-import { DpInlineNotification, dpSelectAllMixin, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
+import { DpInlineNotification, DpTabs, DpTab, dpSelectAllMixin, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
 import { generateMenuItems } from './menuItems'
@@ -83,7 +97,9 @@ export default {
   components: {
     DpInlineNotification,
     DpMapModal,
-    DpPublicStatement
+    DpPublicStatement,
+    DpTabs,
+    DpTab
   },
 
   mixins: [dpSelectAllMixin],
@@ -171,7 +187,8 @@ export default {
 
   data () {
     return {
-      transformedStatements: this.transformStatements(this.statements)
+      transformedStatements: this.transformStatements(this.statements),
+      activeTabId: 'public-statements'
     }
   },
 
