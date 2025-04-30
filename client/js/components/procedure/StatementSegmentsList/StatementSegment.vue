@@ -270,7 +270,7 @@
               allow-empty
               :id="field.id"
               :value="customFieldValues[field.id]"
-              @select="(value) => setCustomFieldValue(field.id, value)"
+              @select="(value) => setCustomFieldValue(value)"
               label="name"
               :options="customFieldsOptions[field.id]"
               track-by="id">
@@ -486,7 +486,7 @@ export default {
         procedureId: this.procedureId
       },
       claimLoading: false,
-      customFieldValues: [],
+      customFieldValues: {},
       currentUserName: this.currentUserFirstName + ' ' + this.currentUserLastName,
       demosplanUi: shallowRef(demosplanUi),
       isCollapsed: !(this.segment.relationships?.assignee?.data && this.segment.relationships.assignee.data.id === this.currentUserId),
@@ -749,6 +749,13 @@ export default {
     save () {
       const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
       const { assignee, place } = this.updateRelationships()
+      let attributes = null
+
+      if (Object.values(this.customFieldValues).length > 0) {
+        attributes = {
+          customFields: Object.values(this.customFieldValues).map(({ fieldId, name }) => ({ id: fieldId, value: name }))
+        }
+      }
 
       const payload = {
         data: {
@@ -759,6 +766,10 @@ export default {
             place
           }
         }
+      }
+
+      if (attributes) {
+        payload.data.attributes = attributes
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
@@ -793,8 +804,15 @@ export default {
       this.activeId = id
     },
 
-    setCustomFieldValue (fieldId, value) {
-      this.customFieldValues[fieldId] = value
+    /**
+     * Add custom field to custom fields with selected option
+     * @param {Object} value
+     * @param {string} value.id   id of the selected option
+     * @param {string} value.fieldId   id of the custom field
+     * @param {string} value.name   name of the selected option
+     */
+    setCustomFieldValue (value) {
+      this.customFieldValues[value.fieldId] = value
     },
 
     showComments () {
