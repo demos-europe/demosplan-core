@@ -343,8 +343,8 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             $entity->setAnonymous($data['anonymous']);
         }
 
-        if (array_key_exists('private', $data)) {
-            $entity->setPrivate($data['private']);
+        if (array_key_exists('authorOnly', $data)) {
+            $entity->setAuthorOnly($data['authorOnly']);
         }
 
         return $entity;

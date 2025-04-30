@@ -580,13 +580,13 @@ class DraftStatementHandler extends CoreHandler
     {
         $user = $this->currentUser->getUser();
         $userData = [
-            'uId'       => $user->getId(),
-            'uName'     => $user->getFullname(),
-            'dId'       => $user->getDepartmentId(),
-            'dName'     => $user->getDepartmentNameLegal(),
-            'oId'       => $user->getOrganisationId(),
-            'oName'     => $user->getOrganisationNameLegal(),
-            'private'   => !$user->isPublicAgency(), // Indicates visibility to other organisation members
+            'uId'           => $user->getId(),
+            'uName'         => $user->getFullname(),
+            'dId'           => $user->getDepartmentId(),
+            'dName'         => $user->getDepartmentNameLegal(),
+            'oId'           => $user->getOrganisationId(),
+            'oName'         => $user->getOrganisationNameLegal(),
+            'authorOnly'    => !$user->isPublicAgency(), // Indicates visibility to other organisation members
         ];
 
         return array_merge($data, $userData);
