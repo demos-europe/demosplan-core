@@ -209,6 +209,12 @@
               {{ tag.attributes.title }}
             </span>
           </template>
+          <template
+            v-for="customField in selectedCustomFields"
+            :key="customField.field"
+            v-slot:[customField.field]="rowData">
+            <div>{{ customField.value }}</div>
+          </template>
           <template v-slot:flyout="rowData">
             <dp-flyout data-cy="segmentsList:flyoutEditMenu">
               <a
@@ -517,12 +523,30 @@ export default {
      */
     selectableColumns () {
       const staticColumns = this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+
+      if (!hasPermission('field_segments_custom_fields')) {
+        return staticColumns
+      }
+
       const customFields = Object.values(this.customFields).map(customField => ([`customField_${customField.id}`, customField.attributes.name]))
 
       return [
         ...staticColumns,
         ...customFields
       ]
+    },
+
+    selectedCustomFields () {
+      if (!hasPermission('field_segments_custom_fields')) {
+        return []
+      }
+
+      return Object.values(this.customFields)
+        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
+        .map(customField => ({
+          field: `customField_${customField.id}`,
+          value: customField.attributes.options.find(option => option === customField.attributes.name) || ''
+        }))
     },
 
     storageKeyPagination () {
@@ -572,6 +596,21 @@ export default {
           }
         }
       }
+      const statementSegmentFields = [
+        'assignee',
+        'externId',
+        'orderInProcedure',
+        'parentStatement',
+        'place',
+        'tags',
+        'text',
+        'recommendation'
+      ]
+
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
+      }
+
       const payload = {
         include: [
           'assignee',
@@ -616,17 +655,7 @@ export default {
             'submitName',
             'submitType'
           ].join(),
-          StatementSegment: [
-            'assignee',
-            'customFields',
-            'externId',
-            'orderInProcedure',
-            'parentStatement',
-            'place',
-            'tags',
-            'text',
-            'recommendation'
-          ].join(),
+          StatementSegment: statementSegmentFields.join(),
           Tag: [
             'title'
           ].join()
@@ -688,7 +717,8 @@ export default {
           ].join(),
           CustomField: [
             'name',
-            'description'
+            'description',
+            'options'
           ].join()
         },
         include: [
