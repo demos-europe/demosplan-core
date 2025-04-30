@@ -196,13 +196,24 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         if ($this->currentUser->hasPermission('field_segments_custom_fields')) {
             $properties[] = $this->createAttribute($this->customFields)
                 ->setReadableByCallable(static fn (Segment $segment): ?array => $segment->getCustomFields()?->toJson())
-                ->addUpdateBehavior(new CallbackAttributeSetBehaviorFactory([], function (Segment $segment, array $customFields): array {
-                    $customFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
-                    $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues($customFieldList, $customFields, $segment->getProcedure()->getId(), 'PROCEDURE', 'SEGMENT');
-                    $segment->setCustomFields($customFieldList->toJson());
+                ->addUpdateBehavior(
+                    new CallbackAttributeSetBehaviorFactory(
+                        [],
+                        function (Segment $segment, array $customFields): array {
+                            $customFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
+                            $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+                                $customFieldList,
+                                $customFields,
+                                $segment->getProcedure()->getId(),
+                                'PROCEDURE',
+                                'SEGMENT'
+                            );
+                            $segment->setCustomFields($customFieldList);
 
-                    return [];
-                }, OptionalField::YES)
+                            return [];
+                        },
+                        OptionalField::YES
+                    )
                 );
         }
 

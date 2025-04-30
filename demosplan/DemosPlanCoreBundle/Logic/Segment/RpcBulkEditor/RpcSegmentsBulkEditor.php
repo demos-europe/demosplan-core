@@ -129,7 +129,16 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
                     $workflowPlace = $this->extractWorkflowPlace($rpcRequest);
 
-                    $segments = $this->segmentBulkEditorService->updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace);
+                    $customFields = $this->extractCustomFields($rpcRequest);
+
+                    $segments = $this->segmentBulkEditorService->updateSegments(
+                        $segments,
+                        $addTagIds,
+                        $removeTagIds,
+                        $assignee,
+                        $workflowPlace,
+                        $customFields
+                    );
 
                     $resultSegments = [...$resultSegments, ...$segments];
                     $resultResponse[] = $this->generateMethodResult($rpcRequest);
@@ -247,6 +256,16 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     private function extractWorkflowPlaceId(object $rpcRequest): string
     {
         return data_get($rpcRequest, 'params.placeId', '');
+    }
+
+    private function extractCustomFields(object $rpcRequest): array
+    {
+        $rawCustomFields = data_get($rpcRequest, 'params.customFields', []);
+        if (empty($rawCustomFields)) {
+            return [];
+        }
+
+        return json_decode(json_encode($rawCustomFields), true);
     }
 
     /**
