@@ -97,7 +97,7 @@
         :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection.sharedStatement') }"
         @select-all="handleSelectAll"
         @items-toggled="handleToggleItem">
-        <template v-slot:externId="{ assignee, externId, id: statementId, synchronized }">
+        <template v-slot:externId="{ assignee = {}, externId, id: statementId, synchronized }">
           <span
             class="weight--bold"
             v-text="externId" />
@@ -447,7 +447,7 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute, docxHeaders, fileNameTemplate, censorParameter) => {
+      return (exportRoute, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored) => {
         const parameters = {
           filter: {
             procedureId: {
@@ -463,7 +463,9 @@ export default {
             ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {}
           },
           sort: this.selectedSort,
-          censorParameter: censorParameter
+          isObscured,
+          isInstitutionDataCensored,
+          isCitizenDataCensored
         }
 
         if (docxHeaders) {
@@ -930,8 +932,8 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, censorParameter }) {
-      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, censorParameter)
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
+      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored)
       if (!shouldConfirm || window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = url
       }
@@ -941,8 +943,8 @@ export default {
       if (window.confirm(Translator.trans('check.statement.delete'))) {
         this.deleteStatement(id)
           .then(response => checkResponse(response, {
-            200: { type: 'confirm', text: 'confirm.statement.deleted' },
-            204: { type: 'confirm', text: 'confirm.statement.deleted' }
+            200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
+            204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') }
           }))
           .then(() => {
             this.getItemsByPage(this.pagination.currentPage)

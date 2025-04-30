@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
@@ -198,6 +199,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             $user = $this->userHandler->changeEmailValidate($user, $key);
 
             if ($user instanceof User) {
+                // Invalidate the token to prevent reuse by setting lastLogin to current time
+                $user->setLastLogin(new DateTime());
+                // Save the user through the user service
+                $this->userService->updateUserObject($user);
                 $this->getMessageBag()->add('confirm', 'confirm.email.changed', ['emailAddress' => $user->getEmail()]);
 
                 return $this->redirectToRoute('DemosPlan_user_portal');
@@ -468,6 +473,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
             $userService->changePassword($uId, '', $newPassword, false);
             $this->userHandler->setAccessConfirmed($user);
+
+            // Invalidate the token to prevent reuse by setting lastLogin to current time
+            $user->setLastLogin(new DateTime());
+            $this->userService->updateUserObject($user);
 
             $this->messageBag->add('confirm', 'user.password.set');
 

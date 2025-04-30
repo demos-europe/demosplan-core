@@ -65,6 +65,7 @@
 
     <export-modal
       v-if="hasPermission('feature_assessmenttable_export')"
+      ref="exportModal"
       :has-selected-elements="Object.keys(selectedElements).length > 0"
       :procedure-id="procedureId"
       :options="exportOptions"
@@ -75,8 +76,9 @@
       :procedure-id="procedureId" />
 
     <slot
+      v-bind="{ procedureId, allItemsOnPageSelected, copyStatements }"
       name="filter"
-      v-bind="{ procedureId, allItemsOnPageSelected, copyStatements }" />
+      :toggle-export-modal="toggleExportModal" />
 
     <!-- If there are statements, display statement list -->
     <dp-loading
@@ -143,6 +145,7 @@
 import { DpLoading, DpPager } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import changeUrlforPager from '../assessmentTable/utils/changeUrlforPager'
+import { defineAsyncComponent } from 'vue'
 import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import OriginalStatementsTableItem from './OriginalStatementsTableItem'
 
@@ -152,11 +155,11 @@ export default {
   components: {
     DpLoading,
     ExportModal,
-    DpInlineNotification: async () => {
+    DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
       return DpInlineNotification
-    },
-    DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal'),
+    }),
+    DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
     DpPager,
     OriginalStatementsTableItem
   },
@@ -306,6 +309,10 @@ export default {
       }
 
       this.setSelectionAction(payload)
+    },
+
+    toggleExportModal (tab) {
+      this.$refs.exportModal.toggleModal(tab)
     },
 
     triggerApiCallForStatements () {

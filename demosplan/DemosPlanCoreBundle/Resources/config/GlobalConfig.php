@@ -1215,7 +1215,7 @@ class GlobalConfig implements GlobalConfigInterface
      */
     public function getProxyHost(): string
     {
-        $parts = explode(':', $this->proxyDsn);
+        $parts = explode(':', $this->proxyDsn ?? '');
 
         return $parts[0] ?? '';
     }
@@ -1227,7 +1227,7 @@ class GlobalConfig implements GlobalConfigInterface
      */
     public function getProxyPort(): string
     {
-        $parts = explode(':', $this->proxyDsn);
+        $parts = explode(':', $this->proxyDsn ?? '');
 
         return $parts[1] ?? '';
     }

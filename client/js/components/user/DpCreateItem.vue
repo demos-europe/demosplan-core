@@ -28,9 +28,9 @@
         :data-dp-validate="customComponent[entity].formName">
         <!-- Form fields   -->
         <component
+          v-bind="dynamicComponentProps"
           :is="dynamicComponent"
           ref="formFields"
-          v-bind="dynamicComponentProps"
           @[dynamicEvent]="update" />
 
         <!-- Save/Abort buttons   -->
@@ -49,7 +49,8 @@
 
 <script>
 import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
-import { mapActions } from 'vuex'
+import { defineAsyncComponent } from 'vue'
+import { mapActions, mapMutations } from 'vuex'
 
 export default {
   name: 'DpCreateItem',
@@ -70,8 +71,8 @@ export default {
   components: {
     DpAccordion,
     DpButtonRow,
-    DpOrganisationFormFields: () => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationList/DpOrganisationFormFields'),
-    DpUserFormFields: () => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields')
+    DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationList/DpOrganisationFormFields')),
+    DpUserFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "user-form-fields" */ './DpUserList/DpUserFormFields'))
   },
 
   mixins: [dpValidateMixin],
@@ -143,6 +144,14 @@ export default {
     }
   },
 
+  emits: [
+    'get-items',
+    'organisation-reset',
+    'organisation-update',
+    'user-reset',
+    'user-update'
+  ],
+
   data () {
     return {
       /**
@@ -206,6 +215,10 @@ export default {
       createUser: 'create'
     }),
 
+    ...mapMutations('AdministratableUser', {
+      updateAdministratableUser: 'setItem'
+    }),
+
     changeTypeToPascalCase (payload) {
       const newPayload = {
         ...payload,
@@ -257,7 +270,11 @@ export default {
       if (this.entity === 'user') {
         if (this.dpValidate.newUserForm) {
           this.createUser(this.itemResource)
-            .then(() => {
+            .then(response => {
+              const { type: userType, relationships = {} } = this.itemResource
+              const newUser = Object.values(response.data[userType])[0]
+              const payload = { ...newUser, relationships }
+              this.updateAdministratableUser({ ...payload, id: newUser.id })
               this.reset()
               dplan.notify.notify('confirm', Translator.trans('confirm.user.created'))
             })

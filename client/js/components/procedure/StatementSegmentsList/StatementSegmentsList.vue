@@ -78,7 +78,7 @@
           </li>
           <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
-              <template slot="trigger">
+              <template v-slot:trigger>
                 <span>
                   {{ Translator.trans('attachments') }}
                   <span v-text="attachmentsAndOriginalPdfCount" />
@@ -453,8 +453,11 @@ export default {
   },
 
   watch: {
-    currentAction () {
-      this.showInfobox = this.currentAction === 'editText'
+    currentAction: {
+      handler () {
+        this.showInfobox = this.currentAction === 'editText'
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
@@ -544,7 +547,6 @@ export default {
     getStatement () {
       const statementFields = [
         'assignee',
-        'availableProcedurePhases',
         'authoredDate',
         'authorName',
         'consentRevoked',
@@ -590,6 +592,10 @@ export default {
         statementFields.push('synchronized')
       }
 
+      if (hasPermission('field_statement_phase')) {
+        statementFields.push('availableProcedurePhases')
+      }
+
       if (hasPermission('area_statement_segmentation')) {
         statementFields.push('segmentDraftList')
       }
@@ -604,7 +610,7 @@ export default {
 
       const allFields = {
         ElementsDetails: [
-          'document',
+          'documents',
           'paragraphs',
           'title'
         ].join(),
@@ -738,7 +744,7 @@ export default {
       this.currentAction = action || defaultAction
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
       const parameters = {
         procedureId: this.procedure.id,
         statementId: this.statementId
@@ -755,6 +761,10 @@ export default {
       if (fileNameTemplate) {
         parameters.fileNameTemplate = fileNameTemplate
       }
+
+      isObscured && (parameters.isObscured = isObscured)
+      isInstitutionDataCensored && (parameters.isInstitutionDataCensored = isInstitutionDataCensored)
+      isCitizenDataCensored && (parameters.isCitizenDataCensored = isCitizenDataCensored)
 
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = Routing.generate(route, parameters)

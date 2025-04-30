@@ -567,7 +567,7 @@ class ServiceOutput
             ? Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL
             : Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL;
 
-        if (!$this->permissions->hasPermissionsetRead($permissionScope)) {
+        if (!$this->permissions->hasPermissionsetRead($permissionScope) && !$this->permissions->ownsProcedure()) {
             return null;
         }
 

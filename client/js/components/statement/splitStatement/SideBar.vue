@@ -74,6 +74,7 @@
           <tag-select
             v-for="(topic, idx) in tagTopics"
             :class="{'mb-1': idx < tagTopics.length + 1}"
+            :dropdown-direction="idx < 6 ? 'bottom' : ''"
             :entity="topic"
             :selected="selectedTags.filter(tag => (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) ? tag.relationships.topic.data.id === topic.id : false)"
             :key="`category_${idx}`" />
@@ -206,6 +207,12 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'abort',
+    'save',
+    'save-and-finish'
+  ],
 
   data () {
     return {

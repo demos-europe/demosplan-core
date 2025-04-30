@@ -173,6 +173,11 @@ export default {
     }
   },
 
+  emits: [
+    'date:changed',
+    'status:changed'
+  ],
+
   data () {
     return {
       active: this.activeDelay,

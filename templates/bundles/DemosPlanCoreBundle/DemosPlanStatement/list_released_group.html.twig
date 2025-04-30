@@ -62,13 +62,11 @@
                             {{ 'statements.marked.submit'|trans }}
                         </template>
 
-                        <template>
-                            {#  Hint and select for notifying country about statement being submitted #}
-                            {% include '@DemosPlanCore/DemosPlanStatement/includes/list_statement_nofity_contries.html.twig' with {
-                                showDropdown: hasPermission('feature_statement_notify_counties') and proceduresettings.settings.sendMailsToCounties == true,
-                                targetForm: 'releaseForm'
-                            } %}
-                        </template>
+                        {#  Hint and select for notifying country about statement being submitted #}
+                        {% include '@DemosPlanCore/DemosPlanStatement/includes/list_statement_nofity_contries.html.twig' with {
+                            showDropdown: hasPermission('feature_statement_notify_counties') and proceduresettings.settings.sendMailsToCounties == true,
+                            targetForm: 'releaseForm'
+                        } %}
                     </dp-modal>
 
                     <button

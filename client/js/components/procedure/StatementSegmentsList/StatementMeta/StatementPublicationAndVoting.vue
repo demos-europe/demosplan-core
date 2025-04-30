@@ -43,8 +43,10 @@ All rights reserved
         :has-permission-to-edit="editable && statement.attributes.isManual"
         :translation-keys="translationKeys"
         ref="listComponent"
+        @delete="id => deleteVote(id)"
         @reset="resetForm()"
-        @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)">
+        @saveEntry="index => dpValidateAction('newVoterForm', () => addVote(index), false)"
+        @showUpdateForm="id => updateFormFields(id)">
         <template v-slot:list="{ entry }">
           <span
             v-if="entry.attributes.name"
@@ -241,6 +243,11 @@ export default {
     }
   },
 
+  emits: [
+    'save',
+    'updatedVoters'
+  ],
+
   data () {
     return {
       localStatement: null,
@@ -342,6 +349,14 @@ export default {
         }
       }
       return isEmpty
+    },
+
+    deleteVote (voteId) {
+      const name = this.votes[voteId]?.attributes?.name ? this.votes[voteId].attributes.name : false
+      if (dpconfirm(Translator.trans('statement_vote.delete_vote', { name }))) {
+        this.removeVote(voteId)
+        this.resetForm()
+      }
     },
 
     removeVote (id) {
@@ -502,28 +517,18 @@ export default {
     setLocalValues () {
       this.localStatement = JSON.parse(JSON.stringify(this.statement))
       this.votes = Object.assign({}, this.votesState)
+    },
+
+    updateFormFields (id) {
+      for (const key in this.formFields) {
+        this.formFields[key] = this.votes[id].attributes[key]
+      }
     }
   },
 
   created () {
     this.setLocalValues()
     this.setInitVoters()
-  },
-
-  mounted () {
-    this.$on('showUpdateForm', (id) => {
-      for (const key in this.formFields) {
-        this.formFields[key] = this.votes[id].attributes[key]
-      }
-    })
-
-    this.$on('delete', (voteId) => {
-      const name = this.votes[voteId]?.attributes?.name ? this.votes[voteId].attributes.name : false
-      if (dpconfirm(Translator.trans('statement_vote.delete_vote', { name }))) {
-        this.removeVote(voteId)
-        this.resetForm()
-      }
-    })
   }
 }
 </script>

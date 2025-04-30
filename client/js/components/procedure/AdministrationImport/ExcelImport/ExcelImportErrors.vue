@@ -144,13 +144,14 @@ export default {
     },
 
     toggle (id) {
-      this.$set(this.checkedItems, id, !this.checkedItems[id])
+      this.checkedItems[id] = !this.checkedItems[id]
     }
   },
 
   mounted () {
     this.errors.forEach(error => {
-      this.$set(this.checkedItems, error.id, false)
+      this.checkedItems[error.id] = false
+
       if (!this.worksheets.includes(error.currentWorksheet)) {
         this.worksheets.push(error.currentWorksheet)
       }

@@ -95,6 +95,12 @@ export default {
     }
   },
 
+  emits: [
+    'item:deleted',
+    'item:saved',
+    'tagIsRemoved'
+  ],
+
   data () {
     return {
       isEditing: false,

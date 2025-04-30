@@ -18,12 +18,14 @@
         v-for="(option, index) in availableImportOptions"
         :key="index"
         :id="option.name"
+        :is-active="activeTabId === option.name"
         :label="Translator.trans(option.title)">
         <slot>
           <keep-alive>
             <component
               class="u-mt"
               :is="option.name"
+              :demosplan-ui="demosplanUi"
               :csrf-token="csrfToken" />
           </keep-alive>
         </slot>
@@ -37,10 +39,12 @@
 </template>
 
 <script>
+import * as demosplanUi from '@demos-europe/demosplan-ui'
 import { checkResponse, DpLoading, dpRpc, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
 import ParticipationImport from './ParticipationImport/ParticipationImport'
+import { shallowRef } from 'vue'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
 
 export default {
@@ -112,7 +116,8 @@ export default {
     return {
       activeTabId: '',
       allComponentsLoaded: false,
-      asyncComponents: []
+      asyncComponents: [],
+      demosplanUi: shallowRef(demosplanUi)
     }
   },
 
