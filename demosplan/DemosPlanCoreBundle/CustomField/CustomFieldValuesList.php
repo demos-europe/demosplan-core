@@ -21,16 +21,14 @@ class CustomFieldValuesList
             $customFieldValue->fromJson($fieldData);
 
             return $customFieldValue;
-        }, $json['customFields']);
+        }, $json);
     }
 
     public function toJson(): array
     {
-        return [
-            'customFields' => array_map(static function ($customField) {
-                return $customField->toJson();
-            }, $this->customFieldValues),
-        ];
+        return array_map(static function ($customField) {
+            return $customField->toJson();
+        }, $this->customFieldValues);
     }
 
     public function getCustomFieldsValues(): ?array
