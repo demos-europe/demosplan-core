@@ -54,14 +54,18 @@
                 </dt>
                 <dd>{{ assignee.name }}</dd>
               </div>
-              <div v-for="customField in segment.attributes.customFields">
-                <dt class="weight--bold">
-                  {{ Object.values(customFields).find(field => field.id === customField.id)?.attributes?.name || '' }}:
-                </dt>
-                <dd>
-                  {{ customField.value }}
-                </dd>
-              </div>
+              <template v-if="hasPermission('field_segments_custom_fields')">
+                <div
+                  v-for="customField in segment.attributes.customFields"
+                  :key="customField.id">
+                  <dt class="weight--bold">
+                    {{ Object.values(customFields).find(field => field.id === customField.id)?.attributes?.name || '' }}:
+                  </dt>
+                  <dd>
+                    {{ customField.value }}
+                  </dd>
+                </div>
+              </template>
             </dl>
           </div>
         </template>
@@ -268,21 +272,25 @@
               </div>
             </template>
           </dp-multiselect>
-          <template v-for="field in Object.values(customFields)">
-            <dp-label
-              :bold="false"
-              class="mb-0.5 mt-2"
-              :for="field.id"
-              :text="field.attributes.name" />
-            <dp-multiselect
-              allow-empty
-              :id="field.id"
-              :value="customFieldValues[field.id]"
-              @select="(value) => setCustomFieldValue(value)"
-              label="name"
-              :options="customFieldsOptions[field.id]"
-              track-by="id">
-            </dp-multiselect>
+          <template v-if="hasPermission('field_segments_custom_fields')">
+            <template
+              v-for="field in Object.values(customFields)"
+              :key="field.id">
+              <dp-label
+                :bold="false"
+                class="mb-0.5 mt-2"
+                :for="field.id"
+                :text="field.attributes.name" />
+              <dp-multiselect
+                allow-empty
+                :id="field.id"
+                :value="customFieldValues[field.id]"
+                @select="(value) => setCustomFieldValue(value)"
+                label="name"
+                :options="customFieldsOptions[field.id]"
+                track-by="id">
+              </dp-multiselect>
+            </template>
           </template>
         </div>
       </div>
@@ -766,7 +774,7 @@ export default {
       const { assignee, place } = this.updateRelationships()
       let attributes = null
 
-      if (Object.values(this.customFieldValues).length > 0) {
+      if (hasPermission('field_segments_custom_fields') && Object.values(this.customFieldValues).length > 0) {
         attributes = {
           customFields: Object.values(this.customFieldValues).map(({ fieldId, name }) => ({ id: fieldId, value: name }))
         }
@@ -1020,7 +1028,7 @@ export default {
         if (this.segment.relationships.place) {
           this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
         }
-        if (this.segment.attributes.customFields.length > 0) {
+        if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
           this.setInitiallySelectedCustomFieldValues()
         }
       })

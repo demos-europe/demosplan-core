@@ -875,7 +875,9 @@ export default {
 
   mounted () {
     this.getStatement()
-    this.fetchCustomFields()
+    if (hasPermission('field_segments_custom_fields')) {
+      this.fetchCustomFields()
+    }
     this.listAssignableUser({
       include: 'orga',
       fields: {
