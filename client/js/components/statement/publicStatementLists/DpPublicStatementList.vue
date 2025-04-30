@@ -21,7 +21,7 @@
           v-if="transformedStatements.filter(s => !s.authorOnly).length === 0"
           :message="Translator.trans('statement.list.empty')"
           type="info" />
-        <div class="space-stack-m">
+        <div class="space-stack-m pt-2">
           <dp-public-statement
             v-for="(statement, idx) in transformedStatements.filter(s => !s.authorOnly)"
             v-bind="statement"
@@ -31,11 +31,10 @@
             :show-author="showAuthor"
             :show-checkbox="showCheckbox"
             @open-map-modal="openMapModal"
-            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"/>
+            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)" />
           <dp-map-modal
             ref="mapModal"
-            :procedure-id="procedureId"
-            class="pb-2"/>
+            :procedure-id="procedureId" />
         </div>
       </dp-tab>
       <dp-tab
@@ -46,7 +45,7 @@
           v-if="transformedStatements.filter(s => s.authorOnly).length === 0"
           :message="Translator.trans('statement.list.empty')"
           type="info" />
-        <div class="space-stack-m">
+        <div class="space-stack-m pt-2">
           <dp-public-statement
           v-for="(statement, idx) in transformedStatements.filter(s => s.authorOnly)"
           v-bind="statement"
