@@ -279,7 +279,7 @@ class BoilerplateServiceTest extends FunctionalTestCase
 
         $group->setBoilerplates([$boilerplate1, $boilerplate2]);
 
-        $em = static::$container->get('doctrine');
+        $em = self::getContainer()->get('doctrine');
         $boilerplateRepository = $em->getRepository(Boilerplate::class);
         $boilerplateRepository->updateObject($boilerplate1);
 

@@ -160,7 +160,12 @@ class EventFinder extends CoreCommand
                 /** @var Namespace_[] $namespaces */
                 $namespaces = $nodeFinder->findInstanceOf($abstractSyntaxTree, Namespace_::class);
 
-                Assert::count($namespaces, 1, 'Found more or less than exactly one namespace.');
+                // Skip files without exactly one namespace, but log it
+                if (count($namespaces) !== 1) {
+                    echo "Skipping file with " . count($namespaces) . " namespaces: " . $classFilePath . "\n";
+                    continue;
+                }
+                
                 $namespaceName = $namespaces[0]->name->toString();
 
                 $this->findNamedEventMatches($classes, $classFilePath, $targetParentClassNames, $namespaceName);
@@ -305,8 +310,11 @@ class EventFinder extends CoreCommand
         // Get only classes with names:
         $namedClasses = array_filter($classes, static fn (Class_ $class): bool => null !== ($class->name?->name ?? null));
 
-        // More than one named class per file is not handled.
-        Assert::lessThanEq(count($namedClasses), 1, 'Found more than one class. Filepath: '.$classFilePath);
+        // Skip files with more than one named class
+        if (count($namedClasses) > 1) {
+            echo "Skipping file with " . count($namedClasses) . " named classes: " . $classFilePath . "\n";
+            return;
+        }
 
         // files without classes are ignored
         if ([] !== $namedClasses) {

@@ -132,8 +132,8 @@ class PermissionsTest extends FunctionalTestCase
         $permissionsClass = $this->getPermissionsClass();
         $accessControlService = self::getContainer()->get(AccessControlService::class);
 
-        $customerService = static::$container->get(CustomerService::class);
-        $addonRegistry = static::$container->get(AddonRegistry::class);
+        $customerService = self::getContainer()->get(CustomerService::class);
+        $addonRegistry = self::getContainer()->get(AddonRegistry::class);
 
         $tokenMockMethods = [
             new MockMethodDefinition('isOwningProcedure', $ownsProcedure),
