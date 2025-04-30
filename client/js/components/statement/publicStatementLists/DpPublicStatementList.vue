@@ -9,13 +9,14 @@
 
 <template>
   <div>
+    <h3>{{Translator.trans('statements.draft.organisation')}}</h3>
     <dp-inline-notification
-      v-if="transformedStatements.length === 0"
+      v-if="transformedStatements.filter(s => !s.authorOnly).length === 0"
       :message="Translator.trans('statement.list.empty')"
       type="info" />
     <div class="space-stack-m">
       <dp-public-statement
-        v-for="(statement, idx) in transformedStatements"
+        v-for="(statement, idx) in transformedStatements.filter(s => !s.authorOnly)"
         v-bind="statement"
         :key="idx"
         :menu-items-generator="menuItemCallback"
@@ -26,8 +27,26 @@
         @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"/>
       <dp-map-modal
         ref="mapModal"
-        :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+      class="pb-2"/>
     </div>
+  </div>
+  <div>
+    <h3>{{Translator.trans('statements.draft')}}</h3>
+    <dp-inline-notification
+      v-if="transformedStatements.filter(s => s.authorOnly).length === 0"
+      :message="Translator.trans('statement.list.empty')"
+      type="info" />
+    <dp-public-statement
+      v-for="(statement, idx) in transformedStatements.filter(s => s.authorOnly)"
+      v-bind="statement"
+      :key="'authorOnly-' + idx"
+      :menu-items-generator="menuItemCallback"
+      :procedure-id="procedureId"
+      :show-author="showAuthor"
+      :show-checkbox="showCheckbox"
+      @open-map-modal="openMapModal"
+      @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)" />
   </div>
 </template>
 
@@ -221,6 +240,7 @@ export default {
         uName,
         dName,
         oName,
+        authorOnly,
         phase,
         polygon,
         elementId,
@@ -268,6 +288,7 @@ export default {
         document: statementDocument,
         id: ident,
         externId,
+        authorOnly,
         organisation: oName,
         paragraph: statementParagraph,
         phase,
@@ -285,6 +306,8 @@ export default {
     },
 
     transformStatements (statements) {
+      console.log('transformStatements', statements);
+      console.log('First Statement', statements[0])
       return statements.map(s => this.transformStatement(s))
     }
   }
