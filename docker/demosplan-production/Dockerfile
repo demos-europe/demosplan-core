@@ -65,11 +65,9 @@ RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/video && \
     mkdir -p /srv/www/var/cache && \
     mkdir -p /srv/www/var/log && \
-    mkdir -p /srv/www/client/js/generated && \
     chown -R www-data /srv/www/projects/$PROJECT_NAME/web && \
     chown -R www-data /srv/www/var/cache && \
     chown -R www-data /srv/www/var/log && \
-    chown -R www-data /srv/www/client/js/generated && \
 # define doctrine in memory database for the asset build
     mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
 COPY doctrine_inmemory.yaml /srv/www/config/packages/doctrine.yaml
