@@ -553,6 +553,9 @@ export default {
       return this.segment.relationships.comments?.data?.length || 0
     },
 
+    /**
+     * @returns {Object} - Custom fields options by custom field id
+     */
     customFieldsOptions () {
       return Object.values(this.customFields).reduce((acc, el) => {
         const opts =  [ ...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
@@ -823,6 +826,17 @@ export default {
       this.customFieldValues[value.fieldId] = value
     },
 
+    setInitiallySelectedCustomFieldValues () {
+      this.segment.attributes.customFields.forEach(field => {
+        const fieldId = field.id
+        const selectedOption = this.customFieldsOptions[fieldId].find(option => option.name === field.value)
+
+        if (selectedOption) {
+          this.customFieldValues[fieldId] = selectedOption
+        }
+      })
+    },
+
     showComments () {
       if (this.checkIfToolIsActive('comments')) {
         return
@@ -1001,6 +1015,9 @@ export default {
       .then(() => {
         if (this.segment.relationships.place) {
           this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+        }
+        if (this.segment.attributes.customFields.length > 0) {
+          this.setInitiallySelectedCustomFieldValues()
         }
       })
     this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
