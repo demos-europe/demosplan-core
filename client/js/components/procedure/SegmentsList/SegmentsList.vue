@@ -455,6 +455,10 @@ export default {
     },
 
     availableHeaderFields () {
+      if (!hasPermission('field_segments_custom_fields')) {
+        return this.headerFields
+      }
+
       const customFields = Object.values(this.customFields)
       const selectedCustomFields = customFields
         .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
