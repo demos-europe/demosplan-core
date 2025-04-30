@@ -38,21 +38,21 @@ class AccessControlService extends CoreService
     public function __construct(
         private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
-        private readonly OrgaService $orgaService
+        private readonly OrgaService $orgaService,
     ) {
     }
 
-    public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): ?AccessControl
+    public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, array $roles): void
     {
         try {
-            $permission = new AccessControl();
-            $permission->setPermissionName($permissionName);
-            $permission->setOrga($orga);
-            $permission->setCustomer($customer);
-            $permission->setRole($role);
-            $this->accessControlPermissionRepository->add($permission);
-
-            return $permission;
+            foreach ($roles as $role) {
+                $permission = new AccessControl();
+                $permission->setPermissionName($permissionName);
+                $permission->setOrga($orga);
+                $permission->setCustomer($customer);
+                $permission->setRole($role);
+                $this->accessControlPermissionRepository->add($permission);
+            }
         } catch (UniqueConstraintViolationException $exception) {
             $this->logger->warning('Unique constraint violation occurred while trying to create a permission.', [
                 'exception'      => $exception->getMessage(),
@@ -62,8 +62,6 @@ class AccessControlService extends CoreService
                 'role'           => $role->getId(),
             ]);
         }
-
-        return null;
     }
 
     public function getPermissions(?OrgaInterface $orga, ?CustomerInterface $customer, array $roles): array
@@ -126,19 +124,21 @@ class AccessControlService extends CoreService
         return $enabledPermissions;
     }
 
-    public function removePermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): void
+    public function removePermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, array $roles): void
     {
         // Find the existing permission with the given parameters
-        $permission = $this->accessControlPermissionRepository->findOneBy([
-            'permission'   => $permissionName,
-            'organisation' => $orga,
-            'customer'     => $customer,
-            'role'         => $role,
-        ]);
+        foreach ($roles as $role) {
+            $permission = $this->accessControlPermissionRepository->findOneBy([
+                'permission'   => $permissionName,
+                'organisation' => $orga,
+                'customer'     => $customer,
+                'role'         => $role,
+            ]);
 
-        // If a permission is found, remove it
-        if ($permission) {
-            $this->accessControlPermissionRepository->persistAndDelete([], [$permission]);
+            // If a permission is found, remove it
+            if ($permission) {
+                $this->accessControlPermissionRepository->persistAndDelete([], [$permission]);
+            }
         }
     }
 
@@ -183,7 +183,7 @@ class AccessControlService extends CoreService
             return;
         }
 
-        $this->createPermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
+        $this->createPermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, [$role]);
     }
 
     public function removePermissionToGivenRole(OrgaInterface $orga, CustomerInterface $customer, string $roleName): void
@@ -194,7 +194,7 @@ class AccessControlService extends CoreService
             return;
         }
 
-        $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
+        $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, [$role]);
     }
 
     public function enablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false): array
@@ -238,14 +238,14 @@ class AccessControlService extends CoreService
 
             // check whether role to grant the permission is allowed in the given orga type
             // to avoid e.g. granting planner permission to institution orga
-            if (array_key_exists($orgaTypeInCustomer, OrgaTypeInterface::ORGATYPE_ROLE) &&
-                !in_array($role->getCode(), OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeInCustomer],true)) {
+            if (array_key_exists($orgaTypeInCustomer, OrgaTypeInterface::ORGATYPE_ROLE)
+                && !in_array($role->getCode(), OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeInCustomer], true)) {
                 continue;
             }
 
             // Do not store permission if it is dryrun
             if (false === $dryRun) {
-                $this->createPermission($permissionToEnable, $orgaInCustomer, $customer, $role);
+                $this->createPermission($permissionToEnable, $orgaInCustomer, $customer, [$role]);
             }
 
             // Return orga where permission was stored
@@ -269,7 +269,7 @@ class AccessControlService extends CoreService
 
             // Do not remove permission if it is dryrun
             if (false === $dryRun) {
-                $this->removePermission($permissionToEnable, $orgaInCustomer, $customer, $role);
+                $this->removePermission($permissionToEnable, $orgaInCustomer, $customer, [$role]);
             }
 
             // Save the impacted orga in the array

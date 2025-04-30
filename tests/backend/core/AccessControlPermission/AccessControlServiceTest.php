@@ -96,7 +96,7 @@ class AccessControlServiceTest extends UnitTestCase
         $permissionToCheck = 'my_permission';
 
         // Act
-        $accessControlPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $accessControlPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), [$this->testRole]);
 
         // Assert
         self::assertInstanceOf(AccessControl::class, $accessControlPermission);
@@ -106,8 +106,8 @@ class AccessControlServiceTest extends UnitTestCase
     public function testDuplicatePermissionCreationThrowsException(): void
     {
         $permissionToCheck = 'my_permission';
-        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
-        $createdPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), [$this->testRole]);
+        $createdPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), [$this->testRole]);
         $this->assertNull($createdPermission);
     }
 
@@ -125,8 +125,8 @@ class AccessControlServiceTest extends UnitTestCase
         self::assertEmpty($permissions);
 
         // Arrange
-        $this->sut->createPermission($permissionToCheckA, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
-        $this->sut->createPermission($permissionToCheckB, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $this->sut->createPermission($permissionToCheckA, $this->testOrga->object(), $this->testCustomer->object(), [$this->testRole]);
+        $this->sut->createPermission($permissionToCheckB, $this->testOrga->object(), $this->testCustomer->object(), [$this->testRole]);
 
         // Act
         $permissions = $this->sut->getPermissions($this->testOrga->object(), $this->testCustomer->object(), [RoleInterface::PRIVATE_PLANNING_AGENCY]);
@@ -149,7 +149,7 @@ class AccessControlServiceTest extends UnitTestCase
         self::assertFalse($hasPermission);
 
         // Arrange
-        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), [$this->testRole]);
 
         // Act
         $hasPermission = $this->sut->permissionExist($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $roleCodes);
@@ -176,7 +176,7 @@ class AccessControlServiceTest extends UnitTestCase
         self::assertFalse($hasPermission);
 
         // Arrange
-        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), [$this->testRole]);
 
         // Act
         $hasPermission = $this->sut->checkPermissionForOrgaType($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object());
@@ -198,7 +198,7 @@ class AccessControlServiceTest extends UnitTestCase
         self::assertFalse($hasPermission);
 
         // Arrange
-        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), [$this->testRole]);
 
         // Act
         $hasPermission = $this->sut->permissionExist($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $roleCodes);
