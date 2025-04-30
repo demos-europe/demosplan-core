@@ -54,6 +54,14 @@
                 </dt>
                 <dd>{{ assignee.name }}</dd>
               </div>
+              <div v-for="customField in segment.attributes.customFields">
+                <dt class="weight--bold">
+                  {{ Object.values(customFields).find(field => field.id === customField.id)?.attributes?.name || '' }}:
+                </dt>
+                <dd>
+                  {{ customField.value }}
+                </dd>
+              </div>
             </dl>
           </div>
         </template>
