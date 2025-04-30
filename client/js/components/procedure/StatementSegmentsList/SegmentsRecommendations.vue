@@ -206,6 +206,7 @@ export default {
             'assignee',
             'place',
             'comments',
+            'customFields',
             'externId',
             'internId',
             'orderInProcedure',
