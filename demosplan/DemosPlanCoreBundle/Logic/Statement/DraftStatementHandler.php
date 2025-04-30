@@ -94,7 +94,7 @@ class DraftStatementHandler extends CoreHandler
         ProcedureHandler $procedureHandler,
         RouterInterface $router,
         TranslatorInterface $translator,
-        UserService $userService
+        UserService $userService,
     ) {
         parent::__construct($messageBag);
         $this->contentService = $serviceContent;
@@ -316,7 +316,7 @@ class DraftStatementHandler extends CoreHandler
     public function submitHandler(
         array $draftStatementIds,
         string $notificationReceiverId = '',
-        bool $gdprConsentReceived = false
+        bool $gdprConsentReceived = false,
     ): array {
         $county = null;
         if ('' != $notificationReceiverId) {
@@ -575,21 +575,18 @@ class DraftStatementHandler extends CoreHandler
 
     /**
      * Adds User Metadata to Statement.
-     *
-     * @param array $data
-     *
-     * @return array
      */
-    protected function addStatementUserData($data)
+    protected function addStatementUserData(array $data): array
     {
         $user = $this->currentUser->getUser();
         $userData = [
-            'uId'   => $user->getIdent(),
-            'uName' => $user->getFullname(),
-            'dId'   => $user->getDepartmentId(),
-            'dName' => $user->getDepartmentNameLegal(),
-            'oId'   => $user->getOrganisationId(),
-            'oName' => $user->getOrganisationNameLegal(),
+            'uId'           => $user->getId(),
+            'uName'         => $user->getFullname(),
+            'dId'           => $user->getDepartmentId(),
+            'dName'         => $user->getDepartmentNameLegal(),
+            'oId'           => $user->getOrganisationId(),
+            'oName'         => $user->getOrganisationNameLegal(),
+            'authorOnly'    => !$user->isPublicAgency(), // Indicates visibility to other organisation members
         ];
 
         return array_merge($data, $userData);
@@ -619,7 +616,7 @@ class DraftStatementHandler extends CoreHandler
         $sort,
         $user,
         $manualSortScope,
-        $toLegacy = true
+        $toLegacy = true,
     ): StatementListHandlerResult {
         $sResult = $this->draftStatementService->getDraftStatementList(
             $procedure,
@@ -669,7 +666,7 @@ class DraftStatementHandler extends CoreHandler
         $procedure,
         $search,
         StatementListUserFilter $filter,
-        $sort
+        $sort,
     ): StatementListHandlerResult {
         $sResult = $this->draftStatementService->getDraftStatementListFromOtherCompanies(
             $procedure,
