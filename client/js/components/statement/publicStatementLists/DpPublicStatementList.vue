@@ -229,6 +229,7 @@ export default {
 
     transformStatement (statement) {
       const {
+        authorOnly,
         document,
         element,
         externId,
@@ -240,7 +241,6 @@ export default {
         uName,
         dName,
         oName,
-        authorOnly,
         phase,
         polygon,
         elementId,
@@ -281,14 +281,14 @@ export default {
       const transformedPolygon = polygon === '' ? {} : JSON.parse(polygon)
 
       return {
-        attachments,
+        authorOnly,
         ...county,
+        attachments,
         createdDate: transformedCreatedDate,
         department: dName,
         document: statementDocument,
         id: ident,
         externId,
-        authorOnly,
         organisation: oName,
         paragraph: statementParagraph,
         phase,
@@ -306,8 +306,6 @@ export default {
     },
 
     transformStatements (statements) {
-      console.log('transformStatements', statements);
-      console.log('First Statement', statements[0])
       return statements.map(s => this.transformStatement(s))
     }
   }
