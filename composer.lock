@@ -18865,16 +18865,16 @@
         },
         {
             "name": "willdurand/geocoder-bundle",
-            "version": "5.21.0",
+            "version": "5.22.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/geocoder-php/BazingaGeocoderBundle.git",
-                "reference": "737e905630208f67d51577f9810f9316fec798a3"
+                "reference": "8826cfe6d4cd6eda0288dcde3b5443e481f7797d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/geocoder-php/BazingaGeocoderBundle/zipball/737e905630208f67d51577f9810f9316fec798a3",
-                "reference": "737e905630208f67d51577f9810f9316fec798a3",
+                "url": "https://api.github.com/repos/geocoder-php/BazingaGeocoderBundle/zipball/8826cfe6d4cd6eda0288dcde3b5443e481f7797d",
+                "reference": "8826cfe6d4cd6eda0288dcde3b5443e481f7797d",
                 "shasum": ""
             },
             "require": {
@@ -18885,7 +18885,7 @@
                 "symfony/console": "^5.4 || ^6.4 || ^7.0",
                 "symfony/framework-bundle": "^5.4 || ^6.4 || ^7.0",
                 "symfony/options-resolver": "^5.4 || ^6.4 || ^7.0",
-                "willdurand/geocoder": "^4.6"
+                "willdurand/geocoder": "^4.6|^5.0"
             },
             "conflict": {
                 "geocoder-php/nominatim-provider": "<5.0"
@@ -18969,9 +18969,9 @@
             ],
             "support": {
                 "issues": "https://github.com/geocoder-php/BazingaGeocoderBundle/issues",
-                "source": "https://github.com/geocoder-php/BazingaGeocoderBundle/tree/5.21.0"
+                "source": "https://github.com/geocoder-php/BazingaGeocoderBundle/tree/5.22.0"
             },
-            "time": "2025-01-17T11:44:57+00:00"
+            "time": "2025-04-30T18:37:49+00:00"
         },
         {
             "name": "willdurand/js-translation-bundle",
@@ -24093,5 +24093,5 @@
     "platform-overrides": {
         "php": "8.1.12"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }
