@@ -13,22 +13,24 @@
     :active-id="activeTabId"
     use-url-fragment
     @change="setActiveTabId">
-    <dp-tab
-      id="institutionList"
-      :is-active="activeTabId === 'institutionList'"
-      :label="Translator.trans('invitable_institution.group')">
-      <slot>
-        <institution-list :is-active="isInstitutionListActive" />
-      </slot>
-    </dp-tab>
-    <dp-tab
-      id="tagList"
-      :is-active="activeTabId === 'tagList'"
-      :label="Translator.trans('tag.administrate')">
-      <slot>
-        <tag-list @tagIsRemoved="institutionListReset" />
-      </slot>
-    </dp-tab>
+    <slot>
+      <dp-tab
+        id="institutionList"
+        :is-active="activeTabId === 'institutionList'"
+        :label="Translator.trans('invitable_institution.group')">
+        <slot>
+          <institution-list :is-active="isInstitutionListActive" />
+        </slot>
+      </dp-tab>
+      <dp-tab
+        id="tagList"
+        :is-active="activeTabId === 'tagList'"
+        :label="Translator.trans('tag.administrate')">
+        <slot>
+          <tag-list @tagIsRemoved="institutionListReset" />
+        </slot>
+      </dp-tab>
+    </slot>
   </dp-tabs>
 </template>
 
