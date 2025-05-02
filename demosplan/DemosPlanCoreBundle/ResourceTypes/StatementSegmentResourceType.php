@@ -193,7 +193,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
             $recommendation->updatable();
         }
 
-        if ($this->currentUser->hasPermission('area_admin_custom_fields')) {
+        if ($this->currentUser->hasPermission('field_segments_custom_fields')) {
             $properties[] = $this->createAttribute($this->customFields)
                 ->setReadableByCallable(static fn (Segment $segment): ?array => $segment->getCustomFields()?->toJson())
                 ->addUpdateBehavior(new CallbackAttributeSetBehaviorFactory([], function (Segment $segment, array $customFields): array {
