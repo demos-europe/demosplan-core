@@ -85,33 +85,26 @@ class ProcedureDeleterTest extends FunctionalTestCase
         }
 
         // Create custom fields for both procedure and procedure template entity classes
-        $customFieldsCount = 4;
-        $customFieldIds = [];
+        static::assertSame(0, $this->countEntries(CustomFieldConfiguration::class));
+        $customFieldsCount = 0;
 
         foreach ($this->testProcedures as $procedure) {
             // Create PROCEDURE custom fields
-            $customField1 = $this->createCustomField($procedure, 'PROCEDURE', 'Favourite Color', 'Your favourite color', ['Blue', 'Orange', 'Green']);
-            $customField2 = $this->createCustomField($procedure, 'PROCEDURE', 'Favourite Food', 'Your favourite food', ['Pizza', 'Sushi', 'Bread']);
+            $this->createCustomField($procedure, 'PROCEDURE', 'Favourite Color', 'Your favourite color', ['Blue', 'Orange', 'Green']);
+            $this->createCustomField($procedure, 'PROCEDURE', 'Favourite Food', 'Your favourite food', ['Pizza', 'Sushi', 'Bread']);
+            $customFieldsCount += 2; // Increment by the number of custom fields created per procedure
         }
 
         // Verify custom fields were created
-        $this->assertEquals($customFieldsCount, $this->countEntries(CustomFieldConfiguration::class));
+        static::assertSame($customFieldsCount, $this->countEntries(CustomFieldConfiguration::class));
 
         // Act
         $this->sut->deleteProcedures($ids, false);
 
         // Assert
         // Verify custom fields were deleted - we should have 0 custom fields for the deleted procedures
-        $remainingCustomFields = $this->getEntityManager()
-            ->createQueryBuilder()
-            ->select('c')
-            ->from(CustomFieldConfiguration::class, 'c')
-            ->where('c.sourceEntityId IN (:ids)')
-            ->setParameter('ids', $ids)
-            ->getQuery()
-            ->getResult();
 
-        $this->assertCount(0, $remainingCustomFields, "Custom fields should have been deleted for both PROCEDURE and PROCEDURE_TEMPLATE entity classes");
+        static::assertSame(0, $this->countEntries(CustomFieldConfiguration::class));
     }
 
 
