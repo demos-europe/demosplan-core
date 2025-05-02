@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
-
 class ProcedureDeleterTest extends FunctionalTestCase
 {
     private Procedure|Proxy|null $testProcedure;
@@ -30,7 +29,7 @@ class ProcedureDeleterTest extends FunctionalTestCase
     protected $sut;
 
     /** @var SqlQueriesService */
-    private  $queriesService;
+    private $queriesService;
 
     protected function setUp(): void
     {
@@ -95,7 +94,7 @@ class ProcedureDeleterTest extends FunctionalTestCase
     }
 
     /**
-     * Creates custom fields for the test procedures
+     * Creates custom fields for the test procedures.
      *
      * @return int The total number of custom fields created
      */
@@ -113,7 +112,7 @@ class ProcedureDeleterTest extends FunctionalTestCase
     }
 
     /**
-     * Creates a custom field for a procedure
+     * Creates a custom field for a procedure.
      */
     private function createCustomField($procedure, string $sourceEntityClass, string $name, string $description, array $options): CustomFieldConfiguration
     {
@@ -132,7 +131,7 @@ class ProcedureDeleterTest extends FunctionalTestCase
     }
 
     /**
-     * Collects the IDs of all procedures in the database
+     * Collects the IDs of all procedures in the database.
      *
      * @return array List of procedure IDs
      */
@@ -142,13 +141,15 @@ class ProcedureDeleterTest extends FunctionalTestCase
         foreach ($this->getEntries(Procedure::class) as $procedure) {
             $procedureIds[] = $procedure->getId();
         }
+
         return $procedureIds;
     }
 
     /**
-     * Extracts test procedure IDs from an array of procedures
+     * Extracts test procedure IDs from an array of procedures.
      *
      * @param array $procedures Array of procedure objects
+     *
      * @return array List of procedure IDs
      */
     private function extractTestProcedureIds(array $procedures): array
@@ -157,11 +158,12 @@ class ProcedureDeleterTest extends FunctionalTestCase
         foreach ($procedures as $procedure) {
             $ids[] = $procedure->getId();
         }
+
         return $ids;
     }
 
     /**
-     * Assert that all procedure IDs in the first array exist in the second array
+     * Assert that all procedure IDs in the first array exist in the second array.
      */
     private function assertProceduresExist(array $procedureIds, array $allProcedureIds): void
     {

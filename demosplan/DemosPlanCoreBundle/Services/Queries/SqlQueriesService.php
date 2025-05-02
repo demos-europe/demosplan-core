@@ -60,10 +60,11 @@ class SqlQueriesService extends CoreService
         string $identifier,
         array $ids,
         array $conditions,
-        bool $isDryRun
+        bool $isDryRun,
     ): void {
         if (!$this->doesTableExist($tableName)) {
             $this->logger->warning("No table with the name $tableName exists in this database. Data could not be fetched.");
+
             return;
         }
 

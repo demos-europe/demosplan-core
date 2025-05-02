@@ -18,7 +18,7 @@ use Exception;
 class ProcedureDeleter
 {
     public function __construct(
-        private readonly SqlQueriesService $queriesService
+        private readonly SqlQueriesService $queriesService,
     ) {
     }
 
@@ -831,14 +831,15 @@ class ProcedureDeleter
 
     /**
      * Deletes custom fields for both PROCEDURE and PROCEDURE_TEMPLATE entity classes.
-     * 
-     * This handles both cases since procedures and procedure templates share the same 
-     * database table (templates are just procedures with isMaster=true), but are 
+     *
+     * This handles both cases since procedures and procedure templates share the same
+     * database table (templates are just procedures with isMaster=true), but are
      * referenced as separate entity classes in the custom_field_configuration table.
      *
      * @throws Exception
      */
-    private function deleteCustomFields(array $procedureIds, bool $isDryRun): void {
+    private function deleteCustomFields(array $procedureIds, bool $isDryRun): void
+    {
         $entityClasses = ['PROCEDURE', 'PROCEDURE_TEMPLATE'];
 
         foreach ($entityClasses as $entityClass) {
@@ -851,6 +852,7 @@ class ProcedureDeleter
             );
         }
     }
+
     /**
      * @throws Exception
      */
