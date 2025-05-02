@@ -165,6 +165,6 @@ class ProcedureDeleterTest extends FunctionalTestCase
      */
     private function assertProceduresExist(array $procedureIds, array $allProcedureIds): void
     {
-        $this->assertCount(count(array_intersect($procedureIds, $allProcedureIds)), $procedureIds);
+        static::assertCount(count(array_intersect($procedureIds, $allProcedureIds)), $procedureIds);
     }
 }
