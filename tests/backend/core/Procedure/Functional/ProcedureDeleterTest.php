@@ -161,18 +161,10 @@ class ProcedureDeleterTest extends FunctionalTestCase
     }
 
     /**
-     * Assert that a procedure ID exists in a list of IDs
-     */
-    private function assertContainsProcedure(string $procedureId, array $procedureIds): void
-    {
-        $this->assertEquals(in_array($procedureId, $procedureIds), 1);
-    }
-
-    /**
      * Assert that all procedure IDs in the first array exist in the second array
      */
     private function assertProceduresExist(array $procedureIds, array $allProcedureIds): void
     {
-        $this->assertEquals(count(array_intersect($procedureIds, $allProcedureIds)), count($procedureIds));
+        $this->assertCount(count(array_intersect($procedureIds, $allProcedureIds)), $procedureIds);
     }
 }
