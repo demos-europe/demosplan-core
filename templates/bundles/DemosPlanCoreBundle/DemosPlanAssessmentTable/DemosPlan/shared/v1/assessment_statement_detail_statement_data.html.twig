@@ -23,6 +23,31 @@
                 {% block submitOrga %}
                     {% if statement.meta.orgaName is defined %}
                         {% set orgaNameClass = 'u-mb-0_25 u-pr-0_5' %}
+                        {% if not readonly %}
+                            {% if statement.isSubmittedByCitizen == false%}
+                                {% set orgaNameValue = statement.meta.orgaName|default %}
+                                {% set labelHint = 'institution.name' %}
+                            {% elseif statement.isSubmittedByCitizen %}
+                                {% if statement.meta.miscData.submitterRole|default == 'publicagency' %}
+                                    {% set orgaNameValue = 'institution'|trans %}
+                                {% else %}
+                                    {% set orgaNameValue = 'role.citizen'|trans %}
+                                {% endif %}
+                                {% set orgaNameDisabled = true %}
+                            {% endif %}
+                        {% else %}
+                            {% if statement.isSubmittedByCitizen == false %}
+                                {% set orgaNameValue = statement.meta.orgaName|default('-') %}
+                                {% set orgaNameDisabled = true %}
+                            {% else %}
+                                {% if statement.meta.miscData.submitterRole|default == 'publicagency' and statement.meta.orgaName == '' %}
+                                    {% set orgaNameValue = 'institution'|trans %}
+                                {% else %}
+                                    {% set orgaNameValue = 'role.citizen'|trans %}
+                                {% endif %}
+                                {% set orgaNameDisabled = true %}
+                            {% endif %}
+                        {% endif %}
                         {% if statement.isSubmittedByCitizen == false%}
                             {% set orgaNameValue = statement.meta.orgaName|default %}
                             {% set labelHint = 'institution.name' %}
@@ -66,8 +91,12 @@
             {% endif %}
 
             {# department #}
+            {# editable only if not readonly #}
             {% if hasPermission('field_statement_meta_orga_department_name') %}
                 {% if statement.isSubmittedByCitizen == false %}
+                    {% if readonly %}
+                        {% set departmentDisabled = true %}
+                    {% endif %}
 
                     {{ uiComponent('form.element', {
                         label: { text: 'department'|trans },
@@ -77,7 +106,7 @@
                         elementSize: 'large',
                         elementStyle: 'inline-block',
                         elementClass: 'u-pl-0_5',
-                        disabled: false,
+                        disabled: departmentDisabled|default(false),
                         attributes: ['data-cy=statementDetail:departmentName']
                     }) }}
                 {% endif %}
@@ -119,8 +148,11 @@
             {% endif %}
 
             {# submitter name #}
+            {# editable only if not readonly #}
             {% if hasPermission('field_statement_meta_submit_name') and formDefinitions.name.enabled == true %}
-
+                {% if readonly %}
+                    {% set submittedAuthorDisabled = true %}
+                {% endif %}
                 <div class="u-1-of-2 inline-block u-pr-0_5">
                     {% block submitted_author_label %}
                         {% if statement.gdprConsent and statement.gdprConsent.consentRevoked %}
@@ -136,7 +168,7 @@
                         {{ uiComponent('form.label', {
                             id: submittedAuthorId,
                             text: 'name'|trans,
-                            disabled: false
+                            disabled: submittedAuthorDisabled|default(false)
                         }) }}
                     {% endblock submitted_author_label %}
 
@@ -184,7 +216,7 @@
                             name: submittedAuthorId,
                             class: submittedAuthorClass|default,
                             value: submittedAuthorValue,
-                            disabled: false,
+                            disabled: submittedAuthorDisabled|default(false),
                             attributes: ['data-cy=statementDetail:' ~ submittedAuthorId]
                         }) }}
                     {% endif %}
@@ -323,13 +355,40 @@
             {% endif %}
 
             {% block address %}
-
+                {# Address block is not shown if it's postalcode is empty #}
+                {# editable if not readonly #}
                 {% if hasPermission('field_statement_meta_address') %}
 
                     {% set streetValue = statement.meta.orgaStreet|default %}
                     {% set houseNumberValue = statement.meta.houseNumber|default %}
                     {% set postalCodeValue = statement.meta.orgaPostalCode|default %}
                     {% set cityValue = statement.meta.orgaCity|default %}
+
+                    {% if readonly %}
+                        {# disable input fields #}
+                        {% set houseNumberDisabled = true %}
+                        {% set streetDisabled = true %}
+                        {% set postalCodeDisabled = true %}
+                        {% set cityDisabled = true %}
+
+                        {# if any of these is empty, set value to '-' #}
+                        {% if statement.meta.orgaStreet|default == '' %}
+                            {% set streetValue = '-' %}
+                        {% endif %}
+
+                        {% if statement.meta.houseNumber|default == '' %}
+                            {% set houseNumberValue = '-' %}
+                        {% endif %}
+
+                        {% if statement.meta.orgaPostalCode|default == '' %}
+                            {% set postalCodeValue = '-' %}
+                        {% endif %}
+
+                        {% if statement.meta.orgaCity|default == '' %}
+                            {% set cityValue = '-' %}
+                        {% endif %}
+                    {% endif %}
+
 
                     <div class="u-1-of-1">
                       {% if hasPermission('field_statement_meta_street') and (formDefinitions.streetAndHouseNumber.enabled == true or formDefinitions.street.enabled == true) %}
@@ -341,7 +400,7 @@
                                 id: 'r_orga_street',
                                 elementClass: 'u-5-of-6 u-pr-0_5',
                                 elementStyle: 'inline-block',
-                                disabled: false,
+                                disabled: streetDisabled|default(false),
                                 attributes: ['data-cy=statementDetail:orgaStreet']
                             }) }}
 
@@ -353,7 +412,7 @@
                                     id: 'r_houseNumber',
                                     elementSize: 'tiny',
                                     elementStyle: 'inline-block',
-                                    disabled: false,
+                                    disabled: houseNumberDisabled|default(false),
                                     attributes: ['data-cy=statementDetail:houseNumber']
                                 }) }}
                             {% endif %}
@@ -368,7 +427,7 @@
                                 id: 'r_orga_postalcode',
                                 elementStyle: 'inline-block',
                                 elementSize: 'tiny',
-                                disabled: false,
+                                disabled: postalCodeDisabled|default(false),
                                 attributes: ['data-cy=statementDetail:orgaPostalcode']
                             }) }}
 
@@ -384,7 +443,7 @@
                                 id: 'r_orga_city',
                                 elementStyle: 'inline-block',
                                 elementClass: cityClasses,
-                                disabled: false,
+                                disabled: cityDisabled|default(false),
                                 attributes: ['data-cy=statementDetail:orgaCity']
                             }) }}
                         </div>
@@ -572,34 +631,51 @@
                 }) }}
 
                 {# Procedure phase
+                   editable if not readonly
                    display internal phases if submitter is not a citizen, otherwise display external phases
                 #}
                 {% if hasPermission('field_statement_phase') %}
                     {% set procedurePhaseOptGroups = {} %}
                     {% set procedurePhaseOptions = {} %}
-                    {% if statement.isSubmittedByCitizen == false and hasPermission('field_show_internal_procedure_phases_in_dropdown') %}
-                        {% set phases = templateVars.internalPhases|default %}
+
+                    {% if readonly %}
+                        {# disable select #}
+                        {% set procedurePhaseSelectDisabled = true %}
+
+                        {# set selected option #}
+                        {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
+                            label: statement.phase,
+                            value: '',
+                            selected: true
+                        }]) %}
+
+                        {% set procedurePhaseControlOptions = { name: 'r_phase', options: procedurePhaseOptions } %}
+
                     {% else %}
-                        {% set phases = templateVars.externalPhases|default %}
-                    {% endif %}
-
-                    {% for phase in phases %}
-                        {% if phase.name == statement.phase %}
-                            {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
-                                label: phase.name,
-                                value: phase.key,
-                                selected: true
-                            }]) %}
+                        {# set all options for optgroups only for edit-mode #}
+                        {% if statement.isSubmittedByCitizen == false and hasPermission('field_show_internal_procedure_phases_in_dropdown') %}
+                            {% set phases = templateVars.internalPhases|default %}
                         {% else %}
-                            {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
-                                label: phase.name,
-                                value: phase.key
-                            }]) %}
+                            {% set phases = templateVars.externalPhases|default %}
                         {% endif %}
-                    {% endfor %}
 
-                    {% set procedurePhaseControlOptions = { name: 'r_phase', options: procedurePhaseOptions } %}
+                        {% for phase in phases %}
+                            {% if phase.name == statement.phase %}
+                                {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
+                                    label: phase.name,
+                                    value: phase.key,
+                                    selected: true
+                                }]) %}
+                            {% else %}
+                                {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
+                                    label: phase.name,
+                                    value: phase.key
+                                }]) %}
+                            {% endif %}
+                        {% endfor %}
 
+                        {% set procedurePhaseControlOptions = { name: 'r_phase', options: procedurePhaseOptions } %}
+                    {% endif %}
                     {{ uiComponent('form.row', {
                         elements: [
                             {
@@ -610,7 +686,7 @@
                                 elementSize: 'large',
                                 elementClass: 'u-pr-0_5',
                                 disabledPlainText: true,
-                                disabled: false,
+                                disabled: procedurePhaseSelectDisabled|default(false),
                                 attributes: ['data-cy=statementDetail:Phase']
                             }
                         ]
@@ -620,8 +696,17 @@
                 {# elements for form.row component are merged into this object: date authored, date submitted and submit type #}
                 {% set authorDateRowElements = {} %}
 
+                {# date submitted - editable if not readonly #}
+                {% if readonly %}
+                    {% set submitDateDisabled = true %}
+                {% endif %}
+
                 {# date authored #}
+                {# editable if not readonly #}
                 {% if statement.meta.authoredDate is defined %}
+                    {% if readonly %}
+                        {% set authoredDateDisabled = true %}
+                    {% endif %}
                     {% if statement.meta.authoredDate|dplanDate() != '' %}
                         {% set authoredDateValue = statement.meta.authoredDate|default()|dplanDate() %}
                     {% elseif statement.meta.authoredDate|dplanDate() == '' and readonly %}
@@ -640,11 +725,11 @@
                             dataCy: 'statementDetail:authoredDate',
                             maxDate: 'now'|date('d.m.Y')
                         },
-                        type: 'text',
+                        type: submitDateDisabled|default(false) ? 'text' : 'datepicker',
                         id: 'r_authored_date',
                         elementSize: 'small',
                         elementStyle: 'inline-block',
-                        disabled: false
+                        disabled: submitDateDisabled|default(false)
                     }]) %}
                 {% endif %}
 
@@ -659,24 +744,37 @@
                         class: 'u-5-of-6 o-form__control-wrapper',
                         dataCy: 'statementDetail:submittedDate'
                     },
-                    type: 'text',
+                    type: submitDateDisabled|default(false) ? 'text' : 'datepicker',
                     id: 'r_submitted_date',
                     elementSize: 'small',
                     elementStyle: 'inline-block',
-                    disabled: false
+                    disabled: submitDateDisabled|default(false)
                 }]) %}
 
                 {# show submit type, if feature is set and value differs from 'system' (-> manual statement) #}
+                {# editable only if not readonly #}
                 {% if hasPermission('field_statement_submit_type') %}
                     {% set submitTypeSelectOptions = {} %}
-                    {% for value, label in getFormOption('statement_submit_types.values', true)|filter(value => value != 'system') %}
-                        {% if value != statement.submitType %}
-                            {% set submitTypeSelectOptions = submitTypeSelectOptions|merge([{ label: label, value: value }]) %}
-                        {% else %}
-                            {% set submitTypeSelectOptions = submitTypeSelectOptions|merge([{ label: label, value: value, selected: true }]) %}
-                        {% endif %}
-                    {% endfor %}
+                    {% if readonly %}
+                        {% set submitTypeSelectDisabled = true %}
 
+                        {% for value, label in getFormOption('statement_submit_types.values', true) %}
+                            {% if value == statement.submitType %}
+                                {% set submitTypeSelectOptions = submitTypeSelectOptions|merge([{ label: label, value: value, selected: true }]) %}
+                            {% endif %}
+                        {% endfor %}
+
+                    {% else %}
+                        {# the default option is skipped in this case, since it is the value for "system" (submitted
+                          by using the platform), which is no valid value for a manual statement #}
+                        {% for value, label in getFormOption('statement_submit_types.values', true)|filter(value => value != 'system') %}
+                            {% if value != statement.submitType %}
+                                {% set submitTypeSelectOptions = submitTypeSelectOptions|merge([{ label: label, value: value }]) %}
+                            {% else %}
+                                {% set submitTypeSelectOptions = submitTypeSelectOptions|merge([{ label: label, value: value, selected: true }]) %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
 
                     {% set authorDateRowElements = authorDateRowElements|merge([{
                         label: { text: 'submit.type'|trans },
@@ -854,7 +952,7 @@
                                     :ignore-last-claimed="true"
                                 ></dp-select-statement-cluster>
                             </label>
-                        {# if not editable #}
+                            {# if not editable #}
                         {% else %}
                             <span class="layout__item u-3-of-4 u-mb-0_75 color--grey">{{ templateVars.table.statement.headStatement|default('statements.group.not.selected'|trans) }}</span>
                         {% endif %}
@@ -870,65 +968,65 @@
 
                     <div class="u-1-of-2 inline-block">
                         {% if statement.element.ident is defined %}
-                                    {{ uiComponent('form.element', {
-                                        label: { text: 'plandocument'|trans },
-                                        control: { value: statement.element.title|default },
-                                        type: 'text',
-                                        id: 'elementTitle',
-                                        elementClass: 'u-mb-0_25',
-                                        disabled: true
-                                    }) }}
-                                    {% if not readonly %}
-                                        {{ uiComponent('form.element', {
-                                            label: { text: 'delete'|trans },
-                                            control: { name: 'r_delete_element', value: '1' },
-                                            type: 'checkbox',
-                                            elementClass: 'u-mb-0_5',
-                                            id: 'r_delete_element',
-                                            attributes: ['data-cy=statementDetail:deleteElement']
-                                        }) }}
-                                    {% endif %}
+                            {{ uiComponent('form.element', {
+                                label: { text: 'plandocument'|trans },
+                                control: { value: statement.element.title|default },
+                                type: 'text',
+                                id: 'elementTitle',
+                                elementClass: 'u-mb-0_25',
+                                disabled: true
+                            }) }}
+                            {% if not readonly %}
+                                {{ uiComponent('form.element', {
+                                    label: { text: 'delete'|trans },
+                                    control: { name: 'r_delete_element', value: '1' },
+                                    type: 'checkbox',
+                                    elementClass: 'u-mb-0_5',
+                                    id: 'r_delete_element',
+                                    attributes: ['data-cy=statementDetail:deleteElement']
+                                }) }}
+                            {% endif %}
 
-                                {% if statement.document.ident is defined and hasPermission('field_procedure_documents')%}
+                            {% if statement.document.ident is defined and hasPermission('field_procedure_documents')%}
+                                {{ uiComponent('form.element', {
+                                    label: { text: 'file'|trans },
+                                    control: { value: statement.document.title|default },
+                                    type: 'text',
+                                    id: 'fileTitle',
+                                    elementClass: 'u-mb-0_25',
+                                    disabled: true
+                                }) }}
+                                {% if not readonly %}
                                     {{ uiComponent('form.element', {
-                                        label: { text: 'file'|trans },
-                                        control: { value: statement.document.title|default },
-                                        type: 'text',
-                                        id: 'fileTitle',
-                                        elementClass: 'u-mb-0_25',
-                                        disabled: true
+                                        label: { text: 'delete'|trans },
+                                        control: { name: 'r_delete_document', value: '1' },
+                                        type: 'checkbox',
+                                        elementClass: 'u-mb-0_5',
+                                        id: 'r_delete_document'
                                     }) }}
-                                    {% if not readonly %}
-                                        {{ uiComponent('form.element', {
-                                            label: { text: 'delete'|trans },
-                                            control: { name: 'r_delete_document', value: '1' },
-                                            type: 'checkbox',
-                                            elementClass: 'u-mb-0_5',
-                                            id: 'r_delete_document'
-                                        }) }}
-                                    {% endif %}
                                 {% endif %}
+                            {% endif %}
 
-                                {% if statement.paragraph.ident is defined and hasPermission('field_procedure_paragraphs') %}
+                            {% if statement.paragraph.ident is defined and hasPermission('field_procedure_paragraphs') %}
+                                {{ uiComponent('form.element', {
+                                    label: { text: 'paragraph'|trans },
+                                    control: { value: statement.paragraph.title|striptags|default },
+                                    type: 'text',
+                                    id: 'paragraphTitle',
+                                    elementClass: 'u-mb-0_25',
+                                    disabled: true
+                                }) }}
+
+                                {% if not readonly %}
                                     {{ uiComponent('form.element', {
-                                        label: { text: 'paragraph'|trans },
-                                        control: { value: statement.paragraph.title|striptags|default },
-                                        type: 'text',
-                                        id: 'paragraphTitle',
-                                        elementClass: 'u-mb-0_25',
-                                        disabled: true
+                                        label: { text: 'delete'|trans },
+                                        control: { name: 'r_delete_paragraph', value: '1' },
+                                        type: 'checkbox',
+                                        elementClass: 'u-mb-0_5',
+                                        id: 'r_delete_paragraph'
                                     }) }}
-
-                                    {% if not readonly %}
-                                        {{ uiComponent('form.element', {
-                                            label: { text: 'delete'|trans },
-                                            control: { name: 'r_delete_paragraph', value: '1' },
-                                            type: 'checkbox',
-                                            elementClass: 'u-mb-0_5',
-                                            id: 'r_delete_paragraph'
-                                        }) }}
-                                    {% endif %}
                                 {% endif %}
+                            {% endif %}
                         {% else %} {# if statement.element.ident is not defined #}
                             {{ uiComponent('form.element', {
                                 label: { text: 'plandocument'|trans },
@@ -1126,14 +1224,14 @@
                         <div class="layout--flush">
                             <div class="layout__item u-1-of-1">
                                 {{
-                                    fileupload(
-                                        "r_fileupload",
-                                        "documents.attach",
-                                        "all",
-                                        "form.button.upload.files",
-                                        20,
-                                        true
-                                    )
+                                fileupload(
+                                    "r_fileupload",
+                                    "documents.attach",
+                                    "all",
+                                    "form.button.upload.files",
+                                    20,
+                                    true
+                                )
                                 }}
                             </div>
                         </div>
