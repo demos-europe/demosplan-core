@@ -189,7 +189,6 @@ class ProcedureToLegacyConverter extends CoreService
             'statementFormDefinition'               => $procedure->getStatementFormDefinition(),
             'statements'                            => $procedure->getStatements(),
             'step'                                  => $procedure->getStep(),
-            'surveys'                               => $procedure->getSurveys(),
             'topics'                                => $procedure->getTopics(),
         ];
     }

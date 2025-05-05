@@ -375,27 +375,6 @@
                                 </li>
                             {% endif %}
 
-                            {# Survey #}
-                            {% if hasPermission('area_survey') and templateVars.survey|length > 0 and (templateVars.survey.status != 'configuration' or ownsProcedure(proceduresettings)) %}
-                                <li
-                                    role="presentation"
-                                    class="{{ 'c-tabs__title u-nojs-hide--inline-block u-ml-0_5'|prefixClass }}"
-                                    :class="{ '{{ 'is-active-tab'|prefixClass }}' : activeTab === '#procedureDetailsSurvey'}">
-                                    <a
-                                        class="{{ 'c-tabs__title-button'|prefixClass }}"
-                                        data-cy="publicDetail:procedureDetailsSurveyTab"
-                                        href="#procedureDetailsSurvey"
-                                        id="procedureDetailsSurveyTab"
-                                        @click.prevent="toggleTabs('#procedureDetailsSurvey')"
-                                        role="tab"
-                                        aria-label="{{ 'survey'|trans }}"
-                                        :aria-selected="Boolean(activeTab === '#procedureDetailsSurvey')">
-                                        <i class="{{ 'fa fa-lg fa-bar-chart u-mr-0_5-desk-up u-m-0_5-palm u-mr-0_25-lap'|prefixClass }}" aria-hidden="true"></i>
-                                        <span class="{{ 'show-lap-up-i'|prefixClass }}">{{ 'survey'|trans }}</span>
-                                    </a>
-                                </li>
-                            {% endif %}
-
                         </ul>
                     {% endapply %}
                 </nav>
@@ -499,57 +478,6 @@
                     </section>
                 {% endif %}
                 {% endblock statements %}
-
-                {# Survey #}
-                {% if hasPermission('area_survey') and templateVars.survey|length > 0 and (templateVars.survey.status != 'configuration' or ownsProcedure(proceduresettings)) %}
-                    <section
-                        class="{{ 'c-tabs__panel u-nojs-hide--block layout--flush'|prefixClass }}"
-                        :class="{ '{{ 'is-active-tab'|prefixClass }}' : activeTab === '#procedureDetailsSurvey'}"
-                        id="procedureDetailsSurvey"
-                        :hidden="Boolean(activeTab !== '#procedureDetailsSurvey')"
-                        role="tabpanel"
-                        aria-labelledby="procedureDetailsSurveyTab">
-                        <div class="{{ 'layout__item width-map-toolbar u-pr-0_5-lap-up'|prefixClass }}">
-
-                            {# actionbox #}
-                            <div class="{{ 'c-actionbox c-actionbox--bare u-p-0_5 is-visible-actionbox-toggle'|prefixClass }}">
-                                <p class="{{ 'c-actionbox__hint'|prefixClass }}">
-                                    {%  if templateVars.survey.status == 'evaluation' %}
-                                        {{ 'survey.explanation.evaluation'|trans }}
-                                    {% elseif templateVars.survey.status == 'completed' %}
-                                        {{ 'survey.explanation.finished'|trans }}
-                                    {% elseif currentUser.loggedIn == true and hasPermission('feature_surveyvote_may_vote') %}
-                                        {% if templateVars.survey.userCanVote == true %}
-                                            {{ 'survey.explanation.loggedin'|trans }}
-                                        {% else %}
-                                            {{ 'survey.explanation.loggedin.participated'|trans }}
-                                        {% endif %}
-                                    {% else %}
-                                        {{ 'survey.explanation.general'|trans }}
-                                    {% endif %}
-                                </p>
-                            </div>
-
-                            {% if templateVars.survey.status == 'participation' %}
-                                <div class="{{ 'u-pv u-pl-0_5 u-pr-0_5'|prefixClass }}">
-                                    <strong>
-                                        {{ 'survey.period'|trans({ start: templateVars.survey.startDate.date|date("U")|dplanDate, end: templateVars.survey.endDate.date|date("U")|dplanDate }) }}
-                                    </strong>
-                                </div>
-                            {% endif %}
-
-                        </div><!--
-
-                     --><div class="{{ 'layout__item width-map-canvas u-pl-0_5-lap-up u-pr-0_5-lap-up'|prefixClass }}">
-                            <dp-public-survey
-                                use-css-prefix
-                                :is-logged-in="Boolean({{ currentUser.loggedIn }})"
-                                user-id="{{ currentUser.id }}"
-                                :survey="JSON.parse('{{ templateVars.survey|default([])|json_encode|e('js', 'utf-8') }}')">
-                            </dp-public-survey>
-                        </div>
-                    </section>
-                {% endif %}
 
                 {% if hasPermission('feature_new_statement') %}
                     <statement-modal

@@ -390,13 +390,6 @@ submenu_procedures:
         link_attributes:
             data-cy: 'submitterslist'
             data-extern-dataport: 'submitterslist'
-    survey:
-        label: 'survey'
-        path: 'dplan_survey_new'
-        path_params: ['procedureId']
-        permission: 'area_survey_management'
-        link_attributes:
-            data-extern-dataport: 'survey'
     procedure_mail_submitters:
         label: 'procedure.mail.submitters'
         path: 'dplan_procedure_mail_send_all_submitters_view'

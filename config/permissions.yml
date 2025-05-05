@@ -546,18 +546,6 @@ area_subscriptions:
         There the user can find informations about new procedures
     label: 'subscriptions area'
     loginRequired: true
-area_survey:
-    description: |-
-        Surveys can be seen by some user groups (citizens, planners). It's the most basic permission required to use
-        surveys in any meaningful way, hence, it's also the overall activation permission.
-    expose: true
-    label: 'Activates the survey component and makes it visible to users'
-    loginRequired: false
-area_survey_management:
-    description: 'Surveys can be added to Procedures in order to see how much support a project has.'
-    expose: true
-    label: 'Allow crud operations on Procedures Surveys'
-    loginRequired: true
 area_terms_of_use:
     descriptions: 'Some projects need a separate terms of use page that should be rendered in the page footer'
     expose: true
@@ -2466,11 +2454,6 @@ feature_statements_vote_may_vote:
     label: 'Stellungnahme anderer mitzeichnen (Aktion ausführen)'
     loginRequired: true
     parent: feature_statement
-feature_surveyvote_may_vote:
-    description: 'Only registered users can vote in a Survey'
-    expose: true
-    label: 'Activates the capability to vote in a Survey'
-    loginRequired: true
 feature_switchorga:
     label: 'Organisation Fachplanung und Institution wechseln'
     loginRequired: true
