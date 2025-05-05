@@ -693,9 +693,7 @@ export default {
     },
 
     hasDraftSegments () {
-      if (!this.statement.attributes.segmentDraftList) return false
-
-      return this.statement.attributes.segmentDraftList.data.attributes.segments.length > 0
+      return Boolean(this.statement?.attributes?.segmentDraftList?.data?.attributes?.segments?.length)
     },
 
     resetSlidebar () {
