@@ -34,10 +34,6 @@ class HasPermissionExtensionTest extends UnitTestCase
     }
 
     /**
-     * @param bool $county
-     * @param bool $municipality
-     * @param bool $priorityArea
-     * @param bool $fragmentAdd
      * @param bool $cluster
      *
      * @return Session

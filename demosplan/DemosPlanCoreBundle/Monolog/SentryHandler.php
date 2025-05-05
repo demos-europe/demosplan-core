@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Monolog;
 
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use LogicException;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\FormattableHandlerInterface;
 use Monolog\Handler\HandlerInterface;
@@ -19,10 +20,9 @@ use Monolog\Handler\ProcessableHandlerInterface;
 use Monolog\LogRecord;
 use Monolog\ResettableInterface;
 use Sentry\State\Scope;
+use Throwable;
 
 use function Sentry\withScope;
-
-use Throwable;
 
 /**
  * This Monolog handler logs every message to a Sentry's server using the given
@@ -38,17 +38,11 @@ class SentryHandler implements HandlerInterface, ProcessableHandlerInterface, Fo
     {
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function isHandling(LogRecord $record): bool
     {
         return $this->decoratedHandler->isHandling($record);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function handle(LogRecord $record): bool
     {
         $result = false;
@@ -85,25 +79,16 @@ class SentryHandler implements HandlerInterface, ProcessableHandlerInterface, Fo
         return $result;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function handleBatch(array $records): void
     {
         $this->decoratedHandler->handleBatch($records);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function close(): void
     {
         $this->decoratedHandler->close();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function pushProcessor(callable $callback): HandlerInterface
     {
         if ($this->decoratedHandler instanceof ProcessableHandlerInterface) {
@@ -113,21 +98,15 @@ class SentryHandler implements HandlerInterface, ProcessableHandlerInterface, Fo
         return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function popProcessor(): callable
     {
         if ($this->decoratedHandler instanceof ProcessableHandlerInterface) {
             return $this->decoratedHandler->popProcessor();
         }
-        
-        throw new \LogicException('The wrapped handler does not implement ProcessableHandlerInterface');
+
+        throw new LogicException('The wrapped handler does not implement ProcessableHandlerInterface');
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function setFormatter(FormatterInterface $formatter): HandlerInterface
     {
         if ($this->decoratedHandler instanceof FormattableHandlerInterface) {
@@ -137,21 +116,15 @@ class SentryHandler implements HandlerInterface, ProcessableHandlerInterface, Fo
         return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getFormatter(): FormatterInterface
     {
         if ($this->decoratedHandler instanceof FormattableHandlerInterface) {
             return $this->decoratedHandler->getFormatter();
         }
-        
-        throw new \LogicException('The wrapped handler does not implement FormattableHandlerInterface');
+
+        throw new LogicException('The wrapped handler does not implement FormattableHandlerInterface');
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+
     public function reset(): void
     {
         if ($this->decoratedHandler instanceof ResettableInterface) {

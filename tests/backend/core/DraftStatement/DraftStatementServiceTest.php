@@ -49,7 +49,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         'user', 'uStreet',
     ];
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService|object|null
+     * @var ElementsService|object|null
      */
     protected $elementsService;
 
@@ -1292,8 +1292,6 @@ class DraftStatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @param $providerData
-     *
      * @throws \Doctrine\Common\DataFixtures\OutOfBoundsException
      * @throws Exception
      */
@@ -1327,7 +1325,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
     /**
      * @param $providerData
-     * dataProvider getDetermineStatementCategoryData
+     *                      dataProvider getDetermineStatementCategoryData
      */
     public function testDetermineStatementCategory(/* array $providerData */)
     {
@@ -1366,7 +1364,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
     /**
      * @param $providerData
-     * dataProvider getCreateDraftStatementData
+     *                      dataProvider getCreateDraftStatementData
      *
      * @throws \Doctrine\Common\DataFixtures\OutOfBoundsException
      * @throws Exception

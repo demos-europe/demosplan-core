@@ -28,7 +28,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\Assert\Assert;
 
 class EventFinder extends CoreCommand
 {
@@ -161,11 +160,11 @@ class EventFinder extends CoreCommand
                 $namespaces = $nodeFinder->findInstanceOf($abstractSyntaxTree, Namespace_::class);
 
                 // Skip files without exactly one namespace, but log it
-                if (count($namespaces) !== 1) {
-                    echo "Skipping file with " . count($namespaces) . " namespaces: " . $classFilePath . "\n";
+                if (1 !== count($namespaces)) {
+                    echo 'Skipping file with '.count($namespaces).' namespaces: '.$classFilePath."\n";
                     continue;
                 }
-                
+
                 $namespaceName = $namespaces[0]->name->toString();
 
                 $this->findNamedEventMatches($classes, $classFilePath, $targetParentClassNames, $namespaceName);
@@ -312,7 +311,8 @@ class EventFinder extends CoreCommand
 
         // Skip files with more than one named class
         if (count($namedClasses) > 1) {
-            echo "Skipping file with " . count($namedClasses) . " named classes: " . $classFilePath . "\n";
+            echo 'Skipping file with '.count($namedClasses).' named classes: '.$classFilePath."\n";
+
             return;
         }
 

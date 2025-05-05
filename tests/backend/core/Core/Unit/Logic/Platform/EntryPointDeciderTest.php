@@ -29,13 +29,13 @@ class EntryPointDeciderTest extends FunctionalTestCase
         $this->sut = self::getContainer()->get(EntryPointDecider::class);
     }
 
-//    /**
-//     * @param User $user
-//     * @param Permissions $permissions
-//     * @param string $path
-//     * @dataProvider entryPointDataProvider
-//     */
-//    public function testDetermineEntryPointForUser(User $user, Permissions $permissions, string $path): void
+    //    /**
+    //     * @param User $user
+    //     * @param Permissions $permissions
+    //     * @param string $path
+    //     * @dataProvider entryPointDataProvider
+    //     */
+    //    public function testDetermineEntryPointForUser(User $user, Permissions $permissions, string $path): void
     public function testDetermineEntryPointForUser(): void
     {
         self::markSkippedForCIIntervention();

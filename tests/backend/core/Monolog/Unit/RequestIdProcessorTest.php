@@ -10,6 +10,7 @@
 
 namespace Tests\Core\Monolog\Unit;
 
+use DateTimeImmutable;
 use demosplan\DemosPlanCoreBundle\Monolog\Processor\RequestIdProcessor;
 use Monolog\Level;
 use Monolog\LogRecord;
@@ -32,7 +33,7 @@ class RequestIdProcessorTest extends TestCase
     private function createLogRecord(string $message = 'Test message'): LogRecord
     {
         return new LogRecord(
-            new \DateTimeImmutable(),
+            new DateTimeImmutable(),
             'channel',
             Level::Info,
             $message,
@@ -182,10 +183,10 @@ class RequestIdProcessorTest extends TestCase
         $requestStack->method('getCurrentRequest')->willReturn(null);
 
         $processor = new RequestIdProcessor($requestStack);
-        
+
         // Create a LogRecord directly to simulate Monolog 3 usage
         $logRecord = new LogRecord(
-            new \DateTimeImmutable(),
+            new DateTimeImmutable(),
             'test-channel',
             Level::Info,
             'Monolog 3 test message',
@@ -199,13 +200,13 @@ class RequestIdProcessorTest extends TestCase
         // Assert
         // Verify we got back a LogRecord instance
         $this->assertInstanceOf(LogRecord::class, $resultRecord);
-        
+
         // Check that the request ID was added correctly
         $this->assertArrayHasKey('rid', $resultRecord->extra);
-        
+
         // Should start with 'c' for CLI context
         $this->assertStringStartsWith('c', $resultRecord->extra['rid']);
-        
+
         // Original message should remain unchanged
         $this->assertEquals('Monolog 3 test message', $resultRecord->message);
     }

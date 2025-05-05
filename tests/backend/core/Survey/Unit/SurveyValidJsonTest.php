@@ -161,7 +161,7 @@ class SurveyValidJsonTest extends SurveyTestUtils
         string $json,
         bool $mustBeValid,
         string $errorMsg,
-        string $mode = 'update'
+        string $mode = 'update',
     ): void {
         try {
             $schemaFilePath = $this->jsonSchemaPathUpdate;

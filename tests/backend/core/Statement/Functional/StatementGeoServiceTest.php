@@ -117,7 +117,7 @@ class StatementGeoServiceTest extends FunctionalTestCase
         self::markSkippedForCIElasticsearchUnavailable();
 
         $data = [
-           'polygon' => '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[483013.7153814754,6072658.255889328]},"properties":null},{"type":"Feature","geometry":{"type":"Point","coordinates":[519526.28840662143,6064085.738744293]},"properties":null}]}',
+            'polygon' => '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[483013.7153814754,6072658.255889328]},"properties":null},{"type":"Feature","geometry":{"type":"Point","coordinates":[519526.28840662143,6064085.738744293]},"properties":null}]}',
         ];
         $data = $this->addDefaultData($data);
 

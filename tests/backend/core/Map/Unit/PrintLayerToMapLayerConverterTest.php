@@ -18,9 +18,9 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayer;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTilePosition;
+use Illuminate\Support\Collection;
 use Intervention\Image\ImageManager;
 use Tests\Base\UnitTestCase;
-use Illuminate\Support\Collection;
 
 use function imagecolorallocate;
 

@@ -141,7 +141,7 @@ class ContextualHelpServiceTest extends FunctionalTestCase
     public function testCreateHelp()
     {
         $help_data = ['key' => 'sischer.sischer.de.schluessel',
-                     'text' => 'sch bin dr text vo dr hilf. isch helf de leut bi dem was se tun.', ];
+            'text'          => 'sch bin dr text vo dr hilf. isch helf de leut bi dem was se tun.', ];
         $entity = $this->sut->createHelp($help_data);
         static::assertNotNull($entity->getIdent());
         static::assertEquals($entity->getText(), $help_data['text']);

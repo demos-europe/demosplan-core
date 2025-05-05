@@ -32,7 +32,7 @@ class UserHandlerTest extends FunctionalTestCase
      */
     protected $testUser;
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\ContentService|object|null
+     * @var ContentService|object|null
      */
     protected $contentService;
 

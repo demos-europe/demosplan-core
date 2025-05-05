@@ -10,6 +10,7 @@
 
 namespace Tests\Core\Document\Functional;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadElementsData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\ElementsFactory;
@@ -502,7 +503,7 @@ class ElementsServiceTest extends FunctionalTestCase
         self::assertFalse($elementC->getDeleted());
 
         // Update the designatedSwitchDate to yesterday to ensure it's treated as in the past
-        $yesterday = new \DateTime('yesterday');
+        $yesterday = new DateTime('yesterday');
         $elementA->setDesignatedSwitchDate($yesterday);
         $elementB->setDesignatedSwitchDate($yesterday);
         $this->getEntityManager()->flush();

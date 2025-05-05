@@ -23,11 +23,11 @@ use demosplan\DemosPlanCoreBundle\Exception\LockedByAssignmentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use Exception;
+use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 use Tests\Core\Statement\Functional\Procedure;
 use Tests\Core\Statement\Functional\Statement;
-use Illuminate\Support\Collection;
 
 use function collect;
 
@@ -452,7 +452,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
     /**
      * TODO: known to fail.
      *
-     * @throws \demosplan\DemosPlanCoreBundle\Exception\MessageBagException
+     * @throws MessageBagException
      */
     public function testUpdateStatementFragment()
     {
@@ -744,21 +744,21 @@ class StatementFragmentServiceTest extends FunctionalTestCase
             $relatedVersions[1]->getCountyNamesAsJson()
         );
 
-//        //add county to fragment
-//        static::assertEmpty($fragment->getCounties());
+        //        //add county to fragment
+        //        static::assertEmpty($fragment->getCounties());
         // //        $fragment->addCounty($testCounty);
         // //        $counties = $fragment->getCounties();
         // //        $counties->add($testCounty);
-//        $data = ['counties' => [$testCounty]];
-//        $this->sut->updateStatementFragment($fragmentId, $data);
-//        $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
-//        $testCounty = $this->sut->getCounty($testCounty->getId());
-//        static::assertContains($testCounty, $fragment->getCounties());
-//        //check version:
-//        $relatedVersions = $this->sut->getStatementFragmentVersionsOfFragment($fragmentId);
-//        static::assertCount(3, $relatedVersions);
-//        static::assertEquals($fragmentId, $relatedVersions[2]->getStatementFragment()->getId());
-//        static::assertNotEquals($fragment->getCounties()->count(), $relatedVersions[2]->getCounties()->count());
+        //        $data = ['counties' => [$testCounty]];
+        //        $this->sut->updateStatementFragment($fragmentId, $data);
+        //        $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
+        //        $testCounty = $this->sut->getCounty($testCounty->getId());
+        //        static::assertContains($testCounty, $fragment->getCounties());
+        //        //check version:
+        //        $relatedVersions = $this->sut->getStatementFragmentVersionsOfFragment($fragmentId);
+        //        static::assertCount(3, $relatedVersions);
+        //        static::assertEquals($fragmentId, $relatedVersions[2]->getStatementFragment()->getId());
+        //        static::assertNotEquals($fragment->getCounties()->count(), $relatedVersions[2]->getCounties()->count());
     }
 
     public function testMunicipalityOfFragment()
@@ -810,20 +810,20 @@ class StatementFragmentServiceTest extends FunctionalTestCase
             $relatedVersions[1]->getMunicipalityNamesAsJson()
         );
 
-//        //add Municipality to fragment
+        //        //add Municipality to fragment
         // //        $fragment->addMunicipality($testMunicipality);
-//        $municipalities = $fragment->getMunicipalities();
-//        $municipalities->add($testMunicipality);
-//        $data = ['municipalities' => $municipalities];
-//        $this->sut->updateStatementFragment($fragmentId, $data);
-//        $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
-//        static::assertCount(1, $fragment->getMunicipalities());
-//        static::assertContains($testMunicipality, $fragment->getMunicipalities());
-//        //check version:
-//        $relatedVersions = $this->sut->getStatementFragmentVersionsOfFragment($fragmentId);
-//        static::assertCount(3, $relatedVersions);
-//        static::assertEquals($fragmentId, $relatedVersions[2]->getStatementFragment()->getId());
-//        static::assertNotEquals($fragment->getMunicipalities()->count(), $relatedVersions[2]->getMunicipalities()->count());
+        //        $municipalities = $fragment->getMunicipalities();
+        //        $municipalities->add($testMunicipality);
+        //        $data = ['municipalities' => $municipalities];
+        //        $this->sut->updateStatementFragment($fragmentId, $data);
+        //        $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
+        //        static::assertCount(1, $fragment->getMunicipalities());
+        //        static::assertContains($testMunicipality, $fragment->getMunicipalities());
+        //        //check version:
+        //        $relatedVersions = $this->sut->getStatementFragmentVersionsOfFragment($fragmentId);
+        //        static::assertCount(3, $relatedVersions);
+        //        static::assertEquals($fragmentId, $relatedVersions[2]->getStatementFragment()->getId());
+        //        static::assertNotEquals($fragment->getMunicipalities()->count(), $relatedVersions[2]->getMunicipalities()->count());
     }
 
     public function testPriorityAreaOfFragment()
@@ -872,20 +872,20 @@ class StatementFragmentServiceTest extends FunctionalTestCase
             $relatedVersions[1]->getPriorityAreaKeysAsJson()
         );
 
-//        //add PriorityArea to fragment
+        //        //add PriorityArea to fragment
         // //        $fragment->addPriorityArea($testPriorityArea);
-//        $priorityAreas = $fragment->getPriorityAreas();
-//        $priorityAreas->add($testPriorityArea);
-//        $data = ['priorityAreas' => $priorityAreas];
-//        $this->sut->updateStatementFragment($fragmentId, $data);
-//        $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
-//        static::assertCount(1, $fragment->getPriorityAreas());
-//        static::assertContains($testPriorityArea, $fragment->getPriorityAreas());
-//        //check version:
-//        $relatedVersions = $this->sut->getStatementFragmentVersionsOfFragment($fragmentId);
-//        static::assertCount(3, $relatedVersions);
-//        static::assertEquals($fragmentId, $relatedVersions[2]->getStatementFragment()->getId());
-//        static::assertNotEquals($fragment->getMunicipalities()->count(), $relatedVersions[2]->getMunicipalities()->count());
+        //        $priorityAreas = $fragment->getPriorityAreas();
+        //        $priorityAreas->add($testPriorityArea);
+        //        $data = ['priorityAreas' => $priorityAreas];
+        //        $this->sut->updateStatementFragment($fragmentId, $data);
+        //        $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
+        //        static::assertCount(1, $fragment->getPriorityAreas());
+        //        static::assertContains($testPriorityArea, $fragment->getPriorityAreas());
+        //        //check version:
+        //        $relatedVersions = $this->sut->getStatementFragmentVersionsOfFragment($fragmentId);
+        //        static::assertCount(3, $relatedVersions);
+        //        static::assertEquals($fragmentId, $relatedVersions[2]->getStatementFragment()->getId());
+        //        static::assertNotEquals($fragment->getMunicipalities()->count(), $relatedVersions[2]->getMunicipalities()->count());
     }
 
     public function testArchivedOrgaName()
@@ -896,7 +896,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         static::assertNull($relatedFragment->getArchivedDepartmentName());
 
         $newOrgaName = 'tolleNeueOrga';
-//        $relatedFragment->setArchivedOrgaName($newOrgaName);
+        //        $relatedFragment->setArchivedOrgaName($newOrgaName);
         $data = ['id' => $relatedFragment->getId(), 'archivedOrgaName' => $newOrgaName];
         $result = $this->sut->updateStatementFragment($data);
         static::assertNotFalse($result);
@@ -904,7 +904,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         static::assertSame($newOrgaName, $relatedFragment->getArchivedOrgaName());
         static::assertNull($relatedFragment->getArchivedDepartmentName());
 
-//        $relatedFragment->setArchivedOrgaName(null);
+        //        $relatedFragment->setArchivedOrgaName(null);
         $data = ['id' => $relatedFragment->getId(), 'archivedOrgaName' => null];
         $result = $this->sut->updateStatementFragment($data);
         static::assertNotFalse($result);
@@ -920,7 +920,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         static::assertNull($relatedFragment->getArchivedOrgaName());
 
         $newOrgaName = 'tollesNeuesDepartment';
-//        $relatedFragment->setArchivedDepartmentName($newOrgaName);
+        //        $relatedFragment->setArchivedDepartmentName($newOrgaName);
         $data = ['id' => $relatedFragment->getId(), 'archivedDepartmentName' => $newOrgaName];
         $result = $this->sut->updateStatementFragment($data);
         static::assertNotFalse($result);
@@ -928,7 +928,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         static::assertSame($newOrgaName, $relatedFragment->getArchivedDepartmentName());
         static::assertNull($relatedFragment->getArchivedOrgaName());
 
-//        $relatedFragment->setArchivedDepartmentName(null);
+        //        $relatedFragment->setArchivedDepartmentName(null);
         $data = ['id' => $relatedFragment->getId(), 'archivedDepartmentName' => null];
         $result = $this->sut->updateStatementFragment($data);
         static::assertNotFalse($result);
@@ -1251,7 +1251,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @return \Symfony\Component\HttpFoundation\Session\Session
+     * @return Session
      */
     protected function getMockSession()
     {
@@ -1276,7 +1276,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
      * Beim persistieren versucht Doctrine allerdings, nicht nur das neu hinzu gekommmene Tag zu inserten,
      * sondern jedes Tag im array !
      * Das fürt zu einer "unique constraint vaiolation".
-
+     *
      * Der einzige Unterschied der bis jetzt erkannt worden ist, ist dass sich diese beiden fälle in den Objekttypen der Tags unterscheiden.
      * So git es einmal "unser normales" Tagobjekt und einmal das "doctrine" Proxyobjekt.
      * Ich vermute dass Doctrine nur Proxyobjekte inserted. "normale" objecte werden schlicht nicht getrackt.
@@ -1402,7 +1402,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         $tags = $topic->getTags();
 
         static::assertEmpty($relatedFragment->getTags());
-//        $relatedFragment->addTag($tags[0]);
+        //        $relatedFragment->addTag($tags[0]);
 
         $fragmentData = ['id' => $relatedFragment->getId(), 'tags' => [$tags[0]->getId()]];
         $result = $this->sut->updateStatementFragment($fragmentData, true);

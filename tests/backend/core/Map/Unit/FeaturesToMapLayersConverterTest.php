@@ -21,9 +21,9 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayer;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTilePosition;
 use geoPHP\Geometry\Point;
+use Illuminate\Support\Collection;
 use Intervention\Image\ImageManager;
 use Tests\Base\UnitTestCase;
-use Illuminate\Support\Collection;
 
 use function imagecolorallocate;
 

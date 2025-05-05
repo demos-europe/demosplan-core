@@ -20,7 +20,7 @@ use Tests\Base\FunctionalTestCase;
 
 class QueryFragmentTest extends FunctionalTestCase
 {
-    /** @var \demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment */
+    /** @var QueryFragment */
     protected $sut;
 
     /**
