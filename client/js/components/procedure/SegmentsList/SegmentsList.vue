@@ -213,7 +213,7 @@
             v-for="customField in selectedCustomFields"
             :key="customField.field"
             v-slot:[customField.field]="rowData">
-            <div>{{ customField.value }}</div>
+            <div>{{ rowData.attributes.customFields?.find(el => el.id === customField.fieldId)?.value || '' }}</div>
           </template>
           <template v-slot:flyout="rowData">
             <dp-flyout data-cy="segmentsList:flyoutEditMenu">
@@ -543,10 +543,12 @@ export default {
 
       return Object.values(this.customFields)
         .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
-        .map(customField => ({
-          field: `customField_${customField.id}`,
-          value: customField.attributes.options.find(option => option === customField.attributes.name) || ''
-        }))
+        .map(customField => {
+          return {
+            field: `customField_${customField.id}`,
+            fieldId: customField.id
+          }
+        })
     },
 
     storageKeyPagination () {
