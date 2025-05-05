@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8edaeba3e6ba201c03ed08227991abe3",
+    "content-hash": "c25d517523e3a7358944f9525056f457",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1636,16 +1636,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "dev-f-symfony-6",
+            "version": "v0.54",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "55e4c657febf68edcb34068c8eb9fef16ce700f4"
+                "reference": "797cf78a4c1938a7346595ec2060e9bfe5976807"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/55e4c657febf68edcb34068c8eb9fef16ce700f4",
-                "reference": "55e4c657febf68edcb34068c8eb9fef16ce700f4",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/797cf78a4c1938a7346595ec2060e9bfe5976807",
+                "reference": "797cf78a4c1938a7346595ec2060e9bfe5976807",
                 "shasum": ""
             },
             "require": {
@@ -1712,9 +1712,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/f-symfony-6"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.54"
             },
-            "time": "2025-04-30T15:01:41+00:00"
+            "time": "2025-05-05T15:15:12+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -24033,9 +24033,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "demos-europe/demosplan-addon": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
