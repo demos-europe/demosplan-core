@@ -2724,6 +2724,11 @@ field_segment_assignee_filter:
     description: 'Allow assignee facet search in segments of current procedure.'
     label: 'Filter segment list by assignee'
     loginRequired: true
+field_segments_custom_fields:
+    description: 'Allow to add and edit custom fields to segments'
+    label: 'Custom fields for segments'
+    expose: true
+    loginRequired: true
 field_send_final_email:
     label: 'Schlussmitteilung versenden'
     expose: true
