@@ -30,7 +30,7 @@ class JsonApiTest extends AbstractApiTest
         User $user,
         ?Procedure $procedure = null,
         int $expectedStatus = Response::HTTP_OK,
-        array $urlParameters = []
+        array $urlParameters = [],
     ): array {
         // prepare and issue request
         $urlParameters['resourceType'] = $resourceTypeName;
@@ -54,7 +54,7 @@ class JsonApiTest extends AbstractApiTest
         string $resourceId,
         User $user,
         ?Procedure $procedure = null,
-        int $expectedStatus = Response::HTTP_NO_CONTENT
+        int $expectedStatus = Response::HTTP_NO_CONTENT,
     ): void {
         // prepare and issue request
         $urlParameters = [
@@ -76,7 +76,7 @@ class JsonApiTest extends AbstractApiTest
         array $requestBody,
         ?Procedure $procedure = null,
         int $expectedStatus = Response::HTTP_CREATED,
-        array $urlParameters = []
+        array $urlParameters = [],
     ): array {
         // prepare and issue request
         $urlParameters['resourceType'] = $resourceTypeName;
@@ -97,7 +97,7 @@ class JsonApiTest extends AbstractApiTest
         array $requestBody,
         ?Procedure $procedure = null,
         int $expectedStatus = Response::HTTP_OK,
-        array $urlParameters = []
+        array $urlParameters = [],
     ): ?array {
         // prepare and issue request
         $urlParameters['resourceType'] = $resourceTypeName;
@@ -126,9 +126,9 @@ class JsonApiTest extends AbstractApiTest
         User $user,
         ?Procedure $procedure = null,
         array $urlParameters = [],
-        int $expectedStatus = Response::HTTP_OK
+        int $expectedStatus = Response::HTTP_OK,
     ): array {
-        self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
+        // self::markTestSkipped('This test was skipped because of pre-existing errors. They are most likely easily fixable but prevent us from getting to a usable state of our CI.');
         // prepare and issue request
         $urlParameters['resourceType'] = $resourceTypeName;
         $urlParameters['resourceId'] = $resourceId;
