@@ -46,7 +46,7 @@
     "doctrine/persistence": "^2.0",
     "dompdf/dompdf": "^3.0.0",
     "efrane/console-additions": "^0.6.1",
-    "efrane/tus-bundle": "dev-f_modernize",
+    "efrane/tus-bundle": "^0.6",
     "egulias/email-validator": "^4.0",
     "endroid/qr-code-bundle": "^5.0",
     "enqueue/elastica-bundle": "^0.13",
