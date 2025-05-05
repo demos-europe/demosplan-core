@@ -712,7 +712,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
 
         // get county from fragment:
         static::assertCount(1, $fragment->getCounties());
-        static::assertContains($testCounty, $fragment->getCounties());
+        static::assertContains($testCounty, $fragment->getCounties()->toArray());
         // check version:
         $relatedVersions = $this->sut->getStatementFragmentVersionsOfFragment($fragmentId);
         static::assertCount(1, $relatedVersions);
@@ -724,8 +724,8 @@ class StatementFragmentServiceTest extends FunctionalTestCase
             $relatedVersions[0]->getCountyNamesAsJson()
         );
 
-        static::assertContains($testCounty, $fragment->getCounties());
-        static::assertContains($fragment, $testCounty->getStatementFragments());
+        static::assertContains($testCounty, $fragment->getCounties()->toArray());
+        static::assertContains($fragment, $testCounty->getStatementFragments()->toArray());
 
         // remove county from fragment
         $data = ['id' => $fragmentId, 'counties' => []];
@@ -753,7 +753,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         //        $this->sut->updateStatementFragment($fragmentId, $data);
         //        $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         //        $testCounty = $this->sut->getCounty($testCounty->getId());
-        //        static::assertContains($testCounty, $fragment->getCounties());
+        //        static::assertContains($testCounty, $fragment->getCounties()->toArray());
         //        //check version:
         //        $relatedVersions = $this->sut->getStatementFragmentVersionsOfFragment($fragmentId);
         //        static::assertCount(3, $relatedVersions);
@@ -777,7 +777,7 @@ class StatementFragmentServiceTest extends FunctionalTestCase
         static::assertNotFalse($result);
         $fragment = $this->sut->getStatementFragment($this->getStatementFragmentReference('testStatementFragment1')->getId());
         static::assertCount(1, $fragment->getMunicipalities());
-        static::assertContains($testMunicipality, $fragment->getMunicipalities());
+        static::assertContains($testMunicipality, $fragment->getMunicipalities()->toArray());
 
         // get Municipality from fragment:
         static::assertCount(1, $fragment->getMunicipalities());

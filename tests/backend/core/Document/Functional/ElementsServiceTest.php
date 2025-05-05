@@ -90,14 +90,7 @@ class ElementsServiceTest extends FunctionalTestCase
                 self::assertNotEmpty($organisations);
                 $organisationIds = array_column($organisations, 'id');
                 self::assertNotEmpty($organisationIds);
-                self::assertContains(
-                    $testOrga->getIdent(),
-                    $organisationIds,
-                    '',
-                    false,
-                    true,
-                    true
-                );
+                self::assertContains($testOrga->getIdent(), $organisationIds);
             }
             self::assertSame($this->testProcedure2->getId(), $element['pId']);
         }

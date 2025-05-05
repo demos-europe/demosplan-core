@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
     bootstrap="tests/backend/bootstrap.php"
     beStrictAboutOutputDuringTests="true"
-    beStrictAboutTodoAnnotatedTests="true"
     colors="true"
-    convertDeprecationsToExceptions="false"
     stopOnError="true"
-    verbose="false">
+    displayDetailsOnTestsThatTriggerDeprecations="true"
+    displayDetailsOnTestsThatTriggerErrors="true"
+    displayDetailsOnTestsThatTriggerNotices="true"
+    displayDetailsOnTestsThatTriggerWarnings="true"
+    cacheDirectory=".phpunit.cache"
+    requireCoverageMetadata="false">
 
     <php>
         <ini name="display_errors" value="1" />
@@ -16,7 +19,7 @@
         <server name="APP_ENV" value="test" force="true" />
         <server name="SHELL_VERBOSITY" value="-1" />
         <server name="SYMFONY_PHPUNIT_REMOVE" value="" />
-        <server name="SYMFONY_PHPUNIT_VERSION" value="9.6" />
+        <server name="SYMFONY_PHPUNIT_VERSION" value="10.0" />
 
         <!-- ###+ symfony/lock ### -->
         <!-- Choose one of the stores below -->
@@ -25,14 +28,12 @@
         <!-- ###- symfony/lock ### -->
     </php>
 
-    <coverage processUncoveredFiles="false">
+    <source>
         <include>
             <directory suffix=".php">demosplan</directory>
         </include>
-    </coverage>
-    <listeners>
-        <listener class="\Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
-    </listeners>
+    </source>
+
     <testsuites>
         <testsuite name="core">
             <directory>tests/backend/core</directory>
