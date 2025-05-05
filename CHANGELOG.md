@@ -4,11 +4,9 @@
 - **Minor Version**: Incremented for each release.
 - **Patch Version**: Incremented for bug fixes.
 
-## UNRELEASED
-- Enable Custom Field feature on segments: Allow users to add/edit custom fields to their segments
-  based on the custom fields defined in the procedure
 
-## v2.8.4 (2025-05-02)
+## UNRELEASED
+- Enable Custom Field feature on segments: Allow users to add/edit custom fields to their segments     based on the custom fields defined in the procedure
 - Add Custom Field feature: Allow users to add custom fields to their procedures
 
 ## v2.27.1 (2025-04-09)
