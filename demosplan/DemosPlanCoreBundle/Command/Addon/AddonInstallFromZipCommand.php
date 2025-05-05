@@ -243,7 +243,7 @@ class AddonInstallFromZipCommand extends CoreCommand
         // If composer.json does not exist, create it
         if (!file_exists($this->addonsDirectory.'composer.json')) {
             $content = [
-                'minimum-stability' => 'dev',
+                'minimum-stability' => 'stable',
                 'require'           => [],
                 'config'            => [
                     'sort-packages' => true,
