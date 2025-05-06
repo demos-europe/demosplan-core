@@ -4260,7 +4260,7 @@ warning.statement.delete: |
         =1 { Eine Stellungnahme wurde nicht gefunden. Wurde sie möglicherweise bereits gelöscht?}
         other { # Stellungnahmen wurden nicht gefunden. Wurden sie möglicherweise bereits gelöscht?}
     }
-warning.statement.in.segmentation.cannot.be.edited: "Der Stellungnahmetext kann nicht mehr bearbeitet werden, da die Stellungnahme bereits aufgeteilt wird."
+warning.statement.in.segmentation.cannot.be.edited: "Der Stellungnahmetext kann momentan nicht bearbeitet werden, da sich die Stellungnahme in der Aufteilung befindet. Um den Stellungnahmetext zu ändern, müssen die bereits erstellten Abschnitte entfernt werden. Alternativ kann der Text der erstellten Abschnitte nach der Aufteilung angepasst werden."
 warning.statement.move: "Stellungnahme konnte nicht verschoben werden."
 warning.statement.needLock.generic: "Diese Stellungnahme ist zur Zeit in Bearbeitung. Um sie zu bearbeiten, müssen Sie diese zunächst für sich beanspruchen."
 warning.statement.needLock: "Die Stellungnahme {externId} ist zur Zeit niemandem zugewiesen. Um Ihre Änderungen speichern zu können, müssen Sie die Bearbeitung zunächst für sich beanspruchen."
