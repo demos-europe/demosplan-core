@@ -519,7 +519,9 @@ export default {
   },
 
   computed: {
-    ...mapState('SegmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', [
+      'slidebar'
+    ]),
 
     ...mapState('AssignableUser', {
       assignableUserItems: 'items'
