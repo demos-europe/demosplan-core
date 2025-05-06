@@ -25,7 +25,7 @@ class OpenGeoDbServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(OpenGeoDbService::class);
+        $this->sut = self::getContainer()->get(OpenGeoDbService::class);
     }
 
     public function testGetAll()

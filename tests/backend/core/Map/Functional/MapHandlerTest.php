@@ -36,9 +36,9 @@ class MapHandlerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(MapHandler::class);
+        $this->sut = self::getContainer()->get(MapHandler::class);
         $this->testProcedure = $this->fixtures->getReference('testProcedure2');
-        $this->doctrine = self::$container->get('doctrine');
+        $this->doctrine = self::getContainer()->get('doctrine');
     }
 
     public function testGetGisLayer()

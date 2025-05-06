@@ -31,7 +31,7 @@ class HeightLimitExtensionTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->twigExtension = new HeightLimitExtension(self::$container);
+        $this->twigExtension = new HeightLimitExtension(self::getContainer());
     }
 
     public function testGetFilters()

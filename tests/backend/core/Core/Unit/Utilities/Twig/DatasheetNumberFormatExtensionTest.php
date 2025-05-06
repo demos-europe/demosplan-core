@@ -32,7 +32,7 @@ class DatasheetNumberFormatExtensionTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->twigExtension = new DatasheetNumberFormatExtension(self::$container, self::$container->get(Environment::class));
+        $this->twigExtension = new DatasheetNumberFormatExtension(self::getContainer(), self::getContainer()->get(Environment::class));
     }
 
     public function testGetFilters()

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Monolog\Processor;
 
+use Monolog\LogRecord;
 use Monolog\Processor\ProcessorInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -26,11 +27,11 @@ class RequestIdProcessor implements ProcessorInterface
         $this->requestStack = $requestStack;
     }
 
-    public function __invoke(array $record): array
+    public function __invoke(LogRecord $record): LogRecord
     {
         // If we already generated an ID for this request instance, reuse it
         if (null !== $this->requestId) {
-            $record['extra']['rid'] = $this->requestId;
+            $record->extra['rid'] = $this->requestId;
 
             return $record;
         }
@@ -39,7 +40,7 @@ class RequestIdProcessor implements ProcessorInterface
         if (!$request) {
             // If not in a request context (e.g., console), generate a shorter one-time ID
             $this->requestId = 'c'.base_convert(random_int(0, 1679615), 10, 36).base_convert(time(), 10, 36);
-            $record['extra']['rid'] = $this->requestId;
+            $record->extra['rid'] = $this->requestId;
 
             return $record;
         }
@@ -54,7 +55,7 @@ class RequestIdProcessor implements ProcessorInterface
             $request->attributes->set('request_id', $this->requestId);
         }
 
-        $record['extra']['rid'] = $this->requestId;
+        $record->extra['rid'] = $this->requestId;
 
         return $record;
     }
