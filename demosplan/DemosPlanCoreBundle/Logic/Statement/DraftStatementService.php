@@ -1002,9 +1002,14 @@ class DraftStatementService extends CoreService
         // hat das Statement ein Screenshot?
         if (0 < strlen($statementArray['mapFile'] ?? '')) {
             $this->getLogger()->info('DraftStatement hat einen Screenshot.');
-            $fileInfo = $this->fileService->getFileInfoFromFileString($statementArray['mapFile']);
+            $fileInfo = null;
+            try {
+                $fileInfo = $this->fileService->getFileInfoFromFileString($statementArray['mapFile']);
+            } catch (Exception $e) {
+                $this->getLogger()->error('Screenshot konnte nicht gefunden werden');
+            }
             // Wenn der Screenshot da sein müsste, es aber nicht ist, versuche ihn neu zu generieren
-            if (!$this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+            if (null === $fileInfo || !$this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
                 $this->getLogger()->info('Screenshot konnte nicht gefunden werden');
                 if (0 < strlen((string) $statementArray['polygon'])) {
                     $this->getLogger()->info('Erzeuge Screenshot neu');
