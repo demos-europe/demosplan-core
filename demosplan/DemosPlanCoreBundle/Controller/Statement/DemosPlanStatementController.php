@@ -550,7 +550,7 @@ class DemosPlanStatementController extends BaseController
         // freigeben verarbeiten
         if ($requestPost->has('statement_release')) {
             if ($requestPost->has('item_check')) {
-                return $this->releaseStatement($procedure, $requestPost->get('item_check'), $currentProcedureArray);
+                return $this->releaseStatement($procedure, $requestPost->all('item_check'), $currentProcedureArray);
             }
 
             $this->getMessageBag()->add('warning', $translator->trans('warning.select.entries'));
@@ -1718,7 +1718,7 @@ class DemosPlanStatementController extends BaseController
         $templateName, Procedure $procedure,
     ) {
         // wenn einzelne Stellungnahmen ausgewählt wurde, speicher sie in einem string
-        $itemsToExport = $requestPost->get('item_check');
+        $itemsToExport = $requestPost->all('item_check');
         if (null !== $itemsToExport && 0 < (is_countable($itemsToExport) ? count($itemsToExport) : 0)) {
             $itemsToExport = \implode(',', $itemsToExport);
         }
@@ -2022,8 +2022,8 @@ class DemosPlanStatementController extends BaseController
             // Handler Formulardaten uebergeben
             try {
                 $gdprConsentReceived = 'on' === $requestPost->get('r_gdpr_consent');
-                $statementHandler->submitStatement($requestPost->get('item_check'), $receiverId, false, $gdprConsentReceived);
-                $statementNumbers = $statementHandler->getDraftStatementNumbers($requestPost->get('item_check'));
+                $statementHandler->submitStatement($requestPost->all('item_check'), $receiverId, false, $gdprConsentReceived);
+                $statementNumbers = $statementHandler->getDraftStatementNumbers($requestPost->all('item_check'));
                 $numberstring = \implode(', ', $statementNumbers);
 
                 $this->getMessageBag()->add('confirm', 'confirm.statements.marked.submitted');
@@ -2040,7 +2040,7 @@ class DemosPlanStatementController extends BaseController
                     && $procedureObject->getSettings()->getSendMailsToCounties()
                 ) {
                     $countyNotificationData = $statementHandler->getCountyNotificationData(
-                        $requestPost->get('item_check'),
+                        $requestPost->all('item_check'),
                         $receiverId,
                         $procedure
                     );
@@ -2206,7 +2206,7 @@ class DemosPlanStatementController extends BaseController
         );
 
         if ($requestPost->has('item_check')) {
-            $itemsToExport = (array) $requestPost->get('item_check');
+            $itemsToExport = $requestPost->all('item_check');
         }
 
         if (isset($itemsToExport) && [] !== $itemsToExport) {
@@ -2223,7 +2223,7 @@ class DemosPlanStatementController extends BaseController
         }
 
         // wenn einzelne Stellungnahmen ausgewählt wurde, speicher sie in einem string
-        $itemsToExport = $requestPost->get('item_check');
+        $itemsToExport = $requestPost->all('item_check');
 
         if (\is_array($itemsToExport) && 0 < count($itemsToExport)) {
             $itemsToExport = \implode(',', $itemsToExport);

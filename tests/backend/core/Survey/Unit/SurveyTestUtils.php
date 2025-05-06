@@ -223,7 +223,7 @@ class SurveyTestUtils extends UnitTestCase
         ->with('feature_surveyvote_may_vote')
         ->willReturn(true);
 
-        $surveyVoteHandler = self::$container->get(SurveyVoteHandler::class);
+        $surveyVoteHandler = self::getContainer()->get(SurveyVoteHandler::class);
         $surveyVoteHandler->setPermissions($permissionsMock);
     }
 }

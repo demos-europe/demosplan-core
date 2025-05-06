@@ -26,10 +26,12 @@ doctrine:
         types:
             dplan.stored_query: \demosplan\DemosPlanCoreBundle\Doctrine\Type\StoredQueryType
             dplan.custom_field_configuration: \demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldType
+            dplan.custom_fields_value: \demosplan\DemosPlanCoreBundle\Doctrine\Type\CustomFieldValueType
 
     orm:
         auto_generate_proxy_classes: true
         default_entity_manager: default
+        #enable_lazy_ghost_objects: true # needs to be enabled for symfony 6, not before, needs doctrine/persistence > 3.1
         entity_managers:
             default:
                 naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware

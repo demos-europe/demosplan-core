@@ -55,7 +55,7 @@ class ExternalFileSaverTest extends FunctionalTestCase
         $this->currentProcedureService = $this->getContainer()->get(CurrentProcedureService::class);
         $fileService = $this->getContainer()->get(FileService::class);
         $this->sut = new ExternalFileSaver($fileService, new MockHttpClient(), new NullLogger());
-        $this->router = self::$container->get(Router::class);
+        $this->router = self::getContainer()->get(Router::class);
     }
 
     public function testSaveExternalFile(): void

@@ -190,6 +190,22 @@ export default {
 
     fetchSegments () {
       this.isLoading = true
+
+      const statementSegmentFields = [
+        'tags',
+        'text',
+        'assignee',
+        'place',
+        'comments',
+        'externId',
+        'internId',
+        'orderInProcedure',
+        'polygon',
+        'recommendation'
+      ]
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
+      }
       this.listSegments({
         include: [
           'assignee',
@@ -200,18 +216,7 @@ export default {
           'tags'
         ].join(),
         fields: {
-          StatementSegment: [
-            'tags',
-            'text',
-            'assignee',
-            'place',
-            'comments',
-            'externId',
-            'internId',
-            'orderInProcedure',
-            'polygon',
-            'recommendation'
-          ].join(),
+          StatementSegment: statementSegmentFields.join(),
           SegmentComment: [
             'creationDate',
             'text',
