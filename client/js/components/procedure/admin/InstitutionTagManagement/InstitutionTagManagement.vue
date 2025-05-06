@@ -18,17 +18,13 @@
         id="institutionList"
         :is-active="activeTabId === 'institutionList'"
         :label="Translator.trans('invitable_institution.group')">
-        <slot>
-          <institution-list :is-active="isInstitutionListActive" />
-        </slot>
+        <institution-list :is-active="isInstitutionListActive" />
       </dp-tab>
       <dp-tab
         id="tagList"
         :is-active="activeTabId === 'tagList'"
         :label="Translator.trans('tag.administrate')">
-        <slot>
-          <tag-list @tagIsRemoved="institutionListReset" />
-        </slot>
+        <tag-list @tagIsRemoved="institutionListReset" />
       </dp-tab>
     </slot>
   </dp-tabs>
