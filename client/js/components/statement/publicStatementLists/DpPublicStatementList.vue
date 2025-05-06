@@ -18,8 +18,7 @@
         :label="Translator.trans('statements.draft.organisation')">
         <div class="space-stack-m pt-2">
           <dp-inline-notification
-            v-if="transformedStatements.filter(s => !s.authorOnly).length === 0"
-            class="pt-3"
+            v-if="hasNoPublicStatements"
             :message="Translator.trans('statement.list.empty')"
             type="info" />
           <dp-public-statement
@@ -43,8 +42,7 @@
         :label="Translator.trans('statements.draft')">
         <div class="space-stack-m pt-2">
           <dp-inline-notification
-            v-if="transformedStatements.filter(s => s.authorOnly).length === 0"
-            class="pt-3"
+            v-if="hasPublicStatements"
             :message="Translator.trans('statement.list.empty')"
             type="info" />
           <dp-public-statement
@@ -223,6 +221,14 @@ export default {
       }
 
       return fields
+    },
+
+    hasNoPublicStatements() {
+      return this.transformedStatements.filter(statement => !statement.authorOnly).length === 0;
+    },
+
+    hasPublicStatements() {
+      return this.transformedStatements.filter(statement => statement.authorOnly).length === 0;
     },
 
     menuItemCallback () {
