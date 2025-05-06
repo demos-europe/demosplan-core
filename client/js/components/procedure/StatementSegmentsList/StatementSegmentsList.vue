@@ -462,6 +462,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('AdminProcedure', {
+      getAdminProcedureWithFields: 'get'
+    }),
+
     ...mapMutations('SegmentSlidebar', [
       'setContent',
       'setProperty'
@@ -542,6 +546,26 @@ export default {
         .finally(() => {
           this.isLoading = false
         })
+    },
+
+
+    fetchCustomFields () {
+      const payload = {
+        id: this.procedure.id,
+        fields: {
+          AdminProcedure: [
+            'segmentCustomFields'
+          ].join(),
+          CustomField: [
+            'name',
+            'description',
+            'options'
+          ].join()
+        },
+        include: ['segmentCustomFields'].join()
+      }
+
+      this.getAdminProcedureWithFields(payload)
     },
 
     getStatement () {
@@ -851,6 +875,9 @@ export default {
 
   mounted () {
     this.getStatement()
+    if (hasPermission('field_segments_custom_fields')) {
+      this.fetchCustomFields()
+    }
     this.listAssignableUser({
       include: 'orga',
       fields: {

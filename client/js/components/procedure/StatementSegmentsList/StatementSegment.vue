@@ -54,6 +54,18 @@
                 </dt>
                 <dd>{{ assignee.name }}</dd>
               </div>
+              <template v-if="hasPermission('field_segments_custom_fields')">
+                <div
+                  v-for="customField in segment.attributes.customFields"
+                  :key="customField.id">
+                  <dt class="weight--bold">
+                    {{ Object.values(customFields).find(field => field.id === customField.id)?.attributes?.name || '' }}:
+                  </dt>
+                  <dd>
+                    {{ customField.value }}
+                  </dd>
+                </div>
+              </template>
             </dl>
           </div>
         </template>
@@ -200,12 +212,13 @@
           :id="'showWorkflowActions_' + segment.id"
           v-model="showWorkflowActions"
           :label="{
-            text: Translator.trans('workflow.change.assignee.place')
+            text: displayEditableFieldsLabel
           }" />
         <div
           v-if="showWorkflowActions"
           class="u-mv-0_5">
           <dp-label
+            class="mb-0.5 mt-2"
             :text="Translator.trans('assignee')"
             :bold="false"
             for="assignableUsersSegment" />
@@ -219,7 +232,7 @@
           <dp-label
             :text="Translator.trans('workflow.place')"
             :bold="false"
-            class="u-mt-0_5"
+            class="mb-0.5 mt-2"
             for="segmentPlace" />
           <dp-multiselect
             id="segmentPlace"
@@ -259,6 +272,26 @@
               </div>
             </template>
           </dp-multiselect>
+          <template v-if="hasPermission('field_segments_custom_fields')">
+            <template
+              v-for="field in Object.values(customFields)"
+              :key="field.id">
+              <dp-label
+                :bold="false"
+                class="mb-0.5 mt-2"
+                :for="field.id"
+                :text="field.attributes.name" />
+              <dp-multiselect
+                allow-empty
+                :id="field.id"
+                :value="customFieldValues[field.id]"
+                @select="(value) => setCustomFieldValue(value)"
+                label="name"
+                :options="customFieldsOptions[field.id]"
+                track-by="id">
+              </dp-multiselect>
+            </template>
+          </template>
         </div>
       </div>
       <dp-button-row
@@ -469,6 +502,7 @@ export default {
         procedureId: this.procedureId
       },
       claimLoading: false,
+      customFieldValues: {},
       currentUserName: this.currentUserFirstName + ' ' + this.currentUserLastName,
       demosplanUi: shallowRef(demosplanUi),
       isCollapsed: !(this.segment.relationships?.assignee?.data && this.segment.relationships.assignee.data.id === this.currentUserId),
@@ -489,6 +523,10 @@ export default {
 
     ...mapState('AssignableUser', {
       assignableUserItems: 'items'
+    }),
+
+    ...mapState('CustomField', {
+      customFields: 'items'
     }),
 
     assignableUsers () {
@@ -521,6 +559,25 @@ export default {
 
     commentCount () {
       return this.segment.relationships.comments?.data?.length || 0
+    },
+
+    /**
+     * @returns {Object} - Custom fields options by custom field id
+     */
+    customFieldsOptions () {
+      return Object.values(this.customFields).reduce((acc, el) => {
+        const opts =  [ ...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
+        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id})
+
+        return {
+          ...acc,
+          [el.id]: opts
+        }
+      }, {})
+    },
+
+    displayEditableFieldsLabel () {
+      return Translator.trans(hasPermission('field_segments_custom_fields') ? 'fields.more.edit' : 'workflow.change.assignee.place')
     },
 
     isAssignedToMe () {
@@ -715,6 +772,13 @@ export default {
     save () {
       const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
       const { assignee, place } = this.updateRelationships()
+      let attributes = null
+
+      if (hasPermission('field_segments_custom_fields') && Object.values(this.customFieldValues).length > 0) {
+        attributes = {
+          customFields: Object.values(this.customFieldValues).map(({ fieldId, name }) => ({ id: fieldId, value: name }))
+        }
+      }
 
       const payload = {
         data: {
@@ -725,6 +789,10 @@ export default {
             place
           }
         }
+      }
+
+      if (attributes) {
+        payload.data.attributes = attributes
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
@@ -753,6 +821,32 @@ export default {
           this.setProperty({ prop: 'isLoading', val: false })
           this.isEditing = false
         })
+    },
+
+    setActiveTabId (id) {
+      this.activeId = id
+    },
+
+    /**
+     * Add custom field to custom fields with selected option
+     * @param {Object} value
+     * @param {string} value.id   id of the selected option
+     * @param {string} value.fieldId   id of the custom field
+     * @param {string} value.name   name of the selected option
+     */
+    setCustomFieldValue (value) {
+      this.customFieldValues[value.fieldId] = value
+    },
+
+    setInitiallySelectedCustomFieldValues () {
+      this.segment.attributes.customFields.forEach(field => {
+        const fieldId = field.id
+        const selectedOption = this.customFieldsOptions[fieldId].find(option => option.name === field.value)
+
+        if (selectedOption) {
+          this.customFieldValues[fieldId] = selectedOption
+        }
+      })
     },
 
     showComments () {
@@ -933,6 +1027,9 @@ export default {
       .then(() => {
         if (this.segment.relationships.place) {
           this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+        }
+        if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
+          this.setInitiallySelectedCustomFieldValues()
         }
       })
     this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
