@@ -795,13 +795,30 @@ export default {
         payload.data.attributes = attributes
       }
 
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
+      const updatedSegment = {
+        id: this.segment.id,
+        type: 'StatementSegment',
+        attributes: {
+          ...this.segment.attributes,
+          customFields: {
+            ...this.segment.attributes.customFields,
+            ...payload.data.attributes?.customFields
+          }
+        },
+        relationships: {
+          ...this.segment.relationships,
+          ...payload.data.relationships
+        }
+      }
+
+      this.setSegment({
+        ...updatedSegment,
+        id: this.segment.id
+      })
+
+      this.saveSegmentAction(this.segment.id)
         .then(checkResponse)
         .then(() => {
-          /*
-           * @improve - once the vuex-json-api resolves with a response,
-           * we can handle success messages in checkResponse() again.
-           */
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           this.isFullscreen = false
           this.isEditing = false
