@@ -35,6 +35,7 @@ use EDT\PathBuilding\PropertyAutoPathTrait;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Querying\Utilities\Reindexer;
 use EDT\Wrapping\Contracts\AccessException;
+use EDT\Wrapping\Contracts\ContentField;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
@@ -227,6 +228,11 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         return $this->getResourceConfig()->getUpdatability();
     }
 
+    protected function getSchemaPathProcessor(): \EDT\Wrapping\Utilities\SchemaPathProcessor
+    {
+        return $this->getJsonApiResourceTypeService()->getSchemaPathProcessor();
+    }
+
     public function createEntity(CreationDataInterface $entityData): ModifiedEntity
     {
         try {
@@ -235,7 +241,8 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
                     $attributes = $entityData->getAttributes();
                     $customField = $this->customFieldCreator->createCustomField($attributes);
 
-                    return new ModifiedEntity($customField, []);
+                    // Add the standard content field ID to ensure it's returned in the response
+                    return new ModifiedEntity($customField, [ContentField::ID]);
                 }
             );
         } catch (Exception $exception) {
