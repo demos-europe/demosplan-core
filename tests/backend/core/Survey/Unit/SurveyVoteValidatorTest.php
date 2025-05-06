@@ -33,7 +33,7 @@ class SurveyVoteValidatorTest extends SurveyVoteTestUtils
     {
         parent::setUp();
         /* @var SurveyValidator sut */
-        $this->sut = self::$container->get(SurveyVoteValidator::class);
+        $this->sut = self::getContainer()->get(SurveyVoteValidator::class);
 
         $validJsonPath = __DIR__.'/inputFiles/surveyvote-input-create.json';
         // uses local file, no need for flysystem

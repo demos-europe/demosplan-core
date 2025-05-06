@@ -59,7 +59,7 @@ class PhpStanCommand extends CoreCommand
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        $configSavePath = $this->writeConfig($input);
+        $configSavePath = $this->writeConfig($input, $output);
 
         if ($input->getOption('only-dump-config')) {
             return Command::SUCCESS;
@@ -72,22 +72,42 @@ class PhpStanCommand extends CoreCommand
         return (int) $this->doRunPhpStan($input, $output, $configSavePath, $path, $level);
     }
 
-    protected function writeConfig(InputInterface $input): string
+    protected function writeConfig(InputInterface $input, OutputInterface $output): string
     {
-        $configSavePath = DemosPlanPath::getRootPath('phpstan.neon');
+        $configSavePath = 'phpstan.neon';
 
         // poor dev's twig
         $configLoadPath = self::PHPSTAN_CONFIG_PATH;
 
+        $containerPath = $this->parameterBag->get('debug.container.dump');
+
+        // Convert container paths to work both inside and outside the container
+        $rootPath = DemosPlanPath::getRootPath();
+
+        // Handle container path format (/srv/www/...)
+        if (str_starts_with($containerPath, '/srv/www/')) {
+            $containerPath = substr($containerPath, 9); // remove /srv/www/
+        }
+
+        // Handle host path format
+        if (str_starts_with($containerPath, $rootPath)) {
+            $containerPath = substr($containerPath, strlen($rootPath) + 1);
+        }
+
+        // Ensure the container path exists and is accessible
+        if (file_exists($rootPath . '/' . $containerPath)) {
+            $output->writeln(sprintf('Using container path: %s', $containerPath));
+        } elseif (file_exists('/srv/www/' . $containerPath)) {
+            $output->writeln(sprintf('Using container path: %s (in container)', $containerPath));
+        } else {
+            $output->writeln(sprintf('<warning>Warning: Container file not found. Using best guess: %s</warning>', $containerPath));
+        }
+
         $config = str_replace(
             '{{ container_path }}',
-
-            $this->parameterBag->get('debug.container.dump'),
-
+            $containerPath,
             // uses local file, no need for flysystem
-            file_get_contents(
-                DemosPlanPath::getRootPath($configLoadPath)
-            )
+            file_get_contents($configLoadPath)
         );
 
         // local file is valid, no need for flysystem

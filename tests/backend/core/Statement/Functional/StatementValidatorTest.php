@@ -26,7 +26,7 @@ class StatementValidatorTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(StatementValidator::class);
+        $this->sut = self::getContainer()->get(StatementValidator::class);
     }
 
     public function testValidate(): void

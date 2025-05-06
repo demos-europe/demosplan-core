@@ -24,7 +24,7 @@ class LocationServiceTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(LocationService::class);
+        $this->sut = self::getContainer()->get(LocationService::class);
     }
 
     public function testFindByArs(): void

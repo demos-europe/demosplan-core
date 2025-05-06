@@ -97,7 +97,7 @@ class PageTitleExtensionTest extends UnitTestCase
         $currentProcedure = $this->getMock(CurrentProcedureService::class, $mockMethods);
 
         $this->twigExtension = new PageTitleExtension(
-            self::$container,
+            self::getContainer(),
             $globalConfig,
             $translator,
             $currentProcedure,

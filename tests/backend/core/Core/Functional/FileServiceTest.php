@@ -43,7 +43,7 @@ class FileServiceTest extends FunctionalTestCase
         // get testdata:
         $this->testFile = $this->fixtures->getReference('testFile');
 
-        $this->sut = self::$container->get(FileService::class);
+        $this->sut = self::getContainer()->get(FileService::class);
     }
 
     public function testGetFileInfo()
@@ -175,7 +175,7 @@ class FileServiceTest extends FunctionalTestCase
 
     public function testSaveFileFromUploadedFileWithUserId()
     {
-        $globalConfig = self::$container->get(GlobalConfigInterface::class);
+        $globalConfig = self::getContainer()->get(GlobalConfigInterface::class);
         $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');
         $fileName = 'test2.txt';
 

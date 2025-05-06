@@ -31,7 +31,7 @@ class FaqHandlerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(FaqHandler::class);
+        $this->sut = self::getContainer()->get(FaqHandler::class);
     }
 
     public function testGetFaqListStructure()
