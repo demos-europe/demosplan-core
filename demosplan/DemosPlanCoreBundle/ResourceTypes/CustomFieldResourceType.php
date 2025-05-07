@@ -21,11 +21,12 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\AllAttributesTransformer;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
-use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\ResourceConfigInterface;
 use EDT\JsonApi\ResourceTypes\AbstractResourceType;
@@ -35,6 +36,7 @@ use EDT\PathBuilding\PropertyAutoPathTrait;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Querying\Utilities\Reindexer;
 use EDT\Wrapping\Contracts\AccessException;
+use EDT\Wrapping\Contracts\ContentField;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
@@ -105,13 +107,13 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         );
 
         $configBuilder->id->setReadableByPath();
-        $configBuilder->name->setReadableByPath()->addPathCreationBehavior();
+        $configBuilder->name->setReadableByPath(DefaultField::YES)->addPathCreationBehavior();
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->options->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->description->setReadableByPath()->addPathCreationBehavior();
-        $configBuilder->targetEntity->setReadableByPath()->addPathCreationBehavior();
-        $configBuilder->sourceEntity->setReadableByPath()->addPathCreationBehavior();
-        $configBuilder->sourceEntityId->setReadableByPath()->addPathCreationBehavior();
+        $configBuilder->targetEntity->addPathCreationBehavior();
+        $configBuilder->sourceEntity->addPathCreationBehavior();
+        $configBuilder->sourceEntityId->addPathCreationBehavior();
 
         return $configBuilder->build();
     }
@@ -123,12 +125,14 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function getTransformer(): TransformerAbstract
     {
-        return new DynamicTransformer(
+        // Use our custom transformer that returns all attributes
+        // This ensures all fields are included in the response for newly created entities
+        return new AllAttributesTransformer(
             $this->getTypeName(),
             $this->getEntityClass(),
             $this->getReadability(),
             $this->messageFormatter,
-            null
+            $this->logger,
         );
     }
 
@@ -227,6 +231,11 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         return $this->getResourceConfig()->getUpdatability();
     }
 
+    protected function getSchemaPathProcessor(): \EDT\Wrapping\Utilities\SchemaPathProcessor
+    {
+        return $this->getJsonApiResourceTypeService()->getSchemaPathProcessor();
+    }
+
     public function createEntity(CreationDataInterface $entityData): ModifiedEntity
     {
         try {
@@ -235,7 +244,9 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
                     $attributes = $entityData->getAttributes();
                     $customField = $this->customFieldCreator->createCustomField($attributes);
 
-                    return new ModifiedEntity($customField, []);
+                    // Using AllAttributesTransformer which always returns all attributes
+                    // No need to list attributes here as our custom transformer handles that
+                    return new ModifiedEntity($customField, [ContentField::ID]);
                 }
             );
         } catch (Exception $exception) {
