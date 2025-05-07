@@ -8,8 +8,7 @@ parameters:
     database_password: ""
 
     elasticsearch_populate_workers: 3
-    elasticsearch_urls:
-        -   url: "http://search7:9200"
+    elasticsearch_urls: ["http://search7:9200"]
 
     fileservice_filepath: "/opt/uploads"
 

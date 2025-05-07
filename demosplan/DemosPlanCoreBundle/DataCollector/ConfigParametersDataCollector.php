@@ -30,7 +30,7 @@ class ConfigParametersDataCollector extends DataCollector
         Response $response,
         Throwable $exception = null
     ) {
-        $esUrls = collect($this->parameterBag->get('elasticsearch_urls'))->transform(static fn ($item) => $item['url'])->toArray();
+        $esUrls = collect($this->parameterBag->get('elasticsearch_urls'))->toArray();
 
         $this->data = [
             'database_host'        => $this->parameterBag->get('database_host'),

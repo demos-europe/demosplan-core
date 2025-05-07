@@ -2,8 +2,22 @@
 fos_elastica:
     clients:
         default:
-            connections: '%elasticsearch_urls%'
+            # Updated for Elasticsearch 8 compatibility
+            hosts: '%elasticsearch_urls%'
             connection_strategy: RoundRobin
+            username: 'username'
+            password: 'password'
+            # Add SSL configuration if needed
+            client_config:
+                # Add any necessary SSL/security configuration here
+                # Example:
+                # ssl:
+                #    verify: false
+                #    certificate: /path/to/cert
+            # Add other client options if needed
+            # client_options:
+            #    timeout: 30
+            #    retries: 2
     indexes:
         statementSegments:
             index_name: '%project_prefix%_segments'
