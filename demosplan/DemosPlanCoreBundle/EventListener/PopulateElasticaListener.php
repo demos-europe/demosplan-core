@@ -32,7 +32,7 @@ class PopulateElasticaListener
     public function __construct(
         GlobalConfigInterface $globalConfig,
         private readonly IndexManager $indexManager,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         $this->logger = $logger;
         $this->globalConfig = $globalConfig;
