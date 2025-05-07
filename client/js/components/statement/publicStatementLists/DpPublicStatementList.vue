@@ -251,12 +251,12 @@ export default {
       return fields
     },
 
-    hasPublicStatements() {
-      return this.transformedStatements.filter(statement => !statement.authorOnly).length === 0;
+    hasNoPublicStatements () {
+      return this.transformedStatements.filter(statement => statement.authorOnly).length === 0;
     },
 
-    hasNoPublicStatements() {
-      return this.transformedStatements.filter(statement => statement.authorOnly).length === 0;
+    hasPublicStatements () {
+      return this.transformedStatements.filter(statement => !statement.authorOnly).length === 0;
     },
 
     menuItemCallback () {
@@ -271,10 +271,11 @@ export default {
       })
     },
 
-    publicStatements() {
+    publicStatements () {
       return this.transformedStatements.filter(statement => !statement.authorOnly);
     },
-    privateStatements() {
+
+    privateStatements () {
       return this.transformedStatements.filter(statement => statement.authorOnly);
     }
   },
