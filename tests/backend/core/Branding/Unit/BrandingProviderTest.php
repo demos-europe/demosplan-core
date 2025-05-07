@@ -25,7 +25,7 @@ class BrandingProviderTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(BrandingProvider::class);
+        $this->sut = self::getContainer()->get(BrandingProvider::class);
     }
 
     public function testGenerateFullCss(): void

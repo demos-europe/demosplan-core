@@ -31,9 +31,9 @@ class ReportMessageConverterTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(ReportMessageConverter::class);
-        $this->translator = self::$container->get('translator.default');
-        $this->router = self::$container->get('router');
+        $this->sut = self::getContainer()->get(ReportMessageConverter::class);
+        $this->translator = self::getContainer()->get('translator.default');
+        $this->router = self::getContainer()->get('router');
     }
 
     public function testConvertProcedureAddMessage()

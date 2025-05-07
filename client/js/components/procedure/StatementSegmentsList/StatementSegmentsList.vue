@@ -166,7 +166,7 @@
         v-else-if="currentAction === 'editText'"
         :current-user="currentUser"
         :editable="editable"
-        :segment-draft-list="this.statement.attributes.segmentDraftList"
+        :has-draft-segments="hasDraftSegments()"
         :statement-id="statementId"
         @statement-text-updated="checkStatementClaim"
         @save-statement="saveStatement" />
@@ -714,6 +714,10 @@ export default {
         include: include.join(),
         fields: allFields
       })
+    },
+
+    hasDraftSegments () {
+      return Boolean(this.statement?.attributes?.segmentDraftList?.data?.attributes?.segments?.length)
     },
 
     resetSlidebar () {

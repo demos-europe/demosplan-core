@@ -1700,7 +1700,7 @@ class StatementFragmentService extends CoreService
             // state we need to throw away the cached statement fragments first. This could lead to problems
             // if any previous StatementFragment instances are used with doctrine afterwards during this HTTP
             // request, even implicitly, eg. when persisting a Statement referencing StatementFragments.
-            $this->doctrine->getManager()->clear(StatementFragment::class);
+            $this->doctrine->getManager()->clear();
             $statementFragments = $this->statementFragmentRepository->findBy(
                 ['id' => $statementFragmentIds, 'procedure' => $procedureId]
             );

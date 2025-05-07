@@ -201,7 +201,7 @@ class AddonInstallFromZipCommand extends CoreCommand
                 $batch->addShell(["bin/{$activeProject}", 'dplan:addon:build-frontend', $name, '-e', $environment]);
             }
             $batchReturn = $batch->run();
-            if($batch->hasException()) {
+            if ($batch->hasException()) {
                 $output->error($batch->getLastException()->getMessage());
             }
 

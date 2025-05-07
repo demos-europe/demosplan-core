@@ -23,7 +23,7 @@ class BrandingRepositoryTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut = self::$container->get(BrandingRepository::class);
+        $this->sut = self::getContainer()->get(BrandingRepository::class);
     }
 
     public function testCreateFromData(): void

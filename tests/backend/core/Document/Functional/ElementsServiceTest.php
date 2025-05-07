@@ -10,6 +10,7 @@
 
 namespace Tests\Core\Document\Functional;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadElementsData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\ElementsFactory;
@@ -39,7 +40,7 @@ class ElementsServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(ElementsService::class);
+        $this->sut = self::getContainer()->get(ElementsService::class);
         $this->testElement = $this->fixtures->getReference('testElement1');
         $this->testProcedure2 = $this->fixtures->getReference('testProcedure2');
     }
@@ -500,6 +501,12 @@ class ElementsServiceTest extends FunctionalTestCase
         self::assertFalse($elementA->getDeleted());
         self::assertFalse($elementB->getDeleted());
         self::assertFalse($elementC->getDeleted());
+
+        // Update the designatedSwitchDate to yesterday to ensure it's treated as in the past
+        $yesterday = new DateTime('yesterday');
+        $elementA->setDesignatedSwitchDate($yesterday);
+        $elementB->setDesignatedSwitchDate($yesterday);
+        $this->getEntityManager()->flush();
 
         $affectedElementsCount = $this->sut->autoSwitchElementsState();
         self::assertEquals(2, $affectedElementsCount);
