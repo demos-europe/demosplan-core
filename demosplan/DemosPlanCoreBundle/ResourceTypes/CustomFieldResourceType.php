@@ -36,6 +36,7 @@ use EDT\PathBuilding\PropertyAutoPathTrait;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use EDT\Querying\Utilities\Reindexer;
 use EDT\Wrapping\Contracts\AccessException;
+use EDT\Wrapping\Contracts\ContentField;
 use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
 use EDT\Wrapping\ResourceBehavior\ResourceReadability;
@@ -110,9 +111,9 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->options->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->description->setReadableByPath()->addPathCreationBehavior();
-        $configBuilder->targetEntity->setReadableByPath()->addPathCreationBehavior();
-        $configBuilder->sourceEntity->setReadableByPath()->addPathCreationBehavior();
-        $configBuilder->sourceEntityId->setReadableByPath()->addPathCreationBehavior();
+        $configBuilder->targetEntity->addPathCreationBehavior();
+        $configBuilder->sourceEntity->addPathCreationBehavior();
+        $configBuilder->sourceEntityId->addPathCreationBehavior();
 
         return $configBuilder->build();
     }
@@ -131,7 +132,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             $this->getEntityClass(),
             $this->getReadability(),
             $this->messageFormatter,
-            null
+            $this->logger,
         );
     }
 
@@ -245,7 +246,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
                     // Using AllAttributesTransformer which always returns all attributes
                     // No need to list attributes here as our custom transformer handles that
-                    return new ModifiedEntity($customField, []);
+                    return new ModifiedEntity($customField, [ContentField::ID]);
                 }
             );
         } catch (Exception $exception) {

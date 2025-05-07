@@ -49,11 +49,11 @@ class AllAttributesTransformer extends DynamicTransformer
      * @throws InvalidArgumentException
      */
     public function __construct(
-        protected readonly string $typeName,
-        protected readonly string $entityClass,
-        protected readonly ResourceReadability $readability,
-        protected readonly MessageFormatter $messageFormatter,
-        protected readonly ?LoggerInterface $logger,
+          string $typeName,
+          string $entityClass,
+          ResourceReadability $readability,
+          MessageFormatter $messageFormatter,
+          ?LoggerInterface $logger,
     ) {
         parent::__construct($typeName, $entityClass, $readability, $messageFormatter, $logger);
     }
