@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
@@ -106,7 +107,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         );
 
         $configBuilder->id->setReadableByPath();
-        $configBuilder->name->setReadableByPath()->addPathCreationBehavior();
+        $configBuilder->name->setReadableByPath(DefaultField::YES)->addPathCreationBehavior();
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->options->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->description->setReadableByPath()->addPathCreationBehavior();
@@ -242,7 +243,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
                     $customField = $this->customFieldCreator->createCustomField($attributes);
 
                     // Add the standard content field ID to ensure it's returned in the response
-                    return new ModifiedEntity($customField, [ContentField::ID]);
+                    return new ModifiedEntity($customField, [ContentField::ID, 'description']);
                 }
             );
         } catch (Exception $exception) {
