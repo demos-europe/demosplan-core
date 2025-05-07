@@ -170,7 +170,9 @@ parameters:
     # route to tex2pdf service without trailing slash
     tex2pdf_url: ""
 
-    # virus scan service url without trailing slash
+    # enable virus scan
+    avscan_enable: true
+    # virus scan service url without trailing slash, used in VirusCheckHttp
     avscan_url: ""
     # Implementation to use for virus scan. Currently VirusCheckHttp, VirusCheckRabbitmq or VirusCheckSocket
     avscan_implementation: 'VirusCheckHttp'
@@ -351,9 +353,6 @@ parameters:
     elements_title_statement: "Gesamtstellungnahme"
     # Sollen zusätzliche Informationen von Geoservern geholt werden?
     use_fetch_additional_geodata: false
-
-    # enable virus scan
-    avscan_enable: true
 
     # should file table entries be checked regularly whether they are referenced in some other entities
     # and be fully deleted if no reference is found?
