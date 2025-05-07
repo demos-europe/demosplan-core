@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\InputHandling\RepositoryInterface;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\AllAttributesTransformer;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\ResourceConfigInterface;
@@ -125,7 +126,9 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function getTransformer(): TransformerAbstract
     {
-        return new DynamicTransformer(
+        // Use our custom transformer that returns all attributes
+        // This ensures all fields are included in the response for newly created entities
+        return new AllAttributesTransformer(
             $this->getTypeName(),
             $this->getEntityClass(),
             $this->getReadability(),
@@ -241,9 +244,9 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
                 function () use ($entityData): ModifiedEntity {
                     $attributes = $entityData->getAttributes();
                     $customField = $this->customFieldCreator->createCustomField($attributes);
-
-                    // Add the standard content field ID to ensure it's returned in the response
-                    return new ModifiedEntity($customField, [ContentField::ID, 'description']);
+                    // Using AllAttributesTransformer which always returns all attributes
+                    // No need to list attributes here as our custom transformer handles that
+                    return new ModifiedEntity($customField, []);
                 }
             );
         } catch (Exception $exception) {
