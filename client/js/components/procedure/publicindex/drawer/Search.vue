@@ -93,7 +93,7 @@ export default {
   },
 
   emits: [
-    'procedure-search-focused'
+    'procedureSearch:focused'
   ],
 
   data () {
@@ -153,7 +153,7 @@ export default {
 
     onFocus () {
       this.focused = true
-      this.$emit('procedure-search-focused')
+      this.$emit('procedureSearch:focused')
     },
 
     reset () {

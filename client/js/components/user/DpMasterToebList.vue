@@ -46,7 +46,7 @@
           class="inline"
           :bool-to-string-fields="boolToStringFields"
           :fields="filteredFields"
-          @orga-added="insertOrga" /><!--
+          @orga:added="insertOrga" /><!--
      --><dp-invite-master-toeb
           v-if="isEditable === false"
           class="inline"
@@ -66,7 +66,7 @@
           class="inline"
           :fields="fields"
           :items="currentItems"
-          @items-filtered="setFilteredItems" />
+          @items:filtered="setFilteredItems" />
         <!-- dropdown to select cols to be shown/hidden -->
         <div
           class="c-actionmenu o-page__switcher-menu"
@@ -132,7 +132,7 @@
           v-if="headerField.field === 'deletion' && isEditable"
           :key="headerField.field"
           :orga-id="rowData.ident"
-          @orga-deleted="removeOrga" />
+          @orga:deleted="removeOrga" />
       </template>
       <template
         v-for="headerField in headerFields"
@@ -179,7 +179,7 @@
           class="inline-block u-mr-0_25 u-ml-0_5 u-mt-0_125"
           :current="currentPage"
           :total="totalPages"
-          @page-change="handlePageChange" />
+          @pageChange="handlePageChange" />
         <dp-select-page-item-count
           class="inline"
           :current-item-count="itemsPerPage"
@@ -286,7 +286,7 @@ export default {
   },
 
   emits: [
-    'orga-updated'
+    'orga:updated'
   ],
 
   data () {
@@ -534,14 +534,14 @@ export default {
             const newValue = e.target.value
             updateCell(e)
               .then(() => {
-                this.$emit('orga-updated', id, { [field]: newValue }, 'confirm')
+                this.$emit('orga:updated', id, { [field]: newValue }, 'confirm')
                 el.classList.add('animation--bg-highlight-grey--light-1')
                 setTimeout(() => {
                   el.classList.remove('animation--bg-highlight-grey--light-1')
                 }, 3000)
               })
               .catch(() => {
-                this.$emit('orga-updated', id, { [field]: value }, 'error')
+                this.$emit('orga:updated', id, { [field]: value }, 'error')
               })
             el.removeEventListener('focusout', runCellUpdate)
             this.editModeElementId = ''
@@ -611,7 +611,7 @@ export default {
       this.addCellIdsAndFields(tableBody, this.onPageItems)
       tableBody.addEventListener('click', this.triggerEditMode)
     }
-    this.$on('orga-updated', this.updateOrga)
+    this.$on('orga:updated', this.updateOrga)
 
     // The code below forces reflow therefore it should be executed once all other code from mounted has run (perf gains)
     this.isMounted = true

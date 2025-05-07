@@ -99,7 +99,7 @@ export default {
   mixins: [dpValidateMixin],
 
   emits: [
-    'close-create-form'
+    'closeCreateForm'
   ],
 
   data () {
@@ -148,7 +148,7 @@ export default {
     ]),
 
     closeForm () {
-      this.$emit('close-create-form')
+      this.$emit('closeCreateForm')
     },
 
     createTag (topicId) {

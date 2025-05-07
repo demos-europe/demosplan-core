@@ -230,8 +230,8 @@ export default {
   },
 
   emits: [
-    'add-to-selection',
-    'remove-from-selection'
+    'addToSelection',
+    'removeFromSelection'
   ],
 
   data () {
@@ -348,9 +348,9 @@ export default {
 
     toggleSelection () {
       if (this.isSelected) {
-        this.$emit('remove-from-selection', this.statementId)
+        this.$emit('removeFromSelection', this.statementId)
       } else {
-        this.$emit('add-to-selection', this.statementId)
+        this.$emit('addToSelection', this.statementId)
       }
     }
   }

@@ -63,7 +63,7 @@ useful info about the component:
           :extern-id="fragment.displayId"
           :fragment-assignee-id="fragment.assignee?.id"
           :statement-id="statement.id"
-          @fragment-delete="deleteFragment" />
+          @fragment:delete="deleteFragment" />
       </div><!--
    --><dp-claim
         class="c-at-item__row-icon inline-block"

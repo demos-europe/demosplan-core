@@ -102,9 +102,9 @@
               :applied-filter-options="appliedFilterOptions.filter(option => option.filterId === filterItem.id)"
               :filter-item="filterItem"
               :filter-group="filterGroup"
-              @update-selected="updateSelectedOptions"
-              @updating-filters="disabledInteractions = true"
-              @updated-filters="disabledInteractions = false" />
+              @updateSelected="updateSelectedOptions"
+              @updatingFilters="disabledInteractions = true"
+              @updatedFilters="disabledInteractions = false" />
           </dp-tab>
         </dp-tabs>
 
@@ -516,7 +516,7 @@ export default {
   },
 
   mounted () {
-    this.$root.$on('assessment-table-loaded', () => {
+    this.$root.$on('assessmentTable:loaded', () => {
       this.disabledOpenModalButton = false
     })
   }

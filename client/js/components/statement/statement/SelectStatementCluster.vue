@@ -153,7 +153,7 @@ export default {
   },
 
   emits: [
-    'selected-cluster'
+    'selectedCluster'
   ],
 
   data () {
@@ -195,7 +195,7 @@ export default {
       }
 
       // Emit current selection so that parent component can obtain the selected cluster
-      this.$emit('selected-cluster', this.selectedCluster)
+      this.$emit('selectedCluster', this.selectedCluster)
     },
 
     sortOptions (clusterList) {

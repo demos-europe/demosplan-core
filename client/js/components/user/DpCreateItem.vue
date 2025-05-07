@@ -145,11 +145,11 @@ export default {
   },
 
   emits: [
-    'get-items',
-    'organisation-reset',
-    'organisation-update',
-    'user-reset',
-    'user-update'
+    'getItems',
+    'organisation:reset',
+    'organisation:update',
+    'user:reset',
+    'user:update'
   ],
 
   data () {
@@ -169,15 +169,15 @@ export default {
             availableOrgaTypes: this.availableOrgaTypes
           },
           formName: 'newOrganisationForm',
-          resetEvent: 'organisation-reset',
-          updateEvent: 'organisation-update'
+          resetEvent: 'organisation:reset',
+          updateEvent: 'organisation:update'
         },
         user: {
           componentName: 'dp-user-form-fields',
           componentProps: {},
           formName: 'newUserForm',
-          resetEvent: 'user-reset',
-          updateEvent: 'user-update'
+          resetEvent: 'user:reset',
+          updateEvent: 'user:update'
         }
       },
       isOpen: false,
@@ -293,7 +293,7 @@ export default {
           this.createOrganisation(payload)
             .then(() => {
               if (this.itemResource.attributes.registrationStatuses.find(el => el.status === 'pending')) {
-                this.$root.$emit('get-items')
+                this.$root.$emit('getItems')
               }
               this.reset()
               // Confirm notification is done in BE

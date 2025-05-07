@@ -867,7 +867,7 @@ export default {
         }
       })
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'comments' } })
-      this.$root.$emit('show-slidebar')
+      this.$root.$emit('showSlidebar')
     },
 
     showMap () {
@@ -877,7 +877,7 @@ export default {
 
       this.$parent.$parent.resetSlidebar()
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'map' } })
-      this.$root.$emit('show-slidebar')
+      this.$root.$emit('showSlidebar')
       this.$root.$emit('segmentMap:show')
     },
 
@@ -887,7 +887,7 @@ export default {
       }
 
       this.$root.$emit('version:history', this.segment.id, 'segment', this.segment.attributes.externId)
-      this.$root.$emit('show-slidebar')
+      this.$root.$emit('showSlidebar')
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'history' } })
     },
 

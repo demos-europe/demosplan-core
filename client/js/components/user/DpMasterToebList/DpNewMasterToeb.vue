@@ -52,7 +52,7 @@ export default {
   },
 
   emits: [
-    'orga-added'
+    'orga:added'
   ],
 
   methods: {
@@ -73,7 +73,7 @@ export default {
         newOrgaCpy.ident = response.data.ident
         this.batchRequest(newOrgaCpy).then(() => {
           newOrgaCpy.orgaName = newOrga.orgaName
-          this.$emit('orga-added', newOrgaCpy)
+          this.$emit('orga:added', newOrgaCpy)
         })
       })
     },

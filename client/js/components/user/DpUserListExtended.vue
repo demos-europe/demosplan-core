@@ -13,8 +13,8 @@
     <dp-table-card-list-header
       :items="headerItems"
       class="u-pt"
-      @reset-search="resetSearch"
-      @select-all="val => dpToggleAll(val, users)"
+      @reseSearch="resetSearch"
+      @selectAll="val => dpToggleAll(val, users)"
       @search="val => handleSearch(val)"
       search-placeholder="search.users"
       searchable
@@ -64,7 +64,7 @@
       class="u-mr-0_25 u-ml-0_5 u-mt-0_5"
       :current="currentPage"
       :total="totalPages"
-      @page-change="getUsersByPage" />
+      @pageChange="getUsersByPage" />
   </div>
 </template>
 

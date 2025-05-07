@@ -19,7 +19,7 @@
       group-values="boilerplates"
       group-label="groupName"
       :group-select="false"
-      @boilerplate-text-added="addBoilerplateText" />
+      @boilerplateText:added="addBoilerplateText" />
     <div class="flex items-center u-mt">
       <a
         class="weight--bold font-size-small"

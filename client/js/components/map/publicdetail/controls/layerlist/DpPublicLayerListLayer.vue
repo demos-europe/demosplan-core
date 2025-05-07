@@ -108,8 +108,8 @@ export default {
     'layer:toggleLegend',
     'layer:toggleOtherBaselayers',
     'layer:toggleVisibiltyGroup',
-    'layer-opacity:change',
-    'layer-opacity:changed'
+    'layerOpacity:change',
+    'layerOpacity:changed'
   ],
 
   data () {
@@ -263,12 +263,12 @@ export default {
       this.$store.commit('Layers/setAttributeForLayer', { id: this.id, attribute: 'opacity', value: val })
       if (isNaN(val * 1)) return false
       val /= 100
-      this.$root.$emit('layer-opacity:change', { id: this.id, opacity: val })
+      this.$root.$emit('layerOpacity:change', { id: this.id, opacity: val })
       return this
     },
 
     saveOpacity () {
-      this.$root.$emit('layer-opacity:changed', { id: this.id, opacity: this.opacity })
+      this.$root.$emit('layerOpacity:changed', { id: this.id, opacity: this.opacity })
     },
 
     setAndSaveOpacity (e) {
