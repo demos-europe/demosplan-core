@@ -8,7 +8,29 @@
 </license>
 
 <template>
+  <div v-if="!hasTabs">
+    <dp-inline-notification
+      v-if="transformedStatements.length === 0"
+      :message="Translator.trans('statement.list.empty')"
+      type="info" />
+    <div class="space-stack-m">
+      <dp-public-statement
+        v-for="(statement, idx) in transformedStatements"
+        v-bind="statement"
+        :key="idx"
+        :menu-items-generator="menuItemCallback"
+        :procedure-id="procedureId"
+        :show-author="showAuthor"
+        :show-checkbox="showCheckbox"
+        @open-map-modal="openMapModal"
+        @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)"/>
+      <dp-map-modal
+        ref="mapModal"
+        :procedure-id="procedureId" />
+    </div>
+  </div>
   <dp-tabs
+    v-else
     :active-id="activeTabId"
     @change="id => activeTabId = id">
     <slot>
@@ -18,11 +40,11 @@
         :label="Translator.trans('statements.draft.organisation')">
         <div class="space-stack-m pt-2">
           <dp-inline-notification
-            v-if="hasNoPublicStatements"
+            v-if="hasPublicStatements"
             :message="Translator.trans('statement.list.empty')"
             type="info" />
           <dp-public-statement
-            v-for="(statement, idx) in transformedStatements.filter(s => !s.authorOnly)"
+            v-for="(statement, idx) in publicStatements"
             v-bind="statement"
             :key="idx"
             :menu-items-generator="menuItemCallback"
@@ -42,11 +64,11 @@
         :label="Translator.trans('statements.draft')">
         <div class="space-stack-m pt-2">
           <dp-inline-notification
-            v-if="hasPublicStatements"
+            v-if="!hasPublicStatements"
             :message="Translator.trans('statement.list.empty')"
             type="info" />
           <dp-public-statement
-            v-for="(statement, idx) in transformedStatements.filter(s => s.authorOnly)"
+            v-for="(statement, idx) in privateStatements"
             v-bind="statement"
             :key="'authorOnly-' + idx"
             :menu-items-generator="menuItemCallback"
@@ -106,6 +128,12 @@ export default {
       type: Array,
       required: false,
       default: () => ([])
+    },
+
+    hasTabs: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
     procedureId: {
@@ -223,12 +251,8 @@ export default {
       return fields
     },
 
-    hasNoPublicStatements() {
-      return this.transformedStatements.filter(statement => !statement.authorOnly).length === 0;
-    },
-
     hasPublicStatements() {
-      return this.transformedStatements.filter(statement => statement.authorOnly).length === 0;
+      return this.transformedStatements.filter(statement => !statement.authorOnly).length === 0;
     },
 
     menuItemCallback () {
@@ -241,6 +265,13 @@ export default {
         paragraphId,
         isPublished
       })
+    },
+
+    publicStatements() {
+      return this.transformedStatements.filter(statement => !statement.authorOnly);
+    },
+    privateStatements() {
+      return this.transformedStatements.filter(statement => statement.authorOnly);
     }
   },
 
