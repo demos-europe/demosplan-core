@@ -15,6 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use EDT\PathBuilding\End;
 
 /**
@@ -46,11 +48,15 @@ use EDT\PathBuilding\End;
  * @property-read End                           $externalStartDate
  * @property-read End                           $externalPhaseIdentifier
  * @property-read End                           $externalPhaseTranslationKey
+ * @property-read CustomFieldResourceType       $segmentCustomFields
  * @property-read CustomerResourceType          $customer
  */
 final class AdminProcedureResourceType extends DplanResourceType
 {
-    public function __construct(private readonly ProcedureResourceType $procedureResourceType, private readonly ProcedureService $procedureService)
+    public function __construct(
+        private readonly ProcedureResourceType $procedureResourceType,
+        private readonly ProcedureService $procedureService,
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
     {
     }
 
@@ -121,6 +127,15 @@ final class AdminProcedureResourceType extends DplanResourceType
                     return $externalPhases[$externalPhaseIdentifier]['name'] ?? $externalPhaseIdentifier;
                 }),
                 $this->createAttribute($this->externalStartDate)->readable()->aliasedPath($this->publicParticipationPhase->startDate)];
+
+
+            if ($this->currentUser->hasAnyPermissions('area_admin_custom_fields')) {
+                $properties[] = $this->createToManyRelationship($this->segmentCustomFields)
+                    ->readable(true, function (Procedure $procedure): ?ArrayCollection {
+                        return $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE', $procedure->getId(), 'SEGMENT');
+
+                    });
+            }
         }
 
         return $properties;
@@ -146,5 +161,10 @@ final class AdminProcedureResourceType extends DplanResourceType
         $resourceTypeConditions = $this->procedureResourceType->getResourceTypeConditions();
 
         return array_merge($adminProcedureConditions, $resourceTypeConditions);
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        return true;
     }
 }

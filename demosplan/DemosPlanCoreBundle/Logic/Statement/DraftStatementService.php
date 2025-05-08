@@ -175,7 +175,11 @@ class DraftStatementService extends CoreService
             throw new AccessDeniedException('No user given');
         }
         try {
-            // die eigenen Freigaben müssen abweichend vom Standardverfahren aus der Datenbank gezogen werden
+            /*
+             * Special fetching strategy for DraftStatements is needed:
+             * 'own' in combination with getReleased to indicate
+             * the DraftStatement belongs to the users organisation and has been created by the given user.
+             */
             if ('own' === $scope && true === $filters->getReleased()
                 && (null === $filters->getSubmitted() || false === $filters->getSubmitted())) {
                 return $this->getDraftStatementReleasedOwnList($procedureId, $filters, $search, $sort, $user, $manualSortScope);
@@ -195,11 +199,20 @@ class DraftStatementService extends CoreService
             } else {
                 $conditions[] = $this->conditionFactory->propertyHasValue($userOrganisationGatewayName, ['organisation', 'gatewayName']);
             }
-
-            if ('own' === $scope || 'ownCitizen' === $scope) {
+            if ('ownCitizen' === $scope) {
+                // In case of ownCitizen, previous ('own'-)logic can be executed:
                 $conditions[] = $this->conditionFactory->propertyHasValue($user->getId(), ['user']);
                 // add filter to be seen by elasticsearch
-                $filters->setSomeOnesUserId($user->getIdent());
+                $filters->setSomeOnesUserId($user->getId());
+            }
+            if ('own' === $scope) {
+                // own means own organisation in this context.
+                // filter out all private DraftStatements of own organisation if they are not authored by currentUser
+                $conditions[] = $this->conditionFactory->anyConditionApplies(
+                    $this->conditionFactory->propertyHasValue(false, ['authorOnly']),
+                    $this->conditionFactory->propertyHasValue($user->getId(), ['user']),
+                );
+                $filters->setSomeOnesUserId($user->getId());
             }
 
             if (null !== $filters->getReleased()) {
@@ -241,7 +254,7 @@ class DraftStatementService extends CoreService
             }
 
             // get Elasticsearch aggregations aka Userfilters
-            $aggregation = $this->getElasticsearchDraftStatementAggregation($filters, $procedureId, $user, $search);
+            $aggregation = $this->getElasticsearchDraftStatementAggregation($filters, $procedureId, $user, $search, $scope);
 
             return $this->toLegacyResult($list, $procedureId, $search, $filters->toArray(), $sort, $manualSortScope, $aggregation);
         } catch (Exception $e) {
@@ -1478,7 +1491,7 @@ class DraftStatementService extends CoreService
      *
      * @return array
      */
-    protected function getElasticsearchDraftStatementAggregation(StatementListUserFilter $userFilters, $procedureId, $user, $search = '')
+    protected function getElasticsearchDraftStatementAggregation(StatementListUserFilter $userFilters, $procedureId, $user, $search = '', string $scope = '')
     {
         $aggregation = [];
         $boolQuery = new BoolQuery();
@@ -1511,6 +1524,18 @@ class DraftStatementService extends CoreService
                 }
             }
 
+            if ('own' === $scope) {
+                // 'own' means own organisation in this context
+                // filters private drafts from orga if not owned by user
+                $shouldBool = new BoolQuery();
+                $shouldBool->addShould(new Terms('authorOnly', [false]));
+                $shouldBool->addShould(new Terms('uId', [$userFilters->getSomeOnesUserId()]));
+                $boolMustFilter[] = $shouldBool;
+            } elseif (null !== $userFilters->getSomeOnesUserId()) {
+                $uId = [$userFilters->getSomeOnesUserId()];
+                $boolMustFilter[] = new Terms('uId', $uId);
+            }
+
             // Filters set by users.
             if (null !== $userFilters->getReleased()) {
                 $released = [$userFilters->getReleased()];
@@ -1519,10 +1544,6 @@ class DraftStatementService extends CoreService
             if (null !== $userFilters->getSubmitted()) {
                 $submitted = [$userFilters->getSubmitted()];
                 $boolMustFilter[] = new Terms('submitted', $submitted);
-            }
-            if (null !== $userFilters->getSomeOnesUserId()) {
-                $uId = [$userFilters->getSomeOnesUserId()];
-                $boolMustFilter[] = new Terms('uId', $uId);
             }
             if (null !== $userFilters->getElement()) {
                 $element = [$userFilters->getElement()];

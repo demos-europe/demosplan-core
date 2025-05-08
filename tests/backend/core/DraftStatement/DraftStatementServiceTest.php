@@ -49,7 +49,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         'user', 'uStreet',
     ];
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService|object|null
+     * @var ElementsService|object|null
      */
     protected $elementsService;
 
@@ -71,8 +71,8 @@ class DraftStatementServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(DraftStatementService::class);
-        $this->elementsService = self::$container->get(ElementsService::class);
+        $this->sut = self::getContainer()->get(DraftStatementService::class);
+        $this->elementsService = self::getContainer()->get(ElementsService::class);
         $this->testDraftStatement = $this->fixtures->getReference('testDraftStatement');
     }
 
@@ -1292,8 +1292,6 @@ class DraftStatementServiceTest extends FunctionalTestCase
     }
 
     /**
-     * @param $providerData
-     *
      * @throws \Doctrine\Common\DataFixtures\OutOfBoundsException
      * @throws Exception
      */
@@ -1327,7 +1325,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
     /**
      * @param $providerData
-     * dataProvider getDetermineStatementCategoryData
+     *                      dataProvider getDetermineStatementCategoryData
      */
     public function testDetermineStatementCategory(/* array $providerData */)
     {
@@ -1366,7 +1364,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
     /**
      * @param $providerData
-     * dataProvider getCreateDraftStatementData
+     *                      dataProvider getCreateDraftStatementData
      *
      * @throws \Doctrine\Common\DataFixtures\OutOfBoundsException
      * @throws Exception

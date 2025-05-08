@@ -38,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\WorkflowPlaceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
@@ -182,6 +183,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @throws StatementElementNotFoundException
      * @throws UnexpectedWorksheetNameException
      * @throws UserNotFoundException
+     * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
      */
     public function processSegments(SplFileInfo $fileInfo): SegmentExcelImportResult
     {
@@ -394,10 +396,9 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     }
 
     /**
-     * @throws AccessDeniedException
-     * @throws PathException
-     * @throws UserNotFoundException
      * @throws DuplicatedTagTitleException
+     * @throws PathException
+     * @throws \DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException
      */
     public function generateSegment(
         Statement $statement,
@@ -421,7 +422,13 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $segment->setPublicVerified(Statement::PUBLICATION_PENDING);
         $segment->setText($segmentData['Einwand'] ?? '');
         $segment->setRecommendation($segmentData['Erwiderung'] ?? '');
-        $segment->setPlace($this->placeService->findFirstOrderedBySortIndex($procedure->getId()));
+
+        $place = $this->placeService->findFirstOrderedBySortIndex($procedure->getId());
+        if (null === $place) {
+            throw WorkflowPlaceNotFoundException::createResourceNotFoundException('Place', $procedure->getId());
+        }
+
+        $segment->setPlace($place);
         $segment->setCreated(new DateTime());
         $segment->setOrderInProcedure($counter);
 

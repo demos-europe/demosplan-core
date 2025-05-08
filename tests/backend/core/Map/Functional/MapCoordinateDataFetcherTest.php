@@ -56,34 +56,34 @@ class MapCoordinateDataFetcherTest extends FunctionalTestCase
     public function fetchDataProvider()
     {
         return [
-                [
-                    'in'  => [
-                        'latMap' => 1061889.1340879,
-                        'lonMap' => 7269899.6631521,
-                        'lat'    => 54.523336555209,
-                        'lon'    => 9.5391123919164,
-                        ],
-                    'out' => [
-                        'postalCode'    => '24837',
-                        'city'          => 'Schleswig',
-                        'municipalCode' => '01059075',
-                        'ars'           => '010590075075',
-                    ],
+            [
+                'in'  => [
+                    'latMap' => 1061889.1340879,
+                    'lonMap' => 7269899.6631521,
+                    'lat'    => 54.523336555209,
+                    'lon'    => 9.5391123919164,
                 ],
-                [
-                    'in'  => [
-                        'latMap' => 961070.91179295,
-                        'lonMap' => 7292446.8204785,
-                        'lat'    => 54.640718486421,
-                        'lon'    => 8.6334468918629,
-                        ],
-                    'out' => [
-                        'postalCode'    => '25863',
-                        'city'          => 'Langeneß',
-                        'municipalCode' => '01054074',
-                        'ars'           => '010545459074',
-                    ],
+                'out' => [
+                    'postalCode'    => '24837',
+                    'city'          => 'Schleswig',
+                    'municipalCode' => '01059075',
+                    'ars'           => '010590075075',
                 ],
+            ],
+            [
+                'in'  => [
+                    'latMap' => 961070.91179295,
+                    'lonMap' => 7292446.8204785,
+                    'lat'    => 54.640718486421,
+                    'lon'    => 8.6334468918629,
+                ],
+                'out' => [
+                    'postalCode'    => '25863',
+                    'city'          => 'Langeneß',
+                    'municipalCode' => '01054074',
+                    'ars'           => '010545459074',
+                ],
+            ],
         ];
     }
 
@@ -151,7 +151,7 @@ class MapCoordinateDataFetcherTest extends FunctionalTestCase
         string $municipalCode,
         string $ars,
         $lat,
-        $lon
+        $lon,
     ): MapCoordinateDataFetcher {
         $locationService = $this->createMock(LocationService::class);
         $locationService->method('getMunicipalCodes')
@@ -179,7 +179,7 @@ class MapCoordinateDataFetcherTest extends FunctionalTestCase
             ->with(ReverseQuery::fromCoordinates($lat, $lon))
             ->willReturn($addressCollection);
 
-        $mapProjectionConverter = self::$container->get(MapProjectionConverter::class);
+        $mapProjectionConverter = self::getContainer()->get(MapProjectionConverter::class);
 
         return new MapCoordinateDataFetcher($locationService, $logger, $mapProjectionConverter, $nominatim);
     }

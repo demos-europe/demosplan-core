@@ -54,6 +54,18 @@
                 </dt>
                 <dd>{{ assignee.name }}</dd>
               </div>
+              <template v-if="hasPermission('field_segments_custom_fields')">
+                <div
+                  v-for="customField in segment.attributes.customFields"
+                  :key="customField.id">
+                  <dt class="weight--bold">
+                    {{ Object.values(customFields).find(field => field.id === customField.id)?.attributes?.name || '' }}:
+                  </dt>
+                  <dd>
+                    {{ customField.value }}
+                  </dd>
+                </div>
+              </template>
             </dl>
           </div>
         </template>
@@ -150,21 +162,23 @@
                   v-tooltip="Translator.trans('segment.oracle.beta.tooltip')" />
               </div>
               <dp-tabs
-                v-if="allComponentsLoaded"
+                v-if="recommendationTabAddonsLoaded"
                 :active-id="activeId"
-                @change="(id) => setActiveTabId(id)">
+                @change="handleTabChange">
                 <dp-tab
-                  v-for="(component, idx) in asyncComponents"
-                  :key="idx"
-                  :id="component.options.id"
-                  :is-active="activeId === component.options.id"
-                  :label="Translator.trans(component.options.title)">
+                  v-for="addon in recommendationModalAddons"
+                  :key="addon.options.id"
+                  :id="addon.options.id"
+                  :is-active="activeId === addon.options.id"
+                  :label="Translator.trans(addon.options.title)">
                   <slot>
                     <component
+                      :is="addon.component"
+                      class="u-mt"
+                      :data-cy="`addon:${addon.name}`"
+                      :demosplan-ui="demosplanUi"
                       :procedure-id="addonProps.procedureId"
                       :segment-id="addonProps.segmentId"
-                      class="u-mt"
-                      :is="component.name"
                       @recommendation:insert="closeRecommendationModalAfterInsert" />
                   </slot>
                 </dp-tab>
@@ -182,7 +196,7 @@
               <i :class="prefixClass('fa fa-puzzle-piece')" />
             </button>
             <button
-              v-if="asyncComponents.length > 0"
+              v-if="hasRecommendationTabs"
               :class="prefixClass('menubar__button')"
               data-cy="segmentEditor:similarRecommendation"
               type="button"
@@ -198,12 +212,13 @@
           :id="'showWorkflowActions_' + segment.id"
           v-model="showWorkflowActions"
           :label="{
-            text: Translator.trans('workflow.change.assignee.place')
+            text: displayEditableFieldsLabel
           }" />
         <div
           v-if="showWorkflowActions"
           class="u-mv-0_5">
           <dp-label
+            class="mb-0.5 mt-2"
             :text="Translator.trans('assignee')"
             :bold="false"
             for="assignableUsersSegment" />
@@ -217,7 +232,7 @@
           <dp-label
             :text="Translator.trans('workflow.place')"
             :bold="false"
-            class="u-mt-0_5"
+            class="mb-0.5 mt-2"
             for="segmentPlace" />
           <dp-multiselect
             id="segmentPlace"
@@ -257,6 +272,26 @@
               </div>
             </template>
           </dp-multiselect>
+          <template v-if="hasPermission('field_segments_custom_fields')">
+            <template
+              v-for="field in Object.values(customFields)"
+              :key="field.id">
+              <dp-label
+                :bold="false"
+                class="mb-0.5 mt-2"
+                :for="field.id"
+                :text="field.attributes.name" />
+              <dp-multiselect
+                allow-empty
+                :id="field.id"
+                :value="customFieldValues[field.id]"
+                @select="(value) => setCustomFieldValue(value)"
+                label="name"
+                :options="customFieldsOptions[field.id]"
+                track-by="id">
+              </dp-multiselect>
+            </template>
+          </template>
         </div>
       </div>
       <dp-button-row
@@ -361,6 +396,7 @@
 </template>
 
 <script>
+import * as demosplanUi from '@demos-europe/demosplan-ui'
 import {
   checkResponse,
   CleanHtml,
@@ -379,8 +415,9 @@ import {
   Tooltip,
   VPopover
 } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent, shallowRef } from 'vue'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { defineAsyncComponent } from 'vue'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
@@ -393,6 +430,7 @@ export default {
   inject: ['procedureId'],
 
   components: {
+    AddonWrapper,
     DpBadge,
     DpBoilerPlateModal,
     DpButtonRow,
@@ -463,18 +501,20 @@ export default {
         segmentId: this.segment.id,
         procedureId: this.procedureId
       },
-      allComponentsLoaded: false,
-      asyncComponents: [],
-      showWorkflowActions: false,
-      selectedAssignee: {},
       claimLoading: false,
+      customFieldValues: {},
       currentUserName: this.currentUserFirstName + ' ' + this.currentUserLastName,
+      demosplanUi: shallowRef(demosplanUi),
       isCollapsed: !(this.segment.relationships?.assignee?.data && this.segment.relationships.assignee.data.id === this.currentUserId),
       isEditing: false,
       isFullscreen: false,
       isHover: false,
+      recommendationModalAddons: [],
+      recommendationTabAddonsLoaded: false,
       refRecModal: 'recommendationModal',
-      selectedPlace: { id: '', type: 'Place' }
+      selectedAssignee: {},
+      selectedPlace: { id: '', type: 'Place' },
+      showWorkflowActions: false
     }
   },
 
@@ -483,6 +523,10 @@ export default {
 
     ...mapState('AssignableUser', {
       assignableUserItems: 'items'
+    }),
+
+    ...mapState('CustomField', {
+      customFields: 'items'
     }),
 
     assignableUsers () {
@@ -517,8 +561,31 @@ export default {
       return this.segment.relationships.comments?.data?.length || 0
     },
 
+    /**
+     * @returns {Object} - Custom fields options by custom field id
+     */
+    customFieldsOptions () {
+      return Object.values(this.customFields).reduce((acc, el) => {
+        const opts =  [ ...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
+        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id})
+
+        return {
+          ...acc,
+          [el.id]: opts
+        }
+      }, {})
+    },
+
+    displayEditableFieldsLabel () {
+      return Translator.trans(hasPermission('field_segments_custom_fields') ? 'fields.more.edit' : 'workflow.change.assignee.place')
+    },
+
     isAssignedToMe () {
       return this.assignee.id === this.currentUserId
+    },
+
+    hasRecommendationTabs () {
+      return this.recommendationModalAddons.length > 0
     },
 
     places () {
@@ -668,6 +735,10 @@ export default {
       dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
     },
 
+    handleTabChange (id) {
+      this.activeId = id
+    },
+
     openBoilerPlate () {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
@@ -701,6 +772,13 @@ export default {
     save () {
       const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
       const { assignee, place } = this.updateRelationships()
+      let attributes = null
+
+      if (hasPermission('field_segments_custom_fields') && Object.values(this.customFieldValues).length > 0) {
+        attributes = {
+          customFields: Object.values(this.customFieldValues).map(({ fieldId, name }) => ({ id: fieldId, value: name }))
+        }
+      }
 
       const payload = {
         data: {
@@ -711,6 +789,10 @@ export default {
             place
           }
         }
+      }
+
+      if (attributes) {
+        payload.data.attributes = attributes
       }
 
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
@@ -743,6 +825,28 @@ export default {
 
     setActiveTabId (id) {
       this.activeId = id
+    },
+
+    /**
+     * Add custom field to custom fields with selected option
+     * @param {Object} value
+     * @param {string} value.id   id of the selected option
+     * @param {string} value.fieldId   id of the custom field
+     * @param {string} value.name   name of the selected option
+     */
+    setCustomFieldValue (value) {
+      this.customFieldValues[value.fieldId] = value
+    },
+
+    setInitiallySelectedCustomFieldValues () {
+      this.segment.attributes.customFields.forEach(field => {
+        const fieldId = field.id
+        const selectedOption = this.customFieldsOptions[fieldId].find(option => option.name === field.value)
+
+        if (selectedOption) {
+          this.customFieldValues[fieldId] = selectedOption
+        }
+      })
     },
 
     showComments () {
@@ -924,6 +1028,9 @@ export default {
         if (this.segment.relationships.place) {
           this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
         }
+        if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
+          this.setInitiallySelectedCustomFieldValues()
+        }
       })
     this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
       .then(() => {
@@ -933,16 +1040,23 @@ export default {
       })
 
     loadAddonComponents('segment.recommendationModal.tab')
-      .then(response => {
-        if (response.length > 0) {
-          this.asyncComponents = response
-          this.activeId = response[0].options.id || ''
-          this.allComponentsLoaded = true
-
-          response.forEach(component => {
-            this.$options.components[component.name] = window[component.name].default
-          })
+      .then(addons => {
+        if (!addons.length) {
+          return
         }
+
+        this.activeId = (addons[0].options && addons[0].options.id) || ''
+        this.recommendationTabAddonsLoaded = true
+
+        this.recommendationModalAddons = addons.map(addon => {
+          const { name, options } = addon
+
+          return {
+            component: shallowRef(window[name].default),
+            name,
+            options
+          }
+        })
       })
   }
 }

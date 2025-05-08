@@ -27,7 +27,7 @@ class SurveyVoteCreateHandlerTest extends SurveyVoteTestUtils
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut = self::$container->get(SurveyVoteCreateHandler::class);
+        $this->sut = self::getContainer()->get(SurveyVoteCreateHandler::class);
     }
 
     /**
