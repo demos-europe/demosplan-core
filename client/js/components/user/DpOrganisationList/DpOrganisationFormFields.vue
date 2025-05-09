@@ -590,19 +590,13 @@
           <p class="font-size-6 weight--normal">
             {{ Translator.trans('explanation.organisation.copies.paper') }}
           </p>
-          <select
-            class="bg-color--white"
-            style="height: 27px;"
+          <dp-select
+            class="w-fit"
             data-cy="orgaFormField:organisationCopiesPaper"
             v-model="localOrganisation.attributes.copy"
-            @change="emitOrganisationUpdate">
-            <option
-              v-for="(count, idx) in paperCopyCountOptions"
-              :key="idx"
-              :value="count">
-              {{ count }}
-            </option>
-          </select>
+            :options="paperCopyCountOptions"
+            :show-placeholder="false"
+            @select="emitOrganisationUpdate"/>
         </label>
       </div>
 
@@ -765,7 +759,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpTextArea, hasOwnProp, DpSelect } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
@@ -776,7 +770,8 @@ export default {
     DpCheckbox,
     DpDetails,
     DpEditor,
-    DpTextArea
+    DpTextArea,
+    DpSelect
   },
 
   inject: [
@@ -959,7 +954,8 @@ export default {
      * Options for the number of paper copies dropdown
      */
     paperCopyCountOptions () {
-      return Array.from(Array(11).keys())
+      //returns an Array of Objects with value, label keys for 0-10
+      return Array.from({length: 11}, (_, i) => ({ value: i, label: String(i) }));
     },
 
     registrationStatuses () {
