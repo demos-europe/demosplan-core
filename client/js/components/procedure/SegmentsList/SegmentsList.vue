@@ -775,7 +775,10 @@ export default {
       this.resetSearchQuery()
       this.appliedFilterQuery = []
       Object.keys(this.filters).forEach((filter, idx) => {
-        this.$refs[`filterFlyout${idx}`].reset()
+        const ref = this.$refs[`filterFlyout${idx}`]
+        if (ref && typeof ref.reset === 'function') {
+          ref.reset();
+        }
       })
       this.updateQueryHash()
       this.resetSelection()
