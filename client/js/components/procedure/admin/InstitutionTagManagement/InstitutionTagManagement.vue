@@ -24,7 +24,9 @@
         id="tagList"
         :is-active="activeTabId === 'tagList'"
         :label="Translator.trans('tag.administrate')">
-        <tag-list @tagIsRemoved="institutionListReset" />
+        <tag-list
+          v-if="activeTabId === 'tagList'"
+          @tagIsRemoved="institutionListReset" />
       </dp-tab>
     </slot>
   </dp-tabs>
