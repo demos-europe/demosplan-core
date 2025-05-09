@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\ManualOriginalStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedViaExcelEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -103,7 +104,10 @@ class XlsxSegmentImport
                     throw $exception;
                 }
 
-                $this->eventDispatcher->post(new ManualOriginalStatementCreatedEvent($statement));
+                $this->eventDispatcher->dispatch(
+                    new ManualOriginalStatementCreatedEvent($statement),
+                    ManualOriginalStatementCreatedEventInterface::class
+                );
             }
 
             $this->entityManager->flush();

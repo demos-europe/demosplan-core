@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Event\Statement\StatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
@@ -56,6 +58,8 @@ class RpcBulkCopyStatements extends AbstractRpcStatementBulkAction
         try {
             foreach ($statements as $statement) {
                 $copyResult = $this->statementCopier->copyStatementObjectWithinProcedureWithRelatedFiles($statement);
+                $event = new StatementCreatedEvent($copyResult);
+                $this->eventDispatcher->dispatch($event, StatementCreatedEventInterface::class);
                 if (!$copyResult instanceof Statement) {
                     return false;
                 }
