@@ -91,6 +91,35 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
     public function setText(Cell $cell): ?ConstraintViolationListInterface
     {
         $statementText = $cell->getValue();
+
+        // Prüfen, ob es Rich Text ist und Formatierungen extrahieren
+        if ($cell->hasRichText()) {
+            $richText = $cell->getRichText();
+            $htmlText = '';
+
+            // Durchlaufe alle Rich Text Elemente und extrahiere die Formatierung
+            foreach ($richText->getRichTextElements() as $element) {
+                $text = htmlspecialchars($element->getText());
+
+                // Wenn eine Schriftart gesetzt ist, prüfen wir auf Formatierungen
+                if ($font = $element->getFont()) {
+                    if ($font->getBold()) {
+                        $text = '<strong>' . $text . '</strong>';
+                    }
+                    if ($font->getItalic()) {
+                        $text = '<em>' . $text . '</em>';
+                    }
+                    if ($font->getUnderline()) {
+                        $text = '<u>' . $text . '</u>';
+                    }
+                }
+
+                $htmlText .= $text;
+            }
+
+            $statementText = $htmlText;
+        }
+
         $violations = $this->validator->validate($statementText, $this->textConstraint);
         if (0 !== $violations->count()) {
             return $violations;
