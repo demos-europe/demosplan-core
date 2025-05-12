@@ -288,8 +288,7 @@
                 @select="(value) => setCustomFieldValue(value)"
                 label="name"
                 :options="customFieldsOptions[field.id]"
-                track-by="id">
-              </dp-multiselect>
+                track-by="id" />
             </template>
           </template>
         </div>
@@ -568,8 +567,8 @@ export default {
      */
     customFieldsOptions () {
       return Object.values(this.customFields).reduce((acc, el) => {
-        const opts =  [ ...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
-        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id})
+        const opts = [...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
+        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id })
 
         return {
           ...acc,
@@ -813,12 +812,21 @@ export default {
         }
       }
 
+      const payloadTest = {
+        attributes: {
+          customFields: this.segment.attributes.customFields
+        },
+        type: 'StatementSegment',
+        id: this.segment.id
+      }
+
       this.setSegment({
         ...updatedSegment,
         id: this.segment.id
       })
 
-      this.saveSegmentAction(this.segment.id)
+      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, { data: payloadTest })
+      // This.saveSegmentAction(this.segment.id)
         .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
