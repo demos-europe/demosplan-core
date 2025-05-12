@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\RichText\RichText;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -88,13 +89,18 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         return null;
     }
 
+    private function hasRichText(Cell $cell): bool
+    {
+        return $cell->getValue() instanceof RichText;
+    }
+
     public function setText(Cell $cell): ?ConstraintViolationListInterface
     {
         $statementText = $cell->getValue();
 
         // Prüfen, ob es Rich Text ist und Formatierungen extrahieren
-        if ($cell->hasRichText()) {
-            $richText = $cell->getRichText();
+        if ($this->hasRichText($cell)) {
+            $richText = $cell->getValue();
             $htmlText = '';
 
             // Durchlaufe alle Rich Text Elemente und extrahiere die Formatierung
