@@ -9,7 +9,6 @@
         align="left"
         class="top-px right-0 absolute"
         data-cy="customSearch:searchCustomLimitFields"
-        :has-menu="false"
         :padded="false">
         <template v-slot:trigger>
           <dp-icon icon="settings" />

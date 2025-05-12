@@ -59,7 +59,7 @@
           v-slot:flyout="{ externId, id }">
           <dp-flyout>
             <a
-              class="u-pt-0"
+              class="block u-pt-0 leading-[2] whitespace-nowrap"
               :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: id })">
               {{ Translator.trans('statement.anonymize', { externId: externId }) }}
             </a>

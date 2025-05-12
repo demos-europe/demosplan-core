@@ -218,6 +218,7 @@
           <template v-slot:flyout="rowData">
             <dp-flyout data-cy="segmentsList:flyoutEditMenu">
               <a
+                class="block leading-[2] whitespace-nowrap"
                 :href="Routing.generate('dplan_statement_segments_list', {
                   action: 'editText',
                   procedureId: procedureId,
@@ -230,6 +231,7 @@
               </a>
               <a
                 v-if="hasPermission('feature_segment_recommendation_edit')"
+                class="block leading-[2] whitespace-nowrap"
                 :href="Routing.generate('dplan_statement_segments_list', {
                   procedureId: procedureId,
                   segment: rowData.id,
@@ -242,13 +244,14 @@
               <!-- Version history view -->
               <button
                 type="button"
-                class="btn--blank o-link--default"
+                class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
                 data-cy="segmentsList:segmentVersionHistory"
                 @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)">
                 {{ Translator.trans('history') }}
               </button>
               <a
                 v-if="hasPermission('feature_read_source_statement_via_api')"
+                class="block leading-[2] whitespace-nowrap"
                 :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
                 data-cy="segmentsList:originalPDF"
                 target="_blank"
