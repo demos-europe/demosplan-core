@@ -4199,20 +4199,20 @@
         },
         {
             "name": "enqueue/dsn",
-            "version": "0.10.25",
+            "version": "0.10.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-enqueue/dsn.git",
-                "reference": "83193ee9e3f83d2becc66f748bb5bec232281236"
+                "reference": "1948d3c5918ee2bdf833392d02f14e05d4006979"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-enqueue/dsn/zipball/83193ee9e3f83d2becc66f748bb5bec232281236",
-                "reference": "83193ee9e3f83d2becc66f748bb5bec232281236",
+                "url": "https://api.github.com/repos/php-enqueue/dsn/zipball/1948d3c5918ee2bdf833392d02f14e05d4006979",
+                "reference": "1948d3c5918ee2bdf833392d02f14e05d4006979",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.4|^8.0"
+                "php": "^8.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^9.5"
@@ -4248,7 +4248,7 @@
                 "issues": "https://github.com/php-enqueue/enqueue-dev/issues",
                 "source": "https://github.com/php-enqueue/enqueue-dev"
             },
-            "time": "2025-01-17T21:33:18+00:00"
+            "time": "2025-04-27T13:30:31+00:00"
         },
         {
             "name": "enqueue/elastica-bundle",
@@ -4483,22 +4483,22 @@
         },
         {
             "name": "enqueue/fs",
-            "version": "0.10.25",
+            "version": "0.10.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-enqueue/fs.git",
-                "reference": "54a784685483769feb6cb58ecd0fa539d617e7c3"
+                "reference": "a51da5371dc15bd5880aa375f8da98e854d3d8c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-enqueue/fs/zipball/54a784685483769feb6cb58ecd0fa539d617e7c3",
-                "reference": "54a784685483769feb6cb58ecd0fa539d617e7c3",
+                "url": "https://api.github.com/repos/php-enqueue/fs/zipball/a51da5371dc15bd5880aa375f8da98e854d3d8c3",
+                "reference": "a51da5371dc15bd5880aa375f8da98e854d3d8c3",
                 "shasum": ""
             },
             "require": {
                 "enqueue/dsn": "^0.10",
                 "makasim/temp-file": "^0.2@stable",
-                "php": "^7.4|^8.0",
+                "php": "^8.1",
                 "queue-interop/queue-interop": "^0.8",
                 "symfony/filesystem": "^5.4|^6.0"
             },
@@ -4543,7 +4543,7 @@
                 "issues": "https://github.com/php-enqueue/enqueue-dev/issues",
                 "source": "https://github.com/php-enqueue/enqueue-dev"
             },
-            "time": "2025-01-17T21:33:18+00:00"
+            "time": "2025-04-27T13:30:31+00:00"
         },
         {
             "name": "enqueue/null",
