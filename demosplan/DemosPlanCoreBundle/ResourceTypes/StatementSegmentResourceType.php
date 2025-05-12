@@ -217,7 +217,6 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
                 );
         }
 
-
         return array_map(
             static fn (PropertyConfigBuilderInterface $property): PropertyConfigBuilderInterface => $property
                 ->filterable()

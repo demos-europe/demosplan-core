@@ -21,9 +21,8 @@ use Doctrine\DBAL\Types\JsonType;
  */
 class CustomFieldValueType extends JsonType
 {
-
     final public const DPLAN_STORED_QUERY = 'dplan.custom_fields_value';
-  
+
     private const TYPE_CLASSES = [
         CustomFieldValuesList::class,
     ];
