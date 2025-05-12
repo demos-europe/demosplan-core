@@ -9,6 +9,10 @@
 
 <template>
   <div aria-hidden="true">
+    <div style="height: 600px; width: 800px;">
+      <diplan-karte />
+    </div>
+
     <dp-autocomplete
       :class="prefixClass('c-map__autocomplete')"
       v-if="hasPermission('feature_map_search_location')"
@@ -47,6 +51,7 @@ import Feature from 'ol/Feature'
 import { getResolutionsFromScales } from '@DpJs/components/map/map/utils/utils'
 import { getTopLeft } from 'ol/extent'
 import LayerGroup from 'ol/layer/Group'
+import { MapPlugin } from '@init/diplan-karten'
 import { optionsFromCapabilities } from 'ol/source/WMTS'
 import Overlay from 'ol/Overlay'
 import Progress from './lib/Progress'
@@ -2049,6 +2054,19 @@ export default {
         }
       }
     }
+  },
+
+  created () {
+    this.$.appContext.app.use(MapPlugin, {
+      template: {
+        compilerOptions: {
+          // Register the custom element:
+          isCustomElement: (tag) => tag === "diplan-karte",
+        }
+      }
+    })
+
+    console.log(this.$.appContext.components)
   },
 
   mounted () {
