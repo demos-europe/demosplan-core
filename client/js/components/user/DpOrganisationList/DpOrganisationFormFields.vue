@@ -585,19 +585,16 @@
         <legend class="layout__item u-mt-0_5 u-p-0 u-pb-0_5">
           {{ Translator.trans('copies.paper') }}
         </legend>
-        <label>
-          {{ Translator.trans('quantity') }}
-          <p class="font-size-6 weight--normal">
-            {{ Translator.trans('explanation.organisation.copies.paper') }}
-          </p>
-          <dp-select
-            class="w-fit"
-            data-cy="orgaFormField:organisationCopiesPaper"
-            v-model="localOrganisation.attributes.copy"
-            :options="paperCopyCountOptions"
-            :show-placeholder="false"
-            @select="emitOrganisationUpdate"/>
-        </label>
+        <dp-select
+          :label="{
+            text: Translator.trans('quantity'),
+            hint: Translator.trans('explanation.organisation.copies.paper')
+          }"
+          data-cy="orgaFormField:organisationCopiesPaper"
+          v-model="localOrganisation.attributes.copy"
+          :options="paperCopyCountOptions"
+          :show-placeholder="false"
+          @select="emitOrganisationUpdate"/>
       </div>
 
       <label v-if="hasPermission('field_organisation_paper_copy_spec') && canEdit('paperCopySpec')">
