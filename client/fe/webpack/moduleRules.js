@@ -56,7 +56,7 @@ const postcssPrefixSelector = require('postcss-prefix-selector')({
   },
   ignoreFiles: [/.+style\.scss/]
 })
-const tailwindCss = require('tailwindcss')
+const tailwindCss = require('@tailwindcss/postcss')
 const postcssFlexbugsFixes = require('postcss-flexbugs-fixes')
 /*
  * The focus-visible pseudo class is disabled, as demosPlan does not polyfill :focus-visible. It can either not be

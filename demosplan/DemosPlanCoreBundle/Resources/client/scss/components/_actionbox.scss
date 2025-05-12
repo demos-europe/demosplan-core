@@ -129,7 +129,7 @@
         }
 
         &.is-active:active {
-            box-shadow: $dp-box-shadow;
+            box-shadow: $dp-box-shadow-sm;
             color: $actionbox-color-dark;
         }
 
@@ -143,7 +143,7 @@
 
         &.is-active {
             background-color: $actionbox-color-contrast;
-            box-shadow: $dp-box-shadow;
+            box-shadow: $dp-box-shadow-sm;
             color: $actionbox-color;
 
             &:hover:not(:active),

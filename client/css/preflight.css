@@ -1,3 +1,2 @@
-/* stylelint-disable */
-@config '../../tailwind.preflight.config.js';
-@tailwind base;
+@layer base;
+@import "tailwindcss/preflight.css" layer(base);

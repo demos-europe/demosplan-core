@@ -1,5 +1,4 @@
-/* stylelint-disable */
-@config '../../tailwind.config.js';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@layer theme, base, components, utilities;
+@import "@demos-europe/demosplan-ui/styles/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "@demos-europe/demosplan-ui/styles/utilities.css";

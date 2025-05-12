@@ -14,7 +14,7 @@
     <template v-if="video.id">
       <div class="flex space-inline-m">
         <dp-video-player
-          class="shadow h-fit w-12"
+          class="shadow-sm h-fit w-12"
           :sources="videoSources"
           :id="`file${video.file}`"
           icon-url="/img/plyr.svg" />

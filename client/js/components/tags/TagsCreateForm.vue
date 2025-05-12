@@ -3,7 +3,7 @@
     <div
       v-if="currentForm === 'tag'"
       id="new-tag-form"
-      class="border rounded p-4 my-4"
+      class="border rounded-sm p-4 my-4"
       data-dp-validate="addNewTagForm">
       <dp-label
         class="mb-4"
@@ -45,7 +45,7 @@
     <div
       v-else-if="currentForm === 'topic'"
       id="new-topic-form"
-      class="border rounded p-4 my-4"
+      class="border rounded-sm p-4 my-4"
       data-dp-validate="addNewTopicForm">
       <dp-label
         class="mb-4"

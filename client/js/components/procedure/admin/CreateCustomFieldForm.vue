@@ -16,7 +16,7 @@
         v-if="isLoading"
         overlay />
       <div
-        class="border rounded space-stack-m space-inset-m">
+        class="border rounded-sm space-stack-m space-inset-m">
         <dp-input
           id="newFieldName"
           class="w-[calc(100%-26px)]"
