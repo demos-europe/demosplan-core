@@ -4,6 +4,8 @@
 - **Minor Version**: Incremented for each release.
 - **Patch Version**: Incremented for bug fixes.
 
+## UNRELEASED
+- Add Versioning of custom fields of segments
 
 ## UNRELEASED
 - Enable Custom Field feature on segments: Allow users to add/edit custom fields to their segments     based on the custom fields defined in the procedure
