@@ -288,8 +288,7 @@
                 @select="(value) => setCustomFieldValue(value)"
                 label="name"
                 :options="customFieldsOptions[field.id]"
-                track-by="id">
-              </dp-multiselect>
+                track-by="id" />
             </template>
           </template>
         </div>
@@ -568,8 +567,8 @@ export default {
      */
     customFieldsOptions () {
       return Object.values(this.customFields).reduce((acc, el) => {
-        const opts =  [ ...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
-        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id})
+        const opts = [...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
+        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id })
 
         return {
           ...acc,
@@ -818,7 +817,18 @@ export default {
         id: this.segment.id
       })
 
-      this.saveSegmentAction(this.segment.id)
+      /**
+       * By default, only changed properties are sent; since `id` did not change, it is omitted by the diff.
+       * Using `full` forces the entire `customFields` object (including its unchanged `id`) into the update payload.
+       */
+      this.saveSegmentAction({
+        id: this.segment.id,
+        options: {
+          attributes: {
+            full: 'customFields'
+          }
+        }
+      })
         .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
@@ -1047,7 +1057,7 @@ export default {
         if (this.segment.relationships.place) {
           this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
         }
-        if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
+        if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
           this.setInitiallySelectedCustomFieldValues()
         }
       })
