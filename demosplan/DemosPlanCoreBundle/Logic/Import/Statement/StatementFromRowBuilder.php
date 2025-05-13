@@ -24,8 +24,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use Parsedown;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
-use PhpOffice\PhpSpreadsheet\RichText\RichText;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -89,42 +89,13 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         return null;
     }
 
-    private function hasRichText(Cell $cell): bool
-    {
-        return $cell->getValue() instanceof RichText;
-    }
-
     public function setText(Cell $cell): ?ConstraintViolationListInterface
     {
         $statementText = $cell->getValue();
 
-        // Prüfen, ob es Rich Text ist und Formatierungen extrahieren
-        if ($this->hasRichText($cell)) {
-            $richText = $cell->getValue();
-            $htmlText = '';
-
-            // Durchlaufe alle Rich Text Elemente und extrahiere die Formatierung
-            foreach ($richText->getRichTextElements() as $element) {
-                $text = htmlspecialchars($element->getText());
-
-                // Wenn eine Schriftart gesetzt ist, prüfen wir auf Formatierungen
-                if ($font = $element->getFont()) {
-                    if ($font->getBold()) {
-                        $text = '<strong>' . $text . '</strong>';
-                    }
-                    if ($font->getItalic()) {
-                        $text = '<em>' . $text . '</em>';
-                    }
-                    if ($font->getUnderline()) {
-                        $text = '<u>' . $text . '</u>';
-                    }
-                }
-
-                $htmlText .= $text;
-            }
-
-            $statementText = $htmlText;
-        }
+        $parsedown = new Parsedown();
+        // parse inline markdown
+        $statementText = $parsedown->line($statementText);
 
         $violations = $this->validator->validate($statementText, $this->textConstraint);
         if (0 !== $violations->count()) {

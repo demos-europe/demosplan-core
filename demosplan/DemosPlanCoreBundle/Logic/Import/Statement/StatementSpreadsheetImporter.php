@@ -114,23 +114,6 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
         return [$callBackMap, $builder];
     }
 
-    /**
-     * Verarbeitet Text und erhält dabei Formatierungen wie fett, kursiv und unterstrichen
-     */
-    protected function preserveFormatting(string $text): string
-    {
-        // Zuerst Zeilenumbrüche wie bisher verarbeiten
-        $text = str_replace(["_x000D_\n", "\n"], '<br>', $text);
-
-        // Bewahre Formatierung, indem wir Markdown-ähnliche Syntax in HTML umwandeln
-        // Dies deckt Fälle ab, in denen die Formatierung bereits als Markdown-Syntax vorliegt
-        $text = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $text); // **bold** zu <strong>
-        $text = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $text);             // *italic* zu <em>
-        $text = preg_replace('/__(.*?)__/', '<u>$1</u>', $text);               // __underline__ zu <u>
-
-        return $text;
-    }
-
     private function getStatementFromRowBuilder(ProcedureInterface $procedure): StatementFromRowBuilder
     {
         return new StatementFromRowBuilder(
@@ -140,7 +123,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             $this->orgaService->getOrga(User::ANONYMOUS_USER_ORGA_ID),
             $this->elementsService,
             $this->getStatementTextConstraint(),
-            $this->preserveFormatting(...)
+            $this->replaceLineBreak(...)
         );
     }
 
