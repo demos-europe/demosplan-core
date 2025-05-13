@@ -169,6 +169,9 @@ import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
 
 const orgaFields = {
+  Branding: [
+    'cssvars'
+  ].join(),
   OrgaStatusInCustomer: [
     'customer',
     'status'
@@ -178,6 +181,7 @@ const orgaFields = {
     'subdomain'
   ].join(),
   Orga: [
+    'branding',
     'canCreateProcedures',
     'ccEmail2',
     'city',
@@ -411,7 +415,7 @@ export default {
         sort: 'name',
         filter: filterObject,
         fields: orgaFields,
-        include: ['currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
+        include: ['branding', 'currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
       })
         .then(() => { this.isLoading = false })
     },
@@ -434,7 +438,7 @@ export default {
             }
           }
         },
-        include: ['currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
+        include: ['branding', 'currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
       })
         .then(() => {
           this.pendingOrganisationsLoading = false
@@ -455,7 +459,7 @@ export default {
         },
         fields: orgaFields,
         sort: 'name',
-        include: ['currentSlug', 'orgasInCustomer.customer'].join()
+        include: ['branding', 'currentSlug', 'orgasInCustomer.customer'].join()
       })
         .then(() => {
           this.pendingOrganisationsLoading = false
@@ -500,7 +504,7 @@ export default {
 
   mounted () {
     this.pendingOrganisationList({
-      include: ['currentSlug', 'orgasInCustomer.customer'].join()
+      include: ['branding', 'currentSlug', 'orgasInCustomer.customer'].join()
     }).then(() => {
       this.getItemsByPage(1)
     }).then(() => {
@@ -511,7 +515,7 @@ export default {
       this.isLoading = true
       this.pendingOrgs = {}
       this.pendingOrganisationList({
-        include: ['currentSlug', 'orgasInCustomer.customer'].join()
+        include: ['branding', 'currentSlug', 'orgasInCustomer.customer'].join()
       }).then(() => {
         this.getItemsByPage()
       })
