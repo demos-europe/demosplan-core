@@ -414,7 +414,10 @@ export default {
     },
 
     setValueAndSubmitForm (e, key) {
-      this.currentAutocompleteSearch = e.target.value
+      if (key === 'search') {
+        this.currentAutocompleteSearch = e.target.value
+      }
+
       this.form[key] = e.target.value
       this.submitForm()
     },
