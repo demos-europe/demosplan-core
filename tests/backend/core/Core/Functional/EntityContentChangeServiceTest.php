@@ -184,5 +184,4 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         static::assertSame('memo', $changeOfStatement->getEntityField());
         static::assertSame($this->testUser->getId(), $changeOfStatement->getUserId());
     }
-
 }
