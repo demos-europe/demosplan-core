@@ -28,7 +28,7 @@ final class ImageLinkConverter
     public const IMAGES_KEY_RECOMMENDATION = 'recommendation';
     public const IMAGES_KEY_SEGMENTS = 'segments';
     /**
-     * @var ImageReference
+     * @var ImageReference[]
      */
     private array $images = [];
     /**
