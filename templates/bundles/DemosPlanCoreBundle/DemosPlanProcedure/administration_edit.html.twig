@@ -370,6 +370,217 @@
                 </fieldset>
                 {# end wizard item: Intern #}
 
+                {# wizard item: Informationen zum Verfahren #}
+                {% if (
+                    hasPermission('field_procedure_description') or
+                    hasPermission('field_procedure_contact_person') or
+                    (hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation')) or
+                    hasPermission('feature_procedure_categories_edit') or
+                    hasPermission('field_procedure_linkbox')
+                    ) %}
+                    <fieldset
+                        name="infoForm"
+                        {% if proceduresettings.infoComplete is defined %}data-wizard-finished="true"{% endif %}
+                        data-wizard-topic="{{ 'wizard.topic.info'|trans }}"
+                        class="o-wizard"
+                        data-dp-validate="infoForm">
+
+                        <legend
+                            data-toggle-id="procedureInfo"
+                            class="js__toggleAnything"
+                            data-cy="procedureInfo">
+                            <i class="caret"></i>
+                            {{ 'wizard.topic.info'|trans }}
+                            <i class="fa fa-check"></i>
+                        </legend>
+
+                        <div data-toggle-id="procedureInfo" class="o-wizard__content">
+                            <div class="o-wizard__main">
+
+                                {% if hasPermission('field_procedure_description') %}
+                                    {% block oeb_desc %}
+                                        <div class="u-mb">
+                                            <label class="inline-block u-mb-0" for="counter_oeb_desc_input">
+                                                {{ "procedure.description.public"|trans }}
+                                            </label>
+                                            {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                                helpText: 'text.procedure.description.wizard'|trans,
+                                                cssClasses:'mb-1',
+                                                showPlainHint: true
+                                            } %}
+
+                                            <dp-editor
+                                                id="counter_oeb_desc_input"
+                                                hidden-input="r_externalDesc"
+                                                data-cy="procedureInfo:procedureDescriptionPublic"
+                                                :toolbar-items="{ listButtons: false }"
+                                                :maxlength="10000"
+                                                value="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}">
+                                            </dp-editor>
+                                        </div>
+                                    {% endblock oeb_desc %}
+                                {% endif %}
+
+                                {% if hasPermission('field_procedure_contact_person') %}
+                                    <div class="u-mb">
+                                        <label class="inline-block u-mb-0" for="r_publicParticipationContact">
+                                            {{ 'public.participation.contact'|trans }}
+                                            {%- if hasPermission('feature_require_procedure_contact_person') -%}
+                                                <span aria-hidden="true">*</span>
+                                            {%- endif -%}
+                                        </label>
+                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                            helpText: 'text.procedure.edit.external.contact_person'|trans,
+                                            cssClasses:'mb-1',
+                                            showPlainHint: true
+                                        } %}
+                                        <p class="lbl__hint">
+                                            {{ 'explanation.public.participation.contact'|trans }}
+                                        </p>
+
+                                        <dp-editor
+                                            id="r_publicParticipationContact"
+                                            hidden-input="r_publicParticipationContact"
+                                            data-cy="procedureInfo:publicParticipationContact"
+                                            data-dp-validate-error-fieldname="{{ 'public.participation.contact'|trans }}"
+                                            :toolbar-items="{ listButtons: false }"
+                                            :maxlength="2000"
+                                            value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}"
+                                            {% if hasPermission('feature_require_procedure_contact_person') %}required{% endif %}>
+                                        </dp-editor>
+                                    </div>
+                                {% endif %}
+
+                                {% if hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation') %}
+                                    <div class="u-mb">
+                                        <label class="inline-block u-mb-0" for="r_pictogram">
+                                            {{ 'procedure.pictogram'|trans }}*
+                                        </label>
+                                        {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
+                                            <br><br>
+                                            <img class="layout__item u-1-of-6 u-pl-0 u-mb" src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"><!--
+                                         --><label class="layout__item u-1-of-3 cursor-pointer weight--normal">
+                                            {{ 'procedure.pictogram.delete'|trans }}
+                                            <input name="r_deletePictogram" type="checkbox" value="1">
+                                        </label>
+                                            <a
+                                                target="_blank"
+                                                rel="noopener"
+                                                href="{{ path("core_file_procedure", { 'hash': proceduresettings.settings.pictogram|getFile('hash'), 'procedureId': procedure }) }}">
+                                                {{ proceduresettings.settings.pictogram|getFile('name') }}
+                                            </a>
+                                        {% else %}
+                                            {{  fileupload(
+                                                fieldName: "r_pictogram",
+                                                fieldLabel: '<p class="lbl__hint">'
+                                                ~ "text.procedure.edit.external.pictogram"|trans
+                                                ~ '</p>',
+                                                type: "img",
+                                                label: "form.button.upload.file",
+                                                required: true,
+                                                multiInstance: true,
+                                                maxFileSize: 5242880
+                                            )
+                                            }}
+                                        {% endif %}
+
+                                        <dp-input
+                                            id="r_pictogramCopyright"
+                                            class="my-2"
+                                            data-cy="procedure:pictogramCopyright"
+                                            name="r_pictogramCopyright"
+                                            :label="{
+                                                text: Translator.trans('procedure.pictogram.copyright')
+                                            }"
+                                            value="{{ proceduresettings.pictogramCopyright|default }}"
+                                            required>
+                                        </dp-input>
+
+                                        <dp-input
+                                            id="r_pictogramAltText"
+                                            class="my-2"
+                                            data-cy="procedure:pictogramAltText"
+                                            name="r_pictogramAltText"
+                                            :label="{
+                                                text: Translator.trans('procedure.pictogram.altText'),
+                                                tooltip: Translator.trans('procedure.pictogram.altText.toolTipp')
+                                            }"
+                                            value="{{ proceduresettings.pictogramAltText|default }}"
+                                            required>
+                                        </dp-input>
+                                    </div>
+                                {% endif %}
+
+                                {# procedure categories #}
+                                {% if hasPermission('feature_procedure_categories_edit') %}
+                                    <div class="u-mb">
+                                        <label class="u-mb-0_25" for="r_procedure_categories">
+                                            {{ 'categories'|trans }}
+                                        </label>
+                                        <dp-multiselect
+                                            id="r_procedure_categories"
+                                            v-model="selectedProcedureCategories"
+                                            label="name"
+                                            multiple
+                                            :options="JSON.parse('{{ availableProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
+                                            track-by="id">
+                                            <template v-slot:option="{ props }">
+                                                {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                            </template>
+                                            <template v-slot:tag="{ props }">
+                                                    <span class="multiselect__tag">
+                                                        {% verbatim %}{{ props.option.name }}{% endverbatim %}
+                                                        <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
+                                                        <input type="hidden" :value="props.option.id" name="r_procedure_categories[]"/>
+                                                    </span>
+                                            </template>
+                                        </dp-multiselect>
+                                        <input v-if="selectedProcedureCategories.length === 0" type="hidden" value="" name="r_procedure_categories" />
+                                    </div>
+                                {% endif %}
+
+                                {% if hasPermission('field_procedure_linkbox') %}
+                                    <div class="u-mb">
+                                        <label class="inline-block u-mb-0" for="r_links">
+                                            {{ "linkbox"|trans }}
+                                        </label>
+                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                            helpText: 'text.procedure.edit.link_box'|trans,
+                                            cssClasses:'mb-1',
+                                            showPlainHint: true
+                                        } %}
+                                        <dp-editor
+                                            value="{{ proceduresettings.settings.links|default }}"
+                                            hidden-input="r_links"
+                                            ref="r_links"
+                                            :toolbar-items="{ linkButton: true }" >
+                                        </dp-editor>
+                                    </div>
+                                {% endif %}
+
+                            </div>
+                            <label class="o-wizard__mark u-mb-0">
+                                <input
+                                    data-wizard-cb
+                                    data-cy="fieldProcedureInformationCompletions"
+                                    name="fieldCompletions[]"
+                                    value="infoComplete"
+                                    type="checkbox"
+                                    {% if proceduresettings.infoComplete is defined %}checked="checked"{% endif %} />
+                                {{ "wizard.mark_as_done"|trans }}
+                            </label>
+                        </div>
+                        <button
+                            type="button"
+                            data-cy="wizardNext"
+                            data-dp-validate-capture-click
+                            class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
+                            {{ "wizard.next"|trans }}
+                        </button>
+                    </fieldset>
+                {% endif %}
+                {# end wizard item: Informationen zum Verfahren #}
+
                 {# wizard item: Verortung des Verfahrens #}
                 {% if hasPermission('area_public_participation') %}
                     {% if hasPermission('area_procedure_adjustments_general_location') %}
@@ -915,217 +1126,6 @@
                     </button>
                 </fieldset>
                 {# end wizard item: Name und Webadresse #}
-
-                {# wizard item: Informationen zum Verfahren #}
-                {% if (
-                    hasPermission('field_procedure_description') or
-                    hasPermission('field_procedure_contact_person') or
-                    (hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation')) or
-                    hasPermission('feature_procedure_categories_edit') or
-                    hasPermission('field_procedure_linkbox')
-                    ) %}
-                    <fieldset
-                        name="infoForm"
-                        {% if proceduresettings.infoComplete is defined %}data-wizard-finished="true"{% endif %}
-                        data-wizard-topic="{{ 'wizard.topic.info'|trans }}"
-                        class="o-wizard"
-                        data-dp-validate="infoForm">
-
-                        <legend
-                            data-toggle-id="procedureInfo"
-                            class="js__toggleAnything"
-                            data-cy="procedureInfo">
-                            <i class="caret"></i>
-                            {{ 'wizard.topic.info'|trans }}
-                            <i class="fa fa-check"></i>
-                        </legend>
-
-                        <div data-toggle-id="procedureInfo" class="o-wizard__content">
-                            <div class="o-wizard__main">
-
-                                {% if hasPermission('field_procedure_description') %}
-                                    {% block oeb_desc %}
-                                        <div class="u-mb">
-                                            <label class="inline-block u-mb-0" for="counter_oeb_desc_input">
-                                                {{ "procedure.description.public"|trans }}
-                                            </label>
-                                            {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                                helpText: 'text.procedure.description.wizard'|trans,
-                                                cssClasses:'mb-1',
-                                                showPlainHint: true
-                                            } %}
-
-                                            <dp-editor
-                                                id="counter_oeb_desc_input"
-                                                hidden-input="r_externalDesc"
-                                                data-cy="procedureInfo:procedureDescriptionPublic"
-                                                :toolbar-items="{ listButtons: false }"
-                                                :maxlength="10000"
-                                                value="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}">
-                                            </dp-editor>
-                                        </div>
-                                    {% endblock oeb_desc %}
-                                {% endif %}
-
-                                {% if hasPermission('field_procedure_contact_person') %}
-                                    <div class="u-mb">
-                                        <label class="inline-block u-mb-0" for="r_publicParticipationContact">
-                                            {{ 'public.participation.contact'|trans }}
-                                            {%- if hasPermission('feature_require_procedure_contact_person') -%}
-                                                <span aria-hidden="true">*</span>
-                                            {%- endif -%}
-                                        </label>
-                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                            helpText: 'text.procedure.edit.external.contact_person'|trans,
-                                            cssClasses:'mb-1',
-                                            showPlainHint: true
-                                        } %}
-                                        <p class="lbl__hint">
-                                            {{ 'explanation.public.participation.contact'|trans }}
-                                        </p>
-
-                                        <dp-editor
-                                            id="r_publicParticipationContact"
-                                            hidden-input="r_publicParticipationContact"
-                                            data-cy="procedureInfo:publicParticipationContact"
-                                            data-dp-validate-error-fieldname="{{ 'public.participation.contact'|trans }}"
-                                            :toolbar-items="{ listButtons: false }"
-                                            :maxlength="2000"
-                                            value="{{ proceduresettings.publicParticipationContact|default((hasPermission('feature_require_procedure_contact_person') ? '' : 'notspecified')|trans ) }}"
-                                            {% if hasPermission('feature_require_procedure_contact_person') %}required{% endif %}>
-                                        </dp-editor>
-                                    </div>
-                                {% endif %}
-
-                                {% if hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation') %}
-                                    <div class="u-mb">
-                                        <label class="inline-block u-mb-0" for="r_pictogram">
-                                            {{ 'procedure.pictogram'|trans }}*
-                                        </label>
-                                        {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
-                                            <br><br>
-                                            <img class="layout__item u-1-of-6 u-pl-0 u-mb" src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"><!--
-                                         --><label class="layout__item u-1-of-3 cursor-pointer weight--normal">
-                                            {{ 'procedure.pictogram.delete'|trans }}
-                                            <input name="r_deletePictogram" type="checkbox" value="1">
-                                        </label>
-                                            <a
-                                                target="_blank"
-                                                rel="noopener"
-                                                href="{{ path("core_file_procedure", { 'hash': proceduresettings.settings.pictogram|getFile('hash'), 'procedureId': procedure }) }}">
-                                                {{ proceduresettings.settings.pictogram|getFile('name') }}
-                                            </a>
-                                        {% else %}
-                                            {{  fileupload(
-                                                fieldName: "r_pictogram",
-                                                fieldLabel: '<p class="lbl__hint">'
-                                                ~ "text.procedure.edit.external.pictogram"|trans
-                                                ~ '</p>',
-                                                type: "img",
-                                                label: "form.button.upload.file",
-                                                required: true,
-                                                multiInstance: true,
-                                                maxFileSize: 5242880
-                                            )
-                                            }}
-                                        {% endif %}
-
-                                        <dp-input
-                                            id="r_pictogramCopyright"
-                                            class="my-2"
-                                            data-cy="procedure:pictogramCopyright"
-                                            name="r_pictogramCopyright"
-                                            :label="{
-                                                text: Translator.trans('procedure.pictogram.copyright')
-                                            }"
-                                            value="{{ proceduresettings.pictogramCopyright|default }}"
-                                            required>
-                                        </dp-input>
-
-                                        <dp-input
-                                            id="r_pictogramAltText"
-                                            class="my-2"
-                                            data-cy="procedure:pictogramAltText"
-                                            name="r_pictogramAltText"
-                                            :label="{
-                                                text: Translator.trans('procedure.pictogram.altText'),
-                                                tooltip: Translator.trans('procedure.pictogram.altText.toolTipp')
-                                            }"
-                                            value="{{ proceduresettings.pictogramAltText|default }}"
-                                            required>
-                                        </dp-input>
-                                    </div>
-                                {% endif %}
-
-                                {# procedure categories #}
-                                {% if hasPermission('feature_procedure_categories_edit') %}
-                                    <div class="u-mb">
-                                        <label class="u-mb-0_25" for="r_procedure_categories">
-                                            {{ 'categories'|trans }}
-                                        </label>
-                                        <dp-multiselect
-                                            id="r_procedure_categories"
-                                            v-model="selectedProcedureCategories"
-                                            label="name"
-                                            multiple
-                                            :options="JSON.parse('{{ availableProcedureCategories|default([])|json_encode|e('js', 'utf-8') }}')"
-                                            track-by="id">
-                                            <template v-slot:option="{ props }">
-                                                {% verbatim %}{{ props.option.name }}{% endverbatim %}
-                                            </template>
-                                            <template v-slot:tag="{ props }">
-                                                    <span class="multiselect__tag">
-                                                        {% verbatim %}{{ props.option.name }}{% endverbatim %}
-                                                        <i aria-hidden="true" @click="props.remove(props.option)" tabindex="1" class="multiselect__tag-icon"></i>
-                                                        <input type="hidden" :value="props.option.id" name="r_procedure_categories[]"/>
-                                                    </span>
-                                            </template>
-                                        </dp-multiselect>
-                                        <input v-if="selectedProcedureCategories.length === 0" type="hidden" value="" name="r_procedure_categories" />
-                                    </div>
-                                {% endif %}
-
-                                {% if hasPermission('field_procedure_linkbox') %}
-                                    <div class="u-mb">
-                                        <label class="inline-block u-mb-0" for="r_links">
-                                            {{ "linkbox"|trans }}
-                                        </label>
-                                        {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                            helpText: 'text.procedure.edit.link_box'|trans,
-                                            cssClasses:'mb-1',
-                                            showPlainHint: true
-                                        } %}
-                                        <dp-editor
-                                            value="{{ proceduresettings.settings.links|default }}"
-                                            hidden-input="r_links"
-                                            ref="r_links"
-                                            :toolbar-items="{ linkButton: true }" >
-                                        </dp-editor>
-                                    </div>
-                                {% endif %}
-
-                            </div>
-                            <label class="o-wizard__mark u-mb-0">
-                                <input
-                                    data-wizard-cb
-                                    data-cy="fieldProcedureInformationCompletions"
-                                    name="fieldCompletions[]"
-                                    value="infoComplete"
-                                    type="checkbox"
-                                    {% if proceduresettings.infoComplete is defined %}checked="checked"{% endif %} />
-                                {{ "wizard.mark_as_done"|trans }}
-                            </label>
-                        </div>
-                        <button
-                            type="button"
-                            data-cy="wizardNext"
-                            data-dp-validate-capture-click
-                            class="btn btn--primary o-wizard__btn o-wizard__btn--next hidden submit">
-                            {{ "wizard.next"|trans }}
-                        </button>
-                    </fieldset>
-                {% endif %}
-                {# end wizard item: Informationen zum Verfahren #}
 
                 {% if hasPermission('feature_data_in_export') %}
                 {# wizard item: Daten im Export #}
