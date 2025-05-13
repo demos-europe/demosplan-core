@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use Parsedown;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Symfony\Component\Validator\Constraint;
@@ -91,6 +92,12 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
     public function setText(Cell $cell): ?ConstraintViolationListInterface
     {
         $statementText = $cell->getValue();
+
+
+        $parsedown = new Parsedown();
+        // parse inline markdown
+        $statementText = $parsedown->line($statementText);
+
         $violations = $this->validator->validate($statementText, $this->textConstraint);
         if (0 !== $violations->count()) {
             return $violations;
