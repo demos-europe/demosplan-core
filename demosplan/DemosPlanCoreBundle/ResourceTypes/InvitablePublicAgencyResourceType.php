@@ -35,6 +35,7 @@ use EDT\Querying\Contracts\PathException;
  * @property-read End                              $participationFeedbackEmailAddress
  * @property-read End                              $ccEmailAddresses
  * @property-read InstitutionLocationContactResourceType $locationContacts
+ * @property-read InstitutionTagResourceType $assignedTags
  * @property-read End $contactPerson
  */
 class InvitablePublicAgencyResourceType extends DplanResourceType
@@ -136,6 +137,10 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
 
         if ($this->currentUser->hasPermission('field_organisation_contact_person')) {
             $properties[] = $this->createAttribute($this->contactPerson)->readable();
+        }
+
+        if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
+            $properties[] = $this->createToManyRelationship($this->assignedTags)->readable(true, null, true);
         }
 
         return $properties;
