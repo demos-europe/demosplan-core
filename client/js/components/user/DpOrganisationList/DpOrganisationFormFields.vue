@@ -586,14 +586,14 @@
           {{ Translator.trans('copies.paper') }}
         </legend>
         <dp-select
+          v-model="localOrganisation.attributes.copy"
           :label="{
             text: Translator.trans('quantity'),
             hint: Translator.trans('explanation.organisation.copies.paper')
           }"
-          data-cy="orgaFormField:organisationCopiesPaper"
-          v-model="localOrganisation.attributes.copy"
           :options="paperCopyCountOptions"
           :show-placeholder="false"
+          data-cy="orgaFormField:organisationCopiesPaper"
           @select="emitOrganisationUpdate"/>
       </div>
 
@@ -756,7 +756,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpTextArea, hasOwnProp, DpSelect } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpSelect, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
@@ -949,9 +949,9 @@ export default {
 
     /**
      * Options for the number of paper copies dropdown
+     * @return {Array <{value: number, label: string}>} for 0-10
      */
     paperCopyCountOptions () {
-      //returns an Array of Objects with value, label keys for 0-10
       return Array.from({length: 11}, (_, i) => ({ value: i, label: String(i) }));
     },
 
