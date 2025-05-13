@@ -17,7 +17,7 @@ import SegmentsBulkEdit from '@DpJs/components/procedure/SegmentsBulkEdit/Segmen
 
 const components = { SegmentsBulkEdit }
 const stores = {}
-const apiStores = ['Tag', 'TagTopic']
+const apiStores = ['AdminProcedure', 'Tag', 'TagTopic']
 
 if (hasPermission('area_admin_boilerplates')) {
   stores.boilerplates = BoilerplatesStore

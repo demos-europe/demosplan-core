@@ -456,9 +456,14 @@ export default {
   },
 
   methods: {
+    ...mapActions('AdminProcedure', {
+      getAdminProcedureWithFields: 'get'
+    }),
+
     ...mapActions('Tag', {
       listTags: 'list'
     }),
+
     ...mapActions('TagTopic', {
       listTagTopics: 'list'
     }),
@@ -528,6 +533,29 @@ export default {
             id: null
           })
         })
+    },
+
+    /**
+     * Fetch custom fields that are available either in the procedure or in the procedure template
+     */
+    fetchCustomFields () {
+      const payload = {
+        id: this.procedureId,
+        fields: {
+          AdminProcedure: [
+            'segmentCustomFields'
+          ].join(),
+          CustomField: [
+            'name',
+            'description',
+            'options'
+          ].join()
+        },
+        include: ['segmentCustomFields'].join()
+      }
+
+      this.getAdminProcedureWithFields(payload)
+        .catch(err => console.error(err))
     },
 
     fetchPlaces () {
@@ -601,6 +629,7 @@ export default {
     const promises = [
       this.listTagTopics({ include: 'tag' }),
       this.listTags({ include: 'topic' }),
+      this.fetchCustomFields(),
       this.fetchPlaces()
     ]
     if (hasPermission('feature_statement_assignment')) {
