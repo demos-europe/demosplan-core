@@ -101,7 +101,7 @@
             <option
               v-for="option in sortOptions"
               :key="'sort_' + option.value"
-              :selected="option.selected"
+              :selected="option.selected ? true : null"
               :value="option.value">
               {{ option.title }}
             </option>
@@ -134,7 +134,7 @@
               <option
                 v-for="(county, idx) in municipalityGroup.options"
                 :key="`county:${idx}`"
-                :selected="county.value === form.municipalCode"
+                :selected="county.value === form.municipalCode ? true : null"
                 :value="county.value">
                 {{ county.title }}
               </option>
@@ -414,6 +414,7 @@ export default {
     },
 
     setValueAndSubmitForm (e, key) {
+      this.currentAutocompleteSearch = e.target.value
       this.form[key] = e.target.value
       this.submitForm()
     },
