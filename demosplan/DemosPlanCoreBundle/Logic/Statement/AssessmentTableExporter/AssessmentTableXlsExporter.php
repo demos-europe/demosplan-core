@@ -450,10 +450,33 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         return $formattedStatements->toArray();
     }
 
+    /**
+     * Preserves underlined text when converting HTML to markdown
+     * Replaces <u> tags with |underline| markers before conversion and then back to <u> after conversion
+     */
+    protected function preserveUnderlinedAndStrikethroughText(string $text): string
+    {
+        // Replace <u> tags with |underline| markers before conversion
+        $text = preg_replace('/<u>(.*?)<\/u>/s', '|underline|$1|underline|', $text);
+
+        // Replace <s> tags with ~~ markers before conversion
+        $text = preg_replace('/<s>(.*?)<\/s>/s', '~~$1~~', $text);
+
+        // Convert to markdown using the HTML converter
+        $htmlConverter = new HtmlConverter(['strip_tags' => true]);
+        $convertedText = $htmlConverter->convert($text);
+
+        // Replace |underline| markers back to <u> tags after conversion
+        $convertedText = preg_replace('/\|underline\|(.*?)\|underline\|/s', '<u>$1</u>', $convertedText);
+        // Replace |underline| markers back to <u> tags after conversion
+        $convertedText = preg_replace('/~~(.*?)~~/s', '<s>$1</s>', $convertedText);
+
+        return $convertedText;
+    }
+
     protected function formatStatement(array $keysOfAttributesToExport, array $statementArray): array
     {
         $formattedStatement = [];
-        $htmlConverter = new HtmlConverter(['strip_tags' => true]);
 
         foreach ($keysOfAttributesToExport as $attributeKey) {
             $formattedStatement[$attributeKey] = $statementArray[$attributeKey] ?? null;
@@ -478,7 +501,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             }
 
             if (in_array($attributeKey, ['text', 'recommendation'])) {
-                $formattedStatement[$attributeKey] = $htmlConverter->convert($formattedStatement[$attributeKey]);
+                $formattedStatement[$attributeKey] = $this->preserveUnderlinedAndStrikethroughText($formattedStatement[$attributeKey]);
             }
 
             if ('status' === $attributeKey) {
