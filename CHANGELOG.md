@@ -6,6 +6,7 @@
 
 
 ## UNRELEASED
+## v3.3.0 (2025-05-13)
 - restore deleted logger entry 
 
 ## v3.2.0 (2025-05-13)
