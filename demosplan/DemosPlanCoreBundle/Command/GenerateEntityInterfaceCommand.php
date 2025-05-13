@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Command;
 
 
+use Nette\PhpGenerator\InterfaceType;
 use Nette\PhpGenerator\PhpFile;
 use ReflectionClass;
 use Symfony\Component\Console\Command\Command;
@@ -88,9 +89,13 @@ class GenerateEntityInterfaceCommand extends CoreCommand
 
         // Use PHP reflection for analyzing the class
         $reflectionClass = new ReflectionClass($entityClass);
+        $this->addPublicMethodsToInterface($reflectionClass, $interface);
 
 
+        return $newFile;
+    }
 
+    private function addPublicMethodsToInterface(ReflectionClass $reflectionClass, InterfaceType $interface): void {
         foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
             $newMethod = $interface->addMethod($method->getName());
             $newMethod->setPublic();
@@ -117,7 +122,6 @@ class GenerateEntityInterfaceCommand extends CoreCommand
             }
         }
 
-        return $newFile;
     }
 
     private function addInterfaceToEntity(string $entityClass, string $interfaceName, string $entityFilePath): void
