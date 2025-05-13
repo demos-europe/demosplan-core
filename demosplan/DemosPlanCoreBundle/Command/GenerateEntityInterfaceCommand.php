@@ -12,8 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 
 use Nette\PhpGenerator\InterfaceType;
+use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\PhpFile;
+use Nette\PhpGenerator\Traits\MethodsAware;
 use ReflectionClass;
+use ReflectionMethod;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -96,29 +99,34 @@ class GenerateEntityInterfaceCommand extends CoreCommand
     }
 
     private function addPublicMethodsToInterface(ReflectionClass $reflectionClass, InterfaceType $interface): void {
-        foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
-            $newMethod = $interface->addMethod($method->getName());
-            $newMethod->setPublic();
+        foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $entityMethod) {
+            $interfaceMethod = $interface->addMethod($entityMethod->getName());
+            $interfaceMethod->setPublic();
+            $this->addParametersToMethod($entityMethod, $interfaceMethod);
 
-            foreach ($method->getParameters() as $parameter) {
-                $paramType = $parameter->getType();
-                $newParam = $newMethod->addParameter($parameter->getName());
-
-                if ($paramType !== null) {
-                    $newParam->setType((string) $paramType);
-                }
-
-                if ($parameter->isDefaultValueAvailable()) {
-                    $newParam->setDefaultValue($parameter->getDefaultValue());
-                }
-            }
-
-            $returnType = $method->getReturnType();
+            $returnType = $entityMethod->getReturnType();
             if ($returnType !== null) {
                 $returnTypeName = (string) $returnType;
                 if (!str_starts_with($returnTypeName, 'demosplan\\DemosPlanCoreBundle')) {
-                    $newMethod->setReturnType($returnTypeName);
+                    $interfaceMethod->setReturnType($returnTypeName);
                 }
+            }
+        }
+
+    }
+
+    private function addParametersToMethod(ReflectionMethod $entityMethod,  Method $interfaceMethod): void
+    {
+        foreach ($entityMethod->getParameters() as $parameter) {
+            $paramType = $parameter->getType();
+            $newParam = $interfaceMethod->addParameter($parameter->getName());
+
+            if ($paramType !== null) {
+                $newParam->setType((string) $paramType);
+            }
+
+            if ($parameter->isDefaultValueAvailable()) {
+                $newParam->setDefaultValue($parameter->getDefaultValue());
             }
         }
 
