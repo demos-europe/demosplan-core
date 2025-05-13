@@ -66,6 +66,7 @@ class GenerateEntityInterfaceCommand extends CoreCommand
         // Write interface file
         $this->filesystem->dumpFile($interfacePath, (string) $interfaceContent);
 
+        $this->addInterfaceToEntity($entityClass, self::INTERFACE_NAMESPACE . '\\' . $entityName . 'Interface', $entityClass . '.php');
 
         $output->writeln("Generated interface for {$entityName}: {$interfacePath}");
 
@@ -119,4 +120,44 @@ class GenerateEntityInterfaceCommand extends CoreCommand
         return $newFile;
     }
 
+    private function addInterfaceToEntity(string $entityClass, string $interfaceName, string $entityFilePath): void
+    {
+        // Convert namespace-style path to a valid file system path
+        $entityFilePath = str_replace('\\', DIRECTORY_SEPARATOR, $entityFilePath);
+
+        $reflectionClass = new ReflectionClass($entityClass);
+
+        // Read the existing file content
+        if (!file_exists($entityFilePath)) {
+            throw new \RuntimeException("File not found: {$entityFilePath}");
+        }
+
+        $fileContent = file_get_contents($entityFilePath);
+
+        // Extract the short name of the interface
+        $interfaceShortName = basename(str_replace('\\', '/', $interfaceName));
+
+        // Add the `use` statement after the namespace if it doesn't already exist
+        if (!str_contains($fileContent, "use {$interfaceName};")) {
+            // Find the namespace statement and insert the use statement after it
+            $fileContent = preg_replace(
+                '/(namespace\s+[^;]+;\s+)/s',
+                "$1\nuse {$interfaceName};\n",
+                $fileContent
+            );
+        }
+
+        // Check if the interface is already implemented
+        if (in_array($interfaceName, $reflectionClass->getInterfaceNames(), true)) {
+            return; // Interface already implemented, no changes needed
+        }
+
+        // Add the interface to the class declaration
+        $pattern = '/class\s+' . $reflectionClass->getShortName() . '\s*(extends\s+[^\s]+)?\s*/';
+        $replacement = 'class ' . $reflectionClass->getShortName() . ' $1 implements ' . $interfaceShortName . ' ';
+        $updatedContent = preg_replace($pattern, $replacement, $fileContent);
+
+        // Write the updated content back to the file
+        file_put_contents($entityFilePath, $updatedContent);
+    }
 }
