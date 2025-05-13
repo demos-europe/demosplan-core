@@ -812,21 +812,19 @@ export default {
         }
       }
 
-      const payloadTest = {
-        attributes: {
-          customFields: this.segment.attributes.customFields
-        },
-        type: 'StatementSegment',
-        id: this.segment.id
-      }
-
       this.setSegment({
         ...updatedSegment,
         id: this.segment.id
       })
 
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, { data: payloadTest })
-      // This.saveSegmentAction(this.segment.id)
+      this.saveSegmentAction({
+        id: this.segment.id,
+        options: {
+          attributes: {
+            full: 'customFields'
+          }
+        }
+      })
         .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
@@ -1055,7 +1053,7 @@ export default {
         if (this.segment.relationships.place) {
           this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
         }
-        if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
+        if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
           this.setInitiallySelectedCustomFieldValues()
         }
       })
