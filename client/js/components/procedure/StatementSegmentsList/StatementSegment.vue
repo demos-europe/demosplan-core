@@ -817,6 +817,10 @@ export default {
         id: this.segment.id
       })
 
+      /**
+       * By default, only changed properties are sent; since `id` did not change, it is omitted by the diff.
+       * Using `full` forces the entire `customFields` object (including its unchanged `id`) into the update payload.
+       */
       this.saveSegmentAction({
         id: this.segment.id,
         options: {
