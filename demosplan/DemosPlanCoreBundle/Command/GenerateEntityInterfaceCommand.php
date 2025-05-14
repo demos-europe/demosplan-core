@@ -87,7 +87,7 @@ class GenerateEntityInterfaceCommand extends CoreCommand
             $entityClassPath = str_replace('/', '\\', $entityClassPath);
             $entityClassPath = str_replace('.php', '', $entityClassPath);
 
-            $interfacePath = $outputDir . '/' . $entityName . 'Interface.php';
+            $interfacePath = $outputDir . '/' . $className . 'Interface.php';
 
             $output->title('Entity Name' . $className);
             $output->title('Entity Class Path ' . $entityClassPath);
@@ -103,8 +103,8 @@ class GenerateEntityInterfaceCommand extends CoreCommand
 
             $output->writeln("Generated interface for {$className}: {$interfacePath}");
 
-            return Command::SUCCESS;
         }
+        return Command::SUCCESS;
 
     }
 
