@@ -798,6 +798,12 @@ export default {
             type: ''
           },
           relationships: {
+            branding: {
+              data: {
+                id: '',
+                type: 'Branding'
+              }
+            },
             currentSlug: {
               data: {
                 id: '',

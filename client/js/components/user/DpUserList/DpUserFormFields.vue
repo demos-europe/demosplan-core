@@ -471,6 +471,12 @@ export default {
               })
               : null
           },
+          branding: {
+            data: {
+              id: payloadRel.branding.data.id,
+              type: 'branding'
+            }
+          },
           currentSlug: {
             data: {
               id: payloadRel.currentSlug.data.id,
