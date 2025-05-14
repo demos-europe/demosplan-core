@@ -25,6 +25,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\File;
 
 
 class GenerateEntityInterfaceCommand extends CoreCommand
@@ -62,21 +63,51 @@ class GenerateEntityInterfaceCommand extends CoreCommand
             $this->filesystem->mkdir($outputDir, 0755);
         }
 
-        // Define paths
-        $entityClass = self::CORE_ENTITY_DIRECTORY . '\\CustomFields\\' . $entityName;
-        $interfacePath = $outputDir . '/' . $entityName . 'Interface.php';
+        // Determine entities to process
+        $entityClassPaths = [];
 
-        // Generate interface
-        $interfaceContent = $this->generateInterfaceFromEntity($entityClass, $entityName);
+        if ($filesOption) {
+            // Process provided list of changed files
+            $output->title('Processing specified entity files');
+            $entityClassPaths = explode(',', $filesOption);
 
-        // Write interface file
-        $this->filesystem->dumpFile($interfacePath, (string) $interfaceContent);
+            if (empty($entityClassPaths)) {
+                $output->info('No valid entities found in the provided files');
+                return Command::SUCCESS;
+            }
 
-        $this->addInterfaceToEntity($entityClass, self::INTERFACE_NAMESPACE . '\\' . $entityName . 'Interface', $entityClass . '.php');
+            $output->info(sprintf('Found %d entities to process: %s', count($entityClassPaths), implode(', ', $entityClassPaths)));
+        }
 
-        $output->writeln("Generated interface for {$entityName}: {$interfacePath}");
+        foreach ($entityClassPaths as $entityClassPath) {
+            // Define paths
+            // Remove the file extension
 
-        return Command::SUCCESS;
+            $className = pathinfo(basename($entityClassPath), PATHINFO_FILENAME);
+            $entityClassPath = str_replace('/', '\\', $entityClassPath);
+
+
+            $entityClass = self::CORE_ENTITY_DIRECTORY . '\\CustomFields\\' . $entityName;
+            $interfacePath = $outputDir . '/' . $entityName . 'Interface.php';
+            $output->title('working entity Class' . $entityName);
+            $output->title('new entity Class ' . $className);
+            $output->title('working entity path ' . $entityClass);
+            $output->title('new entity path ' . $entityClassPath);
+            $output->title('intarface path' . $interfacePath);
+
+            // Generate interface
+            $interfaceContent = $this->generateInterfaceFromEntity($entityClass, $className);
+
+            // Write interface file
+            $this->filesystem->dumpFile($interfacePath, (string) $interfaceContent);
+
+            $this->addInterfaceToEntity($entityClass, self::INTERFACE_NAMESPACE . '\\' . $className . 'Interface', $entityClass . '.php');
+
+            $output->writeln("Generated interface for {$className}: {$interfacePath}");
+
+            return Command::SUCCESS;
+        }
+
     }
 
     private function generateInterfaceFromEntity(string $entityClass, string $entityName): PhpFile
