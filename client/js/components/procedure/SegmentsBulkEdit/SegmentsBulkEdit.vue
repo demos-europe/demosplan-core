@@ -127,7 +127,6 @@
                 v-if="hasPermission('area_admin_boilerplates')"
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
-                editor-id="recommendationText"
                 :procedure-id="procedureId"
                 @insert="text => modalProps.handleInsertText(text)" />
             </template>
@@ -143,6 +142,19 @@
               </button>
             </template>
           </dp-editor>
+        </action-stepper-action>
+<!--Custom Fields-->
+        <action-stepper-action
+          v-model="actions.customField0.checked"
+          id="selectCustomField1Action"
+          :label="actions.customField0.label"
+        >
+          <dp-multiselect
+            class="w-12"
+            id="selectCustomField"
+            :disabled="!hasSegments"
+            :options="actions.customField0.options"
+            v-model="actions.customField0.selected"/>
         </action-stepper-action>
       </div>
     </template>
@@ -257,6 +269,7 @@ import {
   DpMultiselect,
   DpRadio,
   dpRpc,
+  hasAllPermissions,
   hasOwnProp,
   prefixClassMixin
 } from '@demos-europe/demosplan-ui'
@@ -333,6 +346,13 @@ export default {
           selected: [],
           checked: false,
           success: false
+        },
+        customField0: {
+          selected: [],
+          checked: false,
+          success: false,
+          options: [],
+          label: ''
         }
       },
       assignableUsers: [],
@@ -346,6 +366,10 @@ export default {
   },
 
   computed: {
+    ...mapState('CustomField', {
+      customFieldItems: 'items'
+    }),
+
     ...mapState('Tag', {
       tagsItems: 'items'
     }),
@@ -632,10 +656,28 @@ export default {
       this.fetchCustomFields(),
       this.fetchPlaces()
     ]
+
     if (hasPermission('feature_statement_assignment')) {
       promises.push(this.fetchAssignableUsers())
     }
+
+    // if (hasAllPermissions(['area_admin_custom_fields','field_segments_custom_fields'])) {
+    //   promises.push(this.fetchCustomFields())
+    // }
+
     Promise.all(promises)
+      .then(() => {
+        console.log('hier');
+        Object.values(this.customFieldItems).forEach((customField, idx) => {
+          this.actions[`customField${idx}`] = {
+            selected: [],
+            checked: false,
+            success: false,
+            options: customField.attributes.options,
+            label: customField.attributes.name
+          }
+        })
+      })
       .then(() => {
         this.isLoading = false
       })
