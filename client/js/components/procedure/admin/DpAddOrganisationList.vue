@@ -24,7 +24,7 @@
       :table-items="rowItems"
       :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
       @items-selected="setSelectedItems">
-      <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson }">
+      <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
         <div class="lg:w-2/3 lg:flex pt-4">
           <dl class="pl-4 w-full">
             <dt class="color--grey">
@@ -96,6 +96,21 @@
                 {{ contactPerson }}
               </dd>
             </template>
+            <template v-if="hasPermission('feature_institution_tag_read') && assignedTags && assignedTags.length > 0">
+              <dt class="color--grey mt-2">
+                {{ Translator.trans('institution.tags') }}
+              </dt>
+              <dd class="ml-0">
+                <div class="flex flex-wrap gap-1 mt-1">
+                  <span
+
+                    v-for="tag in assignedTags"
+                    :key="tag.id">
+                    {{ tag.name }}
+                  </span>
+                </div>
+              </dd>
+            </template>
           </dl>
         </div>
       </template>
@@ -159,7 +174,8 @@ export default {
       invitableToebFields: [
         'legalName',
         'participationFeedbackEmailAddress',
-        'locationContacts'
+        'locationContacts',
+        'assignedTags'
       ],
       isLoading: true,
       itemsPerPageOptions: [10, 50, 100, 200],
@@ -179,11 +195,20 @@ export default {
       invitableToebItems: 'items'
     }),
 
+    ...mapState('InstitutionTag', {
+      institutionTagItems: 'items'
+    }),
+
     rowItems () {
       return Object.values(this.invitableToebItems).reduce((acc, item) => {
         const locationContactId = item.relationships.locationContacts?.data.length > 0 ? item.relationships.locationContacts.data[0].id : null
         const locationContact = locationContactId ? this.getLocationContactById(locationContactId) : null
         const hasNoEmail = !item.attributes.participationFeedbackEmailAddress
+        const tagReferences = item.relationships.assignedTags?.data || []
+        const institutionTags = tagReferences.map(tag => ({
+          id: tag.id,
+          name: this.institutionTagItems?.[tag.id]?.attributes?.name || tag.id
+        }))
 
         return [
           ...acc,
@@ -197,6 +222,7 @@ export default {
                     ...locationContact.attributes
                   }
                 : null,
+              assignedTags: institutionTags,
               hasNoEmail
             }
           ]
@@ -258,12 +284,20 @@ export default {
         { permission: 'field_organisation_phone', value: 'phone' }
       ]
 
-      return this.getInstitutions({
-        include: ['locationContacts'].join(),
+      // Log the request parameters
+      const includeParams = ['locationContacts', 'assignedTags'].join()
+      const requestParams = {
+        include: includeParams,
         fields: {
           InvitableToeb: this.invitableToebFields.concat(this.returnPermissionChecksValuesArray(permissionChecksToeb)).join(),
           InstitutionLocationContact: this.locationContactFields.concat(this.returnPermissionChecksValuesArray(permissionChecksContact)).join()
         }
+      }
+
+      requestParams.fields.InstitutionTag = 'name'
+
+      return this.getInstitutions(requestParams).then(response => {
+        return response
       })
     },
 
