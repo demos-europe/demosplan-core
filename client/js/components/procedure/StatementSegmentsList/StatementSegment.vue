@@ -288,8 +288,7 @@
                 @select="(value) => setCustomFieldValue(value)"
                 label="name"
                 :options="customFieldsOptions[field.id]"
-                track-by="id">
-              </dp-multiselect>
+                track-by="id" />
             </template>
           </template>
         </div>
@@ -525,6 +524,10 @@ export default {
       assignableUserItems: 'items'
     }),
 
+    ...mapState('Place', {
+      placeItems: 'items'
+    }),
+
     ...mapState('CustomField', {
       customFields: 'items'
     }),
@@ -566,8 +569,8 @@ export default {
      */
     customFieldsOptions () {
       return Object.values(this.customFields).reduce((acc, el) => {
-        const opts =  [ ...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
-        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id})
+        const opts = [...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
+        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id })
 
         return {
           ...acc,
@@ -737,6 +740,44 @@ export default {
 
     handleTabChange (id) {
       this.activeId = id
+    },
+
+    initAssignableUsers () {
+      if (Object.keys(this.assignableUserItems).length) return /* If users are already loaded, skip */
+
+      this.fetchAssignableUsers({
+        include: 'department',
+        sort: 'lastname'
+      })
+        .then(() => {
+          if (this.segment.relationships?.assignee?.data?.id) {
+            this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+          }
+        })
+    },
+
+    initPlaces () {
+      if (Object.keys(this.placeItems).length) return /* If places are already loaded, skip */
+
+      this.fetchPlaces({
+        fields: {
+          Place: [
+            'description',
+            'name',
+            'solved',
+            'sortIndex'
+          ].join()
+        },
+        sort: 'sortIndex'
+      })
+        .then(() => {
+          if (this.segment.relationships.place) {
+            this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+          }
+          if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
+            this.setInitiallySelectedCustomFieldValues()
+          }
+        })
     },
 
     openBoilerPlate () {
@@ -1013,31 +1054,8 @@ export default {
   },
 
   mounted () {
-    this.fetchPlaces({
-      fields: {
-        Place: [
-          'description',
-          'name',
-          'solved',
-          'sortIndex'
-        ].join()
-      },
-      sort: 'sortIndex'
-    })
-      .then(() => {
-        if (this.segment.relationships.place) {
-          this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
-        }
-        if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
-          this.setInitiallySelectedCustomFieldValues()
-        }
-      })
-    this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
-      .then(() => {
-        if (this.segment.relationships?.assignee?.data?.id) {
-          this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
-        }
-      })
+    this.initPlaces()
+    this.initAssignableUsers()
 
     loadAddonComponents('segment.recommendationModal.tab')
       .then(addons => {
