@@ -85,6 +85,7 @@ class GenerateEntityInterfaceCommand extends CoreCommand
 
             $className = pathinfo(basename($entityClassPath), PATHINFO_FILENAME);
             $entityClassPath = str_replace('/', '\\', $entityClassPath);
+            $entityClassPath = str_replace('.php', '', $entityClassPath);
 
 
             $entityClass = self::CORE_ENTITY_DIRECTORY . '\\CustomFields\\' . $entityName;
@@ -96,12 +97,12 @@ class GenerateEntityInterfaceCommand extends CoreCommand
             $output->title('intarface path' . $interfacePath);
 
             // Generate interface
-            $interfaceContent = $this->generateInterfaceFromEntity($entityClass, $className);
+            $interfaceContent = $this->generateInterfaceFromEntity($entityClassPath, $className);
 
             // Write interface file
             $this->filesystem->dumpFile($interfacePath, (string) $interfaceContent);
 
-            $this->addInterfaceToEntity($entityClass, self::INTERFACE_NAMESPACE . '\\' . $className . 'Interface', $entityClass . '.php');
+            $this->addInterfaceToEntity($entityClassPath, self::INTERFACE_NAMESPACE . '\\' . $className . 'Interface', $entityClassPath . '.php');
 
             $output->writeln("Generated interface for {$className}: {$interfacePath}");
 
