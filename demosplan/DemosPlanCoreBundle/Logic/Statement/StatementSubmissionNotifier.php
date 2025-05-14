@@ -358,7 +358,6 @@ class StatementSubmissionNotifier
      *
      * @param string $statementText
      * @param string $recipient
-     * @param mixed  $number
      *
      * @throws Throwable
      * @throws LoaderError
@@ -370,7 +369,7 @@ class StatementSubmissionNotifier
         $recipient,
         ?Statement $submittedStatement = null,
         $number = null,
-        GdprConsentRevokeToken $gdprConsentRevokeToken = null
+        ?GdprConsentRevokeToken $gdprConsentRevokeToken = null
     ): void {
         $mailTemplateVars = [];
         $vars = [];
@@ -399,6 +398,7 @@ class StatementSubmissionNotifier
         $mailTemplateVars['signature'] = [
             'nameLegal'                 => $orga->getName(),
             'street'                    => $orga->getStreet(),
+            'houseNumber'               => $orga->getHouseNumber(),
             'postalcode'                => $orga->getPostalcode(),
             'city'                      => $orga->getCity(),
             'email'                     => $from,

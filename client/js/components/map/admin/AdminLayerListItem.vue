@@ -899,14 +899,14 @@ export default {
             this.setAttributeForLayer({
               id: relatedLayers[i].id,
               attribute: 'visibilityGroupId',
-              value: ''
+              value: null
             })
           }
         } else {
           this.setAttributeForLayer({
             id: this.layer.id,
             attribute: 'visibilityGroupId',
-            value: ''
+            value: null
           })
         }
       } else {

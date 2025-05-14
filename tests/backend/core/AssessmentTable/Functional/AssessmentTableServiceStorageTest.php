@@ -53,10 +53,10 @@ class AssessmentTableServiceStorageTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut = self::$container->get(AssessmentTableServiceStorage::class);
+        $this->sut = self::getContainer()->get(AssessmentTableServiceStorage::class);
 
         /** @var CurrentProcedureService $currentProcedureService */
-        $currentProcedureService = self::$container->get(CurrentProcedureService::class);
+        $currentProcedureService = self::getContainer()->get(CurrentProcedureService::class);
         $currentProcedureService->setProcedure($this->getProcedureReference(LoadProcedureData::TESTPROCEDURE));
     }
 }

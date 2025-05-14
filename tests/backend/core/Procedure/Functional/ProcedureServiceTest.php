@@ -896,7 +896,7 @@ class ProcedureServiceTest extends FunctionalTestCase
 
         $this->sut->purgeProcedure($procedureId);
 
-        $em = self::$container->get('doctrine.orm.default_entity_manager');
+        $em = self::getContainer()->get('doctrine.orm.default_entity_manager');
         $em->clear();
 
         $procedureDeleted = $this->sut->getSingleProcedure($procedureId);
