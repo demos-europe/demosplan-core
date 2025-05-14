@@ -41,7 +41,8 @@ final class FrontendAssetProvider
             $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
 
             // Return if no access granted for that addon at that entrypoint
-            if (array_key_exists('permissions', $hookData['options']) && 0 !== count(array_filter($hookData['options']['permissions'], fn (array $permission) => $this->permissions->hasPermission[$permission]))) {
+            if (array_key_exists('permissions', $hookData['options']) &&
+                !$this->permissions->hasPermissions($hookData['options']['permissions'], 'OR')) {
                 return [];
             }
 
