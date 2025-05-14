@@ -247,15 +247,7 @@ export default {
             const segmentId = queryParams.get('segment') || ''
             if (segmentId) {
               scrollTo('#segment_' + segmentId, { offset: -110 })
-              let segmentComponent = null
-
-              for (let i = 0; i <= this.segments.length; i++) {
-                if (this.segments[i].id === segmentId) {
-                  segmentComponent = this.$refs['segment' + i]
-
-                  break
-                }
-              }
+              const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
 
               if (segmentComponent) {
                 segmentComponent.isCollapsed = false
