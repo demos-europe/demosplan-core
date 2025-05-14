@@ -140,7 +140,9 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
         }
 
         if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
-            $properties[] = $this->createToManyRelationship($this->assignedTags)->readable(true, null, true);
+            $properties[] = $this->createToManyRelationship($this->assignedTags)
+                ->readable(true, null, true)
+                ->filterable();
         }
 
         return $properties;
