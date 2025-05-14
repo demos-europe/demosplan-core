@@ -46,10 +46,10 @@
       <!--Segments, if there are any-->
       <div v-else>
         <statement-segment
-          v-for="(segment, idx) in segments"
+          v-for="segment in segments"
           :key="'segment_' + segment.id"
+          ref="segment"
           :segment="segment"
-          :ref="`segment${idx}`"
           :statement-id="statementId"
           :current-user-id="currentUser.id"
           :current-user-first-name="currentUser.firstname"
@@ -271,8 +271,11 @@ export default {
 
     toggleAll () {
       this.isAllCollapsed = this.isAllCollapsed === false
-      this.segments.forEach((_segment, idx) => {
-        this.$refs['segment' + idx].isCollapsed = this.isAllCollapsed
+
+      this.$refs.segment.forEach(segment => {
+        if (segment) {
+          segment.isCollapsed = this.isAllCollapsed
+        }
       })
     }
   },
