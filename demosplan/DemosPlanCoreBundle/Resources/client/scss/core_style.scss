@@ -30,8 +30,6 @@
 // A custom Tailwind build is separately included in the 'demosplan-ui' entrypoint. It contains...
 // - Tailwind Preflight, an opinionated set of base styles (see https://tailwindcss.com/docs/preflight)
 // - Tailwind Utility Classes (to be configured by demosplan-ui design tokens).
-// As Tailwind is configured to use !important everywhere, its utility classes should always win,
-// at least if not outpaced by even higher specificity.
 
 
 // This file is imported from projects/<project>/app/Resources/DemosPlanCoreBundle/client/scss/style.scss
@@ -60,9 +58,6 @@
 @import 'settings.breakpoints.dplan';
 @import 'inuit-5/settings.responsive';
 
-// Icons (fontawesome)
-@import 'settings.font-awesome';
-
 // Mixins & Tools
 @import 'inuit-5/tools.functions';
 @import 'inuit-5/tools.mixins';
@@ -71,30 +66,40 @@
 @import 'inuit-5/tools.responsive';
 @import 'inuit-5/tools.widths';
 
-// Generic
-@import 'inuit-5/generic.shared';
+/*
+ * The @layer directive defines these layers for demosplan.
+ * Tailwind and Scss use them accordingly to achieve a consistent specificity order.
+ * - important: Overrides
+ * - theme: Tailwind theme layer
+ * - base: Tailwind Preflight, base styles, and INUIT base styles
+ * - components: objects and components defined in Scss styles
+ * - utilities: Tailwind, demosplan-ui and Inuit utility classes
+ * - overrides: project specific overrides (both Scss and Css Variables)
+ */
+@layer theme, base, components, utilities, overrides;
 
-// Base (Elements)
-@import 'inuit-5/base.page';
-@import 'base.dplan';
+@layer base {
+    @import 'inuit-5/generic.shared';
+    @import 'inuit-5/base.page';
+    @import 'base.dplan';
+}
 
-// Objects
-@import 'inuit-5/objects.layout';
-@import 'objects/index';
+@layer components {
+    // Objects & Components, all the same
+    @import 'inuit-5/objects.layout';
+    @import 'objects/index';
+    @import 'components/index';
+}
 
-// Components
-@import 'components/index';
+@layer utilities {
+    @import 'utility/index';
+    @import 'inuit-5/trumps.widths';
+    @import 'inuit-5/trumps.widths-responsive';
+}
 
-// Utility Classes
-@import 'utility/index';
-
-// Trumps (inuitcss has been naming this "trumps" in version 5 to emphasize the fact that styles that are located here
-// should carry the highest specificity and therefore "trump" all other styles. In a talk about ITCSS Harry Roberts
-// calls these "the place where the dirt lives" but has adopted the more objective term "utilities" in version 6.0.
-@import 'trumps-3rd-party-resets.dplan';
-@import 'inuit-5/trumps.widths';
-@import 'inuit-5/trumps.widths-responsive';
-
+@layer overrides {
+    @import 'trumps-3rd-party-resets.dplan';
+}
 
 // After including core_style.scss (this file), the project style.scss file that serves as an entry point for style
 // compilation also includes two more project specific files, which contain project overrides on a very specific level:

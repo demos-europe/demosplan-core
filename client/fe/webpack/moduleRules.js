@@ -59,12 +59,18 @@ const postcssPrefixSelector = require('postcss-prefix-selector')({
 const tailwindCss = require('@tailwindcss/postcss')
 const postcssFlexbugsFixes = require('postcss-flexbugs-fixes')
 /*
- * The focus-visible pseudo class is disabled, as demosPlan does not polyfill :focus-visible. It can either not be
- * ignored because it conflicts with the way that :focus-visible is used within the `keyboard-focus` scss mixin.
+ * 1 When "polyfill" cascade layers, postcssPresetEnv applies :not(#/#) to all selectors,
+ *   and repeat that multiple times to simulate the cascade layers specificity that way.
+ *   Sadly this doubles the size of the css file, so we disable it. Anyway, cascade layers
+ *   seem to be supported by 93% of all browsers at the time of writing this.
+ * 2 The focus-visible pseudo class is disabled, as demosPlan does not polyfill :focus-visible.
+ *   It can either not be ignored because it conflicts with the way that :focus-visible is used
+ *   within the `keyboard-focus` scss mixin.
  */
 const postcssPresetEnv = require('postcss-preset-env')({
   features: {
-    'focus-visible-pseudo-class': false
+    'cascade-layers': false, // 1
+    'focus-visible-pseudo-class': false // 2
   }
 })
 const postcssPurgeCss = purgeCSSPlugin({
@@ -74,23 +80,20 @@ const postcssPurgeCss = purgeCSSPlugin({
     return contentWithoutStyleBlocks.match(/[A-Za-z0-9-_/:]*[A-Za-z0-9-_/.[\]%]+/g) || []
   }
 })
-const autoprefixer = require('autoprefixer') // The autoprefixer must run after postcss-prefix-selector
 
 const postCssPlugins = [
   postcssPrefixSelector,
   tailwindCss,
   postcssFlexbugsFixes,
   postcssPresetEnv,
-  postcssPurgeCss,
-  autoprefixer
+  postcssPurgeCss
 ]
 
 const postCssPluginsWithoutPurgeCss = [
   postcssPrefixSelector,
   tailwindCss,
   postcssFlexbugsFixes,
-  postcssPresetEnv,
-  autoprefixer
+  postcssPresetEnv
 ]
 
 /**

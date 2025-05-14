@@ -20,7 +20,7 @@
     }
 
     & > li {
-        border-bottom: $utility-border-thickness solid $utility-border-color;
+        border-bottom: $dp-border-thickness solid $dp-color-border-default;
 
         .o-accordion {
             background-color: $dp-color-white;

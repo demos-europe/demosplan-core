@@ -28,35 +28,6 @@
 ///     Cancel
 /// </button>
 
-
-// Variables are set here for reasons. Tokens, Overrides and the order in which files are included.
-// Primary button
-$dp-button-color:                       $dp-color-white !default;
-$dp-button-color-hover:                 $dp-color-white !default;
-$dp-button-bg-color:                    $dp-color-interactive-default !default;
-$dp-button-bg-color-hover:              $dp-color-interactive-hover !default;
-$dp-button-bg-color-active:             $dp-color-interactive-active !default;
-// Secondary button
-$dp-button-color-alt:                   $dp-color-white !default;
-$dp-button-color-alt-hover:             $dp-color-white !default;
-$dp-button-bg-color-alt:                $dp-color-neutral-base !default;
-$dp-button-bg-color-alt-hover:          $dp-color-neutral-dark-1 !default;
-$dp-button-bg-color-alt-active:         $dp-color-neutral-dark-2 !default;
-// Warning button
-$dp-button-color-warning:               $dp-color-white !default;
-$dp-button-color-warning-hover:         $dp-color-white !default;
-$dp-button-bg-color-warning:            $dp-color-red-base !default;
-$dp-button-bg-color-warning-hover:      $dp-color-red-dark-1 !default;
-$dp-button-bg-color-warning-active:     $dp-color-red-dark-2 !default;
-// Spacing
-$dp-button-spacing-horizontal:          $inuit-base-spacing-unit--small;
-
-// These variable is shared between _button.scss and _form.scss.
-// It is defined here because currently the include order of settings and inuit core leads to not having
-// $inuit-base-spacing-unit available in one of the more appropriate places (token, settings).
-$dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
-
-
 //  Mixins & Keyframes
 
 //  Animates a striped background image to indicate progress
