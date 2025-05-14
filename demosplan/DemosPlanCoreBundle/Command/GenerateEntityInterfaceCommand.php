@@ -196,9 +196,20 @@ class GenerateEntityInterfaceCommand extends CoreCommand
         }
 
         // Add the interface to the class declaration
-        $pattern = '/class\s+' . $reflectionClass->getShortName() . '\s*(extends\s+[^\s]+)?\s*/';
-        $replacement = 'class ' . $reflectionClass->getShortName() . ' $1 implements ' . $interfaceShortName . ' ';
-        $updatedContent = preg_replace($pattern, $replacement, $fileContent);
+        // Check for existing implements clause in the class declaration
+        if (preg_match('/class\s+' . $reflectionClass->getShortName() . '\s*(extends\s+[^\s]+)?\s*implements\s+([^{]+)/', $fileContent, $matches)) {
+            // Class already implements interfaces, append the new interface
+            $existingImplements = trim($matches[2]);
+            $updatedImplements = $existingImplements . ', ' . $interfaceShortName;
+            $pattern = '/class\s+' . $reflectionClass->getShortName() . '\s*(extends\s+[^\s]+)?\s*implements\s+([^{]+)/';
+            $replacement = 'class ' . $reflectionClass->getShortName() . ' $1 implements ' . $updatedImplements;
+            $updatedContent = preg_replace($pattern, $replacement, $fileContent);
+        } else {
+            // Class doesn't implement any interfaces yet
+            $pattern = '/class\s+' . $reflectionClass->getShortName() . '\s*(extends\s+[^\s]+)?\s*/';
+            $replacement = 'class ' . $reflectionClass->getShortName() . ' $1 implements ' . $interfaceShortName . ' ';
+            $updatedContent = preg_replace($pattern, $replacement, $fileContent);
+        }
 
         // Write the updated content back to the file
         file_put_contents($entityFilePath, $updatedContent);
