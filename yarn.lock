@@ -4742,7 +4742,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"autoprefixer@npm:^10.4.19, autoprefixer@npm:^10.4.20":
+"autoprefixer@npm:^10.4.19":
   version: 10.4.21
   resolution: "autoprefixer@npm:10.4.21"
   dependencies:
@@ -12584,7 +12584,6 @@ __metadata:
     a11y-datepicker: "npm: ^0.9.0"
     acorn: "npm:^8.14.0"
     assets-webpack-plugin: "npm:^7.1.1"
-    autoprefixer: "npm:^10.4.20"
     babel-core: "npm:^7.0.0-bridge.0"
     babel-helper-vue-jsx-merge-props: "npm:^2.0.3"
     babel-jest: "npm:^29.7.0"
