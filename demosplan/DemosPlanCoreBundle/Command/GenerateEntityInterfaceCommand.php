@@ -46,7 +46,8 @@ class GenerateEntityInterfaceCommand extends CoreCommand
             ->setDescription('Generates interface for entity classes')
             ->setHelp('This command analyzes entity classes and generates corresponding interfaces')
             ->addArgument('entity', InputArgument::OPTIONAL, 'Entity name to generate interface for (optional)')
-            ->addOption('output-dir', 'o', InputOption::VALUE_REQUIRED, 'Output directory for the generated interface', 'interface-repo/src/Contracts/Entities');
+            ->addOption('output-dir', 'o', InputOption::VALUE_REQUIRED, 'Output directory for the generated interface', 'interface-repo/src/Contracts/Entities')
+            ->addOption('files', 'f', InputArgument::OPTIONAL, 'Comma-separated list of changed entity files to process');
     }
     public function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -54,6 +55,7 @@ class GenerateEntityInterfaceCommand extends CoreCommand
 
         $entityName = $input->getArgument('entity');
         $outputDir = $input->getOption('output-dir');
+        $filesOption = $input->getOption('files');
 
         // Create output directory if it doesn't exist
         if (!$this->filesystem->exists($outputDir)) {
