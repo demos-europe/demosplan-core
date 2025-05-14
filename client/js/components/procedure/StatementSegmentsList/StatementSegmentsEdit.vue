@@ -418,13 +418,31 @@ export default {
   mounted () {
     if (Object.keys(this.segments).length === 0 && hasPermission('area_statement_segmentation')) {
       this.isLoading = true
+
+      const statementSegmentFields = [
+        'tags',
+        'text',
+        'assignee',
+        'place',
+        'comments',
+        'externId',
+        'internId',
+        'orderInProcedure',
+        'polygon',
+        'recommendation'
+      ]
+
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
+      }
+
       this.listSegments({
         include: ['assignee', 'comments', 'place', 'tag', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
         sort: 'orderInProcedure',
         fields: {
           Place: ['name', 'sortIndex'].join(),
           SegmentComment: ['creationDate', 'place', 'submitter', 'text'].join(),
-          StatementSegment: ['assignee', 'comments', 'externId', 'recommendation', 'text', 'place'].join(),
+          StatementSegment: statementSegmentFields.join(),
           User: ['lastname', 'firstname', 'orga'].join(),
           Orga: ['name'].join()
         },
