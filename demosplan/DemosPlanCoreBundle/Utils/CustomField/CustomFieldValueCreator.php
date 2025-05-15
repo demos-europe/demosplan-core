@@ -46,11 +46,23 @@ class CustomFieldValueCreator extends CoreService
             $existingCustomFieldValue = $currentCustomFieldValuesList->findById($newCustomFieldValue->getId());
 
             if ($existingCustomFieldValue) {
+                // If the value is null, remove this field from the updated list
+                if ('UNASSIGNED' === $newCustomFieldValue->getValue()) {
+                    $currentCustomFieldValuesList->removeCustomFieldValue($newCustomFieldValue);
+                    continue;
+                }
+
                 $existingCustomFieldValue->setValue($newCustomFieldValue->getValue());
+
+
             } else {
                 $currentCustomFieldValuesList->addCustomFieldValue($newCustomFieldValue);
             }
         }
+
+        // At the very end, before returning, ensure array is properly indexed
+        $currentCustomFieldValuesList->reindexValues();
+
 
         /*
          * Clone `$currentCustomFieldValuesList` to ensure Doctrine detects changes to JSON-like columns.

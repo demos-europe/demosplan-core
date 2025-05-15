@@ -97,6 +97,10 @@ class RadioButtonField extends AbstractCustomField
 
     public function isValueValid(string $value): bool
     {
+        if ('UNASSIGNED' === $value) {
+            return true;
+        }
+
         if (in_array($value, $this->options, true)) {
             return true;
         }

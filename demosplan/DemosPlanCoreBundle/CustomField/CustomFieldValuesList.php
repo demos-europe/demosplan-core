@@ -52,4 +52,19 @@ class CustomFieldValuesList
 
         return null;
     }
+
+    public function removeCustomFieldValue(CustomFieldValue $customFieldValue): void
+    {
+        $this->customFieldValues = array_filter(
+            $this->customFieldValues,
+            static fn(CustomFieldValue $fieldValue) => $fieldValue->getId() !== $customFieldValue->getId()
+        );
+    }
+
+    public function reindexValues(): void
+    {
+        $this->customFieldValues = array_values($this->customFieldValues);
+    }
+
+
 }
