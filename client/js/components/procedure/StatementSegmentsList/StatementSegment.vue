@@ -743,7 +743,11 @@ export default {
     },
 
     initAssignableUsers () {
-      if (Object.keys(this.assignableUserItems).length) return /* If users are already loaded, skip */
+      const assignableUsersLoaded = Object.keys(this.assignableUserItems).length
+
+      if (assignableUsersLoaded) {
+        return
+      }
 
       this.fetchAssignableUsers({
         include: 'department',
@@ -757,7 +761,11 @@ export default {
     },
 
     initPlaces () {
-      if (Object.keys(this.placeItems).length) return /* If places are already loaded, skip */
+      const placeItemsLoaded = Object.keys(this.placeItems).length
+
+      if (placeItemsLoaded) {
+        return
+      }
 
       this.fetchPlaces({
         fields: {
