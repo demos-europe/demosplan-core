@@ -8,6 +8,10 @@
 - Add Versioning of custom fields of segments
 
 ## UNRELEASED
+## v3.3.0 (2025-05-13)
+- restore deleted logger entry 
+
+## v3.2.0 (2025-05-13)
 - Enable Custom Field feature on segments: Allow users to add/edit custom fields to their segments     based on the custom fields defined in the procedure
 - Add Custom Field feature: Allow users to add custom fields to their procedures
 

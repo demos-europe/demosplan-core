@@ -54,7 +54,7 @@ class AddressBookEntryServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(AddressBookEntryService::class);
+        $this->sut = self::getContainer()->get(AddressBookEntryService::class);
         $this->testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $this->testOrgaFp = $this->fixtures->getReference('testOrgaFP');
         $this->testDepartment = $this->fixtures->getReference('testDepartment');

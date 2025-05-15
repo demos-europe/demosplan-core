@@ -29,7 +29,7 @@
         <div class="ml-2 space-x-1 space-x-reverse">
           <filter-flyout
             v-for="(filter, idx) in Object.values(filters)"
-            :ref="`filterFlyout${idx}`"
+            ref="filterFlyout"
             :additional-query-params="{ searchPhrase: searchTerm }"
             :category="{ id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }"
             class="inline-block first:mr-1"
@@ -774,8 +774,8 @@ export default {
     resetQuery () {
       this.resetSearchQuery()
       this.appliedFilterQuery = []
-      Object.keys(this.filters).forEach((filter, idx) => {
-        this.$refs[`filterFlyout${idx}`].reset()
+      this.$refs.filterFlyout?.forEach(flyout => {
+        flyout.reset()
       })
       this.updateQueryHash()
       this.resetSelection()
