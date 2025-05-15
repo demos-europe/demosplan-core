@@ -526,10 +526,6 @@ export default {
       assignableUserItems: 'items'
     }),
 
-    ...mapState('Place', {
-      placeItems: 'items'
-    }),
-
     ...mapState('CustomField', {
       customFields: 'items'
     }),
@@ -1046,36 +1042,31 @@ export default {
   },
 
   mounted () {
-    if (Object.keys(this.placeItems).length === 0) {
-      this.fetchPlaces({
-        fields: {
-          Place: [
-            'description',
-            'name',
-            'solved',
-            'sortIndex'
-          ].join()
-        },
-        sort: 'sortIndex'
+    this.fetchPlaces({
+      fields: {
+        Place: [
+          'description',
+          'name',
+          'solved',
+          'sortIndex'
+        ].join()
+      },
+      sort: 'sortIndex'
+    })
+      .then(() => {
+        if (this.segment.relationships.place) {
+          this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+        }
+        if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
+          this.setInitiallySelectedCustomFieldValues()
+        }
       })
-        .then(() => {
-          if (this.segment.relationships.place) {
-            this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
-          }
-          if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
-            this.setInitiallySelectedCustomFieldValues()
-          }
-        })
-    }
-
-    if (Object.keys(this.assignableUserItems).length === 0) {
-      this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
-        .then(() => {
-          if (this.segment.relationships?.assignee?.data?.id) {
-            this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
-          }
-        })
-    }
+    this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
+      .then(() => {
+        if (this.segment.relationships?.assignee?.data?.id) {
+          this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+        }
+      })
 
     loadAddonComponents('segment.recommendationModal.tab')
       .then(addons => {
