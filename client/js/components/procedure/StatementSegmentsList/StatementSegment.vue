@@ -518,7 +518,9 @@ export default {
   },
 
   computed: {
-    ...mapState('SegmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', [
+      'slidebar'
+    ]),
 
     ...mapState('AssignableUser', {
       assignableUserItems: 'items'
@@ -844,13 +846,41 @@ export default {
         payload.data.attributes = attributes
       }
 
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
+      const updatedSegment = {
+        id: this.segment.id,
+        type: 'StatementSegment',
+        attributes: {
+          ...this.segment.attributes,
+          customFields: {
+            ...this.segment.attributes.customFields,
+            ...payload.data.attributes?.customFields
+          }
+        },
+        relationships: {
+          ...this.segment.relationships,
+          ...payload.data.relationships
+        }
+      }
+
+      this.setSegment({
+        ...updatedSegment,
+        id: this.segment.id
+      })
+
+      /**
+       * By default, only changed properties are sent; since `id` did not change, it is omitted by the diff.
+       * Using `full` forces the entire `customFields` object (including its unchanged `id`) into the update payload.
+       */
+      this.saveSegmentAction({
+        id: this.segment.id,
+        options: {
+          attributes: {
+            full: 'customFields'
+          }
+        }
+      })
         .then(checkResponse)
         .then(() => {
-          /*
-           * @improve - once the vuex-json-api resolves with a response,
-           * we can handle success messages in checkResponse() again.
-           */
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           this.isFullscreen = false
           this.isEditing = false
