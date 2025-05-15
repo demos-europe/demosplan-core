@@ -99,7 +99,7 @@
           </dl>
           <dl class="pl-4 w-full">
             <template v-if="hasPermission('feature_institution_tag_read') && Array.isArray(assignedTags) && assignedTags.length > 0">
-              <dt class="color--grey mt-2">
+              <dt class="color--grey">
                 {{ Translator.trans('institution.tags') }}
               </dt>
               <dd class="ml-0">
