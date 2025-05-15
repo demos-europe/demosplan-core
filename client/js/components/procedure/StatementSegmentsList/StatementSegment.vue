@@ -288,8 +288,7 @@
                 @select="(value) => setCustomFieldValue(value)"
                 label="name"
                 :options="customFieldsOptions[field.id]"
-                track-by="id">
-              </dp-multiselect>
+                track-by="id" />
             </template>
           </template>
         </div>
@@ -519,7 +518,9 @@ export default {
   },
 
   computed: {
-    ...mapState('SegmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', [
+      'slidebar'
+    ]),
 
     ...mapState('AssignableUser', {
       assignableUserItems: 'items'
@@ -566,8 +567,8 @@ export default {
      */
     customFieldsOptions () {
       return Object.values(this.customFields).reduce((acc, el) => {
-        const opts =  [ ...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
-        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id})
+        const opts = [...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
+        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id })
 
         return {
           ...acc,
@@ -795,13 +796,41 @@ export default {
         payload.data.attributes = attributes
       }
 
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
+      const updatedSegment = {
+        id: this.segment.id,
+        type: 'StatementSegment',
+        attributes: {
+          ...this.segment.attributes,
+          customFields: {
+            ...this.segment.attributes.customFields,
+            ...payload.data.attributes?.customFields
+          }
+        },
+        relationships: {
+          ...this.segment.relationships,
+          ...payload.data.relationships
+        }
+      }
+
+      this.setSegment({
+        ...updatedSegment,
+        id: this.segment.id
+      })
+
+      /**
+       * By default, only changed properties are sent; since `id` did not change, it is omitted by the diff.
+       * Using `full` forces the entire `customFields` object (including its unchanged `id`) into the update payload.
+       */
+      this.saveSegmentAction({
+        id: this.segment.id,
+        options: {
+          attributes: {
+            full: 'customFields'
+          }
+        }
+      })
         .then(checkResponse)
         .then(() => {
-          /*
-           * @improve - once the vuex-json-api resolves with a response,
-           * we can handle success messages in checkResponse() again.
-           */
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           this.isFullscreen = false
           this.isEditing = false
@@ -1028,7 +1057,7 @@ export default {
         if (this.segment.relationships.place) {
           this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
         }
-        if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
+        if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
           this.setInitiallySelectedCustomFieldValues()
         }
       })
