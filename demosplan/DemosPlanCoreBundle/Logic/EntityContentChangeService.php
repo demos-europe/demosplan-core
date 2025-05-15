@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -137,10 +138,8 @@ class EntityContentChangeService extends CoreService
     /**
      * Compares an incoming array or object with data from DB to determine differences as changes.
      * The changes will be.
-     *
-     * @param array|CoreEntity $incomingData
      */
-    public function calculateChanges($incomingData, string $entityClass): array
+    public function calculateChanges(CoreEntity|array $incomingData, string $entityClass): array
     {
         $changes = [];
         try {
@@ -222,7 +221,12 @@ class EntityContentChangeService extends CoreService
                 $preUpdateValue = $preUpdateValue->getSnapshot();
             }
 
-            $change = $this->createContentChangeData($preUpdateValue, $postUpdateValue, $propertyName, ClassUtils::getClass($incomingUpdatedObject));
+            $change = $this->createContentChangeData(
+                $preUpdateValue,
+                $postUpdateValue,
+                $propertyName,
+                ClassUtils::getClass($incomingUpdatedObject)
+            );
             if (null !== $change) {
                 $changes[$propertyName] = $change;
             }
@@ -235,17 +239,22 @@ class EntityContentChangeService extends CoreService
      * This method is build to handle different types of values and compare them.
      * Therefore the incoming values can be very various.
      *
-     * @param Collection|array|CoreEntity|User|DateTime|string $preUpdateValue
-     * @param Collection|array|CoreEntity|User|DateTime|string $postUpdateValue
-     * @param string                                           $entityType      is it a statement, fragment, etc?
-     *                                                                          Needs to match the mapping file
+     * @param Collection|array|CoreEntity|User|DateTime|string|null $preUpdateValue
+     * @param Collection|array|CoreEntity|User|DateTime|string|null $postUpdateValue
+     * @param string                                                $entityType     is it a statement, fragment, etc?
+     *                                                                              Needs to match the mapping file
      *
      * @return string|null null in case of no change are calculated,
      *                     otherwise a EntityContentChange display compatible json-string
      *
      * @throws Exception
      */
-    public function createContentChangeData($preUpdateValue, $postUpdateValue, string $propertyName, string $entityType)
+    public function createContentChangeData(
+        $preUpdateValue,
+        $postUpdateValue,
+        string $propertyName,
+        string $entityType
+    )
     {
         if ($postUpdateValue !== $preUpdateValue) {
             if ($preUpdateValue instanceof Collection || is_array($preUpdateValue)) {
@@ -292,11 +301,21 @@ class EntityContentChangeService extends CoreService
                     $preUpdateValue = $this->convertToVersionString($preUpdateIdentifiers);
                     $postUpdateValue = $this->convertToVersionString($postUpdateIdentifiers);
 
-                    return $this->getUnifiedDiffOfTwoStrings($preUpdateValue, $postUpdateValue, $propertyName, $entityType);
+                    return $this->getUnifiedDiffOfTwoStrings(
+                        $preUpdateValue,
+                        $postUpdateValue,
+                        $propertyName,
+                        $entityType
+                    );
                 }
 
                 if (is_string($preUpdateValue) && is_string($postUpdateValue)) {
-                    return $this->getUnifiedDiffOfTwoStrings($preUpdateIdentifier, $postUpdateIdentifier, $propertyName, $entityType);
+                    return $this->getUnifiedDiffOfTwoStrings(
+                        $preUpdateIdentifier,
+                        $postUpdateIdentifier,
+                        $propertyName,
+                        $entityType
+                    );
                 }
 
                 // change detected, but not arrays or strings?
@@ -356,10 +375,18 @@ class EntityContentChangeService extends CoreService
      *
      * @param bool $isReviewer determines if the current user is stored or the department of the current user
      */
-    public function addEntityContentChangeEntries(CoreEntity $updatedObject, array $changes, bool $isReviewer = false)
-    {
+    public function addEntityContentChangeEntries(
+        CoreEntity $updatedObject,
+        array $changes,
+        bool $isReviewer = false
+    ): void {
         try {
-            $entries = $this->createEntityContentChangeEntries($updatedObject, $changes, $isReviewer, new DateTime());
+            $entries = $this->createEntityContentChangeEntries(
+                $updatedObject,
+                $changes,
+                $isReviewer,
+                new DateTime()
+            );
             $this->entityContentChangeRepository->persistAndDelete($entries, []);
         } catch (Exception $e) {
             $this->getLogger()->warning('Unable on addEntityContentChangeEntry. ', [$e]);
@@ -370,8 +397,12 @@ class EntityContentChangeService extends CoreService
     /**
      * @return array<int, EntityContentChange>
      */
-    public function createEntityContentChangeEntries(CoreEntity $updatedObject, array $changes, bool $isReviewer, DateTime $creationDate): array
-    {
+    public function createEntityContentChangeEntries(
+        CoreEntity $updatedObject,
+        array $changes,
+        bool $isReviewer,
+        DateTime $creationDate
+    ): array {
         $changer = $this->determineChanger($isReviewer);
 
         $entries = [];
@@ -400,8 +431,13 @@ class EntityContentChangeService extends CoreService
      * @param string|CoreEntity|int|null $contentChange diff of values
      * @param Department|User            $changer       (juristic) person who is executing the change. Can be a department or a user.
      */
-    public function maybeCreateEntityContentChangeEntry(CoreEntity $updatedObject, string $changedEntityField, $contentChange, ?object $changer, DateTime $creationDate): ?EntityContentChange
-    {
+    public function maybeCreateEntityContentChangeEntry(
+        CoreEntity $updatedObject,
+        string $changedEntityField,
+        $contentChange,
+        ?object $changer,
+        DateTime $creationDate
+    ): ?EntityContentChange {
         // This is basically a form of validation. For technical reasons, it's not possible (worth it) sanitizing
         // this specific case earlier, so it's done here. Null means: there has not been any change, please ignore.
         if (null === $contentChange) {
@@ -414,7 +450,13 @@ class EntityContentChangeService extends CoreService
             return null;
         }
 
-        return $this->createEntityContentChangeEntry($updatedObject, $changedEntityField, $contentChange, $changer, $creationDate);
+        return $this->createEntityContentChangeEntry(
+            $updatedObject,
+            $changedEntityField,
+            $contentChange,
+            $changer,
+            $creationDate
+        );
     }
 
     /**
@@ -425,8 +467,12 @@ class EntityContentChangeService extends CoreService
      *               the blank field is diffed in whole. Otherwise, the span-element can be partly diffed
      *               and is displayed in the output.
      */
-    public function prepareInputForDiffing($content, string $fieldName, string $entityType, bool $isDiffCreatedForDisplay = false): array
-    {
+    public function prepareInputForDiffing(
+        $content,
+        string $fieldName,
+        string $entityType,
+        bool $isDiffCreatedForDisplay = false
+    ): array {
         // empty values
         if ('' === $content || '0' === $content || null === $content) {
             return [
@@ -491,8 +537,11 @@ class EntityContentChangeService extends CoreService
      *
      * @param string $entityType is it a statement, fragment, etc? Needs to match the mapping file
      */
-    public function getBlankValuesForField(string $fieldName, string $entityType, bool $addPlaceholdersInBlankLines = false): string
-    {
+    public function getBlankValuesForField(
+        string $fieldName,
+        string $entityType,
+        bool $addPlaceholdersInBlankLines = false
+    ): string {
         // deactivate function and only return empty string, depending on this check
         if (false === $addPlaceholdersInBlankLines) {
             return '';
@@ -512,20 +561,33 @@ class EntityContentChangeService extends CoreService
     /**
      * Applies the library Jfcherng\Diff to two strings.
      *
-     * @param string|null $stringOld
-     * @param string|null $stringNew
      * @param string      $entityType is it a statement, fragment, etc? Needs to match the mapping file
      *
-     * @return string|null Theoretical format can be configured with inputs, but it's always in string format. E.g.,
-     *                     a JSON-string. If there is nothing to diff (only spaces at beginning or end of line), it's null.
-     *
-     * @throws Exception
+     * @return string|null Theoretical format can be configured with inputs, but it's always in string format.
+     *                     E.g., a JSON-string. If there is nothing to diff (only spaces at beginning or end of
+     *                     line), it's null.
      */
-    public function generateActualDiff($stringOld, $stringNew, string $fieldName, string $entityType, array $options, bool $isDiffCreatedForDisplay = false)
-    {
+    public function generateActualDiff(
+        ?string $stringOld,
+        ?string $stringNew,
+        string $fieldName,
+        string $entityType,
+        array $options,
+        bool $isDiffCreatedForDisplay = false
+    ): ?string {
         $optionsDefault = [];
-        $stringNewArray = $this->prepareInputForDiffing($stringNew, $fieldName, $entityType, $isDiffCreatedForDisplay);
-        $stringOldArray = $this->prepareInputForDiffing($stringOld, $fieldName, $entityType, $isDiffCreatedForDisplay);
+        $stringNewArray = $this->prepareInputForDiffing(
+            $stringNew,
+            $fieldName,
+            $entityType,
+            $isDiffCreatedForDisplay
+        );
+        $stringOldArray = $this->prepareInputForDiffing(
+            $stringOld,
+            $fieldName,
+            $entityType,
+            $isDiffCreatedForDisplay
+        );
         $stringNew = $stringNewArray['content'];
         $stringOld = $stringOldArray['content'];
 
@@ -684,8 +746,11 @@ class EntityContentChangeService extends CoreService
      *
      * @throws Exception
      */
-    public function convertArraysAndAddVersion(CoreEntity $updatedObject, array $preUpdateAssociatedEntities, string $fieldName)
-    {
+    public function convertArraysAndAddVersion(
+        CoreEntity $updatedObject,
+        array $preUpdateAssociatedEntities,
+        string $fieldName
+    ) {
         $changes = [];
         $methodName = $this->getGetterMethodName($updatedObject, $fieldName);
         $postUpdateAssociatedEntities = $updatedObject->$methodName()->toArray();
@@ -794,24 +859,26 @@ class EntityContentChangeService extends CoreService
      * @param string|CoreEntity|int|null $contentChange diff of values
      * @param Department|User            $changer       (juristic) person who is executing the change. Can be a department or a user.
      */
-    protected function createEntityContentChangeEntry(CoreEntity $updatedObject, string $changedEntityField, $contentChange, object $changer, DateTime $creationDate): EntityContentChange
-    {
+    protected function createEntityContentChangeEntry(
+        CoreEntity $updatedObject,
+        string $changedEntityField,
+        $contentChange,
+        object $changer,
+        DateTime $creationDate
+    ): EntityContentChange {
         // if changed value is a relation, use getEntityContentChangeIdentifier() to ensure getting string|int|bool.
         if ($contentChange instanceof CoreEntity || $contentChange instanceof User) {
             $contentChange = $contentChange->getEntityContentChangeIdentifier();
         }
 
-        $em = $this->getDoctrine()->getManager();
-        $change = $this->createEntityContentChangeEntity(
+        return $this->createEntityContentChangeEntity(
             $updatedObject,
             $changedEntityField,
             $contentChange,
             $changer,
-            $em->getClassMetadata(ClassUtils::getClass($updatedObject))->getName(),
+            $this->getDoctrine()->getManager()->getClassMetadata(ClassUtils::getClass($updatedObject))->getName(),
             $creationDate
         );
-
-        return $change;
     }
 
     /**
@@ -832,7 +899,10 @@ class EntityContentChangeService extends CoreService
     public function sendAssignedTaskNotificationMails(string $entity): int
     {
         $timeString = Carbon::now()->sub('day', 1)->toDateTimeString();
-        $segmentsWithUpdatedAssignee = $this->entityContentChangeRepository->getEntityAssigneeChangesByEntityAndStartTime($entity, $timeString);
+        $segmentsWithUpdatedAssignee = $this->entityContentChangeRepository->getEntityAssigneeChangesByEntityAndStartTime(
+            $entity,
+            $timeString
+        );
 
         $currentMailData = [
             'totalTasks' => 0,
@@ -845,7 +915,9 @@ class EntityContentChangeService extends CoreService
             $assignee = $changedSegment->getAssignee();
 
             if (null === $assignee) {
-                throw new \demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException('Expected all segments to have an assignee set');
+                throw new \demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException(
+                    'Expected all segments to have an assignee set'
+                );
             }
 
             // Initial setup of customer and user
@@ -861,7 +933,11 @@ class EntityContentChangeService extends CoreService
             // Send mail and reset data grouping on assignee and/or customer change
             if ($assignee->getId() !== $currentAssignee->getId()) {
                 // Send mail
-                $generatedMails = $this->sendUserAssignedTasksNotificationMail($currentMailData, $currentAssignee, $generatedMails);
+                $generatedMails = $this->sendUserAssignedTasksNotificationMail(
+                    $currentMailData,
+                    $currentAssignee,
+                    $generatedMails
+                );
                 // update for next assignee in processing
                 $currentAssignee = $assignee;
                 $currentMailData = [
@@ -873,8 +949,10 @@ class EntityContentChangeService extends CoreService
             // Add generated link
             $link = $this->router->generate(
                 'dplan_statement_segments_list',
-                ['procedureId'    => $changedSegment->getProcedure()->getId(),
-                    'statementId' => $changedSegment->getParentStatementOfSegment()->getId(), ],
+                [
+                    'procedureId' => $changedSegment->getProcedure()->getId(),
+                    'statementId' => $changedSegment->getParentStatementOfSegment()->getId(),
+                ],
                 Router::ABSOLUTE_URL
             );
             $link .= '?segment='.$changedSegment->getId();
@@ -888,7 +966,11 @@ class EntityContentChangeService extends CoreService
         }
         // send mail for last user
         if (null !== $currentAssignee) {
-            $generatedMails = $this->sendUserAssignedTasksNotificationMail($currentMailData, $currentAssignee, $generatedMails);
+            $generatedMails = $this->sendUserAssignedTasksNotificationMail(
+                $currentMailData,
+                $currentAssignee,
+                $generatedMails
+            );
         }
 
         return $generatedMails;
@@ -971,7 +1053,9 @@ class EntityContentChangeService extends CoreService
             $attributeName = str_replace('_', '', $attributeName);
         }
 
-        throw new InvalidDataException('Unable to map incoming field '.$attributeName.' name to getter-method of a property');
+        throw new InvalidDataException(
+            'Unable to map incoming field '.$attributeName.' name to getter-method of a property'
+        );
     }
 
     /**
