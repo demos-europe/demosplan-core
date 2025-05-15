@@ -1,6 +1,10 @@
 tus:
-    # Directory for cached files
-    cache_dir: '%kernel.cache_dir%/%kernel.environment%'
+    cache_type:
+        file:
+            enabled: true
+            dir: '%kernel.cache_dir%/%kernel.environment%'
+    # Cache TTL
+    cache_ttl: 300
 
     # Directory for finished uploads
     upload_dir: '%demosplan.project_dir%/web/uploads'

@@ -139,7 +139,7 @@ class ProcedureToLegacyConverter extends CoreService
             'customer'                              => $customerToLegacy,
             'dataInputOrganisations'                => $procedure->getDataInputOrganisations(),
             'dataInputOrgaIds'                      => $dataInputOrgaIds,
-            'deleted'                               => $procedure->getDeleted(),
+            'deleted'                               => $procedure->isDeleted(),
             'deletedDate'                           => $procedure->getDeletedDate(),
             'desc'                                  => $procedure->getDesc(),
             'elements'                              => $procedure->getElements(),

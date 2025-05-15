@@ -36,7 +36,7 @@ class GeoJsonToFeaturesConverterTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(GeoJsonToFeaturesConverter::class);
+        $this->sut = self::getContainer()->get(GeoJsonToFeaturesConverter::class);
         $geoJsonFilesDir = DemosPlanPath::getTestPath('backend/core/Map/files/GeoJsonFiles');
         $this->geoJsonFilePath = $geoJsonFilesDir.'/geoJson1.json';
     }
