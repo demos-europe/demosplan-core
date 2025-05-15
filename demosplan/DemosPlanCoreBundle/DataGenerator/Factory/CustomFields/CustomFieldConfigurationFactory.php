@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields;
 
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
-use Doctrine\ORM\EntityRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
@@ -36,21 +36,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static CustomFieldConfiguration[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
  * @method static CustomFieldConfiguration[]|Proxy[]                          randomSet(int $number, array $attributes = [])
  *
- * @phpstan-method        CustomFieldConfiguration&Proxy<CustomFieldConfiguration> create(array|callable $attributes = [])
- * @phpstan-method static CustomFieldConfiguration&Proxy<CustomFieldConfiguration> createOne(array $attributes = [])
- * @phpstan-method static CustomFieldConfiguration&Proxy<CustomFieldConfiguration> find(object|array|mixed $criteria)
- * @phpstan-method static CustomFieldConfiguration&Proxy<CustomFieldConfiguration> findOrCreate(array $attributes)
- * @phpstan-method static CustomFieldConfiguration&Proxy<CustomFieldConfiguration> first(string $sortedField = 'id')
- * @phpstan-method static CustomFieldConfiguration&Proxy<CustomFieldConfiguration> last(string $sortedField = 'id')
- * @phpstan-method static CustomFieldConfiguration&Proxy<CustomFieldConfiguration> random(array $attributes = [])
- * @phpstan-method static CustomFieldConfiguration&Proxy<CustomFieldConfiguration> randomOrCreate(array $attributes = [])
- * @phpstan-method static ProxyRepositoryDecorator<CustomFieldConfiguration, EntityRepository> repository()
- * @phpstan-method static list<CustomFieldConfiguration&Proxy<CustomFieldConfiguration>> all()
- * @phpstan-method static list<CustomFieldConfiguration&Proxy<CustomFieldConfiguration>> createMany(int $number, array|callable $attributes = [])
- * @phpstan-method static list<CustomFieldConfiguration&Proxy<CustomFieldConfiguration>> createSequence(iterable|callable $sequence)
- * @phpstan-method static list<CustomFieldConfiguration&Proxy<CustomFieldConfiguration>> findBy(array $attributes)
- * @phpstan-method static list<CustomFieldConfiguration&Proxy<CustomFieldConfiguration>> randomRange(int $min, int $max, array $attributes = [])
- * @phpstan-method static list<CustomFieldConfiguration&Proxy<CustomFieldConfiguration>> randomSet(int $number, array $attributes = [])
  */
 final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
 {
@@ -59,25 +44,38 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
         return CustomFieldConfiguration::class;
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     */
     protected function defaults(): array|callable
     {
         return [
             'createDate'        => self::faker()->dateTime(),
             'modifyDate'        => self::faker()->dateTime(),
-            'sourceEntityClass' => self::faker()->text(),
+            'sourceEntityClass' => 'PROCEDURE',
             'sourceEntityId'    => self::faker()->text(36),
-            'targetEntityClass' => self::faker()->text(),
+            'targetEntityClass' => 'SEGMENT',
         ];
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
-    protected function initialize(): static
+    public function asRadioButton(
+        string $name = 'Color',
+        string $description = 'Select a Color',
+        array $options = ['blue', 'red', 'green', 'yellow', 'black', 'white', 'purple', 'orange'],
+    ): self {
+
+        return $this->with([
+            'configuration' => RadioButtonFieldFactory::new([
+                'name'              => $name,
+                'description'       => $description,
+                'fieldType'         => 'singleSelect',
+                'options'           => $options,
+            ])
+        ]);
+    }
+
+    public function withRelatedProcedure(Procedure $procedure): self
     {
-        return $this;
+        return $this->with([
+            'sourceEntityClass' => 'PROCEDURE',
+            'sourceEntityId'    => $procedure->getId()
+        ]);
     }
 }
