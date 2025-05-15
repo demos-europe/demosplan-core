@@ -89,7 +89,6 @@ final class InvitableInstitutionResourceType extends DplanResourceType
         ];
     }
 
-
     protected function getProperties(): ResourceConfigBuilderInterface
     {
         /** @var BaseOrgaResourceConfigBuilder $configBuilder */
