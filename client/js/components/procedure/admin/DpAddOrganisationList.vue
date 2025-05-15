@@ -286,7 +286,6 @@ export default {
         { permission: 'field_organisation_phone', value: 'phone' }
       ]
 
-      // Only include assignedTags when user has permission
       const includeParams = hasPermission('feature_institution_tag_read')
         ? ['locationContacts', 'assignedTags']
         : ['locationContacts']
@@ -299,7 +298,6 @@ export default {
         }
       }
 
-      // Only request tag fields when user has permission
       if (hasPermission('feature_institution_tag_read')) {
         requestParams.fields.InstitutionTag = 'name'
       }
