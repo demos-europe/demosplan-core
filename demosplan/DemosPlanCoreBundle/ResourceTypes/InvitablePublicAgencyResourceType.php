@@ -76,29 +76,29 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
         );
 
         $conditions = [
-            $this->conditionFactory->propertyHasValue(false, $this->deleted),
-            $this->conditionFactory->propertyHasValue(true, $this->showlist),
+            $this->conditionFactory->propertyHasValue(false, Paths::orga()->deleted),
+            $this->conditionFactory->propertyHasValue(true, Paths::orga()->showlist),
             $this->conditionFactory->propertyHasValue(
                 Role::GPSORG,
-                $this->users->roleInCustomers->role->groupCode
+                Paths::orga()->users->roleInCustomers->role->groupCode
             ),
             $this->conditionFactory->propertyHasValue(
                 OrgaType::PUBLIC_AGENCY,
-                $this->statusInCustomers->orgaType->name
+                Paths::orga()->statusInCustomers->orgaType->name
             ),
             $this->conditionFactory->propertyHasValue(
                 $customer->getId(),
-                $this->statusInCustomers->customer->id
+                Paths::orga()->statusInCustomers->customer->id
             ),
             $this->conditionFactory->propertyHasValue(
                 OrgaStatusInCustomer::STATUS_ACCEPTED,
-                $this->statusInCustomers->status
+                Paths::orga()->statusInCustomers->status
             ),
         ];
         // avoid already invited organisations
         $invitedOrgaIdsCondition[] = [] === $invitedOrgaIds->toArray()
             ? $this->conditionFactory->true()
-            : $this->conditionFactory->propertyHasNotAnyOfValues($invitedOrgaIds->toArray(), $this->id);
+            : $this->conditionFactory->propertyHasNotAnyOfValues($invitedOrgaIds->toArray(), Paths::orga()->id);
 
         return array_merge($conditions, $invitedOrgaIdsCondition);
     }
@@ -106,7 +106,7 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
     public function getDefaultSortMethods(): array
     {
         return [
-            $this->sortMethodFactory->propertyAscending($this->name),
+            $this->sortMethodFactory->propertyAscending(Paths::orga()->name),
         ];
     }
 
@@ -118,7 +118,7 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
         $configBuilder->id->readable();
 
         // Base properties that are always readable
-        $configBuilder->legalName->readable(true)->aliasedPath($this->name);
+        $configBuilder->legalName->readable(true)->aliasedPath(Paths::orga()->name);
         $configBuilder->participationFeedbackEmailAddress->readable()->aliasedPath(Paths::orga()->email2);
         $configBuilder->locationContacts
             ->setRelationshipType($this->resourceTypeStore->getInstitutionLocationContactResourceType())
