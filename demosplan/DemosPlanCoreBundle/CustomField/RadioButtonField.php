@@ -97,7 +97,7 @@ class RadioButtonField extends AbstractCustomField
 
     public function isValueValid(string $value): bool
     {
-        if ('UNASSIGNED' === $value) {
+        if (CustomFieldInterface::UNASSIGNED === $value) {
             return true;
         }
 

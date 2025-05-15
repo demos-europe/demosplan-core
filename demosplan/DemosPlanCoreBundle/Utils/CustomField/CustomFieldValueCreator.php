@@ -46,8 +46,8 @@ class CustomFieldValueCreator extends CoreService
             $existingCustomFieldValue = $currentCustomFieldValuesList->findById($newCustomFieldValue->getId());
 
             if ($existingCustomFieldValue) {
-                // If the value is null, remove this field from the updated list
-                if ('UNASSIGNED' === $newCustomFieldValue->getValue()) {
+                // If the value is UNASSIGNED, remove this field from the updated list
+                if (CustomFieldInterface::UNASSIGNED === $newCustomFieldValue->getValue()) {
                     $currentCustomFieldValuesList->removeCustomFieldValue($newCustomFieldValue);
                     continue;
                 }
