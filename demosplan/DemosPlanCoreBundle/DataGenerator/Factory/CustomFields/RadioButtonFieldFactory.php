@@ -18,21 +18,21 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 /**
  * @extends PersistentProxyObjectFactory<RadioButtonField>
  *
- * @method        RadioButtonField|Proxy                              create(array|callable $attributes = [])
- * @method static RadioButtonField|Proxy                              createOne(array $attributes = [])
- * @method static RadioButtonField|Proxy                              find(object|array|mixed $criteria)
- * @method static RadioButtonField|Proxy                              findOrCreate(array $attributes)
- * @method static RadioButtonField|Proxy                              first(string $sortedField = 'id')
- * @method static RadioButtonField|Proxy                              last(string $sortedField = 'id')
- * @method static RadioButtonField|Proxy                              random(array $attributes = [])
- * @method static RadioButtonField|Proxy                              randomOrCreate(array $attributes = [])
+ * @method        RadioButtonField|Proxy                    create(array|callable $attributes = [])
+ * @method static RadioButtonField|Proxy                    createOne(array $attributes = [])
+ * @method static RadioButtonField|Proxy                    find(object|array|mixed $criteria)
+ * @method static RadioButtonField|Proxy                    findOrCreate(array $attributes)
+ * @method static RadioButtonField|Proxy                    first(string $sortedField = 'id')
+ * @method static RadioButtonField|Proxy                    last(string $sortedField = 'id')
+ * @method static RadioButtonField|Proxy                    random(array $attributes = [])
+ * @method static RadioButtonField|Proxy                    randomOrCreate(array $attributes = [])
  * @method static RadioButtonField|ProxyRepositoryDecorator repository()
- * @method static RadioButtonField[]|Proxy[]                          all()
- * @method static RadioButtonField[]|Proxy[]                          createMany(int $number, array|callable $attributes = [])
- * @method static RadioButtonField[]|Proxy[]                          createSequence(iterable|callable $sequence)
- * @method static RadioButtonField[]|Proxy[]                          findBy(array $attributes)
- * @method static RadioButtonField[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
- * @method static RadioButtonField[]|Proxy[]                          randomSet(int $number, array $attributes = [])
+ * @method static RadioButtonField[]|Proxy[]                all()
+ * @method static RadioButtonField[]|Proxy[]                createMany(int $number, array|callable $attributes = [])
+ * @method static RadioButtonField[]|Proxy[]                createSequence(iterable|callable $sequence)
+ * @method static RadioButtonField[]|Proxy[]                findBy(array $attributes)
+ * @method static RadioButtonField[]|Proxy[]                randomRange(int $min, int $max, array $attributes = [])
+ * @method static RadioButtonField[]|Proxy[]                randomSet(int $number, array $attributes = [])
  */
 final class RadioButtonFieldFactory extends PersistentProxyObjectFactory
 {

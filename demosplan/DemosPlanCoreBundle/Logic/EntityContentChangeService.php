@@ -13,7 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -64,7 +63,7 @@ class EntityContentChangeService extends CoreService
         private readonly RepositoryHelper $repositoryHelper,
         private readonly RouterInterface $router,
         TokenStorageInterface $tokenStorage,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->tokenStorage = $tokenStorage;
     }
@@ -241,8 +240,8 @@ class EntityContentChangeService extends CoreService
      *
      * @param Collection|array|CoreEntity|User|DateTime|string|null $preUpdateValue
      * @param Collection|array|CoreEntity|User|DateTime|string|null $postUpdateValue
-     * @param string                                                $entityType     is it a statement, fragment, etc?
-     *                                                                              Needs to match the mapping file
+     * @param string                                                $entityType      is it a statement, fragment, etc?
+     *                                                                               Needs to match the mapping file
      *
      * @return string|null null in case of no change are calculated,
      *                     otherwise a EntityContentChange display compatible json-string
@@ -253,9 +252,8 @@ class EntityContentChangeService extends CoreService
         $preUpdateValue,
         $postUpdateValue,
         string $propertyName,
-        string $entityType
-    )
-    {
+        string $entityType,
+    ) {
         if ($postUpdateValue !== $preUpdateValue) {
             if ($preUpdateValue instanceof Collection || is_array($preUpdateValue)) {
                 $preUpdateIdentifiers = $this->mapToContentChangeIdentifiers($preUpdateValue)->toArray();
@@ -346,7 +344,7 @@ class EntityContentChangeService extends CoreService
      *
      * @return array<int, EntityContentChange> (whitelisted) changes of Entity of given ID
      */
-    public function getChangesByEntityId(string $entityId, array $whitelistedFields = null): array
+    public function getChangesByEntityId(string $entityId, ?array $whitelistedFields = null): array
     {
         return $this->entityContentChangeRepository->getChangesByEntityId($entityId, $whitelistedFields);
     }
@@ -378,7 +376,7 @@ class EntityContentChangeService extends CoreService
     public function addEntityContentChangeEntries(
         CoreEntity $updatedObject,
         array $changes,
-        bool $isReviewer = false
+        bool $isReviewer = false,
     ): void {
         try {
             $entries = $this->createEntityContentChangeEntries(
@@ -401,7 +399,7 @@ class EntityContentChangeService extends CoreService
         CoreEntity $updatedObject,
         array $changes,
         bool $isReviewer,
-        DateTime $creationDate
+        DateTime $creationDate,
     ): array {
         $changer = $this->determineChanger($isReviewer);
 
@@ -436,7 +434,7 @@ class EntityContentChangeService extends CoreService
         string $changedEntityField,
         $contentChange,
         ?object $changer,
-        DateTime $creationDate
+        DateTime $creationDate,
     ): ?EntityContentChange {
         // This is basically a form of validation. For technical reasons, it's not possible (worth it) sanitizing
         // this specific case earlier, so it's done here. Null means: there has not been any change, please ignore.
@@ -471,7 +469,7 @@ class EntityContentChangeService extends CoreService
         $content,
         string $fieldName,
         string $entityType,
-        bool $isDiffCreatedForDisplay = false
+        bool $isDiffCreatedForDisplay = false,
     ): array {
         // empty values
         if ('' === $content || '0' === $content || null === $content) {
@@ -540,7 +538,7 @@ class EntityContentChangeService extends CoreService
     public function getBlankValuesForField(
         string $fieldName,
         string $entityType,
-        bool $addPlaceholdersInBlankLines = false
+        bool $addPlaceholdersInBlankLines = false,
     ): string {
         // deactivate function and only return empty string, depending on this check
         if (false === $addPlaceholdersInBlankLines) {
@@ -561,7 +559,7 @@ class EntityContentChangeService extends CoreService
     /**
      * Applies the library Jfcherng\Diff to two strings.
      *
-     * @param string      $entityType is it a statement, fragment, etc? Needs to match the mapping file
+     * @param string $entityType is it a statement, fragment, etc? Needs to match the mapping file
      *
      * @return string|null Theoretical format can be configured with inputs, but it's always in string format.
      *                     E.g., a JSON-string. If there is nothing to diff (only spaces at beginning or end of
@@ -573,7 +571,7 @@ class EntityContentChangeService extends CoreService
         string $fieldName,
         string $entityType,
         array $options,
-        bool $isDiffCreatedForDisplay = false
+        bool $isDiffCreatedForDisplay = false,
     ): ?string {
         $optionsDefault = [];
         $stringNewArray = $this->prepareInputForDiffing(
@@ -749,7 +747,7 @@ class EntityContentChangeService extends CoreService
     public function convertArraysAndAddVersion(
         CoreEntity $updatedObject,
         array $preUpdateAssociatedEntities,
-        string $fieldName
+        string $fieldName,
     ) {
         $changes = [];
         $methodName = $this->getGetterMethodName($updatedObject, $fieldName);
@@ -840,7 +838,7 @@ class EntityContentChangeService extends CoreService
         $contentChange,
         object $changer,
         string $entityType,
-        DateTime $creationDate
+        DateTime $creationDate,
     ): EntityContentChange {
         $change = new EntityContentChange();
         $change->setEntityId($updatedObject->getId());
@@ -864,7 +862,7 @@ class EntityContentChangeService extends CoreService
         string $changedEntityField,
         $contentChange,
         object $changer,
-        DateTime $creationDate
+        DateTime $creationDate,
     ): EntityContentChange {
         // if changed value is a relation, use getEntityContentChangeIdentifier() to ensure getting string|int|bool.
         if ($contentChange instanceof CoreEntity || $contentChange instanceof User) {
@@ -915,9 +913,7 @@ class EntityContentChangeService extends CoreService
             $assignee = $changedSegment->getAssignee();
 
             if (null === $assignee) {
-                throw new \demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException(
-                    'Expected all segments to have an assignee set'
-                );
+                throw new \demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException('Expected all segments to have an assignee set');
             }
 
             // Initial setup of customer and user
@@ -1053,9 +1049,7 @@ class EntityContentChangeService extends CoreService
             $attributeName = str_replace('_', '', $attributeName);
         }
 
-        throw new InvalidDataException(
-            'Unable to map incoming field '.$attributeName.' name to getter-method of a property'
-        );
+        throw new InvalidDataException('Unable to map incoming field '.$attributeName.' name to getter-method of a property');
     }
 
     /**
