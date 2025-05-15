@@ -19,6 +19,8 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\InvitablePublicAgencyResourceConfigBuilder;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
 
@@ -108,17 +110,24 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
         ];
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): array|ResourceConfigBuilderInterface
     {
-        $properties = [
-            $this->createIdentifier()->readable(),
-            $this->createAttribute($this->legalName)->readable(true)->aliasedPath($this->name),
-            $this->createAttribute($this->participationFeedbackEmailAddress)->readable()->aliasedPath(Paths::orga()->email2),
-            $this->createToManyRelationship($this->locationContacts)->readable()->aliasedPath(Paths::orga()->addresses),
-        ];
+        /** @var InvitablePublicAgencyResourceConfigBuilder $configBuilder */
+        $configBuilder = $this->getConfig(InvitablePublicAgencyResourceConfigBuilder::class);
 
+        $configBuilder->id->readable();
+
+        // Base properties that are always readable
+        $configBuilder->legalName->readable(true)->aliasedPath($this->name);
+        $configBuilder->participationFeedbackEmailAddress->readable()->aliasedPath(Paths::orga()->email2);
+        $configBuilder->locationContacts
+            ->setRelationshipType($this->resourceTypeStore->getInstitutionLocationContactResourceType())
+            ->readable()
+            ->aliasedPath(Paths::orga()->addresses);
+
+        // Conditional properties based on permissions
         if ($this->currentUser->hasPermission('field_organisation_competence')) {
-            $properties[] = $this->createAttribute($this->competenceDescription)->readable(
+            $configBuilder->competenceDescription->readable(
                 true,
                 static function (Orga $orga): ?string {
                     $competenceDescription = $orga->getCompetence();
@@ -132,19 +141,20 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
         }
 
         if ($this->currentUser->hasPermission('field_organisation_email2_cc')) {
-            $properties[] = $this->createAttribute($this->ccEmailAddresses)->readable()->aliasedPath(Paths::orga()->ccEmail2);
+            $configBuilder->ccEmailAddresses->readable()->aliasedPath(Paths::orga()->ccEmail2);
         }
 
         if ($this->currentUser->hasPermission('field_organisation_contact_person')) {
-            $properties[] = $this->createAttribute($this->contactPerson)->readable();
+            $configBuilder->contactPerson->readable();
         }
 
         if ($this->currentUser->hasPermission('feature_institution_tag_read')) {
-            $properties[] = $this->createToManyRelationship($this->assignedTags)
+            $configBuilder->assignedTags
+                ->setRelationshipType($this->resourceTypeStore->getInstitutionTagResourceType())
                 ->readable(true, null, true)
                 ->filterable();
         }
 
-        return $properties;
+        return $configBuilder;
     }
 }
