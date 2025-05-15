@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 class CustomFieldValueCreator extends CoreService
 {
     public function __construct(
-        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
     ) {
     }
 
@@ -66,7 +66,7 @@ class CustomFieldValueCreator extends CoreService
         string $sourceEntityClass,
         string $sourceEntityId,
         string $targetEntityClass,
-        string $customFieldId
+        string $customFieldId,
     ): CustomFieldInterface {
         $customFieldConfigurations = $this->customFieldConfigurationRepository
             ->findCustomFieldConfigurationByCriteria($sourceEntityClass, $sourceEntityId, $targetEntityClass, $customFieldId);
@@ -78,8 +78,9 @@ class CustomFieldValueCreator extends CoreService
         return $customFieldConfigurations[0]->getConfiguration();
     }
 
-    public function getCustomFieldByUUID(string $customFieldId): CustomFieldInterface {
-        $customFieldConfigurations =  $this->customFieldConfigurationRepository->find($customFieldId);
+    public function getCustomFieldByUUID(string $customFieldId): CustomFieldInterface
+    {
+        $customFieldConfigurations = $this->customFieldConfigurationRepository->find($customFieldId);
         if (null === $customFieldConfigurations) {
             throw new InvalidArgumentException('No custom field configuration found for given ID.');
         }

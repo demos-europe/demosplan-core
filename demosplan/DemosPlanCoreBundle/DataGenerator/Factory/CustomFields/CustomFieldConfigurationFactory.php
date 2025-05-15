@@ -35,7 +35,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static CustomFieldConfiguration[]|Proxy[]                          findBy(array $attributes)
  * @method static CustomFieldConfiguration[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
  * @method static CustomFieldConfiguration[]|Proxy[]                          randomSet(int $number, array $attributes = [])
- *
  */
 final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
 {
@@ -60,14 +59,13 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
         string $description = 'Select a Color',
         array $options = ['blue', 'red', 'green', 'yellow', 'black', 'white', 'purple', 'orange'],
     ): self {
-
         return $this->with([
             'configuration' => RadioButtonFieldFactory::new([
                 'name'              => $name,
                 'description'       => $description,
                 'fieldType'         => 'singleSelect',
                 'options'           => $options,
-            ])
+            ]),
         ]);
     }
 
@@ -75,7 +73,7 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
     {
         return $this->with([
             'sourceEntityClass' => 'PROCEDURE',
-            'sourceEntityId'    => $procedure->getId()
+            'sourceEntityId'    => $procedure->getId(),
         ]);
     }
 }
