@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceConfigBuilder;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\AddressInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseOrgaResourceConfigBuilder;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
 use EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilderInterface;
 use EDT\JsonApi\PropertyConfig\Builder\ToManyRelationshipConfigBuilderInterface;
-use demosplan\DemosPlanCoreBundle\Entity\AddressBook\InstitutionLocationContact;
 
 /**
  * @template-extends BaseOrgaResourceConfigBuilder<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,OrgaInterface>
@@ -27,7 +27,7 @@ use demosplan\DemosPlanCoreBundle\Entity\AddressBook\InstitutionLocationContact;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,OrgaInterface> $competenceDescription
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,OrgaInterface> $participationFeedbackEmailAddress
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,OrgaInterface> $ccEmailAddresses
- * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,OrgaInterface,InstitutionLocationContact> $locationContacts
+ * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,OrgaInterface,AddressInterface> $locationContacts
  */
 class InvitablePublicAgencyResourceConfigBuilder extends BaseOrgaResourceConfigBuilder
 {
