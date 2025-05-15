@@ -234,39 +234,18 @@ export default {
       })
     },
 
-    /**
-     * Restore non-updatable comments from segments relationships after update request
-     */
-    restoreComments (comments) {
-      if (comments) {
-        const segmentWithComments = {
-          ...this.segment,
-          relationships: {
-            ...this.segment.relationships,
-            comments
-          }
-        }
-        this.setItem({ ...segmentWithComments })
-      }
-    },
-
     save () {
-      this.setItem({
-        ...this.segment,
-        attributes: {
-          ...this.segment.attributes,
-          polygon: JSON.stringify(this.featuresObject)
-        }
-      })
-      const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
+      const clonedSegment = JSON.parse(JSON.stringify(this.segment))
+      clonedSegment.attributes.polygon = JSON.stringify(this.featuresObject)
 
-      /**
-       *  Comments need to be removed as updating them is technically not supported
-       *  After completing the request, they are added again to the store to be able to display them
-       */
-      if (this.segment.relationships.comments) {
-        delete this.segment.relationships.comments
+      const payload = {
+        ...clonedSegment,
+        relationships: {
+          ...clonedSegment.relationships
+        }
       }
+
+      this.setItem({ ...payload, id: payload.id })
 
       return this.saveSegmentAction(this.segmentId)
         .then(checkResponse)
@@ -275,9 +254,6 @@ export default {
         })
         .catch(() => {
           dplan.notify.error(Translator.trans('error.changes.not.saved'))
-        })
-        .finally(() => {
-          this.restoreComments(comments)
         })
     },
 
@@ -321,6 +297,7 @@ export default {
     },
 
     updateDrawings (type, data) {
+      console.log('data, type: ', data, type)
       this.currentPolygons = this.currentPolygons.filter(f => f.geometry.type !== type)
       this.currentPolygons = [...this.currentPolygons, ...JSON.parse(data).features]
     }
