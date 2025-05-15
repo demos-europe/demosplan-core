@@ -568,7 +568,7 @@ export default {
     customFieldsOptions () {
       return Object.values(this.customFields).reduce((acc, el) => {
         const opts = [...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
-        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id, value: null })
+        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id, value: 'UNASSIGNED' })
 
         return {
           ...acc,
@@ -865,16 +865,11 @@ export default {
      * @param {string} value.id   id of the selected option
      * @param {string} value.fieldId   id of the custom field
      * @param {string} value.name   name of the selected option
-     * @param {string|null} value.value   optional explicit value to use (null for unassigned)
+     * @param {string} value.value   optional explicit value to use ('UNASSIGNED' for unassigned)
      */
     setCustomFieldValue (value) {
-      // If this is the "not assigned" option (with null value), use null instead of name
-      if (value.id === 'unset' && value.value === null) {
-        const modifiedValue = { ...value, value: null }
-        this.customFieldValues[value.fieldId] = modifiedValue
-      } else {
-        this.customFieldValues[value.fieldId] = value
-      }
+      // Store the value directly, the unset option already has value: 'UNASSIGNED'
+      this.customFieldValues[value.fieldId] = value
     },
 
     setInitiallySelectedCustomFieldValues () {
@@ -1052,8 +1047,8 @@ export default {
 
     // Helper to get the custom field value from an option
     getCustomFieldValueForPayload (option) {
-      // Return null for unassigned options
-      return option.value === null ? null : option.name
+      // Return 'UNASSIGNED' for unassigned options
+      return option.value === 'UNASSIGNED' ? 'UNASSIGNED' : option.name
     }
   },
 
