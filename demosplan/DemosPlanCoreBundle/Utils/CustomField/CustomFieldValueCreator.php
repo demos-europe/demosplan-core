@@ -58,7 +58,6 @@ class CustomFieldValueCreator extends CoreService
         // At the very end, before returning, ensure array is properly indexed
         $currentCustomFieldValuesList->reindexValues();
 
-
         /*
          * Clone `$currentCustomFieldValuesList` to ensure Doctrine detects changes to JSON-like columns.
          * Doctrine only tracks updates when the object reference changes.
@@ -71,11 +70,12 @@ class CustomFieldValueCreator extends CoreService
     protected function handleExistingCustomField(
         CustomFieldValuesList $currentCustomFieldValuesList,
         CustomFieldValue $existingCustomFieldValue,
-        CustomFieldValue $newCustomFieldValue
-    ): void  {
+        CustomFieldValue $newCustomFieldValue,
+    ): void {
         // If the value is UNASSIGNED, remove this field from the updated list
         if (CustomFieldInterface::UNASSIGNED === $newCustomFieldValue->getValue()) {
             $currentCustomFieldValuesList->removeCustomFieldValue($newCustomFieldValue);
+
             return;
         }
 
@@ -85,14 +85,13 @@ class CustomFieldValueCreator extends CoreService
     // Handle adding new custom field values
     protected function handleNewCustomField(
         CustomFieldValuesList $currentCustomFieldValuesList,
-        CustomFieldValue $newCustomFieldValue
+        CustomFieldValue $newCustomFieldValue,
     ): void {
         // Skip adding fields marked for removal
         if (CustomFieldInterface::UNASSIGNED !== $newCustomFieldValue->getValue()) {
             $currentCustomFieldValuesList->addCustomFieldValue($newCustomFieldValue);
         }
     }
-
 
     private function getCustomField(string $sourceEntityClass,
         string $sourceEntityId,

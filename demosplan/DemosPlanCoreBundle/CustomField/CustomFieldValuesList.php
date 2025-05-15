@@ -57,7 +57,7 @@ class CustomFieldValuesList
     {
         $this->customFieldValues = array_filter(
             $this->customFieldValues,
-            static fn(CustomFieldValue $fieldValue) => $fieldValue->getId() !== $customFieldValue->getId()
+            static fn (CustomFieldValue $fieldValue) => $fieldValue->getId() !== $customFieldValue->getId()
         );
     }
 
@@ -68,13 +68,9 @@ class CustomFieldValuesList
 
     public function sortByFieldId(): void
     {
-        usort($this->customFieldValues, function(CustomFieldValue $a,
-                                                 CustomFieldValue $b) {
+        usort($this->customFieldValues, function (CustomFieldValue $a,
+            CustomFieldValue $b) {
             return strcmp($a->getId(), $b->getId());
         });
     }
-
-
-
-
 }
