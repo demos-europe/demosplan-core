@@ -138,7 +138,7 @@
             {% block wizard_content %}
 
                 {# wizard item: Intern #}
-                <fieldset {% if proceduresettings.internalComplete is defined %}data-wizard-finished="true"{% endif %} data-wizard-topic="{{ 'wizard.topic.internal'|trans }}" class="o-wizard" data-dp-validate="internalForm">
+                <fieldset {% if proceduresettings.internalComplete is defined %}data-wizard-finished="true"{% endif %} data-wizard-topic="{{ 'wizard.topic.internal'|trans }}" data-dp-validate-topic="{{ 'wizard.topic.internal'|trans }}" class="o-wizard" data-dp-validate="internalForm">
 
                     <legend
                         data-toggle-id="internal"
@@ -588,6 +588,7 @@
                             name="locationForm"
                             {% if proceduresettings.locationComplete is defined %}data-wizard-finished="true"{% endif %}
                             data-wizard-topic="{{ 'wizard.topic.location'|trans }}"
+                            data-dp-validate-topic="{{ 'wizard.topic.location'|trans }}"
                             class="o-wizard"
                             data-dp-validate="locationForm">
 
@@ -710,6 +711,7 @@
                         name="phaseInternalForm"
                         {% if proceduresettings.phaseInternalComplete is defined %}data-wizard-finished="true"{% endif %}
                         data-wizard-topic="{{ 'wizard.topic.phaseInternal'|trans }}"
+                        data-dp-validate-topic="{{ 'wizard.topic.phaseInternal'|trans }}"
                         class="o-wizard"
                         data-dp-validate="phaseInternalForm">
 
@@ -858,6 +860,7 @@
                         name="phaseExternalForm"
                         {% if proceduresettings.phaseExternalComplete is defined %}data-wizard-finished="true"{% endif %}
                         data-wizard-topic="{{ 'wizard.topic.phaseExternal'|trans }}"
+                        data-dp-validate-topic="{{ 'wizard.topic.phaseExternal'|trans }}"
                         class="o-wizard"
                         data-dp-validate="phaseExternalForm">
 
@@ -992,6 +995,7 @@
                     name="nameUrlForm"
                     {% if proceduresettings.nameUrlComplete is defined %}data-wizard-finished="true"{% endif %}
                     data-wizard-topic="{{ 'wizard.topic.nameUrl'|trans }}"
+                    data-dp-validate-topic="{{ 'wizard.topic.nameUrl'|trans }}"
                     class="o-wizard"
                     data-dp-validate="nameUrlForm">
 
@@ -1133,6 +1137,7 @@
                     name="settingsForm"
                     {% if proceduresettings.exportSettingsComplete is defined %}data-wizard-finished="true"{% endif %}
                     data-wizard-topic="{{ 'wizard.topic.export.settings'|trans }}"
+                    data-dp-validate-topic="{{ 'wizard.topic.export.settings'|trans }}"
                     class="o-wizard"
                     data-dp-validate="settingsForm">
                     <legend
@@ -1182,6 +1187,7 @@
                         name="additionalForm"
                         {% if proceduresettings.additionalComplete is defined %}data-wizard-finished="true"{% endif %}
                         data-wizard-topic="{{ 'wizard.topic.additional'|trans }}"
+                        data-dp-validate-topic="{{ 'wizard.topic.additional'|trans }}"
                         class="o-wizard"
                         data-dp-validate="additionalForm">
 
