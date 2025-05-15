@@ -11,12 +11,15 @@
 namespace Tests\Core\Core\Unit\Logic\Segment\RpcBulkEditor;
 
 use DateTime;
+use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadSegmentData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
@@ -66,10 +69,46 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
         self::assertNull($this->segment1->getAssignee());
         self::assertNull($this->segment2->getAssignee());
 
-        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], $this->user, null);
+        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], $this->user, null, []);
 
         self::assertEquals($this->user->getId(), $this->segment1->getAssignee()->getId());
         self::assertEquals($this->user->getId(), $this->segment2->getAssignee()->getId());
+    }
+
+    public function testUpdateSegmentsCustomFields(): void
+    {
+        $procedure = ProcedureFactory::createOne();
+        $segment1 = SegmentFactory::createOne()->setProcedure($procedure->_real());
+        $segment2 = SegmentFactory::createOne()->setProcedure($procedure->_real());
+
+        $customField1 = $this->createCustomField($procedure, 'Favourite Color', 'Your favourite color', ['Blue', 'Orange', 'Green']);
+        $customField2 = $this->createCustomField($procedure, 'Favourite Food', 'Your favourite food', ['Pizza', 'Sushi', 'Bread']);
+
+        $customFieldsValuesToUpdate = [
+            ['id' => $customField1->getId(), 'value' => 'Orange'],
+            ['id' => $customField2->getId(), 'value' => 'Bread'],
+        ];
+
+        $this->sut->updateSegments([$segment1, $segment2], [], [], $this->user, null, $customFieldsValuesToUpdate);
+
+        self::assertEquals('Orange', $segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
+        self::assertEquals('Bread', $segment2->getCustomFields()->getCustomFieldsValues()[1]->getValue());
+    }
+
+    private function createCustomField($procedure, string $name, string $description, array $options): CustomFieldConfiguration
+    {
+        $radioButton = new RadioButtonField();
+        $radioButton->setName($name);
+        $radioButton->setDescription($description);
+        $radioButton->setFieldType('singleSelect');
+        $radioButton->setOptions($options);
+
+        return CustomFieldConfigurationFactory::createOne([
+            'sourceEntityClass' => 'PROCEDURE',
+            'sourceEntityId'    => $procedure->getId(),
+            'targetEntityClass' => 'SEGMENT',
+            'configuration'     => $radioButton,
+        ])->_real();
     }
 
     public function testUpdateSegmentsWithNullAssignee(): void
@@ -80,7 +119,7 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
         self::assertEquals($this->user->getId(), $this->segment1->getAssignee()->getId());
         self::assertEquals($this->user->getId(), $this->segment2->getAssignee()->getId());
 
-        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], null, null);
+        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], null, null, []);
 
         self::assertNull($this->segment1->getAssignee());
         self::assertNull($this->segment2->getAssignee());
