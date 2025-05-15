@@ -40,7 +40,7 @@ class SetHttpTestPermissionsListener
 
     public function onKernelController(ControllerEvent $controllerEvent): void
     {
-        if ($this->kernel->getEnvironment() !== 'test') {
+        if ('test' !== $this->kernel->getEnvironment()) {
             return;
         }
 

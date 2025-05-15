@@ -16,10 +16,8 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFacto
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\RoleFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomFieldResourceType;
 use Tests\Base\JsonApiTest;
 use Zenstruck\Foundry\Persistence\Proxy;
 
@@ -54,24 +52,23 @@ class CustomFieldResourceTypeTest extends JsonApiTest
         $procedure = ProcedureFactory::createOne();
 
         $data = [
-            "type" => "CustomField",
-            "attributes" => [
-                "fieldType" => "singleSelect",
-                "name" => "Beschlussvorschlag",
-                "description" => "This is a description for the radiobutton",
-                "options" => ["ehehe", "huhu", "hahaha"],
-                "targetEntity" => "SEGMENT",
-                "sourceEntity" => "PROCEDURE",
-                "sourceEntityId" => $procedure->getId(),
-            ]
+            'type'       => 'CustomField',
+            'attributes' => [
+                'fieldType'      => 'singleSelect',
+                'name'           => 'Beschlussvorschlag',
+                'description'    => 'This is a description for the radiobutton',
+                'options'        => ['ehehe', 'huhu', 'hahaha'],
+                'targetEntity'   => 'SEGMENT',
+                'sourceEntity'   => 'PROCEDURE',
+                'sourceEntityId' => $procedure->getId(),
+            ],
         ];
 
         $result = $this->executeCreationRequest(
-           'CustomField',
+            'CustomField',
             $user,
             ['data' => $data],
             $procedure->_real()
         );
-
     }
 }
