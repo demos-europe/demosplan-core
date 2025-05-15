@@ -297,7 +297,6 @@ export default {
     },
 
     updateDrawings (type, data) {
-      console.log('data, type: ', data, type)
       this.currentPolygons = this.currentPolygons.filter(f => f.geometry.type !== type)
       this.currentPolygons = [...this.currentPolygons, ...JSON.parse(data).features]
     }
