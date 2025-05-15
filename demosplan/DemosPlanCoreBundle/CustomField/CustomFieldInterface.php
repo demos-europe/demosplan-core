@@ -34,6 +34,8 @@ interface CustomFieldInterface
 
     public function getType(): string;
 
+    public function getName(): string;
+
     /**
      * Will be called during database fetch
      * to fill the query object with the stored data.
