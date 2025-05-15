@@ -32,7 +32,7 @@ class AssessmentHandlerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(AssessmentHandler::class);
+        $this->sut = self::getContainer()->get(AssessmentHandler::class);
         $this->loginTestUser();
     }
 

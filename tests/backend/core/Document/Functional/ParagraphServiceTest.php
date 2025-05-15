@@ -41,7 +41,7 @@ class ParagraphServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(ParagraphService::class);
+        $this->sut = self::getContainer()->get(ParagraphService::class);
         $this->testParaDocument = $this->fixtures->getReference('testParagraph1');
         $this->testProcedure = $this->fixtures->getReference('testProcedure');
     }

@@ -21,9 +21,9 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayer;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTilePosition;
 use geoPHP\Geometry\Point;
+use Illuminate\Support\Collection;
 use Intervention\Image\ImageManager;
 use Tests\Base\UnitTestCase;
-use Illuminate\Support\Collection;
 
 use function imagecolorallocate;
 
@@ -39,8 +39,8 @@ class FeaturesToMapLayersConverterTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(FeaturesToMapLayersConverter::class);
-        $this->imageManager = self::$container->get(ImageManager::class);
+        $this->sut = self::getContainer()->get(FeaturesToMapLayersConverter::class);
+        $this->imageManager = self::getContainer()->get(ImageManager::class);
     }
 
     public function testConversion(): void
