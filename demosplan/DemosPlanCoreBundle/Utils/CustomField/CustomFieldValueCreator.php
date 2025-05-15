@@ -21,8 +21,9 @@ use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 
 class CustomFieldValueCreator extends CoreService
 {
-    public function __construct(private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
-    {
+    public function __construct(
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository
+    ) {
     }
 
     public function updateOrAddCustomFieldValues(
@@ -61,11 +62,12 @@ class CustomFieldValueCreator extends CoreService
         return clone $currentCustomFieldValuesList;
     }
 
-    private function getCustomField(string $sourceEntityClass,
+    private function getCustomField(
+        string $sourceEntityClass,
         string $sourceEntityId,
         string $targetEntityClass,
-        string $customFieldId): CustomFieldInterface
-    {
+        string $customFieldId
+    ): CustomFieldInterface {
         $customFieldConfigurations = $this->customFieldConfigurationRepository
             ->findCustomFieldConfigurationByCriteria($sourceEntityClass, $sourceEntityId, $targetEntityClass, $customFieldId);
 
@@ -74,6 +76,15 @@ class CustomFieldValueCreator extends CoreService
         }
 
         return $customFieldConfigurations[0]->getConfiguration();
+    }
+
+    public function getCustomFieldByUUID(string $customFieldId): CustomFieldInterface {
+        $customFieldConfigurations =  $this->customFieldConfigurationRepository->find($customFieldId);
+        if (null === $customFieldConfigurations) {
+            throw new InvalidArgumentException('No custom field configuration found for given ID.');
+        }
+
+        return $customFieldConfigurations;
     }
 
     private function validateCustomFieldValue(CustomFieldInterface $customField, mixed $value): void
