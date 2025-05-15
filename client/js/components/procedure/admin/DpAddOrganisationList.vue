@@ -97,21 +97,21 @@
               </dd>
             </template>
           </dl>
-            <dl class="pl-4 w-full">
-              <template v-if="hasPermission('feature_institution_tag_read') && Array.isArray(assignedTags) && assignedTags.length > 0">
-                <dt class="color--grey mt-2">
-                  {{ Translator.trans('institution.tags') }}
-                </dt>
-                <dd class="ml-0">
-                  <div class="flex flex-wrap gap-1 mt-1">
-                    <span
-                      v-for="tag in assignedTags"
-                      :key="tag.id">
-                      {{ tag.name }}
-                    </span>
-                  </div>
-                </dd>
-              </template>
+          <dl class="pl-4 w-full">
+            <template v-if="hasPermission('feature_institution_tag_read') && Array.isArray(assignedTags) && assignedTags.length > 0">
+              <dt class="color--grey mt-2">
+                {{ Translator.trans('institution.tags') }}
+              </dt>
+              <dd class="ml-0">
+                <div class="flex flex-wrap gap-1 mt-1">
+                  <span
+                    v-for="tag in assignedTags"
+                    :key="tag.id">
+                    {{ tag.name }}
+                  </span>
+                </div>
+              </dd>
+            </template>
           </dl>
         </div>
       </template>
@@ -176,7 +176,8 @@ export default {
         'legalName',
         'participationFeedbackEmailAddress',
         'locationContacts',
-        'assignedTags'
+        ...(hasPermission('feature_institution_tag_read') ? ['assignedTags'] : [])
+
       ],
       isLoading: true,
       itemsPerPageOptions: [10, 50, 100, 200],
@@ -208,7 +209,7 @@ export default {
         const tagReferences = item.relationships.assignedTags?.data || []
         const institutionTags = tagReferences.map(tag => ({
           id: tag.id,
-          name: this.institutionTagItems?.[tag.id]?.attributes?.name || tag.id
+          name: this.institutionTagItems?.[tag.id]?.attributes?.name || Translator.trans('error.tag.notfound')
         }))
 
         return [
@@ -285,21 +286,26 @@ export default {
         { permission: 'field_organisation_phone', value: 'phone' }
       ]
 
-      // Log the request parameters
-      const includeParams = ['locationContacts', 'assignedTags'].join()
+      // Only include assignedTags when user has permission
+      const includeParams = hasPermission('feature_institution_tag_read')
+        ? ['locationContacts', 'assignedTags']
+        : ['locationContacts']
+
       const requestParams = {
-        include: includeParams,
+        include: includeParams.join(),
         fields: {
           InvitableToeb: this.invitableToebFields.concat(this.returnPermissionChecksValuesArray(permissionChecksToeb)).join(),
           InstitutionLocationContact: this.locationContactFields.concat(this.returnPermissionChecksValuesArray(permissionChecksContact)).join()
         }
       }
 
-      requestParams.fields.InstitutionTag = 'name'
+      // Only request tag fields when user has permission
+      if (hasPermission('feature_institution_tag_read')) {
+        requestParams.fields.InstitutionTag = 'name'
+      }
 
-      return this.getInstitutions(requestParams).then(response => {
-        return response
-      })
+      return this.getInstitutions(requestParams)
+
     },
 
     getLocationContactById (id) {
