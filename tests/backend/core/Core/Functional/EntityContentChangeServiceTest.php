@@ -196,7 +196,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
     }
 
     /**
-     * Testing the history of the custom field value change
+     * Testing the history of the custom field value change.
      */
     public function testEntityContentChangeEntryOnUpdateCustomFieldValue(): void
     {
@@ -225,7 +225,6 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         self::assertArrayHasKey(0, $historyOfSegment1);
         self::assertInstanceOf(EntityContentChange::class, $historyOfSegment1[0]);
 
-
         $historyOfSegment2 = $this->getEntries(
             EntityContentChange::class,
             ['entityType' => Segment::class, 'entityId' => $segments[1], 'entityField' => 'Color']
@@ -233,13 +232,13 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         self::assertArrayHasKey(0, $historyOfSegment2);
         self::assertInstanceOf(EntityContentChange::class, $historyOfSegment2[0]);
 
-//        $change2 = Json::decodeToArray($historyOfSegment2[0]->getContentChange());
-//        self::assertIsArray($change2);
-//        self::assertEquals('Orange', $segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
-//
-//        self::assertEquals('Orange', $segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
-//        self::assertEquals('Orange', $segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
-//        self::assertEquals('Bread', $segment2->getCustomFields()->getCustomFieldsValues()[1]->getValue());
-//
+        //        $change2 = Json::decodeToArray($historyOfSegment2[0]->getContentChange());
+        //        self::assertIsArray($change2);
+        //        self::assertEquals('Orange', $segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
+        //
+        //        self::assertEquals('Orange', $segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
+        //        self::assertEquals('Orange', $segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
+        //        self::assertEquals('Bread', $segment2->getCustomFields()->getCustomFieldsValues()[1]->getValue());
+        //
     }
 }
