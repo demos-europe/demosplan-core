@@ -52,6 +52,9 @@ class CustomFieldValueCreator extends CoreService
             }
         }
 
+        // Sort fields to ensure consistent ordering in the database
+        $currentCustomFieldValuesList->sortByFieldId();
+
         // At the very end, before returning, ensure array is properly indexed
         $currentCustomFieldValuesList->reindexValues();
 

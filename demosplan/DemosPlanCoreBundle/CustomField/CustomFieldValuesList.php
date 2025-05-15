@@ -66,5 +66,15 @@ class CustomFieldValuesList
         $this->customFieldValues = array_values($this->customFieldValues);
     }
 
+    public function sortByFieldId(): void
+    {
+        usort($this->customFieldValues, function(CustomFieldValue $a,
+                                                 CustomFieldValue $b) {
+            return strcmp($a->getId(), $b->getId());
+        });
+    }
+
+
+
 
 }
