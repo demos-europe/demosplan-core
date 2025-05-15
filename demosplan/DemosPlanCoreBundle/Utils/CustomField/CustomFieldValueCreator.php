@@ -46,17 +46,9 @@ class CustomFieldValueCreator extends CoreService
             $existingCustomFieldValue = $currentCustomFieldValuesList->findById($newCustomFieldValue->getId());
 
             if ($existingCustomFieldValue) {
-                // If the value is UNASSIGNED, remove this field from the updated list
-                if (CustomFieldInterface::UNASSIGNED === $newCustomFieldValue->getValue()) {
-                    $currentCustomFieldValuesList->removeCustomFieldValue($newCustomFieldValue);
-                    continue;
-                }
-
-                $existingCustomFieldValue->setValue($newCustomFieldValue->getValue());
-
-
+                $this->handleExistingCustomField($currentCustomFieldValuesList, $existingCustomFieldValue, $newCustomFieldValue);
             } else {
-                $currentCustomFieldValuesList->addCustomFieldValue($newCustomFieldValue);
+                $this->handleNewCustomField($currentCustomFieldValuesList, $newCustomFieldValue);
             }
         }
 
@@ -72,6 +64,32 @@ class CustomFieldValueCreator extends CoreService
          */
         return clone $currentCustomFieldValuesList;
     }
+
+    protected function handleExistingCustomField(
+        CustomFieldValuesList $currentCustomFieldValuesList,
+        CustomFieldValue $existingCustomFieldValue,
+        CustomFieldValue $newCustomFieldValue
+    ): void  {
+        // If the value is UNASSIGNED, remove this field from the updated list
+        if (CustomFieldInterface::UNASSIGNED === $newCustomFieldValue->getValue()) {
+            $currentCustomFieldValuesList->removeCustomFieldValue($newCustomFieldValue);
+            return;
+        }
+
+        $existingCustomFieldValue->setValue($newCustomFieldValue->getValue());
+    }
+
+    // Handle adding new custom field values
+    protected function handleNewCustomField(
+        CustomFieldValuesList $currentCustomFieldValuesList,
+        CustomFieldValue $newCustomFieldValue
+    ): void {
+        // Skip adding fields marked for removal
+        if (CustomFieldInterface::UNASSIGNED !== $newCustomFieldValue->getValue()) {
+            $currentCustomFieldValuesList->addCustomFieldValue($newCustomFieldValue);
+        }
+    }
+
 
     private function getCustomField(string $sourceEntityClass,
         string $sourceEntityId,
