@@ -96,21 +96,22 @@
                 {{ contactPerson }}
               </dd>
             </template>
-            <template v-if="hasPermission('feature_institution_tag_read') && assignedTags && assignedTags.length > 0">
-              <dt class="color--grey mt-2">
-                {{ Translator.trans('institution.tags') }}
-              </dt>
-              <dd class="ml-0">
-                <div class="flex flex-wrap gap-1 mt-1">
-                  <span
-
-                    v-for="tag in assignedTags"
-                    :key="tag.id">
-                    {{ tag.name }}
-                  </span>
-                </div>
-              </dd>
-            </template>
+          </dl>
+            <dl class="pl-4 w-full">
+              <template v-if="hasPermission('feature_institution_tag_read') && Array.isArray(assignedTags) && assignedTags.length > 0">
+                <dt class="color--grey mt-2">
+                  {{ Translator.trans('institution.tags') }}
+                </dt>
+                <dd class="ml-0">
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    <span
+                      v-for="tag in assignedTags"
+                      :key="tag.id">
+                      {{ tag.name }}
+                    </span>
+                  </div>
+                </dd>
+              </template>
           </dl>
         </div>
       </template>
