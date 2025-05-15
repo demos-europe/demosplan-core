@@ -1,0 +1,46 @@
+export type LayerConfig = Layer[];
+export type Layer = {
+    id: string;
+    name: string;
+    url: string;
+    typ: "WMS" | "WFS";
+    layers?: string;
+    format?: string;
+    version: string;
+    singleTile?: boolean;
+    transparent?: boolean;
+    transparency?: number;
+    urlIsVisible: boolean;
+    tilesize?: number;
+    gutter?: number;
+    minScale?: string;
+    maxScale?: string;
+    gfiAttributes: string | {
+        [key: string]: string;
+    };
+    gfiTheme: string;
+    layerAttribution: string;
+    legendURL?: string;
+    cache?: boolean;
+    featureCount?: number;
+    datasets?: Dataset[];
+    notSupportedFor3DNeu?: boolean;
+    infoFormat?: string;
+    featureType?: string;
+    outputFormat?: string;
+    featureNS?: string;
+    hitTolerance?: string;
+    gfiComplex?: string;
+    legend?: boolean;
+};
+export type Dataset = {
+    md_id: string;
+    csw_url: string;
+    show_doc_url: string;
+    rs_id: string;
+    md_name: string;
+    bbox: string;
+    kategorie_opendata: string[];
+    kategorie_inspire: string[];
+    kategorie_organisation: string;
+};

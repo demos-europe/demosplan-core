@@ -1,0 +1,2 @@
+import { BBox, Position, Feature as GeoJSONFeature, FeatureCollection as GeoJSONFeatureCollection, Geometry as GeoJSONGeometry, GeometryCollection as GeoJSONGeometryCollection, LineString as GeoJSONLineString, MultiPolygon as GeoJSONMultiPolygon, Polygon as GeoJSONPolygon, Point as GeoJSONPoint, MultiPoint as GeoJSONMultiPoint } from 'geojson';
+export type { BBox, Position, GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONGeometryCollection, GeoJSONGeometry, GeoJSONLineString, GeoJSONMultiPolygon, GeoJSONPolygon, GeoJSONPoint, GeoJSONMultiPoint, };

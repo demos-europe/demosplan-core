@@ -1,0 +1,249 @@
+{
+   "Portalconfig": {
+      "portalTitle": {
+         "title": "DiPlanKarten",
+         "logo": "",
+         "link": "",
+         "toolTip": ""
+      },
+      "quickHelp": {
+         "configs": {
+            "search": false,
+            "tree": false
+         }
+      },
+      "tree": {
+         "highlightedFeatures": {
+            "active": true
+         },
+         "showScaleTooltip": true
+      },
+      "searchBar": {
+         "gazetteer": {
+            "minChars": 3,
+            "serviceId": "8",
+            "searchAddress": true,
+            "searchStreets": true,
+            "searchHouseNumbers": true,
+            "searchDistricts": true,
+            "searchParcels": true,
+            "searchStreetKey": true
+         },
+         "elasticSearch": {
+            "minChars": 3,
+            "serviceId": "elastic_test",
+            "type": "GET",
+            "payload": {
+               "id": "query",
+               "params": {
+                  "query_string": ""
+               }
+            },
+            "searchStringAttribute": "query_string",
+            "responseEntryPath": "hits.hits",
+            "triggerEvent": {
+               "channel": "Parser",
+               "event": "addGdiLayer"
+            },
+            "hitMap": {
+               "name": "_source.name",
+               "id": "_source.id",
+               "source": "_source"
+            },
+            "hitType": "Fachthema",
+            "hitIcon": "bi-list-ul"
+         },
+         "placeholder": "Suche nach Adresse/Thema"
+      },
+      "mapView": {
+         "backgroundImage": "",
+         "startCenter": [
+            550000,
+            5595000
+         ],
+         "options": [
+            {
+               "resolution": 104,
+               "scale": 100000,
+               "zoomLevel": 3
+            },
+            {
+               "resolution": 52,
+               "scale": 100000,
+               "zoomLevel": 4
+            },
+            {
+               "resolution": 26.4583333333333,
+               "scale": 100000,
+               "zoomLevel": 5
+            },
+            {
+               "resolution": 13.2291666666667,
+               "scale": 50000,
+               "zoomLevel": 6
+            },
+            {
+               "resolution": 6.61458333333333,
+               "scale": 25000,
+               "zoomLevel": 7
+            },
+            {
+               "resolution": 2.64583333333334,
+               "scale": 10000,
+               "zoomLevel": 8
+            },
+            {
+               "resolution": 1.32291666666667,
+               "scale": 5000,
+               "zoomLevel": 9
+            },
+            {
+               "resolution": 0.661458333333333,
+               "scale": 2500,
+               "zoomLevel": 10
+            },
+            {
+               "resolution": 0.264583333333333,
+               "scale": 1000,
+               "zoomLevel": 11
+            },
+            {
+               "resolution": 0.132291666666667,
+               "scale": 500,
+               "zoomLevel": 12
+            },
+            {
+               "resolution": 0.0661458333333333,
+               "scale": 250,
+               "zoomLevel": 13
+            },
+            {
+               "resolution": 0.0264583333333334,
+               "scale": 100,
+               "zoomLevel": 14
+            }
+         ]
+      },
+      "menu": {
+         "tree": {
+            "name": "Themen",
+            "icon": "bi-stack",
+            "isInitOpen": false
+         },
+         "tools": {
+            "name": "Werkzeuge",
+            "icon": "bi-tools",
+            "children": {
+               "gfi": {
+                  "name": "translate#common:menu.tools.getInfos",
+                  "icon": "bi-info-circle-fill",
+                  "active": true,
+                  "desktopType": "detached"
+               },
+               "draw": {
+                  "name": "Zeichnen / Schreiben",
+                  "icon": "bi-pencil-fill",
+                  "isVisibleInMenu": false
+               },
+               "measure": {
+                  "name": "Strecke / Fläche messen",
+                  "icon": "bi-rulers"
+               },
+               "print": {
+                  "name": "Karte drucken",
+                  "icon": "bi-printer-fill",
+                  "printServiceId": "mapfish_qs",
+                  "printAppId": "mrh",
+                  "filename": "Ausdruck",
+                  "title": "Mein Titel",
+                  "dpiForPdf": 120
+               },
+               "saveSelection": {
+                  "name": "translate#common:menu.tools.saveSelection",
+                  "icon": "bi-bookmark-check",
+                  "simpleMap": false,
+                  "isVisibleInMenu": false
+               },
+               "scaleSwitcher": {
+                  "name": "translate#common:menu.tools.scaleSwitcher",
+                  "icon": "bi-arrows-angle-contract",
+                  "isDisplayInFooter": true
+               }
+            }
+         },
+         "legend": {
+            "name": "Legende",
+            "icon": "bi-lightbulb",
+            "showCollapseAllButton": true
+         }
+      },
+      "controls": {
+         "fullScreen": true,
+         "orientation3d": false,
+         "zoom": true,
+         "orientation": {
+            "zoomMode": "once",
+            "poiDistances": [
+               500,
+               1000,
+               2000
+            ]
+         },
+         "totalView": true,
+         "attributions": false,
+         "overviewMap": {
+            "layerId": "453",
+            "isInitOpen": true
+         },
+         "mousePosition": true,
+         "button3d": false,
+         "freeze": false,
+         "backForward": true
+      },
+      "treeType": "custom"
+   },
+   "Themenconfig": {
+      "Hintergrundkarten": {
+         "Layer": [
+            {
+               "Titel": "Basemap Deutschland",
+               "Layer": [
+                  {
+                     "id": "452"
+                  }
+               ]
+            },
+            {
+               "Titel": "Digitale topographische Karte Norddeutschland (1:250 000)",
+               "Layer": [
+                  {
+                     "id": "453"
+                  }
+               ]
+            }
+         ]
+      },
+      "Fachdaten": {
+         "Ordner": [
+            {
+               "Titel": "Schwerefeld Deutschland",
+               "Ordinal": 1,
+               "Layer": [
+                  {
+                     "id": "455"
+                  }
+               ]
+            },
+            {
+               "Titel": "Landschaften Deutschland",
+               "Ordinal": 1,
+               "Layer": [
+                  {
+                     "id": "456"
+                  }
+               ]
+            }
+         ]
+      }
+   }
+}

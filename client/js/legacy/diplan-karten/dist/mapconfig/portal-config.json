@@ -1,0 +1,543 @@
+{
+   "Portalconfig": {
+      "portalTitle": {
+         "title": "DiPlanPotentiale",
+         "logo": "https://geoportal-hamburg.de/lgv-config/img/hh-logo.png",
+         "link": "https://geoinfo.hamburg.de",
+         "toolTip": "Landesbetrieb Geoinformation und Vermessung"
+      },
+      "quickHelp": {
+         "configs": {
+            "search": false,
+            "tree": false
+         }
+      },
+      "tree": {
+         "highlightedFeatures": {
+            "active": true
+         },
+         "showScaleTooltip": true
+      },
+      "searchBar": {
+         "gazetteer": {
+            "minChars": 3,
+            "serviceId": "8",
+            "searchAddress": true,
+            "searchStreets": true,
+            "searchHouseNumbers": true,
+            "searchDistricts": true,
+            "searchParcels": true,
+            "searchStreetKey": true
+         },
+         "elasticSearch": {
+            "minChars": 3,
+            "serviceId": "elastic_test",
+            "type": "GET",
+            "payload": {
+               "id": "query",
+               "params": {
+                  "query_string": ""
+               }
+            },
+            "searchStringAttribute": "query_string",
+            "responseEntryPath": "hits.hits",
+            "triggerEvent": {
+               "channel": "Parser",
+               "event": "addGdiLayer"
+            },
+            "hitMap": {
+               "name": "_source.name",
+               "id": "_source.id",
+               "source": "_source"
+            },
+            "hitType": "Fachthema",
+            "hitIcon": "bi-list-ul"
+         },
+         "placeholder": "Suche nach Adresse/Thema"
+      },
+      "mapView": {
+         "backgroundImage": "https://geoportal-hamburg.de/lgv-config/img/backgroundCanvas.jpeg",
+         "startCenter": [
+            565874,
+            5934140
+         ],
+         "options": [
+            {
+               "resolution": 26.4583333333333,
+               "scale": 100000,
+               "zoomLevel": 5
+            },
+            {
+               "resolution": 13.2291666666667,
+               "scale": 50000,
+               "zoomLevel": 6
+            },
+            {
+               "resolution": 6.61458333333333,
+               "scale": 25000,
+               "zoomLevel": 7
+            },
+            {
+               "resolution": 2.64583333333334,
+               "scale": 10000,
+               "zoomLevel": 8
+            },
+            {
+               "resolution": 1.32291666666667,
+               "scale": 5000,
+               "zoomLevel": 9
+            },
+            {
+               "resolution": 0.661458333333333,
+               "scale": 2500,
+               "zoomLevel": 10
+            },
+            {
+               "resolution": 0.264583333333333,
+               "scale": 1000,
+               "zoomLevel": 11
+            },
+            {
+               "resolution": 0.132291666666667,
+               "scale": 500,
+               "zoomLevel": 12
+            },
+            {
+               "resolution": 0.0661458333333333,
+               "scale": 250,
+               "zoomLevel": 13
+            },
+            {
+               "resolution": 0.0264583333333334,
+               "scale": 100,
+               "zoomLevel": 14
+            }
+         ]
+      },
+      "menu": {
+         "tree": {
+            "name": "Themen",
+            "icon": "bi-stack",
+            "isInitOpen": false
+         },
+         "tools": {
+            "name": "Werkzeuge",
+            "icon": "bi-tools",
+            "children": {
+               "gfi": {
+                  "name": "translate#common:menu.tools.getInfos",
+                  "icon": "bi-info-circle-fill",
+                  "active": true,
+                  "desktopType": "detached"
+               },
+               "draw": {
+                  "name": "Zeichnen / Schreiben",
+                  "icon": "bi-pencil-fill",
+                  "isVisibleInMenu": false
+               },
+               "measure": {
+                  "name": "Strecke / Fläche messen",
+                  "icon": "bi-rulers"
+               },
+               "print": {
+                  "name": "Karte drucken",
+                  "icon": "bi-printer-fill",
+                  "printServiceId": "mapfish_qs",
+                  "printAppId": "mrh",
+                  "filename": "Ausdruck",
+                  "title": "Mein Titel",
+                  "dpiForPdf": 120
+               },
+               "saveSelection": {
+                  "name": "translate#common:menu.tools.saveSelection",
+                  "icon": "bi-bookmark-check",
+                  "simpleMap": false,
+                  "isVisibleInMenu": false
+               },
+               "scaleSwitcher": {
+                  "name": "translate#common:menu.tools.scaleSwitcher",
+                  "icon": "bi-arrows-angle-contract",
+                  "isDisplayInFooter": true
+               }
+            }
+         },
+         "legend": {
+            "name": "Legende",
+            "icon": "bi-lightbulb",
+            "showCollapseAllButton": true
+         }
+      },
+      "controls": {
+         "fullScreen": true,
+         "orientation3d": false,
+         "zoom": true,
+         "orientation": {
+            "zoomMode": "once",
+            "poiDistances": [
+               500,
+               1000,
+               2000
+            ]
+         },
+         "totalView": true,
+         "attributions": false,
+         "overviewMap": {
+            "layerId": "452",
+            "isInitOpen": true
+         },
+         "mousePosition": true,
+         "button3d": false,
+         "freeze": false,
+         "backForward": true
+      },
+      "treeType": "custom"
+   },
+   "Themenconfig": {
+      "Hintergrundkarten": {
+         "Layer": [
+            {
+               "Titel": "Digitale Orthophotos Hamburg",
+               "Layer": [
+                  {
+                     "id": "452"
+                  }
+               ]
+            },
+            {
+               "Titel": "Geobasiskarten (HamburgDE)",
+               "Layer": [
+                  {
+                     "id": "453"
+                  }
+               ]
+            },
+            {
+               "Titel": "Stadtkarte farbig",
+               "Layer": [
+                  {
+                     "id": "23420"
+                  }
+               ]
+            },
+            {
+               "Titel": "Stadtkarte grau",
+               "Layer": [
+                  {
+                     "id": "23421"
+                  }
+               ]
+            }
+         ]
+      },
+      "Fachdaten": {
+         "Ordner": [
+            {
+               "Titel": "Magic",
+               "Ordinal": 1,
+               "Layer": [
+                  {
+                     "id": "999"
+                  }
+               ]
+            },
+            {
+               "Titel": "Ausgleichspflichtig nach Vertrag für Hamburgs Stadtgrün",
+               "Ordinal": 1,
+               "Layer": [
+                  {
+                     "id": "22977"
+                  },
+                  {
+                     "id": "22978"
+                  },
+                  {
+                     "id": "22979"
+                  },
+                  {
+                     "id": "22980"
+                  },
+                  {
+                     "id": "22981"
+                  },
+                  {
+                     "id": "22982"
+                  },
+                  {
+                     "id": "22983"
+                  }
+               ]
+            },
+            {
+               "Titel": "Baublöcke",
+               "Ordinal": 12,
+               "Layer": [
+                  {
+                     "id": "19110"
+                  },
+                  {
+                     "id": "19111"
+                  }
+               ]
+            },
+            {
+               "Titel": "Bebauungspläne",
+               "Ordinal": 11,
+               "Layer": [
+                  {
+                     "id": "4243"
+                  }
+               ]
+            },
+            {
+               "Titel": "Denkmalschutz",
+               "Ordinal": 2,
+               "Layer": [
+                  {
+                     "id": "3220"
+                  },
+                  {
+                     "id": "3221"
+                  }
+               ]
+            },
+            {
+               "Titel": "Flurstücke (ALKIS)",
+               "Ordinal": 10,
+               "Layer": [
+                  {
+                     "id": "2445"
+                  }
+               ]
+            },
+            {
+               "Titel": "Flurstücke (Kartendienst und PDF)",
+               "Ordinal": 9,
+               "Layer": [
+                  {
+                     "id": "384"
+                  },
+                  {
+                     "id": "388"
+                  },
+                  {
+                     "id": "392"
+                  },
+                  {
+                     "id": "396"
+                  }
+               ]
+            },
+            {
+               "Titel": "HVV - Wohnen und Gewerbe",
+               "Ordinal": 8,
+               "Layer": [
+                  {
+                     "id": "1933"
+                  },
+                  {
+                     "id": "1934"
+                  },
+                  {
+                     "id": "1935"
+                  },
+                  {
+                     "id": "1936"
+                  },
+                  {
+                     "id": "1937"
+                  },
+                  {
+                     "id": "1938"
+                  },
+                  {
+                     "id": "1939"
+                  },
+                  {
+                     "id": "1940"
+                  },
+                  {
+                     "id": "1941"
+                  },
+                  {
+                     "id": "1942"
+                  },
+                  {
+                     "id": "1943"
+                  },
+                  {
+                     "id": "1944"
+                  },
+                  {
+                     "id": "1945"
+                  },
+                  {
+                     "id": "1926"
+                  }
+               ]
+            },
+            {
+               "Titel": "Magistralen Hamburg",
+               "Ordinal": 3,
+               "Layer": [
+                  {
+                     "id": "15215"
+                  },
+                  {
+                     "id": "22375"
+                  },
+                  {
+                     "id": "22376"
+                  },
+                  {
+                     "id": "22377"
+                  },
+                  {
+                     "id": "22378"
+                  },
+                  {
+                     "id": "22379"
+                  },
+                  {
+                     "id": "22380"
+                  },
+                  {
+                     "id": "22381"
+                  },
+                  {
+                     "id": "22382"
+                  },
+                  {
+                     "id": "22383"
+                  },
+                  {
+                     "id": "22384"
+                  },
+                  {
+                     "id": "22385"
+                  },
+                  {
+                     "id": "22386"
+                  }
+               ]
+            },
+            {
+               "Titel": "Rasterplan Bebauungspläne",
+               "Ordinal": 0,
+               "Layer": [
+                  {
+                     "id": "4242"
+                  }
+               ]
+            },
+            {
+               "Titel": "RISE",
+               "Ordinal": 2,
+               "Layer": [
+                  {
+                     "id": "4409"
+                  },
+                  {
+                     "id": "4411"
+                  },
+                  {
+                     "id": "4413"
+                  },
+                  {
+                     "id": "18712"
+                  },
+                  {
+                     "id": "18713"
+                  },
+                  {
+                     "id": "18714"
+                  }
+               ]
+            },
+            {
+               "Titel": "Städtebauliche Verordnungen",
+               "Ordinal": 6,
+               "Layer": [
+                  {
+                     "id": "1205"
+                  }
+               ]
+            },
+            {
+               "Titel": "Soziale Erhaltungsverordnung",
+               "Ordinal": 4,
+               "Layer": [
+                  {
+                     "id": "4445"
+                  },
+                  {
+                     "id": "4446"
+                  }
+               ]
+            },
+            {
+               "Titel": "Verkehrsanbindungen",
+               "Ordinal": 7,
+               "Layer": [
+                  {
+                     "id": "597"
+                  },
+                  {
+                     "id": "598"
+                  },
+                  {
+                     "id": "599"
+                  },
+                  {
+                     "id": "600"
+                  },
+                  {
+                     "id": "601"
+                  },
+                  {
+                     "id": "602"
+                  },
+                  {
+                     "id": "604"
+                  },
+                  {
+                     "id": "605"
+                  },
+                  {
+                     "id": "2936"
+                  },
+                  {
+                     "id": "2937"
+                  },
+                  {
+                     "id": "2938"
+                  }
+               ]
+            },
+            {
+               "Titel": "Vorkaufsrecht",
+               "Ordinal": 5,
+               "Layer": [
+                  {
+                     "id": "2436"
+                  },
+                  {
+                     "id": "4411"
+                  },
+                  {
+                     "id": "4413"
+                  },
+                  {
+                     "id": "18712"
+                  },
+                  {
+                     "id": "18713"
+                  },
+                  {
+                     "id": "18714"
+                  }
+               ]
+            }
+         ]
+      }
+   }
+}
