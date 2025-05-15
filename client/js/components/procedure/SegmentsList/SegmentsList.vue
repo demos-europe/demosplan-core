@@ -776,8 +776,9 @@ export default {
       this.appliedFilterQuery = []
       Object.keys(this.filters).forEach((filter, idx) => {
         const ref = this.$refs[`filterFlyout${idx}`]
+        
         if (ref && typeof ref.reset === 'function') {
-          ref.reset();
+          ref.reset()
         }
       })
       this.updateQueryHash()
