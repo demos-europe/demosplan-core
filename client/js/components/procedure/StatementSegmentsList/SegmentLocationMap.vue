@@ -104,7 +104,7 @@
 </template>
 
 <script>
-import { checkResponse, DpButtonRow } from '@demos-europe/demosplan-ui'
+import { checkResponse, dpApi, DpButtonRow } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpOlMap from '@DpJs/components/map/map/DpOlMap'
 import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
@@ -235,21 +235,28 @@ export default {
     },
 
     save () {
-      const clonedSegment = JSON.parse(JSON.stringify(this.segment))
-      clonedSegment.attributes.polygon = JSON.stringify(this.featuresObject)
-
+      const attributes = {
+        polygon: JSON.stringify(this.featuresObject)
+      }
       const payload = {
-        ...clonedSegment,
-        relationships: {
-          ...clonedSegment.relationships
-        }
+        type: 'StatementSegment',
+        id: this.segmentId,
+        attributes
       }
 
-      this.setItem({ ...payload, id: payload.id })
-
-      return this.saveSegmentAction(this.segmentId)
+      /**
+       * Vuex-json-api may include relationships in the PATCH request,
+       * and it does not support excluding them from the payload.
+       * To avoid unintentionally sending relationship data, use a dpApi method with a manually constructed payload
+       * and update the store after a successful response.
+       */
+      return dpApi.patch(Routing.generate('api_resource_update', {
+        resourceType: 'StatementSegment',
+        resourceId: this.segmentId
+      }), {}, { data: payload })
         .then(checkResponse)
         .then(() => {
+          this.updateStore(attributes)
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(() => {
@@ -299,6 +306,21 @@ export default {
     updateDrawings (type, data) {
       this.currentPolygons = this.currentPolygons.filter(f => f.geometry.type !== type)
       this.currentPolygons = [...this.currentPolygons, ...JSON.parse(data).features]
+    },
+
+    updateStore (updatedAttributes) {
+      const segment = JSON.parse(JSON.stringify(this.segment))
+
+      segment.attributes = {
+        ...segment.attributes,
+        updatedAttributes
+      }
+
+      const storePayload = {
+        ...segment,
+        id: segment.id
+      }
+      this.setItem(storePayload)
     }
   },
 

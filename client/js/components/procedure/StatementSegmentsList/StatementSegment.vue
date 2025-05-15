@@ -773,9 +773,10 @@ export default {
     save () {
       const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
       const { assignee, place } = this.updateRelationships()
+      const hasCustomFields = hasPermission('field_segments_custom_fields') && Object.values(this.customFieldValues).length > 0
       let attributes = null
 
-      if (hasPermission('field_segments_custom_fields') && Object.values(this.customFieldValues).length > 0) {
+      if (hasCustomFields) {
         attributes = {
           customFields: Object.values(this.customFieldValues).map(({ fieldId, name }) => ({ id: fieldId, value: name }))
         }
@@ -801,10 +802,12 @@ export default {
         type: 'StatementSegment',
         attributes: {
           ...this.segment.attributes,
-          customFields: {
-            ...this.segment.attributes.customFields,
-            ...payload.data.attributes?.customFields
-          }
+          ...(hasCustomFields && {
+            customFields: {
+              ...this.segment.attributes.customFields,
+              ...payload.data.attributes?.customFields
+            }
+          })
         },
         relationships: {
           ...this.segment.relationships,
@@ -818,17 +821,22 @@ export default {
       })
 
       /**
-       * By default, only changed properties are sent; since `id` did not change, it is omitted by the diff.
-       * Using `full` forces the entire `customFields` object (including its unchanged `id`) into the update payload.
+       * By default, the `saveAction` method (from vuex-json-api) only sends changed properties.
+       * Since the `id` inside `customFields` has not changed, it is excluded from the update payload.
+       * Using the `full` option forces the entire `customFields` object to be included in the PATCH request.
        */
-      this.saveSegmentAction({
-        id: this.segment.id,
-        options: {
-          attributes: {
-            full: 'customFields'
+      const savePayload = hasCustomFields
+        ? {
+            id: this.segment.id,
+            options: {
+              attributes: {
+                full: 'customFields'
+              }
+            }
           }
-        }
-      })
+        : { id: this.segment.id }
+
+      this.saveSegmentAction(savePayload)
         .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
