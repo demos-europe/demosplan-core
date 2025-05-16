@@ -982,6 +982,7 @@ feature_institution_tag_read:
         given by the current organisation.
     label: 'allows to show the Tagged institutions'
     loginRequired: true
+    expose: true
 feature_institution_tag_update:
     descriptions: |-
         Within a procedure institutions can be tagged in order to

@@ -86,6 +86,13 @@ const webpackDefaultPlugins = [
         to: `${config.projectRoot}/web/pdf`,
         noErrorOnMissing: true
       },
+      // Addon files, may not exist
+      {
+        from: 'addons/vendor/demos-europe/**/public/files/*',
+        to: `${config.projectRoot}/web/files/[name][ext]`,
+        force: true, // overwrite existing files
+        noErrorOnMissing: true
+      },
       {
         from: resolveDir('node_modules/@demos-europe/demosplan-ui/dist'),
         to: `${config.projectRoot}/web/js/bundles`
