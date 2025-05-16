@@ -27,7 +27,7 @@ updates:
       - dependency-name: ol-mapbox-style
       - dependency-name: olcs
       - dependency-name: cesium
-      - dependency-name: @cesium/engine
+      - dependency-name: "@cesium/engine"
     groups:
       babel:
         patterns:
