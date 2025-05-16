@@ -11,14 +11,19 @@
 namespace Tests\Core\Core\Functional;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use Monolog\Logger;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 
@@ -29,6 +34,9 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
 
     /** @var StatementService */
     protected $statementService;
+
+    /** @var SegmentBulkEditorService */
+    protected $segmentBulkEditService;
 
     /**
      * @var Session
@@ -49,6 +57,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         parent::setUp();
 
         $this->sut = $this->getContainer()->get(EntityContentChangeService::class);
+        $this->segmentBulkEditService = $this->getContainer()->get(SegmentBulkEditorService::class);
         $this->statementService = $this->getContainer()->get(StatementService::class);
         $this->entityHelper = $this->getContainer()->get(EntityHelper::class);
 
@@ -187,61 +196,49 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
     }
 
     /**
-     * Testing if content changes are detected and working.
-     * Cases:
-     *  - object update with content change, using field memo → expect no change detected
-     *  - array update with content change, using field memo  → expect change detected.
-     *
-     * Also mock logger to check if logging is working.
-     * Always expect Statement instance as return value if it successfully updated the entry.
-     * Else it must be false.
+     * Testing the history of the custom field value change.
      */
-    public function testUpdateStatementWithContentChanges(): void
+    public function testEntityContentChangeEntryOnUpdateCustomFieldValue(): void
     {
-        self::markSkippedForCIIntervention();
-        // Need to implement this. But first unit tests have to work again.
+        $procedure = ProcedureFactory::createOne();
+        $segments = SegmentFactory::createMany(2, ['procedure' => $procedure]);
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->asRadioButton('Color')->create();
 
-        /** @var Statement $statement */
-        $statement = $this->getReference('testStatement');
-        $statementArray = $this->entityHelper->toArray($statement);
+        $this->segmentBulkEditService->updateSegments(
+            $segments,
+            [],
+            [],
+            $this->testUser,
+            null,
+            [
+                ['id' => $customField->getId(), 'value' => 'orange'],
+                ['id' => $customField->getId(), 'value' => 'orange'],
+            ]
+        );
 
-        $this->assertArrayHasKey('ident', $statementArray);
-        $this->assertArrayHasKey('memo', $statementArray);
+        $historyOfSegment1 = $this->getEntries(
+            EntityContentChange::class,
+            ['entityType' => Segment::class, 'entityId' => $segments[0]->getId(), 'entityField' => 'Color']
+        );
+        self::assertArrayHasKey(0, $historyOfSegment1);
+        self::assertInstanceOf(EntityContentChange::class, $historyOfSegment1[0]);
 
-        $this->assertEquals($statement->getMemo(), $statementArray['memo']);
+        $historyOfSegment2 = $this->getEntries(
+            EntityContentChange::class,
+            ['entityType' => Segment::class, 'entityId' => $segments[1], 'entityField' => 'Color']
+        );
+        self::assertArrayHasKey(0, $historyOfSegment2);
+        self::assertInstanceOf(EntityContentChange::class, $historyOfSegment2[0]);
 
-        $mockBuilder = $this->getMockBuilder(Logger::class);
-        $mockBuilder->disableOriginalConstructor();
-
-        // Somehow need a way to check if this message has been logged
-        $logger = $mockBuilder->getMock();
-        $logger->method('info')->with('Could not determine content changes for statement because of object structure.');
-
-        // ->will(function($message) {
-//        $testCase::assertEquals('Could not determine content changes for statement because of object structure.', $message);
-//        });
-
-        $updatedStatementObject = null;
-
-        // update array. expect content change to be detected. checking by requesting entity contentChange.
-        $statementArray['memo'] = 'somethingElseThanBeforeInArrayStructure';
-        $updatedStatementObject = $this->statementService->updateStatement($statementArray);
-        $this->assertInstanceOf(Statement::class, $updatedStatementObject);
-        $this->assertEquals($updatedStatementObject->getMemo(), 'somethingElseThanBeforeInArrayStructure');
-        /** @var EntityContentChange[] $contentChange */
-        $contentChange = $this->sut->getChangesByEntityId($updatedStatementObject->getId());
-        $lastChange = $contentChange[count($contentChange) - 1];
-        $this->assertEquals($lastChange->getEntityField(), 'memo');
-
-        // Reset $updatedStatementObject
-        $updatedStatementObject = null;
-
-        // update object. set logger to expect no content change detected
-        $statement->setMemo('somethingElseThanBefore');
-        // set logger to check if we get log entry → see mock
-        $this->statementService->setLogger($logger);
-        $updatedStatementObject = $this->statementService->updateStatement($statement);
-        $this->assertInstanceOf(Statement::class, $updatedStatementObject);
-        $this->assertEquals($updatedStatementObject->getMemo(), 'somethingElseThanBefore');
+        //        $change2 = Json::decodeToArray($historyOfSegment2[0]->getContentChange());
+        //        self::assertIsArray($change2);
+        //        self::assertEquals('Orange', $segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
+        //
+        //        self::assertEquals('Orange', $segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
+        //        self::assertEquals('Orange', $segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
+        //        self::assertEquals('Bread', $segment2->getCustomFields()->getCustomFieldsValues()[1]->getValue());
+        //
     }
 }
