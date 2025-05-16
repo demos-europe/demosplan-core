@@ -58,7 +58,7 @@ class CustomFieldResourceTypeTest extends JsonApiTest
                 'fieldType'      => 'singleSelect',
                 'name'           => 'Beschlussvorschlag',
                 'description'    => 'This is a description for this custom field',
-                    'options'        => ['Wird gefolgt', 'Wird nicht gefolgt', 'Zur Kenntnis genommen'],
+                'options'        => ['Wird gefolgt', 'Wird nicht gefolgt', 'Zur Kenntnis genommen'],
                 'targetEntity'   => 'SEGMENT',
                 'sourceEntity'   => 'PROCEDURE',
                 'sourceEntityId' => $procedure->getId(),
