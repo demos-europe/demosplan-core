@@ -55,6 +55,11 @@ RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,u
 USER root
 COPY . /srv/www
 
+# Remove app_dev.php in production mode
+RUN if [ "$BUILD_MODE" = "prod" ]; then \
+        rm -f /srv/www/projects/$PROJECT_NAME/web/app_dev.php; \
+    fi
+
 # set permissions needed during build
 RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/fonts && \
