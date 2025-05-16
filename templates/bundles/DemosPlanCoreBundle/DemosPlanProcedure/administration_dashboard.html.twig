@@ -87,7 +87,7 @@
                         {# number of segmentable statements #}
                         {% set segmentableStatementsCount = templateVars.segmentableStatementsCount|default(0) %}
 
-                        <div class="shadow space-inset-m">
+                        <div class="shadow-sm space-inset-m">
                             <h4 class="u-mb-0 weight--bold">{{ 'statements.do.segment'|trans }}</h4>
                             {% if statementIdToBeSplit is not defined or statementIdToBeSplit == null %}
                                 <p class="u-mb-0 u-mt">
@@ -130,7 +130,7 @@
 
                 {# statement charts - status and priority #}
                 {% if hasPermission('feature_statements_statistic_state_and_priority') %}
-                    <div class="shadow space-inset-m">
+                    <div class="shadow-sm space-inset-m">
                         <div class="layout">
                             {% if templateVars.statementsTotal|default(0) > 0 %}
                                 <div class="layout__item u-1-of-2 u-1-of-1-palm u-mb-palm">
@@ -176,7 +176,7 @@
 
                 {# fragment charts #}
                 {% if hasPermission('area_statements_fragment') %}
-                    <div class="shadow space-inset-m">
+                    <div class="shadow-sm space-inset-m">
                         <div class="layout">
                             {% if hasPermission('field_fragment_status') %}
                                 <div class="layout__item u-1-of-2 u-1-of-1-palm u-mb-palm">
@@ -218,7 +218,7 @@
 
                 {# moved statements sankey diagram  #}
                 {% if hasPermission('feature_statement_move_to_procedure') %}
-                    <div class="shadow space-inset-m">
+                    <div class="shadow-sm space-inset-m">
                         <p class="weight--bold">{{ 'statements.moved'|trans }}</p>
                         {% if (templateVars.movedStatementData.toThisProcedure.total|default(0) + templateVars.movedStatementData.fromThisProcedure.total|default(0)) == 0 %}
                             <p>{{ 'statement.sum'|trans({ count: 0 }) }}</p>
@@ -296,7 +296,7 @@
                         {% set votes = votes|merge({ total: templateVars.surveyStatistics.votes.sum }) %}
                     {% endif %}
 
-                    <div class="shadow space-inset-m">
+                    <div class="shadow-sm space-inset-m">
                         <p class="weight--bold {% if templateVars.procedureHasSurveys == true and survey.id is defined %}inline-block{% endif %}">{{ 'survey'|trans }}</p>
                         {% if templateVars.procedureHasSurveys == true and survey.id is defined %}
                             <span class="u-ml-1_5 o-badge--light font-size-small" style="border-radius: 3px; padding: 1px 6px 3px 1px;">

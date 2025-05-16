@@ -6,6 +6,8 @@
 
 
 ## UNRELEASED
+- Migrate to Tailwind CSS v4
+
 ## v3.3.0 (2025-05-13)
 - restore deleted logger entry 
 

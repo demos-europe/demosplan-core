@@ -19,7 +19,6 @@
       }"
       @enter="search" />
     <dp-button
-      class="ml-0.5 mt-0.5"
       :text="Translator.trans('search')"
       @click="search" />
     <div class="u-mt-0_75">

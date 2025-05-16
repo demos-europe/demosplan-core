@@ -34,7 +34,7 @@
               <dp-flyout
                 align="left"
                 :aria-label="Translator.trans('filters.more')"
-                class="bg-surface-medium rounded pb-1 pt-[4px]"
+                class="bg-surface-medium rounded-sm pb-1 pt-[4px]"
                 data-cy="institutionList:filterCategories">
                 <template v-slot:trigger>
                   <span :title="Translator.trans('filters.more')">

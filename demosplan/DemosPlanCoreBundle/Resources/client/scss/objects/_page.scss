@@ -35,8 +35,8 @@
         &__padded,
         &__nav {
             @media all and (min-width: $width) {
-                padding-left: $main-padding !important;
-                padding-right: $main-padding !important;
+                padding-left: $main-padding;
+                padding-right: $main-padding;
             }
         }
 
