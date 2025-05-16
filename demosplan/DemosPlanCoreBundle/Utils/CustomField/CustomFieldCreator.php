@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 
-
 class CustomFieldCreator extends CoreService
 {
     public function __construct(private readonly CustomFieldFactory $customFieldFactory, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
@@ -26,12 +25,15 @@ class CustomFieldCreator extends CoreService
     public function createCustomField($attributes): CustomFieldInterface
     {
         $createdCustomField = $this->customFieldFactory->createCustomField($attributes);
-        $this->customFieldConfigurationRepository->createCustomFieldConfiguration(
+        $customFieldConfiguration = $this->customFieldConfigurationRepository->createCustomFieldConfiguration(
             $attributes['sourceEntity'],
             $attributes['sourceEntityId'],
             $attributes['targetEntity'],
             $createdCustomField
         );
+
+        $createdCustomField->setId($customFieldConfiguration->getId());
+
         return $createdCustomField;
     }
 }
