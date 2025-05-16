@@ -309,15 +309,12 @@ export default {
     },
 
     updateStore (updatedAttributes) {
-      const segment = JSON.parse(JSON.stringify(this.segment))
-
-      segment.attributes = {
-        ...segment.attributes,
-        updatedAttributes
-      }
-
       const storePayload = {
-        ...segment,
+        ...this.segment,
+        attributes: {
+          ...this.segment.attributes,
+          updatedAttributes
+        }
         id: segment.id
       }
       this.setItem(storePayload)
