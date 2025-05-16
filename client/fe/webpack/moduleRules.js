@@ -56,6 +56,7 @@ const postcssPrefixSelector = require('postcss-prefix-selector')({
   },
   ignoreFiles: [/.+style\.scss/]
 })
+
 const tailwindCss = require('@tailwindcss/postcss')
 const postcssFlexbugsFixes = require('postcss-flexbugs-fixes')
 /*
@@ -89,13 +90,6 @@ const postCssPlugins = [
   postcssPurgeCss
 ]
 
-const postCssPluginsWithoutPurgeCss = [
-  postcssPrefixSelector,
-  tailwindCss,
-  postcssFlexbugsFixes,
-  postcssPresetEnv
-]
-
 /**
  * Module Rules for Webpack
  *
@@ -106,24 +100,15 @@ const moduleRules =
     {
       test: /\.css$/,
       use: [MiniCssExtractPlugin.loader],
-      exclude: [/client\/css\/(tailwind|preflight)\.css/] // Compiling and Purging happens in Tailwind config.
+      exclude: [/client\/css\/(tailwind|preflight)\.css/]
     },
     {
-      test: /\.s?css$/,
+      test: /\.scss$/,
       use: [
         MiniCssExtractPlugin.loader,
         {
           loader: 'css-loader',
           options: {
-            /*
-             * "importLoaders: 1" gets postcss-loader to also process css imports.
-             * @see https://webpack.js.org/loaders/css-loader/#importloaders
-             * However when omitting the .css extension from the @imported css files,
-             * sass-loader will treat the import like a scss file, inlining it
-             * instead of leaving the css @import unprocessed as a native import.
-             * @see https://github.com/webpack-contrib/sass-loader/issues/101#issuecomment-128684387
-             */
-            importLoaders: config.isProduction === true ? 1 : 0,
             sourceMap: false,
             url: false
           }
@@ -134,12 +119,8 @@ const moduleRules =
             postcssOptions: (loaderContext) => {
               // Do not pass 3rd party css through postCss in dev mode to gain some speed
               const skipPostCss = /node_modules/.test(loaderContext.resourcePath) && config.isProduction === false
-              // Do not purge styles that are already purged by tailwindcss postcss plugin
-              const tailwindProcessed = /client\/css\/(preflight|tailwind)\.css/.test(loaderContext.resourcePath)
-              const postCssPluginsApplied = tailwindProcessed ? postCssPluginsWithoutPurgeCss : postCssPlugins
-
               return {
-                plugins: skipPostCss ? [] : postCssPluginsApplied
+                plugins: skipPostCss ? [] : postCssPlugins
               }
             },
             sourceMap: false
@@ -156,6 +137,28 @@ const moduleRules =
                 config.publicPath
               ]
             }
+          }
+        }
+      ]
+    },
+    {
+      test: /\.css$/,
+      use: [
+        MiniCssExtractPlugin.loader,
+        {
+          loader: 'css-loader',
+          options: {
+            sourceMap: false,
+            url: false
+          }
+        },
+        {
+          loader: 'postcss-loader',
+          options: {
+            postcssOptions: {
+              plugins: [tailwindCss]
+            },
+            sourceMap: false
           }
         }
       ]

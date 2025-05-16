@@ -1,3 +1,51 @@
 @import "@demos-europe/demosplan-ui/styles/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
+
+/*
+    This looks weird. This is weird. But this is how Tailwind 4 works. See:
+    - https://github.com/tailwindlabs/tailwindcss/discussions/17135#discussioncomment-12467509
+    - https://tailwindcss.com/docs/detecting-classes-in-source-files#disabling-automatic-detection
+*/
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
 @import "@demos-europe/demosplan-ui/styles/utilities.css";
+
+/*
+    As described in this Tailwind "Discussion" thread https://github.com/tailwindlabs/tailwindcss/discussions/18063
+    a ** wildcard in the addons glob will not work as the addons name occurs again within the client folders.
+    Does not work:
+ */
+@source "../../addons/vendor/demos-europe/demosplan-addon-*/**/*.vue";
+
+/*
+    This is a workaround for the above issue.
+      - The first expression targets everything except rhe inner /addons folder correctly.
+      - Code inside the inner "addons" folder must be targeted for each addon separately, as this
+        is where the bug occurs. Must be repeated for each addon.
+ */
+@source "../../addons/vendor/demos-europe/demosplan-addon-*/client/**/*.{js,vue}";
+@source "../../addons/vendor/demos-europe/demosplan-addon-bimschg-antrag/client/addons/*.vue";
+@source "../../addons/vendor/demos-europe/demosplan-addon-demospipes/client/addons/**/*.vue";
+@source "../../addons/vendor/demos-europe/demosplan-addon-maillane/src/client/addons/**/*.vue";
+@source "../../addons/vendor/demos-europe/demosplan-addon-mein-berlin/client/addons/*.vue";
+@source "../../addons/vendor/demos-europe/demosplan-addon-segment-oracle/client/addons/*.vue";
+@source "../../addons/vendor/demos-europe/demosplan-addon-topical-tag/client/addons/**/*.vue";
+
+/* No problems here, hopefully */
+@source "../../client/js/**/!(generated|legacy|store)/*.{js,vue}";
+@source "../../demosplan/plugins/**/*.twig";
+@source "../../node_modules/@demos-europe/demosplan-ui";
+@source "../../templates/bundles/DemosPlanCoreBundle/**/*.twig";
+
+/* TW4 still struggles with globs as it seems */
+@source "../../projects/bimschgsh/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+@source "../../projects/blp/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+@source "../../projects/bobhh/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+@source "../../projects/bobsh/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+@source "../../projects/diplanbau/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+@source "../../projects/diplanbimschg/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+@source "../../projects/diplanfest/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+@source "../../projects/diplanrog/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+@source "../../projects/ewm/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+@source "../../projects/planfestsh/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+@source "../../projects/regio/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+@source "../../projects/robobsh/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+@source "../../projects/teilhabe/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
