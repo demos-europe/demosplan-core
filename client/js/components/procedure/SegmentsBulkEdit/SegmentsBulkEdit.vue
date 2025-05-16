@@ -215,6 +215,7 @@
 
         <div
           v-for="customField in customFieldsCheckedAndSelected"
+          :key="`customField:${customField.id}`"
           class="u-pv">
           <p v-html="Translator.trans('segments.bulk.edit.customFields.description', { label: customField.label })" />
           <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
@@ -269,6 +270,7 @@
 
       <action-stepper-response
         v-for="customField in customFieldsCheckedAndSelected"
+        :key="`customField:${customField.id}`"
         :success="customField.success"
         :description-error="Translator.trans('segments.bulk.edit.generic.error', { count: segments.length, label: customField.label })"
         :description-success="Translator.trans('segments.bulk.edit.generic.success', { count: segments.length, label: customField.label })">
