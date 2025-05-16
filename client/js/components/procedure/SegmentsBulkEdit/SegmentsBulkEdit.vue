@@ -143,10 +143,10 @@
             </template>
           </dp-editor>
         </action-stepper-action>
-<!--Custom Fields-->
+        <!--Custom Fields-->
         <action-stepper-action
-          v-for="(customField) in actions.customFields"
-          :key="`customField:${customField.label}`"
+          v-for="customField in actions.customFields"
+          :key="`customField:${customField.id}`"
           v-model="customField.checked"
           :id="customField.id"
           :label="customField.label">
@@ -234,8 +234,8 @@
       <action-stepper-response
         v-if="assignPlaceCheckedAndSelected"
         :success="actions.assignPlace.success"
-        :description-error="Translator.trans('segments.bulk.edit.place.assigned.error', {count: segments.length})"
-        :description-success="Translator.trans('segments.bulk.edit.place.assigned.success', {count: segments.length})">
+        :description-error="Translator.trans('segments.bulk.edit.place.assigned.error', { count: segments.length })"
+        :description-success="Translator.trans('segments.bulk.edit.place.assigned.success', { count: segments.length })">
         <p
           v-cleanhtml="actions.assignPlace.selected.name"
           class="u-mt-0_5" />
@@ -244,23 +244,23 @@
       <action-stepper-response
         v-if="addTagsCheckedAndSelected"
         :success="actions.addTags.success"
-        :description-error="Translator.trans('segments.bulk.edit.tags.added.error', {count: segments.length})"
-        :description-success="Translator.trans('segments.bulk.edit.tags.added.success', {count: segments.length})">
+        :description-error="Translator.trans('segments.bulk.edit.tags.added.error', { count: segments.length })"
+        :description-success="Translator.trans('segments.bulk.edit.tags.added.success', { count: segments.length })">
         <selected-tags-list :selected-tags="actions.addTags.selected" />
       </action-stepper-response>
 
       <action-stepper-response
         v-if="deleteTagsCheckedAndSelected"
         :success="actions.deleteTags.success"
-        :description-error="Translator.trans('segments.bulk.edit.tags.deleted.error', {count: segments.length})"
-        :description-success="Translator.trans('segments.bulk.edit.tags.deleted.success', {count: segments.length})">
+        :description-error="Translator.trans('segments.bulk.edit.tags.deleted.error', { count: segments.length })"
+        :description-success="Translator.trans('segments.bulk.edit.tags.deleted.success', { count: segments.length })">
         <selected-tags-list :selected-tags="actions.deleteTags.selected" />
       </action-stepper-response>
 
       <action-stepper-response
         v-if="addRecommendationsChecked"
         :success="actions.addRecommendations.success"
-        :description-error="Translator.trans('segments.bulk.edit.recommendations.added.error', {count: segments.length})"
+        :description-error="Translator.trans('segments.bulk.edit.recommendations.added.error', { count: segments.length })"
         :description-success="addRecommendationsSuccess">
         <p
           v-html="actions.addRecommendations.text"
@@ -287,7 +287,6 @@ import {
   DpMultiselect,
   DpRadio,
   dpRpc,
-  hasAllPermissions,
   hasOwnProp,
   prefixClassMixin
 } from '@demos-europe/demosplan-ui'
@@ -431,9 +430,11 @@ export default {
     },
 
     customFieldsCheckedAndSelected () {
-      return hasPermission('field_segments_custom_fields') ? this.actions.customFields.filter(customField => {
-        return customField.checked && customField.selected
-      }) : []
+      return hasPermission('field_segments_custom_fields')
+        ? this.actions.customFields.filter(customField => {
+          return customField.checked && customField.selected
+        })
+        : []
     },
 
     deleteTagsCheckedAndSelected () {
@@ -469,7 +470,7 @@ export default {
         }
       })
     },
-//ToDo: add computed for all
+
     hasActions () {
       const addRecommendationAction = this.actions.addRecommendations.checked && this.actions.addRecommendations.text
       const addTagsAction = this.actions.addTags.checked && this.actions.addTags.selected.length > 0
@@ -700,7 +701,6 @@ export default {
     const promises = [
       this.listTagTopics({ include: 'tag' }),
       this.listTags({ include: 'topic' }),
-      // this.fetchCustomFields(),
       this.fetchPlaces()
     ]
 
