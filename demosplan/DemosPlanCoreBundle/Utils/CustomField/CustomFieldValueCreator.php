@@ -34,9 +34,24 @@ class CustomFieldValueCreator extends CoreService
         string $sourceEntityClass,
         string $targetEntityClass,
     ): CustomFieldValuesList {
+        // Store original data as JSON representation before making any changes
+        // Create a completely new object - DON'T modify the passed-in object at all
+        $updatedCustomFieldValuesList = new CustomFieldValuesList();
+
+        // Copy all existing values to the new object first
+        if ($currentCustomFieldValuesList->getCustomFieldsValues()) {
+            foreach ($currentCustomFieldValuesList->getCustomFieldsValues() as $existingValue) {
+                $newValue = new CustomFieldValue();
+                $newValue->fromJson($existingValue->toJson());
+                $updatedCustomFieldValuesList->addCustomFieldValue($newValue);
+            }
+        }
+
+        // Parse the new values
         $newCustomFieldValuesList = new CustomFieldValuesList();
         $newCustomFieldValuesList->fromJson($newCustomFieldValuesData);
 
+        // Now apply changes to our new copy
         foreach ($newCustomFieldValuesList->getCustomFieldsValues() as $newCustomFieldValue) {
             /** @var CustomFieldValue $newCustomFieldValue */
             $customField = $this->getCustomField(
@@ -45,14 +60,24 @@ class CustomFieldValueCreator extends CoreService
                 $targetEntityClass,
                 $newCustomFieldValue->getId());
             $this->validateCustomFieldValue($customField, $newCustomFieldValue->getValue());
-            $existingCustomFieldValue = $currentCustomFieldValuesList->findById($newCustomFieldValue->getId());
+
+            // Find in our new copy, not in the original
+            $existingCustomFieldValue = $updatedCustomFieldValuesList->findById($newCustomFieldValue->getId());
 
             if ($existingCustomFieldValue) {
                 $existingCustomFieldValue->setValue($newCustomFieldValue->getValue());
             } else {
-                $currentCustomFieldValuesList->addCustomFieldValue($newCustomFieldValue);
+                // Create a new value instead of using the one from input
+                $brandNewValue = new CustomFieldValue();
+                $brandNewValue->fromJson($newCustomFieldValue->toJson());
+                $updatedCustomFieldValuesList->addCustomFieldValue($brandNewValue);
             }
         }
+
+        // Never modify the passed-in object - return a completely new one
+        return $updatedCustomFieldValuesList;
+
+
 
         /*
          * Clone `$currentCustomFieldValuesList` to ensure Doctrine detects changes to JSON-like columns.
@@ -60,7 +85,7 @@ class CustomFieldValueCreator extends CoreService
          * @see CustomFieldValuesList
          * @see CustomFieldValueType
          */
-        return clone $currentCustomFieldValuesList;
+        //return clone $currentCustomFieldValuesList;
     }
 
     private function getCustomField(
