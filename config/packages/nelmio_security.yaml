@@ -18,6 +18,7 @@ nelmio_security:
                 - 'self'
                 - '*' # needed for map layers
                 - 'data:'
+                - 'blob:'
             # needs to be set to * as gislayer getCapabilities are called via ajax
             connect-src:
                 - '*'
