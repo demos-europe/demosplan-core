@@ -100,20 +100,18 @@
           <dl
             v-if="hasPermission('feature_institution_tag_read') && Array.isArray(assignedTags) && assignedTags.length > 0"
             class="pl-4 w-full">
-            <template>
-              <dt class="color--grey">
-                {{ Translator.trans('tags') }}
-              </dt>
-              <dd class="ml-0">
-                <div class="flex flex-wrap gap-1 mt-1">
-                  <span
-                    v-for="tag in assignedTags"
-                    :key="tag.id">
-                    {{ tag.name }}
-                  </span>
-                </div>
-              </dd>
-            </template>
+            <dt class="color--grey">
+              {{ Translator.trans('tags') }}
+            </dt>
+            <dd class="ml-0">
+              <div class="flex flex-wrap gap-1 mt-1">
+                <span
+                  v-for="tag in assignedTags"
+                  :key="tag.id">
+                  {{ tag.name }}
+                </span>
+              </div>
+            </dd>
           </dl>
         </div>
       </template>
