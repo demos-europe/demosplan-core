@@ -1,5 +1,5 @@
 # due to BSI SYS.1.6.A6 we need to use excplicit versions
-FROM debian:stable-20250317-slim AS base
+FROM debian:stable-20250428-slim AS base
 
 # Install all dependencies needed for both build and fpm stages
 RUN apt update -y && apt --no-install-recommends install acl bind9-host ca-certificates composer curl  \
