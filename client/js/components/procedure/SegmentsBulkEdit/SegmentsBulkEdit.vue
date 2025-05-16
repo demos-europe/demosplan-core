@@ -148,11 +148,11 @@
           v-for="(customField) in actions.customFields"
           :key="`customField:${customField.label}`"
           v-model="customField.checked"
-          id="selectCustomField1Action"
+          :id="customField.id"
           :label="customField.label">
           <dp-multiselect
             class="w-12"
-            id="selectCustomField"
+            :id="`customFieldSelect:${customField.id}`"
             :disabled="!hasSegments"
             :options="customField.options"
             v-model="customField.selected" />
@@ -217,7 +217,7 @@
           v-for="customField in customFieldsCheckedAndSelected"
           class="u-pv">
           <p v-html="Translator.trans('segments.bulk.edit.customFields.description', { label: customField.label })" />
-          <selected-tags-list :selected-tags="[{title: customField.selected, id: 1}]"/>
+          <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
         </div>
 
       </div>
@@ -270,9 +270,9 @@
       <action-stepper-response
         v-for="customField in customFieldsCheckedAndSelected"
         :success="customField.success"
-        :description-error="Translator.trans('segments.bulk.edit.generic.error', {count: segments.length, label: customField.label})"
-        :description-success="Translator.trans('segments.bulk.edit.generic.success', {count: segments.length, label: customField.label})">
-        <selected-tags-list :selected-tags="[{title: customField.selected, id: 1}]"/>
+        :description-error="Translator.trans('segments.bulk.edit.generic.error', { count: segments.length, label: customField.label })"
+        :description-success="Translator.trans('segments.bulk.edit.generic.success', { count: segments.length, label: customField.label })">
+        <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
       </action-stepper-response>
 
     </template>
