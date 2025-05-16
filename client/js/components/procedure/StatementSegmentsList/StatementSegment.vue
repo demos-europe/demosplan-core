@@ -572,7 +572,7 @@ export default {
     customFieldsOptions () {
       return Object.values(this.customFields).reduce((acc, el) => {
         const opts = [...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
-        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id })
+        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id, value: 'UNASSIGNED' })
 
         return {
           ...acc,
@@ -827,7 +827,10 @@ export default {
 
       if (hasPermission('field_segments_custom_fields') && Object.values(this.customFieldValues).length > 0) {
         attributes = {
-          customFields: Object.values(this.customFieldValues).map(({ fieldId, name }) => ({ id: fieldId, value: name }))
+          customFields: Object.values(this.customFieldValues).map(option => ({
+            id: option.fieldId,
+            value: this.getCustomFieldValueForPayload(option)
+          }))
         }
       }
 
@@ -912,8 +915,10 @@ export default {
      * @param {string} value.id   id of the selected option
      * @param {string} value.fieldId   id of the custom field
      * @param {string} value.name   name of the selected option
+     * @param {string} value.value   optional explicit value to use ('UNASSIGNED' for unassigned)
      */
     setCustomFieldValue (value) {
+      // Store the value directly, the unset option already has value: 'UNASSIGNED'
       this.customFieldValues[value.fieldId] = value
     },
 
@@ -1088,6 +1093,12 @@ export default {
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
       this.setSegment({ ...updated, id: this.segment.id })
+    },
+
+    // Helper to get the custom field value from an option
+    getCustomFieldValueForPayload (option) {
+      // Return 'UNASSIGNED' for unassigned options
+      return option.value === 'UNASSIGNED' ? 'UNASSIGNED' : option.name
     }
   },
 
