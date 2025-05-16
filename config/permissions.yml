@@ -47,6 +47,12 @@ area_admin_contextual_help_edit:
     label: 'Kontexthilfe verwalten'
     loginRequired: true
     parent: area_admin
+area_admin_custom_fields:
+    description: |-
+        Enables the use of custom fields for a procedure and procedure template.
+    label: 'Custom fields'
+    expose: true
+    loginRequired: true
 area_admin_dashboard:
     description: 'Displays a dashboard page with some metrics for a procedure'
     label: 'procedure dashboard page'
@@ -1897,7 +1903,7 @@ feature_segments_import_excel:
     expose: true
     label: 'Generate segments (with corresponding statements) from uploaded excel file'
     loginRequired: true
-    parent: area_statement_segmentation
+    parent: area_statement_segmentation, area_admin_import
 feature_segments_of_statement_list:
     description: |-
         The list will contain segments of a specific statement only. Additional
@@ -2311,7 +2317,7 @@ feature_statements_import_excel:
     expose: true
     label: 'Generate statements from uploaded excel file'
     loginRequired: true
-    parent: area_statements
+    parent: area_statements, area_admin_import
 feature_statements_participation_import_excel:
     description: |-
         Allows the user to upload a spreadsheet workbook file (e.g. an Excel-file) containing statements.
@@ -2717,6 +2723,11 @@ field_required_procedure_end_date:
 field_segment_assignee_filter:
     description: 'Allow assignee facet search in segments of current procedure.'
     label: 'Filter segment list by assignee'
+    loginRequired: true
+field_segments_custom_fields:
+    description: 'Allow to add and edit custom fields to segments'
+    label: 'Custom fields for segments'
+    expose: true
     loginRequired: true
 field_send_final_email:
     label: 'Schlussmitteilung versenden'

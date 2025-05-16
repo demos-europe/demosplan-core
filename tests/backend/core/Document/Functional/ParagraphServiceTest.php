@@ -11,8 +11,12 @@
 namespace Tests\Core\Document\Functional;
 
 use DateTime;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\ElementsFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\ParagraphFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use Tests\Base\FunctionalTestCase;
 
@@ -28,15 +32,18 @@ class ParagraphServiceTest extends FunctionalTestCase
      */
     protected $testParaDocument;
 
-    protected $testProcedureId;
+    /**
+     * @var Paragraph
+     */
+    protected $testProcedure;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(ParagraphService::class);
+        $this->sut = self::getContainer()->get(ParagraphService::class);
         $this->testParaDocument = $this->fixtures->getReference('testParagraph1');
-        $this->testProcedureId = $this->fixtures->getReference('testProcedure')->getId();
+        $this->testProcedure = $this->fixtures->getReference('testProcedure');
     }
 
     private function checkParaDocumentArray($paraDocumentArray)
@@ -83,18 +90,18 @@ class ParagraphServiceTest extends FunctionalTestCase
         self::markSkippedForCIIntervention();
         // Tests for filterArray and sortingArray in result are missing
 
-        $result = $this->sut->getParaDocumentList($this->fixtures->getReference('testProcedure2')->getId(), $this->testParaDocument->getCategory());
+        $result = $this->sut->getParaDocumentList($this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId(), $this->testParaDocument->getCategory());
         $this->checkFiltersAndSorting(['result' => $result]);
 
-        $result = $this->sut->getParaDocumentList($this->fixtures->getReference('testProcedure2')->getId(), null);
+        $result = $this->sut->getParaDocumentList($this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId(), null);
         $this->checkFiltersAndSorting(['result' => $result]);
 
         $elementId = $this->fixtures->getReference('testElement1')->getId();
-        $result = $this->sut->getParaDocumentAdminList($this->fixtures->getReference('testProcedure2')->getId(), $elementId, null, true);
+        $result = $this->sut->getParaDocumentAdminList($this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId(), $elementId, null, true);
         $this->checkFiltersAndSorting($result, 4);
         static::assertArrayHasKey('filters', $result['filterSet']);
 
-        $result = $this->sut->getParaDocumentAdminListAll([$this->fixtures->getReference('testProcedure2')->getId()]);
+        $result = $this->sut->getParaDocumentAdminListAll([$this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId()]);
         $this->checkFiltersAndSorting($result, 4);
         static::assertArrayHasKey('filters', $result['filterSet']);
     }
@@ -102,7 +109,7 @@ class ParagraphServiceTest extends FunctionalTestCase
     public function testgetParaDocumentAdminList()
     {
         $elementId = $this->fixtures->getReference('testElement1')->getId();
-        $procedureId = $this->fixtures->getReference('testProcedure')->getId();
+        $procedureId = $this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId();
 
         $resultList = $this->sut->getParaDocumentAdminList($procedureId, $elementId, null);
 
@@ -132,7 +139,7 @@ class ParagraphServiceTest extends FunctionalTestCase
     public function testGetList()
     {
         $elementId = $this->fixtures->getReference('testElement1')->getId();
-        $result = $this->sut->getParaDocumentList($this->fixtures->getReference('testProcedure')->getId(), $elementId);
+        $result = $this->sut->getParaDocumentList($this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId(), $elementId);
 
         static::assertCount(3, $result);
         $this->checkParaDocumentArray($result[1]);
@@ -152,14 +159,14 @@ class ParagraphServiceTest extends FunctionalTestCase
         static::assertEquals($referenceParaDocument->getPId(), $paraDocumentResult['pId']);
 
         // if category = null -> 0 results because of there are no entries with category = null
-        $result = $this->sut->getParaDocumentList($this->fixtures->getReference('testProcedure2')->getId(), null);
+        $result = $this->sut->getParaDocumentList($this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId(), null);
         static::assertCount(0, $result);
     }
 
     public function testGetAdminList()
     {
         $elementId = $this->fixtures->getReference('testElement1')->getId();
-        $result = $this->sut->getParaDocumentAdminList($this->fixtures->getReference('testProcedure')->getId(), $elementId, null, true);
+        $result = $this->sut->getParaDocumentAdminList($this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId(), $elementId, null, true);
 
         static::assertTrue(is_array($result));
         static::assertEquals(5, sizeof($result));
@@ -205,14 +212,14 @@ class ParagraphServiceTest extends FunctionalTestCase
 
     public function testGetAdminListAll()
     {
-        $result = $this->sut->getParaDocumentAdminListAll([$this->fixtures->getReference('testProcedure')->getId()]);
+        $result = $this->sut->getParaDocumentAdminListAll([$this->fixtures->getReference(LoadProcedureData::TEST_PROCEDURE_2)->getId()]);
 
         static::assertTrue(is_array($result));
         static::assertEquals(5, sizeof($result));
 
         static::assertArrayHasKey('total', $result);
         static::assertTrue(is_integer($result['total']));
-        static::assertEquals(4, $result['total']);
+        static::assertEquals(15, $result['total']);
 
         static::assertArrayHasKey('search', $result);
         static::assertTrue(is_string($result['search']));
@@ -220,11 +227,11 @@ class ParagraphServiceTest extends FunctionalTestCase
 
         static::assertArrayHasKey('result', $result);
         static::assertTrue(is_array($result['result']));
-        static::assertEquals(4, sizeof($result['result']));
+        static::assertEquals(15, sizeof($result['result']));
         $this->checkParaDocumentArray($result['result'][0]);
 
-        $paraDocumentResult = $result['result'][1];
-        $referenceParaDocument = $this->testParaDocument;
+        $paraDocumentResult = $result['result'][0];
+        $referenceParaDocument = $this->testParaDocument; // TestParagraph1
         static::assertEquals($referenceParaDocument->getId(), $paraDocumentResult['ident']);
         static::assertEquals($referenceParaDocument->getElementId(), $paraDocumentResult['elementId']);
         static::assertEquals($referenceParaDocument->getCategory(), $paraDocumentResult['category']);
@@ -560,5 +567,136 @@ class ParagraphServiceTest extends FunctionalTestCase
         $this->assertEquals($paragraph->getOrder(), $version->getOrder());
         $this->assertEquals($paragraph->getVisible(), $version->getVisible());
         $this->assertEquals($paragraph->getDeleted(), $version->getDeleted());
+    }
+
+    public function testReportOnCreateParagraph(): void
+    {
+        $testElement = ElementsFactory::new()->create(['procedure' => $this->testProcedure]);
+
+        $data = [
+            'procedure' => $testElement->getProcedure(),
+            'pId'       => $testElement->getProcedure()->getId(),
+            'elementId' => $testElement->getId(),
+            'element'   => $testElement,
+            'category'  => 'begruendung',
+            'title'     => 'my test title',
+            'text'      => 'my test text',
+            'order'     => 0,
+            'deleted'   => false,
+            'visible'   => 1,
+        ];
+
+        $result = $this->sut->addParaDocument($data);
+        $paragraph = $this->find(Paragraph::class, $result['id']);
+        static::assertInstanceOf(Paragraph::class, $paragraph);
+
+        $relatedReports = $this->getEntries(ReportEntry::class,
+            [
+                'group'           => 'paragraph',
+                'category'        => ReportEntry::CATEGORY_ADD,
+                'identifierType'  => 'procedure',
+                'identifier'      => $this->testProcedure->getId(),
+            ]
+        );
+
+        static::assertCount(1, $relatedReports);
+        $relatedReport = $relatedReports[0];
+        static::assertInstanceOf(ReportEntry::class, $relatedReport);
+        $messageArray = $relatedReport->getMessageDecoded(false);
+
+        $this->assertParagraphReportEntryMessageKeys($messageArray);
+        $this->assertParagraphReportEntryMessageValues($paragraph, $messageArray);
+    }
+
+    public function testReportOnUpdateParagraph(): void
+    {
+        $testParagraph = ParagraphFactory::createOne();
+        $updatedParagraph = $this->sut->updateParaDocument([
+            'ident'             => $testParagraph->getId(),
+            'title'             => 'my updated paragraph',
+            'text'              => 'a updated unique and nice text',
+            'statement_enabled' => true,
+            'order'             => 1,
+            'visible'           => true,
+        ]);
+        $updatedParagraph = $this->find(Paragraph::class, $updatedParagraph['ident']);
+
+        $relatedReports = $this->getEntries(ReportEntry::class,
+            [
+                'group'           => 'paragraph',
+                'category'        => ReportEntry::CATEGORY_UPDATE,
+                'identifierType'  => 'procedure',
+                'identifier'      => $testParagraph->getProcedure()->getId(),
+            ]
+        );
+
+        static::assertCount(1, $relatedReports);
+        $relatedReport = $relatedReports[0];
+        static::assertInstanceOf(ReportEntry::class, $relatedReport);
+        $messageArray = $relatedReport->getMessageDecoded(false);
+
+        $this->assertParagraphReportEntryMessageKeys($messageArray);
+        $this->assertParagraphReportEntryMessageValues($updatedParagraph, $messageArray);
+    }
+
+    public function testReportOnDeleteParagraph(): void
+    {
+        $originParagraph = ParagraphFactory::createOne();
+        $originId = $originParagraph->getId();
+        $procedureId = $originParagraph->getProcedure()->getId();
+        $result = $this->sut->deleteParaDocument($originParagraph->getId());
+        static::assertTrue($result);
+        $relatedReports = $this->getEntries(ReportEntry::class,
+            [
+                'group'           => 'paragraph',
+                'category'        => ReportEntry::CATEGORY_DELETE,
+                'identifierType'  => 'procedure',
+                'identifier'      => $procedureId,
+            ]
+        );
+
+        static::assertCount(1, $relatedReports);
+        $relatedReport = $relatedReports[0];
+        static::assertInstanceOf(ReportEntry::class, $relatedReport);
+        $messageArray = $relatedReport->getMessageDecoded(false);
+
+        $this->assertParagraphReportEntryMessageKeys($messageArray);
+        $this->assertParagraphReportEntryMessageValues($originParagraph->_real(), $messageArray, $originId);
+    }
+
+    private function assertParagraphReportEntryMessageKeys(array $messageArray): void
+    {
+        static::assertArrayHasKey('id', $messageArray);
+        static::assertArrayHasKey('title', $messageArray);
+        static::assertArrayHasKey('text', $messageArray);
+        static::assertArrayHasKey('category', $messageArray);
+        static::assertArrayHasKey('relatedElementCategory', $messageArray);
+        static::assertArrayHasKey('relatedElementTitle', $messageArray);
+        static::assertArrayHasKey('visible', $messageArray);
+        static::assertArrayHasKey('keyOfInternalPhase', $messageArray);
+        static::assertArrayHasKey('keyOfEternalPhase', $messageArray);
+        static::assertArrayHasKey('nameOfInternalPhase', $messageArray);
+        static::assertArrayHasKey('nameOfExternalPhase', $messageArray);
+        static::assertArrayHasKey('date', $messageArray);
+    }
+
+    private function assertParagraphReportEntryMessageValues(
+        Paragraph $paragraph,
+        array $messageArray,
+        ?string $originId = null,
+    ): void {
+        $id = $originId ?? $paragraph->getId();
+
+        static::assertEquals($id, $messageArray['id']);
+        static::assertEquals($paragraph->getTitle(), $messageArray['title']);
+        static::assertEquals($paragraph->getText(), $messageArray['text']);
+        static::assertEquals($paragraph->getCategory(), $messageArray['category']);
+        static::assertEquals($paragraph->getElement()->getCategory(), $messageArray['relatedElementCategory']);
+        static::assertEquals($paragraph->getElement()->getTitle(), $messageArray['relatedElementTitle']);
+        static::assertEquals($paragraph->getVisible(), $messageArray['visible']);
+        static::assertEquals($paragraph->getProcedure()->getPhase(), $messageArray['keyOfInternalPhase']);
+        static::assertEquals($paragraph->getProcedure()->getPublicParticipationPhase(), $messageArray['keyOfEternalPhase']);
+        static::assertEquals($paragraph->getProcedure()->getPhaseName(), $messageArray['nameOfInternalPhase']);
+        static::assertEquals($paragraph->getProcedure()->getPublicParticipationPhaseName(), $messageArray['nameOfExternalPhase']);
     }
 }

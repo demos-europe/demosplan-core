@@ -139,6 +139,10 @@ export default {
     }
   },
 
+  emits: [
+    'toggle'
+  ],
+
   computed: {
     isSegmentWithAssignee () {
       return Object.keys(this.segment).length && Object.keys(this.segmentAssignee).length

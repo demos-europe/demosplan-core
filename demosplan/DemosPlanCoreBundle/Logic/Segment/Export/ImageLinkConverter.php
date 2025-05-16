@@ -10,9 +10,11 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Logic\EditorService;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
@@ -26,7 +28,7 @@ final class ImageLinkConverter
     public const IMAGES_KEY_RECOMMENDATION = 'recommendation';
     public const IMAGES_KEY_SEGMENTS = 'segments';
     /**
-     * @var array<int, array<string, array<int, ImageReference>>>
+     * @var ImageReference[]
      */
     private array $images = [];
     /**
@@ -35,7 +37,7 @@ final class ImageLinkConverter
     private array $currentImagesFromRecommendationText = [];
     private int $imageCounter = 1;
 
-    public function __construct(private readonly HtmlHelper $htmlHelper, private readonly FileService $fileService)
+    public function __construct(private readonly HtmlHelper $htmlHelper, private readonly FileService $fileService, private readonly EditorService $editorService)
     {
     }
 
@@ -43,8 +45,9 @@ final class ImageLinkConverter
         Segment $segment,
         string $statementExternId,
         bool $asLinkedReference = true,
+        bool $isObscure = false,
     ): ConvertedSegment {
-        $segmentText = $segment->getText();
+        $segmentText = $this->getSegmentText($segment, $isObscure);
         $recommendationText = $segment->getRecommendation();
         $xmlSegmentText = str_replace('<br>', '<br/>', $segmentText);
         $xmlRecommendationText = str_replace('<br>', '<br/>', $recommendationText);
@@ -81,6 +84,13 @@ final class ImageLinkConverter
         ];
 
         return new ConvertedSegment($xmlSegmentText, $xmlRecommendationText);
+    }
+
+    private function getSegmentText(Segment $segment, bool $isObscure): string
+    {
+        $segmentText = $segment->getText();
+
+        return $isObscure ? $this->editorService->obscureString($segmentText) : $segmentText;
     }
 
     private function updateSegmentText(bool $asLinkedReference, string $text, string $prefix): string

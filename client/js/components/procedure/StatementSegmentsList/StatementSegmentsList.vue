@@ -78,7 +78,7 @@
           </li>
           <li v-if="hasPermission('feature_read_source_statement_via_api')">
             <dp-flyout :disabled="isDisabledAttachmentFlyout">
-              <template #trigger>
+              <template v-slot:trigger>
                 <span>
                   {{ Translator.trans('attachments') }}
                   <span v-text="attachmentsAndOriginalPdfCount" />
@@ -118,7 +118,7 @@
             <dp-flyout
               ref="metadataFlyout"
               :has-menu="false">
-              <template #trigger>
+              <template v-slot:trigger>
                 <span>
                   {{ Translator.trans('statement.metadata') }}
                   <i
@@ -166,7 +166,7 @@
         v-else-if="currentAction === 'editText'"
         :current-user="currentUser"
         :editable="editable"
-        :segment-draft-list="this.statement.attributes.segmentDraftList"
+        :has-draft-segments="hasDraftSegments()"
         :statement-id="statementId"
         @statement-text-updated="checkStatementClaim"
         @save-statement="saveStatement" />
@@ -332,9 +332,13 @@ export default {
       statements: 'items'
     }),
 
-    ...mapState('SegmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', [
+      'slidebar'
+    ]),
 
-    ...mapGetters('SegmentSlidebar', ['commentsList']),
+    ...mapGetters('SegmentSlidebar', [
+      'commentsList'
+    ]),
 
     additionalAttachments () {
       if (this.statement?.hasRelationship('genericAttachments')) {
@@ -462,6 +466,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('AdminProcedure', {
+      getAdminProcedureWithFields: 'get'
+    }),
+
     ...mapMutations('SegmentSlidebar', [
       'setContent',
       'setProperty'
@@ -544,10 +552,29 @@ export default {
         })
     },
 
+
+    fetchCustomFields () {
+      const payload = {
+        id: this.procedure.id,
+        fields: {
+          AdminProcedure: [
+            'segmentCustomFields'
+          ].join(),
+          CustomField: [
+            'name',
+            'description',
+            'options'
+          ].join()
+        },
+        include: ['segmentCustomFields'].join()
+      }
+
+      this.getAdminProcedureWithFields(payload)
+    },
+
     getStatement () {
       const statementFields = [
         'assignee',
-        'availableProcedurePhases',
         'authoredDate',
         'authorName',
         'consentRevoked',
@@ -593,6 +620,10 @@ export default {
         statementFields.push('synchronized')
       }
 
+      if (hasPermission('field_statement_phase')) {
+        statementFields.push('availableProcedurePhases')
+      }
+
       if (hasPermission('area_statement_segmentation')) {
         statementFields.push('segmentDraftList')
       }
@@ -607,7 +638,7 @@ export default {
 
       const allFields = {
         ElementsDetails: [
-          'document',
+          'documents',
           'paragraphs',
           'title'
         ].join(),
@@ -689,6 +720,10 @@ export default {
       })
     },
 
+    hasDraftSegments () {
+      return Boolean(this.statement?.attributes?.segmentDraftList?.data?.attributes?.segments?.length)
+    },
+
     resetSlidebar () {
       this.$refs.commentsList.$refs.createForm.resetCurrentComment(!this.commentsList.show)
       if (this.$refs.locationMap) {
@@ -741,7 +776,7 @@ export default {
       this.currentAction = action || defaultAction
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate }) {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
       const parameters = {
         procedureId: this.procedure.id,
         statementId: this.statementId
@@ -758,6 +793,10 @@ export default {
       if (fileNameTemplate) {
         parameters.fileNameTemplate = fileNameTemplate
       }
+
+      isObscured && (parameters.isObscured = isObscured)
+      isInstitutionDataCensored && (parameters.isInstitutionDataCensored = isInstitutionDataCensored)
+      isCitizenDataCensored && (parameters.isCitizenDataCensored = isCitizenDataCensored)
 
       if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = Routing.generate(route, parameters)
@@ -844,6 +883,9 @@ export default {
 
   mounted () {
     this.getStatement()
+    if (hasPermission('field_segments_custom_fields')) {
+      this.fetchCustomFields()
+    }
     this.listAssignableUser({
       include: 'orga',
       fields: {

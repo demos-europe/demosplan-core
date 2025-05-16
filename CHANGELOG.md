@@ -4,14 +4,35 @@
 - **Minor Version**: Incremented for each release.
 - **Patch Version**: Incremented for bug fixes.
 
+
 ## UNRELEASED
+## v3.3.0 (2025-05-13)
+- restore deleted logger entry 
 
-### Features
-- Create report entries on create, update, deletion of an element, paragraph , singleDocument, mapDrawing or mapDrawing-explanation
+## v3.2.0 (2025-05-13)
+- Enable Custom Field feature on segments: Allow users to add/edit custom fields to their segments     based on the custom fields defined in the procedure
+- Add Custom Field feature: Allow users to add custom fields to their procedures
 
-### Further changes
+## v2.27.1 (2025-04-09)
+- Fix zip import encoding and recursion
+
+## v3.0.0 (2025-04-09)
+- create deletion report entry when procedure is deleted
 - Migrate to Vue 3
+- Implement VirusCheckSocket to directly check files for viruses via remote sockets
+- Enhance security by sanitizing HTTP headers to prevent injection attacks
 
+## v2.26.5 (2025-03-28)
+- new parameter proxy_no_proxy to allow to exclude local services from the proxy
+
+## v2.26.4 (2025-03-26)
+- new parameter cafile to set the path to the CA file for the symfony http client
+
+## v2.26.3 (2025-03-24)
+- Use less strict samesite cookie policy for session cookies to allow login via keycloak
+
+## v2.26.2 (2025-03-14)
+- Create report entries on create, update, deletion of an element, paragraph , singleDocument, mapDrawing or mapDrawing-explanation
 
 ## v2.27.0 (2025-03-12)
 - Enable to send Statement final notice using RpcRequest and Vue.js

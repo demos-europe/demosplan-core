@@ -17,7 +17,8 @@
       :procedure-id="procedureId"
       :current-user-id="currentUserId"
       :current-user-name="currentUserName"
-      ref="editSelectedItemsMenu">
+      ref="editSelectedItemsMenu"
+      @exportModal:toggle="tab => $refs.exportModal.toggleModal(tab)">
       <div class="flex items-center space-inline-m">
         <!-- Search field and advanced search button -->
         <search-modal
@@ -52,8 +53,8 @@
 
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex'
-import { DpButton } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
+import { DpButton } from '@demos-europe/demosplan-ui'
 import DpEditSelectedItemsMenu from '@DpJs/components/statement/assessmentTable/DpEditSelectedItemsMenu'
 
 export default {

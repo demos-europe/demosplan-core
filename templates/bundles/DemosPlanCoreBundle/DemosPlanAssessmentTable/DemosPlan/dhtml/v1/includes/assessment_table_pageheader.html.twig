@@ -24,20 +24,21 @@
             label: 'considerationtable',
             feature: 'area_admin_assessmenttable',
             key: 'assessment_table',
-            datacy: 'assessmentTable'
+            datacy: 'assessmentTable:view'
         },
         {
             href: path('DemosPlan_statement_orga_list', {'procedureId': procedureId}),
             label: 'statements.collected.list',
             feature: 'area_statement_data_input_orga',
-            key: 'collected_list'
+            key: 'collected_list',
+            datacy: 'assessmentTable:list'
         },
         {
             href: path('dplan_assessmenttable_view_original_table', {'procedureId': procedureId, 'filterHash': originalFilterHash}) ~ statement_original_hash|default,
             label: 'statements.original',
             feature: 'area_admin_assessmenttable',
             key: 'assessment_table_original',
-            datacy: 'assessmentTableOriginal'
+            datacy: 'assessmentTable:viewOriginal'
         },
         {
             href: path('DemosPlan_statement_new_submitted', {'procedureId': procedureId}),
@@ -45,7 +46,7 @@
             feature: 'feature_statement_data_input_orga',
             icon: 'fa-plus',
             key: 'new_statement',
-            datacy: 'createStatement'
+            datacy: 'assessmentTable:createStatement'
         }
     ],
     assessment_table_back: [
@@ -54,6 +55,11 @@
             label: 'considerationtable.back',
             feature: 'area_admin_assessmenttable'
         },
+        {
+            href: path("dplan_procedure_statement_list", {'procedureId': procedureId}),
+            label: 'statement.list.back',
+            feature: 'area_admin_statement_list'
+        }
     ]
 } %}
 

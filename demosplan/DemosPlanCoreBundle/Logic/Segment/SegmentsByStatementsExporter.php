@@ -23,8 +23,9 @@ use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
-use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentExporterFileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
@@ -66,8 +67,14 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     /**
      * @throws Exception
      */
-    public function exportAll(array $tableHeaders, Procedure $procedure, bool $censored, Statement ...$statements): WriterInterface
-    {
+    public function exportAll(
+        array $tableHeaders,
+        Procedure $procedure,
+        bool $obscure,
+        bool $censorCitizenData = false,
+        bool $censorInstitutionData = false,
+        Statement ...$statements,
+    ): WriterInterface {
         Settings::setOutputEscapingEnabled(true);
 
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
@@ -76,7 +83,15 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             return $this->exportEmptyStatements($phpWord, $procedure);
         }
 
-        return $this->exportStatements($phpWord, $procedure, $statements, $tableHeaders, $censored);
+        return $this->exportStatements(
+            $phpWord,
+            $procedure,
+            $statements,
+            $tableHeaders,
+            $censorCitizenData,
+            $censorInstitutionData,
+            $obscure
+        );
     }
 
     /**
@@ -174,36 +189,66 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @throws Exception
      */
-    private function exportStatements(PhpWord $phpWord, Procedure $procedure, array $statements, array $tableHeaders, bool $censored): WriterInterface
-    {
+    private function exportStatements(
+        PhpWord $phpWord,
+        Procedure $procedure,
+        array $statements,
+        array $tableHeaders,
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
+        bool $obscure,
+    ): WriterInterface {
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
 
         foreach ($statements as $index => $statement) {
-            $this->exportStatement($section, $statement, $tableHeaders, $censored);
+            $censored = $this->needsToBeCensored(
+                $statement,
+                $censorCitizenData,
+                $censorInstitutionData,
+            );
+
+            $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscure);
             $section = $this->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
         }
 
         return IOFactory::createWriter($phpWord);
     }
 
-    public function exportStatementSegmentsInSeparateDocx(Statement $statement, Procedure $procedure, array $tableHeaders, bool $censored): PhpWord
-    {
+    public function exportStatementSegmentsInSeparateDocx(
+        Statement $statement,
+        Procedure $procedure,
+        array $tableHeaders,
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
+        bool $obscureParameter,
+    ): PhpWord {
+        $censored = $this->needsToBeCensored(
+            $statement,
+            $censorCitizenData,
+            $censorInstitutionData,
+        );
+
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
-        $this->exportStatement($section, $statement, $tableHeaders, $censored);
+        $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscureParameter);
 
         return $phpWord;
     }
 
-    public function exportStatement(Section $section, Statement $statement, array $tableHeaders, $censored = false): void
-    {
+    public function exportStatement(
+        Section $section,
+        Statement $statement,
+        array $tableHeaders,
+        $censored = false,
+        $obscure = false,
+    ): void {
         $this->addStatementInfo($section, $statement, $censored);
         $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement, $tableHeaders);
+        $this->addSegments($section, $statement, $tableHeaders, $obscure);
         $this->addFooter($section, $statement, $censored);
     }
 
@@ -221,11 +266,21 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @return array<string, Statement>
      */
-    public function mapStatementsToPathInZip(array $statements, bool $censored, string $fileNameTemplate = ''): array
-    {
+    public function mapStatementsToPathInZip(
+        array $statements,
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
+        string $fileNameTemplate = '',
+    ): array {
         $pathedStatements = [];
         $previousKeysOfReaddedDuplicates = [];
         foreach ($statements as $statement) {
+            $censored = $this->needsToBeCensored(
+                $statement,
+                $censorCitizenData,
+                $censorInstitutionData,
+            );
+
             $pathInZip = $this->getPathInZip($statement, false, $fileNameTemplate, $censored);
             // in case of a duplicate, add the database ID to the name
             if (array_key_exists($pathInZip, $pathedStatements)) {
@@ -265,8 +320,12 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * the case that the extern ID is an empty string and the database ID is included in
      * the result.
      */
-    private function getPathInZip(Statement $statement, bool $withDbId, string $fileNameTemplate = '', bool $censored = false): string
-    {
+    private function getPathInZip(
+        Statement $statement,
+        bool $withDbId,
+        string $fileNameTemplate = '',
+        bool $censored = false,
+    ): string {
         // prepare needed variables
         $dbId = $statement->getId();
 

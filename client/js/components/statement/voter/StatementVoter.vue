@@ -13,13 +13,14 @@
       {{ Translator.trans('statement.voter') }}
     </p>
     <dp-editable-list
+      ref="listComponent"
       :entries="voters"
       :has-permission-to-edit="!!(readonly !== '1' && isManual)"
       :translation-keys="translationKeys"
       @delete="handleDelete"
       @reset="resetForm"
       @saveEntry="index => dpValidateAction('newVoterForm', () => addElement(index), false)"
-      ref="listComponent">
+      @showUpdateForm="index => showUpdateForm(index)">
       <!-- List of voters -->
       <template v-slot:list="{entry, index}">
         <ul class="o-list o-list--csv inline">
@@ -278,6 +279,11 @@ export default {
       default: '1'
     }
   },
+
+  emits: [
+    'updateAnonymVotes',
+    'updateVoter'
+  ],
 
   data () {
     return {

@@ -50,7 +50,7 @@ const SplitStatementStore = {
     deleteSegment (state, id) {
       const index = state.segments.findIndex((el) => el.id === id)
       if (index >= 0) {
-        delete state.segments[index]
+        state.segments.splice(index, 1)
       }
     },
 
@@ -98,7 +98,7 @@ const SplitStatementStore = {
       state.segments = state.initialSegments
     },
 
-    setProperty (state, {prop, val}) {
+    setProperty (state, { prop, val }) {
       state[prop] = val
     },
 
@@ -123,7 +123,7 @@ const SplitStatementStore = {
         state[prop][titleIdx] = obj
       } else if (idIdx >= 0 && titleIdx >= 0) {
         // If id and title exist, delete element
-        delete state[prop][idIdx]
+        state[prop].splice(idIdx, 1)
       }
     }
   },
@@ -237,7 +237,7 @@ const SplitStatementStore = {
              * (because often that are closing or opening tags)
              * and should probably not be needed in a real world scenario.
              */
-            .filter(segment => (segment.charEnd - segment.charStart) > 10)
+            .filter(segment => segment && (segment.charEnd - segment.charStart) > 10)
 
           // Check if we are getting overlapping segments from pipeline that would cause errors
           if (doUpdate) {

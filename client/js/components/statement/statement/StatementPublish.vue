@@ -88,7 +88,6 @@
 import { defineAsyncComponent } from 'vue'
 import VotingStatus from './VotingStatus'
 
-
 export default {
   name: 'StatementPublish',
 
@@ -135,6 +134,10 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'update'
+  ],
 
   data () {
     return {

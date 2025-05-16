@@ -9,6 +9,7 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const config = require('../config/config').config
 const resolveDir = require('./util').resolveDir
+const { purgeCSSPlugin } = require('@fullhuman/postcss-purgecss')
 
 /**
  * List of modules which need to be transpiled with Babel
@@ -66,7 +67,7 @@ const postcssPresetEnv = require('postcss-preset-env')({
     'focus-visible-pseudo-class': false
   }
 })
-const postcssPurgeCss = require('@fullhuman/postcss-purgecss')({
+const postcssPurgeCss = purgeCSSPlugin({
   ...config.purgeCss,
   defaultExtractor (content) {
     const contentWithoutStyleBlocks = content.replace(/<style[^]+?<\/style>/gi, '')
@@ -102,7 +103,7 @@ const moduleRules =
     {
       test: /\.css$/,
       use: [MiniCssExtractPlugin.loader],
-      exclude: [ /client\/css\/(tailwind|preflight)\.css/ ] // Compiling and Purging happens in Tailwind config.
+      exclude: [/client\/css\/(tailwind|preflight)\.css/] // Compiling and Purging happens in Tailwind config.
     },
     {
       test: /\.s?css$/,

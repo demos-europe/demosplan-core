@@ -6,6 +6,7 @@ on:
       - '**.php'
       - '**.js'
       - '**.vue'
+      - 'composer.lock'
 
 jobs:
   cancel:
@@ -24,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: reviewdog/action-setup@v1.3.0
+      - uses: reviewdog/action-setup@v1.3.2
 
       - name: Setup PHP with composer v2
         uses: shivammathur/setup-php@v2
@@ -34,7 +35,7 @@ jobs:
           tools: composer:v2
 
       - name: Cache php modules
-        uses: actions/cache@v4.2.2
+        uses: actions/cache@v4.2.3
         with:
           path: |
             ~/.composer/cache
@@ -44,7 +45,7 @@ jobs:
             ${{ runner.os }}-build-php-${{ hashFiles('**/composer.lock') }}
 
       - name: Miscellaneous runtime caches
-        uses: actions/cache@v4.2.2
+        uses: actions/cache@v4.2.3
         with:
           path: |
             config/.runtime/cache

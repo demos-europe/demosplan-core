@@ -136,7 +136,7 @@
    --><div class="inline-block u-2-of-3 u-1-of-1-palm">
         {{ authoredBy }}
       </div>
-    </div><!--
+      </div><!--
  --><div class="u-1-of-1 c-public-statement__content-item">
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('department') }}
@@ -144,7 +144,7 @@
    --><div class="inline-block u-2-of-3 u-1-of-1-palm">
         {{ department || '-' }}
       </div>
-    </div><!--
+      </div><!--
  --><div class="u-1-of-1 c-public-statement__content-item">
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('phase') }}
@@ -152,7 +152,7 @@
    --><div class="inline-block u-2-of-3 u-1-of-1-palm">
         {{ phase || '-' }}
       </div>
-    </div><!--
+      </div><!--
  --><div class="u-1-of-1 c-public-statement__content-item">
       <div class="inline-block u-1-of-3 u-1-of-1-palm u-pr c-public-statement__label">
         {{ Translator.trans('document') }}
@@ -160,7 +160,7 @@
    --><div class="inline-block u-2-of-3 u-1-of-1-palm">
         {{ document }}
       </div>
-    </div><!--
+      </div><!--
  --><div
       v-if="hasPermission('feature_documents_new_statement')"
       class="u-1-of-1 c-public-statement__content-item">
@@ -171,7 +171,7 @@
         {{ paragraph }}
       </div>
     </div>
-  </div><!--
+    </div><!--
 --><div class="u-1-of-2 u-1-of-1-palm c-public-statement__content-container">
     <div class="u-1-of-1 c-public-statement__content-item">
       <template v-if="hasPermission('field_statement_location')">
@@ -262,6 +262,11 @@ export default {
       type: Array,
       required: false,
       default: () => ([])
+    },
+    authorOnly: {
+      type: Boolean,
+      required: false,
+      default: false
     },
     county: {
       type: [String, null],

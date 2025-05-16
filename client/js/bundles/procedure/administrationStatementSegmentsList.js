@@ -10,6 +10,7 @@
 /**
  * This is the entrypoint for administration_statement_segments_list.html.twig
  */
+import AssessmentTable from '@DpJs/store/statement/AssessmentTable'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import { hasPermission } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
@@ -24,6 +25,7 @@ const components = {
 }
 
 const stores = {
+  AssessmentTable,
   ProcedureMapSettings: procedureMapSettings,
   SegmentSlidebar,
   SplitStatement: SplitStatementStore,
@@ -35,7 +37,9 @@ if (hasPermission('area_admin_boilerplates')) {
 }
 
 const apiStores = [
+  'AdminProcedure',
   'AggregationFilterItems',
+  'CustomField',
   'AssignableUser',
   'ElementsDetails',
   'Place',

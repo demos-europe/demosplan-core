@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
-use demosplan\DemosPlanCoreBundle\Logic\ImageLinkConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
@@ -64,16 +64,28 @@ class SegmentsExporter
     /**
      * @throws Exception
      */
-    public function export(Procedure $procedure, Statement $statement, array $tableHeaders): WriterInterface
-    {
+    public function export(
+        Procedure $procedure,
+        Statement $statement,
+        array $tableHeaders,
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
+        bool $isObscure,
+    ): WriterInterface {
+        $isCensored = $this->needsToBeCensored(
+            $statement,
+            $censorCitizenData,
+            $censorInstitutionData,
+        );
+
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $phpWord->addFontStyle('global', $this->styles['globalFont']);
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
         $this->addHeader($section, $procedure);
-        $this->addStatementInfo($section, $statement);
+        $this->addStatementInfo($section, $statement, $isCensored);
         $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement, $tableHeaders);
+        $this->addSegments($section, $statement, $tableHeaders, $isObscure);
         $this->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
@@ -230,12 +242,12 @@ class SegmentsExporter
         $section->addTextBreak(2);
     }
 
-    protected function addSegments(Section $section, Statement $statement, array $tableHeaders): void
+    protected function addSegments(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void
     {
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
             $this->addNoSegmentsMessage($section);
         } else {
-            $this->addSegmentsTable($section, $statement, $tableHeaders);
+            $this->addSegmentsTable($section, $statement, $tableHeaders, $isObscure);
         }
     }
 
@@ -263,13 +275,13 @@ class SegmentsExporter
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
     }
 
-    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders): void
+    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders, bool $isObscure): void
     {
         $table = $this->addSegmentsTableHeader($section, $tableHeaders);
         $sortedSegments = $this->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
 
         foreach ($sortedSegments as $segment) {
-            $this->addSegmentTableBody($table, $segment, $statement->getExternId());
+            $this->addSegmentTableBody($table, $segment, $statement->getExternId(), $isObscure);
         }
         $this->imageManager->addImages($section);
     }
@@ -324,11 +336,11 @@ class SegmentsExporter
         return $table;
     }
 
-    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId): void
+    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId, bool $isObscure): void
     {
         $textRow = $table->addRow();
         // Replace image tags in segment text and in segment recommendation text with text references.
-        $convertedSegment = $this->imageLinkConverter->convert($segment, $statementExternId);
+        $convertedSegment = $this->imageLinkConverter->convert($segment, $statementExternId, true, $isObscure);
         $this->addSegmentHtmlCell(
             $textRow,
             $segment->getExternId(),
@@ -385,5 +397,12 @@ class SegmentsExporter
     private function validInfoString(?string $text): bool
     {
         return null !== $text && '' !== trim($text);
+    }
+
+    public function needsToBeCensored(Statement $statement, bool $censorCitizenData, bool $censorInstitutionData): bool
+    {
+        return
+            ($statement->isSubmittedByOrganisation() && $censorInstitutionData)
+            || ($statement->isSubmittedByCitizen() && $censorCitizenData);
     }
 }

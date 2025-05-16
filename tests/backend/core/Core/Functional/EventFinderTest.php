@@ -30,7 +30,7 @@ class EventFinderTest extends FunctionalTestCase
 
         $commandTester->execute([
             '-p' => ['DPlanEvent'],
-            '-s' => ['/srv/www/addons/vendor/demos-europe'],
+            '-s' => ['/srv/www/addons/vendor/demos-europe/demosplan-addon'],
         ]);
 
         $commandTester->assertCommandIsSuccessful();

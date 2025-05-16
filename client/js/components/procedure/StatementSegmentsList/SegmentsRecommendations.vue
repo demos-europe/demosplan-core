@@ -46,10 +46,10 @@
       <!--Segments, if there are any-->
       <div v-else>
         <statement-segment
-          v-for="(segment, idx) in segments"
+          v-for="segment in segments"
           :key="'segment_' + segment.id"
+          ref="segment"
           :segment="segment"
-          :ref="`segment${idx}`"
           :statement-id="statementId"
           :current-user-id="currentUser.id"
           :current-user-first-name="currentUser.firstname"
@@ -190,6 +190,22 @@ export default {
 
     fetchSegments () {
       this.isLoading = true
+
+      const statementSegmentFields = [
+        'tags',
+        'text',
+        'assignee',
+        'place',
+        'comments',
+        'externId',
+        'internId',
+        'orderInProcedure',
+        'polygon',
+        'recommendation'
+      ]
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
+      }
       this.listSegments({
         include: [
           'assignee',
@@ -200,18 +216,7 @@ export default {
           'tags'
         ].join(),
         fields: {
-          StatementSegment: [
-            'tags',
-            'text',
-            'assignee',
-            'place',
-            'comments',
-            'externId',
-            'internId',
-            'orderInProcedure',
-            'polygon',
-            'recommendation'
-          ].join(),
+          StatementSegment: statementSegmentFields.join(),
           SegmentComment: [
             'creationDate',
             'text',
@@ -242,15 +247,7 @@ export default {
             const segmentId = queryParams.get('segment') || ''
             if (segmentId) {
               scrollTo('#segment_' + segmentId, { offset: -110 })
-              let segmentComponent = null
-
-              for (let i = 0; i <= this.segments.length; i++) {
-                if (this.segments[i].id === segmentId) {
-                  segmentComponent = this.$refs['segment' + i]
-
-                  break
-                }
-              }
+              const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
 
               if (segmentComponent) {
                 segmentComponent.isCollapsed = false
@@ -266,8 +263,11 @@ export default {
 
     toggleAll () {
       this.isAllCollapsed = this.isAllCollapsed === false
-      this.segments.forEach((_segment, idx) => {
-        this.$refs['segment' + idx].isCollapsed = this.isAllCollapsed
+
+      this.$refs.segment.forEach(segment => {
+        if (segment) {
+          segment.isCollapsed = this.isAllCollapsed
+        }
       })
     }
   },

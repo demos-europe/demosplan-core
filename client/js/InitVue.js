@@ -22,6 +22,7 @@ import {
 } from '@DpJs/lib/core/libs'
 import BackToTopButton from '@DpJs/components/button/BackToTopButton'
 import { bootstrap } from '@DpJs/bootstrap'
+import { configureCompat } from '@vue/compat'
 import { createApp } from 'vue'
 import DPVueCorePlugin from '@DpJs/plugins/DPVueCore'
 import HamburgerMenuButton from '@DpJs/components/button/HamburgerMenuButton'
@@ -36,6 +37,10 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
   bootstrap()
 
   return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
+    configureCompat({
+      RENDER_FUNCTION: false
+    })
+
     const app = createApp({
       mounted () {
         window.dplan.notify = new NotificationStoreAdapter(this.$store)
