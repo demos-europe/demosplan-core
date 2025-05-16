@@ -97,8 +97,10 @@
               </dd>
             </template>
           </dl>
-          <dl class="pl-4 w-full">
-            <template v-if="hasPermission('feature_institution_tag_read') && Array.isArray(assignedTags) && assignedTags.length > 0">
+          <dl
+            v-if="hasPermission('feature_institution_tag_read') && Array.isArray(assignedTags) && assignedTags.length > 0"
+            class="pl-4 w-full">
+            <template>
               <dt class="color--grey">
                 {{ Translator.trans('tags') }}
               </dt>
@@ -301,6 +303,7 @@ export default {
       if (hasPermission('feature_institution_tag_read')) {
         requestParams.fields.InstitutionTag = 'name'
       }
+
       return this.getInstitutions(requestParams)
     },
 
