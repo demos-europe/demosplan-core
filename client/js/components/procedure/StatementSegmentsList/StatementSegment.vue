@@ -802,12 +802,12 @@ export default {
         type: 'StatementSegment',
         attributes: {
           ...this.segment.attributes,
-          ...(hasCustomFields && {
+          ...(hasCustomFields ? {
             customFields: {
               ...this.segment.attributes.customFields,
               ...payload.data.attributes?.customFields
             }
-          })
+          } : {})
         },
         relationships: {
           ...this.segment.relationships,
