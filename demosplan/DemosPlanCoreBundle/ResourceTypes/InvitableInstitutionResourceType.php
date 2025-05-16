@@ -12,24 +12,23 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseOrgaResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use Doctrine\Common\Collections\ArrayCollection;
-use EDT\PathBuilding\End;
+use EDT\JsonApi\ApiDocumentation\DefaultField;
+use EDT\JsonApi\ApiDocumentation\DefaultInclude;
+use EDT\JsonApi\ApiDocumentation\OptionalField;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
+use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
 
 /**
  * @template-extends DplanResourceType<Orga>
- *
- * @property-read End                              $name
- * @property-read End                              $createdDate
- * @property-read InstitutionTagResourceType       $assignedTags
- * @property-read End                              $deleted
- * @property-read UserResourceType                 $users
- * @property-read OrgaStatusInCustomerResourceType $statusInCustomers
  */
 final class InvitableInstitutionResourceType extends DplanResourceType
 {
@@ -70,71 +69,83 @@ final class InvitableInstitutionResourceType extends DplanResourceType
         $customer = $this->currentCustomerService->getCurrentCustomer();
 
         return [
-            $this->conditionFactory->propertyHasValue(false, $this->deleted),
+            $this->conditionFactory->propertyHasValue(false, Paths::orga()->deleted),
             $this->conditionFactory->propertyHasValue(
-                OrgaStatusInCustomer::STATUS_ACCEPTED,
-                $this->statusInCustomers->status
+                OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
+                Paths::orga()->statusInCustomers->status
             ),
             $this->conditionFactory->propertyHasValue(
-                Role::GPSORG,
-                $this->users->roleInCustomers->role->groupCode
+                RoleInterface::GPSORG,
+                Paths::orga()->users->roleInCustomers->role->groupCode
             ),
             $this->conditionFactory->propertyHasValue(
-                OrgaType::PUBLIC_AGENCY,
-                $this->statusInCustomers->orgaType->name
+                OrgaTypeInterface::PUBLIC_AGENCY,
+                Paths::orga()->statusInCustomers->orgaType->name
             ),
             $this->conditionFactory->propertyHasValue(
                 $customer->getId(),
-                $this->statusInCustomers->customer->id
+                Paths::orga()->statusInCustomers->customer->id
             ),
         ];
     }
 
-    protected function getProperties(): array
+    protected function getProperties(): ResourceConfigBuilderInterface
     {
-        $assignedTags = $this->createToManyRelationship($this->assignedTags);
-        $allowedProperties = [$assignedTags];
-        $allowedProperties[] = $this->createIdentifier()->readable();
+        /** @var BaseOrgaResourceConfigBuilder $configBuilder */
+        $configBuilder = $this->getConfig(BaseOrgaResourceConfigBuilder::class);
 
-        if ($this->currentUser->hasPermission('feature_institution_tag_update')) {
-            $assignedTags->updatable([], [], function (Orga $institution, array $newAssignedTags): array {
-                $newAssignedTags = new ArrayCollection($newAssignedTags);
-                $currentlyAssignedTags = $institution->getAssignedTags();
-
-                // removed tags
-                $removedTags = $currentlyAssignedTags->filter(
-                    static fn (InstitutionTag $currentTag): bool => !$newAssignedTags->contains($currentTag)
-                );
-
-                // new tags
-                $newTags = $newAssignedTags->filter(
-                    static fn (InstitutionTag $newTag): bool => !$currentlyAssignedTags->contains($newTag)
-                );
-
-                foreach ($removedTags as $removedTag) {
-                    $institution->removeAssignedTag($removedTag);
-                    $this->resourceTypeService->validateObject($removedTag);
-                }
-
-                foreach ($newTags as $newTag) {
-                    $institution->addAssignedTag($newTag);
-                    $this->resourceTypeService->validateObject($newTag);
-                }
-
-                $this->resourceTypeService->validateObject($institution);
-
-                return [];
-            });
-        }
+        // Add identifier property
+        $configBuilder->id->setReadableByPath();
 
         if ($this->currentUser->hasPermission('feature_institution_tag_assign')
             || $this->currentUser->hasPermission('feature_institution_tag_read')
         ) {
-            $allowedProperties[] = $this->createAttribute($this->name)->readable(true)->setFilterable();
-            $allowedProperties[] = $this->createAttribute($this->createdDate)->readable(true)->sortable();
-            $assignedTags->readable(true)->filterable();
+            $configBuilder->name->setReadableByPath(DefaultField::YES)->setFilterable();
+            $configBuilder->createdDate->setReadableByPath(DefaultField::YES)->setSortable();
+            $configBuilder->assignedTags
+                ->setRelationshipType($this->resourceTypeStore->getInstitutionTagResourceType())
+                ->setReadableByPath(DefaultField::YES, DefaultInclude::YES)
+                ->setFilterable();
         }
 
-        return $allowedProperties;
+        if ($this->currentUser->hasPermission('feature_institution_tag_update')) {
+            $configBuilder->assignedTags->addUpdateBehavior(
+                CallbackToManyRelationshipSetBehavior::createFactory(
+                    function (Orga $institution, array $newAssignedTags): array {
+                        $newAssignedTags = new ArrayCollection($newAssignedTags);
+                        $currentlyAssignedTags = $institution->getAssignedTags();
+
+                        // removed tags
+                        $removedTags = $currentlyAssignedTags->filter(
+                            static fn (InstitutionTag $currentTag): bool => !$newAssignedTags->contains($currentTag)
+                        );
+
+                        // new tags
+                        $newTags = $newAssignedTags->filter(
+                            static fn (InstitutionTag $newTag): bool => !$currentlyAssignedTags->contains($newTag)
+                        );
+
+                        foreach ($removedTags as $removedTag) {
+                            $institution->removeAssignedTag($removedTag);
+                            $this->resourceTypeService->validateObject($removedTag);
+                        }
+
+                        foreach ($newTags as $newTag) {
+                            $institution->addAssignedTag($newTag);
+                            $this->resourceTypeService->validateObject($newTag);
+                        }
+
+                        $this->resourceTypeService->validateObject($institution);
+
+                        return [];
+                    },
+                    [],
+                    OptionalField::YES,
+                    []
+                )
+            );
+        }
+
+        return $configBuilder;
     }
 }

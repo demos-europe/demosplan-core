@@ -3479,6 +3479,7 @@ statement.is.liked: "Die Stellungnahme wurde von Ihnen unterstützt."
 statement.is.voted: "Die Stellungnahme wurde von Ihnen mitgezeichnet."
 statement.like.description: "Mit dem Unterstützen der Stellungnahme schließen Sie sich deren Meinung an."
 statement.like: "Stellungnahme unterstützen"
+statement.list.back: "Zurück zur Stellungnahmenliste"
 statement.list.empty: "Es sind keine Einträge in dieser Liste vorhanden."
 statement.manual: "Manuelle Stellungnahme"
 statement.main: "Hauptstellungnahme"
@@ -4261,7 +4262,8 @@ warning.statement.delete: |
         =1 { Eine Stellungnahme wurde nicht gefunden. Wurde sie möglicherweise bereits gelöscht?}
         other { # Stellungnahmen wurden nicht gefunden. Wurden sie möglicherweise bereits gelöscht?}
     }
-warning.statement.in.segmentation.cannot.be.edited: "Der Stellungnahmetext kann momentan nicht bearbeitet werden, da sich die Stellungnahme in der Aufteilung befindet. Um den Stellungnahmetext zu ändern, müssen die bereits erstellten Abschnitte entfernt werden. Alternativ kann der Text der erstellten Abschnitte nach der Aufteilung angepasst werden."
+warning.statement.in.segmentation.cannot.be.edited: "Der Stellungnahmetext kann derzeit nicht bearbeitet werden, da bereits mit der Aufteilung in Abschnitte begonnen und diese noch nicht abgeschlossen wurde. Um den Stellungnahmetext zu ändern, müssen zunächst alle bereits erstellten Abschnitte, die in Bearbeitung sind, entfernt werden.
+Alternativ kann der Text der erstellten Abschnitte auch nach der Aufteilung angepasst werden."
 warning.statement.move: "Stellungnahme konnte nicht verschoben werden."
 warning.statement.needLock.generic: "Diese Stellungnahme ist zur Zeit in Bearbeitung. Um sie zu bearbeiten, müssen Sie diese zunächst für sich beanspruchen."
 warning.statement.needLock: "Die Stellungnahme {externId} ist zur Zeit niemandem zugewiesen. Um Ihre Änderungen speichern zu können, müssen Sie die Bearbeitung zunächst für sich beanspruchen."
