@@ -784,9 +784,6 @@ export default {
           if (this.segment.relationships.place) {
             this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
           }
-          if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
-            this.setInitiallySelectedCustomFieldValues()
-          }
         })
     },
 
@@ -1094,6 +1091,10 @@ export default {
   mounted () {
     this.initPlaces()
     this.initAssignableUsers()
+
+    if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
+      this.setInitiallySelectedCustomFieldValues()
+    }
 
     loadAddonComponents('segment.recommendationModal.tab')
       .then(addons => {
