@@ -98,7 +98,7 @@ class SegmentController extends BaseController
         $recommendationProcedureIds = $procedureService->getRecommendationProcedureIds($currentUser->getUser(), $procedureId);
         $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
         $statementFormDefinition = $procedure->getStatementFormDefinition();
-        /**  */
+
         $eventDispatcher->dispatch(
             new RecommendationRequestEvent($statement, $procedure),
             RecommendationRequestEventInterface::class
