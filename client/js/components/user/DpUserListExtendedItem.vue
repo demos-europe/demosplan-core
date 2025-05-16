@@ -138,7 +138,7 @@ export default {
     'delete',
     'item:selected',
     'reset',
-    'save-success'
+    'saveSuccess'
   ],
 
   data () {
@@ -300,7 +300,7 @@ export default {
           204: { type: 'confirm', text: 'info.user.updated' }
         })
         .then(() => {
-          this.$root.$emit('save-success')
+          this.$root.$emit('saveSuccess')
           // Update department options
           this.setAvailableDepartments()
         })

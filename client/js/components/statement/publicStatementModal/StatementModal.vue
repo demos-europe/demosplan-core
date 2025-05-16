@@ -553,7 +553,7 @@
         v-show="step === 2"
         data-dp-validate="recheckForm">
         <statement-modal-recheck
-          @edit-input="handleEditInput"
+          @editInput="handleEditInput"
           :form-fields="formFields"
           :statement="formData"
           :public-participation-publication-enabled="publicParticipationPublicationEnabled"
@@ -882,8 +882,8 @@ export default {
   },
 
   emits: [
-    'toggle-tabs',
-    'uploader-reset'
+    'toggleTabs',
+    'uploader:reset'
   ],
 
   data () {
@@ -1149,7 +1149,7 @@ export default {
         this.step = 0
         this.showHeader = true
         this.$nextTick(() => {
-          this.$root.$emit('uploader-reset')
+          this.$root.$emit('uploader:reset')
 
           if (this.draftStatementId !== '') {
             window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId, _fragment: this.draftStatementId })
@@ -1172,7 +1172,7 @@ export default {
 
     gotoTab (tab) {
       if (document.getElementById(tab)) {
-        this.$emit('toggle-tabs', '#' + tab)
+        this.$emit('toggleTabs', '#' + tab)
       }
 
       if (this.currentPage === 'publicDetail') {
@@ -1551,7 +1551,7 @@ export default {
 
   mounted () {
     // Set data from map
-    this.$root.$on('update-statement-form-map-data', (data = {}, toggle = true) => {
+    this.$root.$on('updateStatementFormMapData', (data = {}, toggle = true) => {
       this.setStatementData(data)
       if (toggle) {
         this.toggleModal(false)
@@ -1563,7 +1563,7 @@ export default {
       }
     })
 
-    this.$root.$on('statement-modal:goto-tab', tabname => {
+    this.$root.$on('statementModal:goToTab', tabname => {
       this.gotoTab(tabname)
     })
 

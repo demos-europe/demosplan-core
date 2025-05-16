@@ -506,7 +506,7 @@ export default {
     },
 
     triggerStatementRequest () {
-      this.$root.$emit('statement-attachments-added')
+      this.$root.$emit('statementAttachments:added')
     }
   }
 }

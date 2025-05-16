@@ -345,7 +345,7 @@
                     <dp-public-layer-list-wrapper
                         ref="layerList"
                         :layer-groups-alternate-visibility="Boolean({{ procedureSettings.layerGroupsAlternateVisibility }})"
-                        @layer-list:unfolded="foldOpenToolbarItems(['layerLegend', 'mapTools', 'customLayer'])">
+                        @layerList:unfolded="foldOpenToolbarItems(['layerLegend', 'mapTools', 'customLayer'])">
                     </dp-public-layer-list-wrapper>
 
                     {# Legends #}
@@ -355,20 +355,20 @@
                         :layers-with-legend-files="JSON.parse('{{ layers_with_legend_files|json_encode|e('js', 'utf-8') }}')"
                         :plan-pdf="JSON.parse('{{ planPdf|json_encode|e('js', 'utf-8') }}')"
                         procedure-id="{{ procedure|default('') }}"
-                        @layer-legend:unfolded="foldOpenToolbarItems(['layerList', 'mapTools', 'customLayer'])">
+                        @layerLegend:unfolded="foldOpenToolbarItems(['layerList', 'mapTools', 'customLayer'])">
                     </dp-layer-legend>
 
                     {# Zoom to extend, measure length + area #}
                     <dp-map-tools
                         ref="mapTools"
-                        @map-tools:unfolded="foldOpenToolbarItems(['layerList', 'layerLegend', 'customLayer'])">
+                        @mapTools:unfolded="foldOpenToolbarItems(['layerList', 'layerLegend', 'customLayer'])">
                     </dp-map-tools>
 
                     {# Add custom layer on the fly #}
                     <dp-custom-layer
                         ref="customLayer"
                         :init-available-projections="JSON.parse('{{ templateVars.availableProjections|json_encode|e('js', 'utf-8') }}')"
-                        @custom-layer:unfolded="foldOpenToolbarItems(['layerList', 'layerLegend', 'mapTools'])">
+                        @customLayer:unfolded="foldOpenToolbarItems(['layerList', 'layerLegend', 'mapTools'])">
                     </dp-custom-layer>
 
                 </div>
@@ -394,7 +394,7 @@
         :draft-statement= "JSON.parse('{{ draftStatement|json_encode|e('js', 'utf-8') }}')"
         get-feature-info-url-planning-area="{{ getFeatureInfoUrlPlanningArea|default('') }}"
         map-danmark-layer="{{ mapDanmarkLayer|default('') }}"
-        @fullscreen-toggle="handleFullscreenFocus"
+        @fullscreen:toggle="handleFullscreenFocus"
     >
 
         {#  @TODO make everything inside this slot vue-components and move to Map.vue template #}

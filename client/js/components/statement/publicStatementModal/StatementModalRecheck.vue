@@ -40,7 +40,7 @@
       <button
         type="button"
         data-cy="statementModalRecheck:statementDetailFormPersonalPublish"
-        @click="$emit('edit-input', 'r_makePublic')"
+        @click="$emit('editInput', 'r_makePublic')"
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
         :title="Translator.trans('statement.form.input.change')"
         aria-labelledby="statementDetailFormPersonalPublish inputDataChange">
@@ -60,7 +60,7 @@
             type="button"
             data-cy="statementModalRecheck:useNameText"
             :class="prefixClass('o-link--default btn-icns u-ml float-right')"
-            @click="$emit('edit-input', 'r_useName_1')"
+            @click="$emit('editInput', 'r_useName_1')"
             :title="Translator.trans('statement.form.input.change')"
             aria-labelledby="useNameText inputDataChange">
             <i
@@ -141,7 +141,7 @@
         type="button"
         data-cy="statementModalRecheck:useNameText"
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
-        @click="$emit('edit-input', 'r_useName_0')"
+        @click="$emit('editInput', 'r_useName_0')"
         :title="Translator.trans('statement.form.input.change')"
         aria-labelledby="useNameText inputDataChange">
         <i
@@ -192,7 +192,7 @@
         type="button"
         data-cy="statementModalRecheck:getFeedbackText"
         :class="prefixClass('o-link--default btn-icns u-ml float-right')"
-        @click="$emit('edit-input', 'r_getFeedback')"
+        @click="$emit('editInput', 'r_getFeedback')"
         :title="Translator.trans('statement.form.input.change')"
         aria-labelledby="getFeedbackText inputDataChange">
         <i
@@ -208,7 +208,7 @@
           type="button"
           data-cy="statementModalRecheck:statementAlter"
           :class="prefixClass('o-link--default btn-icns float-right')"
-          @click="$emit('edit-input', 'r_text')"
+          @click="$emit('editInput', 'r_text')"
           :title="Translator.trans('statement.alter')"
           :aria-label="Translator.trans('statement.alter')">
           <i
@@ -278,7 +278,7 @@ export default {
   },
 
   emits: [
-    'edit-input'
+    'editInput'
   ],
 
   computed: {

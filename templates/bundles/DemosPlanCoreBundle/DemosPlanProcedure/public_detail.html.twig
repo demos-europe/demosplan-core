@@ -573,7 +573,7 @@
                         orga-id="{{ branding.orgaId|default }}"
                         :form-options="JSON.parse('{{ templateVars.formOptions|default({})|json_encode|e('js', 'utf-8') }}')"
                         :draft-statement="JSON.parse('{{ templateVars.draftStatement|default([])|json_encode|e('js', 'utf-8') }}')"
-                        @toggle-tabs="toggleTabs"
+                        @toggleTabs="toggleTabs"
                     ></statement-modal>
                 {% endif %}
             </div>

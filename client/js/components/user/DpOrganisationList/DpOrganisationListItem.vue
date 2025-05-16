@@ -53,9 +53,9 @@
         :initial-organisation="initialOrganisation"
         :organisation="organisation"
         :organisation-id="organisation.id"
-        @addon-update="updateAddonPayload"
+        @addon:update="updateAddonPayload"
         @addonOptions:loaded="setAdditionalFieldOptions"
-        @organisation-update="updateOrganisation" />
+        @organisation:update="updateOrganisation" />
 
       <!-- Button row -->
       <dp-button-row
@@ -129,9 +129,9 @@ export default {
 
   emits: [
     'addonOptions:loaded',
-    'get-items',
+    'getItems',
     'item:selected',
-    'organisation-reset'
+    'organisation:reset'
   ],
 
   data () {
@@ -221,7 +221,7 @@ export default {
     reset () {
       this.restoreOrganisation(this.organisation.id)
         .then(() => {
-          this.$root.$emit('organisation-reset')
+          this.$root.$emit('organisation:reset')
           this.isOpen = !this.isOpen
         })
     },
@@ -260,7 +260,7 @@ export default {
             typeof this.organisation.attributes.registrationStatuses.find(el => el.status === 'pending') === 'undefined') ||
             (typeof Object.keys(this.organisations).find(id => id === this.organisation.id) !== 'undefined' &&
             typeof this.organisation.attributes.registrationStatuses.find(el => el.status === 'pending') !== 'undefined')) {
-            this.$root.$emit('get-items')
+            this.$root.$emit('getItems')
           }
         })
     },
