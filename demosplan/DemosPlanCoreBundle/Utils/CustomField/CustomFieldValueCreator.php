@@ -34,57 +34,40 @@ class CustomFieldValueCreator extends CoreService
         string $sourceEntityClass,
         string $targetEntityClass,
     ): CustomFieldValuesList {
-        // Store original data as JSON representation before making any changes
-        // Create a completely new object - DON'T modify the passed-in object at all
+        // Create a new list with deep copies of current values
         $updatedCustomFieldValuesList = new CustomFieldValuesList();
-
-        // Copy all existing values to the new object first
-        if ($currentCustomFieldValuesList->getCustomFieldsValues()) {
-            foreach ($currentCustomFieldValuesList->getCustomFieldsValues() as $existingValue) {
-                $newValue = new CustomFieldValue();
-                $newValue->fromJson($existingValue->toJson());
-                $updatedCustomFieldValuesList->addCustomFieldValue($newValue);
-            }
+        foreach ($currentCustomFieldValuesList->getCustomFieldsValues() ?? [] as $existingValue) {
+            $newValue = new CustomFieldValue();
+            $newValue->fromJson($existingValue->toJson());
+            $updatedCustomFieldValuesList->addCustomFieldValue($newValue);
         }
 
-        // Parse the new values
+        // Process new values
         $newCustomFieldValuesList = new CustomFieldValuesList();
         $newCustomFieldValuesList->fromJson($newCustomFieldValuesData);
 
-        // Now apply changes to our new copy
         foreach ($newCustomFieldValuesList->getCustomFieldsValues() as $newCustomFieldValue) {
-            /** @var CustomFieldValue $newCustomFieldValue */
             $customField = $this->getCustomField(
                 $sourceEntityClass,
                 $sourceEntityId,
                 $targetEntityClass,
-                $newCustomFieldValue->getId());
+                $newCustomFieldValue->getId()
+            );
             $this->validateCustomFieldValue($customField, $newCustomFieldValue->getValue());
 
-            // Find in our new copy, not in the original
             $existingCustomFieldValue = $updatedCustomFieldValuesList->findById($newCustomFieldValue->getId());
-
             if ($existingCustomFieldValue) {
                 $existingCustomFieldValue->setValue($newCustomFieldValue->getValue());
             } else {
-                // Create a new value instead of using the one from input
                 $brandNewValue = new CustomFieldValue();
                 $brandNewValue->fromJson($newCustomFieldValue->toJson());
                 $updatedCustomFieldValuesList->addCustomFieldValue($brandNewValue);
             }
         }
 
-        // Never modify the passed-in object - return a completely new one
         return $updatedCustomFieldValuesList;
-
-        /*
-         * Clone `$currentCustomFieldValuesList` to ensure Doctrine detects changes to JSON-like columns.
-         * Doctrine only tracks updates when the object reference changes.
-         * @see CustomFieldValuesList
-         * @see CustomFieldValueType
-         */
-        // return clone $currentCustomFieldValuesList;
     }
+
 
     private function getCustomField(
         string $sourceEntityClass,
