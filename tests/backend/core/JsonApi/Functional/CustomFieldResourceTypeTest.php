@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFacto
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\RoleFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Tests\Base\JsonApiTest;
@@ -23,9 +24,9 @@ use Zenstruck\Foundry\Persistence\Proxy;
 
 class CustomFieldResourceTypeTest extends JsonApiTest
 {
-    private User|Proxy $user;
-    private Role|Proxy $role;
-    private $customer;
+    private User|Proxy|null $user;
+    private Role|Proxy|null $role;
+    private Customer|Proxy|null $customer;
 
     public function testCreateCustomField(): void
     {
@@ -56,8 +57,8 @@ class CustomFieldResourceTypeTest extends JsonApiTest
             'attributes' => [
                 'fieldType'      => 'singleSelect',
                 'name'           => 'Beschlussvorschlag',
-                'description'    => 'This is a description for the radiobutton',
-                'options'        => ['ehehe', 'huhu', 'hahaha'],
+                'description'    => 'This is a description for this custom field',
+                    'options'        => ['Wird gefolgt', 'Wird nicht gefolgt', 'Zur Kenntnis genommen'],
                 'targetEntity'   => 'SEGMENT',
                 'sourceEntity'   => 'PROCEDURE',
                 'sourceEntityId' => $procedure->getId(),
