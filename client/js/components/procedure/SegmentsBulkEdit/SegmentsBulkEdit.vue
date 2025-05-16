@@ -511,6 +511,19 @@ export default {
       listTagTopics: 'list'
     }),
 
+    addCustomFieldsToActions () {
+      Object.values(this.customFieldItems).forEach(customField => {
+        this.actions.customFields.push({
+          selected: null,
+          checked: false,
+          success: false,
+          options: customField.attributes.options,
+          label: customField.attributes.name,
+          id: customField.id
+        })
+      })
+    },
+
     /**
      * Apply selected actions.
      */
@@ -702,16 +715,7 @@ export default {
     Promise.all(promises)
       .then(() => {
         if (hasPermission('field_segments_custom_fields')) {
-          Object.values(this.customFieldItems).forEach(customField => {
-            this.actions.customFields.push({
-              selected: null,
-              checked: false,
-              success: false,
-              options: customField.attributes.options,
-              label: customField.attributes.name,
-              id: customField.id
-            })
-          })
+          this.addCustomFieldsToActions()
         }
       })
       .then(() => {
