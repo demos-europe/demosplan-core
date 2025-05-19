@@ -322,7 +322,7 @@ class DemosPlanOrganisationAPIController extends APIController
                     $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PLANNING_AGENCY_ADMIN);
                 }
 
-                if ($orgaStatusInCustomer->getOrgaType()->getName() === OrgaType::MUNICIPALITY) {
+                if (OrgaType::MUNICIPALITY === $orgaStatusInCustomer->getOrgaType()->getName()) {
                     $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
                 }
             }
