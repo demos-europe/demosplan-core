@@ -147,12 +147,12 @@ class DemosPlanProcedureController extends BaseController
     protected $procedureServiceOutput;
 
     public function __construct(
-        private readonly AssessmentHandler         $assessmentHandler,
-        private readonly Environment               $twig,
-        private readonly PermissionsInterface      $permissions,
-        private readonly ProcedureHandler          $procedureHandler,
-        ProcedureService                           $procedureService,
-        ProcedureServiceOutput                     $procedureServiceOutput,
+        private readonly AssessmentHandler $assessmentHandler,
+        private readonly Environment $twig,
+        private readonly PermissionsInterface $permissions,
+        private readonly ProcedureHandler $procedureHandler,
+        ProcedureService $procedureService,
+        ProcedureServiceOutput $procedureServiceOutput,
         private readonly ProcedureTypeResourceType $procedureTypeResourceType,
         private readonly SortMethodFactory $sortMethodFactory,
         private readonly CurrentProcedureService $currentProcedureService,
@@ -1401,7 +1401,16 @@ class DemosPlanProcedureController extends BaseController
             } else {
                 $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit.html.twig';
                 $title = 'procedure.adjustments';
+
+                foreach ($templateVars['internalPhases'] as $internalPhase) {
+                    if ('evaluating' === $internalPhase['key']) {
+                        $evaluatingPhase = $internalPhase['name'];
+
+                        break;
+                    }
+                }
             }
+
             /** @var NotificationReceiverRepository $notificationReveicerRepository */
             $notificationReveicerRepository = $em->getRepository(NotificationReceiver::class);
 
@@ -1437,15 +1446,15 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['statementCount'] = $statementService->getStatementResourcesCount($procedureId);
             $templateVars['synchronizedStatementCount'] = $entitySyncLinkRepository->getSynchronizedStatementCount($procedureId);
 
-            return $this->renderTemplate(
-                $template,
-                [
-                    'templateVars' => $templateVars,
-                    'procedure'    => $procedureId,
-                    'title'        => $title,
-                    'form'         => $form->createView(),
-                ]
-            );
+            $data = [
+                'templateVars'    => $templateVars,
+                'procedure'       => $procedureId,
+                'title'           => $title,
+                'form'            => $form->createView(),
+                'evaluatingPhase' => $evaluatingPhase ?? '',
+            ];
+
+            return $this->renderTemplate($template, $data);
         } catch (DuplicateSlugException $e) {
             $this->getMessageBag()->add('error', 'error.procedure.duplicated.shorturl', ['slug' => $e->getDuplicatedSlug()]);
 
