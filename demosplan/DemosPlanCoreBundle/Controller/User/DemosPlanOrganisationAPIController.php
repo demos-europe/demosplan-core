@@ -318,12 +318,12 @@ class DemosPlanOrganisationAPIController extends APIController
 
         foreach ($orgaStatusInCustomers as $orgaStatusInCustomer) {
             if (OrgaStatusInCustomer::STATUS_ACCEPTED === $orgaStatusInCustomer->getStatus()) {
-                //$onlyAcceptedOrgaStatusInCustomers[] = $orgaStatusInCustomer;
-                if ($orgaStatusInCustomer->getOrgaType()->getName() === OrgaType::PLANNING_AGENCY) {
+                // $onlyAcceptedOrgaStatusInCustomers[] = $orgaStatusInCustomer;
+                if (OrgaType::PLANNING_AGENCY === $orgaStatusInCustomer->getOrgaType()->getName()) {
                     $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PLANNING_AGENCY_ADMIN);
                 }
 
-                if ($orgaStatusInCustomer->getOrgaType()->getName() === OrgaType::MUNICIPALITY) {
+                if (OrgaType::MUNICIPALITY === $orgaStatusInCustomer->getOrgaType()->getName()) {
                     $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
                 }
             }
