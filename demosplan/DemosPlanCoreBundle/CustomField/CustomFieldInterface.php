@@ -19,10 +19,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 interface CustomFieldInterface
 {
-    /**
-     * Special value used to indicate that a custom field should be removed.
-     */
-    public const UNASSIGNED = 'UNASSIGNED';
 
     public const TYPE_CLASSES = [
         'singleSelect' => RadioButtonField::class,

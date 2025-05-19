@@ -93,9 +93,9 @@ class RadioButtonField extends AbstractCustomField
         return 'singleSelect';
     }
 
-    public function isValueValid(string $value): bool
+    public function isValueValid(?string $value): bool
     {
-        if (CustomFieldInterface::UNASSIGNED === $value) {
+        if (null === $value) {
             return true;
         }
 

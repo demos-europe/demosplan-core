@@ -1097,8 +1097,8 @@ export default {
 
     // Helper to get the custom field value from an option
     getCustomFieldValueForPayload (option) {
-      // Return 'UNASSIGNED' for unassigned options
-      return option.value === 'UNASSIGNED' ? 'UNASSIGNED' : option.name
+      // Return null for unassigned options instead of 'UNASSIGNED'
+      return option.value === 'UNASSIGNED' ? null : option.name
     }
   },
 

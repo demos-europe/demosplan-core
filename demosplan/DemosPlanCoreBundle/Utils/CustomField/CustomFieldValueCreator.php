@@ -72,23 +72,23 @@ class CustomFieldValueCreator extends CoreService
         CustomFieldValue $existingCustomFieldValue,
         CustomFieldValue $newCustomFieldValue,
     ): void {
-        // If the value is UNASSIGNED, remove this field from the updated list
-        if (CustomFieldInterface::UNASSIGNED === $newCustomFieldValue->getValue()) {
-            $currentCustomFieldValuesList->removeCustomFieldValue($newCustomFieldValue);
+        // If the value is null, remove this field from the updated list
 
+        if (null === $newCustomFieldValue->getValue()) {
+            $currentCustomFieldValuesList->removeCustomFieldValue($newCustomFieldValue);
             return;
         }
 
         $existingCustomFieldValue->setValue($newCustomFieldValue->getValue());
     }
 
-    // Handle adding new custom field values
+
     protected function handleNewCustomField(
         CustomFieldValuesList $currentCustomFieldValuesList,
         CustomFieldValue $newCustomFieldValue,
     ): void {
         // Skip adding fields marked for removal
-        if (CustomFieldInterface::UNASSIGNED !== $newCustomFieldValue->getValue()) {
+        if (null !== $newCustomFieldValue->getValue()) {
             $currentCustomFieldValuesList->addCustomFieldValue($newCustomFieldValue);
         }
     }
