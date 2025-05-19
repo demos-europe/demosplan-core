@@ -1402,7 +1402,6 @@ class DemosPlanProcedureController extends BaseController
                 $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit.html.twig';
                 $title = 'procedure.adjustments';
 
-                $evaluatingPhase = null;
                 foreach ($templateVars['internalPhases'] as $internalPhase) {
                     if ($internalPhase['key'] === 'evaluating') {
                         $evaluatingPhase = $internalPhase['name'];
@@ -1454,9 +1453,6 @@ class DemosPlanProcedureController extends BaseController
                 'form'         => $form->createView(),
                 'evaluatingPhase' => $evaluatingPhase ?? '',
             ];
-            if (!null === $evaluatingPhase) {
-                $data['evaluatingPhase'] = $evaluatingPhase;
-            }
 
             return $this->renderTemplate($template, $data);
         } catch (DuplicateSlugException $e) {
