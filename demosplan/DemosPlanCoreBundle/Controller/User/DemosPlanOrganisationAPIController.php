@@ -308,40 +308,24 @@ class DemosPlanOrganisationAPIController extends APIController
         }
     }
 
-    private function getAvailableOrgaType(Orga $preUpdateOrga): array
+    private function getAvailableOrgaRoles(Orga $preUpdateOrga): array
     {
         // get all orga status in customers
         $orgaStatusInCustomers = $preUpdateOrga->getStatusInCustomers();
 
         // filter out only orga with accepted status in customer
-        $onlyAcceptedOrgaStatusInCustomers = [];
+        $availableOrgaRoles = [];
+
         foreach ($orgaStatusInCustomers as $orgaStatusInCustomer) {
             if (OrgaStatusInCustomer::STATUS_ACCEPTED === $orgaStatusInCustomer->getStatus()) {
-                $onlyAcceptedOrgaStatusInCustomers[] = $orgaStatusInCustomer;
-            }
-        }
+                //$onlyAcceptedOrgaStatusInCustomers[] = $orgaStatusInCustomer;
+                if ($orgaStatusInCustomer->getOrgaType()->getName() === OrgaType::PLANNING_AGENCY) {
+                    $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PLANNING_AGENCY_ADMIN);
+                }
 
-        // get orga types from accepted orga status in customers
-        $orgaTypes = [];
-        /** @var OrgaStatusInCustomer $onlyAcceptedOrgaStatusInCustomers */
-        foreach ($onlyAcceptedOrgaStatusInCustomers as $onlyAcceptedOrgaStatusInCustomer) {
-            $orgaTypes[] = $onlyAcceptedOrgaStatusInCustomer->getOrgaType()->getName();
-        }
-
-        $isPrivatePlanningAgencyRoleAvailable = in_array(OrgaType::PLANNING_AGENCY, $orgaTypes, true);
-        $isPlanningAgencyAdminRoleAvailable = in_array(OrgaType::MUNICIPALITY, $orgaTypes, true);
-
-        $trueCount = (int) $isPlanningAgencyAdminRoleAvailable + (int) $isPrivatePlanningAgencyRoleAvailable;
-
-        $availableOrgaRoles = [];
-        if (2 === $trueCount) {
-            $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PLANNING_AGENCY_ADMIN);
-            $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
-        } elseif (1 === $trueCount) {
-            if ($isPlanningAgencyAdminRoleAvailable) {
-                $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PLANNING_AGENCY_ADMIN);
-            } else {
-                $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
+                if ($orgaStatusInCustomer->getOrgaType()->getName() === OrgaType::MUNICIPALITY) {
+                    $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
+                }
             }
         }
 
@@ -386,7 +370,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 throw new InvalidArgumentException('Can\'t create orga since mandatory fields are missing.');
             }
 
-            $availableOrgaRoles = $this->getAvailableOrgaType($newOrga);
+            $availableOrgaRoles = $this->getAvailableOrgaRoles($newOrga);
 
             if (array_key_exists('canCreateProcedures', $orgaDataArray) && empty($availableOrgaRoles)) {
                 $this->messageBag->add('warning', $this->translator->trans('warning.organisation.no_available_roles'));
@@ -402,7 +386,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 try {
                     if (true === $orgaDataArray['canCreateProcedures']) {
                         $canCreateProcedures = true;
-                        $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
+                        $accessControlPermission->createPermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
                     }
                 } catch (NullPointerException $e) {
                     $this->logger->warning('Role was not found in Customer. Permission is not created', [
@@ -471,7 +455,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 $userHandler->setCanUpdateShowList(true);
             }
 
-            $availableOrgaRoles = $this->getAvailableOrgaType($preUpdateOrga);
+            $availableOrgaRoles = $this->getAvailableOrgaRoles($preUpdateOrga);
 
             if (array_key_exists('canCreateProcedures', $orgaDataArray['attributes']) && empty($availableOrgaRoles)) {
                 $this->messageBag->add('warning', $this->translator->trans('warning.organisation.no_available_roles'));
@@ -485,10 +469,10 @@ class DemosPlanOrganisationAPIController extends APIController
                 && array_key_exists('canCreateProcedures', $orgaDataArray['attributes']) && !empty($availableOrgaRoles)) {
                 try {
                     if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
-                        $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
+                        $accessControlPermission->createPermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
                         $canCreateProcedures = true;
                     } else {
-                        $accessControlPermission->removePermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
+                        $accessControlPermission->removePermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
                         $canCreateProcedures = false;
                     }
                 } catch (NullPointerException $e) {
