@@ -419,7 +419,6 @@
 
         {#  markup templates used in map popups #}
         <div class="{{ 'hidden'|prefixClass }}">
-
             <div id="popup" class="{{ 'c-map__popup'|prefixClass }}">
                 <a href="#" id="popupCloser" class="{{ 'c-map__popup__button-close'|prefixClass }}"></a>
                 <div id="popupContent" class="{{ 'c-map__popup__content'|prefixClass }}"></div>
@@ -462,14 +461,12 @@
                 <h3 class="{{ 'c-map__popup__title u-mb-0'|prefixClass }}">___title___</h3>
                 <p class="{{ 'map__popup__content u-mt-0_5'|prefixClass }}">___content___</p>
             </div>
-
         </div>
         {#  / markup used in map popups #}
 
         {#  Map hints #}
         {% if hasPermission('feature_map_hint') %}
             <div class="{{ 'c-map__hint is-hidden-hint'|prefixClass }}" data-toggle-id="mapHint">
-
                 <div
                     class="{{ 'c-map__hint__inner js__toggleAnything js__statementForm'|prefixClass }}"
                     data-toggle="#mapHint"

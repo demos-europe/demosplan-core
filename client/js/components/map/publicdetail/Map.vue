@@ -9,10 +9,6 @@
 
 <template>
   <div aria-hidden="true">
-    <div style="height: 600px; width: 800px;">
-      <component is="diplan-karte" />
-    </div>
-
     <dp-autocomplete
       :class="prefixClass('c-map__autocomplete')"
       v-if="hasPermission('feature_map_search_location')"
@@ -51,7 +47,6 @@ import Feature from 'ol/Feature'
 import { getResolutionsFromScales } from '@DpJs/components/map/map/utils/utils'
 import { getTopLeft } from 'ol/extent'
 import LayerGroup from 'ol/layer/Group'
-import '@init/diplan-karten'
 import { optionsFromCapabilities } from 'ol/source/WMTS'
 import Overlay from 'ol/Overlay'
 import Progress from './lib/Progress'
@@ -63,7 +58,6 @@ import { unByKey } from 'ol/Observable'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 
-/* eslint-disable no-undef */
 
 export default {
   name: 'DpMap',
