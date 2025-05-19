@@ -270,9 +270,11 @@ export default {
     addMapEventListeners () {
       // Add event listener on click on features => toggle label modal
       this.map.on('dblclick', (e) => {
+        console.log('dblclick')
         let isFirstFeature = false
         if (this.currentInteractionName === 'select') {
           this.map.forEachFeatureAtPixel(e.pixel, (feature) => {
+            console.log('e.pixel, feature', e.pixel, feature)
             if (isFirstFeature === false) {
               // On double click open label-edit modal. Do it only once, even if there are more features at that pixel
               isFirstFeature = true
@@ -641,6 +643,8 @@ export default {
         format: new GeoJSON()
       })
 
+      console.log('Features loaded:', this.boxLayerSource.getFeatures().length)
+
       this.boxLayer = new VectorLayer({
         source: this.boxLayerSource,
         style: this.generateFeatureStyle()
@@ -660,9 +664,7 @@ export default {
           dragPan: true,
           keyboardPan: false,
           keyboardZoom: false,
-          mouseWheelZoom: true,
-          pointer: false,
-          select: true
+          mouseWheelZoom: true
         }),
         controls: [],
         layers: [
