@@ -412,18 +412,6 @@
 
                     {% if hasPermission('feature_diplan_karte') or hasDiplanKarte %}
                         {# diplan-karte #}
-                        <button
-                            href="#publicStatementForm"
-                            id="statementModalButton"
-                            @click.stop.prevent="toggleStatementModal({})"
-                            class="{{ 'left-[365px] top-[24px] absolute z-above-zero btn btn--outline-reversed btn--primary btn--rounded'|prefixClass }}"
-                            data-cy="statementModal"
-                            aria-controls="statementModal"
-                            aria-describedby="statementActionDescription"
-                            role="button">
-                            {{ 'statement.participate'|trans }}
-                        </button>
-
                         <diplan-karte-wrapper />
                     {% else %}
                         {# openlayers map #}

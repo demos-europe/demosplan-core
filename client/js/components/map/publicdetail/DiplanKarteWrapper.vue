@@ -1,20 +1,29 @@
 <template>
-  <div
-    aria-hidden="true"
-    class="h-full w-full">
+  <div class="h-full w-full">
+    <dp-button
+      id="statementModalButton"
+      :class="prefixClass('left-[365px] top-[24px] absolute z-above-zero')"
+      data-cy="statementModal"
+      :disabled="!hasPermission('feature_new_statement')"
+      href="#publicStatementForm"
+      rounded
+      :text="Translator.trans('statement.participate')"
+      @click.stop.prevent="() => hasPermission('feature_new_statement') ? toggleStatementModal({}) : null" />
+
     <diplan-karte />
   </div>
 </template>
 
 
 <script setup>
+import { DpButton, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { MapPlugin } from '@init/diplan-karten'
 import { getCurrentInstance } from 'vue'
 
-const inst = getCurrentInstance()
+const instance = getCurrentInstance()
 
-console.log(inst)
-inst.appContext.app.use(MapPlugin, {
+instance.appContext.app.mixin(prefixClassMixin)
+instance.appContext.app.use(MapPlugin, {
   template: {
     compilerOptions: {
       // Register the custom element:
@@ -22,4 +31,8 @@ inst.appContext.app.use(MapPlugin, {
     }
   }
 })
+
+const toggleStatementModal = (updateStatementPayload) => {
+  instance.parent.components.StatementModal.methods.toggleModal(true, updateStatementPayload)
+}
 </script>
