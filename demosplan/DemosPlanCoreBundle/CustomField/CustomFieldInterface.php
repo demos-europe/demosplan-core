@@ -19,7 +19,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 interface CustomFieldInterface
 {
-
     public const TYPE_CLASSES = [
         'singleSelect' => RadioButtonField::class,
         // 'dropdown' => DropdownField::class,

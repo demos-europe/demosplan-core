@@ -76,12 +76,12 @@ class CustomFieldValueCreator extends CoreService
 
         if (null === $newCustomFieldValue->getValue()) {
             $currentCustomFieldValuesList->removeCustomFieldValue($newCustomFieldValue);
+
             return;
         }
 
         $existingCustomFieldValue->setValue($newCustomFieldValue->getValue());
     }
-
 
     protected function handleNewCustomField(
         CustomFieldValuesList $currentCustomFieldValuesList,
