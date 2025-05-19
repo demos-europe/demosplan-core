@@ -44,3 +44,9 @@
 @source "../../projects/regio/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
 @source "../../projects/robobsh/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
 @source "../../projects/teilhabe/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+
+/*
+    This is an example of how to whitelist classes in Tailwind 4.
+    See https://tailwindcss.com/docs/detecting-classes-in-source-files#safelisting-specific-utilities
+*/
+@source inline('text-status-{progress,changed,complete}-icon');
