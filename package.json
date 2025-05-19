@@ -191,8 +191,5 @@
     "not dead",
     "ff esr"
   ],
-  "packageManager": "yarn@4.2.2",
-  "resolutions": {
-    "@init/diplan-karten": "portal:/srv/www/local_modules/diplan-karten"
-  }
+  "packageManager": "yarn@4.2.2"
 }
