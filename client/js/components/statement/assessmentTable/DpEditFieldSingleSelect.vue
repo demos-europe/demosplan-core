@@ -133,6 +133,12 @@ export default {
     }
   },
 
+  emits: [
+    'field:input',
+    'field:save',
+    'toggleEditing'
+  ],
+
   data () {
     return {
       selected: '',
@@ -141,8 +147,11 @@ export default {
   },
 
   watch: {
-    value () {
-      this.updateSelectedValue()
+    value: {
+      handler () {
+        this.updateSelectedValue()
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

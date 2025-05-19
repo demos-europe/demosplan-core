@@ -7,13 +7,6 @@
   All rights reserved
 </license>
 
-<documentation>
-  <!--
-    Component that is used to display list of editable items
-  -->
-
-</documentation>
-
 <template>
   <div class="u-mt-0_5">
     <!-- List of pending organisations (if orga-self-registration is active) -->
@@ -66,7 +59,7 @@
     <div class="flow-root">
       <dp-search-field
         class="inline-block u-pv-0_5"
-        @search="searchVal => handleSearch(searchVal)"
+        @search="handleSearch"
         @reset="resetSearch" />
       <dp-checkbox-group
         class="inline-block u-pv-0_5 float-right"
@@ -74,7 +67,7 @@
         :label="filterLabel"
         :options="filterItems"
         inline
-        @update="selected => handleFilter(selected)" />
+        @update="handleFilter" />
 
       <div
         class="block u-mb"
@@ -170,7 +163,8 @@ import {
   dpSelectAllMixin,
   DpSkeletonBox,
   DpSlidingPagination,
-  hasOwnProp
+  hasOwnProp,
+  hasPermission
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
@@ -186,7 +180,6 @@ const orgaFields = {
   ].join(),
   Orga: [
     'addressExtension',
-    'canCreateProcedures',
     'ccEmail2',
     'city',
     'competence',
@@ -214,6 +207,10 @@ const orgaFields = {
     'submissionType',
     'types'
   ].join()
+}
+
+if (hasPermission('feature_manage_procedure_creation_permission')) {
+  orgaFields.Orga.push('canCreateProcedures')
 }
 
 export default {
@@ -386,7 +383,7 @@ export default {
       const filterObject = {}
 
       Object.keys(selected).forEach(filter => {
-        if (selected[filter] === true) {
+        if (selected[filter]) {
           filterObject[filter] = {
             condition: {
               path: 'statusInCustomers.orgaType.name',

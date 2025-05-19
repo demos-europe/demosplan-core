@@ -97,6 +97,10 @@ export default {
     }
   },
 
+  emits: [
+    'change'
+  ],
+
   data () {
     return {
       selectedItems: this.value

@@ -68,6 +68,12 @@ export default {
       type: Boolean,
       default: false
     }
-  }
+  },
+
+  emits: [
+    'search',
+    'select-all',
+    'reset-search'
+  ]
 }
 </script>

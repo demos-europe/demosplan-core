@@ -46,17 +46,14 @@ export default {
     abort () {
       if (this.formId !== '') {
         document.querySelector(`form#${this.formId}`).reset()
-      } else {
-        this.$emit('form-abort')
       }
+
       this.$refs.accordion.toggle()
     },
 
     save () {
       if (this.formId !== '') {
         document.querySelector(`form#${this.formId}`).submit()
-      } else {
-        this.$emit('form-save')
       }
     }
   }

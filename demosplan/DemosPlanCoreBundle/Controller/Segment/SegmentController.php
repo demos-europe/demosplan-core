@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
@@ -33,6 +34,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentController extends BaseController
 {
@@ -126,6 +128,7 @@ class SegmentController extends BaseController
         PermissionsInterface $permissions,
         Request $request,
         XlsxSegmentImport $importer,
+        TranslatorInterface $translator,
         string $procedureId,
     ): Response {
         $requestPost = $request->request->all();
@@ -188,6 +191,16 @@ class SegmentController extends BaseController
                 return $this->redirectToRoute(
                     $route,
                     compact('procedureId')
+                );
+            } catch (AddonResourceNotFoundException) {
+                $this->getMessageBag()->add(
+                    'error',
+                    'error.split_statement.no_place',
+                    [],
+                    'messages',
+                    'DemosPlan_procedure_places_list',
+                    ['procedureId' => $procedureId],
+                    $translator->trans('places.addPlace')
                 );
             } catch (MissingDataException) {
                 $this->getMessageBag()->add('error', 'error.missing.data',

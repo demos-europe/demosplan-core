@@ -65,6 +65,10 @@ export default {
     }
   },
 
+  emits: [
+    'toolbar:drag'
+  ],
+
   data () {
     return {
       unfolded: false,
@@ -187,7 +191,7 @@ export default {
     this.setMaxSize()
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     // Remove event listener if the component gets destroyed
     window.removeEventListener('mouseup', this.stopDrag)
     window.removeEventListener('touchend', this.stopDrag)

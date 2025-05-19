@@ -21,14 +21,6 @@
     <div class="flex">
       <template v-if="!isEditing">
         <dp-button
-          color="secondary"
-          data-cy="tagListItem:delete"
-          hide-text
-          icon="delete"
-          :text="Translator.trans('delete')"
-          variant="subtle"
-          @click="deleteItem" />
-        <dp-button
           class="u-pl-0"
           color="secondary"
           data-cy="tagListItem:edit"
@@ -37,6 +29,14 @@
           :text="Translator.trans('edit')"
           variant="subtle"
           @click="edit" />
+        <dp-button
+          color="secondary"
+          data-cy="tagListItem:delete"
+          hide-text
+          icon="delete"
+          :text="Translator.trans('delete')"
+          variant="subtle"
+          @click="deleteItem" />
       </template>
       <template v-else>
         <dp-button
@@ -94,6 +94,12 @@ export default {
       }
     }
   },
+
+  emits: [
+    'item:deleted',
+    'item:saved',
+    'tagIsRemoved'
+  ],
 
   data () {
     return {

@@ -39,13 +39,13 @@ class StatementExcelImporterTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(ExcelImporter::class);
+        $this->sut = self::getContainer()->get(ExcelImporter::class);
     }
 
     private function setProcedureAndLogin()
     {
         /** @var CurrentProcedureService $currentProcedureService */
-        $currentProcedureService = self::$container->get(CurrentProcedureService::class);
+        $currentProcedureService = self::getContainer()->get(CurrentProcedureService::class);
         $currentProcedureService->setProcedure($this->getProcedureReference(LoadProcedureData::TESTPROCEDURE));
         $this->logIn($this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY));
     }
@@ -189,7 +189,7 @@ class StatementExcelImporterTest extends FunctionalTestCase
     public function testMappingOfSubmitType(): void
     {
         /** @var GlobalConfigInterface|GlobalConfig $globalConfig */
-        $globalConfig = self::$container->get(GlobalConfigInterface::class);
+        $globalConfig = self::getContainer()->get(GlobalConfigInterface::class);
         $submitTypes = $globalConfig->getFormOptions()['statement_submit_types']['values'];
         $allowedValues = array_combine(array_keys($submitTypes), array_keys($submitTypes));
 

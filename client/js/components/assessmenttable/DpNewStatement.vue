@@ -126,6 +126,12 @@ export default {
       required: false,
       type: Array,
       default: () => []
+    },
+
+    usedInternIdsPattern: {
+      required: false,
+      type: Array,
+      default: () => []
     }
   },
 
@@ -134,20 +140,21 @@ export default {
       countiesPromptAdded: false,
       municipalitiesPromptAdded: false,
       values: {
+        authoredDate: '',
+        counties: this.requestCounties,
+        document: '',
+        element: '',
+        headStatement: this.requestHeadStatement,
+        internId: '',
+        municipalities: this.requestMunicipalities,
+        paragraph: '',
+        phase: {},
+        priorityAreas: this.requestPriorityAreas,
+        submittedDate: '',
         submitter: {},
         submitType: this.defaultSubmitType,
-        phase: {},
-        headStatement: this.requestHeadStatement,
-        element: '',
-        paragraph: '',
-        document: '',
-        counties: this.requestCounties,
-        municipalities: this.requestMunicipalities,
-        priorityAreas: this.requestPriorityAreas,
         tags: [],
-        text: this.requestText,
-        submittedDate: '',
-        authoredDate: ''
+        text: this.requestText
       },
       elementHasParagraphs: false,
       elementHasFiles: false,
@@ -174,11 +181,23 @@ export default {
         return this.procedurePhases({
           internal: true,
           external: false
+        }).map(el => {
+          return {
+            ...el,
+            value: el.key,
+            label: el.name
+          }
         })
       } else {
         return this.procedurePhases({
           internal: false,
           external: true
+        }).map(el => {
+          return {
+            ...el,
+            value: el.key,
+            label: el.name
+          }
         })
       }
     }
@@ -188,29 +207,29 @@ export default {
     ...mapActions('AssessmentTable', ['applyBaseData']),
 
     addLocationPrompt (data) {
-      if (data.counties.length > 0) {
+      if (data?.counties?.length > 0) {
         this.values.counties = data.counties.map(id => this.counties.find(county => county.id === id))
         this.sortSelected('counties')
         this.countiesPromptAdded = true
-      } else if (data.counties.length === 0) {
+      } else {
         this.values.counties = []
         this.countiesPromptAdded = false
       }
-      if (data.municipalities.length > 0) {
+      if (data?.municipalities?.length > 0) {
         this.values.municipalities = data.municipalities.map(id => this.municipalities.find(municipality => municipality.id === id))
         this.sortSelected('municipalities')
         this.municipalitiesPromptAdded = true
-      } else if (data.municipalities.length === 0) {
+      } else {
         this.values.municipalities = []
         this.municipalitiesPromptAdded = false
       }
     },
 
-    checkForParagraphsAndFiles () {
+    checkForParagraphsAndFiles (selectedElement) {
       this.values.paragraph = { id: '', title: '-' }
       this.values.document = { id: '', title: '-' }
-      this.elementHasParagraphs = hasOwnProp(this.paragraph, this.values.element.id)
-      this.elementHasFiles = hasOwnProp(this.documents, this.values.element.id)
+      this.elementHasParagraphs = hasOwnProp(this.paragraph, selectedElement.id)
+      this.elementHasFiles = hasOwnProp(this.documents, selectedElement.id)
     },
 
     handlePhaseSelect () {
@@ -231,7 +250,7 @@ export default {
 
     setPhaseValue (value) {
       if (value) {
-        this.values.phase = value
+        this.values.phase = this.phases.find(el => el.value === value)
       }
     },
 

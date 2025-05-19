@@ -8,7 +8,6 @@
  */
 
 import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { del, set } from 'vue'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
 import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
 
@@ -51,7 +50,7 @@ const SplitStatementStore = {
     deleteSegment (state, id) {
       const index = state.segments.findIndex((el) => el.id === id)
       if (index >= 0) {
-        del(state.segments, index)
+        state.segments.splice(index, 1)
       }
     },
 
@@ -91,7 +90,7 @@ const SplitStatementStore = {
     replaceSegment (state, { id, newSegment }) {
       const oldSegmentIndex = state.segments.findIndex((el) => el.id === id)
       if (oldSegmentIndex >= 0) {
-        set(state.segments, oldSegmentIndex, newSegment)
+        state.segments.oldSegmentIndex = newSegment
       }
     },
 
@@ -99,12 +98,12 @@ const SplitStatementStore = {
       state.segments = state.initialSegments
     },
 
-    setProperty (state, data) {
-      set(state, data.prop, data.val)
+    setProperty (state, { prop, val }) {
+      state[prop] = val
     },
 
     setStatementSegmentDraftList (state, segmentDraftList) {
-      set(state.statement.attributes, 'segmentDraftList', segmentDraftList || null)
+      state.statement.attributes.segmentDraftList = segmentDraftList || null
     },
 
     /**
@@ -112,19 +111,19 @@ const SplitStatementStore = {
      * Add, replace or delete a property
      * @param data  {Object}  needs this format: { prop: 'propToUpdate', obj: { resourceObject } }
      */
-    updateProperty (state, data) {
-      const titleIdx = state[data.prop].findIndex(el => el.attributes.title === data.obj.attributes.title)
-      const idIdx = state[data.prop].findIndex(el => el.id === data.obj.id)
+    updateProperty (state, { prop, obj }) {
+      const titleIdx = state[prop].findIndex(el => el.attributes.title === obj.attributes.title)
+      const idIdx = state[prop].findIndex(el => el.id === obj.id)
 
       // If neither id nor title exist, add element
       if (idIdx < 0 && titleIdx < 0) {
-        set(state[data.prop], state[data.prop].length, data.obj)
+        state[prop][state[prop].length] = obj
       } else if (idIdx < 0 && titleIdx >= 0) {
         // If title exists, but id doesn't, replace element
-        set(state[data.prop], titleIdx, data.obj)
+        state[prop][titleIdx] = obj
       } else if (idIdx >= 0 && titleIdx >= 0) {
         // If id and title exist, delete element
-        del(state[data.prop], idIdx)
+        state[prop].splice(idIdx, 1)
       }
     }
   },
@@ -238,7 +237,7 @@ const SplitStatementStore = {
              * (because often that are closing or opening tags)
              * and should probably not be needed in a real world scenario.
              */
-            .filter(segment => (segment.charEnd - segment.charStart) > 10)
+            .filter(segment => segment && (segment.charEnd - segment.charStart) > 10)
 
           // Check if we are getting overlapping segments from pipeline that would cause errors
           if (doUpdate) {

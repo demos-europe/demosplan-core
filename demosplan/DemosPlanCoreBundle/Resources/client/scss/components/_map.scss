@@ -368,6 +368,7 @@ $map-layer-color-active-hover: $dp-token-color-brand-cta-dark;
                 @extend .fa;
                 @extend .fa-plus-circle;
                 padding-right: 1px;
+                margin-right: $inuit-base-spacing-unit--tiny;
             }
 
             &:hover {

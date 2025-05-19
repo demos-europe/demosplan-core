@@ -50,9 +50,9 @@ describe('DpProcedureCoordinateInput', () => {
 
   it('should enable the button with valid and disable with invalid input from props', async () => {
     await wrapper.setProps({ coordinate: ['123', '456'] })
-    expect(wrapper.html()).not.toContain('disabled="disabled"')
+    expect(wrapper.html()).not.toContain('disabled=""')
 
     await wrapper.setProps({ coordinate: ['abc', '456'] })
-    expect(wrapper.html()).toContain('disabled="disabled"')
+    expect(wrapper.html()).toContain('disabled=""')
   })
 })

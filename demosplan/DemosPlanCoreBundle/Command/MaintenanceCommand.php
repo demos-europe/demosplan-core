@@ -41,8 +41,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\HttpClient\NativeHttpClient;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Wrep\Daemonizable\Command\EndlessContainerAwareCommand;
 use Wrep\Daemonizable\Exception\ShutdownEndlessCommandException;
@@ -97,8 +95,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
     /** @var Proj */
     protected $targetProjection;
 
-    /** @var NativeHttpClient */
-    protected $httpClient;
 
     /** @var ProcedureRepository */
     protected $procedureRepository;
@@ -173,14 +169,6 @@ class MaintenanceCommand extends EndlessContainerAwareCommand
         $this->proj4 = new Proj4php(); // init library
         $this->sourceProjection = new Proj(MapService::PSEUDO_MERCATOR_PROJECTION_LABEL, $this->proj4);
         $this->targetProjection = new Proj(MapService::EPSG_4326_PROJECTION_LABEL, $this->proj4);
-
-        $httpOptions = [];
-        if ($this->globalConfig->isProxyEnabled()) {
-            $httpOptions = [
-                'proxy' => $this->globalConfig->getProxyHost().':'.$this->globalConfig->getProxyPort(),
-            ];
-        }
-        $this->httpClient = HttpClient::create($httpOptions);
     }
 
     /**

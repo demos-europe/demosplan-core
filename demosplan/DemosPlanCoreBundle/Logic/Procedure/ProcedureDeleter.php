@@ -18,7 +18,7 @@ use Exception;
 class ProcedureDeleter
 {
     public function __construct(
-        private readonly SqlQueriesService $queriesService
+        private readonly SqlQueriesService $queriesService,
     ) {
     }
 
@@ -50,6 +50,10 @@ class ProcedureDeleter
 
         // delete procedure news
         $this->deleteProcedureNews($procedureIds, $isDryRun);
+
+        // delete custom fields
+
+        $this->deleteCustomFields($procedureIds, $isDryRun);
 
         // delete tag topics -> tags
         $this->processTags($procedureIds, $isDryRun);
@@ -823,6 +827,30 @@ class ProcedureDeleter
     private function deleteProcedureNews(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('_news', '_p_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * Deletes custom fields for both PROCEDURE and PROCEDURE_TEMPLATE entity classes.
+     *
+     * This handles both cases since procedures and procedure templates share the same
+     * database table (templates are just procedures with isMaster=true), but are
+     * referenced as separate entity classes in the custom_field_configuration table.
+     *
+     * @throws Exception
+     */
+    private function deleteCustomFields(array $procedureIds, bool $isDryRun): void
+    {
+        $entityClasses = ['PROCEDURE', 'PROCEDURE_TEMPLATE'];
+
+        foreach ($entityClasses as $entityClass) {
+            $this->queriesService->deleteFromTableByMultipleConditions(
+                'custom_field_configuration',
+                'source_entity_id',
+                $procedureIds,
+                ['source_entity_class' => $entityClass],
+                $isDryRun
+            );
+        }
     }
 
     /**
