@@ -25,7 +25,10 @@
 @source "../../addons/vendor/demos-europe/demosplan-addon-topical-tag/client/addons/**/*.vue";
 
 /* No problems here, hopefully */
-@source "../../client/js/**/!(generated|legacy|store)/*.{js,vue}";
+@source "../../client/js/**/*.{js,vue}";
+@source not "../../client/js/generated";
+@source not "../../client/js/legacy";
+@source not "../../client/js/store";
 @source "../../demosplan/plugins/**/*.twig";
 @source "../../node_modules/@demos-europe/demosplan-ui";
 @source "../../templates/bundles/DemosPlanCoreBundle/**/*.twig";
