@@ -318,7 +318,6 @@ class DemosPlanOrganisationAPIController extends APIController
 
         foreach ($orgaStatusInCustomers as $orgaStatusInCustomer) {
             if (OrgaStatusInCustomer::STATUS_ACCEPTED === $orgaStatusInCustomer->getStatus()) {
-                //$onlyAcceptedOrgaStatusInCustomers[] = $orgaStatusInCustomer;
                 if ($orgaStatusInCustomer->getOrgaType()->getName() === OrgaType::PLANNING_AGENCY) {
                     $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PLANNING_AGENCY_ADMIN);
                 }
