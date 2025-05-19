@@ -314,8 +314,8 @@ export default {
         attributes: {
           ...this.segment.attributes,
           updatedAttributes
-        }
-        id: segment.id
+        },
+        id: this.segment.id
       }
       this.setItem(storePayload)
     }
