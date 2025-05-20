@@ -30,7 +30,7 @@ class ProcedureMatchSurveyTest extends SurveyTestUtils
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut = self::$container->get(SurveyValidator::class);
+        $this->sut = self::getContainer()->get(SurveyValidator::class);
     }
 
     /**

@@ -26,7 +26,7 @@ class EntityPreparatorTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(EntityPreparator::class);
+        $this->sut = self::getContainer()->get(EntityPreparator::class);
     }
 
     public function testPrepareEntity()

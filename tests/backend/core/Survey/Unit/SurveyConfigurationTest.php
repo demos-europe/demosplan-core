@@ -18,7 +18,7 @@ class SurveyConfigurationTest extends SurveyTestUtils
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut = self::$container->get(SurveyHandler::class);
+        $this->sut = self::getContainer()->get(SurveyHandler::class);
     }
 
     /**

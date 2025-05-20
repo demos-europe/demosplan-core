@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -24,15 +25,23 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use Doctrine\ORM\ORMException;
 
 class SegmentBulkEditorService
 {
-    public function __construct(protected UserHandler $userHandler, protected CurrentUserInterface $currentUser, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator
+    public function __construct(
+        protected UserHandler $userHandler,
+        protected CurrentUserInterface $currentUser,
+        protected SegmentHandler $segmentHandler,
+        protected SegmentValidator $segmentValidator,
+        protected TagService $tagService,
+        protected TagValidator $tagValidator,
+        protected CustomFieldValueCreator $customFieldValueCreator,
     ) {
     }
 
-    public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace)
+    public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace, $customFields)
     {
         foreach ($segments as $segment) {
             /* @var Segment $segment */
@@ -45,6 +54,18 @@ class SegmentBulkEditorService
 
             if (null !== $workflowPlace) {
                 $segment->setPlace($workflowPlace);
+            }
+
+            if ([] !== $customFields) {
+                $customFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
+                $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+                    $customFieldList,
+                    $customFields,
+                    $segment->getProcedure()->getId(),
+                    'PROCEDURE',
+                    'SEGMENT'
+                );
+                $segment->setCustomFields($customFieldList);
             }
         }
 
