@@ -748,6 +748,8 @@ export default {
       const assignableUsersLoaded = Object.keys(this.assignableUserItems).length
 
       if (assignableUsersLoaded) {
+        this.setSelectedAssignee()
+
         return
       }
 
@@ -756,9 +758,7 @@ export default {
         sort: 'lastname'
       })
         .then(() => {
-          if (this.segment.relationships?.assignee?.data?.id) {
-            this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
-          }
+          this.setSelectedAssignee()
         })
     },
 
@@ -766,6 +766,8 @@ export default {
       const placeItemsLoaded = Object.keys(this.placeItems).length
 
       if (placeItemsLoaded) {
+        this.setSelectedPlace()
+
         return
       }
 
@@ -781,9 +783,7 @@ export default {
         sort: 'sortIndex'
       })
         .then(() => {
-          if (this.segment.relationships.place) {
-            this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
-          }
+          this.setSelectedPlace()
         })
     },
 
@@ -936,6 +936,18 @@ export default {
           this.customFieldValues[fieldId] = selectedOption
         }
       })
+    },
+
+    setSelectedAssignee () {
+      if (this.segment.relationships?.assignee?.data?.id) {
+        this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+      }
+    },
+
+    setSelectedPlace () {
+      if (this.segment.relationships.place) {
+        this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+      }
     },
 
     showComments () {
