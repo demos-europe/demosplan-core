@@ -332,9 +332,13 @@ export default {
       statements: 'items'
     }),
 
-    ...mapState('SegmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', [
+      'slidebar'
+    ]),
 
-    ...mapGetters('SegmentSlidebar', ['commentsList']),
+    ...mapGetters('SegmentSlidebar', [
+      'commentsList'
+    ]),
 
     additionalAttachments () {
       if (this.statement?.hasRelationship('genericAttachments')) {
