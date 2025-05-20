@@ -587,6 +587,7 @@
         </legend>
         <dp-select
           v-model="localOrganisation.attributes.copy"
+          :classes="'w-fit'"
           :label="{
             text: Translator.trans('quantity'),
             hint: Translator.trans('explanation.organisation.copies.paper')
