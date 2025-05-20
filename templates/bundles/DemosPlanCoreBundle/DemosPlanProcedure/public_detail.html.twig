@@ -10,8 +10,8 @@
 {% set projectMapSettings = map %}
 {% set hasBplan = false %}
 {% set hasTerritory = false %}
-{% set hasDiplanKarte = true %}
-{% set isMapEnabled = (proceduresettings.isMapEnabled == true and hasPermission('area_map_participation_area')) or hasPermission('feature_diplan_karte') or hasDiplanKarte %}
+{% set hasDiplanKarte = hasPermission('feature_diplan_karte') or true %}
+{% set isMapEnabled = (proceduresettings.isMapEnabled == true and hasPermission('area_map_participation_area')) or hasDiplanKarte %}
 
 {# Das Javascript wird erst später gerendert, deshalb muss die Logik, ob ein BPlan & Geltungsbereich vorhanden ist, hier explizit nochmal hin #}
 {% if templateVars.overlays.gislayerlist is defined %}
@@ -611,7 +611,7 @@
     {% endif %}
 
     {% if not isMapEnabled %}
-{#        {{ webpackBundle('core-publicDetail.js') }}#}
+        {{ webpackBundle('core-publicDetail.js') }}
     {% endif %}
 
     <script nonce="{{ csp_nonce('script') }}">

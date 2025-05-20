@@ -2,7 +2,7 @@
   <div class="h-full w-full">
     <dp-button
       id="statementModalButton"
-      :class="prefixClass('left-[365px] top-[24px] absolute z-above-zero')"
+      :class="prefixClass('left-[365px] top-[24px] pt-[11px] pb-[11px] pl-[20px] pr-[20px] absolute z-above-zero')"
       data-cy="statementModal"
       :disabled="!hasPermission('feature_new_statement')"
       href="#publicStatementForm"
@@ -26,7 +26,6 @@ instance.appContext.app.mixin(prefixClassMixin)
 instance.appContext.app.use(MapPlugin, {
   template: {
     compilerOptions: {
-      // Register the custom element:
       isCustomElement: (tag) => tag === "diplan-karte",
     }
   }
