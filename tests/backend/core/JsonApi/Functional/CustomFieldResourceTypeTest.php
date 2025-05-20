@@ -71,5 +71,16 @@ class CustomFieldResourceTypeTest extends JsonApiTest
             ['data' => $data],
             $procedure->_real()
         );
+
+        static::assertArrayHasKey('data', $result);
+        static::assertSame('CustomField', $result['data']['type']);
+        static::assertNotEmpty($result['data']['id']);
+        static::assertArrayHasKey('attributes', $result['data']);
+        
+        // Check each attribute individually
+        static::assertSame('singleSelect', $result['data']['attributes']['fieldType']);
+        static::assertSame('Beschlussvorschlag', $result['data']['attributes']['name']);
+        static::assertSame('This is a description for this custom field', $result['data']['attributes']['description']);
+        static::assertSame(['Wird gefolgt', 'Wird nicht gefolgt', 'Zur Kenntnis genommen'], $result['data']['attributes']['options']);
     }
 }
