@@ -50,7 +50,7 @@ export default {
     const immediateComponent = {
       template: `<div class='text-wrapper w-fit' data-cy='textWrapper'>${sanitizedText}</div>`,
       data () {
-        return this.dataText
+        return this.dataText || {}
       }
     }
 
