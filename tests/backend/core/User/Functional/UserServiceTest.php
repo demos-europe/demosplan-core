@@ -58,7 +58,7 @@ class UserServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(UserService::class);
+        $this->sut = self::getContainer()->get(UserService::class);
         $this->testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $this->testOrgaFp = $this->fixtures->getReference('testOrgaFP');
         $this->testDepartment = $this->fixtures->getReference('testDepartment');
@@ -477,7 +477,7 @@ class UserServiceTest extends FunctionalTestCase
             'emailReviewerAdmin' => 'newEmailReviewerAdmin@mine.de',
         ];
         $orga = $this->sut->updateOrga($this->testOrgaFp->getId(), $data);
-        $contentService = self::$container->get(ContentService::class);
+        $contentService = self::getContainer()->get(ContentService::class);
         $existingSetting = $contentService->getSettings(
             'submissionType',
             SettingsFilter::whereOrga($this->testOrgaFp)->lock(),
@@ -888,7 +888,7 @@ class UserServiceTest extends FunctionalTestCase
     public function testGetParticipatingOrganisations()
     {
         /** @var OrgaService $orgaService */
-        $orgaService = self::$container->get(OrgaService::class);
+        $orgaService = self::getContainer()->get(OrgaService::class);
         $publicAgencyTestId = $this->getOrgaReference('testOrgaInvitableInstitution')->getId();
 
         $countOrgas = $this->countEntries(Orga::class, ['showname' => true, 'showlist' => true, 'deleted' => false]);

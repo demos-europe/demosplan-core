@@ -33,7 +33,7 @@ class ProcedureNewsServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(ProcedureNewsService::class);
+        $this->sut = self::getContainer()->get(ProcedureNewsService::class);
         DemosPlanPath::setProjectPathFromConfig('projects/planfestsh');
     }
 

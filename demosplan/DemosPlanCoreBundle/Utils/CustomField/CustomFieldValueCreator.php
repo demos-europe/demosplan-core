@@ -52,7 +52,13 @@ class CustomFieldValueCreator extends CoreService
             }
         }
 
-        return $currentCustomFieldValuesList;
+        /*
+         * Clone `$currentCustomFieldValuesList` to ensure Doctrine detects changes to JSON-like columns.
+         * Doctrine only tracks updates when the object reference changes.
+         * @see CustomFieldValuesList
+         * @see CustomFieldValueType
+         */
+        return clone $currentCustomFieldValuesList;
     }
 
     private function getCustomField(string $sourceEntityClass,

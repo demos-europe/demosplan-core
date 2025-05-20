@@ -526,6 +526,10 @@ export default {
       assignableUserItems: 'items'
     }),
 
+    ...mapState('Place', {
+      placeItems: 'items'
+    }),
+
     ...mapState('CustomField', {
       customFields: 'items'
     }),
@@ -740,6 +744,49 @@ export default {
       this.activeId = id
     },
 
+    initAssignableUsers () {
+      const assignableUsersLoaded = Object.keys(this.assignableUserItems).length
+
+      if (assignableUsersLoaded) {
+        return
+      }
+
+      this.fetchAssignableUsers({
+        include: 'department',
+        sort: 'lastname'
+      })
+        .then(() => {
+          if (this.segment.relationships?.assignee?.data?.id) {
+            this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+          }
+        })
+    },
+
+    initPlaces () {
+      const placeItemsLoaded = Object.keys(this.placeItems).length
+
+      if (placeItemsLoaded) {
+        return
+      }
+
+      this.fetchPlaces({
+        fields: {
+          Place: [
+            'description',
+            'name',
+            'solved',
+            'sortIndex'
+          ].join()
+        },
+        sort: 'sortIndex'
+      })
+        .then(() => {
+          if (this.segment.relationships.place) {
+            this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+          }
+        })
+    },
+
     openBoilerPlate () {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
@@ -773,9 +820,10 @@ export default {
     save () {
       const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
       const { assignee, place } = this.updateRelationships()
+      const hasCustomFields = hasPermission('field_segments_custom_fields') && Object.values(this.customFieldValues).length > 0
       let attributes = null
 
-      if (hasPermission('field_segments_custom_fields') && Object.values(this.customFieldValues).length > 0) {
+      if (hasCustomFields) {
         attributes = {
           customFields: Object.values(this.customFieldValues).map(({ fieldId, name }) => ({ id: fieldId, value: name }))
         }
@@ -801,10 +849,12 @@ export default {
         type: 'StatementSegment',
         attributes: {
           ...this.segment.attributes,
-          customFields: {
-            ...this.segment.attributes.customFields,
-            ...payload.data.attributes?.customFields
-          }
+          ...(hasCustomFields ? {
+            customFields: {
+              ...this.segment.attributes.customFields,
+              ...payload.data.attributes?.customFields
+            }
+          } : {})
         },
         relationships: {
           ...this.segment.relationships,
@@ -818,17 +868,22 @@ export default {
       })
 
       /**
-       * By default, only changed properties are sent; since `id` did not change, it is omitted by the diff.
-       * Using `full` forces the entire `customFields` object (including its unchanged `id`) into the update payload.
+       * By default, the `saveAction` method (from vuex-json-api) only sends changed properties.
+       * Since the `id` inside `customFields` has not changed, it is excluded from the update payload.
+       * Using the `full` option forces the entire `customFields` object to be included in the PATCH request.
        */
-      this.saveSegmentAction({
-        id: this.segment.id,
-        options: {
-          attributes: {
-            full: 'customFields'
+      const savePayload = hasCustomFields
+        ? {
+            id: this.segment.id,
+            options: {
+              attributes: {
+                full: 'customFields'
+              }
+            }
           }
-        }
-      })
+        : { id: this.segment.id }
+
+      this.saveSegmentAction(savePayload)
         .then(checkResponse)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
@@ -1042,31 +1097,12 @@ export default {
   },
 
   mounted () {
-    this.fetchPlaces({
-      fields: {
-        Place: [
-          'description',
-          'name',
-          'solved',
-          'sortIndex'
-        ].join()
-      },
-      sort: 'sortIndex'
-    })
-      .then(() => {
-        if (this.segment.relationships.place) {
-          this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
-        }
-        if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
-          this.setInitiallySelectedCustomFieldValues()
-        }
-      })
-    this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
-      .then(() => {
-        if (this.segment.relationships?.assignee?.data?.id) {
-          this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
-        }
-      })
+    this.initPlaces()
+    this.initAssignableUsers()
+
+    if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
+      this.setInitiallySelectedCustomFieldValues()
+    }
 
     loadAddonComponents('segment.recommendationModal.tab')
       .then(addons => {

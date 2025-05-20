@@ -12,7 +12,6 @@ namespace Tests\Core\Document\Unit;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ServiceImporterException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
@@ -52,18 +51,18 @@ class DocumentBundleImporterTest extends FunctionalTestCase
         parent::setUp();
 
         $this->sut = new ServiceImporter(
-            self::$container->get(DocxImporterInterface::class),
-            self::$container->get(FileService::class),
+            self::getContainer()->get(DocxImporterInterface::class),
+            self::getContainer()->get(FileService::class),
             $this->createMock(FilesystemOperator::class),
-            self::$container->get(GlobalConfigInterface::class),
-            self::$container->get(LoggerInterface::class),
-            self::$container->get(MessageBagInterface::class),
-            self::$container->get(ParagraphRepository::class),
-            self::$container->get(ParagraphService::class),
-            self::$container->get(PdfCreatorInterface::class),
-            self::$container->get(RouterInterface::class),
-            self::$container->get(RpcClient::class),
-            self::$container->get(EventDispatcherInterface::class),
+            self::getContainer()->get(GlobalConfigInterface::class),
+            self::getContainer()->get(LoggerInterface::class),
+            self::getContainer()->get(MessageBagInterface::class),
+            self::getContainer()->get(ParagraphRepository::class),
+            self::getContainer()->get(ParagraphService::class),
+            self::getContainer()->get(PdfCreatorInterface::class),
+            self::getContainer()->get(RouterInterface::class),
+            self::getContainer()->get(RpcClient::class),
+            self::getContainer()->get(EventDispatcherInterface::class),
         );
     }
 
@@ -128,7 +127,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
             'category'   => 'paragraph',
             'paragraphs' => $paragraphs,
         ];
-        $paragraphService = self::$container->get(ParagraphService::class);
+        $paragraphService = self::getContainer()->get(ParagraphService::class);
 
         $procedureParagraphsBefore = $paragraphService->getParaDocumentList($procedureId, $elementId);
         static::assertCount(0, $procedureParagraphsBefore);
@@ -251,7 +250,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
             'category'   => 'paragraph',
             'paragraphs' => $paragraphs,
         ];
-        $paragraphService = self::$container->get(ParagraphService::class);
+        $paragraphService = self::getContainer()->get(ParagraphService::class);
 
         $procedureParagraphsBefore = $paragraphService->getParaDocumentList($procedureId, $elementId);
         static::assertCount(0, $procedureParagraphsBefore);
@@ -324,7 +323,7 @@ class DocumentBundleImporterTest extends FunctionalTestCase
             'category'   => 'paragraph',
             'paragraphs' => $paragraphs,
         ];
-        $paragraphService = self::$container->get(ParagraphService::class);
+        $paragraphService = self::getContainer()->get(ParagraphService::class);
 
         $procedureParagraphsBefore = $paragraphService->getParaDocumentList($procedureId, $elementId);
         static::assertCount(0, $procedureParagraphsBefore);

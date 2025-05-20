@@ -219,7 +219,7 @@ final class CustomerResourceType extends DplanResourceType
                 function (Customer $object, string $baseLayerLayers): array {
                     // the previously set value may be invalid, hence this validation can only be executed when the
                     // value is changed, not on any update
-                    $violations = $this->validator->validate($baseLayerLayers, [new Length(null, 5, 4096)]);
+                    $violations = $this->validator->validate($baseLayerLayers, [new Length(null, 1, 4096)]);
                     if (0 === $violations->count()) {
                         $object->setBaseLayerLayers($baseLayerLayers);
                     } else {

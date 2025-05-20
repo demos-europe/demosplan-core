@@ -60,9 +60,9 @@ class ProcedureTest extends FunctionalTestCase
         parent::setUp();
 
         /* @var ProcedureHandler procedureHandler */
-        $this->procedureHandler = self::$container->get('dplan.procedure');
-        $this->customerHandler = self::$container->get(CustomerHandler::class);
-        $this->userHandler = self::$container->get(UserHandler::class);
+        $this->procedureHandler = self::getContainer()->get('dplan.procedure');
+        $this->customerHandler = self::getContainer()->get(CustomerHandler::class);
+        $this->userHandler = self::getContainer()->get(UserHandler::class);
     }
 
     /**
