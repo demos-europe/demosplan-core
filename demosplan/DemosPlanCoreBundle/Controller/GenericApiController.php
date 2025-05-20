@@ -174,9 +174,23 @@ class GenericApiController extends APIController
         methods: ['POST']
     )]
     public function createAction(
-        CreationRequest $creationRequest,
+        EventDispatcherInterface $eventDispatcher,
+        Request $request,
+        ValidatorInterface $validator,
+        RequestConstraintFactory $requestConstraintFactory,
         string $resourceType,
     ): Response {
+        // Dependency Injection of CreationRequest does not work in tests,
+        // content of the Request is not passed to the CreationRequest
+        $creationRequest = new CreationRequest(
+            $eventDispatcher,
+            $request,
+            $validator,
+            $requestConstraintFactory,
+            512
+        );
+
+
         // fetch resource type instance
         $type = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);
 
