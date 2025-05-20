@@ -191,7 +191,6 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'area_portal_user',
             'feature_assessmenttable_export',
             'feature_data_protection_text_customized_view',
-            'feature_diplan_karte',
             'feature_documents_category_use_file',
             'feature_documents_category_use_paragraph',
             'feature_imprint_text_customized_view',
