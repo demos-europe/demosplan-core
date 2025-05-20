@@ -97,6 +97,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
             new UpdateTagEvent($tag),
             UpdateTagEventInterface::class
         );
+
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanStatement/edit_tag.html.twig',
             [
