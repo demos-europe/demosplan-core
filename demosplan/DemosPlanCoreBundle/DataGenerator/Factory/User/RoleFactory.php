@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -68,8 +76,8 @@ final class RoleFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'name' => self::faker()->text(6),
-            'code' => self::faker()->text(6),
+            'name'      => self::faker()->text(6),
+            'code'      => self::faker()->text(6),
             'groupCode' => self::faker()->text(6),
             'groupName' => self::faker()->text(60),
         ];
