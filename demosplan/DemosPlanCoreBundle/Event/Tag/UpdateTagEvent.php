@@ -15,5 +15,4 @@ class UpdateTagEvent extends DPlanEvent implements UpdateTagEventInterface
     {
         return $this->tagId;
     }
-
 }
