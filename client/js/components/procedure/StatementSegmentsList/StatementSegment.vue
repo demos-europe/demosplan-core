@@ -526,6 +526,10 @@ export default {
       assignableUserItems: 'items'
     }),
 
+    ...mapState('Place', {
+      placeItems: 'items'
+    }),
+
     ...mapState('CustomField', {
       customFields: 'items'
     }),
@@ -740,6 +744,49 @@ export default {
       this.activeId = id
     },
 
+    initAssignableUsers () {
+      const assignableUsersLoaded = Object.keys(this.assignableUserItems).length
+
+      if (assignableUsersLoaded) {
+        this.setSelectedAssignee()
+
+        return
+      }
+
+      this.fetchAssignableUsers({
+        include: 'department',
+        sort: 'lastname'
+      })
+        .then(() => {
+          this.setSelectedAssignee()
+        })
+    },
+
+    initPlaces () {
+      const placeItemsLoaded = Object.keys(this.placeItems).length
+
+      if (placeItemsLoaded) {
+        this.setSelectedPlace()
+
+        return
+      }
+
+      this.fetchPlaces({
+        fields: {
+          Place: [
+            'description',
+            'name',
+            'solved',
+            'sortIndex'
+          ].join()
+        },
+        sort: 'sortIndex'
+      })
+        .then(() => {
+          this.setSelectedPlace()
+        })
+    },
+
     openBoilerPlate () {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
@@ -876,6 +923,18 @@ export default {
           this.customFieldValues[fieldId] = selectedOption
         }
       })
+    },
+
+    setSelectedAssignee () {
+      if (this.segment.relationships?.assignee?.data?.id) {
+        this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+      }
+    },
+
+    setSelectedPlace () {
+      if (this.segment.relationships.place) {
+        this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+      }
     },
 
     showComments () {
@@ -1042,31 +1101,12 @@ export default {
   },
 
   mounted () {
-    this.fetchPlaces({
-      fields: {
-        Place: [
-          'description',
-          'name',
-          'solved',
-          'sortIndex'
-        ].join()
-      },
-      sort: 'sortIndex'
-    })
-      .then(() => {
-        if (this.segment.relationships.place) {
-          this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
-        }
-        if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
-          this.setInitiallySelectedCustomFieldValues()
-        }
-      })
-    this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
-      .then(() => {
-        if (this.segment.relationships?.assignee?.data?.id) {
-          this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
-        }
-      })
+    this.initPlaces()
+    this.initAssignableUsers()
+
+    if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
+      this.setInitiallySelectedCustomFieldValues()
+    }
 
     loadAddonComponents('segment.recommendationModal.tab')
       .then(addons => {
