@@ -190,7 +190,6 @@ class GenericApiController extends APIController
             512
         );
 
-
         // fetch resource type instance
         $type = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);
 
