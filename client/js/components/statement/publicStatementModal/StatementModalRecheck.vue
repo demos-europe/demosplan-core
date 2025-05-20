@@ -277,6 +277,10 @@ export default {
     }
   },
 
+  emits: [
+    'edit-input'
+  ],
+
   computed: {
     showCity () {
       return hasPermission('field_statement_meta_city') && this.statement.r_city && this.statement.r_city !== ''

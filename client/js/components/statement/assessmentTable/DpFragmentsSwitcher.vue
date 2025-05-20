@@ -96,6 +96,11 @@ export default {
     }
   },
 
+  emits: [
+    'fragments:showall',
+    'toggletabs'
+  ],
+
   data () {
     return {
       allFragmentsShown: false

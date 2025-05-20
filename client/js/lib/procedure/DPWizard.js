@@ -107,7 +107,7 @@ export default function DpWizard () {
       showElement: function ($elements) {
         const elements = $elements.toArray()
         elements.forEach((element) => {
-          element.setAttribute('style', 'display: block !important')
+          element.style.display = 'block'
         })
       },
 
@@ -124,7 +124,7 @@ export default function DpWizard () {
       hideElement: function ($elements) {
         const elements = $elements.toArray()
         elements.forEach((element) => {
-          element.setAttribute('style', '')
+          element.style.display = 'none'
         })
       },
 

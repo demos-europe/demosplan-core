@@ -567,7 +567,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         }
         if (array_key_exists('deleted', $data)) {
             $procedure->setDeleted($data['deleted']);
-            $procedure->setCustomer(null);
             $procedure->setProcedureCategories([]);
             $procedure->setDeletedDate(Carbon::now());
         }

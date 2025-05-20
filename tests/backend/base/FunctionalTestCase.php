@@ -95,11 +95,12 @@ class FunctionalTestCase extends WebTestCase
         parent::setUp();
 
         self::bootKernel(['environment' => 'test', 'debug' => false]);
+        $container = self::getContainer();
 
-        $this->currentUserService = self::$container->get(CurrentUserService::class);
-        $this->entityManager = self::$container->get(EntityManagerInterface::class);
-        $this->databaseTool = self::$container->get(DatabaseToolCollection::class)->get();
-        $this->tokenStorage = self::$container->get('security.token_storage');
+        $this->currentUserService = $container->get(CurrentUserService::class);
+        $this->entityManager = $container->get(EntityManagerInterface::class);
+        $this->databaseTool = $container->get(DatabaseToolCollection::class)->get();
+        $this->tokenStorage = $container->get('security.token_storage');
 
         $this->fixtures = $this->databaseTool->loadAllFixtures(['TestData'])->getReferenceRepository();
     }
@@ -247,7 +248,7 @@ class FunctionalTestCase extends WebTestCase
         $entityDate = strtotime(date('Y-m-d', $timestamp));
 
         return $this->isTimestamp($timestamp)
-            && $currentDate == $entityDate;
+            && $currentDate >= $entityDate; // this $entityDate might be cached and then an equal comparison fails
     }
 
     /**

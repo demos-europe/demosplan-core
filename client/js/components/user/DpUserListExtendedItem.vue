@@ -132,6 +132,15 @@ export default {
     }
   },
 
+  emits: [
+    'card:toggle',
+    'change',
+    'delete',
+    'item:selected',
+    'reset',
+    'save-success'
+  ],
+
   data () {
     return {
       currentDepartment: {},

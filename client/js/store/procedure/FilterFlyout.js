@@ -1,5 +1,3 @@
-import { del, set } from 'vue'
-
 function getPositionInStateFilterQuery (value) {
   return Object.values(FilterFlyoutStore.state.filterQuery).findIndex(el => {
     if (value === 'unassigned') {
@@ -72,8 +70,8 @@ const FilterFlyoutStore = {
       }
     },
 
-    addToFilterQuery (state, data) {
-      set(state.filterQuery, [data.value], data.updatePayload)
+    addToFilterQuery (state, { value, updatePayload }) {
+      state.filterQuery[value] = updatePayload
     },
 
     removeGroupIfNoLongerNeeded (state, updatePayload) {
@@ -84,17 +82,17 @@ const FilterFlyoutStore = {
         const groupHasFiltersLeft = !!Object.values(state.filterQuery).find(filter => filter.condition && filter.condition.memberOf === groupKey)
 
         if (!groupHasFiltersLeft) {
-          del(state.filterQuery, [groupKey])
+          delete state.filterQuery[groupKey]
         }
       }
     },
 
     removeFromFilterQuery (state, value) {
-      del(state.filterQuery, [value])
+      delete state.filterQuery[value]
     },
 
     setFilterQuery (state, filterQuery) {
-      set(state, 'filterQuery', filterQuery)
+      state.filterQuery = filterQuery
     },
 
     /**
@@ -105,10 +103,8 @@ const FilterFlyoutStore = {
      * @param {String} payload.categoryId - The ID of the category.
      * @param {Array} payload.filterIds - The array of filter IDs to set.
      */
-    setInitialFlyoutFilterIds (state, payload) {
-      const { categoryId, filterIds } = payload
-
-      set(state.initialFlyoutFilterIds, categoryId, filterIds)
+    setInitialFlyoutFilterIds (state, { categoryId, filterIds }) {
+      state.initialFlyoutFilterIds[categoryId] = filterIds
     },
 
     /**
@@ -119,10 +115,8 @@ const FilterFlyoutStore = {
      * @param payload.groupedOptions {Object} grouped filter options { Array of objects (groups) - id, label, options;
      * options is an array of objects - id, label, count, description, selected}
      */
-    setGroupedOptions (state, payload) {
-      const { categoryId, groupedOptions } = payload
-
-      set(state.groupedOptions, categoryId, groupedOptions)
+    setGroupedOptions (state, { categoryId, groupedOptions }) {
+      state.groupedOptions[categoryId] = groupedOptions
     },
 
     /**
@@ -159,10 +153,8 @@ const FilterFlyoutStore = {
      * @param {String} payload.categoryId - The ID of the category.
      * @param {Boolean} payload.isExpanded - The expanded state to set.
      */
-    setIsExpanded (state, payload) {
-      const { categoryId, isExpanded } = payload
-
-      set(state.isExpanded, categoryId, isExpanded)
+    setIsExpanded (state, { categoryId, isExpanded }) {
+      state.isExpanded[categoryId] = isExpanded
     },
 
     /**
@@ -172,10 +164,8 @@ const FilterFlyoutStore = {
      * @param payload.categoryId {String} id of the category used as label for the filter flyout
      * @param payload.isLoading {Boolean}
      */
-    setIsLoading (state, payload) {
-      const { categoryId, isLoading } = payload
-
-      set(state.isLoading, categoryId, isLoading)
+    setIsLoading (state, { categoryId, isLoading }) {
+      state.isLoading[categoryId] = isLoading
     },
 
     /**
@@ -185,10 +175,8 @@ const FilterFlyoutStore = {
      * @param payload.categoryId {String} id of the category used as label for the filter flyout
      * @param payload.options {Array} ungrouped filter options
      */
-    setUngroupedOptions (state, payload) {
-      const { categoryId, options } = payload
-
-      set(state.ungroupedOptions, categoryId, options)
+    setUngroupedOptions (state, { categoryId, options }) {
+      state.ungroupedOptions[categoryId] = options
     },
 
     /**
@@ -217,6 +205,7 @@ const FilterFlyoutStore = {
     /**
      * Adds or removes filters from the filterQuery
      * @param commit
+     * @param state
      * @param filter {Object} with the following structure:
      * {
      *   id: {
@@ -229,7 +218,7 @@ const FilterFlyoutStore = {
      *   }
      * }
      */
-    updateFilterQuery ({ commit }, filter) {
+    updateFilterQuery ({ commit, state }, filter) {
       const isEmptyPayload = Object.keys(filter).length === 0
 
       if (isEmptyPayload) {
@@ -249,6 +238,8 @@ const FilterFlyoutStore = {
           commit('removeFromFilterQuery', value)
           commit('removeGroupIfNoLongerNeeded', updatePayload)
         }
+      } else {
+        state.filterQuery = filter
       }
     }
   },

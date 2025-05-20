@@ -229,6 +229,11 @@ export default {
     }
   },
 
+  emits: [
+    'add-to-selection',
+    'remove-from-selection'
+  ],
+
   data () {
     return {
       fullTextLoaded: false

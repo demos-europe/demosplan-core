@@ -21,6 +21,10 @@
 export default {
   name: 'DpContentToggle',
 
+  emits: [
+    'input'
+  ],
+
   data () {
     return {
       view: ''

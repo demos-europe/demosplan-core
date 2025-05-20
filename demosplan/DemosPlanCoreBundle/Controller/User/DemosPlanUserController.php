@@ -659,7 +659,7 @@ class DemosPlanUserController extends BaseController
             );
         }
 
-        $addressBookEntryIds = $requestPost->get('entry_selected');
+        $addressBookEntryIds = $requestPost->all('entry_selected');
 
         try {
             $addressBookEntryService->deleteAddressBookEntries($addressBookEntryIds);

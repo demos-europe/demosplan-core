@@ -7,12 +7,11 @@
  * All rights reserved
  */
 
-import { createLocalVue } from '@vue/test-utils'
+import { createApp } from 'vue'
+import { createStore } from 'vuex'
 import Statement from '.@DpJs/store/statement/Statement'
-import Vuex from 'vuex'
 
-const localVue = createLocalVue()
-localVue.use(Vuex)
+const localVue = createApp({})
 let StubStore
 global.Vue = localVue
 
@@ -32,7 +31,7 @@ describe('Statement', () => {
 
 describe('StatementStore', () => {
   beforeEach(() => {
-    StubStore = new Vuex.Store({})
+    StubStore = createStore({})
     StubStore.registerModule('Statement', Statement)
   })
 

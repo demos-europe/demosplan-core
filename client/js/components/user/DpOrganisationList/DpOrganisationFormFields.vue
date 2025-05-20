@@ -222,36 +222,35 @@
 
         <!-- Currently assigned or requested permissions -->
         <template v-if="registrationStatuses.length > 0 && canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage')">
-          <template v-for="(registrationStatus, idx) in registrationStatuses">
-            <div
-              :key="`lbl${idx}`"
-              class="layout">
-              <div class="layout__item u-1-of-4">
-                <label
-                  class="u-mb-0_5"
-                  :for="`type_${registrationStatus.type}:${organisation.id}`">
-                  {{ registrationTypeLabel(registrationStatus.type) }}
-                </label>
-              </div><!--
-           --><div class="layout__item u-1-of-4">
-                <select
-                  class="u-1-of-1"
-                  :name="`type_${registrationStatus.type}:${organisation.id}`"
-                  :id="`type_${registrationStatus.type}:${organisation.id}`"
-                  data-cy="orgaFormField:editRegistrationStatus"
-                  @change="emitOrganisationUpdate"
-                  v-model="registrationStatuses[idx].status">
-                  <option
-                    v-for="typeStatus in typeStatuses"
-                    :value="typeStatus.value"
-                    :key="typeStatus.value"
-                    :selected="typeStatus.value === registrationStatus.status">
-                    {{ typeStatus.label }}
-                  </option>
-                </select>
-              </div>
+          <div
+            v-for="(registrationStatus, idx) in registrationStatuses"
+            :key="`lbl${idx}`"
+            class="layout">
+            <div class="layout__item u-1-of-4">
+              <label
+                class="u-mb-0_5"
+                :for="`type_${registrationStatus.type}:${organisation.id}`">
+                {{ registrationTypeLabel(registrationStatus.type) }}
+              </label>
+            </div><!--
+         --><div class="layout__item u-1-of-4">
+              <select
+                class="u-1-of-1"
+                :name="`type_${registrationStatus.type}:${organisation.id}`"
+                :id="`type_${registrationStatus.type}:${organisation.id}`"
+                data-cy="orgaFormField:editRegistrationStatus"
+                @change="emitOrganisationUpdate"
+                v-model="registrationStatuses[idx].status">
+                <option
+                  v-for="typeStatus in typeStatuses"
+                  :value="typeStatus.value"
+                  :key="typeStatus.value"
+                  :selected="typeStatus.value === registrationStatus.status">
+                  {{ typeStatus.label }}
+                </option>
+              </select>
             </div>
-          </template>
+          </div>
         </template>
 
         <!-- Readonly: Currently assigned or requested permissions -->
@@ -586,25 +585,17 @@
         <legend class="layout__item u-mt-0_5 u-p-0 u-pb-0_5">
           {{ Translator.trans('copies.paper') }}
         </legend>
-        <label>
-          {{ Translator.trans('quantity') }}
-          <p class="font-size-6 weight--normal">
-            {{ Translator.trans('explanation.organisation.copies.paper') }}
-          </p>
-          <select
-            class="bg-color--white"
-            style="height: 27px;"
-            data-cy="orgaFormField:organisationCopiesPaper"
-            v-model="localOrganisation.attributes.copy"
-            @change="emitOrganisationUpdate">
-            <option
-              v-for="(count, idx) in paperCopyCountOptions"
-              :key="idx"
-              :value="count">
-              {{ count }}
-            </option>
-          </select>
-        </label>
+        <dp-select
+          v-model="localOrganisation.attributes.copy"
+          :classes="'w-fit'"
+          :label="{
+            text: Translator.trans('quantity'),
+            hint: Translator.trans('explanation.organisation.copies.paper')
+          }"
+          :options="paperCopyCountOptions"
+          :show-placeholder="false"
+          data-cy="orgaFormField:organisationCopiesPaper"
+          @select="emitOrganisationUpdate"/>
       </div>
 
       <label v-if="hasPermission('field_organisation_paper_copy_spec') && canEdit('paperCopySpec')">
@@ -766,7 +757,7 @@
 </template>
 
 <script>
-import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpSelect, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 
 export default {
@@ -777,7 +768,8 @@ export default {
     DpCheckbox,
     DpDetails,
     DpEditor,
-    DpTextArea
+    DpTextArea,
+    DpSelect
   },
 
   inject: [
@@ -881,6 +873,12 @@ export default {
     }
   },
 
+  emits: [
+    'addon-update',
+    'addonOptions:loaded',
+    'organisation-update'
+  ],
+
   data () {
     return {
       localOrganisation: {},
@@ -952,14 +950,19 @@ export default {
 
     /**
      * Options for the number of paper copies dropdown
+     * @return {Array <{value: number, label: string}>} for 0-10
      */
     paperCopyCountOptions () {
-      return Array.from(Array(11).keys())
+      return Array.from({length: 11}, (_, i) => ({ value: i, label: String(i) }));
     },
 
     registrationStatuses () {
-      return hasOwnProp(this.localOrganisation.attributes, 'registrationStatuses')
+      const registrationStatuses = hasOwnProp(this.localOrganisation.attributes, 'registrationStatuses')
         ? Object.values(this.localOrganisation.attributes.registrationStatuses).filter(el => el.subdomain === this.subdomain)
+        : []
+
+      return (this.canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage'))
+        ? registrationStatuses
         : []
     }
   },

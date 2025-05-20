@@ -25,7 +25,7 @@ class PriorityAreaServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(PriorityAreaService::class);
+        $this->sut = self::getContainer()->get(PriorityAreaService::class);
     }
 
     public function testGetAllPriorityAreas()

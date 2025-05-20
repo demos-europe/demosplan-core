@@ -8,113 +8,113 @@
 </license>
 
 <template>
-  <portal to="vueModals">
-    <dp-modal
-      ref="moveStatementModal"
-      content-classes="u-1-of-2"
-      @modal:toggled="resetFragments">
-      <!-- modal header -->
-      <template v-slot:header>
-        {{ Translator.trans('statement.moveto.procedure') }}
-      </template>
+  <dp-modal
+    ref="moveStatementModal"
+    content-classes="u-1-of-2"
+    @modal:toggled="resetFragments">
+    <!-- modal header -->
+    <template v-slot:header>
+      {{ Translator.trans('statement.moveto.procedure') }}
+    </template>
 
-      <!-- modal content -->
-      <div>
-        <dp-loading
-          v-if="isLoading"
-          class="u-pv-0_5" />
-        <template v-else>
-          <div class="flash flash-warning flow-root">
-            <i class="fa fa-exclamation-triangle u-mt-0_125 float-left" />
-            <div class="u-ml">
-              <p
-                :class="{'u-mb-0': false === hasPermission('feature_statement_move_to_foreign_procedure')}"
-                :inner-html.prop="Translator.trans('statement.moveto.procedure.description')" />
-              <p
-                class="u-mb-0"
-                v-if="hasPermission('feature_statement_move_to_foreign_procedure')"
-                :inner-html.prop="Translator.trans('statement.moveto.procedure.description.foreignProcedures')" />
-            </div>
-          </div>
-
-          <!-- display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
-          <div
-            class="flash flash-warning flow-root"
-            v-if="(userIsAssigneeOfAllFragments && fragmentsAreNotAssignedToDepartments) === false">
-            <i class="fa fa-exclamation-triangle u-mt-0_125 float-left" />
-            <div class="u-ml">
-              <p
-                class="u-mb-0"
-                :inner-html.prop="Translator.trans('statement.moveto.procedure.fragments.not.claimed.warning')" />
-            </div>
-          </div>
-
-          <!-- When both permissions are available, the user is prompted to choose which type of procedure she wants to move the statement to -->
-          <template v-if="hasPermission('feature_statement_move_to_foreign_procedure')">
-            <label class="u-mb-0_5 inline-block">
-              <input
-                type="radio"
-                name="procedure_permissions"
-                v-model="procedurePermissions"
-                value="accessibleProcedures"
-                required> {{ Translator.trans('procedure.accessible') }}
-            </label>
-            <label class="u-mb-0_5 u-ml inline-block">
-              <input
-                type="radio"
-                name="procedure_permissions"
-                v-model="procedurePermissions"
-                value="inaccessibleProcedures"> {{ Translator.trans('procedure.inaccessible') }}
-            </label>
-          </template>
-
-          <label
-            class="u-mb-0"
-            for="r_target_procedure">{{ Translator.trans('statement.moveto.procedure.target') }}</label>
-          <select
-            id="r_target_procedure"
-            name="r_target_procedure"
-            class="w-full u-mb"
-            v-model="selectedProcedureId">
-            <option value="">
-              -
-            </option>
-            <option
-              v-for="procedure in availableProcedures"
-              :key="procedure.id"
-              :value="procedure.id">
-              {{ procedure.name }}
-            </option>
-          </select>
-          <div
-            v-if="hasPermission('feature_statement_content_changes_view') || hasPermission('feature_statement_content_changes_save')"
-            class="u-mb">
-            <input
-              type="checkbox"
-              id="deleteVersionHistory"
-              v-model="deleteVersionHistory"
-              aria-describedby="deleteHistoryDesc">
-            <label
-              for="deleteVersionHistory"
-              class="inline-block u-mb-0">{{ Translator.trans('delete.history') }}</label>
+    <!-- modal content -->
+    <div>
+      <dp-loading
+        v-if="isLoading"
+        class="u-pv-0_5" />
+      <template v-else>
+        <div class="flash flash-warning flow-root">
+          <i class="fa fa-exclamation-triangle u-mt-0_125 float-left" />
+          <div class="u-ml">
             <p
-              class="lbl__hint"
-              id="deleteHistoryDesc">
-              {{ Translator.trans('delete.history.description') }}
-            </p>
+              :class="{'u-mb-0': false === hasPermission('feature_statement_move_to_foreign_procedure')}"
+              :inner-html="Translator.trans('statement.moveto.procedure.description')" />
+            <p
+              class="u-mb-0"
+              v-if="hasPermission('feature_statement_move_to_foreign_procedure')"
+              :inner-html="Translator.trans('statement.moveto.procedure.description.foreignProcedures')" />
           </div>
-          <!-- The button disabled-attribute is set to true when the user is not the assignee of all fragments or if any fragments are assigned to departments -->
-          <button
-            type="button"
-            class="btn btn--primary float-right"
-            @click.prevent.stop="moveStatement"
-            :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments">
-            {{ Translator.trans('statement.moveto.procedure.action') }}
-          </button>
+        </div>
+
+        <!-- display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
+        <div
+          class="flash flash-warning flow-root"
+          v-if="(userIsAssigneeOfAllFragments && fragmentsAreNotAssignedToDepartments) === false">
+          <i class="fa fa-exclamation-triangle u-mt-0_125 float-left" />
+          <div class="u-ml">
+            <p
+              class="u-mb-0"
+              :inner-html="Translator.trans('statement.moveto.procedure.fragments.not.claimed.warning')" />
+          </div>
+        </div>
+
+        <!-- When both permissions are available, the user is prompted to choose which type of procedure she wants to move the statement to -->
+        <template v-if="hasPermission('feature_statement_move_to_foreign_procedure')">
+          <label class="u-mb-0_5 inline-block">
+            <input
+              type="radio"
+              name="procedure_permissions"
+              v-model="procedurePermissions"
+              value="accessibleProcedures"
+              required> {{ Translator.trans('procedure.accessible') }}
+          </label>
+          <label class="u-mb-0_5 u-ml inline-block">
+            <input
+              type="radio"
+              name="procedure_permissions"
+              v-model="procedurePermissions"
+              value="inaccessibleProcedures"> {{ Translator.trans('procedure.inaccessible') }}
+          </label>
         </template>
-      </div>
-    </dp-modal>
-  </portal>
+
+        <label
+          class="u-mb-0"
+          for="r_target_procedure">{{ Translator.trans('statement.moveto.procedure.target') }}</label>
+        <select
+          id="r_target_procedure"
+          name="r_target_procedure"
+          class="w-full u-mb"
+          v-model="selectedProcedureId">
+          <option value="">
+            -
+          </option>
+          <option
+            v-for="procedure in availableProcedures"
+            :key="procedure.id"
+            :value="procedure.id">
+            {{ procedure.name }}
+          </option>
+        </select>
+        <div
+          v-if="hasPermission('feature_statement_content_changes_view') || hasPermission('feature_statement_content_changes_save')"
+          class="u-mb">
+          <input
+            type="checkbox"
+            id="deleteVersionHistory"
+            v-model="deleteVersionHistory"
+            aria-describedby="deleteHistoryDesc">
+          <label
+            for="deleteVersionHistory"
+            class="inline-block u-mb-0">
+            {{ Translator.trans('delete.history') }}
+          </label>
+          <p
+            class="lbl__hint"
+            id="deleteHistoryDesc">
+            {{ Translator.trans('delete.history.description') }}
+          </p>
+        </div>
+        <!-- The button disabled-attribute is set to true when the user is not the assignee of all fragments or if any fragments are assigned to departments -->
+        <button
+          type="button"
+          class="btn btn--primary float-right"
+          @click.prevent.stop="moveStatement"
+          :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments">
+          {{ Translator.trans('statement.moveto.procedure.action') }}
+        </button>
+      </template>
+    </div>
+  </dp-modal>
 </template>
 
 <script>
@@ -147,6 +147,10 @@ export default {
       default: () => ({})
     }
   },
+
+  emits: [
+    'statement:moveToProcedure'
+  ],
 
   data () {
     return {
@@ -193,9 +197,12 @@ export default {
   },
 
   watch: {
-    procedurePermissions () {
-      //  Reset selection when radio list changes
-      this.selectedProcedureId = ''
+    procedurePermissions: {
+      handler () {
+        //  Reset selection when radio list changes
+        this.selectedProcedureId = ''
+      },
+      deep: true
     }
   },
 

@@ -13,7 +13,7 @@
       :class="prefixClass('c-map__autocomplete')"
       v-if="hasPermission('feature_map_search_location')"
       :options="autocompleteOptions"
-      :value="selectedValue"
+      :model-value="selectedValue"
       :route-generator="(searchString) => {
         return Routing.generate('DemosPlan_procedure_public_suggest_procedure_location_json', {
           filterByExtent: JSON.stringify(maxExtent),
@@ -126,6 +126,14 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'changeActive',
+    'fullscreen-toggle',
+    'layer:toggleLayer',
+    'layer:toggleVisibiltyGroup',
+    'update-statement-form-map-data'
+  ],
 
   data () {
     return {

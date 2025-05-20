@@ -56,6 +56,10 @@ export default {
     }
   },
 
+  emits: [
+    'layer-list:unfolded'
+  ],
+
   data () {
     return {
       unfolded: false
@@ -81,23 +85,21 @@ export default {
   },
 
   methods: {
+    fold () {
+      this.unfolded = false
+    },
+
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
 
       if (unfolded) {
-        this.$root.$emit('layer-list:unfolded')
+        this.$emit('layer-list:unfolded')
       }
     },
 
     prefixClass (classList) {
       return prefixClass(classList)
     }
-  },
-
-  created () {
-    this.$root.$on('custom-layer:unfolded map-tools:unfolded layer-legend:unfolded', () => {
-      this.unfolded = false
-    })
   }
 }
 </script>
