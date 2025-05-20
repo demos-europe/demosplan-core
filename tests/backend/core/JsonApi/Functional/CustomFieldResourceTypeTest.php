@@ -76,7 +76,7 @@ class CustomFieldResourceTypeTest extends JsonApiTest
         static::assertSame('CustomField', $result['data']['type']);
         static::assertNotEmpty($result['data']['id']);
         static::assertArrayHasKey('attributes', $result['data']);
-        
+
         // Check each attribute individually
         static::assertSame('singleSelect', $result['data']['attributes']['fieldType']);
         static::assertSame('Beschlussvorschlag', $result['data']['attributes']['name']);
