@@ -1279,6 +1279,7 @@ feature_mastertoeblist:
     label: 'activate Mastertöbliste'
     loginRequired: true
 feature_new_statement:
+    expose: true
     label: 'Stell. verfassen'
     loginRequired: true
     parent: feature_statement

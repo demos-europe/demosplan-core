@@ -10,7 +10,7 @@
 {% set projectMapSettings = map %}
 {% set hasBplan = false %}
 {% set hasTerritory = false %}
-{% set hasDiplanKarte = hasPermission('feature_diplan_karte') or true %}
+{% set hasDiplanKarte = hasPermission('feature_diplan_karte') %}
 {% set isMapEnabled = (proceduresettings.isMapEnabled == true and hasPermission('area_map_participation_area')) or hasDiplanKarte %}
 
 {# Das Javascript wird erst später gerendert, deshalb muss die Logik, ob ein BPlan & Geltungsbereich vorhanden ist, hier explizit nochmal hin #}

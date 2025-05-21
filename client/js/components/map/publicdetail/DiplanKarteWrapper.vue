@@ -32,6 +32,7 @@ instance.appContext.app.use(MapPlugin, {
 })
 
 const toggleStatementModal = (updateStatementPayload) => {
-  instance.parent.components.StatementModal.methods.toggleModal(true, updateStatementPayload)
+  console.log('updateStatementPayload', instance.parent)
+  instance.parent.refs.statementModal.toggleModal(true, updateStatementPayload)
 }
 </script>
