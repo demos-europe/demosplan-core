@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div>
+  <div v-if="!hasTabs">
     <dp-inline-notification
       v-if="transformedStatements.length === 0"
       :message="Translator.trans('statement.list.empty')"
@@ -29,10 +29,62 @@
         :procedure-id="procedureId" />
     </div>
   </div>
+  <dp-tabs
+    v-else
+    :active-id="activeTabId"
+    @change="id => activeTabId = id">
+    <slot>
+      <dp-tab
+        id="publicStatements"
+        :is-active="activeTabId === 'publicStatements'"
+        :label="Translator.trans('statements.draft.organisation')">
+        <div class="space-stack-m pt-2">
+          <dp-inline-notification
+            v-if="hasPublicStatements"
+            :message="Translator.trans('statement.list.empty')"
+            type="info" />
+          <dp-public-statement
+            v-for="(statement, idx) in publicStatements"
+            v-bind="statement"
+            :key="idx"
+            :menu-items-generator="menuItemCallback"
+            :procedure-id="procedureId"
+            :show-author="showAuthor"
+            :show-checkbox="showCheckbox"
+            @open-map-modal="openMapModal"
+            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)" />
+          <dp-map-modal
+            ref="mapModal"
+            :procedure-id="procedureId" />
+        </div>
+      </dp-tab>
+      <dp-tab
+        id="privateStatements"
+        :is-active="activeTabId === 'privateStatements'"
+        :label="Translator.trans('statements.draft')">
+        <div class="space-stack-m pt-2">
+          <dp-inline-notification
+            v-if="hasNoPublicStatements"
+            :message="Translator.trans('statement.list.empty')"
+            type="info" />
+          <dp-public-statement
+            v-for="(statement, idx) in privateStatements"
+            v-bind="statement"
+            :key="'authorOnly-' + idx"
+            :menu-items-generator="menuItemCallback"
+            :procedure-id="procedureId"
+            :show-author="showAuthor"
+            :show-checkbox="showCheckbox"
+            @open-map-modal="openMapModal"
+            @open-statement-modal-from-list="(id) => $parent.$emit('open-statement-modal-from-list', id)" />
+        </div>
+      </dp-tab>
+    </slot>
+  </dp-tabs>
 </template>
 
 <script>
-import { DpInlineNotification, dpSelectAllMixin, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
+import { DpInlineNotification, DpTab, DpTabs, dpSelectAllMixin, formatDate, getFileInfo } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
 import { generateMenuItems } from './menuItems'
@@ -64,7 +116,9 @@ export default {
   components: {
     DpInlineNotification,
     DpMapModal,
-    DpPublicStatement
+    DpPublicStatement,
+    DpTabs,
+    DpTab
   },
 
   mixins: [dpSelectAllMixin],
@@ -74,6 +128,12 @@ export default {
       type: Array,
       required: false,
       default: () => ([])
+    },
+
+    hasTabs: {
+      type: Boolean,
+      required: false,
+      default: false
     },
 
     procedureId: {
@@ -152,7 +212,8 @@ export default {
 
   data () {
     return {
-      transformedStatements: this.transformStatements(this.statements)
+      transformedStatements: this.transformStatements(this.statements),
+      activeTabId: 'publicStatements'
     }
   },
 
@@ -190,6 +251,14 @@ export default {
       return fields
     },
 
+    hasNoPublicStatements () {
+      return this.transformedStatements.filter(statement => statement.authorOnly).length === 0;
+    },
+
+    hasPublicStatements () {
+      return this.transformedStatements.filter(statement => !statement.authorOnly).length === 0;
+    },
+
     menuItemCallback () {
       return (id, elementId, paragraphId, isPublished) => generateMenuItems({
         fields: this.actionFields,
@@ -200,6 +269,14 @@ export default {
         paragraphId,
         isPublished
       })
+    },
+
+    publicStatements () {
+      return this.transformedStatements.filter(statement => !statement.authorOnly);
+    },
+
+    privateStatements () {
+      return this.transformedStatements.filter(statement => statement.authorOnly);
     }
   },
 
@@ -210,6 +287,7 @@ export default {
 
     transformStatement (statement) {
       const {
+        authorOnly,
         document,
         element,
         externId,
@@ -261,8 +339,9 @@ export default {
       const transformedPolygon = polygon === '' ? {} : JSON.parse(polygon)
 
       return {
-        attachments,
+        authorOnly,
         ...county,
+        attachments,
         createdDate: transformedCreatedDate,
         department: dName,
         document: statementDocument,

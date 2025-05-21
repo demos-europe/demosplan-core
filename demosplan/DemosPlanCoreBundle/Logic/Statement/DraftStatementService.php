@@ -994,20 +994,25 @@ class DraftStatementService extends CoreService
 
     protected function checkMapScreenshotFile(array $statementArray, string $procedureId): array
     {
-        // hat das Statement einen Screenshot aber kein Polygon?
+        // Does the statement have a polygon but no screenshot?
         if (0 < strlen((string) $statementArray['polygon']) && 0 === strlen($statementArray['mapFile'] ?? '')) {
-            $this->getLogger()->info('DraftStatement hat ein Polygon, aber keinen Screenshot. Erzeuge ihn');
+            $this->getLogger()->info('DraftStatement has a polygon but no screenshot. Creating one');
             $statementArray['mapFile'] = $this->getServiceMap()->createMapScreenshot($procedureId, $statementArray['ident']);
         }
-        // hat das Statement ein Screenshot?
+        // Does the statement have a screenshot?
         if (0 < strlen($statementArray['mapFile'] ?? '')) {
-            $this->getLogger()->info('DraftStatement hat einen Screenshot.');
-            $fileInfo = $this->fileService->getFileInfoFromFileString($statementArray['mapFile']);
-            // Wenn der Screenshot da sein müsste, es aber nicht ist, versuche ihn neu zu generieren
-            if (!$this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
-                $this->getLogger()->info('Screenshot konnte nicht gefunden werden');
+            $this->getLogger()->info('DraftStatement has a screenshot.');
+            $fileInfo = null;
+            try {
+                $fileInfo = $this->fileService->getFileInfoFromFileString($statementArray['mapFile']);
+            } catch (Exception $e) {
+                $this->getLogger()->warning('Screenshot could not be found', [$e]);
+            }
+            // If the screenshot should be there but isn't, try to regenerate it
+            if (null === $fileInfo || !$this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+                $this->getLogger()->info('Screenshot could not be found');
                 if (0 < strlen((string) $statementArray['polygon'])) {
-                    $this->getLogger()->info('Erzeuge Screenshot neu');
+                    $this->getLogger()->info('Regenerating screenshot');
                     $statementArray['mapFile'] = $this->getServiceMap()->createMapScreenshot($procedureId, $statementArray['ident']);
                 }
             }

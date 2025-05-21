@@ -10,9 +10,11 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Logic;
+namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Logic\EditorService;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
@@ -26,7 +28,7 @@ final class ImageLinkConverter
     public const IMAGES_KEY_RECOMMENDATION = 'recommendation';
     public const IMAGES_KEY_SEGMENTS = 'segments';
     /**
-     * @var array<int, array<string, array<int, ImageReference>>>
+     * @var ImageReference[]
      */
     private array $images = [];
     /**
