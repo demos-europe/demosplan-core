@@ -870,6 +870,8 @@ class ElementsService extends CoreService implements ElementsServiceInterface
 
                 // copy related file
                 $this->copyElementRelatedFiles($destinationProcedure);
+
+                $elementIds[$elementToCopy->getId()] = $copiedElement->getId();
             }
             $entityManager->flush();
         } catch (Exception $e) {
