@@ -426,16 +426,6 @@ export default {
       }
     },
 
-    addXMLPartToString (xml, needle, string) {
-      const stringToAdd = this.getXMLPart(xml, needle)
-
-      if (stringToAdd.length > 0) {
-        // Yes, it results in crappy markup <ul><h4>... but there may be more than one h4 within the list...
-        string = string + '<ul>' + stringToAdd + '</ul>'
-      }
-      return string
-    },
-
     baseLayerVisibility (baseLayer) {
       //  If no baseLayer has defaultVisibility, show first toggleable baselayer
       if (baseLayer.every(el => el.getProperties().visible === false)) {
@@ -811,9 +801,6 @@ export default {
 
         // Use prerendered html by default
         let infoFormat = 'text/html'
-        if (PROJECT && PROJECT === 'robobsh') {
-          infoFormat = 'text/xml'
-        }
 
         const remappedUrl = getFeatureinfoSource.getSource().getFeatureInfoUrl(
           coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: infoFormat }
@@ -840,22 +827,7 @@ export default {
               if (parsedData.code === 100 && parsedData.success) {
                 if (parsedData.body !== null) {
                   let popupContent = ''
-
-                  //  In Robob, do not show full response body
-                  if (PROJECT && PROJECT === 'robobsh') {
-                    let i = 0
-                    let xmlNeedle
-                    const xmlResponse = $.parseXML(response.data.body)
-                    const xmlNeedles = ['abw_klarte', 'ht_klartex', 'wt_klartex']
-
-                    //  Filter relevant content from xml response
-                    for (; i < xmlNeedles.length; i++) {
-                      xmlNeedle = xmlNeedles[i]
-                      popupContent = this.addXMLPartToString(xmlResponse, xmlNeedle, popupContent)
-                    }
-                  } else {
-                    popupContent = parsedData.body
-                  }
+                  popupContent = parsedData.body
 
                   if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s\t\n\r↵]*<\/table>/mg) !== null) {
                     popupContent = Translator.trans('map.getfeatureinfo.none')
@@ -1574,24 +1546,6 @@ export default {
           resolutions: this.resolutions
         })
       })
-    },
-
-    getXMLPart (xml, needle) {
-      const $xml = $(xml)
-
-      //  This is Chrome, Opera and Safari syntax:  http://stackoverflow.com/a/20705737/6234391
-      let $xmlFromNeedle = $xml.find(needle)
-
-      //  If no valid element, we try firefox / ie syntax...
-      if ($xmlFromNeedle.length === 0) {
-        $xmlFromNeedle = $xml.find('app\\:' + needle)
-      }
-
-      let string = ''
-      if ($xmlFromNeedle.length > 0) {
-        string = $xmlFromNeedle.text()
-      }
-      return string
     },
 
     handleButtonInteraction (active, element, callback) {
