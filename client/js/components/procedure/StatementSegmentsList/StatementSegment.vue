@@ -62,7 +62,7 @@
                     {{ Object.values(customFields).find(field => field.id === customField.id)?.attributes?.name || '' }}:
                   </dt>
                   <dd>
-                    {{ customField.value }}
+                    {{ customField.value ? customField.value : Translator.trans('not.assigned')}}
                   </dd>
                 </div>
               </template>
@@ -1123,7 +1123,7 @@ export default {
     this.initPlaces()
     this.initAssignableUsers()
 
-    if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
+    if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
       this.setInitiallySelectedCustomFieldValues()
     }
 
