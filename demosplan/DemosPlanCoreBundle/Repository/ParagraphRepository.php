@@ -489,6 +489,7 @@ class ParagraphRepository extends FluentRepository implements ArrayInterface, Ob
     {
         $paragraphIdMapping = [];
         $paragraphsToCopy = $this->getParagraphOfElement($elementToCopy);
+        $copiedParagraphs = [];
         foreach ($paragraphsToCopy as $paragraphToCopy) {
             $copiedParagraph = new Paragraph();
             $copiedParagraph->setCategory($paragraphToCopy->getCategory());
@@ -507,23 +508,17 @@ class ParagraphRepository extends FluentRepository implements ArrayInterface, Ob
             $copiedParagraph->setProcedure($copiedElement->getProcedure());
 
             $this->getEntityManager()->persist($copiedParagraph);
-            $paragraphIdMapping[$paragraphToCopy->getId()] = $copiedParagraph->getId();
+            $paragraphIdMapping[$paragraphToCopy->getId()] = $copiedParagraph;
+            $copiedParagraphs[] = $copiedParagraph;
         }
-        $this->getEntityManager()->persist($copiedElement);
-        $this->getEntityManager()->flush();
 
-        $copiedParagraphs = $this->getParagraphOfElement($copiedElement);
         foreach ($copiedParagraphs as $copiedParagraph) {
             if ($copiedParagraph->getParent() instanceof Paragraph) {
                 $oldParentId = $copiedParagraph->getParent()->getId();
-                $relatedCopiedParagraph = $this->getEntityManager()->getReference(
-                    Paragraph::class, $paragraphIdMapping[$oldParentId]
-                );
+                $relatedCopiedParagraph = $paragraphIdMapping[$oldParentId];
                 $copiedParagraph->setParent($relatedCopiedParagraph);
             }
-            $this->getEntityManager()->persist($copiedParagraph);
         }
-        $this->getEntityManager()->flush();
     }
 
     /**

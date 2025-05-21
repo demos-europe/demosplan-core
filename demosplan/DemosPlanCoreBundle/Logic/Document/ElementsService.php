@@ -823,11 +823,9 @@ class ElementsService extends CoreService implements ElementsServiceInterface
     /**
      * Kopiert alle Elements (Planunterlagenkategorien) von einem Verfahren in ein anderes.
      *
-     * @return array<string, string>
-     *
-     * @throws Exception
+     * @throws Exception|Throwable
      */
-    public function copy(string $sourceProcedureId, Procedure $destinationProcedure): array
+    public function copy(string $sourceProcedureId, Procedure $destinationProcedure): void
     {
         $entityManager = $this->entityManager;
 
@@ -876,8 +874,6 @@ class ElementsService extends CoreService implements ElementsServiceInterface
                 $elementIds[$elementToCopy->getId()] = $copiedElement->getId();
             }
             $entityManager->flush();
-
-            return $elementIds;
         } catch (Exception $e) {
             $this->logger->warning('Copy elements failed. Message: ', [$e]);
             throw $e;
