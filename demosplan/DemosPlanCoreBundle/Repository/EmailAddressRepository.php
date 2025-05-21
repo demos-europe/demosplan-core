@@ -109,13 +109,12 @@ class EmailAddressRepository extends CoreRepository implements EmailAddressRepos
         foreach ($sortedStrings as $sortedEmailAddressString) {
             foreach ($unsortedEntities as $unsortedEmailAddressEntity) {
                 $fullAddress = $unsortedEmailAddressEntity->getFullAddress();
-                if (strcasecmp($sortedEmailAddressString, $fullAddress) === 0) {
+                if (0 === strcasecmp($sortedEmailAddressString, $fullAddress)) {
                     $sortedEmailAddresses[$sortedEmailAddressString] = $unsortedEmailAddressEntity;
                     break;
                 }
             }
         }
-
 
         return $sortedEmailAddresses;
     }
