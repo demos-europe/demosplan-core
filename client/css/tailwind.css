@@ -16,7 +16,13 @@
       - Code inside the inner "addons" folder must be targeted for each addon separately, as this
         is where the bug occurs. Must be repeated for each addon.
  */
-@source "../../addons/vendor/demos-europe/demosplan-addon-*/client/**/*.{js,ts,vue}";
+@source "../../addons/vendor/demos-europe/demosplan-addon-*/client/**/*.{js,vue}";
+@source "../../addons/vendor/demos-europe/demosplan-addon-bimschg-antrag/client/addons/*.vue";
+@source "../../addons/vendor/demos-europe/demosplan-addon-demospipes/client/addons/**/*.vue";
+@source "../../addons/vendor/demos-europe/demosplan-addon-maillane/src/client/addons/**/*.vue";
+@source "../../addons/vendor/demos-europe/demosplan-addon-mein-berlin/client/addons/*.vue";
+@source "../../addons/vendor/demos-europe/demosplan-addon-segment-oracle/client/addons/*.vue";
+@source "../../addons/vendor/demos-europe/demosplan-addon-topical-tag/client/addons/**/*.vue";
 
 /* No problems here, hopefully */
 @source "../../client/js/**/*.{js,vue}";
