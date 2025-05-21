@@ -23,7 +23,7 @@
     @FIXME TW4 still struggles with globs as it seems. This entry must be generated on build time,
     to tell Tailwind where to look for classes without exposing project information.
  */
-@source "../../projects/<projectName>/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
+@import "./generated/projects.css";
 
 /*
     This is an example of how to whitelist classes in Tailwind 4.
