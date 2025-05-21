@@ -199,8 +199,10 @@ const mergeRangesAndSegments = (ranges, segments) => {
       return
     }
 
-    mergedSegment.charStart = range.from
-    mergedSegment.charEnd = range.to
+    /*
+     *MergedSegment.charStart = range.from
+     *mergedSegment.charEnd = range.to
+     */
     mergedSegment.status = range.isConfirmed ? 'confirmed' : false
     mergedSegment.text = range.text
     mergedSegments.push(mergedSegment)
@@ -640,8 +642,10 @@ export default {
     handleSegmentCreation (segmentToCreate) {
       const segment = {
         id: uuid(),
-        charStart: segmentToCreate.from,
-        charEnd: segmentToCreate.to,
+        /*
+         * CharStart: segmentToCreate.from,
+         * charEnd: segmentToCreate.to,
+         */
         tags: [],
         hasProsemirrorIndex: true,
         status: 'confirmed',
@@ -651,10 +655,12 @@ export default {
       this.setProperty({ prop: 'editModeActive', val: true })
       this.locallyUpdateSegments([segment])
       this.ignoreProsemirrorUpdates = true
-      setRange(this.prosemirror.view)(segment.charStart, segment.charEnd, { rangeId: segment.id, isConfirmed: true, isActive: false })
+
+      setRange(this.prosemirror.view)(segmentToCreate.from, segmentToCreate.to, { rangeId: segment.id, isConfirmed: true, isActive: false })
+
       const { rangeTrackerKey, editingDecorationsKey, editStateTrackerKey } = this.prosemirror.keyAccess
       setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(segment.id, true)
-      // ActivateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id, { active: segment.charEnd, fixed: segment.charStart })
+      activateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id, { active: segmentToCreate.to, fixed: segmentToCreate.from })
       this.ignoreProsemirrorUpdates = false
     },
 
@@ -700,20 +706,25 @@ export default {
       const newSegments = this.prosemirror.keyAccess.rangeTrackerKey.getState(state)
       const oldSegments = this.stateBeforeEditing
 
-      const changes = generateRangeChangeMap(newSegments, oldSegments)
+      console.log('newSegments', newSegments)
+      console.log('oldSegments', oldSegments)
 
-      changes.createdRanges.forEach(range => {
-        setRange(this.prosemirror.view)(range.from, range.to, { rangeId: range.rangeId, isConfirmed: range.isConfirmed })
-      })
-
-      changes.updatedRanges.forEach(range => {
-        setRange(this.prosemirror.view)(range.from, range.to, { rangeId: range.rangeId, isConfirmed: range.isConfirmed })
-      })
-
-      changes.deletedRanges.forEach(range => {
-        const tr = removeRange(state, range.from, range.to)
-        this.prosemirror.view.dispatch(tr)
-      })
+      /*
+       *Const changes = generateRangeChangeMap(newSegments, oldSegments)
+       *
+       *changes.createdRanges.forEach(range => {
+       *setRange(this.prosemirror.view)(range.from, range.to, { rangeId: range.rangeId, isConfirmed: range.isConfirmed })
+       *})
+       *
+       *changes.updatedRanges.forEach(range => {
+       *setRange(this.prosemirror.view)(range.from, range.to, { rangeId: range.rangeId, isConfirmed: range.isConfirmed })
+       *})
+       *
+       *changes.deletedRanges.forEach(range => {
+       *const tr = removeRange(state, range.from, range.to)
+       *this.prosemirror.view.dispatch(tr)
+       *})
+       */
       this.ignoreProsemirrorUpdates = false
       this.stateBeforeEditing = null
     },

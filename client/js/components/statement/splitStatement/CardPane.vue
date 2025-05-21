@@ -12,7 +12,7 @@
     class="card-pane"
     :style="{ 'min-height': containerMinHeight }">
     <card-pane-card
-      v-for="segment in filteredSortedSegments"
+      v-for="segment in sortedSegments"
       :key="'card' + segment.id + Math.random()"
       :segment="segment"
       :data-range="segment.id"
@@ -72,11 +72,13 @@ export default {
     ...mapGetters('SplitStatement', [
       'currentlyHighlightedSegmentId',
       'sortedSegments'
-    ]),
+    ])
 
-    filteredSortedSegments () {
-      return this.sortedSegments.filter(el => el.charEnd <= this.maxRange)
-    }
+    /*
+     *FilteredSortedSegments () {
+     *return this.sortedSegments.filter(el => el.charEnd <= this.maxRange)
+     *}
+     */
   },
 
   methods: {

@@ -148,6 +148,8 @@ export default {
         getContent: getContent(proseSchema)
       }
 
+      console.log('prosemirrorStateWrapper', prosemirrorStateWrapper)
+
       /**
        * We've put a wrapper around our prosemirror instance and freeze it afterwards to prevent Vue from watching
        * prosemirror internals. This would lead to a huge performance hit otherwise.
@@ -156,7 +158,7 @@ export default {
 
       this.$emit('prosemirror:maxRange', this.maxRange)
       this.$emit('prosemirror:initialized', prosemirrorStateWrapper)
-    },
+    }
 
     /*
      *TransformSegments (segments) {
