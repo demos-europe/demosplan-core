@@ -90,10 +90,10 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         $templateVars['boilerplates'] = $procedureService->getBoilerplateList($procedure);
         if (null !== $data['action']) {
             $this->getMessageBag()->add('confirm', 'confirm.tag.edited');
-                $eventDispatcher->dispatch(
-                    new UpdateTagEvent($tagEntity->getId()),
-                    UpdateTagEventInterface::class
-                );
+            $eventDispatcher->dispatch(
+                new UpdateTagEvent($tagEntity->getId()),
+                UpdateTagEventInterface::class
+            );
 
             return $this->redirectToRoute('DemosPlan_statement_administration_tags', ['procedure' => $procedure]);
         }
