@@ -6,6 +6,7 @@
 
 
 ## UNRELEASED
+## v4.0.0 (2025-05-21)
 - Update to symfony 6.4
 
 ## v3.3.0 (2025-05-13)
