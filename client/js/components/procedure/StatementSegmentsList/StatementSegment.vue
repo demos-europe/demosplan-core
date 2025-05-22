@@ -62,7 +62,7 @@
                     {{ Object.values(customFields).find(field => field.id === customField.id)?.attributes?.name || '' }}:
                   </dt>
                   <dd>
-                    {{ customField.value }}
+                    {{ customField.value ? customField.value : Translator.trans('not.assigned')}}
                   </dd>
                 </div>
               </template>
@@ -572,7 +572,7 @@ export default {
     customFieldsOptions () {
       return Object.values(this.customFields).reduce((acc, el) => {
         const opts = [...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
-        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id })
+        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id, value: 'UNASSIGNED' })
 
         return {
           ...acc,
@@ -748,6 +748,8 @@ export default {
       const assignableUsersLoaded = Object.keys(this.assignableUserItems).length
 
       if (assignableUsersLoaded) {
+        this.setSelectedAssignee()
+
         return
       }
 
@@ -756,9 +758,7 @@ export default {
         sort: 'lastname'
       })
         .then(() => {
-          if (this.segment.relationships?.assignee?.data?.id) {
-            this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
-          }
+          this.setSelectedAssignee()
         })
     },
 
@@ -766,6 +766,8 @@ export default {
       const placeItemsLoaded = Object.keys(this.placeItems).length
 
       if (placeItemsLoaded) {
+        this.setSelectedPlace()
+
         return
       }
 
@@ -781,9 +783,7 @@ export default {
         sort: 'sortIndex'
       })
         .then(() => {
-          if (this.segment.relationships.place) {
-            this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
-          }
+          this.setSelectedPlace()
         })
     },
 
@@ -825,7 +825,10 @@ export default {
 
       if (hasCustomFields) {
         attributes = {
-          customFields: Object.values(this.customFieldValues).map(({ fieldId, name }) => ({ id: fieldId, value: name }))
+          customFields: Object.values(this.customFieldValues).map(option => ({
+            id: option.fieldId,
+            value: this.getCustomFieldValueForPayload(option)
+          }))
         }
       }
 
@@ -917,8 +920,10 @@ export default {
      * @param {string} value.id   id of the selected option
      * @param {string} value.fieldId   id of the custom field
      * @param {string} value.name   name of the selected option
+     * @param {string} value.value   optional explicit value to use ('UNASSIGNED' for unassigned)
      */
     setCustomFieldValue (value) {
+      // Store the value directly, the unset option already has value: 'UNASSIGNED'
       this.customFieldValues[value.fieldId] = value
     },
 
@@ -931,6 +936,18 @@ export default {
           this.customFieldValues[fieldId] = selectedOption
         }
       })
+    },
+
+    setSelectedAssignee () {
+      if (this.segment.relationships?.assignee?.data?.id) {
+        this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+      }
+    },
+
+    setSelectedPlace () {
+      if (this.segment.relationships.place) {
+        this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+      }
     },
 
     showComments () {
@@ -1093,6 +1110,12 @@ export default {
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
       this.setSegment({ ...updated, id: this.segment.id })
+    },
+
+    // Helper to get the custom field value from an option
+    getCustomFieldValueForPayload (option) {
+      // Return null for unassigned options instead of 'UNASSIGNED'
+      return option.value === 'UNASSIGNED' ? null : option.name
     }
   },
 
@@ -1100,7 +1123,7 @@ export default {
     this.initPlaces()
     this.initAssignableUsers()
 
-    if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
+    if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
       this.setInitiallySelectedCustomFieldValues()
     }
 
