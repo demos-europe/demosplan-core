@@ -126,7 +126,6 @@ const removeMarkByName = (state, markName, markAttr, tr = false) => {
 const setRangeEditingState = (view, rangeTrackerKey, editingDecorationsKey) => (id, editingState) => {
   const { dispatch, state } = view
   const range = rangeTrackerKey.getState(state)[id]
-  console.log('range', range)
 
   const { from, to, isConfirmed, rangeId } = range
 
@@ -175,25 +174,13 @@ const replaceMarkInRange = (state, from, to, markKey, markAttrs, tr = false) => 
     console.warn(`Range ${JSON.stringify(newAttrs)} was truncated at the end because it exceeded the document size.`)
   }
 
-  console.log('replaceMarkInRange: from, to', from, to)
-
   transaction = transaction.removeMark(from, to, markType)
-
-  /*
-   *Console.log('replaceMarkInRange - state.config.schema.marks', state.config.schema.marks)
-   *console.log('markKey: ', markKey)
-   *console.log('markType: ', markType)
-   */
-
-  console.log('transaction.doc', transaction.doc)
 
   const newMark = markType.create(newAttrs)
   transaction = transaction.addMark(from, to, newMark)
   const markCollection = getMarks(flattenNode(transaction.doc), markKey, 'pmId')
   // Console.log('markCollection: ', markCollection)
   const currentMarkCollection = markCollection[pmId]
-
-  console.log('currentMarkCollection', currentMarkCollection)
 
   currentMarkCollection.marks.forEach(m => {
     transaction = transaction.removeMark(m.from, m.to, markType)

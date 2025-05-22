@@ -173,6 +173,7 @@ import { mapActions, mapGetters, mapMutations } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CardPane from './CardPane'
 import dayjs from 'dayjs'
+import { DOMSerializer } from 'prosemirror-model'
 import { generateRangeChangeMap } from '@DpJs/lib/prosemirror/utilities'
 import SegmentationEditor from './SegmentationEditor'
 import SideBar from './SideBar'
@@ -492,6 +493,34 @@ export default {
       this.ignoreProsemirrorUpdates = false
     },
 
+    extractFullHtmlWithMarks (state) {
+      const { schema } = state
+      const serializer = DOMSerializer.fromSchema(schema)
+      const fragment = serializer.serializeFragment(state.tr.doc.content)
+
+      const wrapper = document.createElement('div')
+      wrapper.appendChild(fragment)
+
+      wrapper.querySelectorAll('span[data-range]').forEach(span => {
+        const mark = document.createElement('segment-mark')
+        const attributes = [...span.attributes]
+
+        attributes.forEach(({ name, value }) => { // Copy the data-range attribute; ToDO: it seems like we need an ID here as well. What is ID?
+          if (name === 'data-range') {
+            mark.setAttribute(name, value)
+          }
+        })
+
+        mark.innerHTML = span.innerHTML
+        span.replaceWith(mark)
+      })
+
+      const inner = wrapper.innerHTML.trim()
+      return inner.startsWith('<dp-statement') // ToDO: Ask about: Do we really need dp-statement wrapper? Do we need dp-loophole (what is it?)
+        ? inner
+        : `<dp-statement>${inner}</dp-statement>`
+    },
+
     fetchAssignableUsers () {
       const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
       return dpApi.get(url, { sort: 'lastname' })
@@ -705,26 +734,21 @@ export default {
 
       const newSegments = this.prosemirror.keyAccess.rangeTrackerKey.getState(state)
       const oldSegments = this.stateBeforeEditing
+      const changes = generateRangeChangeMap(newSegments, oldSegments)
 
-      console.log('newSegments', newSegments)
-      console.log('oldSegments', oldSegments)
+      changes.createdRanges.forEach(range => {
+        setRange(this.prosemirror.view)(range.from, range.to, { rangeId: range.rangeId, isConfirmed: range.isConfirmed })
+      })
 
-      /*
-       *Const changes = generateRangeChangeMap(newSegments, oldSegments)
-       *
-       *changes.createdRanges.forEach(range => {
-       *setRange(this.prosemirror.view)(range.from, range.to, { rangeId: range.rangeId, isConfirmed: range.isConfirmed })
-       *})
-       *
-       *changes.updatedRanges.forEach(range => {
-       *setRange(this.prosemirror.view)(range.from, range.to, { rangeId: range.rangeId, isConfirmed: range.isConfirmed })
-       *})
-       *
-       *changes.deletedRanges.forEach(range => {
-       *const tr = removeRange(state, range.from, range.to)
-       *this.prosemirror.view.dispatch(tr)
-       *})
-       */
+      changes.updatedRanges.forEach(range => {
+        setRange(this.prosemirror.view)(range.from, range.to, { rangeId: range.rangeId, isConfirmed: range.isConfirmed })
+      })
+
+      changes.deletedRanges.forEach(range => {
+        const tr = removeRange(state, range.from, range.to)
+        this.prosemirror.view.dispatch(tr)
+      })
+
       this.ignoreProsemirrorUpdates = false
       this.stateBeforeEditing = null
     },
@@ -797,9 +821,13 @@ export default {
         return
       }
 
-      this.saveSegmentsDrafts(true)
       this.isSegmentDraftUpdated = true
       this.disableEditMode()
+
+      const htmlWithMarks = this.extractFullHtmlWithMarks(this.prosemirror.view.state)
+      console.log('htmlWithMarks', htmlWithMarks)
+      this.saveSegmentsDrafts(true) // The textualReference with a new marks will be send to the BE, to save the data in a meanwhile (draftSegments)
+
       this.setCurrentTime()
     },
 
