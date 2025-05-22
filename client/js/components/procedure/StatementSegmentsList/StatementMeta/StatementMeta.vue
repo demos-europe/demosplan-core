@@ -32,7 +32,7 @@
             :class="{
               'bg-selected': activeItem === entry.id
             }"
-            class="p-1.5 rounded"
+            class="p-1.5 rounded-sm"
             role="presentation">
             <button
               class="text-left"
