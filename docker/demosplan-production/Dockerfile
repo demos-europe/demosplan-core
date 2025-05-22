@@ -42,7 +42,8 @@ WORKDIR /srv/www
 # Install composer and yarn before copying the project files to make use of the docker cache
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
 # do not use --no-scripts, as we do not need all the aws stuff
-RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,uid=33,gid=33 \
+RUN --mount=type=secret,id=ado,env=ADO_NPM_AUTH_IDENT \
+    --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,uid=33,gid=33 \
     if [ "$BUILD_MODE" = "dev" ]; then \
         composer install -o --prefer-dist --no-progress; \
     else \
