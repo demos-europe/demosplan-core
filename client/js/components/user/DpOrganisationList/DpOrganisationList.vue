@@ -202,6 +202,7 @@ const orgaFields = {
     'showlist',
     'showname',
     'state',
+    'statusInCustomer',
     'street',
     'submissionType',
     'types'
@@ -459,7 +460,7 @@ export default {
         },
         fields: orgaFields,
         sort: 'name',
-        include: ['branding', 'currentSlug', 'orgasInCustomer', 'orgasInCustomer.customer'].join()
+        include: ['branding', 'currentSlug', 'statusInCustomers', 'statusInCustomers.customer'].join()
       })
         .then(() => {
           this.pendingOrganisationsLoading = false
