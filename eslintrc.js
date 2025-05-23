@@ -46,13 +46,14 @@ module.exports = {
     }
   ],
   ignorePatterns: [
+    '**/addonDev/**/*',
     '**/addons/**/*',
     '**/local_modules/**/*',
     '**/node_modules/**/*',
     '**/vendor/**/*',
-    'client/js/legacy/**/*.js',
-    'client/js/generated/*.js',
-    'projects/*/web/**/*'
+    '**/client/js/legacy/**/*.js',
+    '**/client/js/generated/*.js',
+    '**/projects/*/web/**/*'
   ],
   // Required to lint *.vue files
   plugins: [

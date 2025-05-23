@@ -1,4 +1,7 @@
 {
+  "workspaces": [
+    "node_modules/@demos-europe/demosplan-ui"
+  ],
   "private": true,
   "version": "v4.1.0",
   "scripts": {

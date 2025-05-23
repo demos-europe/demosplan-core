@@ -11,6 +11,68 @@
   <div
     ref="contentArea"
     class="mt-2">
+
+    <dp-loading
+      v-if="isLoading"
+      class="mt-4" />
+    <template v-else>
+      <div class="sm:relative flex flex-col sm:flex-row flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-0 pl-0 sm:ml-2 sm:pl-[38px]">
+        <div class="sm:absolute sm:top-0 sm:left-0 mt-1">
+          <dp-flyout
+            align="left"
+            :aria-label="Translator.trans('filters.more')"
+            class="bg-surface-medium rounded pb-1 pt-[4px]"
+            data-cy="institutionList:filterCategories">
+            <template v-slot:trigger>
+                  <span :title="Translator.trans('filters.more')">
+                    <dp-icon
+                      aria-hidden="true"
+                      class="inline"
+                      icon="faders" />
+                  </span>
+            </template>
+            <!-- 'More filters' flyout -->
+            <div>
+              <button
+                class="btn--blank o-link--default ml-auto"
+                data-cy="institutionList:toggleAllFilterCategories"
+                v-text="Translator.trans('toggle_all')"
+                @click="toggleAllSelectedFilterCategories" />
+              <div v-if="!isLoading">
+                <dp-checkbox
+                  v-for="category in allFilterCategories"
+                  :key="category.id"
+                  :id="`filterCategorySelect:${category.label}`"
+                  :checked="selectedFilterCategories.includes(category.label)"
+                  :data-cy="`institutionList:filterCategoriesSelect:${category.label}`"
+                  :disabled="checkIfDisabled(category.id)"
+                  :label="{
+                        text: `${category.label} (${getSelectedOptionsCount(category.id)})`
+                      }"
+                  @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
+              </div>
+            </div>
+          </dp-flyout>
+        </div>
+
+        <filter-flyout
+          v-for="category in filterCategoriesToBeDisplayed"
+          :key="`filter_${category.label}`"
+          ref="filterFlyout"
+          :category="{ id: category.id, label: category.label }"
+          class="inline-block"
+          :data-cy="`institutionListFilter:${category.label}`"
+          :initial-query-ids="queryIds"
+          :member-of="category.memberOf"
+          :operator="category.comparisonOperator"
+          :path="category.rootPath"
+          @filterApply="(filtersToBeApplied) => applyFilterQuery(filtersToBeApplied, category.id)"
+          @filterOptions:request="(params) => createFilterOptions({ ...params, categoryId: category.id})" />
+      </div>
+
+    </template>
+
+
     <dp-data-table-extended
       ref="dataTable"
       class="mt-2"
@@ -143,15 +205,18 @@
 </template>
 
 <script>
-import { dpApi, DpButton, DpDataTableExtended } from '@demos-europe/demosplan-ui'
-import { mapActions, mapState } from 'vuex'
+import { dpApi, DpButton, DpDataTableExtended, DpFlyout } from '@demos-europe/demosplan-ui'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout.vue'
 
 export default {
   name: 'DpAddOrganisationList',
 
   components: {
+    DpButton,
     DpDataTableExtended,
-    DpButton
+    DpFlyout,
+    FilterFlyout
   },
 
   props: {
