@@ -49,7 +49,7 @@
     "efrane/tus-bundle": "^0.6",
     "egulias/email-validator": "^4.0",
     "endroid/qr-code-bundle": "^5.0",
-    "enqueue/elastica-bundle": "^0.13",
+    "enqueue/elastica-bundle": "^0.15",
     "enqueue/enqueue-bundle": "^0.10",
     "enqueue/fs": "^0.10",
     "erusev/parsedown": "^1.7",
