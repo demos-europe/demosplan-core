@@ -162,6 +162,7 @@
                 class="layout__item"
                 :statements="JSON.parse('{{ templateVars.list.statementlist|default([])|json_encode|e('js', 'utf-8') }}')"
                 :counties="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
+                has-tabs
                 procedure-id="{{ templateVars.procedure|default('') }}"
                 show-author
                 show-checkbox

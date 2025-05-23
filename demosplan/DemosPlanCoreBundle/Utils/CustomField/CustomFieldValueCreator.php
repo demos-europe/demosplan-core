@@ -46,13 +46,51 @@ class CustomFieldValueCreator extends CoreService
             $existingCustomFieldValue = $currentCustomFieldValuesList->findById($newCustomFieldValue->getId());
 
             if ($existingCustomFieldValue) {
-                $existingCustomFieldValue->setValue($newCustomFieldValue->getValue());
+                $this->handleExistingCustomField($currentCustomFieldValuesList, $existingCustomFieldValue, $newCustomFieldValue);
             } else {
-                $currentCustomFieldValuesList->addCustomFieldValue($newCustomFieldValue);
+                $this->handleNewCustomField($currentCustomFieldValuesList, $newCustomFieldValue);
             }
         }
 
-        return $currentCustomFieldValuesList;
+        // Sort fields to ensure consistent ordering in the database
+        $currentCustomFieldValuesList->sortByFieldId();
+
+        // At the very end, before returning, ensure array is properly indexed
+        $currentCustomFieldValuesList->reindexValues();
+
+        /*
+         * Clone `$currentCustomFieldValuesList` to ensure Doctrine detects changes to JSON-like columns.
+         * Doctrine only tracks updates when the object reference changes.
+         * @see CustomFieldValuesList
+         * @see CustomFieldValueType
+         */
+        return clone $currentCustomFieldValuesList;
+    }
+
+    protected function handleExistingCustomField(
+        CustomFieldValuesList $currentCustomFieldValuesList,
+        CustomFieldValue $existingCustomFieldValue,
+        CustomFieldValue $newCustomFieldValue,
+    ): void {
+        // If the value is null, remove this field from the updated list
+
+        if (null === $newCustomFieldValue->getValue()) {
+            $currentCustomFieldValuesList->removeCustomFieldValue($newCustomFieldValue);
+
+            return;
+        }
+
+        $existingCustomFieldValue->setValue($newCustomFieldValue->getValue());
+    }
+
+    protected function handleNewCustomField(
+        CustomFieldValuesList $currentCustomFieldValuesList,
+        CustomFieldValue $newCustomFieldValue,
+    ): void {
+        // Skip adding fields marked for removal
+        if (null !== $newCustomFieldValue->getValue()) {
+            $currentCustomFieldValuesList->addCustomFieldValue($newCustomFieldValue);
+        }
     }
 
     private function getCustomField(string $sourceEntityClass,

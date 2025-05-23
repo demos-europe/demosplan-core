@@ -5,7 +5,6 @@ nelmio_security:
         enforce:
             # see full description below
             level1_fallback: true
-            report-uri: "%router.request_context.base_url%/nelmio/csp/report"
             default-src: [ 'self' ]
             frame-src: '%demosplan_csp_frame_src%'
             # Backward compatible frame-src

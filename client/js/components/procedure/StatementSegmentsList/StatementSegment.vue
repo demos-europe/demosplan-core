@@ -62,7 +62,7 @@
                     {{ Object.values(customFields).find(field => field.id === customField.id)?.attributes?.name || '' }}:
                   </dt>
                   <dd>
-                    {{ customField.value }}
+                    {{ customField.value ? customField.value : Translator.trans('not.assigned')}}
                   </dd>
                 </div>
               </template>
@@ -288,8 +288,7 @@
                 @select="(value) => setCustomFieldValue(value)"
                 label="name"
                 :options="customFieldsOptions[field.id]"
-                track-by="id">
-              </dp-multiselect>
+                track-by="id" />
             </template>
           </template>
         </div>
@@ -519,10 +518,16 @@ export default {
   },
 
   computed: {
-    ...mapState('SegmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', [
+      'slidebar'
+    ]),
 
     ...mapState('AssignableUser', {
       assignableUserItems: 'items'
+    }),
+
+    ...mapState('Place', {
+      placeItems: 'items'
     }),
 
     ...mapState('CustomField', {
@@ -566,8 +571,8 @@ export default {
      */
     customFieldsOptions () {
       return Object.values(this.customFields).reduce((acc, el) => {
-        const opts =  [ ...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
-        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id})
+        const opts = [...el.attributes.options].map((opt) => ({ name: opt, id: `${el.id}:${opt}`, fieldId: el.id }))
+        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id, value: 'UNASSIGNED' })
 
         return {
           ...acc,
@@ -739,6 +744,49 @@ export default {
       this.activeId = id
     },
 
+    initAssignableUsers () {
+      const assignableUsersLoaded = Object.keys(this.assignableUserItems).length
+
+      if (assignableUsersLoaded) {
+        this.setSelectedAssignee()
+
+        return
+      }
+
+      this.fetchAssignableUsers({
+        include: 'department',
+        sort: 'lastname'
+      })
+        .then(() => {
+          this.setSelectedAssignee()
+        })
+    },
+
+    initPlaces () {
+      const placeItemsLoaded = Object.keys(this.placeItems).length
+
+      if (placeItemsLoaded) {
+        this.setSelectedPlace()
+
+        return
+      }
+
+      this.fetchPlaces({
+        fields: {
+          Place: [
+            'description',
+            'name',
+            'solved',
+            'sortIndex'
+          ].join()
+        },
+        sort: 'sortIndex'
+      })
+        .then(() => {
+          this.setSelectedPlace()
+        })
+    },
+
     openBoilerPlate () {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
@@ -772,11 +820,15 @@ export default {
     save () {
       const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
       const { assignee, place } = this.updateRelationships()
+      const hasCustomFields = hasPermission('field_segments_custom_fields') && Object.values(this.customFieldValues).length > 0
       let attributes = null
 
-      if (hasPermission('field_segments_custom_fields') && Object.values(this.customFieldValues).length > 0) {
+      if (hasCustomFields) {
         attributes = {
-          customFields: Object.values(this.customFieldValues).map(({ fieldId, name }) => ({ id: fieldId, value: name }))
+          customFields: Object.values(this.customFieldValues).map(option => ({
+            id: option.fieldId,
+            value: this.getCustomFieldValueForPayload(option)
+          }))
         }
       }
 
@@ -795,13 +847,48 @@ export default {
         payload.data.attributes = attributes
       }
 
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
+      const updatedSegment = {
+        id: this.segment.id,
+        type: 'StatementSegment',
+        attributes: {
+          ...this.segment.attributes,
+          ...(hasCustomFields ? {
+            customFields: {
+              ...this.segment.attributes.customFields,
+              ...payload.data.attributes?.customFields
+            }
+          } : {})
+        },
+        relationships: {
+          ...this.segment.relationships,
+          ...payload.data.relationships
+        }
+      }
+
+      this.setSegment({
+        ...updatedSegment,
+        id: this.segment.id
+      })
+
+      /**
+       * By default, the `saveAction` method (from vuex-json-api) only sends changed properties.
+       * Since the `id` inside `customFields` has not changed, it is excluded from the update payload.
+       * Using the `full` option forces the entire `customFields` object to be included in the PATCH request.
+       */
+      const savePayload = hasCustomFields
+        ? {
+            id: this.segment.id,
+            options: {
+              attributes: {
+                full: 'customFields'
+              }
+            }
+          }
+        : { id: this.segment.id }
+
+      this.saveSegmentAction(savePayload)
         .then(checkResponse)
         .then(() => {
-          /*
-           * @improve - once the vuex-json-api resolves with a response,
-           * we can handle success messages in checkResponse() again.
-           */
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           this.isFullscreen = false
           this.isEditing = false
@@ -833,8 +920,10 @@ export default {
      * @param {string} value.id   id of the selected option
      * @param {string} value.fieldId   id of the custom field
      * @param {string} value.name   name of the selected option
+     * @param {string} value.value   optional explicit value to use ('UNASSIGNED' for unassigned)
      */
     setCustomFieldValue (value) {
+      // Store the value directly, the unset option already has value: 'UNASSIGNED'
       this.customFieldValues[value.fieldId] = value
     },
 
@@ -847,6 +936,18 @@ export default {
           this.customFieldValues[fieldId] = selectedOption
         }
       })
+    },
+
+    setSelectedAssignee () {
+      if (this.segment.relationships?.assignee?.data?.id) {
+        this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+      }
+    },
+
+    setSelectedPlace () {
+      if (this.segment.relationships.place) {
+        this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+      }
     },
 
     showComments () {
@@ -1009,35 +1110,22 @@ export default {
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
       this.setSegment({ ...updated, id: this.segment.id })
+    },
+
+    // Helper to get the custom field value from an option
+    getCustomFieldValueForPayload (option) {
+      // Return null for unassigned options instead of 'UNASSIGNED'
+      return option.value === 'UNASSIGNED' ? null : option.name
     }
   },
 
   mounted () {
-    this.fetchPlaces({
-      fields: {
-        Place: [
-          'description',
-          'name',
-          'solved',
-          'sortIndex'
-        ].join()
-      },
-      sort: 'sortIndex'
-    })
-      .then(() => {
-        if (this.segment.relationships.place) {
-          this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
-        }
-        if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields.length > 0) {
-          this.setInitiallySelectedCustomFieldValues()
-        }
-      })
-    this.fetchAssignableUsers({ include: 'department', sort: 'lastname' })
-      .then(() => {
-        if (this.segment.relationships?.assignee?.data?.id) {
-          this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
-        }
-      })
+    this.initPlaces()
+    this.initAssignableUsers()
+
+    if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
+      this.setInitiallySelectedCustomFieldValues()
+    }
 
     loadAddonComponents('segment.recommendationModal.tab')
       .then(addons => {
