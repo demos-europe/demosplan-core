@@ -12508,7 +12508,6 @@ __metadata:
     tippy.js: "npm:^6.3.7"
     util: "npm:^0.12.4"
     uuid: "npm:^11.0.3"
-    vue: "npm:3.5.13"
     vue-eslint-parser: "npm:^10.1.1"
     vue-loader: "npm:^16.8.3"
     vue-scrollto: "npm:^2.20.0"
@@ -14452,7 +14451,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue@npm:3.5.13, vue@npm:^3.4.38":
+"vue@npm:^2.6":
+  version: 2.7.16
+  resolution: "vue@npm:2.7.16"
+  dependencies:
+    "@vue/compiler-sfc": "npm:2.7.16"
+    csstype: "npm:^3.1.0"
+  checksum: 10c0/15bf536c131a863d03c42386a4bbc82316262129421ef70e88d1758bcf951446ef51edeff42e3b27d026015330fe73d90155fca270eb5eadd30b0290735f2c3e
+  languageName: node
+  linkType: hard
+
+"vue@npm:^3.4.38":
   version: 3.5.13
   resolution: "vue@npm:3.5.13"
   dependencies:
@@ -14467,16 +14476,6 @@ __metadata:
     typescript:
       optional: true
   checksum: 10c0/4bbb5caf3f04fed933b01c100804f3693ff902984a3152ea1359a972264fa3240f6551d32f0163a79c64df3715b4d6691818c9f652cdd41b2473c69e2b0a373d
-  languageName: node
-  linkType: hard
-
-"vue@npm:^2.6":
-  version: 2.7.16
-  resolution: "vue@npm:2.7.16"
-  dependencies:
-    "@vue/compiler-sfc": "npm:2.7.16"
-    csstype: "npm:^3.1.0"
-  checksum: 10c0/15bf536c131a863d03c42386a4bbc82316262129421ef70e88d1758bcf951446ef51edeff42e3b27d026015330fe73d90155fca270eb5eadd30b0290735f2c3e
   languageName: node
   linkType: hard
 
