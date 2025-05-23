@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "26faf288d57bece494d63a033ed40f79",
+    "content-hash": "989cf27f6b3be6bcf7b3bee9c2734147",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1637,16 +1637,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.55",
+            "version": "v0.56",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "f337ada350d9dc24d558627efcc5bac44d6a1ded"
+                "reference": "d718ff872ed1695b22d079d96fdce085929b2d00"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/f337ada350d9dc24d558627efcc5bac44d6a1ded",
-                "reference": "f337ada350d9dc24d558627efcc5bac44d6a1ded",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/d718ff872ed1695b22d079d96fdce085929b2d00",
+                "reference": "d718ff872ed1695b22d079d96fdce085929b2d00",
                 "shasum": ""
             },
             "require": {
@@ -1713,9 +1713,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.55"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.56"
             },
-            "time": "2025-05-20T11:24:49+00:00"
+            "time": "2025-05-23T11:34:23+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
