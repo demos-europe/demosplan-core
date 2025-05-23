@@ -155,6 +155,11 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
                 return $fileContainers;
             });
 
+        $originalStatementConfig->procedure
+            ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
+            ->setReadableByPath()
+            ->setFilterable();
+
         return $originalStatementConfig;
     }
 
