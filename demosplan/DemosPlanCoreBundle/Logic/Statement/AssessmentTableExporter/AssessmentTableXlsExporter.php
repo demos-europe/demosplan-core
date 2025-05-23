@@ -240,7 +240,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
      * Creates an array with column definitions for statements.
      * Order of calls affects the order in the resulting xlsx document.
      */
-    protected function createColumnsDefinitionForStatementsOrSegments(bool $isStatement): array
+    public function createColumnsDefinitionForStatementsOrSegments(bool $isStatement): array
     {
         $columnsDefinition = [];
 
@@ -385,7 +385,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
      *
      * @internal param $exportType
      */
-    protected function prepareDataForExcelExport(
+    public function prepareDataForExcelExport(
         array $statements,
         bool $anonymous,
         array $keysOfAttributesToExport,
@@ -450,7 +450,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         return $formattedStatements->toArray();
     }
 
-    protected function formatStatement(array $keysOfAttributesToExport, array $statementArray): array
+    protected function formatStatement(array $keysOfAttributesToExport, array $statementArray, bool $explodeParts = false): array
     {
         $formattedStatement = [];
         $htmlConverter = new HtmlConverter(['strip_tags' => true]);
@@ -458,18 +458,20 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         foreach ($keysOfAttributesToExport as $attributeKey) {
             $formattedStatement[$attributeKey] = $statementArray[$attributeKey] ?? null;
 
-            // allow dot notation in export definition
-            $explodedParts = explode('.', (string) $attributeKey);
-            switch (count($explodedParts)) {
-                case 2:
-                    $formattedStatement[$attributeKey] = $statementArray[$explodedParts[0]][$explodedParts[1]];
-                    break;
-                case 3:
-                    $formattedStatement[$attributeKey] =
-                        $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]];
-                    break;
-                default:
-                    break;
+            if (true === $explodeParts) {
+                // allow dot notation in export definition
+                $explodedParts = explode('.', (string) $attributeKey);
+                switch (count($explodedParts)) {
+                    case 2:
+                        $formattedStatement[$attributeKey] = $statementArray[$explodedParts[0]][$explodedParts[1]];
+                        break;
+                    case 3:
+                        $formattedStatement[$attributeKey] =
+                            $statementArray[$explodedParts[0]][$explodedParts[1]][$explodedParts[2]];
+                        break;
+                    default:
+                        break;
+                }
             }
 
             // simplify every attribute which is an array (to stirng)
