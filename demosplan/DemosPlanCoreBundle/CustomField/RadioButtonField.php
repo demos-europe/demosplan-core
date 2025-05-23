@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 
 class RadioButtonField extends AbstractCustomField
 {
-
     protected string $id = '';
 
     protected string $name = '';
@@ -89,14 +88,17 @@ class RadioButtonField extends AbstractCustomField
         $this->fieldType = $type;
     }
 
-
     public function getType(): string
     {
         return 'singleSelect';
     }
 
-    public function isValueValid(string $value): bool
+    public function isValueValid(?string $value): bool
     {
+        if (null === $value) {
+            return true;
+        }
+
         if (in_array($value, $this->options, true)) {
             return true;
         }
