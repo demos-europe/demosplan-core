@@ -102,6 +102,7 @@ class SegmentController extends BaseController
             new RecommendationRequestEvent($statement, $procedure),
             RecommendationRequestEventInterface::class
         );
+
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_statement_segments_list.html.twig',
             [
