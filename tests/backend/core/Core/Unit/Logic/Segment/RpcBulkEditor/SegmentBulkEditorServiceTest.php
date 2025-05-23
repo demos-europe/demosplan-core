@@ -91,8 +91,22 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
 
         $this->sut->updateSegments([$segment1, $segment2], [], [], $this->user, null, $customFieldsValuesToUpdate);
 
-        self::assertEquals('Orange', $segment1->getCustomFields()->getCustomFieldsValues()[0]->getValue());
-        self::assertEquals('Bread', $segment2->getCustomFields()->getCustomFieldsValues()[1]->getValue());
+        // Get custom field values as arrays for easier assertion
+        $segment1Values = array_map(
+            static fn ($value) => $value->getValue(),
+            $segment1->getCustomFields()->getCustomFieldsValues()
+        );
+
+        $segment2Values = array_map(
+            static fn ($value) => $value->getValue(),
+            $segment2->getCustomFields()->getCustomFieldsValues()
+        );
+
+        // Check both 'Orange' and 'Bread' are in both segments' custom field values
+        self::assertContains('Orange', $segment1Values);
+        self::assertContains('Bread', $segment1Values);
+        self::assertContains('Orange', $segment2Values);
+        self::assertContains('Bread', $segment2Values);
     }
 
     private function createCustomField($procedure, string $name, string $description, array $options): CustomFieldConfiguration
