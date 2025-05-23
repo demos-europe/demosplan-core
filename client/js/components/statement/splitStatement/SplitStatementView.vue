@@ -755,6 +755,7 @@ export default {
 
       const newSegments = this.prosemirror.keyAccess.rangeTrackerKey.getState(state)
       const oldSegments = this.stateBeforeEditing
+
       const changes = generateRangeChangeMap(newSegments, oldSegments)
 
       changes.createdRanges.forEach(range => {

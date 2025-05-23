@@ -427,7 +427,6 @@ const SplitStatementStore = {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
       dataToSend.attributes.textualReference = state.initText
       dataToSend.attributes.segments = state.segments
-
       const payload = {
         id: state.statementId,
         type: 'Statement',
