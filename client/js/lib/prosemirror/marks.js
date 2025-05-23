@@ -10,7 +10,7 @@
 /**
  * This mark is used to represent range shaped information.
  */
-const rangeMark = {
+const segmentsMark = {
   attrs: {
     rangeId: { default: null },
     isActive: { default: false },
@@ -20,7 +20,7 @@ const rangeMark = {
   },
   inclusive: true,
   parseDOM: [{
-    tag: 'span[data-range]',
+    tag: 'segments-mark',
     getAttrs (dom) {
       return {
         rangeId: dom.getAttribute('data-range'),
@@ -65,4 +65,4 @@ const rangeSelectionMark = {
   }
 }
 
-export { rangeMark, rangeSelectionMark }
+export { segmentsMark, rangeSelectionMark }

@@ -173,6 +173,7 @@ import { mapActions, mapGetters, mapMutations } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CardPane from './CardPane'
 import dayjs from 'dayjs'
+import { DOMSerializer } from 'prosemirror-model'
 import { generateRangeChangeMap } from '@DpJs/lib/prosemirror/utilities'
 import SegmentationEditor from './SegmentationEditor'
 import SideBar from './SideBar'
@@ -198,9 +199,6 @@ const mergeRangesAndSegments = (ranges, segments) => {
       console.warn('A segment was updated in Prosemirror but no corresponding segment found in store.')
       return
     }
-
-    mergedSegment.charStart = range.from
-    mergedSegment.charEnd = range.to
     mergedSegment.status = range.isConfirmed ? 'confirmed' : false
     mergedSegment.text = range.text
     mergedSegments.push(mergedSegment)
@@ -485,10 +483,45 @@ export default {
         this.prosemirror.view,
         rangeTrackerKey,
         editStateTrackerKey,
-        id,
-        { active: this.editingSegment.charEnd, fixed: this.editingSegment.charStart }
+        id
       )
       this.ignoreProsemirrorUpdates = false
+    },
+
+    extractHtmlWithRangeMarks () {
+      /**
+       * Serialize the entire ProseMirror document to HTML, converting any `<span data-range="...">…</span>` into a custom `<segments-mark>`
+       * element so that segment identifiers are preserved in the output.
+       *
+       * @param {EditorState} state
+       *  The current ProseMirror editor state.
+       * @returns {string}
+       *  Serialized HTML including `<segments-mark data-range="...">…</segments-mark>`
+       */
+      const state = this.prosemirror.view.state
+      const { schema } = state
+      const serializer = DOMSerializer.fromSchema(schema)
+      const fragment = serializer.serializeFragment(state.tr.doc.content)
+
+      const wrapper = document.createElement('div')
+      wrapper.appendChild(fragment)
+
+      wrapper.querySelectorAll('span[data-range]').forEach(span => {
+        const mark = document.createElement('segments-mark')
+        const attributes = [...span.attributes]
+
+        attributes.forEach(({ name, value }) => {
+          /* Copy just the essential metadata (e.g. data-range, id) for the textual reference */
+          if (name === 'data-range') { // ToDO: Do we need ID here as well?
+            mark.setAttribute(name, value)
+          }
+        })
+
+        mark.innerHTML = span.innerHTML
+        span.replaceWith(mark)
+      })
+
+      return wrapper.innerHTML.trim()
     },
 
     fetchAssignableUsers () {
@@ -541,10 +574,27 @@ export default {
               this.setInitialData()
               this.fetchTags()
             }
-
             this.segmentationStatus = 'inUserSegmentation'
           })
       }
+    },
+
+    getSegmentsMarkRangesById (segmentId) {
+      /**
+       * Find all occurrences of a `segmentsMark` with the given ID in the document.
+       * This handles multiple occurrences across different paragraphs or blocks.
+       */
+      const { doc } = this.prosemirror.view.state
+      const ranges = []
+
+      doc.nodesBetween(0, doc.content.size, (node, pos) => {
+        if (node.marks.some(mark => mark.type.name === 'segmentsMark' && mark.attrs.rangeId === segmentId)) {
+          ranges.push({ from: pos, to: pos + node.nodeSize })
+        }
+        return true
+      })
+
+      return ranges
     },
 
     handleCardHighlighting (segmentId, highlight) {
@@ -640,8 +690,6 @@ export default {
     handleSegmentCreation (segmentToCreate) {
       const segment = {
         id: uuid(),
-        charStart: segmentToCreate.from,
-        charEnd: segmentToCreate.to,
         tags: [],
         hasProsemirrorIndex: true,
         status: 'confirmed',
@@ -651,10 +699,13 @@ export default {
       this.setProperty({ prop: 'editModeActive', val: true })
       this.locallyUpdateSegments([segment])
       this.ignoreProsemirrorUpdates = true
-      setRange(this.prosemirror.view)(segment.charStart, segment.charEnd, { rangeId: segment.id, isConfirmed: true, isActive: false })
+
+      // We still need from/to values to create a segment marks in the prosemirror
+      setRange(this.prosemirror.view)(segmentToCreate.from, segmentToCreate.to, { rangeId: segment.id, isConfirmed: true, isActive: false })
+
       const { rangeTrackerKey, editingDecorationsKey, editStateTrackerKey } = this.prosemirror.keyAccess
       setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(segment.id, true)
-      activateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id, { active: segment.charEnd, fixed: segment.charStart })
+      activateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id, { active: segmentToCreate.to, fixed: segmentToCreate.from })
       this.ignoreProsemirrorUpdates = false
     },
 
@@ -681,13 +732,18 @@ export default {
     },
 
     immediatelyDeleteSegment (segmentId) {
-      const segment = this.segmentById(segmentId)
+      const segmentsMarkRanges = this.getSegmentsMarkRangesById(segmentId)
       const { state } = this.prosemirror.view
-      const tr = removeRange(state, segment.charStart, segment.charEnd)
+      let tr = null
+
+      segmentsMarkRanges.forEach(({ from, to }) => {
+        tr = removeRange(state, from, to, tr)
+      })
 
       this.ignoreProsemirrorUpdates = true
       this.prosemirror.view.dispatch(tr)
       this.ignoreProsemirrorUpdates = false
+      this.updateTextualReference()
       this.deleteSegmentAction(segmentId)
       this.isSegmentDraftUpdated = true
       this.setCurrentTime()
@@ -786,9 +842,10 @@ export default {
         return
       }
 
+      this.disableEditMode()
+      this.updateTextualReference()
       this.saveSegmentsDrafts(true)
       this.isSegmentDraftUpdated = true
-      this.disableEditMode()
       this.setCurrentTime()
     },
 
@@ -821,6 +878,17 @@ export default {
       if (this.editModeActive && e.keyCode === 27) {
         this.$refs.sideBar.reset()
       }
+    },
+
+    updateTextualReference () {
+      const textualReference = this.extractHtmlWithRangeMarks()
+      console.log('textualReference: ', textualReference)
+
+      /* Store the serialized HTML (with custom <segments-mark> annotations) in draftSegmentsList for future re-hydration */
+      this.setProperty({
+        prop: 'initText',
+        val: textualReference
+      })
     },
 
     updateSegments (updatedSegments) {

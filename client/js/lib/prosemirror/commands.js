@@ -73,7 +73,7 @@ const replaceRange = (state, from, to, rangeAttrs, tr = false) => {
     throw new Error('Ranges can not be split in two parts.')
   }
 
-  return replaceMarkInRange(state, from, to, 'range', rangeAttrs, tr)
+  return replaceMarkInRange(state, from, to, 'segmentsMark', rangeAttrs, tr)
 }
 
 /**
@@ -87,7 +87,7 @@ const replaceRange = (state, from, to, rangeAttrs, tr = false) => {
  *
  */
 const removeRange = (state, from, to, tr = false) => {
-  const rangeMarkType = state.config.schema.marks.range
+  const rangeMarkType = state.config.schema.marks.segmentsMark
   let transaction = tr || state.tr
 
   transaction = transaction.removeMark(from, to, rangeMarkType)
@@ -254,7 +254,7 @@ const genEditingDecorations = (state, from, to, id, activePosition = null) => {
  * @param {Number} activationPosition
  *
  */
-const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, rangeId, positions = { active: null, fixed: null }) => {
+const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, rangeId) => {
   const { state, dispatch } = view
   let tr = state.tr
 
@@ -262,8 +262,10 @@ const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, rangeId, 
    * This block sets the cursor near the activated range handle. It then toggles the range editing mode by notifying
    * the editStateTracker-plugin via a meta message.
    */
-  tr = tr.setSelection(TextSelection.near(state.doc.resolve(positions.active)))
   const range = rangeTrackerKey.getState(state)[rangeId]
+  const positions = { active: range.to, fixed: range.from }
+
+  tr = tr.setSelection(TextSelection.near(state.doc.resolve(range.to)))
   tr = tr.setMeta(editStateTrackerKey, { id: rangeId, pos: positions.active, moving: true, positions })
   dispatch(tr)
 
