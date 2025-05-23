@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "989cf27f6b3be6bcf7b3bee9c2734147",
+    "content-hash": "b2ffebb60a66acda4391fb2d54704406",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -4252,23 +4252,23 @@
         },
         {
             "name": "enqueue/elastica-bundle",
-            "version": "0.13.0",
+            "version": "0.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-enqueue/enqueue-elastica-bundle.git",
-                "reference": "3be2638e060ed8a49e8df6c605d8dcc9f43ca9d2"
+                "reference": "b12c5950ed03df32ae9008dd2fb7cdc1da9840d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-enqueue/enqueue-elastica-bundle/zipball/3be2638e060ed8a49e8df6c605d8dcc9f43ca9d2",
-                "reference": "3be2638e060ed8a49e8df6c605d8dcc9f43ca9d2",
+                "url": "https://api.github.com/repos/php-enqueue/enqueue-elastica-bundle/zipball/b12c5950ed03df32ae9008dd2fb7cdc1da9840d7",
+                "reference": "b12c5950ed03df32ae9008dd2fb7cdc1da9840d7",
                 "shasum": ""
             },
             "require": {
                 "enqueue/enqueue-bundle": "^0.10",
                 "friendsofsymfony/elastica-bundle": "^6.0",
                 "php": "^7.1|^8.0",
-                "symfony/framework-bundle": "^4.0|^5.0|^6.0"
+                "symfony/framework-bundle": "^6.0|^7.0"
             },
             "require-dev": {
                 "doctrine/orm": "^2.0"
@@ -4296,9 +4296,9 @@
                 "performance"
             ],
             "support": {
-                "source": "https://github.com/php-enqueue/enqueue-elastica-bundle/tree/0.13.0"
+                "source": "https://github.com/php-enqueue/enqueue-elastica-bundle/tree/0.15.0"
             },
-            "time": "2022-10-27T16:30:48+00:00"
+            "time": "2025-05-05T16:16:56+00:00"
         },
         {
             "name": "enqueue/enqueue",
