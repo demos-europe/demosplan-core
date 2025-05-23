@@ -126,7 +126,6 @@ const removeMarkByName = (state, markName, markAttr, tr = false) => {
 const setRangeEditingState = (view, rangeTrackerKey, editingDecorationsKey) => (id, editingState) => {
   const { dispatch, state } = view
   const range = rangeTrackerKey.getState(state)[id]
-
   const { from, to, isConfirmed, rangeId } = range
 
   if (!range) {
@@ -179,7 +178,6 @@ const replaceMarkInRange = (state, from, to, markKey, markAttrs, tr = false) => 
   const newMark = markType.create(newAttrs)
   transaction = transaction.addMark(from, to, newMark)
   const markCollection = getMarks(flattenNode(transaction.doc), markKey, 'pmId')
-  // Console.log('markCollection: ', markCollection)
   const currentMarkCollection = markCollection[pmId]
 
   currentMarkCollection.marks.forEach(m => {
@@ -269,7 +267,6 @@ const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, rangeId) 
 
   tr = tr.setSelection(TextSelection.near(state.doc.resolve(range.to)))
   tr = tr.setMeta(editStateTrackerKey, { id: rangeId, pos: positions.active, moving: true, positions })
-
   dispatch(tr)
 
   /**

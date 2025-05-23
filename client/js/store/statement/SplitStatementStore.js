@@ -8,7 +8,6 @@
  */
 
 import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
-import mockData from '../../components/statement/mocks/segmentedStatement.json'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
 import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
 
@@ -231,22 +230,16 @@ const SplitStatementStore = {
           if (!hasOwnProp(data.data.attributes.segmentDraftList, 'data')) {
             return []
           }
-
           const initialData = data.data.attributes.segmentDraftList.data
-
-          // Const initialData = mockData.data
-          console.log('initialData: ', initialData)
-
           const segments = initialData.attributes.segments
-          console.log('initialData.attributes.segments: ', initialData.attributes.segments)
           /*
            * Filter out segments with less than 10 characters as those may lead the frontend to crash
            * (because often that are closing or opening tags)
            * and should probably not be needed in a real world scenario.
            */
-          // .filter(segment => (segment.charEnd - segment.charStart) > 10)
+          // .filter(segment => (segment.charEnd - segment.charStart) > 10) // ToDO: do wo still need this?
 
-          // Check if we are getting overlapping segments from pipeline that would cause errors
+          // Check if we are getting overlapping segments from pipeline that would cause errors // ToDO: and this?
           /*
            *if (doUpdate) {
            *for (let i = 0; i < segments.length; i++) {

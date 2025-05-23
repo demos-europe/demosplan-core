@@ -199,11 +199,6 @@ const mergeRangesAndSegments = (ranges, segments) => {
       console.warn('A segment was updated in Prosemirror but no corresponding segment found in store.')
       return
     }
-
-    /*
-     * MergedSegment.charStart = range.from
-     * mergedSegment.charEnd = range.to
-     */
     mergedSegment.status = range.isConfirmed ? 'confirmed' : false
     mergedSegment.text = range.text
     mergedSegments.push(mergedSegment)
@@ -584,6 +579,24 @@ export default {
       }
     },
 
+    getSegmentsMarkRangesById (segmentId) {
+      /**
+       * Find all occurrences of a `segmentsMark` with the given ID in the document.
+       * This handles multiple occurrences across different paragraphs or blocks.
+       */
+      const { doc } = this.prosemirror.view.state
+      const ranges = []
+
+      doc.nodesBetween(0, doc.content.size, (node, pos) => {
+        if (node.marks.some(mark => mark.type.name === 'segmentsMark' && mark.attrs.rangeId === segmentId)) {
+          ranges.push({ from: pos, to: pos + node.nodeSize })
+        }
+        return true
+      })
+
+      return ranges
+    },
+
     handleCardHighlighting (segmentId, highlight) {
       const card = document.querySelector(`div[data-range="${segmentId}"]`)
       if (card) {
@@ -718,26 +731,12 @@ export default {
       this.setProperty({ prop: 'currentlyHighlightedSegmentId', val: highlightedSegmentId })
     },
 
-    getSegmentRanges (segmentId) {
-      const { doc } = this.prosemirror.view.state
-      const ranges = []
-
-      doc.nodesBetween(0, doc.content.size, (node, pos) => {
-        if (node.marks.some(m => m.type.name === 'segmentsMark' && m.attrs.rangeId === segmentId)) {
-          ranges.push({ from: pos, to: pos + node.nodeSize })
-        }
-        return true
-      })
-
-      return ranges.sort((a, b) => b.from - a.from)
-    },
-
     immediatelyDeleteSegment (segmentId) {
-      const ranges = this.getSegmentRanges(segmentId)
+      const segmentsMarkRanges = this.getSegmentsMarkRangesById(segmentId)
       const { state } = this.prosemirror.view
       let tr = null
 
-      ranges.forEach(({ from, to }) => {
+      segmentsMarkRanges.forEach(({ from, to }) => {
         tr = removeRange(state, from, to, tr)
       })
 
@@ -842,10 +841,10 @@ export default {
         return
       }
 
-      this.isSegmentDraftUpdated = true
-      this.disableEditMode()
       this.updateTextualReference()
       this.saveSegmentsDrafts(true)
+      this.isSegmentDraftUpdated = true
+      this.disableEditMode()
       this.setCurrentTime()
     },
 

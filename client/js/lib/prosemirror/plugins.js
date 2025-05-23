@@ -70,11 +70,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
         const meta = tr.getMeta(pluginKey)
         const move = editingTrackerKey.getState(newState)
 
-        console.log('meta', meta)
-        console.log('move', move)
-
         if (meta && meta.editing) {
-          console.log('EDITING')
           /**
            * In case prosemirror updates are triggered inside the callback we want to avoid triggering the callback again.
            * This does not allow the calling code to react to changes made by their own callback but it removes
@@ -93,8 +89,6 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
             activeDecorationPosition: null
           }
         } else if (meta && !meta.editing) {
-          console.log('!EDITING')
-
           /**
            * In case prosemirror updates are triggered inside the callback we want to avoid triggering the callback again.
            * This does not allow the calling code to react to changes made by their own callback but it removes
@@ -111,13 +105,9 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
             activeDecorationPosition: null
           }
         } else if (move.moving) {
-          console.log('MOVING')
           const { fixed } = move.positions
           const selection = tr.selection
           const newDecorationPosition = selection.$head.pos
-
-          console.log('newDecorationPosition', newDecorationPosition)
-
           const { from, to } = getMinMax(fixed, newDecorationPosition)
 
           return {
@@ -422,7 +412,6 @@ const rangeCreator = (pluginKey, rangeEditingKey) => {
  * @return {{schema, plugins: (prosemirror-plugin|*)[], keys: {rangeTrackerKey, editingDecorationsKey, rangeCreatorKey, editStateTrackerKey}}}
  */
 const initRangePlugin = (schema, rangeChangeCallback, editToggleCallback) => {
-  // Let marks = schema.spec.marks.addToStart('range', rangeMark)
   let marks = schema.spec.marks
 
   if (!marks.get('rangeselection')) {
