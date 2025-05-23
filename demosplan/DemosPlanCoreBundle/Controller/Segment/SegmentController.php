@@ -32,11 +32,11 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentController extends BaseController
@@ -74,7 +74,7 @@ class SegmentController extends BaseController
         string $procedureId,
         string $statementId,
         ProcedureCoupleTokenFetcher $tokenFetcher,
-        EventDispatcher $eventDispatcher,
+        EventDispatcherInterface $eventDispatcher,
     ): Response {
         $procedure = $procedureService->getProcedure($procedureId);
         $sessionProcedureId = $currentProcedureService->getProcedureIdWithCertainty();
