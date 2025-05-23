@@ -73,12 +73,6 @@ export default {
       'currentlyHighlightedSegmentId',
       'sortedSegments'
     ])
-
-    /*
-     *FilteredSortedSegments () {
-     *return this.sortedSegments.filter(el => el.charEnd <= this.maxRange)
-     *}
-     */
   },
 
   methods: {
@@ -141,7 +135,7 @@ export default {
       })
 
       Object.values(groupedCards).forEach(group => {
-        group.sort((a, b) => a.segment.charStart - b.segment.charStart)
+        // Group.sort((a, b) => a.segment.charStart - b.segment.charStart)
         group.forEach((el, idx) => {
           el.position = idx + 1
         })

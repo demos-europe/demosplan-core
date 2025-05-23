@@ -293,7 +293,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
            * Under schema.spec.marks we will find an OrderedMap of marks in the current schema (https://github.com/marijnh/orderedmap#readme),
            * the OrderedMap lets us remove entries by calling its subtract method with the keys that we'd like to remove.
            */
-          const rangeMarksRemoved = schema.spec.marks.subtract({ rangeselection: null, range: null })
+          const rangeMarksRemoved = schema.spec.marks.subtract({ rangeselection: null, segmentsMark: null })
           const reducedSchema = new Schema({
             nodes: schema.spec.nodes,
             marks: rangeMarksRemoved

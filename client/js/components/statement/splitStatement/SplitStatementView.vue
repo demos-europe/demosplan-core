@@ -201,8 +201,8 @@ const mergeRangesAndSegments = (ranges, segments) => {
     }
 
     /*
-     *MergedSegment.charStart = range.from
-     *mergedSegment.charEnd = range.to
+     * MergedSegment.charStart = range.from
+     * mergedSegment.charEnd = range.to
      */
     mergedSegment.status = range.isConfirmed ? 'confirmed' : false
     mergedSegment.text = range.text
@@ -671,10 +671,6 @@ export default {
     handleSegmentCreation (segmentToCreate) {
       const segment = {
         id: uuid(),
-        /*
-         * CharStart: segmentToCreate.from,
-         * charEnd: segmentToCreate.to,
-         */
         tags: [],
         hasProsemirrorIndex: true,
         status: 'confirmed',
@@ -685,6 +681,7 @@ export default {
       this.locallyUpdateSegments([segment])
       this.ignoreProsemirrorUpdates = true
 
+      // We still need from/to values to create a segment marks in the prosemirror
       setRange(this.prosemirror.view)(segmentToCreate.from, segmentToCreate.to, { rangeId: segment.id, isConfirmed: true, isActive: false })
 
       const { rangeTrackerKey, editingDecorationsKey, editStateTrackerKey } = this.prosemirror.keyAccess
@@ -715,10 +712,28 @@ export default {
       this.setProperty({ prop: 'currentlyHighlightedSegmentId', val: highlightedSegmentId })
     },
 
+    getSegmentRanges (segmentId) {
+      const { doc } = this.prosemirror.view.state
+      const ranges = []
+
+      doc.nodesBetween(0, doc.content.size, (node, pos) => {
+        if (node.marks.some(m => m.type.name === 'segmentsMark' && m.attrs.rangeId === segmentId)) {
+          ranges.push({ from: pos, to: pos + node.nodeSize })
+        }
+        return true
+      })
+
+      return ranges.sort((a, b) => b.from - a.from)
+    },
+
     immediatelyDeleteSegment (segmentId) {
-      const segment = this.segmentById(segmentId)
+      const ranges = this.getSegmentRanges(segmentId)
       const { state } = this.prosemirror.view
-      const tr = removeRange(state, segment.charStart, segment.charEnd)
+      let tr = null
+
+      ranges.forEach(({ from, to }) => {
+        tr = removeRange(state, from, to, tr)
+      })
 
       this.ignoreProsemirrorUpdates = true
       this.prosemirror.view.dispatch(tr)
@@ -748,7 +763,6 @@ export default {
         const tr = removeRange(state, range.from, range.to)
         this.prosemirror.view.dispatch(tr)
       })
-
       this.ignoreProsemirrorUpdates = false
       this.stateBeforeEditing = null
     },
@@ -826,6 +840,8 @@ export default {
 
       const htmlWithMarks = this.extractFullHtmlWithMarks(this.prosemirror.view.state)
       console.log('htmlWithMarks', htmlWithMarks)
+      this.setProperty({ prop: 'initText', val: htmlWithMarks })
+
       this.saveSegmentsDrafts(true) // The textualReference with a new marks will be send to the BE, to save the data in a meanwhile (draftSegments)
 
       this.setCurrentTime()

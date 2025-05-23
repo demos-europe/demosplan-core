@@ -228,13 +228,13 @@ const SplitStatementStore = {
         }
       }))
         .then(({ data }) => {
-          /*
-           *If (!hasOwnProp(data.data.attributes.segmentDraftList, 'data')) {
-           *return []
-           *}
-           *const initialData = data.data.attributes.segmentDraftList.data
-           */
-          const initialData = mockData.data
+          if (!hasOwnProp(data.data.attributes.segmentDraftList, 'data')) {
+            return []
+          }
+
+          const initialData = data.data.attributes.segmentDraftList.data
+
+          // Const initialData = mockData.data
           console.log('initialData: ', initialData)
 
           const segments = initialData.attributes.segments
@@ -432,7 +432,9 @@ const SplitStatementStore = {
 
     saveSegmentsDrafts ({ state, dispatch }, triggerNotifications = false) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
+      dataToSend.attributes.textualReference = state.initText
       dataToSend.attributes.segments = state.segments
+
       const payload = {
         id: state.statementId,
         type: 'Statement',

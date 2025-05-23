@@ -27,28 +27,65 @@
           "place": {
             "id": "27d3107e-a47d-420c-974c-0f7af9d55762",
             "name": "Erwiderung verfassen"
-          }
+          },
+          "status": "confirmed",
+          "text": "Die Nähe zum FFH-Gebiet und das dortige Vorkommen des Rotmilans als charakteristische Art gibt zu Bedenken Anlass, zumindest im nördlichen Erweiterungsteil. Die Rotmilan-Raumnutzung ist spätestens im Zulassungsverfahren genauer zu prüfen, auf bisheriger Datengrundlage kann eine Beeinträchtigung nicht ausgeschlossen werden, sie erscheint sogar wahrscheinlich.&nbsp;"
         },{
           "id": "3a734d53-3405-4a2f-acf4-14c0a179e387",
-          "tags": [],
+          "tags": [
+            {
+              "tagName": "sinkende Lebensqualität",
+              "id": "58f9d222-107e-4105-a197-f041decbcc3e"
+            },
+            {
+              "tagName": "Abstände zur Bebauung zu gering",
+              "id": "b717fba7-49fa-47c6-b6fc-ba43fd3c04ea"
+            }
+          ],
           "place": {
             "id": "27d3107e-a47d-420c-974c-0f7af9d55762",
             "name": "Erwiderung verfassen"
-          }
+          },
+          "hasProsemirrorIndex": true,
+          "status": "confirmed",
+          "text": "<p>Es ist bei einer Erweiterung des bestehenden Windparks Konfliktpotenzial vorhanden, so dass im Zulassungsverfahren Restriktionen zu befürchten sind. </p><p>Insbesondere die Gefahren durch Eiswurf sind erheblich und bei der geplanten Anlagenhöhe völlig unkalkulierbar. Die Anwohner und ihre Kinder, die in unter 500 oder maximal 1.000 m Entfernung wohnen,</p>",
+          "placeId": "27d3107e-a47d-420c-974c-0f7af9d55762"
         },{
           "id": "ddd54fce-ff22-4b9c-ba49-94b398bf43bd",
-          "tags": [],
+          "tags": [
+            {
+              "tagName": "Vorliegende Abbaugenehmigung für oberflächennahe Rohstoffe nicht berücksichtigt",
+              "id": "d87238b0-6122-4abe-9940-7f532357bb99"
+            },
+            {
+              "tagName": "Vorranggebiete Rohstoffsicherung und Abbau oberflächennaher Rohstoffe",
+              "id": "fd218bba-e078-4a92-819f-5c55ec4e1933"
+            }
+          ],
           "place": {
             "id": "27d3107e-a47d-420c-974c-0f7af9d55762",
             "name": "Erwiderung verfassen"
-          }
+          },
+          "hasProsemirrorIndex": true,
+          "status": "confirmed",
+          "text": "Aber auch die Gefahren durch Anlagenbrände sind gerade durch die starken Größenzuwächse der Anlagen enorm gestiegen. Wie die letzten Nachrichten zeigen hat auch die Materialfestigkeit durch Produktion im Ausland ab- und die Gefährdung dadurch zugenommen. (Und nebenbei: wo bleibt die Umweltfreundlichkeit bei Transport solch riesiger Teile um die halbe Welt?)&nbsp;",
+          "placeId": "27d3107e-a47d-420c-974c-0f7af9d55762"
         },{
           "id": "b8c92973-b535-4984-89d2-a3b46626975a",
-          "tags": [],
+          "tags": [
+            {
+              "tagName": "bestehende und sichergestellte Naturschutzgebiete",
+              "id": "0b24b8af-5f6f-4ef0-9b3a-24bd63565cc5"
+            }
+          ],
           "place": {
             "id": "27d3107e-a47d-420c-974c-0f7af9d55762",
             "name": "Erwiderung verfassen"
-          }
+          },
+          "hasProsemirrorIndex": true,
+          "status": "confirmed",
+          "text": "<p>Durch den Windpark wird der Wert unserer Immobilie sich quasi über Nacht drastisch verschlechtern, vielleicht sogar nahezu gleich null sein. Wer fängt diesen Schaden auf? </p><p>Die allgemeinen Gefahren für die Anwohner aber auch für Spaziergänger, Wanderer,</p>",
+          "placeId": "27d3107e-a47d-420c-974c-0f7af9d55762"
         }
       ]
     },
@@ -88,20 +125,17 @@
           "tags": {
             "data": [
               {
-                "tagName": "test - 1 schlagwort",
-                "id": "b09ef8d1-b77e-462c-95e3-e8d94cb43784"
+                "id": "1218badb-250c-4fe2-bcec-953e9989c5a9",
+                "tagName": "nt new",
+                "tagScore": 0
               },
               {
-                "tagName": "3 bzw. 5 km Abstand zum Danewerk, weiches Tabu und Abwägung",
-                "id": "0ccc5c4b-99a1-4dc6-92ff-44845add0412"
+                "tagName": "Abstand 150 m zu Gleisanlagen",
+                "id": "039bbc0d-e071-408f-a842-e98e3d5daa01"
               },
               {
-                "tagName": "Einzelne Kulturdenkmale Hochbau",
-                "id": "146e1b9a-eeb4-4e18-9468-59f1ecf98d16"
-              },
-              {
-                "tagName": "Sichtachsen auf Lübecker Altstadt",
-                "id": "16f9cc48-672a-4b98-ae6c-94cad3f084f4"
+                "tagName": "Platzrunden, Bauschutzbereiche um Flugpl\u00e4tze",
+                "id": "053a6bbf-25d9-482a-9b37-ac58415042c1"
               }
             ],
             "place": {
@@ -115,8 +149,6 @@
       },
       {
         "id": "3a734d53-3405-4a2f-acf4-14c0a179e387",
-        "charStart": 415,
-        "charEnd": 764,
         "tags": [
           {
             "tagName": "sinkende Lebensqualität",
@@ -138,8 +170,6 @@
       },
       {
         "id": "ddd54fce-ff22-4b9c-ba49-94b398bf43bd",
-        "charStart": 808,
-        "charEnd": 1168,
         "tags": [
           {
             "tagName": "Vorliegende Abbaugenehmigung für oberflächennahe Rohstoffe nicht berücksichtigt",
@@ -161,8 +191,6 @@
       },
       {
         "id": "b8c92973-b535-4984-89d2-a3b46626975a",
-        "charStart": 1281,
-        "charEnd": 1534,
         "tags": [
           {
             "tagName": "bestehende und sichergestellte Naturschutzgebiete",

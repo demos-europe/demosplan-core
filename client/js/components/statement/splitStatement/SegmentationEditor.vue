@@ -26,8 +26,6 @@ import { EditorView } from 'prosemirror-view'
 import { initRangePlugin } from '@DpJs/lib/prosemirror/plugins'
 import { schema } from 'prosemirror-schema-basic'
 import { segmentsMark } from '@DpJs/lib/prosemirror/marks'
-import { setRange } from '@DpJs/lib/prosemirror/commands'
-import { v4 as uuid } from 'uuid'
 
 export default {
   name: 'SegmentationEditor',
@@ -131,11 +129,6 @@ export default {
         })
       })
 
-      /*
-       * Const transformedSegments = this.transformSegments(this.segments.filter(segment => segment.charEnd <= this.maxRange))
-       * transformedSegments.forEach(segment => setRange(view)(segment.from, segment.to, segment.attributes))
-       */
-
       const getContent = (schema) => (state) => {
         const container = document.createElement('div')
         const serialized = DOMSerializer.fromSchema(schema).serializeFragment(state.doc.content, { document: window.document }, container)
@@ -148,8 +141,6 @@ export default {
         getContent: getContent(proseSchema)
       }
 
-      console.log('prosemirrorStateWrapper', prosemirrorStateWrapper)
-
       /**
        * We've put a wrapper around our prosemirror instance and freeze it afterwards to prevent Vue from watching
        * prosemirror internals. This would lead to a huge performance hit otherwise.
@@ -159,23 +150,6 @@ export default {
       this.$emit('prosemirror:maxRange', this.maxRange)
       this.$emit('prosemirror:initialized', prosemirrorStateWrapper)
     }
-
-    /*
-     *TransformSegments (segments) {
-     *  const segmentsCpy = JSON.parse(JSON.stringify(segments))
-     *  return segmentsCpy.map(segment => {
-     *    return {
-     *      attributes: {
-     *        rangeId: segment.id,
-     *        isConfirmed: segment.status === 'confirmed',
-     *        pmId: uuid()
-     *      },
-     *      from: segment.charStart,
-     *      to: segment.charEnd
-     *    }
-     *  })
-     *}
-     */
   },
 
   mounted () {
