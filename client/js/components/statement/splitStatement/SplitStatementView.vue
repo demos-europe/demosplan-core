@@ -842,10 +842,10 @@ export default {
         return
       }
 
+      this.disableEditMode()
       this.updateTextualReference()
       this.saveSegmentsDrafts(true)
       this.isSegmentDraftUpdated = true
-      this.disableEditMode()
       this.setCurrentTime()
     },
 
@@ -882,6 +882,7 @@ export default {
 
     updateTextualReference () {
       const textualReference = this.extractHtmlWithRangeMarks()
+      console.log('textualReference: ', textualReference)
 
       /* Store the serialized HTML (with custom <segments-mark> annotations) in draftSegmentsList for future re-hydration */
       this.setProperty({
