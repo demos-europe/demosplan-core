@@ -2,25 +2,27 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\OriginalStatementCsvExporter;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
 use Doctrine\ORM\Query\QueryException;
+use Exception;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementExportController extends BaseController
 {
     public function __construct(
         private readonly RequestStack $requestStack,
-        private readonly ProcedureHandler $procedureHandler,
+        private readonly TranslatorInterface $translator,
         private readonly NameGenerator $nameGenerator,
     ) {
     }
@@ -66,12 +68,15 @@ class StatementExportController extends BaseController
             'text/csv; charset=utf-8'
         );
 
-        $procedure =
-            $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $filename = sprintf(
+            $this->translator->trans('statements.original').'-%s.csv',
+            Carbon::now('Europe/Berlin')->format('d-m-Y-H:i')
+        );
+
+
         $response->headers->set('Content-Disposition',
             $this->nameGenerator->generateDownloadFilename(
-                sprintf('original_statements_%s.csv',
-                    $procedure->getId())
+                $filename
             ));
 
         return $response;
