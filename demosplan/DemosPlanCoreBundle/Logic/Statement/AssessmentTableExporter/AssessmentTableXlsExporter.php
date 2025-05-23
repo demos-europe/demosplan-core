@@ -452,8 +452,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
     /**
      * Preserves underlined, strikethrough, and mark text when converting HTML to markdown
-     * Replaces <u>, <s>, and <mark> tags with markers before conversion and then back after conversion
- */
+     * Replaces <u>, <s>, and <mark> tags with markers before conversion and then back after conversion.
+     */
     protected function preserveUnderlinedAndStrikethroughText(string $text): string
     {
         // Replace <u> tags with |underline| markers before conversion
@@ -475,7 +475,6 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $convertedText = preg_replace('/~~(.*?)~~/s', '<s>$1</s>', $convertedText);
         // Replace |mark| markers back to <mark> tags after conversion
         $convertedText = preg_replace('/\|mark\|(.*?)\|mark\|/s', '<mark title="markierter Text">$1<mark/>', $convertedText);
-
 
         return $convertedText;
     }
