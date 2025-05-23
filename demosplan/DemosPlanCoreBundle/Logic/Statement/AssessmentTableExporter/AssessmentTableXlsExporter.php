@@ -474,7 +474,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         // Replace |underline| markers back to <u> tags after conversion
         $convertedText = preg_replace('/~~(.*?)~~/s', '<s>$1</s>', $convertedText);
         // Replace |mark| markers back to <mark> tags after conversion
-        $convertedText = preg_replace('/\|mark\|(.*?)\|mark\|/s', '<mark title="markierter Text">$1<mark/>', $convertedText);
+        $convertedText = preg_replace('/\|mark\|(.*?)\|mark\|/s', '<mark title="markierter Text">$1</mark>', $convertedText);
 
         return $convertedText;
     }
