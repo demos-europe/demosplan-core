@@ -493,7 +493,17 @@ export default {
       this.ignoreProsemirrorUpdates = false
     },
 
-    extractFullHtmlWithMarks (state) {
+    extractHtmlWithRangeMarks () {
+      /**
+       * Serialize the entire ProseMirror document to HTML, converting any `<span data-range="...">…</span>` into a custom `<segments-mark>`
+       * element so that segment identifiers are preserved in the output.
+       *
+       * @param {EditorState} state
+       *  The current ProseMirror editor state.
+       * @returns {string}
+       *  Serialized HTML including `<segments-mark data-range="...">…</segments-mark>`
+       */
+      const state = this.prosemirror.view.state
       const { schema } = state
       const serializer = DOMSerializer.fromSchema(schema)
       const fragment = serializer.serializeFragment(state.tr.doc.content)
@@ -502,11 +512,12 @@ export default {
       wrapper.appendChild(fragment)
 
       wrapper.querySelectorAll('span[data-range]').forEach(span => {
-        const mark = document.createElement('segment-mark')
+        const mark = document.createElement('segments-mark')
         const attributes = [...span.attributes]
 
-        attributes.forEach(({ name, value }) => { // Copy the data-range attribute; ToDO: it seems like we need an ID here as well. What is ID?
-          if (name === 'data-range') {
+        attributes.forEach(({ name, value }) => {
+          /* Copy just the essential metadata (e.g. data-range, id) for the textual reference */
+          if (name === 'data-range') { // ToDO: Do we need ID here as well?
             mark.setAttribute(name, value)
           }
         })
@@ -515,10 +526,7 @@ export default {
         span.replaceWith(mark)
       })
 
-      const inner = wrapper.innerHTML.trim()
-      return inner.startsWith('<dp-statement') // ToDO: Ask about: Do we really need dp-statement wrapper? Do we need dp-loophole (what is it?)
-        ? inner
-        : `<dp-statement>${inner}</dp-statement>`
+      return wrapper.innerHTML.trim()
     },
 
     fetchAssignableUsers () {
@@ -565,14 +573,12 @@ export default {
       if (!addonsLoaded.includes('SplitStatementPreprocessor')) {
         this.fetchStatementSegmentDraftList(this.statementId)
           .then(({ data }) => {
-            // If (data.data.attributes.segmentDraftList) {
-            this.fetchInitialData()
-            /*
-             * } else {
-             * this.setInitialData()
-             * this.fetchTags()
-             * }
-             */
+            if (data.data.attributes.segmentDraftList) {
+              this.fetchInitialData()
+            } else {
+              this.setInitialData()
+              this.fetchTags()
+            }
             this.segmentationStatus = 'inUserSegmentation'
           })
       }
@@ -738,6 +744,7 @@ export default {
       this.ignoreProsemirrorUpdates = true
       this.prosemirror.view.dispatch(tr)
       this.ignoreProsemirrorUpdates = false
+      this.updateTextualReference()
       this.deleteSegmentAction(segmentId)
       this.isSegmentDraftUpdated = true
       this.setCurrentTime()
@@ -837,13 +844,8 @@ export default {
 
       this.isSegmentDraftUpdated = true
       this.disableEditMode()
-
-      const htmlWithMarks = this.extractFullHtmlWithMarks(this.prosemirror.view.state)
-      console.log('htmlWithMarks', htmlWithMarks)
-      this.setProperty({ prop: 'initText', val: htmlWithMarks })
-
-      this.saveSegmentsDrafts(true) // The textualReference with a new marks will be send to the BE, to save the data in a meanwhile (draftSegments)
-
+      this.updateTextualReference()
+      this.saveSegmentsDrafts(true)
       this.setCurrentTime()
     },
 
@@ -876,6 +878,16 @@ export default {
       if (this.editModeActive && e.keyCode === 27) {
         this.$refs.sideBar.reset()
       }
+    },
+
+    updateTextualReference () {
+      const textualReference = this.extractHtmlWithRangeMarks()
+
+      /* Store the serialized HTML (with custom <segments-mark> annotations) in draftSegmentsList for future re-hydration */
+      this.setProperty({
+        prop: 'initText',
+        val: textualReference
+      })
     },
 
     updateSegments (updatedSegments) {
