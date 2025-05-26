@@ -22,8 +22,7 @@ class OriginalStatementCsvExporter extends CoreService
     public function __construct(
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         private readonly StatementService $statementService,
-    private readonly AssessmentTableServiceOutput $assesmentTableServiceOutput)
-
+        private readonly AssessmentTableServiceOutput $assesmentTableServiceOutput)
     {
     }
 
