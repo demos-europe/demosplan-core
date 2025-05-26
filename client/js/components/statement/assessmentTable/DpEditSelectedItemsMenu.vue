@@ -24,7 +24,7 @@
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
         @consolidateStatements="$root.$emit('consolidateStatements')"
-      />
+        @exportModal:toggle="tab => $refs.exportModal.toggleModal(tab)" />
 
       <dp-button
         class="float-right"

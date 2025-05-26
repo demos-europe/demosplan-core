@@ -273,6 +273,7 @@ fos_elastica:
                 pId: {type: keyword, index: true}
                 uId: {type: keyword, index: true}
                 elementId: {type: keyword, index: true}
+                authorOnly: {type: boolean }
                 deleted: {type: boolean }
                 released: {type: boolean }
                 submitted: {type: boolean }

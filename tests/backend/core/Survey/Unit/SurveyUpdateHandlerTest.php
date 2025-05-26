@@ -23,7 +23,7 @@ class SurveyUpdateHandlerTest extends SurveyTestUtils
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut = self::$container->get(SurveyUpdateHandler::class);
+        $this->sut = self::getContainer()->get(SurveyUpdateHandler::class);
     }
 
     /**

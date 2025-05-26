@@ -171,7 +171,7 @@ export default {
       type: Object,
       required: true,
       validator (value) {
-        return Object.hasOwn(value, 'originalAttachment') && Object.hasOwn('additionalAttachments')
+        return Object.hasOwn(value, 'originalAttachment') && Object.hasOwn(value, 'additionalAttachments')
       }
     },
 
@@ -230,7 +230,8 @@ export default {
           this.resetSourceAttachment()
           this.setLocalOriginalAttachment(this.initialAttachments.originalAttachment)
         }
-      }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     },
     'initialAttachments.additionalAttachments': {
       handler (newVal) {

@@ -19,7 +19,7 @@
 
         {# original statements #}
         <original-statements-table
-            :csrf-token="{{ csrf_token('csrf')|json_encode }}"
+            csrf-token="{{ csrf_token('csrf')|json_encode }}"
             :export-options="JSON.parse('{{ templateVars.assessmentExportOptions|json_encode|e('js', 'utf-8') }}')"
             init-filter-hash="{{ templateVars.filterHash }}"
             :init-pagination="{
@@ -29,9 +29,8 @@
                 limits: JSON.parse('{{ templateVars.pager.limits|default([])|json_encode }}'),
                 total: parseInt('{{ templateVars.totalResults|default(0) }}')
             }"
-            procedure-id="{{ templateVars.table.procedure.ident }}"
-        >
-            <template v-slot:filter="{ allItemsOnPageSelected, procedureId, copyStatements }">
+            procedure-id="{{ templateVars.table.procedure.ident }}">
+            <template v-slot:filter="{ allItemsOnPageSelected, procedureId, copyStatements, toggleExportModal }">
                 {# filters + sorting #}
                 {% include '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_original_filter.html.twig' %}
             </template>

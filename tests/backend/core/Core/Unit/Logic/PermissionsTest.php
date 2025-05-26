@@ -86,7 +86,7 @@ class PermissionsTest extends FunctionalTestCase
 
         $this->procedure = $procedure;
 
-        self::$rolesAllowed = self::$container->get(GlobalConfigInterface::class)->getRolesAllowed();
+        self::$rolesAllowed = self::getContainer()->get(GlobalConfigInterface::class)->getRolesAllowed();
     }
 
     /**
@@ -124,16 +124,16 @@ class PermissionsTest extends FunctionalTestCase
 
         // generiere ein Stub vom GlobalConfig
         /** @var MockObject|GlobalConfigInterface $globalConfig */
-        $globalConfig = self::$container->get(GlobalConfigInterface::class);
-        $corePermissions = self::$container->get(CachingYamlPermissionCollection::class);
-        $permissionsResolver = self::$container->get(PermissionResolver::class);
-        $validator = self::$container->get(ValidatorInterface::class);
+        $globalConfig = self::getContainer()->get(GlobalConfigInterface::class);
+        $corePermissions = self::getContainer()->get(CachingYamlPermissionCollection::class);
+        $permissionsResolver = self::getContainer()->get(PermissionResolver::class);
+        $validator = self::getContainer()->get(ValidatorInterface::class);
         $procedureRepository = $this->getProcedureRepositoryMock();
         $permissionsClass = $this->getPermissionsClass();
-        $accessControlService = self::$container->get(AccessControlService::class);
+        $accessControlService = self::getContainer()->get(AccessControlService::class);
 
-        $customerService = static::$container->get(CustomerService::class);
-        $addonRegistry = static::$container->get(AddonRegistry::class);
+        $customerService = self::getContainer()->get(CustomerService::class);
+        $addonRegistry = self::getContainer()->get(AddonRegistry::class);
 
         $tokenMockMethods = [
             new MockMethodDefinition('isOwningProcedure', $ownsProcedure),
@@ -310,7 +310,6 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_statement_meta_house_number_export',
                     'field_procedure_name',
                     'field_statement_feedback',
-                    'field_statement_phase',
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [

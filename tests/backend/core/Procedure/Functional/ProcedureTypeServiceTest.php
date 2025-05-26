@@ -46,7 +46,7 @@ class ProcedureTypeServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(ProcedureTypeService::class);
+        $this->sut = self::getContainer()->get(ProcedureTypeService::class);
 
         $this->testProcedureType1 = $this->getProcedureTypeReference('testProcedureType1');
         $this->testProcedureType2 = $this->getProcedureTypeReference(LoadProcedureTypeData::BRK);
@@ -285,7 +285,7 @@ class ProcedureTypeServiceTest extends FunctionalTestCase
         self::markSkippedForCIIntervention();
 
         /** @var ProcedureTypeResourceType $procedureTypeResourceType */
-        $procedureTypeResourceType = self::$container->get(ProcedureTypeResourceType::class);
+        $procedureTypeResourceType = self::getContainer()->get(ProcedureTypeResourceType::class);
         $procedureTypes = $procedureTypeResourceType->getEntities([], []);
         static::assertCount($this->countEntries(ProcedureType::class), $procedureTypes);
     }

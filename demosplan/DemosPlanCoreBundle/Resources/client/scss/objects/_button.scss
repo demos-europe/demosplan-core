@@ -258,6 +258,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
         &:has(> span + svg.portrait) {
             padding-right: $inuit-base-spacing-unit--tiny;
         }
+
         &:has(> svg.portrait + span) {
             padding-left: $inuit-base-spacing-unit--tiny;
         }
@@ -267,16 +268,18 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
         // Assume that half leading is distributed well on non-system fonts...
         &.small {
             &.search {
-                padding: 7px 6px 6px 6px;
+                padding: 7px 6px 6px;
             }
 
             &:not(.search) {
                 padding: $dp-form-element-spacing-vertical $inuit-base-spacing-unit--tiny;
             }
         }
+
         &.medium {
             padding: $inuit-base-spacing-unit--tiny - 1px $inuit-base-spacing-unit--tiny;
         }
+
         &.large {
             padding: 1px 2px;
         }
@@ -304,10 +307,7 @@ $dp-form-element-spacing-vertical: $inuit-base-spacing-unit--tiny + 1px;
             display: block;
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             z-index: 0;
             transition: opacity .3s ease;
             background-size: $inuit-base-spacing-unit $inuit-base-spacing-unit;

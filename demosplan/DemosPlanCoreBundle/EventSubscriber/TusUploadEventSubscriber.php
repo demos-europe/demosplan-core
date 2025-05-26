@@ -88,10 +88,10 @@ class TusUploadEventSubscriber implements EventSubscriberInterface
             )->getId();
         } catch (VirusFoundException $e) {
             $this->logger->error('Virus found in File ', [$e]);
-            $fileId = '';
+            $fileId = $fileHash ='';
         } catch (Throwable $e) {
             $this->logger->error('Could not save uploaded File ', [$e]);
-            $fileId = '';
+            $fileId = $fileHash = '';
         }
 
         // we handled the file and can allow tus to have the same file uploaded again

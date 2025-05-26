@@ -47,6 +47,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $initialOrganisationCity @deprecated Should be moved into OrgaSubmitData resource type or something similar
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $initialOrganisationDepartmentName @deprecated Should be moved into OrgaSubmitData resource type or something similar
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $initialOrganisationName @deprecated Should be moved into OrgaSubmitData resource type or something similar
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $authorFeedback @deprecated Should be moved into OrgaSubmitData resource type or something similar
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $initialOrganisationPostalCode @deprecated Should be moved into OrgaSubmitData resource type or something similar
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $parentId @deprecated Statements in clusters should get a separate resource type where this relationship(!) can be moved into
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $procedureId @deprecated Use relationship instead

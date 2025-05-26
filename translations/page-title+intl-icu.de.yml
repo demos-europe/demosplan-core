@@ -177,7 +177,7 @@ statement.vote: Stellungnahme mitzeichnen
 statement.bulk.edit: Stellungnahmen bearbeiten
 
 statements: Stellungnahmen
-statements.drafts: Meine Entwürfe
+statements.drafts: Entwürfe
 statements.final.group: Einreichungen der Organisation
 statements.final.own: Meine Einreichungen
 statements.import: Stellungnahmen importieren

@@ -10,10 +10,13 @@
 
 namespace Tests\Core\Document\Functional;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadElementsData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Document\ElementsFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\HiddenElementUpdateException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
@@ -30,16 +33,16 @@ class ElementsServiceTest extends FunctionalTestCase
     /** @var Elements */
     protected $testElement;
 
-    /** @var string */
-    protected $testProcedureId;
+    /** @var Procedure */
+    protected $testProcedure2;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(ElementsService::class);
+        $this->sut = self::getContainer()->get(ElementsService::class);
         $this->testElement = $this->fixtures->getReference('testElement1');
-        $this->testProcedureId = $this->fixtures->getReference('testProcedure')->getId();
+        $this->testProcedure2 = $this->fixtures->getReference('testProcedure2');
     }
 
     private function checkElementArray($elementArray)
@@ -77,9 +80,7 @@ class ElementsServiceTest extends FunctionalTestCase
 
         /** @var Orga $testOrga */
         $testOrga = $this->fixtures->getReference('testOrgaPB');
-        /** @var Procedure $testProcedure */
-        $testProcedure = $this->fixtures->getReference('testProcedure2');
-        $result = $this->sut->getElementsListObjects($testProcedure->getId(), $testOrga->getIdent());
+        $result = $this->sut->getElementsListObjects($this->testProcedure2->getId(), $testOrga->getIdent());
         $result = array_map([$this->sut, 'convertElementToArray'], $result);
         foreach ($result as $element) {
             self::assertSame(false, $element['deleted']);
@@ -98,11 +99,11 @@ class ElementsServiceTest extends FunctionalTestCase
                     true
                 );
             }
-            self::assertSame($testProcedure->getId(), $element['pId']);
+            self::assertSame($this->testProcedure2->getId(), $element['pId']);
         }
 
         // dynamic way to get reference number of results:
-        $referenceElements = collect($this->getEntries(Elements::class, ['pId' => $testProcedure]));
+        $referenceElements = collect($this->getEntries(Elements::class, ['pId' => $this->testProcedure2->getId()]));
         self::assertNotEmpty($referenceElements);
         $filteredReferenceElements = $referenceElements->filter(
             function (Elements $element) use ($testOrga): bool {
@@ -119,13 +120,11 @@ class ElementsServiceTest extends FunctionalTestCase
 
         /** @var Orga $testOrga */
         $testOrga = $this->fixtures->getReference('testOrgaPB');
-        /** @var Procedure $testProcedure */
-        $testProcedure = $this->fixtures->getReference('testProcedure2');
-        $result = $this->sut->getElementsListObjects($testProcedure->getId(), $testOrga->getIdent());
+        $result = $this->sut->getElementsListObjects($this->testProcedure2->getId(), $testOrga->getIdent());
         $result = array_map([$this->sut, 'convertElementToArray'], $result);
 
         // dynamic way to get reference number of results:
-        $referenceElements = collect($this->getEntries(Elements::class, ['procedure' => $testProcedure]));
+        $referenceElements = collect($this->getEntries(Elements::class, ['procedure' => $this->testProcedure2]));
         $referenceElements = $referenceElements->filter(
             function (Elements $element) use ($testOrga) {
                 $orgasOfElement = collect($element->getOrganisations());
@@ -148,10 +147,8 @@ class ElementsServiceTest extends FunctionalTestCase
 
     public function testGetElementsAdminList()
     {
-        /** @var Procedure $testProcedure */
-        $testProcedure = $this->fixtures->getReference('testProcedure2');
-        $result = $this->sut->getElementsAdminList($testProcedure->getId());
-        $referenceElements = collect($this->getEntries(Elements::class, ['procedure' => $testProcedure->getId()]));
+        $result = $this->sut->getElementsAdminList($this->testProcedure2->getId());
+        $referenceElements = collect($this->getEntries(Elements::class, ['procedure' => $this->testProcedure2->getId()]));
 
         static::assertIsArray($result);
         static::assertEquals($referenceElements->count(), sizeof($result));
@@ -173,12 +170,10 @@ class ElementsServiceTest extends FunctionalTestCase
         $testElement3 = $this->fixtures->getReference('testElement3');
         /** @var Elements $testElement4 */
         $testElement4 = $this->fixtures->getReference('testElement4');
-        /** @var Procedure $testProcedure */
-        $testProcedure = $this->fixtures->getReference('testProcedure2');
 
         $result = $this->sut->getElement($this->testElement->getIdent());
 
-        $referenceElements = collect($this->getEntries(Elements::class, ['procedure' => $testProcedure->getId(), 'id' => $this->testElement->getIdent()]));
+        $referenceElements = collect($this->getEntries(Elements::class, ['procedure' => $this->testProcedure2->getId(), 'id' => $this->testElement->getIdent()]));
         static::assertCount(1, $referenceElements);
         /** @var Elements $referenceElement */
         $referenceElement = $referenceElements->first();
@@ -230,7 +225,7 @@ class ElementsServiceTest extends FunctionalTestCase
     {
         $this->expectException(StatementElementNotFoundException::class);
 
-        $this->sut->getNegativeReportElement($this->fixtures->getReference('testProcedure2')->getId());
+        $this->sut->getNegativeReportElement($this->testProcedure2->getId());
     }
 
     public function testHasNegativeReportElement()
@@ -241,19 +236,18 @@ class ElementsServiceTest extends FunctionalTestCase
 
     public function testHasNoNegativeReportElement()
     {
-        $result = $this->sut->hasNegativeReportElement($this->fixtures->getReference('testProcedure2')->getId());
+        $result = $this->sut->hasNegativeReportElement($this->testProcedure2->getId());
         static::assertFalse($result);
     }
 
     public function testCalculateNextElementOrder()
     {
-        $testProcedure = $this->fixtures->getReference('testProcedure2');
         $referenceElements = collect($this->getEntries(Elements::class, ['id' => $this->testElement->getIdent()]));
         static::assertCount(1, $referenceElements);
         $referenceParentElement = $referenceElements->first();
 
         $data = [
-            'pId'           => $testProcedure->getId(),
+            'pId'           => $this->testProcedure2->getId(),
             'category'      => 'category',
             'title'         => 'title',
             'icon'          => 'icon',
@@ -267,7 +261,7 @@ class ElementsServiceTest extends FunctionalTestCase
         $numberOfChildrenBefore = $parentElement->getChildren()->count();
         static::assertEquals($referenceParentElement->getChildren()->count(), $numberOfChildrenBefore);
 
-        $elementsOfProcedure = $this->sut->getElementsListObjects($testProcedure->getId());
+        $elementsOfProcedure = $this->sut->getElementsListObjects($this->testProcedure2->getId());
 
         // get highest order number:
         $highestOrder = 1;
@@ -284,15 +278,13 @@ class ElementsServiceTest extends FunctionalTestCase
 
     public function testAddElement()
     {
-        /** @var Procedure $testProcedure */
-        $testProcedure = $this->fixtures->getReference('testProcedure2');
-        $referenceElements = collect($this->getEntries(Elements::class, ['id' => $this->testElement->getIdent()]));
+        $referenceElements = collect($this->getEntries(Elements::class, ['id' => $this->testElement->getId()]));
         static::assertCount(1, $referenceElements);
         /** @var Elements $referenceParentElement */
         $referenceParentElement = $referenceElements->first();
 
         $data = [
-            'pId'           => $testProcedure->getId(),
+            'pId'           => $this->testProcedure2->getId(),
             'category'      => 'category',
             'title'         => 'title',
             'icon'          => 'icon',
@@ -366,7 +358,7 @@ class ElementsServiceTest extends FunctionalTestCase
 
         $data = [
             'ident'         => $this->testElement->getIdent(),
-            'pId'           => $this->fixtures->getReference('testProcedure2')->getId(),
+            'pId'           => $this->testProcedure2->getId(),
             'parent'        => 'updatedparent',
             'category'      => 'updatedCategory',
             'title'         => 'updatedtitle',
@@ -396,7 +388,7 @@ class ElementsServiceTest extends FunctionalTestCase
     {
         $data = [
             'ident'         => $this->testElement->getIdent(),
-            'pId'           => $this->fixtures->getReference('testProcedure2')->getId(),
+            'pId'           => $this->testProcedure2->getId(),
             'parent'        => 'updatedparent',
             'category'      => 'updatedCategory',
             'title'         => 'updatedtitle',
@@ -407,7 +399,7 @@ class ElementsServiceTest extends FunctionalTestCase
             'organisations' => [],
         ];
 
-        $this->testElement->setPId($this->fixtures->getReference('testProcedure2')->getId());
+        $this->testElement->setPId($this->testProcedure2->getId());
         $this->testElement->setParent($this->fixtures->getReference('testElement6'));
         $this->testElement->setCategory($data['category']);
         $this->testElement->setTitle($data['title']);
@@ -510,6 +502,12 @@ class ElementsServiceTest extends FunctionalTestCase
         self::assertFalse($elementB->getDeleted());
         self::assertFalse($elementC->getDeleted());
 
+        // Update the designatedSwitchDate to yesterday to ensure it's treated as in the past
+        $yesterday = new DateTime('yesterday');
+        $elementA->setDesignatedSwitchDate($yesterday);
+        $elementB->setDesignatedSwitchDate($yesterday);
+        $this->getEntityManager()->flush();
+
         $affectedElementsCount = $this->sut->autoSwitchElementsState();
         self::assertEquals(2, $affectedElementsCount);
 
@@ -574,15 +572,13 @@ class ElementsServiceTest extends FunctionalTestCase
 
     public function testGetElementsListObjects()
     {
-        /** @var Procedure $testProcedure */
-        $testProcedure = $this->fixtures->getReference('testProcedure');
-        $elements = $this->sut->getElementsListObjects($testProcedure->getId());
+        $elements = $this->sut->getElementsListObjects($this->testProcedure2->getId());
 
         /** @var Elements[] $expectedResult */
         $expectedResult = $this->getEntries(
             Elements::class,
             [
-                'pId'     => $testProcedure->getId(),
+                'pId'     => $this->testProcedure2->getId(),
                 'enabled' => true,
             ],
             ['order' => 'ASC']
@@ -593,17 +589,15 @@ class ElementsServiceTest extends FunctionalTestCase
 
     public function testGetElementsOfOrganisation()
     {
-        /** @var Procedure $testProcedure */
-        $testProcedure = $this->fixtures->getReference('testProcedure');
         /** @var Orga $testOrganisation */
         $testOrganisation = $this->fixtures->getReference('testOrgaFP');
-        $foundElements = $this->sut->getElementsListObjects($testProcedure->getId(), $testOrganisation->getId());
+        $foundElements = $this->sut->getElementsListObjects($this->testProcedure2->getId(), $testOrganisation->getId());
 
         /** @var Elements[] $elementsOfProcedure */
         $elementsOfProcedure = $this->getEntries(
             Elements::class,
             [
-                'pId'     => $testProcedure->getId(),
+                'pId'     => $this->testProcedure2->getId(),
                 'enabled' => true,
             ],
             ['order' => 'ASC']
@@ -630,9 +624,7 @@ class ElementsServiceTest extends FunctionalTestCase
     public function testGetEnabledFileAndParagraphElements(): void
     {
         $testOrga = $this->getOrgaReference('testOrgaPB');
-        $testProcedure = $this->getProcedureReference('testProcedure2');
-
-        $elements = $this->sut->getEnabledFileAndParagraphElements($testProcedure->getId(), $testOrga->getId());
+        $elements = $this->sut->getEnabledFileAndParagraphElements($this->testProcedure2->getId(), $testOrga->getId());
 
         // testElement1 --> category : paragraph , no chapters (no parent)
         $expectedParagraphElement = $this->getElementReference('testElement1');
@@ -667,18 +659,16 @@ class ElementsServiceTest extends FunctionalTestCase
      */
     public function testGetOwnElements()
     {
-        /** @var Procedure $testProcedure */
-        $testProcedure = $this->fixtures->getReference('testProcedure');
         /** @var Orga $testOrganisation */
         $testOrganisation = $this->fixtures->getReference('testOrgaFP');
 
-        $elements = $this->sut->getElementsListObjects($testProcedure->getId(), $testOrganisation->getId(), true);
+        $elements = $this->sut->getElementsListObjects($this->testProcedure2->getId(), $testOrganisation->getId(), true);
 
         /** @var Elements[] $referenceResult */
         $referenceResult = $this->getEntries(
             Elements::class,
             [
-                'pId'     => $testProcedure->getId(),
+                'pId'     => $this->testProcedure2->getId(),
                 'enabled' => true,
             ],
             ['order' => 'ASC']
@@ -689,15 +679,13 @@ class ElementsServiceTest extends FunctionalTestCase
 
     public function testGetAlsoDisabledElements()
     {
-        /** @var Procedure $testProcedure */
-        $testProcedure = $this->fixtures->getReference('testProcedure');
-        $elements = $this->sut->getElementsListObjects($testProcedure->getId(), null, true, true);
+        $elements = $this->sut->getElementsListObjects($this->testProcedure2->getId(), null, true, true);
 
         /** @var Elements[] $referenceResult */
         $referenceResult = $this->getEntries(
             Elements::class,
             [
-                'pId' => $testProcedure->getId(),
+                'pId' => $this->testProcedure2->getId(),
             ],
             ['order' => 'ASC']
         );
@@ -709,11 +697,8 @@ class ElementsServiceTest extends FunctionalTestCase
     {
         self::markSkippedForCIIntervention();
 
-        /** @var Procedure $testProcedure */
-        $testProcedure = $this->fixtures->getReference('testProcedure');
-        $elementIds = $this->sut->getElementsIdsWithoutParagraphsAndDocuments($testProcedure->getId());
-
-        $elementsOfProcedure = $this->getEntries(Elements::class, ['pId' => $testProcedure->getId()]);
+        $elementIds = $this->sut->getElementsIdsWithoutParagraphsAndDocuments($this->testProcedure2->getId());
+        $elementsOfProcedure = $this->getEntries(Elements::class, ['pId' => $this->testProcedure2->getId()]);
 
         $expectedElementIds = [];
         foreach ($elementsOfProcedure as $element) {
@@ -733,10 +718,170 @@ class ElementsServiceTest extends FunctionalTestCase
 
     public function testGetStatementElement()
     {
-        /** @var Procedure $testProcedure */
-        $testProcedure = $this->fixtures->getReference('testProcedure2');
-        $statementElement = $this->sut->getStatementElement($testProcedure->getId());
+        $statementElement = $this->sut->getStatementElement($this->testProcedure2->getId());
 
         static::assertNotNull($statementElement);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testReportOnCreateElement(): void
+    {
+        $data = [
+            'pId'       => $this->testProcedure2->getId(),
+            'category'  => 'file',
+            'title'     => 'my test title',
+            'text'      => 'my test text',
+            'order'     => 0,
+            'deleted'   => false,
+            'enabled'   => 1,
+        ];
+
+        $result = $this->sut->addElement($data);
+        $element = $this->find(Elements::class, $result['id']);
+        static::assertInstanceOf(Elements::class, $element);
+
+        $relatedReports = $this->getEntries(ReportEntry::class,
+            [
+                'group'           => 'element',
+                'category'        => ReportEntry::CATEGORY_ADD,
+                'identifierType'  => 'procedure',
+                'identifier'      => $this->testProcedure2->getId(),
+            ]
+        );
+
+        static::assertCount(1, $relatedReports);
+        $relatedReport = $relatedReports[0];
+        static::assertInstanceOf(ReportEntry::class, $relatedReport);
+        $messageArray = $relatedReport->getMessageDecoded(false);
+
+        $this->assertElementReportEntryMessageKeys($messageArray);
+        $this->assertElementReportEntryMessageValues($element, $messageArray);
+    }
+
+    public function testReportOnUpdateArrayElement(): void
+    {
+        $testElement = ElementsFactory::createOne();
+        $updatedElement = $this->sut->updateElementArray([
+            'ident'             => $testElement->getId(),
+            'title'             => 'my updated element',
+            'text'              => 'a updated unique and nice text',
+        ]);
+        $updatedElement = $this->find(Elements::class, $updatedElement['ident']);
+
+        $relatedReports = $this->getEntries(ReportEntry::class,
+            [
+                'group'           => 'element',
+                'category'        => ReportEntry::CATEGORY_UPDATE,
+                'identifierType'  => 'procedure',
+                'identifier'      => $testElement->getProcedure()->getId(),
+            ]
+        );
+
+        static::assertCount(1, $relatedReports);
+        $relatedReport = $relatedReports[0];
+        static::assertInstanceOf(ReportEntry::class, $relatedReport);
+        $messageArray = $relatedReport->getMessageDecoded(false);
+
+        $this->assertElementReportEntryMessageKeys($messageArray);
+        $this->assertElementReportEntryMessageValues($updatedElement, $messageArray);
+    }
+
+    /**
+     * @throws HiddenElementUpdateException
+     */
+    public function testReportOnUpdateElement(): void
+    {
+        $testElement = ElementsFactory::createOne();
+        $testElement = $testElement->_real();
+        $testElement->setTitle('my updated single document');
+        $testElement->setText('a updated unique and nice text');
+        $updatedElement = $this->sut->updateElementObject($testElement);
+        $updatedElement = $this->find(Elements::class, $updatedElement->getId());
+
+        $relatedReports = $this->getEntries(ReportEntry::class,
+            [
+                'group'           => 'element',
+                'category'        => ReportEntry::CATEGORY_UPDATE,
+                'identifierType'  => 'procedure',
+                'identifier'      => $testElement->getProcedure()->getId(),
+            ]
+        );
+
+        static::assertCount(1, $relatedReports);
+        $relatedReport = $relatedReports[0];
+        static::assertInstanceOf(ReportEntry::class, $relatedReport);
+        $messageArray = $relatedReport->getMessageDecoded(false);
+
+        $this->assertElementReportEntryMessageKeys($messageArray);
+        $this->assertElementReportEntryMessageValues($updatedElement, $messageArray);
+    }
+
+    public function testReportOnDeleteElement(): void
+    {
+        $originElement = ElementsFactory::createOne();
+        $originId = $originElement->getId();
+        $procedureId = $originElement->getProcedure()->getId();
+        $result = $this->sut->deleteElement($originElement->getId());
+        static::assertTrue($result);
+        $relatedReports = $this->getEntries(ReportEntry::class,
+            [
+                'group'           => 'element',
+                'category'        => ReportEntry::CATEGORY_DELETE,
+                'identifierType'  => 'procedure',
+                'identifier'      => $procedureId,
+            ]
+        );
+
+        static::assertCount(1, $relatedReports);
+        $relatedReport = $relatedReports[0];
+        static::assertInstanceOf(ReportEntry::class, $relatedReport);
+        $messageArray = $relatedReport->getMessageDecoded(false);
+
+        $this->assertElementReportEntryMessageKeys($messageArray);
+        $this->assertElementReportEntryMessageValues($originElement->_real(), $messageArray, $originId);
+    }
+
+    private function assertElementReportEntryMessageKeys(array $messageArray): void
+    {
+        static::assertArrayHasKey('id', $messageArray);
+        static::assertArrayHasKey('title', $messageArray);
+        static::assertArrayHasKey('text', $messageArray);
+        static::assertArrayHasKey('category', $messageArray);
+        static::assertArrayHasKey('fileName', $messageArray);
+        static::assertArrayHasKey('parentCategory', $messageArray);
+        static::assertArrayHasKey('parentTitle', $messageArray);
+        static::assertArrayHasKey('enabled', $messageArray);
+        static::assertArrayHasKey('organisations', $messageArray);
+        static::assertArrayHasKey('keyOfInternalPhase', $messageArray);
+        static::assertArrayHasKey('keyOfEternalPhase', $messageArray);
+        static::assertArrayHasKey('nameOfInternalPhase', $messageArray);
+        static::assertArrayHasKey('nameOfExternalPhase', $messageArray);
+        static::assertArrayHasKey('date', $messageArray);
+    }
+
+    private function assertElementReportEntryMessageValues(
+        Elements $element,
+        array $messageArray,
+        ?string $originId = null,
+    ): void {
+        $id = $originId ?? $element->getId();
+
+        static::assertEquals($id, $messageArray['id']);
+        static::assertEquals($element->getTitle(), $messageArray['title']);
+        static::assertEquals($element->getText(), $messageArray['text']);
+        static::assertEquals($element->getCategory(), $messageArray['category']);
+        static::assertEquals($element->getFileInfo()->getFileName(), $messageArray['fileName']);
+        if ($element->getParent() instanceof Elements) {
+            static::assertEquals($element->getParent()->getCategory(), $messageArray['parentCategory']);
+            static::assertEquals($element->getParent()->getTitle(), $messageArray['parentTitle']);
+        }
+        static::assertEquals($element->getEnabled(), $messageArray['enabled']);
+        static::assertEquals($element->getOrganisationNames(true), $messageArray['organisations']);
+        static::assertEquals($element->getProcedure()->getPhase(), $messageArray['keyOfInternalPhase']);
+        static::assertEquals($element->getProcedure()->getPublicParticipationPhase(), $messageArray['keyOfEternalPhase']);
+        static::assertEquals($element->getProcedure()->getPhaseName(), $messageArray['nameOfInternalPhase']);
+        static::assertEquals($element->getProcedure()->getPublicParticipationPhaseName(), $messageArray['nameOfExternalPhase']);
     }
 }

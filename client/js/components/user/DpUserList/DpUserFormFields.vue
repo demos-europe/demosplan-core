@@ -143,10 +143,12 @@
 <script>
 import { dpApi, DpInput, DpMultiselect, DpSelect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
+import { nextTick } from 'vue'
 import qs from 'qs'
 
 export default {
   name: 'DpUserFormFields',
+
   components: {
     DpInput,
     DpMultiselect,
@@ -194,6 +196,10 @@ export default {
       default: () => ''
     }
   },
+
+  emits: [
+    'user-update'
+  ],
 
   data () {
     return {
@@ -283,6 +289,15 @@ export default {
     }
   },
 
+  watch: {
+    user: {
+      handler () {
+        this.localUser = JSON.parse(JSON.stringify(this.user))
+      },
+      deep: true
+    }
+  },
+
   methods: {
     ...mapMutations('Orga', ['setItem']),
 
@@ -309,7 +324,7 @@ export default {
 
     emitUserUpdate () {
       // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
-      Vue.nextTick(() => {
+      nextTick(() => {
         this.$emit('user-update', this.localUser)
       })
     },

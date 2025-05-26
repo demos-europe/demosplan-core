@@ -15,7 +15,7 @@ type {String}:    Error level (may be 'info', 'warning', 'error' or 'success'). 
 {% set type = type|default('info') %}
 
 <div class="flash flash-{{ type }}">
-    <i class="fa {{ iconClasses[type] }}" aria-hidden="true"></i>
+    <i class="fa {{ iconClasses[type] }} mr-1" aria-hidden="true"></i>
     <p class="inline-block u-mb-0">
         {{ message|wysiwyg }}
     </p>

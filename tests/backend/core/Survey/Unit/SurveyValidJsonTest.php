@@ -41,7 +41,7 @@ class SurveyValidJsonTest extends SurveyTestUtils
             '2020-20-10',
         ];
         /* @var SurveyValidator sut */
-        $this->sut = self::$container->get(SurveyValidator::class);
+        $this->sut = self::getContainer()->get(SurveyValidator::class);
     }
 
     /**
@@ -161,7 +161,7 @@ class SurveyValidJsonTest extends SurveyTestUtils
         string $json,
         bool $mustBeValid,
         string $errorMsg,
-        string $mode = 'update'
+        string $mode = 'update',
     ): void {
         try {
             $schemaFilePath = $this->jsonSchemaPathUpdate;

@@ -48,8 +48,8 @@
         <statement-segment
           v-for="segment in segments"
           :key="'segment_' + segment.id"
-          :segment="segment"
           ref="segment"
+          :segment="segment"
           :statement-id="statementId"
           :current-user-id="currentUser.id"
           :current-user-first-name="currentUser.firstname"
@@ -190,6 +190,22 @@ export default {
 
     fetchSegments () {
       this.isLoading = true
+
+      const statementSegmentFields = [
+        'tags',
+        'text',
+        'assignee',
+        'place',
+        'comments',
+        'externId',
+        'internId',
+        'orderInProcedure',
+        'polygon',
+        'recommendation'
+      ]
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
+      }
       this.listSegments({
         include: [
           'assignee',
@@ -200,18 +216,7 @@ export default {
           'tags'
         ].join(),
         fields: {
-          StatementSegment: [
-            'tags',
-            'text',
-            'assignee',
-            'place',
-            'comments',
-            'externId',
-            'internId',
-            'orderInProcedure',
-            'polygon',
-            'recommendation'
-          ].join(),
+          StatementSegment: statementSegmentFields.join(),
           SegmentComment: [
             'creationDate',
             'text',
@@ -243,6 +248,7 @@ export default {
             if (segmentId) {
               scrollTo('#segment_' + segmentId, { offset: -110 })
               const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
+
               if (segmentComponent) {
                 segmentComponent.isCollapsed = false
               }
@@ -257,8 +263,11 @@ export default {
 
     toggleAll () {
       this.isAllCollapsed = this.isAllCollapsed === false
+
       this.$refs.segment.forEach(segment => {
-        segment.isCollapsed = this.isAllCollapsed
+        if (segment) {
+          segment.isCollapsed = this.isAllCollapsed
+        }
       })
     }
   },

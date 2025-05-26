@@ -77,6 +77,7 @@ sidemenu:
                     'DemosPlan_procedure_boilerplate_list',
                     'DemosPlan_procedure_new',
                     'DemosPlan_procedure_places_list',
+                    'DemosPlan_procedure_custom_fields_list',
                     'DemosPlan_statement_administration_tag',
                     'DemosPlan_statement_administration_tags',
                     'DemosPlan_statement_new_submitted',
@@ -263,6 +264,13 @@ submenu_templates:
         permission: 'area_manage_segment_places'
         link_attributes:
             data-cy: 'Bearbeitungsschritte'
+    custom_fields:
+        label: 'segments.fields.configurable'
+        path: 'DemosPlan_procedure_custom_fields_list'
+        path_params: [ 'procedureId' ]
+        permission: 'area_admin_custom_fields'
+        link_attributes:
+            data-cy: 'customFields'
 submenu_procedures:
     procedure_name:
         label: '{$procedureName}'

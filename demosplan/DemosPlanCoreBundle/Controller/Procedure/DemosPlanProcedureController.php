@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTyp
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
@@ -154,6 +155,7 @@ class DemosPlanProcedureController extends BaseController
         ProcedureServiceOutput $procedureServiceOutput,
         private readonly ProcedureTypeResourceType $procedureTypeResourceType,
         private readonly SortMethodFactory $sortMethodFactory,
+        private readonly CurrentProcedureService $currentProcedureService,
     ) {
         $this->procedureServiceOutput = $procedureServiceOutput;
         $this->procedureService = $procedureService;
@@ -1399,7 +1401,16 @@ class DemosPlanProcedureController extends BaseController
             } else {
                 $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit.html.twig';
                 $title = 'procedure.adjustments';
+
+                foreach ($templateVars['internalPhases'] as $internalPhase) {
+                    if ('evaluating' === $internalPhase['key']) {
+                        $evaluatingPhase = $internalPhase['name'];
+
+                        break;
+                    }
+                }
             }
+
             /** @var NotificationReceiverRepository $notificationReveicerRepository */
             $notificationReveicerRepository = $em->getRepository(NotificationReceiver::class);
 
@@ -1435,15 +1446,15 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['statementCount'] = $statementService->getStatementResourcesCount($procedureId);
             $templateVars['synchronizedStatementCount'] = $entitySyncLinkRepository->getSynchronizedStatementCount($procedureId);
 
-            return $this->renderTemplate(
-                $template,
-                [
-                    'templateVars' => $templateVars,
-                    'procedure'    => $procedureId,
-                    'title'        => $title,
-                    'form'         => $form->createView(),
-                ]
-            );
+            $data = [
+                'templateVars'    => $templateVars,
+                'procedure'       => $procedureId,
+                'title'           => $title,
+                'form'            => $form->createView(),
+                'evaluatingPhase' => $evaluatingPhase ?? '',
+            ];
+
+            return $this->renderTemplate($template, $data);
         } catch (DuplicateSlugException $e) {
             $this->getMessageBag()->add('error', 'error.procedure.duplicated.shorturl', ['slug' => $e->getDuplicatedSlug()]);
 
@@ -2437,6 +2448,21 @@ class DemosPlanProcedureController extends BaseController
         return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
             'procedureId' => $procedureId,
         ]);
+    }
+
+    /**
+     * Creation of custom fields, each is either procedure or procedure template related.
+     */
+    #[AttributeDplanPermissions('area_admin_custom_fields')]
+    #[Route(name: 'DemosPlan_procedure_custom_fields_list', path: '/verfahren/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
+    #[Route(name: 'DemosPlan_procedure_template_custom_fields_list', path: '/verfahren/blaupause/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
+    public function showProcedureCustomFieldsAction(string $procedureId)
+    {
+        $templateVars['procedureTemplate'] = $this->currentProcedureService->getProcedure()?->getMaster() ?? false;
+        $templateVars['procedureId'] = $procedureId;
+
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_custom_fields_list.html.twig',
+            ['templateVars' => $templateVars]);
     }
 
     /**

@@ -23,6 +23,7 @@ import {
   sortAlphabetically
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { defineAsyncComponent } from 'vue'
 import DpEmailList from './DpEmailList'
 import ExportSettings from './ExportSettings'
 import ParticipationPhases from './ParticipationPhases'
@@ -42,11 +43,11 @@ export default {
     DpInlineNotification,
     DpInput,
     DpMultiselect,
-    DpProcedureCoordinate: () => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate'),
-    DpUploadFiles: async () => {
+    DpProcedureCoordinate: defineAsyncComponent(() => import(/* webpackChunkName: "dp-procedure-coordinate" */ './DpProcedureCoordinate')),
+    DpUploadFiles: defineAsyncComponent(async () => {
       const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
       return DpUploadFiles
-    },
+    }),
     ExportSettings,
     ParticipationPhases
   },

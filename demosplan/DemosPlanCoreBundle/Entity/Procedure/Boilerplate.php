@@ -60,7 +60,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      *
      * @var Collection<int,BoilerplateCategoryInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory", mappedBy="boilerplates")
+     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory", mappedBy="boilerplates", cascade={"persist", "remove"})
      *
      * @ORM\JoinTable(
      *     name="predefined_texts_categories",

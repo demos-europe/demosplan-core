@@ -123,7 +123,7 @@
       :current-page="paragraphsCurrentPage"
       :total-pages="paragraphsTotalPages"
       :is-loading="paragraphsLoading"
-      @page-change="handlePageChange('paragraphs', $event)"/>
+      @page-change="handlePageChange('paragraphs', $event)" />
 
     <dp-report-group
       v-if="hasPermission('feature_procedure_report_drawings')"
@@ -134,7 +134,7 @@
       :current-page="drawingsCurrentPage"
       :total-pages="drawingsTotalPages"
       :is-loading="drawingsLoading"
-      @page-change="handlePageChange('drawings', $event)"/>
+      @page-change="handlePageChange('drawings', $event)" />
   </div>
 </template>
 
