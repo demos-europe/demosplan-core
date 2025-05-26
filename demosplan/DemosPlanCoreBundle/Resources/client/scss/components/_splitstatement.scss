@@ -236,7 +236,7 @@
     }
 
     // TextSegment component
-    span[data-range] {
+    span[data-segment-id] {
         padding: 4px 0;
         background-color: $segment-bg-color;
     }

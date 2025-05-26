@@ -181,7 +181,7 @@ import StatementMeta from '@DpJs/components/procedure/StatementSegmentsList/Stat
 import StatementMetaTooltip from '../StatementMetaTooltip'
 import { v4 as uuid } from 'uuid'
 /**
- * This function merges ranges with their corresponding segments.
+ * This function merges segment-marks with their corresponding segments.
  * Ranges are used to represent range shaped information in prosemirror.
  * Their attributes do not perfectly match segment attributes.
  * Thus, range attributes are mapped to their corresponding segment attributes and an Array of updated segments is returned.
@@ -190,17 +190,17 @@ import { v4 as uuid } from 'uuid'
  * @param {Array} segments
  * @return {undefined|Array}
  */
-const mergeRangesAndSegments = (ranges, segments) => {
+const mergeRangesAndSegments = (segmentMarks, segments) => {
   const mergedSegments = []
-  ranges.forEach(range => {
-    const segment = segments.find(seg => seg.id === range.rangeId)
+  segmentMarks.forEach(mark => {
+    const segment = segments.find(seg => seg.id === mark.segmentId)
     const mergedSegment = { ...segment }
     if (!segment) {
       console.warn('A segment was updated in Prosemirror but no corresponding segment found in store.')
       return
     }
-    mergedSegment.status = range.isConfirmed ? 'confirmed' : false
-    mergedSegment.text = range.text
+    mergedSegment.status = mark.isConfirmed ? 'confirmed' : false
+    mergedSegment.text = mark.text
     mergedSegments.push(mergedSegment)
   })
 
@@ -490,13 +490,13 @@ export default {
 
     extractHtmlWithRangeMarks () {
       /**
-       * Serialize the entire ProseMirror document to HTML, converting any `<span data-range="...">…</span>` into a custom `<segment-mark>`
+       * Serialize the entire ProseMirror document to HTML, converting any `<span data-segment-id="...">…</span>` into a custom `<segment-mark>`
        * element so that segment identifiers are preserved in the output.
        *
        * @param {EditorState} state
        *  The current ProseMirror editor state.
        * @returns {string}
-       *  Serialized HTML including `<segment-mark data-range="...">…</segments-mark>`
+       *  Serialized HTML including `<segment-mark data-segment-id="...">…</segments-mark>`
        */
       const state = this.prosemirror.view.state
       const { schema } = state
@@ -506,13 +506,13 @@ export default {
       const wrapper = document.createElement('div')
       wrapper.appendChild(fragment)
 
-      wrapper.querySelectorAll('span[data-range]').forEach(span => {
+      wrapper.querySelectorAll('span[data-segment-id]').forEach(span => {
         const mark = document.createElement('segment-mark')
         const attributes = [...span.attributes]
 
         attributes.forEach(({ name, value }) => {
-          /* Copy just the essential metadata (e.g. data-range, id) for the textual reference */
-          if (name === 'data-range') { // ToDO: Do we need ID here as well?
+          /* Copy just the essential metadata (e.g. data-segment-id) for the textual reference */
+          if (name === 'data-segment-id') {
             mark.setAttribute(name, value)
           }
         })
@@ -588,7 +588,7 @@ export default {
       const ranges = []
 
       doc.nodesBetween(0, doc.content.size, (node, pos) => {
-        if (node.marks.some(mark => mark.type.name === 'segmentMark' && mark.attrs.rangeId === segmentId)) {
+        if (node.marks.some(mark => mark.type.name === 'segmentMark' && mark.attrs.segmentId === segmentId)) {
           ranges.push({ from: pos, to: pos + node.nodeSize })
         }
         return true
@@ -598,7 +598,7 @@ export default {
     },
 
     handleCardHighlighting (segmentId, highlight) {
-      const card = document.querySelector(`div[data-range="${segmentId}"]`)
+      const card = document.querySelector(`div[data-segment-id="${segmentId}"]`)
       if (card) {
         if (highlight) {
           card.classList.add('highlighted')
@@ -626,17 +626,17 @@ export default {
      */
     handleMouseOver (event) {
       if (!this.editModeActive) {
-        let segmentId = event.target.getAttribute('data-range') || event.target.closest('span[data-range]')?.getAttribute('data-range')
+        let segmentId = event.target.getAttribute('data-segment-id') || event.target.closest('span[data-segment-id]')?.getAttribute('data-segment-id')
 
         /**
-         * If the target element doesn't have the attribute 'data-range', it may be an html element inside the segment span,
+         * If the target element doesn't have the attribute 'data-segment-id', it may be an html element inside the segment span,
          * and we don't know how deeply nested
-         * In this case, we look for the next parent with the attribute 'data-range' to retrieve the segmentId; if none
+         * In this case, we look for the next parent with the attribute 'data-segment-id' to retrieve the segmentId; if none
          * exists, the hovered element is not inside a segment and highlighting is removed
          */
         if (!segmentId) {
-          const closestParent = event.target.closest('span[data-range]')
-          segmentId = closestParent ? closestParent.getAttribute('data-range') : null
+          const closestParent = event.target.closest('span[data-segment-id]')
+          segmentId = closestParent ? closestParent.getAttribute('data-segment-id') : null
         }
 
         if (segmentId) {
@@ -682,7 +682,7 @@ export default {
     handleSegmentConfirmation (segmentId) {
       this.ignoreProsemirrorUpdates = true
       const { id, charStart, charEnd } = this.segmentById(segmentId)
-      setRange(this.prosemirror.view)(charStart, charEnd, { rangeId: id, isConfirmed: true })
+      setRange(this.prosemirror.view)(charStart, charEnd, { segmentId: id, isConfirmed: true })
       this.acceptSegmentProposal()
       this.ignoreProsemirrorUpdates = false
     },
@@ -701,7 +701,7 @@ export default {
       this.ignoreProsemirrorUpdates = true
 
       // We still need from/to values to create a segment marks in the prosemirror
-      setRange(this.prosemirror.view)(segmentToCreate.from, segmentToCreate.to, { rangeId: segment.id, isConfirmed: true, isActive: false })
+      setRange(this.prosemirror.view)(segmentToCreate.from, segmentToCreate.to, { segmentId: segment.id, isConfirmed: true, isActive: false })
 
       const { rangeTrackerKey, editingDecorationsKey, editStateTrackerKey } = this.prosemirror.keyAccess
       setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(segment.id, true)
@@ -710,14 +710,14 @@ export default {
     },
 
     handleSegmentDeletions (segments) {
-      const IdsToDelete = segments.map(segment => segment.rangeId)
+      const IdsToDelete = segments.map(segment => segment.segmentId)
       this.locallyDeleteSegments(IdsToDelete)
     },
 
     handleSegmentHighlighting (segmentId, highlight) {
       const id = segmentId || this.currentlyHighlightedSegmentId
       const highlightedSegmentId = highlight ? segmentId : null
-      const segmentParts = Array.from(document.querySelectorAll(`span[data-range="${id}"]`))
+      const segmentParts = Array.from(document.querySelectorAll(`span[data-segment-id="${id}"]`))
 
       segmentParts.forEach(part => {
         if (highlight && !part.classList.contains('highlighted')) {
@@ -759,11 +759,11 @@ export default {
       const changes = generateRangeChangeMap(newSegments, oldSegments)
 
       changes.createdRanges.forEach(range => {
-        setRange(this.prosemirror.view)(range.from, range.to, { rangeId: range.rangeId, isConfirmed: range.isConfirmed })
+        setRange(this.prosemirror.view)(range.from, range.to, { segmentId: range.segmentId, isConfirmed: range.isConfirmed })
       })
 
       changes.updatedRanges.forEach(range => {
-        setRange(this.prosemirror.view)(range.from, range.to, { rangeId: range.rangeId, isConfirmed: range.isConfirmed })
+        setRange(this.prosemirror.view)(range.from, range.to, { segmentId: range.segmentId, isConfirmed: range.isConfirmed })
       })
 
       changes.deletedRanges.forEach(range => {
@@ -855,7 +855,7 @@ export default {
     },
 
     scrollToSegment () {
-      const segment = document.querySelector(`span[data-range="${this.editingSegment.id}"`)
+      const segment = document.querySelector(`span[data-segment-id="${this.editingSegment.id}"`)
       const bodyRect = document.body.getBoundingClientRect().top
       const elementRect = segment.getBoundingClientRect().top
       const elementPosition = elementRect - bodyRect

@@ -256,7 +256,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
     key: rangeTrackerKey,
     state: {
       init (_, state) {
-        const ranges = getMarks(flattenNode(state.doc), 'segmentMark', 'rangeId')
+        const ranges = getMarks(flattenNode(state.doc), 'segmentMark', 'segmentId')
 
         return ranges
       },
@@ -265,7 +265,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
           return pluginState
         }
 
-        const ranges = getMarks(flattenNode(newState.doc), 'segmentMark', 'rangeId')
+        const ranges = getMarks(flattenNode(newState.doc), 'segmentMark', 'segmentId')
         const equal = ranges && pluginState && rangesEqual(pluginState, ranges)
         if (equal) {
           return pluginState

@@ -12,33 +12,33 @@
  */
 const segmentMark = {
   attrs: {
-    rangeId: { default: null },
     isActive: { default: false },
     isMoving: { default: false },
     isConfirmed: { default: false },
-    pmId: { default: null }
+    pmId: { default: null },
+    segmentId: { default: null }
   },
   inclusive: true,
   parseDOM: [{
     tag: 'segment-mark',
     getAttrs (dom) {
       return {
-        rangeId: dom.getAttribute('data-range'),
         isActive: dom.getAttribute('data-range-active'),
         isMoving: dom.getAttribute('data-range-moving'),
         isConfirmed: dom.getAttribute('data-range-confirmed'),
-        pmId: dom.getAttribute('data-pm-id')
+        pmId: dom.getAttribute('data-pm-id'),
+        segmentId: dom.getAttribute('data-segment-id')
       }
     }
   }],
   toDOM (node) {
-    const { rangeId, isActive, isConfirmed, isMoving, pmId } = node.attrs
+    const { isActive, isConfirmed, isMoving, pmId, segmentId } = node.attrs
     return ['span', {
-      'data-range': rangeId,
       'data-range-active': isActive,
       'data-range-moving': isMoving,
       'data-range-confirmed': isConfirmed,
-      'data-pm-id': pmId
+      'data-pm-id': pmId,
+      'data-segment-id': segmentId
     }, 0]
   }
 }

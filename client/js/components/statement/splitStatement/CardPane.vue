@@ -15,7 +15,7 @@
       v-for="segment in sortedSegments"
       :key="'card' + segment.id + Math.random()"
       :segment="segment"
-      :data-range="segment.id"
+      :data-segment-id="segment.id"
       :offset="offset"
       ref="card"
       @card:checkOverlap="positionCards"
@@ -81,7 +81,7 @@ export default {
     ]),
 
     handleCardHighlighting (segmentId, highlight) {
-      const card = document.querySelector(`div[data-range="${segmentId}"]`)
+      const card = document.querySelector(`div[data-segment-id="${segmentId}"]`)
       if (card) {
         if (highlight) {
           card.classList.add('highlighted')
@@ -104,7 +104,7 @@ export default {
     handleSegmentHighlighting (segmentId, highlight = false) {
       const id = segmentId || this.currentlyHighlightedSegmentId
       const highlightedSegmentId = highlight ? segmentId : null
-      const segmentParts = Array.from(document.querySelectorAll(`span[data-range="${id}"]`))
+      const segmentParts = Array.from(document.querySelectorAll(`span[data-segment-id="${id}"]`))
 
       segmentParts.forEach(part => {
         if (highlight && !part.classList.contains('highlighted')) {
