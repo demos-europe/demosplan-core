@@ -11,6 +11,68 @@
   <div
     ref="contentArea"
     class="mt-2">
+
+
+    <dp-loading
+      v-if="isLoading"
+      class="mt-4" />
+    <template v-else>
+      <div class="sm:relative flex flex-col sm:flex-row flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-0 pl-0 sm:ml-2 sm:pl-[38px]">
+        <div class="sm:absolute sm:top-0 sm:left-0 mt-1">
+          <dp-flyout
+            align="left"
+            :aria-label="Translator.trans('filters.more')"
+            class="bg-surface-medium rounded pb-1 pt-[4px]"
+            data-cy="institutionList:filterCategories">
+            <template v-slot:trigger>
+                  <span :title="Translator.trans('filters.more')">
+                    <dp-icon
+                      aria-hidden="true"
+                      class="inline"
+                      icon="faders" />
+                  </span>
+            </template>
+            <!-- 'More filters' flyout -->
+            <div>
+              <button
+                class="btn--blank o-link--default ml-auto"
+                data-cy="institutionList:toggleAllFilterCategories"
+                v-text="Translator.trans('toggle_all')"
+                @click="toggleAllSelectedFilterCategories" />
+              <div v-if="!isLoading">
+                <dp-checkbox
+                  v-for="category in allFilterCategories"
+                  :key="category.id"
+                  :id="`filterCategorySelect:${category.label}`"
+                  :checked="selectedFilterCategories.includes(category.label)"
+                  :data-cy="`institutionList:filterCategoriesSelect:${category.label}`"
+                  :disabled="checkIfDisabled(category.id)"
+                  :label="{
+                        text: `${category.label} (${getSelectedOptionsCount(category.id)})`
+                      }"
+                  @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
+              </div>
+            </div>
+          </dp-flyout>
+        </div>
+
+        <filter-flyout
+          v-for="category in filterCategoriesToBeDisplayed"
+          :key="`filter_${category.label}`"
+          ref="filterFlyout"
+          :category="{ id: category.id, label: category.label }"
+          class="inline-block"
+          :data-cy="`institutionListFilter:${category.label}`"
+          :initial-query-ids="queryIds"
+          :member-of="category.memberOf"
+          :operator="category.comparisonOperator"
+          :path="category.rootPath"
+          @filterApply="(filtersToBeApplied) => applyFilterQuery(filtersToBeApplied, category.id)"
+          @filterOptions:request="(params) => createFilterOptions({ ...params, categoryId: category.id})" />
+      </div>
+
+    </template>
+
     <dp-data-table-extended
       ref="dataTable"
       class="mt-2"
@@ -143,15 +205,20 @@
 </template>
 
 <script>
-import { dpApi, DpButton, DpDataTableExtended } from '@demos-europe/demosplan-ui'
-import { mapActions, mapState } from 'vuex'
+import { dpApi, DpButton, DpCheckbox, DpDataTableExtended, DpFlyout, DpIcon } from '@demos-europe/demosplan-ui'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout.vue'
 
 export default {
   name: 'DpAddOrganisationList',
 
   components: {
+    DpButton,
+    DpCheckbox,
     DpDataTableExtended,
-    DpButton
+    DpFlyout,
+    FilterFlyout,
+    DpIcon,
   },
 
   props: {
@@ -184,13 +251,26 @@ export default {
       itemsPerPage: 50,
       locationContactFields: ['street', 'postalcode', 'city'],
       sortOrder: { key: 'legalName', direction: 1 },
-      selectedItems: []
+      selectedItems: [],
+      appliedFilterQuery: {},
+      currentlySelectedFilterCategories: [],
+      initiallySelectedFilterCategories: [],
+      institutionTagCategoriesCopy: {}
+
     }
   },
 
   computed: {
+    ...mapGetters('FilterFlyout', {
+      filterQuery: 'getFilterQuery'
+    }),
+
     ...mapState('InstitutionLocationContact', {
       institutionLocationContactItems: 'items'
+    }),
+
+    ...mapState('InstitutionTagCategory', {
+      institutionTagCategories: 'items'
     }),
 
     ...mapState('InvitableToeb', {
@@ -200,6 +280,52 @@ export default {
     ...mapState('InstitutionTag', {
       institutionTagItems: 'items'
     }),
+
+    institutionTagCategoriesValues () {
+      return Object.values(this.institutionTagCategoriesCopy || {})
+        .sort((a, b) => new Date(a.attributes?.creationDate || 0) - new Date(b.attributes?.creationDate || 0))
+    },
+
+    allFilterCategories () {
+      return (this.institutionTagCategoriesValues || []).reduce((acc, category) => {
+        if (!category || !category.id || !category.attributes) return acc
+
+        const { id, attributes } = category
+        const groupKey = `${id}_group`
+
+        acc[id] = {
+          id,
+          comparisonOperator: 'ARRAY_CONTAINS_VALUE',
+          label: attributes.name,
+          rootPath: 'assignedTags',
+          selected: false,
+          memberOf: groupKey
+        }
+
+        return acc
+      }, {})
+    },
+
+    filterCategoriesToBeDisplayed () {
+      return Object.values(this.allFilterCategories || {}).filter(filter =>
+        this.currentlySelectedFilterCategories.includes(filter.label))
+    },
+
+    selectedFilterCategories () {
+      return this.currentlySelectedFilterCategories
+    },
+
+    queryIds () {
+      let ids = []
+      const isFilterApplied = Object.keys(this.appliedFilterQuery).length > 0
+
+      if (isFilterApplied) {
+        ids = Object.values(this.appliedFilterQuery).map(el => el.condition.value)
+      }
+
+      return ids
+    },
+
 
     rowItems () {
       return Object.values(this.invitableToebItems).reduce((acc, item) => {
@@ -234,9 +360,39 @@ export default {
   },
 
   methods: {
+    ...mapActions('FilterFlyout', [
+      'updateFilterQuery'
+    ]),
+
     ...mapActions('InvitableToeb', {
       getInstitutions: 'list'
     }),
+
+    ...mapActions('InstitutionTagCategory', {
+      fetchInstitutionTagCategories: 'list'
+    }),
+
+    ...mapMutations('FilterFlyout', {
+      setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
+      setIsFilterFlyoutLoading: 'setIsLoading',
+      setUngroupedFilterOptions: 'setUngroupedOptions'
+    }),
+
+    setInitiallySelectedFilterCategories () {
+      const selectedFilterCategoriesInStorage = this.getInitiallySelectedFilterCategoriesFromLocalStorage()
+      this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null
+        ? selectedFilterCategoriesInStorage
+        : this.institutionTagCategoriesValues.slice(0, 5).map(category => category.attributes.name)
+    },
+
+    getInitiallySelectedFilterCategoriesFromLocalStorage () {
+      const selectedFilterCategories = localStorage.getItem('visibleFilterFlyouts')
+      return selectedFilterCategories ? JSON.parse(selectedFilterCategories) : null
+    },
+
+    setCurrentlySelectedFilterCategories (selectedCategories) {
+      this.currentlySelectedFilterCategories = selectedCategories
+    },
 
     addPublicInterestBodies (publicAgenciesIds) {
       if (publicAgenciesIds.length === 0) {
@@ -275,6 +431,10 @@ export default {
         })
     },
 
+    checkIfDisabled(categoryId) {
+      return !!Object.values(this.appliedFilterQuery).find(el => el.condition?.memberOf === `${categoryId}_group`);
+    },
+
     getInstitutionsWithContacts () {
       const permissionChecksToeb = [
         { permission: 'field_organisation_email2_cc', value: 'ccEmailAddresses' },
@@ -309,6 +469,60 @@ export default {
       return this.institutionLocationContactItems[id]
     },
 
+    getInstitutionTagCategories(isInitial = false) {
+      return dpApi({
+        method: 'GET',
+        url: '/api/2.0/InstitutionTagCategory',
+        params: {
+          fields: {
+            InstitutionTagCategory: [
+              'creationDate',
+              'name',
+              'tags'
+            ].join(),
+            InstitutionTag: [
+              'creationDate',
+              'isUsed',
+              'name',
+              'category'
+            ].join()
+          },
+          include: [
+            'tags',
+            'tags.category'
+          ].join()
+        }
+      })
+        .then(response => {
+          // Kategorien im lokalen State speichern
+          this.institutionTagCategoriesCopy = response.data.data.reduce((acc, category) => {
+            acc[category.id] = category;
+            return acc;
+          }, {});
+
+          if (isInitial) {
+            this.setInitiallySelectedFilterCategories();
+            this.setCurrentlySelectedFilterCategories(this.initiallySelectedFilterCategories);
+          }
+
+          console.log('Tag categories loaded:', this.institutionTagCategoriesCopy);
+          return this.institutionTagCategoriesCopy;
+        })
+        .catch(err => {
+          console.error('Error loading tag categories:', err);
+          return {};
+        });
+    },
+
+    getSelectedOptionsCount(categoryId) {
+      return Object.values(this.appliedFilterQuery).filter(el => el.condition?.memberOf === `${categoryId}_group`).length;
+    },
+
+    handleChange(filterCategoryName, isSelected) {
+      this.updateCurrentlySelectedFilterCategories(filterCategoryName, isSelected)
+      this.setSelectedFilterCategoriesInLocalStorage(this.currentlySelectedFilterCategories)
+    },
+
     hasAdress () {
       return this.rowItems.locationContacts?.street || this.rowItems.locationContacts?.postalcode || this.rowItems.locationContacts?.city
     },
@@ -324,12 +538,58 @@ export default {
 
     setSelectedItems (selectedItems) {
       this.selectedItems = selectedItems
-    }
+    },
+
+    setSelectedFilterCategoriesInLocalStorage (selectedFilterCategories) {
+      localStorage.setItem('visibleFilterFlyouts', JSON.stringify(selectedFilterCategories))
+    },
+
+    toggleAllSelectedFilterCategories () {
+      const allSelected = this.currentlySelectedFilterCategories.length === Object.keys(this.allFilterCategories).length
+      const selectedFilterOptions = Object.values(this.appliedFilterQuery)
+      const categoriesWithSelectedOptions = []
+
+      selectedFilterOptions.forEach(option => {
+        const categoryId = option.condition.memberOf.replace('_group', '')
+        const category = this.allFilterCategories[categoryId]
+
+        if (category && !categoriesWithSelectedOptions.includes(category.label)) {
+          categoriesWithSelectedOptions.push(category.label)
+        }
+      });
+
+      this.currentlySelectedFilterCategories = allSelected
+        ? categoriesWithSelectedOptions
+        : Object.values(this.allFilterCategories).map(filterCategory => filterCategory.label)
+    },
+
+    updateCurrentlySelectedFilterCategories(filterCategoryName, isSelected) {
+      if (isSelected) {
+        this.currentlySelectedFilterCategories.push(filterCategoryName)
+      } else {
+        this.currentlySelectedFilterCategories = this.currentlySelectedFilterCategories.filter(category => category !== filterCategoryName)
+      }
+    },
+
+
   },
 
   mounted () {
-    this.getInstitutionsWithContacts()
-      .then(() => { this.isLoading = false })
+    this.isLoading = true
+
+    const promises = [
+      this.getInstitutionsWithContacts(),
+      this.getInstitutionTagCategories(true)
+    ]
+
+    Promise.allSettled(promises)
+      .then(() => {
+        console.log('Tag Categories loaded:', this.institutionTagCategoriesCopy)
+        console.log('Category Values:', this.institutionTagCategoriesValues)
+        console.log('All Filter Categories:', this.allFilterCategories)
+
+        this.isLoading = false
+      })
   }
 }
 </script>
