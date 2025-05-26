@@ -150,6 +150,7 @@ import DpSendBeacon from './DpSendBeacon'
 import GeoJSON from 'ol/format/GeoJSON'
 import ImageLayer from 'ol/layer/Image'
 import Map from 'ol/Map'
+import { markRaw } from 'vue'
 import { MultiPoint } from 'ol/geom'
 import Projection from 'ol/proj/Projection'
 import Static from 'ol/source/ImageStatic'
@@ -531,8 +532,15 @@ export default {
     },
 
     initInteractions () {
+      /*
+       * Wrap OpenLayers interactions in markRaw so that:
+       * 1) Vue won’t convert them into Proxies,
+       * 2) OL’s instanceof checks and internal state stay intact,
+       * otherwise map.addInteraction(this.currentInteraction) silently fails.
+       */
+
       // SELECT INTERACTION
-      this.selectInteraction = new Select({ layers: [this.boxLayer] })
+      this.selectInteraction = markRaw(new Select({ layers: [this.boxLayer] }))
 
       this.selectInteraction.on('select', e => {
         if (e.deselected.length === 1) {
@@ -551,11 +559,11 @@ export default {
       })
 
       // MODIFY INTERACTION
-      this.modifyInteraction = new Modify({
+      this.modifyInteraction = markRaw(new Modify({
         insertVertexCondition: () => false,
         pixelTolerance: 1,
         features: this.selectInteraction.getFeatures()
-      })
+      }))
 
       this.modifyInteraction.on('modifystart', (e) => {
         // Remove snap during modify action because it tries to snap to invisible features/vertices
@@ -582,7 +590,7 @@ export default {
       })
 
       // DRAW INTERACTION
-      this.drawInteraction = new Draw({
+      this.drawInteraction = markRaw(new Draw({
         source: this.boxLayerSource,
         type: 'Circle',
         geometryFunction: createBox(),
@@ -598,7 +606,7 @@ export default {
             })
           })
         })
-      })
+      }))
       this.drawInteraction.on('drawend', (e) => {
         const newFeature = e.feature
         newFeature.setId(uuid())
@@ -608,7 +616,7 @@ export default {
       })
 
       // SNAP INTERACTION
-      this.snapInteraction = new Snap({ source: this.boxLayerSource, edge: false, pixelTolerance: 15 })
+      this.snapInteraction = markRaw(new Snap({ source: this.boxLayerSource, edge: false, pixelTolerance: 15 }))
 
       // Set select as initial interaction
       this.setInteraction('select')
@@ -660,9 +668,7 @@ export default {
           dragPan: true,
           keyboardPan: false,
           keyboardZoom: false,
-          mouseWheelZoom: true,
-          pointer: false,
-          select: true
+          mouseWheelZoom: true
         }),
         controls: [],
         layers: [
