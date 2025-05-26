@@ -176,9 +176,6 @@
     "enqueue/dsn": {
         "version": "0.10.8"
     },
-    "enqueue/elastica-bundle": {
-        "version": "0.13.0"
-    },
     "enqueue/enqueue": {
         "version": "0.10.9"
     },
@@ -224,12 +221,6 @@
         "files": [
             "demosplan/DemosPlanCoreBundle/Resources/config/packages/exercise_html_purifier.yaml"
         ]
-    },
-    "ezimuel/guzzlestreams": {
-        "version": "3.0.1"
-    },
-    "ezimuel/ringphp": {
-        "version": "1.1.2"
     },
     "ezyang/htmlpurifier": {
         "version": "v4.13.0"
