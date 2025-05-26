@@ -45,25 +45,23 @@
         class="u-pt-0_25 inline-block float-right"
         :text="Translator.trans('survey.date.explanation')" />
       <div class="block u-mb-2">
-        <datepicker
+        <dp-datepicker
           id="startDate"
           name="startDate"
           v-model="currentStartDate"
           format="dd.MM.yyyy"
           monday-first
           class="inline-block w-8 u-mr-0_5"
-          input-class="o-form__control-input"
-          :language="de" /><!--
+          input-class="o-form__control-input" /><!--
    --><span>-</span><!--
-   --><datepicker
+   --><dp-datepicker
         id="endDate"
         name="endDate"
         v-model="currentEndDate"
         format="dd.MM.yyyy"
         monday-first
         class="inline-block w-8 u-ml-0_5"
-        input-class="o-form__control-input"
-        :language="de" />
+        input-class="o-form__control-input" />
       </div>
     </div>
     <div v-if="currentStatus === 'participation' && isPeriodValid === false">
@@ -75,17 +73,14 @@
 </template>
 
 <script>
-import { DpContextualHelp, toDate } from '@demos-europe/demosplan-ui'
-// @improve use DpDatepicker
-import Datepicker from 'vuejs-datepicker'
-import { de } from 'vuejs-datepicker/dist/locale'
+import { DpContextualHelp, DpDatepicker, toDate } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpSurveyStatus',
 
   components: {
     DpContextualHelp,
-    Datepicker
+    DpDatepicker
   },
 
   props: {
@@ -131,10 +126,6 @@ export default {
     surveyStatusHint () {
       return Translator.trans('survey.status.hint', { start: this.procedureStartDate, end: this.initialEndDate })
     }
-  },
-
-  created () {
-    this.de = de
   },
 
   mounted () {
