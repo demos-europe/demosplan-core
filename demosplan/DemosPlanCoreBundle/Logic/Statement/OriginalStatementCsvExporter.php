@@ -19,7 +19,7 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 class OriginalStatementCsvExporter extends CoreService
 {
     public function __construct(private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
-                                private readonly StatementService $statementService)
+        private readonly StatementService $statementService)
     {
     }
 
@@ -84,8 +84,6 @@ class OriginalStatementCsvExporter extends CoreService
 
             $result[] = $data;
         }
-
-
 
         return $result;
     }
