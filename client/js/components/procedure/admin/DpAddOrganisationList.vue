@@ -11,18 +11,22 @@
   <div
     ref="contentArea"
     class="mt-2">
-    <dp-data-table-extended
+    <dp-search-field
+      class="h-fit mt-1 col-span-1 sm:col-span-3"
+      data-cy="institutionList:searchField"
+      input-width="u-1-of-1"
+      @reset="handleReset"
+      @search="val => handleSearch(val)" />
+    <dp-data-table
       ref="dataTable"
       class="mt-2"
-      :default-sort-order="sortOrder"
       :header-fields="headerFields"
-      :init-items-per-page="itemsPerPage"
-      is-expandable
       is-selectable
-      :items-per-page-options="itemsPerPageOptions"
+      is-expandable
+      :items="rowItems"
       lock-checkbox-by="hasNoEmail"
-      :table-items="rowItems"
       :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
+      track-by="id"
       @items-selected="setSelectedItems">
       <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
         <div class="lg:w-2/3 lg:flex pt-4">
@@ -115,43 +119,46 @@
           </dl>
         </div>
       </template>
-      <template v-slot:footer>
-        <div class="pt-2 flex">
-          <div class="w-1/3 inline-block">
+    </dp-data-table>
+    <div class="mt-2 pt-2 flex">
+      <div class="w-1/3 inline-block">
             <span
               v-if="selectedItems.length"
               class="weight--bold line-height--1_6">
-              {{ selectedItems.length }} {{ (selectedItems.length === 1 && Translator.trans('entry.selected')) || Translator.trans('entries.selected') }}
+              {{
+                selectedItems.length
+              }} {{
+                (selectedItems.length === 1 && Translator.trans('entry.selected')) || Translator.trans('entries.selected')
+              }}
             </span>
-          </div>
-          <div class="w-2/3 text-right inline-block space-x-2">
-            <dp-button
-              data-cy="addPublicAgency"
-              :text="Translator.trans('invitable_institution.add')"
-              @click="addPublicInterestBodies(selectedItems)" />
-            <a
-              :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
-              data-cy="organisationList:abortAndBack"
-              class="btn btn--secondary">
-              {{ Translator.trans('abort.and.back') }}
-            </a>
-          </div>
-        </div>
-      </template>
-    </dp-data-table-extended>
+      </div>
+      <div class="w-2/3 text-right inline-block space-x-2">
+        <dp-button
+          data-cy="addPublicAgency"
+          :text="Translator.trans('invitable_institution.add')"
+          @click="addPublicInterestBodies(selectedItems)"/>
+        <a
+          :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
+          data-cy="organisationList:abortAndBack"
+          class="btn btn--secondary">
+          {{ Translator.trans('abort.and.back') }}
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { dpApi, DpButton, DpDataTableExtended } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpDataTable, DpSearchField } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 
 export default {
   name: 'DpAddOrganisationList',
 
   components: {
-    DpDataTableExtended,
-    DpButton
+    DpDataTable,
+    DpButton,
+    DpSearchField
   },
 
   props: {
@@ -180,10 +187,11 @@ export default {
 
       ],
       isLoading: true,
-      itemsPerPageOptions: [10, 50, 100, 200],
-      itemsPerPage: 50,
+      // itemsPerPageOptions: [10, 50, 100, 200],
+      // itemsPerPage: 50,
       locationContactFields: ['street', 'postalcode', 'city'],
-      sortOrder: { key: 'legalName', direction: 1 },
+      // sortOrder: { key: 'legalName', direction: 1 },
+      searchTerm: "",
       selectedItems: []
     }
   },
@@ -302,6 +310,52 @@ export default {
         requestParams.fields.InstitutionTag = 'name'
       }
 
+      // Filter by searchTerm
+      if (this.searchTerm.trim() !== '') {
+        const filters = {
+          namefilter: {
+            condition: {
+              path: 'legalName',
+              operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+              value: this.searchTerm.trim(),
+              memberOf: 'searchFieldsGroup',
+            }
+          }
+        }
+
+        //Only add competence filter if user has permission
+        if (hasPermission('field_organisation_competence')) {
+          filters.competencefilter = {
+            condition: {
+              path: 'competenceDescription',
+              operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+              value: this.searchTerm.trim(),
+              memberOf: 'searchFieldsGroup',
+            }
+          }
+        }
+
+        // Only add tag filter if user has permission
+        if (hasPermission('feature_institution_tag_read')) {
+          filters.tagfilter = {
+            condition: {
+              path: 'assignedTags.name',
+              operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+              value: this.searchTerm.trim(),
+              memberOf: 'searchFieldsGroup',
+            }
+          }
+        }
+
+        filters.searchFieldsGroup = {
+          group: {
+            conjunction: 'OR'
+          }
+        }
+
+        requestParams.filter = filters
+      }
+
       return this.getInstitutions(requestParams)
     },
 
@@ -312,6 +366,19 @@ export default {
     hasAdress () {
       return this.rowItems.locationContacts?.street || this.rowItems.locationContacts?.postalcode || this.rowItems.locationContacts?.city
     },
+
+    handleSearch (searchValue) {
+      this.searchTerm = searchValue
+      this.getInstitutionsWithContacts(searchValue)
+        .then(() => { this.isLoading = false })
+    },
+
+    handleReset () {
+      this.searchTerm = ''
+      this.getInstitutionsWithContacts('')
+        .then(() => { this.isLoading = false })
+    },
+
 
     returnPermissionChecksValuesArray (permissionChecks) {
       return permissionChecks.reduce((acc, check) => {
