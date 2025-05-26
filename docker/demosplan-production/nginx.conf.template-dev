@@ -42,7 +42,7 @@ server
     keepalive_timeout  600s;
 
 
-    # Try all locations and relay to app.php as a fallback.
+    # Try all locations and relay to app_dev.php as a fallback.
     location /
     {
         try_files $uri $uri/ /app_dev.php$is_args$args;

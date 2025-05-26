@@ -18,9 +18,9 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\CoordinatesViewport;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayer;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTilePosition;
+use Illuminate\Support\Collection;
 use Intervention\Image\ImageManager;
 use Tests\Base\UnitTestCase;
-use Illuminate\Support\Collection;
 
 use function imagecolorallocate;
 
@@ -36,8 +36,8 @@ class PrintLayerToMapLayerConverterTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(PrintLayerToMapLayerConverter::class);
-        $this->imageManager = self::$container->get(ImageManager::class);
+        $this->sut = self::getContainer()->get(PrintLayerToMapLayerConverter::class);
+        $this->imageManager = self::getContainer()->get(ImageManager::class);
     }
 
     public function testConversion(): void

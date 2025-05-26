@@ -452,7 +452,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var Customer
      *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
+     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer")
      *
      * @ORM\JoinColumn(name="customer", referencedColumnName="_c_id", nullable=true)
      */
@@ -943,7 +943,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function getDeleted()
     {
-        return \filter_var($this->deleted, FILTER_VALIDATE_BOOLEAN);
+        return $this->isDeleted();
     }
 
     /**

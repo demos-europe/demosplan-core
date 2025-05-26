@@ -263,6 +263,11 @@ export default {
       required: false,
       default: () => ([])
     },
+    authorOnly: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
     county: {
       type: [String, null],
       required: false,

@@ -18,6 +18,7 @@
         :text="Translator.trans('tag.new')"
         @click="handleAddNewTagForm" />
       <dp-button
+        class="ml-1"
         :color="tagCategoriesWithTags.length === 0 ? 'primary' : 'secondary'"
         data-cy="tagList:newCategory"
         :text="Translator.trans('tag.category.new')"

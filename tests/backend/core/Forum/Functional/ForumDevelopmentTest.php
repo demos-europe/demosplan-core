@@ -35,7 +35,7 @@ class ForumDevelopmentTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(ForumService::class);
+        $this->sut = self::getContainer()->get(ForumService::class);
 
         $this->logIn($this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY));
     }
