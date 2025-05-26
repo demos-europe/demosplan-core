@@ -11,12 +11,24 @@
   <div
     ref="contentArea"
     class="mt-2">
-    <dp-search-field
-      class="h-fit mt-1 col-span-1 sm:col-span-3"
-      data-cy="institutionList:searchField"
-      input-width="u-1-of-1"
-      @reset="handleReset"
-      @search="val => handleSearch(val)" />
+    <div class="flex flex-col sm:flex-row sm:items-center gap-4 mt-1">
+      <dp-search-field
+        class="flex-shrink-0"
+        data-cy="institutionList:searchField"
+        input-width="u-1-of-1"
+        @reset="handleReset"
+        @search="val => handleSearch(val)" />
+      <dp-pager
+        v-if="totalItems > itemsPerPageOptions[0]"
+        :current-page="currentPage"
+        :total-items="totalItems"
+        :total-pages="totalPages"
+        :per-page="itemsPerPage"
+        :limits="itemsPerPageOptions"
+        class="flex-shrink-0"
+        @page-change="handlePageChange"
+        @size-change="handleItemsPerPageChange" />
+    </div>
     <dp-data-table
       ref="dataTable"
       class="mt-2"
@@ -149,7 +161,7 @@
 </template>
 
 <script>
-import { dpApi, DpButton, DpDataTable, DpSearchField } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpDataTable, DpPager, DpSearchField } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 
 export default {
@@ -158,6 +170,7 @@ export default {
   components: {
     DpDataTable,
     DpButton,
+    DpPager,
     DpSearchField
   },
 
@@ -187,12 +200,12 @@ export default {
 
       ],
       isLoading: true,
-      // itemsPerPageOptions: [10, 50, 100, 200],
-      // itemsPerPage: 50,
       locationContactFields: ['street', 'postalcode', 'city'],
-      // sortOrder: { key: 'legalName', direction: 1 },
       searchTerm: "",
-      selectedItems: []
+      selectedItems: [],
+      currentPage: 1,
+      itemsPerPage: 50,
+      itemsPerPageOptions: [10, 25, 50, 100]
     }
   },
 
@@ -210,7 +223,7 @@ export default {
     }),
 
     rowItems () {
-      return Object.values(this.invitableToebItems).reduce((acc, item) => {
+      const allItems = Object.values(this.invitableToebItems).reduce((acc, item) => {
         const locationContactId = item.relationships.locationContacts?.data.length > 0 ? item.relationships.locationContacts.data[0].id : null
         const locationContact = locationContactId ? this.getLocationContactById(locationContactId) : null
         const hasNoEmail = !item.attributes.participationFeedbackEmailAddress
@@ -238,6 +251,19 @@ export default {
           ]
         ]
       }, []) || []
+
+      // Add pagination slice
+      const start = (this.currentPage - 1) * this.itemsPerPage
+      const end = start + this.itemsPerPage
+      return allItems.slice(start, end)
+    },
+
+    totalItems () {
+      return Object.keys(this.invitableToebItems).length
+    },
+
+    totalPages () {
+      return Math.ceil(this.totalItems / this.itemsPerPage)
     }
   },
 
@@ -369,14 +395,25 @@ export default {
 
     handleSearch (searchValue) {
       this.searchTerm = searchValue
+      this.currentPage = 1
       this.getInstitutionsWithContacts(searchValue)
         .then(() => { this.isLoading = false })
     },
 
     handleReset () {
       this.searchTerm = ''
+      this.currentPage = 1
       this.getInstitutionsWithContacts('')
         .then(() => { this.isLoading = false })
+    },
+
+    handlePageChange (page) {
+      this.currentPage = page
+    },
+
+    handleItemsPerPageChange (newItemsPerPage) {
+      this.itemsPerPage = newItemsPerPage
+      this.currentPage = 1
     },
 
 
