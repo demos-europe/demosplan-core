@@ -106,7 +106,7 @@
         <input
           type="checkbox"
           data-cy="adminLayerListItem:toggleDefaultVisibility"
-          :disabled="'' !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
+          :disabled="null !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
           @change.prevent="toggleHasDefaultVisibility"
           :checked="hasDefaultVisibility"
           :class="[iconClass, 'o-sortablelist__checkbox']">
@@ -825,7 +825,7 @@ export default {
     toggleHasDefaultVisibility () {
       this.preventActiveFromToggeling = true
       // Can't be updated when it's a visiblityGroup
-      if ((this.layer.attributes.visibilityGroupId !== '' && this.layer.type !== 'GisLayerCategory') || this.isLoading) {
+      if ((this.layer.attributes.visibilityGroupId !== null && this.layer.type !== 'GisLayerCategory') || this.isLoading) {
         return
       }
 
