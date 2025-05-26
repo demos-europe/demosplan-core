@@ -12,7 +12,6 @@
     ref="contentArea"
     class="mt-2">
 
-
     <dp-loading
       v-if="isLoading"
       class="mt-4" />
@@ -216,7 +215,7 @@
 <script>
 import { dpApi, DpButton, DpCheckbox, DpDataTableExtended, DpFlyout, DpIcon } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout.vue'
+import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 
 export default {
   name: 'DpAddOrganisationList',
@@ -227,7 +226,7 @@ export default {
     DpDataTableExtended,
     DpFlyout,
     FilterFlyout,
-    DpIcon,
+    DpIcon
   },
 
   props: {
@@ -335,7 +334,6 @@ export default {
       return ids
     },
 
-
     rowItems () {
       let items = Object.values(this.invitableToebItems).reduce((acc, item) => {
         const locationContactId = item.relationships.locationContacts?.data.length > 0 ? item.relationships.locationContacts.data[0].id : null
@@ -366,7 +364,7 @@ export default {
         ]
       }, []) || []
 
-      // Filter anwenden
+      // Filter
       if (Object.keys(this.appliedFilterQuery).length > 0) {
         items = items.filter(item => {
           return Object.values(this.appliedFilterQuery).every(filterCondition => {
@@ -443,7 +441,6 @@ export default {
       this.setFilterQueryInLocalStorage('filterQuery', JSON.stringify(this.filterQuery))
       this.getInstitutionsByPage(1, categoryId)
     },
-
 
     checkIfDisabled (categoryId) {
       return !!Object.values(this.appliedFilterQuery).find(el => el.condition?.memberOf === `${categoryId}_group`)
@@ -576,16 +573,15 @@ export default {
         })
     },
 
-
     getLocationContactById (id) {
       return this.institutionLocationContactItems[id]
     },
 
-    getSelectedOptionsCount(categoryId) {
-      return Object.values(this.appliedFilterQuery).filter(el => el.condition?.memberOf === `${categoryId}_group`).length;
+    getSelectedOptionsCount (categoryId) {
+      return Object.values(this.appliedFilterQuery).filter(el => el.condition?.memberOf === `${categoryId}_group`).length
     },
 
-    handleChange(filterCategoryName, isSelected) {
+    handleChange (filterCategoryName, isSelected) {
       this.updateCurrentlySelectedFilterCategories(filterCategoryName, isSelected)
       this.setSelectedFilterCategoriesInLocalStorage(this.currentlySelectedFilterCategories)
     },
@@ -604,7 +600,6 @@ export default {
     resetFilterQueryInLocalStorage () {
       localStorage.setItem('filterQuery', JSON.stringify({}))
     },
-
 
     resetQuery () {
       this.searchTerm = ''
@@ -651,7 +646,7 @@ export default {
 
       if (!isReset && isAppliedFilterQueryEmpty) {
         Object.values(selectedFilterOptions).forEach(option => {
-          this.$set(this.appliedFilterQuery, option.condition.value, option)
+          this.appliedFilterQuery[option.condition.value] = option
         })
       } else if (isReset) {
         const filtersWithConditions = Object.fromEntries(
@@ -664,8 +659,28 @@ export default {
       }
     },
 
+    setAppliedFilterQueryFromStorage () {
+      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
+      this.setAppliedFilterQuery(filterQueryFromStorage)
+    },
+
     setCurrentlySelectedFilterCategories (selectedCategories) {
       this.currentlySelectedFilterCategories = selectedCategories
+    },
+
+    setFilterQueryFromStorage () {
+      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
+      const filterIds = Object.keys(filterQueryFromStorage)
+
+      if (filterIds.length > 0) {
+        filterIds.forEach(id => {
+          const payload = { [id]: filterQueryFromStorage[id] }
+
+          if (filterQueryFromStorage[id].condition) {
+            this.updateFilterQuery(payload)
+          }
+        })
+      }
     },
 
     setFilterQueryInLocalStorage () {
@@ -699,7 +714,7 @@ export default {
         if (category && !categoriesWithSelectedOptions.includes(category.label)) {
           categoriesWithSelectedOptions.push(category.label)
         }
-      });
+      })
 
       this.currentlySelectedFilterCategories = allSelected
         ? categoriesWithSelectedOptions
@@ -707,19 +722,19 @@ export default {
     },
 
     updateCurrentlySelectedFilterCategories (filterCategoryName, isSelected) {
-
       if (isSelected) {
         this.currentlySelectedFilterCategories.push(filterCategoryName)
       } else {
         this.currentlySelectedFilterCategories = this.currentlySelectedFilterCategories.filter(category => category !== filterCategoryName)
       }
-    },
-
+    }
 
   },
 
   mounted () {
     this.isLoading = true
+    this.setFilterQueryFromStorage()
+    this.setAppliedFilterQueryFromStorage()
 
     const promises = [
       this.getInstitutionsWithContacts(),
