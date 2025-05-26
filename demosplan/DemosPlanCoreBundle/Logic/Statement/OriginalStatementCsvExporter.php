@@ -18,7 +18,8 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class OriginalStatementCsvExporter extends CoreService
 {
-    public function __construct(private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter)
+    public function __construct(private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
+                                private readonly StatementService $statementService)
     {
     }
 
@@ -66,6 +67,13 @@ class OriginalStatementCsvExporter extends CoreService
 
             foreach ($attributesToExport as $key) {
                 try {
+                    if ('phase' === $key) {
+                        $data['phase'] = $this->statementService->getProcedurePhaseName(
+                            $statement->getPhase(),
+                            $statement->isSubmittedByCitizen()
+                        );
+                        continue;
+                    }
                     // Try to access the property directly
                     $data[$key] = $propertyAccessor->getValue($statement, $key);
                 } catch (Exception $e) {
@@ -76,6 +84,8 @@ class OriginalStatementCsvExporter extends CoreService
 
             $result[] = $data;
         }
+
+
 
         return $result;
     }
