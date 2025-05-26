@@ -24,12 +24,12 @@
             class="bg-surface-medium rounded pb-1 pt-[4px]"
             data-cy="institutionList:filterCategories">
             <template v-slot:trigger>
-                  <span :title="Translator.trans('filters.more')">
-                    <dp-icon
-                      aria-hidden="true"
-                      class="inline"
-                      icon="faders" />
-                  </span>
+              <span :title="Translator.trans('filters.more')">
+                <dp-icon
+                  aria-hidden="true"
+                  class="inline"
+                  icon="faders" />
+              </span>
             </template>
             <!-- 'More filters' flyout -->
             <div>
@@ -47,8 +47,8 @@
                   :data-cy="`institutionList:filterCategoriesSelect:${category.label}`"
                   :disabled="checkIfDisabled(category.id)"
                   :label="{
-                        text: `${category.label} (${getSelectedOptionsCount(category.id)})`
-                      }"
+                    text: `${category.label} (${getSelectedOptionsCount(category.id)})`
+                  }"
                   @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
               </div>
             </div>
@@ -78,7 +78,6 @@
         variant="outline"
         v-tooltip="Translator.trans('search.filter.reset')"
         @click="resetQuery" />
-
     </template>
 
     <dp-data-table-extended
@@ -315,8 +314,8 @@ export default {
     },
 
     filterCategoriesToBeDisplayed () {
-      return Object.values(this.allFilterCategories || {}).filter(filter =>
-        this.currentlySelectedFilterCategories.includes(filter.label))
+      return Object.values(this.allFilterCategories || {})
+        .filter(filter => this.currentlySelectedFilterCategories.includes(filter.label))
     },
 
     selectedFilterCategories () {
@@ -371,6 +370,7 @@ export default {
             if (!filterCondition.condition) return true
 
             const tagIds = item.assignedTags.map(tag => tag.id)
+
             return tagIds.includes(filterCondition.condition.value)
           })
         })
@@ -476,6 +476,7 @@ export default {
 
     getFilterQueryFromLocalStorage () {
       const filterQueryInStorage = localStorage.getItem('filterQuery')
+
       return filterQueryInStorage && filterQueryInStorage !== 'undefined' ? JSON.parse(filterQueryInStorage) : {}
     },
 
@@ -564,7 +565,6 @@ export default {
             this.setCurrentlySelectedFilterCategories(this.initiallySelectedFilterCategories)
           }
 
-          console.log('Tag categories loaded:', this.institutionTagCategoriesCopy)
           return this.institutionTagCategoriesCopy
         })
         .catch(err => {
@@ -608,8 +608,9 @@ export default {
         const hasFilterCategorySelectedOption = !!Object.values(this.filterQuery).find(el => el.condition?.memberOf === `${filterCategoryId}_group`)
 
         if (filterFlyoutComponentExists) {
-          this.$refs.filterFlyout[idx].reset()
           const isFilterFlyoutVisible = this.currentlySelectedFilterCategories.includes(this.allFilterCategories[filterCategoryId].label)
+
+          this.$refs.filterFlyout[idx].reset()
 
           if (!isFilterFlyoutVisible && hasFilterCategorySelectedOption) {
             const selectedFilterOptions = Object.values(this.filterQuery).filter(el => el.condition?.memberOf === `${filterCategoryId}_group`)
@@ -732,21 +733,17 @@ export default {
   },
 
   mounted () {
-    this.isLoading = true
-    this.setFilterQueryFromStorage()
-    this.setAppliedFilterQueryFromStorage()
-
     const promises = [
       this.getInstitutionsWithContacts(),
       this.getInstitutionTagCategories(true)
     ]
 
+    this.isLoading = true
+    this.setFilterQueryFromStorage()
+    this.setAppliedFilterQueryFromStorage()
+
     Promise.allSettled(promises)
       .then(() => {
-        console.log('Tag Categories loaded:', this.institutionTagCategoriesCopy)
-        console.log('Category Values:', this.institutionTagCategoriesValues)
-        console.log('All Filter Categories:', this.allFilterCategories)
-
         this.isLoading = false
       })
   }
