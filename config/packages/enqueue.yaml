@@ -1,0 +1,5 @@
+enqueue:
+    default:
+        transport:
+            dsn: 'file://%kernel.cache_dir%/enqueue'
+        client: ~

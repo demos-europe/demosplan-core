@@ -19,7 +19,6 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Process;
 use Illuminate\Support\Collection;
 
@@ -47,17 +46,6 @@ class ElasticsearchPopulateCommand extends CoreCommand
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
-        // output a message that this commmand does not work without enqueue bundle, which does not yet support elasticsearch 8
-        // and advise to use the fos:elastica:populate command instead
-        if (!class_exists('Enqueue\Symfony\ConsumptionExtension')) {
-            $io->writeln(
-                '<error>This command does not work without the enqueue bundle. Please use the fos:elastica:populate and fos:elastica:populate command instead.</error>'
-            );
-
-            return Command::FAILURE;
-        }
-
         $projectPath = DemosPlanPath::getProjectPath();
 
         $this->elasticsearchIndexingPoolSize = $this->parameterBag->get('elasticsearch_populate_workers');

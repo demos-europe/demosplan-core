@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use Carbon\Carbon;
@@ -42,10 +50,10 @@ class StatementExportController extends BaseController
         methods: 'GET'
     )]
     public function exportByStatementsFilterCsvAction(
-        JsonApiActionService          $jsonApiActionService,
-        OriginalStatementCsvExporter  $exporter,
+        JsonApiActionService $jsonApiActionService,
+        OriginalStatementCsvExporter $exporter,
         OriginalStatementResourceType $originalStatementResourceType,
-        string                        $procedureId,
+        string $procedureId,
     ): StreamedResponse {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -73,7 +81,6 @@ class StatementExportController extends BaseController
             Carbon::now('Europe/Berlin')->format('d-m-Y-H:i')
         );
 
-
         $response->headers->set('Content-Disposition',
             $this->nameGenerator->generateDownloadFilename(
                 $filename
@@ -82,5 +89,3 @@ class StatementExportController extends BaseController
         return $response;
     }
 }
-
-

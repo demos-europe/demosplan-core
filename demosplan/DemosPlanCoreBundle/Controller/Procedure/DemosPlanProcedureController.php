@@ -445,35 +445,30 @@ class DemosPlanProcedureController extends BaseController
 
         // save status counts
         $aggregations = $statementQueryResult->getFilterSet()['filters'];
+        foreach ($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS] as $aggregationBucket) {
+            if (array_key_exists($aggregationBucket['value'], $statementStatuses)) {
+                $statusValue = $aggregationBucket['value'];
+                $statusCount = $aggregationBucket['count'];
+                $statementStatusData[$statusValue]['count'] = $statusCount;
 
-        // Check if the status aggregation exists
-        if (isset($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS])) {
-            foreach ($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS] as $aggregationBucket) {
-                if (array_key_exists($aggregationBucket['value'], $statementStatuses)) {
-                    $statusValue = $aggregationBucket['value'];
-                    $statusCount = $aggregationBucket['count'];
-                    $statementStatusData[$statusValue]['count'] = $statusCount;
-
-                    // add link with filterhash to assessment table
-                    if (0 < $statusCount) {
-                        $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
-                            $statusValue,
-                            $procedureId,
-                            'statement'
-                        );
-                    }
+                // add link with filterhash to assessment table
+                if (0 < $statusCount) {
+                    $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
+                        $statusValue,
+                        $procedureId,
+                        'statement'
+                    );
                 }
             }
         }
 
-        if (isset($aggregations[self::AGGREGATION_STATUS_PRIORITY])) {
-            foreach ($aggregations[self::AGGREGATION_STATUS_PRIORITY] as $aggregationBucket) {
-                [$statusValue, $priorityValue] = $aggregationBucket['value'];
-                if ('' == $priorityValue || 'no_value' === $priorityValue) {
-                    $priorityValue = self::NONE;
-                }
-                $statementStatusData[$statusValue]['freq'][$priorityValue] = $aggregationBucket['count'];
+        // save priority count per status
+        foreach ($aggregations[self::AGGREGATION_STATUS_PRIORITY] as $aggregationBucket) {
+            [$statusValue, $priorityValue] = $aggregationBucket['value'];
+            if ('' == $priorityValue || 'no_value' === $priorityValue) {
+                $priorityValue = self::NONE;
             }
+            $statementStatusData[$statusValue]['freq'][$priorityValue] = $aggregationBucket['count'];
         }
 
         return [

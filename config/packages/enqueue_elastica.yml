@@ -1,0 +1,3 @@
+enqueue_elastica:
+    transport: '%enqueue.default_transport%'
+    doctrine: ~

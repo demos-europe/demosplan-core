@@ -1,19 +1,25 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
+use Exception;
 use League\Csv\Writer;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class OriginalStatementCsvExporter extends CoreService
 {
-
-    public function __construct(private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter){
-
-
+    public function __construct(private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter)
+    {
     }
 
     public function export(array $statements): string
@@ -29,10 +35,7 @@ class OriginalStatementCsvExporter extends CoreService
         );
 
         return $this->generateCsv($formattedData, $columnsDefinition);
-
-
     }
-
 
     private function generateCsv(array $formattedData, array $columnsDefinition): string
     {
@@ -53,7 +56,6 @@ class OriginalStatementCsvExporter extends CoreService
         return $csv->toString();
     }
 
-
     private function convertStatementsToArrays(array $statements, array $attributesToExport): array
     {
         $propertyAccessor = PropertyAccess::createPropertyAccessor();
@@ -66,7 +68,7 @@ class OriginalStatementCsvExporter extends CoreService
                 try {
                     // Try to access the property directly
                     $data[$key] = $propertyAccessor->getValue($statement, $key);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // For complex properties or when direct access fails
                     $data[$key] = '';
                 }
@@ -77,6 +79,4 @@ class OriginalStatementCsvExporter extends CoreService
 
         return $result;
     }
-
 }
-
