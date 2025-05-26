@@ -71,6 +71,15 @@
           @filterOptions:request="(params) => createFilterOptions({ ...params, categoryId: category.id})" />
       </div>
 
+      <dp-button
+        class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
+        data-cy="institutionList:resetFilter"
+        :disabled="!isQueryApplied"
+        :text="Translator.trans('reset')"
+        variant="outline"
+        v-tooltip="Translator.trans('search.filter.reset')"
+        @click="resetQuery" />
+
     </template>
 
     <dp-data-table-extended
@@ -328,7 +337,7 @@ export default {
 
 
     rowItems () {
-      return Object.values(this.invitableToebItems).reduce((acc, item) => {
+      let items = Object.values(this.invitableToebItems).reduce((acc, item) => {
         const locationContactId = item.relationships.locationContacts?.data.length > 0 ? item.relationships.locationContacts.data[0].id : null
         const locationContact = locationContactId ? this.getLocationContactById(locationContactId) : null
         const hasNoEmail = !item.attributes.participationFeedbackEmailAddress
@@ -356,6 +365,20 @@ export default {
           ]
         ]
       }, []) || []
+
+      // Filter anwenden
+      if (Object.keys(this.appliedFilterQuery).length > 0) {
+        items = items.filter(item => {
+          return Object.values(this.appliedFilterQuery).every(filterCondition => {
+            if (!filterCondition.condition) return true
+
+            const tagIds = item.assignedTags.map(tag => tag.id)
+            return tagIds.includes(filterCondition.condition.value)
+          })
+        })
+      }
+
+      return items
     }
   },
 
@@ -377,22 +400,6 @@ export default {
       setIsFilterFlyoutLoading: 'setIsLoading',
       setUngroupedFilterOptions: 'setUngroupedOptions'
     }),
-
-    setInitiallySelectedFilterCategories () {
-      const selectedFilterCategoriesInStorage = this.getInitiallySelectedFilterCategoriesFromLocalStorage()
-      this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null
-        ? selectedFilterCategoriesInStorage
-        : this.institutionTagCategoriesValues.slice(0, 5).map(category => category.attributes.name)
-    },
-
-    getInitiallySelectedFilterCategoriesFromLocalStorage () {
-      const selectedFilterCategories = localStorage.getItem('visibleFilterFlyouts')
-      return selectedFilterCategories ? JSON.parse(selectedFilterCategories) : null
-    },
-
-    setCurrentlySelectedFilterCategories (selectedCategories) {
-      this.currentlySelectedFilterCategories = selectedCategories
-    },
 
     addPublicInterestBodies (publicAgenciesIds) {
       if (publicAgenciesIds.length === 0) {
@@ -431,8 +438,74 @@ export default {
         })
     },
 
-    checkIfDisabled(categoryId) {
-      return !!Object.values(this.appliedFilterQuery).find(el => el.condition?.memberOf === `${categoryId}_group`);
+    applyFilterQuery (filter, categoryId) {
+      this.setAppliedFilterQuery(filter)
+      this.setFilterQueryInLocalStorage('filterQuery', JSON.stringify(this.filterQuery))
+      this.getInstitutionsByPage(1, categoryId)
+    },
+
+
+    checkIfDisabled (categoryId) {
+      return !!Object.values(this.appliedFilterQuery).find(el => el.condition?.memberOf === `${categoryId}_group`)
+    },
+
+    createFilterOptions (params) {
+      const { categoryId, isInitialWithQuery } = params
+      let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0 ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
+      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
+      const selectedFilterOptionIds = Object.keys(filterQueryFromStorage).filter(id => !id.includes('_group'))
+
+      if (Object.keys(filterOptions).length > 0) {
+        filterOptions = Object.values(filterOptions).map(option => {
+          const { id, attributes } = option
+          const { name } = attributes
+          const selected = selectedFilterOptionIds.includes(id)
+
+          return {
+            id,
+            label: name,
+            selected
+          }
+        })
+      }
+
+      this.setUngroupedFilterOptions({ categoryId, options: filterOptions })
+      this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
+
+      if (isInitialWithQuery) {
+        this.setFilterOptionsFromFilterQuery()
+      }
+    },
+
+    getFilterQueryFromLocalStorage () {
+      const filterQueryInStorage = localStorage.getItem('filterQuery')
+      return filterQueryInStorage && filterQueryInStorage !== 'undefined' ? JSON.parse(filterQueryInStorage) : {}
+    },
+
+    setFilterOptionsFromFilterQuery () {
+      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
+      const categoryIdsWithSelectedFilterOptions = Object.keys(filterQueryFromStorage)
+        .filter(id => id.includes('_group'))
+        .map(id => id.replace('_group', ''))
+
+      categoryIdsWithSelectedFilterOptions.forEach(id => {
+        const selectedFilterOptionIds = Object.values(filterQueryFromStorage)
+          .filter(el => el.condition?.memberOf === `${id}_group`)
+          .map(el => el.condition.value)
+
+        this.setInitialFlyoutFilterIds({ categoryId: id, filterIds: selectedFilterOptionIds })
+      })
+    },
+
+    getInitiallySelectedFilterCategoriesFromLocalStorage () {
+      const selectedFilterCategories = localStorage.getItem('visibleFilterFlyouts')
+      return selectedFilterCategories ? JSON.parse(selectedFilterCategories) : null
+    },
+
+    getInstitutionsByPage (page = 1, categoryId = null) {
+      if (categoryId) {
+        this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
+      }
     },
 
     getInstitutionsWithContacts () {
@@ -465,53 +538,47 @@ export default {
       return this.getInstitutions(requestParams)
     },
 
-    getLocationContactById (id) {
-      return this.institutionLocationContactItems[id]
-    },
-
-    getInstitutionTagCategories(isInitial = false) {
-      return dpApi({
-        method: 'GET',
-        url: '/api/2.0/InstitutionTagCategory',
-        params: {
-          fields: {
-            InstitutionTagCategory: [
-              'creationDate',
-              'name',
-              'tags'
-            ].join(),
-            InstitutionTag: [
-              'creationDate',
-              'isUsed',
-              'name',
-              'category'
-            ].join()
-          },
-          include: [
-            'tags',
-            'tags.category'
+    getInstitutionTagCategories (isInitial = false) {
+      return this.fetchInstitutionTagCategories({
+        fields: {
+          InstitutionTagCategory: [
+            'creationDate',
+            'name',
+            'tags'
+          ].join(),
+          InstitutionTag: [
+            'creationDate',
+            'isUsed',
+            'name',
+            'category'
           ].join()
-        }
+        },
+        include: [
+          'tags',
+          'tags.category'
+        ].join()
       })
-        .then(response => {
-          // Kategorien im lokalen State speichern
-          this.institutionTagCategoriesCopy = response.data.data.reduce((acc, category) => {
-            acc[category.id] = category;
-            return acc;
-          }, {});
+        .then(() => {
+          // Copy the object to avoid issues with filter requests that update the categories in the store
+          this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
 
           if (isInitial) {
-            this.setInitiallySelectedFilterCategories();
-            this.setCurrentlySelectedFilterCategories(this.initiallySelectedFilterCategories);
+            this.setInitiallySelectedFilterCategories()
+            this.setCurrentlySelectedFilterCategories(this.initiallySelectedFilterCategories)
           }
 
-          console.log('Tag categories loaded:', this.institutionTagCategoriesCopy);
-          return this.institutionTagCategoriesCopy;
+          console.log('Tag categories loaded:', this.institutionTagCategoriesCopy)
+          return this.institutionTagCategoriesCopy
         })
         .catch(err => {
-          console.error('Error loading tag categories:', err);
-          return {};
-        });
+          console.error('Error loading tag categories:', err)
+          return {}
+        })
+    },
+
+
+    getLocationContactById (id) {
+      return this.institutionLocationContactItems[id]
     },
 
     getSelectedOptionsCount(categoryId) {
@@ -527,6 +594,46 @@ export default {
       return this.rowItems.locationContacts?.street || this.rowItems.locationContacts?.postalcode || this.rowItems.locationContacts?.city
     },
 
+    isQueryApplied () {
+      const isFilterApplied = Object.keys(this.appliedFilterQuery).length > 0
+      const isSearchApplied = this.searchTerm !== ''
+
+      return isFilterApplied || isSearchApplied
+    },
+
+    resetFilterQueryInLocalStorage () {
+      localStorage.setItem('filterQuery', JSON.stringify({}))
+    },
+
+
+    resetQuery () {
+      this.searchTerm = ''
+      Object.keys(this.allFilterCategories).forEach((filterCategoryId, idx) => {
+        const filterFlyoutComponentExists = typeof this.$refs.filterFlyout[idx] !== 'undefined'
+        const hasFilterCategorySelectedOption = !!Object.values(this.filterQuery).find(el => el.condition?.memberOf === `${filterCategoryId}_group`)
+
+        if (filterFlyoutComponentExists) {
+          this.$refs.filterFlyout[idx].reset()
+          const isFilterFlyoutVisible = this.currentlySelectedFilterCategories.includes(this.allFilterCategories[filterCategoryId].label)
+
+          if (!isFilterFlyoutVisible && hasFilterCategorySelectedOption) {
+            const selectedFilterOptions = Object.values(this.filterQuery).filter(el => el.condition?.memberOf === `${filterCategoryId}_group`)
+            const payload = selectedFilterOptions.reduce((acc, el) => {
+              acc[el.condition.value] = el
+
+              return acc
+            }, {})
+
+            this.updateFilterQuery(payload)
+          }
+        }
+      })
+
+      this.resetFilterQueryInLocalStorage()
+      this.appliedFilterQuery = {}
+      this.getInstitutionsByPage(1)
+    },
+
     returnPermissionChecksValuesArray (permissionChecks) {
       return permissionChecks.reduce((acc, check) => {
         if (hasPermission(check.permission)) {
@@ -536,12 +643,48 @@ export default {
       }, [])
     },
 
+    setAppliedFilterQuery (filter) {
+      // Remove groups from filter
+      const selectedFilterOptions = Object.fromEntries(Object.entries(filter).filter(([_key, value]) => value.condition))
+      const isReset = Object.keys(selectedFilterOptions).length === 0
+      const isAppliedFilterQueryEmpty = Object.keys(this.appliedFilterQuery).length === 0
+
+      if (!isReset && isAppliedFilterQueryEmpty) {
+        Object.values(selectedFilterOptions).forEach(option => {
+          this.$set(this.appliedFilterQuery, option.condition.value, option)
+        })
+      } else if (isReset) {
+        const filtersWithConditions = Object.fromEntries(
+          Object.entries(this.filterQuery).filter(([key, value]) => value.condition)
+        )
+
+        this.appliedFilterQuery = Object.keys(filtersWithConditions).length ? filtersWithConditions : {}
+      } else {
+        this.appliedFilterQuery = selectedFilterOptions
+      }
+    },
+
+    setCurrentlySelectedFilterCategories (selectedCategories) {
+      this.currentlySelectedFilterCategories = selectedCategories
+    },
+
+    setFilterQueryInLocalStorage () {
+      localStorage.setItem('filterQuery', JSON.stringify(this.filterQuery))
+    },
+
     setSelectedItems (selectedItems) {
       this.selectedItems = selectedItems
     },
 
     setSelectedFilterCategoriesInLocalStorage (selectedFilterCategories) {
       localStorage.setItem('visibleFilterFlyouts', JSON.stringify(selectedFilterCategories))
+    },
+
+    setInitiallySelectedFilterCategories () {
+      const selectedFilterCategoriesInStorage = this.getInitiallySelectedFilterCategoriesFromLocalStorage()
+      this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null
+        ? selectedFilterCategoriesInStorage
+        : this.institutionTagCategoriesValues.slice(0, 5).map(category => category.attributes.name)
     },
 
     toggleAllSelectedFilterCategories () {
@@ -563,7 +706,8 @@ export default {
         : Object.values(this.allFilterCategories).map(filterCategory => filterCategory.label)
     },
 
-    updateCurrentlySelectedFilterCategories(filterCategoryName, isSelected) {
+    updateCurrentlySelectedFilterCategories (filterCategoryName, isSelected) {
+
       if (isSelected) {
         this.currentlySelectedFilterCategories.push(filterCategoryName)
       } else {
