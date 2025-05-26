@@ -25,7 +25,7 @@ import { EditorState } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { initRangePlugin } from '@DpJs/lib/prosemirror/plugins'
 import { schema } from 'prosemirror-schema-basic'
-import { segmentsMark } from '@DpJs/lib/prosemirror/marks'
+import { segmentMark } from '@DpJs/lib/prosemirror/marks'
 
 export default {
   name: 'SegmentationEditor',
@@ -92,7 +92,7 @@ export default {
             return ['a', { href, class: className }, 0]
           }
         },
-        segmentsMark
+        segmentMark
       },
       maxRange: 0
     }

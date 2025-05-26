@@ -20,7 +20,7 @@ import {
 } from './utilities'
 import { genEditingDecorations, removeMarkByName, replaceMarkInRange, toggleRangeEdit } from './commands'
 import { Plugin, PluginKey } from 'prosemirror-state'
-import { rangeSelectionMark, segmentsMark } from './marks'
+import { rangeSelectionMark, segmentMark } from './marks'
 import { Schema } from 'prosemirror-model'
 
 /**
@@ -256,7 +256,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
     key: rangeTrackerKey,
     state: {
       init (_, state) {
-        const ranges = getMarks(flattenNode(state.doc), 'segmentsMark', 'rangeId')
+        const ranges = getMarks(flattenNode(state.doc), 'segmentMark', 'rangeId')
 
         return ranges
       },
@@ -265,7 +265,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
           return pluginState
         }
 
-        const ranges = getMarks(flattenNode(newState.doc), 'segmentsMark', 'rangeId')
+        const ranges = getMarks(flattenNode(newState.doc), 'segmentMark', 'rangeId')
         const equal = ranges && pluginState && rangesEqual(pluginState, ranges)
         if (equal) {
           return pluginState
@@ -283,7 +283,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
            * Under schema.spec.marks we will find an OrderedMap of marks in the current schema (https://github.com/marijnh/orderedmap#readme),
            * the OrderedMap lets us remove entries by calling its subtract method with the keys that we'd like to remove.
            */
-          const rangeMarksRemoved = schema.spec.marks.subtract({ rangeselection: null, segmentsMark: null })
+          const rangeMarksRemoved = schema.spec.marks.subtract({ rangeselection: null, segmentMark: null })
           const reducedSchema = new Schema({
             nodes: schema.spec.nodes,
             marks: rangeMarksRemoved

@@ -490,13 +490,13 @@ export default {
 
     extractHtmlWithRangeMarks () {
       /**
-       * Serialize the entire ProseMirror document to HTML, converting any `<span data-range="...">…</span>` into a custom `<segments-mark>`
+       * Serialize the entire ProseMirror document to HTML, converting any `<span data-range="...">…</span>` into a custom `<segment-mark>`
        * element so that segment identifiers are preserved in the output.
        *
        * @param {EditorState} state
        *  The current ProseMirror editor state.
        * @returns {string}
-       *  Serialized HTML including `<segments-mark data-range="...">…</segments-mark>`
+       *  Serialized HTML including `<segment-mark data-range="...">…</segments-mark>`
        */
       const state = this.prosemirror.view.state
       const { schema } = state
@@ -507,7 +507,7 @@ export default {
       wrapper.appendChild(fragment)
 
       wrapper.querySelectorAll('span[data-range]').forEach(span => {
-        const mark = document.createElement('segments-mark')
+        const mark = document.createElement('segment-mark')
         const attributes = [...span.attributes]
 
         attributes.forEach(({ name, value }) => {
@@ -579,16 +579,16 @@ export default {
       }
     },
 
-    getSegmentsMarkRangesById (segmentId) {
+    getSegmentMarkRangesById (segmentId) {
       /**
-       * Find all occurrences of a `segmentsMark` with the given ID in the document.
+       * Find all occurrences of a `segmentMark` with the given ID in the document.
        * This handles multiple occurrences across different paragraphs or blocks.
        */
       const { doc } = this.prosemirror.view.state
       const ranges = []
 
       doc.nodesBetween(0, doc.content.size, (node, pos) => {
-        if (node.marks.some(mark => mark.type.name === 'segmentsMark' && mark.attrs.rangeId === segmentId)) {
+        if (node.marks.some(mark => mark.type.name === 'segmentMark' && mark.attrs.rangeId === segmentId)) {
           ranges.push({ from: pos, to: pos + node.nodeSize })
         }
         return true
@@ -732,11 +732,11 @@ export default {
     },
 
     immediatelyDeleteSegment (segmentId) {
-      const segmentsMarkRanges = this.getSegmentsMarkRangesById(segmentId)
+      const segmentMarkRanges = this.getSegmentMarkRangesById(segmentId)
       const { state } = this.prosemirror.view
       let tr = null
 
-      segmentsMarkRanges.forEach(({ from, to }) => {
+      segmentMarkRanges.forEach(({ from, to }) => {
         tr = removeRange(state, from, to, tr)
       })
 
@@ -802,27 +802,32 @@ export default {
       if (this.segments.length > 0) {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
-          try {
-            // Set data with html not only charStart and charEnd
-            const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
-            const segmentsWithText = this.segments
-              .filter(segment => !!ranges[segment.id])
-              .map(segment => {
-                return {
-                  ...segment,
-                  text: ranges[segment.id].text
-                }
-              })
-            this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
-            const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
-            this.setProperty({ prop: 'statementText', val: currentStatementText })
-            this.saveSegmentsFinal()
-              .then(() => this.setProperty({ prop: 'isBusy', val: false }))
-          } catch (err) {
-            console.error('An error occurred:', err)
-            dplan.notify.error(Translator.trans('error.api.generic'))
-            this.setProperty({ prop: 'isBusy', val: false })
-          }
+          /*
+           * Try {
+           *  Set data with html not only charStart and charEnd
+           */
+          const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
+          const segmentsWithText = this.segments
+            .filter(segment => !!ranges[segment.id])
+            .map(segment => {
+              return {
+                ...segment,
+                text: ranges[segment.id].text
+              }
+            })
+          console.log('segmentsWithText: ', segmentsWithText)
+          this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
+          const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
+          this.setProperty({ prop: 'statementText', val: currentStatementText })
+          /*
+           *  This.saveSegmentsFinal()
+           *  .then(() => this.setProperty({ prop: 'isBusy', val: false }))
+           *  } catch (err) {
+           *  console.error('An error occurred:', err)
+           *  dplan.notify.error(Translator.trans('error.api.generic'))
+           *  this.setProperty({ prop: 'isBusy', val: false })
+           *  }
+           */
         }
       } else {
         dplan.notify.error(Translator.trans('error.statement.missing.segment.drafts'))
@@ -884,7 +889,7 @@ export default {
       const textualReference = this.extractHtmlWithRangeMarks()
       console.log('textualReference: ', textualReference)
 
-      /* Store the serialized HTML (with custom <segments-mark> annotations) in draftSegmentsList for future re-hydration */
+      /* Store the serialized HTML (with custom <segment-mark> annotations) in draftSegmentsList for future re-hydration */
       this.setProperty({
         prop: 'initText',
         val: textualReference

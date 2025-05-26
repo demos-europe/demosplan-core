@@ -73,7 +73,7 @@ const replaceRange = (state, from, to, rangeAttrs, tr = false) => {
     throw new Error('Ranges can not be split in two parts.')
   }
 
-  return replaceMarkInRange(state, from, to, 'segmentsMark', rangeAttrs, tr)
+  return replaceMarkInRange(state, from, to, 'segmentMark', rangeAttrs, tr)
 }
 
 /**
@@ -87,7 +87,7 @@ const replaceRange = (state, from, to, rangeAttrs, tr = false) => {
  *
  */
 const removeRange = (state, from, to, tr = false) => {
-  const rangeMarkType = state.config.schema.marks.segmentsMark
+  const rangeMarkType = state.config.schema.marks.segmentMark
   let transaction = tr || state.tr
 
   transaction = transaction.removeMark(from, to, rangeMarkType)
