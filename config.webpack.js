@@ -8,7 +8,7 @@
  */
 const merge = require('webpack-merge').default
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const DefinePlugin = require('webpack').DefinePlugin
+const { DefinePlugin, NormalModuleReplacementPlugin } = require('webpack')
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
 
 const { config } = require('./client/fe/config/config') // All our configuration
@@ -103,17 +103,10 @@ const bundlesConfig = merge(baseConfig, {
     alias: {
       '@DpJs': config.absoluteRoot + 'client/js',
       vue: config.absoluteRoot + 'node_modules/@vue/compat/dist/vue.esm-bundler',
-      // To Fix masterportal issues, we have to resolve olcs manually
+      // To Fix masterportal issues, we have to resolve some imports within olcs manually
       './olcs/olcsMap.js': config.absoluteRoot + 'node_modules/@masterportal/masterportalapi/src/maps/olcs/olcsMap.js',
       './olcs': config.absoluteRoot + 'node_modules/olcs/lib/olcs',
-      'olcs/lib': config.absoluteRoot + 'node_modules/olcs/lib',
-      'olcs/core': config.absoluteRoot + 'node_modules/olcs/lib/olcs/core',
-      'olcs/print': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print',
-      './olcs/print': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print',
-      './print/computeRectangle': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/computeRectangle.js',
-      './print/rawCesiumMask': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/rawCesiumMask.js',
-      './print/takeCesiumScreenshot': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/takeCesiumScreenshot.js',
-      './print/drawCesiumMask': config.absoluteRoot + 'node_modules/olcs/lib/olcs/print/drawCesiumMask.js'
+      'olcs/lib': config.absoluteRoot + 'node_modules/olcs/lib'
     }
   },
   optimization: optimization(),
@@ -126,7 +119,16 @@ const bundlesConfig = merge(baseConfig, {
     }),
     new WebpackManifestPlugin({
       fileName: '../../dplan.manifest.json'
-    })
+    }),
+    // To Fix masterportal issues, we have to resolve some imports within olcs manually
+    new NormalModuleReplacementPlugin(
+      /\.\.\/core$/,
+      (resource) => {
+        if (resource.context.includes('olcs')) {
+          resource.request = config.absoluteRoot + 'node_modules/olcs/lib/olcs/core.js'
+        }
+      }
+    )
   ]
 })
 

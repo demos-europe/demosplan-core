@@ -24,6 +24,14 @@ const components = {
 const stores = {
   FilterFlyout: FilterFlyoutStore
 }
-const apiStores = ['AssignableUser', 'Place', 'StatementSegment', 'Tag', 'TagTopic']
+const apiStores = [
+  'AssignableUser',
+  'AdminProcedure',
+  'CustomField',
+  'Place',
+  'StatementSegment',
+  'Tag',
+  'TagTopic'
+]
 
 initialize(components, stores, apiStores)

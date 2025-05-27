@@ -39,7 +39,7 @@ class SingleDocumentServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(SingleDocumentService::class);
+        $this->sut = self::getContainer()->get(SingleDocumentService::class);
         $this->testDocument = $this->fixtures->getReference('testSingleDocument1');
         $this->testProcedure = $this->fixtures->getReference('testProcedure');
     }
