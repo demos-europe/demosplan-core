@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\JsonApi\RequestHandling\JsonApiSortingParser;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
@@ -40,7 +39,7 @@ class RpcStatementIdLoader implements RpcMethodSolverInterface
         protected readonly JsonApiSortingParser $sortingParser,
         protected readonly JsonApiEsService $jsonApiEsService,
         protected readonly LoggerInterface $logger,
-        protected RpcErrorGenerator $errorGenerator
+        protected RpcErrorGenerator $errorGenerator,
     ) {
     }
 

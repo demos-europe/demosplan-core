@@ -31,9 +31,6 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
-use EDT\Wrapping\ResourceBehavior\ResourceInstantiability;
-use EDT\Wrapping\ResourceBehavior\ResourceReadability;
-use EDT\Wrapping\ResourceBehavior\ResourceUpdatability;
 use Elastica\Index;
 
 /**
@@ -176,20 +173,15 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         return $this->currentUser->hasPermission('feature_json_api_original_statement');
     }
 
-
-
-
     public function getQuery(): AbstractQuery
     {
         return $this->esQuery;
     }
 
-
     public function getScopes(): array
     {
         return $this->esQuery->getScopes();
     }
-
 
     public function getSearchType(): Index
     {
@@ -200,5 +192,4 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
     {
         return [];
     }
-
 }
