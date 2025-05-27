@@ -230,7 +230,7 @@ export default {
         }
 
         // If item is in a visibility group, also toggle other items in that group
-        if (this.layer.attributes.visibilityGroupId !== '' || this.layer.attributes.visibilityGroupId !== null) {
+        if (!!this.layer.attributes.visibilityGroupId) {
           this.$root.$emit('layer:toggleVisibiltyGroup', { visibilityGroupId: this.layer.attributes.visibilityGroupId, layerId: this.layer.id, isVisible: this.isVisible })
         }
       }

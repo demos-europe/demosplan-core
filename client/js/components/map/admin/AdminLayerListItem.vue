@@ -108,7 +108,7 @@
       <input
         type="checkbox"
         data-cy="adminLayerListItem:toggleDefaultVisibility"
-        :disabled="!layer.attributes.visibilityGroupId || isChildOfCategoryThatAppearsAsLayer"
+        :disabled="!!layer.attributes.visibilityGroupId || isChildOfCategoryThatAppearsAsLayer"
         @change.prevent="toggleHasDefaultVisibility"
         :checked="hasDefaultVisibility"
         :class="[iconClass, 'o-sortablelist__checkbox']">
@@ -562,7 +562,7 @@ export default {
       if (this.layer.attributes.canUserToggleVisibility === false) {
         return Translator.trans('explanation.gislayer.visibility.group.locked.different.not.togglable')
       }
-      if (this.layer.attributes.visibilityGroupId && this.layer.attributes.visibilityGroupId !== this.activeLayerVisibilityGroupId) {
+      if (!!this.layer.attributes.visibilityGroupId && this.layer.attributes.visibilityGroupId !== this.activeLayerVisibilityGroupId) {
         return Translator.trans('explanation.gislayer.visibility.group.locked.different.group')
       }
       if (this.hasSameVisibilityAsCurrentlyActive === false) {
@@ -577,7 +577,7 @@ export default {
      * returns Boolean
      */
     isLinkedWithCurrentlyActive () {
-      return (this.layer.attributes.visibilityGroupId && this.layer.attributes.visibilityGroupId === this.activeLayerVisibilityGroupId)
+      return (!!this.layer.attributes.visibilityGroupId && this.layer.attributes.visibilityGroupId === this.activeLayerVisibilityGroupId)
     },
     /**
      * Checks if this element is in the same visibility-group as the hovered Layer
