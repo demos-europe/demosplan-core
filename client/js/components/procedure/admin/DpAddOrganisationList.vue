@@ -22,7 +22,7 @@
             align="left"
             :aria-label="Translator.trans('filters.more')"
             class="bg-surface-medium rounded pb-1 pt-[4px]"
-            data-cy="institutionList:filterCategories">
+            data-cy="dpAddOrganisationList:filterCategories">
             <template v-slot:trigger>
               <span :title="Translator.trans('filters.more')">
                 <dp-icon
@@ -35,7 +35,7 @@
             <div>
               <button
                 class="btn--blank o-link--default ml-auto"
-                data-cy="institutionList:toggleAllFilterCategories"
+                data-cy="dpAddOrganisationList:toggleAllFilterCategories"
                 v-text="Translator.trans('toggle_all')"
                 @click="toggleAllSelectedFilterCategories" />
               <div v-if="!isLoading">
@@ -44,7 +44,7 @@
                   :key="category.id"
                   :id="`filterCategorySelect:${category.label}`"
                   :checked="selectedFilterCategories.includes(category.label)"
-                  :data-cy="`institutionList:filterCategoriesSelect:${category.label}`"
+                  :data-cy="`dpAddOrganisationList:filterCategoriesSelect:${category.label}`"
                   :disabled="checkIfDisabled(category.id)"
                   :label="{
                     text: `${category.label} (${getSelectedOptionsCount(category.id)})`
@@ -61,7 +61,7 @@
           ref="filterFlyout"
           :category="{ id: category.id, label: category.label }"
           class="inline-block"
-          :data-cy="`institutionListFilter:${category.label}`"
+          :data-cy="`dpAddOrganisationList:${category.label}`"
           :initial-query-ids="queryIds"
           :member-of="category.memberOf"
           :operator="category.comparisonOperator"
@@ -72,7 +72,7 @@
 
       <dp-button
         class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
-        data-cy="institutionList:resetFilter"
+        data-cy="dpAddOrganisationList:resetFilter"
         :disabled="!isQueryApplied"
         :text="Translator.trans('reset')"
         variant="outline"
