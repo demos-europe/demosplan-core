@@ -655,13 +655,18 @@ feature_admin_export_procedure:
     label: 'Is export of procedures allowed in general.'
     loginRequired: true
     parent: feature_admin
+feature_admin_export_original_statement_csv:
+    label: 'Export Original Statements as CSV'
+    description: 'Export Original Statements as CSV in the detail view of a procedure.'
+    loginRequired: true
+    parent: feature_admin
 feature_admin_export_procedure_in_detail_view:
-    label: 'Verfahren exportieren in der Detailseite'
+    label: 'Export procedure in the detail view'
     loginRequired: true
     parent: feature_admin, feature_admin_export_procedure
 feature_admin_new_procedure:
     expose: true
-    label: 'Neues Verfahren anlegen'
+    label: 'Create a new procedure'
     loginRequired: true
     parent: feature_admin
 feature_allow_update_on_non_manual_statements:

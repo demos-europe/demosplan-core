@@ -41,10 +41,10 @@ class StatementExportController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions(
-        'feature_admin_assessmenttable_export_statement_generic_xlsx'
+        'feature_admin_export_original_statement_csv'
     )]
     #[Route(
-        path: '/verfahren/{procedureId}/abschnitte/export/csv',
+        path: '/verfahren/{procedureId}/originalStellungnahme/export/csv',
         name: 'dplan_original_statement_csv_export',
         options: ['expose' => true],
         methods: 'GET'
@@ -54,6 +54,7 @@ class StatementExportController extends BaseController
         OriginalStatementCsvExporter $exporter,
         OriginalStatementResourceType $originalStatementResourceType,
         string $procedureId,
+        ?array $statementIds
     ): StreamedResponse {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
