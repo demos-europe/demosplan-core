@@ -488,16 +488,16 @@ export default {
       this.ignoreProsemirrorUpdates = false
     },
 
+    /**
+     * Serialize the entire ProseMirror document to HTML, converting any `<span data-segment-id="...">…</span>` into a custom `<segment-mark>`
+     * element so that segment identifiers are preserved in the output.
+     *
+     * @param {EditorState} state
+     *  The current ProseMirror editor state.
+     * @returns {string}
+     *  Serialized HTML including `<segment-mark data-segment-id="...">…</segment-mark>`
+     */
     extractHtmlWithRangeMarks () {
-      /**
-       * Serialize the entire ProseMirror document to HTML, converting any `<span data-segment-id="...">…</span>` into a custom `<segment-mark>`
-       * element so that segment identifiers are preserved in the output.
-       *
-       * @param {EditorState} state
-       *  The current ProseMirror editor state.
-       * @returns {string}
-       *  Serialized HTML including `<segment-mark data-segment-id="...">…</segments-mark>`
-       */
       const state = this.prosemirror.view.state
       const { schema } = state
       const serializer = DOMSerializer.fromSchema(schema)
@@ -802,32 +802,27 @@ export default {
       if (this.segments.length > 0) {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
-          /*
-           * Try {
-           *  Set data with html not only charStart and charEnd
-           */
-          const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
-          const segmentsWithText = this.segments
-            .filter(segment => !!ranges[segment.id])
-            .map(segment => {
-              return {
-                ...segment,
-                text: ranges[segment.id].text
-              }
-            })
-          console.log('segmentsWithText: ', segmentsWithText)
-          this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
-          const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
-          this.setProperty({ prop: 'statementText', val: currentStatementText })
-          /*
-           *  This.saveSegmentsFinal()
-           *  .then(() => this.setProperty({ prop: 'isBusy', val: false }))
-           *  } catch (err) {
-           *  console.error('An error occurred:', err)
-           *  dplan.notify.error(Translator.trans('error.api.generic'))
-           *  this.setProperty({ prop: 'isBusy', val: false })
-           *  }
-           */
+          try {
+            // Set data with html not only charStart and charEnd
+            const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
+            const segmentsWithText = this.segments
+              .filter(segment => !!ranges[segment.id])
+              .map(segment => {
+                return {
+                  ...segment,
+                  text: ranges[segment.id].text
+                }
+              })
+            this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
+            const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
+            this.setProperty({ prop: 'statementText', val: currentStatementText })
+            this.saveSegmentsFinal()
+              .then(() => this.setProperty({ prop: 'isBusy', val: false }))
+          } catch (err) {
+            console.error('An error occurred:', err)
+            dplan.notify.error(Translator.trans('error.api.generic'))
+            this.setProperty({ prop: 'isBusy', val: false })
+          }
         }
       } else {
         dplan.notify.error(Translator.trans('error.statement.missing.segment.drafts'))
@@ -887,9 +882,8 @@ export default {
 
     updateTextualReference () {
       const textualReference = this.extractHtmlWithRangeMarks()
-      console.log('textualReference: ', textualReference)
 
-      /* Store the serialized HTML (with custom <segment-mark> annotations) in draftSegmentsList for future re-hydration */
+      /* Store the serialized HTML (with custom <segment-mark> annotations) in draftSegmentsList for future rehydration */
       this.setProperty({
         prop: 'initText',
         val: textualReference

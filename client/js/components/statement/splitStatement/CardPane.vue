@@ -135,7 +135,6 @@ export default {
       })
 
       Object.values(groupedCards).forEach(group => {
-        // Group.sort((a, b) => a.segment.charStart - b.segment.charStart)
         group.forEach((el, idx) => {
           el.position = idx + 1
         })
