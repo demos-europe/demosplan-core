@@ -21,24 +21,24 @@
       <dp-pager
         v-if="totalItems > itemsPerPageOptions[0]"
         :current-page="currentPage"
+        :limits="itemsPerPageOptions"
+        :per-page="itemsPerPage"
         :total-items="totalItems"
         :total-pages="totalPages"
-        :per-page="itemsPerPage"
-        :limits="itemsPerPageOptions"
         class="flex-shrink-0"
         @page-change="handlePageChange"
         @size-change="handleItemsPerPageChange" />
     </div>
     <dp-data-table
       ref="dataTable"
-      class="mt-2"
       :header-fields="headerFields"
-      is-selectable
-      is-expandable
       :items="rowItems"
-      lock-checkbox-by="hasNoEmail"
       :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
+      class="mt-2"
+      lock-checkbox-by="hasNoEmail"
       track-by="id"
+      is-expandable
+      is-selectable
       @items-selected="setSelectedItems">
       <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
         <div class="lg:w-2/3 lg:flex pt-4">
@@ -146,8 +146,8 @@
       </div>
       <div class="w-2/3 text-right inline-block space-x-2">
         <dp-button
-          data-cy="addPublicAgency"
           :text="Translator.trans('invitable_institution.add')"
+          data-cy="addPublicAgency"
           @click="addPublicInterestBodies(selectedItems)"/>
         <a
           :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
@@ -168,8 +168,8 @@ export default {
   name: 'DpAddOrganisationList',
 
   components: {
-    DpDataTable,
     DpButton,
+    DpDataTable,
     DpPager,
     DpSearchField
   },
@@ -197,7 +197,6 @@ export default {
         'participationFeedbackEmailAddress',
         'locationContacts',
         ...(hasPermission('feature_institution_tag_read') ? ['assignedTags'] : [])
-
       ],
       isLoading: true,
       locationContactFields: ['street', 'postalcode', 'city'],
@@ -252,7 +251,7 @@ export default {
         ]
       }, []) || []
 
-      // Add pagination slice
+      // slicing for frontend-only pagination as it's not implemented on the backend
       const start = (this.currentPage - 1) * this.itemsPerPage
       const end = start + this.itemsPerPage
       return allItems.slice(start, end)
@@ -336,7 +335,6 @@ export default {
         requestParams.fields.InstitutionTag = 'name'
       }
 
-      // Filter by searchTerm
       if (this.searchTerm.trim() !== '') {
         const filters = {
           namefilter: {
@@ -349,7 +347,6 @@ export default {
           }
         }
 
-        //Only add competence filter if user has permission
         if (hasPermission('field_organisation_competence')) {
           filters.competencefilter = {
             condition: {
@@ -361,7 +358,6 @@ export default {
           }
         }
 
-        // Only add tag filter if user has permission
         if (hasPermission('feature_institution_tag_read')) {
           filters.tagfilter = {
             condition: {
@@ -396,14 +392,14 @@ export default {
     handleSearch (searchValue) {
       this.searchTerm = searchValue
       this.currentPage = 1
-      this.getInstitutionsWithContacts(searchValue)
+      this.getInstitutionsWithContacts()
         .then(() => { this.isLoading = false })
     },
 
     handleReset () {
       this.searchTerm = ''
       this.currentPage = 1
-      this.getInstitutionsWithContacts('')
+      this.getInstitutionsWithContacts()
         .then(() => { this.isLoading = false })
     },
 
@@ -415,7 +411,6 @@ export default {
       this.itemsPerPage = newItemsPerPage
       this.currentPage = 1
     },
-
 
     returnPermissionChecksValuesArray (permissionChecks) {
       return permissionChecks.reduce((acc, check) => {
