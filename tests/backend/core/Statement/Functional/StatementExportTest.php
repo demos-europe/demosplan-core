@@ -156,12 +156,8 @@ class StatementExportTest extends FunctionalTestCase
                 'phase' => 'Beteiligung TöB - § 4 (2) BauGB',
                 'polygon' => '',
                 'file' => '',
-                'files' =>
-                    array (
-                    ),
-                'fileNames' =>
-                    array (
-                    ),
+                'files' => [],
+                'fileNames' =>  [],
                 'mapFile' => '',
                 'movedStatementId' => NULL,
                 'movedToProcedureId' => NULL,
@@ -193,24 +189,12 @@ class StatementExportTest extends FunctionalTestCase
                 'paragraphTitle' => '',
                 'originalId' => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8',
                 'parentId' => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8',
-                'priorityAreaKeys' =>
-                    array (
-                    ),
-                'municipalityNames' =>
-                    array (
-                    ),
-                'countyNames' =>
-                    array (
-                    ),
-                'tags' =>
-                    array (
-                    ),
-                'tagNames' =>
-                    array (
-                    ),
-                'topicNames' =>
-                    array (
-                    ),
+                'priorityAreaKeys' => [],
+                'municipalityNames' => [],
+                'countyNames' =>  [],
+                'tags' =>  [],
+                'tagNames' =>  [],
+                'topicNames' =>  [],
                 'externId' => 'M1',
                 'internId' => NULL,
                 'memo' => 'Mein Notiz!',
@@ -232,12 +216,10 @@ class StatementExportTest extends FunctionalTestCase
                 'votePla' => NULL,
                 'likesNum' => 0,
                 'replied' => false,
-                'cluster' =>
-                    array (
-                    ),
+                'cluster' =>  [],
                 'assignee' => NULL,
                 'meta' =>
-                    array (
+                    [
                         'orgaName' => 'Meine Insti',
                         'orgaDepartmentName' => 'Test Abteilung',
                         'orgaCity' => 'Berlin',
@@ -256,7 +238,7 @@ class StatementExportTest extends FunctionalTestCase
                         'userPosition' => NULL,
                         'userOrganisation' => NULL,
                         'userState' => NULL,
-                    ),
+                    ],
                 'votes' =>
                     array (
                         0 =>
@@ -289,35 +271,29 @@ class StatementExportTest extends FunctionalTestCase
                 'textPassagesAnonymized' => false,
                 'isSubmittedByCitizen' => false,
                 'anonymous' => false,
-                'fragments' =>
-                    array (
-                    ),
+                'fragments' => [],
                 'original' =>
-                    array (
+                    [
                         'ident' => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8',
-                    ),
+                    ],
                 'parent' =>
-                    array (
+                    [
                         'ident' => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8',
-                    ),
+                    ],
                 'element' =>
-                    array (
+                    [
                         'title' => 'Gesamtstellungnahme',
-                    ),
+                    ],
                 'document' =>
-                    array (
+                    [
                         'title' => NULL,
-                    ),
+                    ],
                 'paragraph' =>
-                    array (
+                    [
                         'title' => '',
-                    ),
-                'fragments_total' =>
-                    array (
-                    ),
-                'attachments' =>
-                    array (
-                    )
+                    ],
+                'fragments_total' => [],
+                'attachments' => []
             ]
         ];
 
@@ -369,18 +345,18 @@ class StatementExportTest extends FunctionalTestCase
     {
         $this->loginTestUser();
 
-        $statements = [
-            [
+        $statements = array (
+            array (
                 'id' => '123',
                 'text' => 'Statement with priority areas',
-                'priorityAreaKeys' => ['area1', 'area2', 'area3']
-            ]
-        ];
+                'priorityAreaKeys' => array ('area1', 'area2', 'area3')
+            )
+        );
 
         $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
             $statements,
             false,
-            ['id', 'text', 'priorityAreaKeys']
+            array ('id', 'text', 'priorityAreaKeys')
         );
 
         // Should create 3 rows (one for each priority area)
@@ -400,22 +376,22 @@ class StatementExportTest extends FunctionalTestCase
     {
         $this->loginTestUser();
 
-        $statements = [
-            [
+        $statements = array (
+            array (
                 'id' => '123',
                 'text' => 'Statement with tags',
-                'tagNames' => ['Environment', 'Traffic'],
-                'tags' => [
-                    ['title' => 'Environment', 'topicTitle' => 'Environmental Protection'],
-                    ['title' => 'Traffic', 'topicTitle' => 'Transportation Planning']
-                ]
-            ]
-        ];
+                'tagNames' => array ('Environment', 'Traffic'),
+                'tags' => array (
+                    array ('title' => 'Environment', 'topicTitle' => 'Environmental Protection'),
+                    array ('title' => 'Traffic', 'topicTitle' => 'Transportation Planning')
+                )
+            )
+        );
 
         $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
             $statements,
             false,
-            ['id', 'text', 'tagNames', 'topicNames']
+            array ('id', 'text', 'tagNames', 'topicNames')
         );
 
         // Should create 2 rows (one for each tag)
@@ -436,19 +412,19 @@ class StatementExportTest extends FunctionalTestCase
     {
         $this->loginTestUser();
 
-        $statements = [
-            [
+        $statements = array (
+            array (
                 'id' => '123',
                 'text' => '<obscure>Sensitive information</obscure> Public text',
                 'authorName' => '<obscure>John Doe</obscure>'
-            ]
-        ];
+            )
+        );
 
         // Test with anonymous = true
         $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
             $statements,
             true,
-            ['id', 'text', 'authorName']
+            array ('id', 'text', 'authorName')
         );
 
         self::assertCount(1, $result);
@@ -464,14 +440,14 @@ class StatementExportTest extends FunctionalTestCase
     {
         $this->loginTestUser();
 
-        $statements = [
-            [
+        $statements = array (
+            array (
                 'id' => '123',
                 'text' => 'Statement with empty arrays',
-                'priorityAreaKeys' => [], // Empty array
-                'tagNames' => [] // Empty array
-            ]
-        ];
+                'priorityAreaKeys' => array (), // Empty array
+                'tagNames' => array () // Empty array
+            )
+        );
 
         $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
             $statements,
