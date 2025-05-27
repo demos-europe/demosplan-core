@@ -102,7 +102,7 @@
         </span><!--
      --><span
           v-if="showEmail"
-          :class="prefixClass('layout__item u-1-of-4-desk-up')">
+          :class="prefixClass('layout__item u-1-of-4-desk-up break-all')">
           <em>{{ Translator.trans('email') }}: </em> {{ statement.r_email }}
         </span><!--
      --><span

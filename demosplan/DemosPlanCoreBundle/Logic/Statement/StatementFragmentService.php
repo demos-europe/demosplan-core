@@ -1141,17 +1141,17 @@ class StatementFragmentService extends CoreService
             // if a Searchterm is set use it
             if (is_string($search) && 0 < \strlen($search)) {
                 $availableSearchfields = [
-                    'fragment_text'           => 'text.text',
+                    'fragment_text'           => 'text',
                     'municipalityNames'       => 'municipalityNames.raw',
                     'displayId'               => 'displayId',
                     'statement.externId'      => 'statement.externId',
                     'priorityAreaKeys'        => 'priorityAreaKeys',
                     'countyNames'             => 'countyNames.raw',
-                    'tagNames'                => 'tagNames.text',
-                    'consideration'           => 'consideration.text',
-                    'fragments_consideration' => 'consideration.text',
-                    'elementTitle'            => 'elementTitle.text',
-                    'paragraphTitle'          => 'paragraphTitle.text',
+                    'tagNames'                => 'tagNames',
+                    'consideration'           => 'consideration',
+                    'fragments_consideration' => 'consideration',
+                    'elementTitle'            => 'elementTitle',
+                    'paragraphTitle'          => 'paragraphTitle',
                 ];
                 $usedSearchfields = [];
                 if ([] === $searchFields) {
@@ -1700,7 +1700,7 @@ class StatementFragmentService extends CoreService
             // state we need to throw away the cached statement fragments first. This could lead to problems
             // if any previous StatementFragment instances are used with doctrine afterwards during this HTTP
             // request, even implicitly, eg. when persisting a Statement referencing StatementFragments.
-            $this->doctrine->getManager()->clear(StatementFragment::class);
+            $this->doctrine->getManager()->clear();
             $statementFragments = $this->statementFragmentRepository->findBy(
                 ['id' => $statementFragmentIds, 'procedure' => $procedureId]
             );

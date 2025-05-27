@@ -142,6 +142,7 @@
       <dp-input
         v-for="(element, index) in generalElements(idx)"
         v-bind="element"
+        v-model="submitterData[element.field]"
         class="layout__item u-1-of-2 u-mb-0_75"
         :key="`${element.id}_${index}`" />
     </div>
@@ -430,7 +431,7 @@ export default {
           return
         }
 
-        this.submitterData = this.submitter.submitter
+        this.submitterData = { ...this.submitter.submitter }
       },
       deep: true
     }
@@ -519,7 +520,8 @@ export default {
             required: isRequiredInFormDefinition,
             type: curr.type,
             width: curr.width,
-            dataCy: curr.dataCy
+            dataCy: curr.dataCy,
+            field: curr.field
           })
         }
         return acc

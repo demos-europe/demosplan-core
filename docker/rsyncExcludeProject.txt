@@ -1,4 +1,3 @@
-app_dev.php
 app/cache
 app/console
 app/logs
@@ -9,3 +8,4 @@ web/img
 web/js
 web/video
 parameters.yml
+release.sh

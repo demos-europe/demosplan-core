@@ -29,7 +29,7 @@
         <div class="ml-2 space-x-1 space-x-reverse">
           <filter-flyout
             v-for="(filter, idx) in Object.values(filters)"
-            :ref="`filterFlyout${idx}`"
+            ref="filterFlyout"
             :additional-query-params="{ searchPhrase: searchTerm }"
             :category="{ id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }"
             class="inline-block first:mr-1"
@@ -114,7 +114,7 @@
           :class="{ 'px-2 overflow-y-scroll grow': isFullscreen, 'scrollbar-none': !isFullscreen }"
           data-cy="segmentsList"
           has-flyout
-          :header-fields="headerFields"
+          :header-fields="availableHeaderFields"
           is-resizable
           is-selectable
           :items="items"
@@ -208,6 +208,12 @@
               style="color: #63667e; background: #EBE9E9; padding: 2px 4px; margin: 4px 2px; display: inline-block;">
               {{ tag.attributes.title }}
             </span>
+          </template>
+          <template
+            v-for="customField in selectedCustomFields"
+            :key="customField.field"
+            v-slot:[customField.field]="rowData">
+            <div>{{ rowData.attributes.customFields?.find(el => el.id === customField.fieldId)?.value || '' }}</div>
           </template>
           <template v-slot:flyout="rowData">
             <dp-flyout data-cy="segmentsList:flyoutEditMenu">
@@ -420,6 +426,10 @@ export default {
       assignableUsersObject: 'items'
     }),
 
+    ...mapState('CustomField', {
+      customFields: 'items'
+    }),
+
     ...mapState('Orga', {
       orgaObject: 'items'
     }),
@@ -448,6 +458,25 @@ export default {
             id: user.id
           }))
         : []
+    },
+
+    availableHeaderFields () {
+      if (!hasPermission('field_segments_custom_fields')) {
+        return this.headerFields
+      }
+
+      const customFields = Object.values(this.customFields)
+      const selectedCustomFields = customFields
+        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
+        .map(customField => ({
+          field: `customField_${customField.id}`,
+          label: customField.attributes.name
+        }))
+
+      return [
+        ...this.headerFields,
+        ...selectedCustomFields
+      ]
     },
 
     headerFields () {
@@ -488,8 +517,38 @@ export default {
       return ids
     },
 
+    /**
+     * Returns both static and custom headerFields that can be selected in the ColumnSelector
+     * @return {[string, string][]}
+     */
     selectableColumns () {
-      return this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+      const staticColumns = this.headerFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
+
+      if (!hasPermission('field_segments_custom_fields')) {
+        return staticColumns
+      }
+
+      const customFields = Object.values(this.customFields).map(customField => ([`customField_${customField.id}`, customField.attributes.name]))
+
+      return [
+        ...staticColumns,
+        ...customFields
+      ]
+    },
+
+    selectedCustomFields () {
+      if (!hasPermission('field_segments_custom_fields')) {
+        return []
+      }
+
+      return Object.values(this.customFields)
+        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
+        .map(customField => {
+          return {
+            field: `customField_${customField.id}`,
+            fieldId: customField.id
+          }
+        })
     },
 
     storageKeyPagination () {
@@ -502,6 +561,10 @@ export default {
       fetchAssignableUsers: 'list'
     }),
 
+    ...mapActions('AdminProcedure', {
+      getCustomFieldsForProcedure: 'get'
+    }),
+
     ...mapActions('FilterFlyout', [
       'updateFilterQuery'
     ]),
@@ -511,7 +574,7 @@ export default {
     }),
 
     ...mapActions('StatementSegment', {
-      listSegments: 'list'
+      fetchSegments: 'list'
     }),
 
     ...mapMutations('FilterFlyout', {
@@ -535,6 +598,21 @@ export default {
           }
         }
       }
+      const statementSegmentFields = [
+        'assignee',
+        'externId',
+        'orderInProcedure',
+        'parentStatement',
+        'place',
+        'tags',
+        'text',
+        'recommendation'
+      ]
+
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
+      }
+
       const payload = {
         include: [
           'assignee',
@@ -579,16 +657,7 @@ export default {
             'submitName',
             'submitType'
           ].join(),
-          StatementSegment: [
-            'assignee',
-            'externId',
-            'orderInProcedure',
-            'parentStatement',
-            'place',
-            'tags',
-            'text',
-            'recommendation'
-          ].join(),
+          StatementSegment: statementSegmentFields.join(),
           Tag: [
             'title'
           ].join()
@@ -601,7 +670,7 @@ export default {
         }
       }
       this.isLoading = true
-      this.listSegments(payload)
+      this.fetchSegments(payload)
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
@@ -639,6 +708,27 @@ export default {
           this.storeAllSegments(allSegments)
           this.allItemsCount = allSegments.length
         })
+    },
+
+    getCustomFields () {
+      const payload = {
+        id: this.procedureId,
+        fields: {
+          AdminProcedure: [
+            'segmentCustomFields'
+          ].join(),
+          CustomField: [
+            'name',
+            'description',
+            'options'
+          ].join()
+        },
+        include: [
+          'segmentCustomFields'
+        ].join()
+      }
+
+      this.getCustomFieldsForProcedure(payload)
     },
 
     getTagsBySegment (id) {
@@ -684,8 +774,8 @@ export default {
     resetQuery () {
       this.resetSearchQuery()
       this.appliedFilterQuery = []
-      Object.keys(this.filters).forEach((filter, idx) => {
-        this.$refs[`filterFlyout${idx}`].reset()
+      this.$refs.filterFlyout?.forEach(flyout => {
+        flyout.reset()
       })
       this.updateQueryHash()
       this.resetSelection()
@@ -931,6 +1021,7 @@ export default {
       })
     }
     this.initPagination()
+    this.getCustomFields()
     this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces()

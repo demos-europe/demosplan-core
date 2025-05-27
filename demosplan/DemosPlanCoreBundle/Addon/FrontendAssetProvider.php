@@ -10,13 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Symfony\Component\Yaml\Yaml;
 
 final class FrontendAssetProvider
 {
-    public function __construct(private readonly AddonRegistry $registry)
+    public function __construct(private readonly PermissionsInterface $permissions, private readonly AddonRegistry $registry)
     {
     }
 
@@ -39,10 +40,15 @@ final class FrontendAssetProvider
             $hookData = $uiData['hooks'][$hookName];
             $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
 
+            // Return if no access granted for that addon at that entrypoint
+            if (array_key_exists('permissions', $hookData['options'])
+                && !$this->permissions->hasPermissions($hookData['options']['permissions'], 'OR')) {
+                return [];
+            }
+
             try {
                 $entries = $this->getAssetPathsFromManifest($manifestPath, $hookData['entry']);
 
-                // TODO: handle this for all asset file types
                 if (!array_key_exists('js', $entries)) {
                     throw new AddonException('Entry has no javascript and is thus pretty much useless');
                 }
@@ -62,10 +68,6 @@ final class FrontendAssetProvider
             } catch (AddonException) {
                 return [];
             }
-
-            // TODO: filter assets based on their permission to only send
-            //       usable addons to the client and relieve ourselves from outer
-            //       permission checks in addon components
 
             return $this->createAddonFrontendAssetsEntry($hookData, $assetContents);
         }, $this->registry->getAddonInfos());

@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTyp
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions as AttributeDplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
@@ -73,8 +74,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementSubmissionNotifier;
-use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService;
-use demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
@@ -154,6 +153,7 @@ class DemosPlanProcedureController extends BaseController
         ProcedureServiceOutput $procedureServiceOutput,
         private readonly ProcedureTypeResourceType $procedureTypeResourceType,
         private readonly SortMethodFactory $sortMethodFactory,
+        private readonly CurrentProcedureService $currentProcedureService,
     ) {
         $this->procedureServiceOutput = $procedureServiceOutput;
         $this->procedureService = $procedureService;
@@ -229,7 +229,6 @@ class DemosPlanProcedureController extends BaseController
         PermissionsInterface $permissions,
         StatementFragmentService $statementFragmentService,
         StatementService $statementService,
-        SurveyService $surveyService,
         TranslatorInterface $translator,
         string $procedure,
     ) {
@@ -290,11 +289,6 @@ class DemosPlanProcedureController extends BaseController
             );
         }
 
-        if ($this->permissions->hasPermission('area_survey')) {
-            $templateVars['surveys'] = $procedureObject->getSurveys();
-            $templateVars['surveyStatistics'] = $surveyService->generateSurveyStatistics($procedureObject);
-        }
-
         return $this->renderTemplate(
             '@DemosPlanCore/DemosPlanProcedure/administration_dashboard.html.twig',
             [
@@ -331,7 +325,7 @@ class DemosPlanProcedureController extends BaseController
      *       ],
      *   ];
      *
-     * @return array{statementPriorities?: list<PriorityPair>, statementStatusData?: list<array{Category: string, count: int, freq: array<string, int>, url?: string}>, movedStatementData?: MovedStatementData, procedureHasSurveys?: bool}
+     * @return array{statementPriorities?: list<PriorityPair>, statementStatusData?: list<array{Category: string, count: int, freq: array<string, int>, url?: string}>, movedStatementData?: MovedStatementData}
      *
      * @throws Exception
      */
@@ -377,7 +371,6 @@ class DemosPlanProcedureController extends BaseController
             if (null !== $movedStatementData) {
                 $templateVars['movedStatementData'] = $movedStatementData;
             }
-            $templateVars['procedureHasSurveys'] = count($procedure->getSurveys()) > 0;
         } catch (Exception $e) {
             $this->getLogger()->error('Failed to get moved procedures for dashboard', [$e]);
         }
@@ -443,30 +436,35 @@ class DemosPlanProcedureController extends BaseController
 
         // save status counts
         $aggregations = $statementQueryResult->getFilterSet()['filters'];
-        foreach ($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS] as $aggregationBucket) {
-            if (array_key_exists($aggregationBucket['value'], $statementStatuses)) {
-                $statusValue = $aggregationBucket['value'];
-                $statusCount = $aggregationBucket['count'];
-                $statementStatusData[$statusValue]['count'] = $statusCount;
 
-                // add link with filterhash to assessment table
-                if (0 < $statusCount) {
-                    $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
-                        $statusValue,
-                        $procedureId,
-                        'statement'
-                    );
+        // Check if the status aggregation exists
+        if (isset($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS])) {
+            foreach ($aggregations[StatementService::AGGREGATION_STATEMENT_STATUS] as $aggregationBucket) {
+                if (array_key_exists($aggregationBucket['value'], $statementStatuses)) {
+                    $statusValue = $aggregationBucket['value'];
+                    $statusCount = $aggregationBucket['count'];
+                    $statementStatusData[$statusValue]['count'] = $statusCount;
+
+                    // add link with filterhash to assessment table
+                    if (0 < $statusCount) {
+                        $statementStatusData[$statusValue]['url'] = $this->generateAssessmentTableFilterLinkFromStatus(
+                            $statusValue,
+                            $procedureId,
+                            'statement'
+                        );
+                    }
                 }
             }
         }
 
-        // save priority count per status
-        foreach ($aggregations[self::AGGREGATION_STATUS_PRIORITY] as $aggregationBucket) {
-            [$statusValue, $priorityValue] = $aggregationBucket['value'];
-            if ('' == $priorityValue || 'no_value' === $priorityValue) {
-                $priorityValue = self::NONE;
+        if (isset($aggregations[self::AGGREGATION_STATUS_PRIORITY])) {
+            foreach ($aggregations[self::AGGREGATION_STATUS_PRIORITY] as $aggregationBucket) {
+                [$statusValue, $priorityValue] = $aggregationBucket['value'];
+                if ('' == $priorityValue || 'no_value' === $priorityValue) {
+                    $priorityValue = self::NONE;
+                }
+                $statementStatusData[$statusValue]['freq'][$priorityValue] = $aggregationBucket['count'];
             }
-            $statementStatusData[$statusValue]['freq'][$priorityValue] = $aggregationBucket['count'];
         }
 
         return [
@@ -1399,7 +1397,16 @@ class DemosPlanProcedureController extends BaseController
             } else {
                 $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit.html.twig';
                 $title = 'procedure.adjustments';
+
+                foreach ($templateVars['internalPhases'] as $internalPhase) {
+                    if ('evaluating' === $internalPhase['key']) {
+                        $evaluatingPhase = $internalPhase['name'];
+
+                        break;
+                    }
+                }
             }
+
             /** @var NotificationReceiverRepository $notificationReveicerRepository */
             $notificationReveicerRepository = $em->getRepository(NotificationReceiver::class);
 
@@ -1435,15 +1442,15 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['statementCount'] = $statementService->getStatementResourcesCount($procedureId);
             $templateVars['synchronizedStatementCount'] = $entitySyncLinkRepository->getSynchronizedStatementCount($procedureId);
 
-            return $this->renderTemplate(
-                $template,
-                [
-                    'templateVars' => $templateVars,
-                    'procedure'    => $procedureId,
-                    'title'        => $title,
-                    'form'         => $form->createView(),
-                ]
-            );
+            $data = [
+                'templateVars'    => $templateVars,
+                'procedure'       => $procedureId,
+                'title'           => $title,
+                'form'            => $form->createView(),
+                'evaluatingPhase' => $evaluatingPhase ?? '',
+            ];
+
+            return $this->renderTemplate($template, $data);
         } catch (DuplicateSlugException $e) {
             $this->getMessageBag()->add('error', 'error.procedure.duplicated.shorturl', ['slug' => $e->getDuplicatedSlug()]);
 
@@ -1628,7 +1635,6 @@ class DemosPlanProcedureController extends BaseController
         Request $request,
         StatementHandler $statementHandler,
         StatementService $statementService,
-        SurveyShowHandler $surveyShowHandler,
         StatementSubmissionNotifier $statementSubmissionNotifier,
         CoordinateJsonConverter $coordinateJsonConverter,
         string $procedure,
@@ -1934,15 +1940,6 @@ class DemosPlanProcedureController extends BaseController
         }
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-
-        // Survey Info
-        if ($this->permissions->hasPermission('area_survey')) {
-            $survey = $procedure->getFirstSurvey();
-            $templateVars['survey'] = $surveyShowHandler->entityToFrontend(
-                $survey,
-                $user
-            );
-        }
 
         // Is autorisation via token available in current procedure
         if ($permissions->hasPermission('feature_public_consultation')) {
@@ -2437,6 +2434,21 @@ class DemosPlanProcedureController extends BaseController
         return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
             'procedureId' => $procedureId,
         ]);
+    }
+
+    /**
+     * Creation of custom fields, each is either procedure or procedure template related.
+     */
+    #[AttributeDplanPermissions('area_admin_custom_fields')]
+    #[Route(name: 'DemosPlan_procedure_custom_fields_list', path: '/verfahren/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
+    #[Route(name: 'DemosPlan_procedure_template_custom_fields_list', path: '/verfahren/blaupause/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
+    public function showProcedureCustomFieldsAction(string $procedureId)
+    {
+        $templateVars['procedureTemplate'] = $this->currentProcedureService->getProcedure()?->getMaster() ?? false;
+        $templateVars['procedureId'] = $procedureId;
+
+        return $this->renderTemplate('@DemosPlanCore/DemosPlanProcedure/administration_custom_fields_list.html.twig',
+            ['templateVars' => $templateVars]);
     }
 
     /**
