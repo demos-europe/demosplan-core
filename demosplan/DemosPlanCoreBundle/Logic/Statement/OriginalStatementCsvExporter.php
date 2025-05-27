@@ -63,15 +63,15 @@ class OriginalStatementCsvExporter extends CoreService
     private function convertStatementsToArrays(array $statements, array $attributesToExport): array
     {
         $propertyAccessor = PropertyAccess::createPropertyAccessor();
-        $result = [];
+        $statementsArray = [];
 
         foreach ($statements as $statement) {
-            $data = [];
+            $statementArray = [];
 
             foreach ($attributesToExport as $key) {
                 try {
                     if ('phase' === $key) {
-                        $data['phase'] = $this->statementService->getProcedurePhaseName(
+                        $statementArray['phase'] = $this->statementService->getProcedurePhaseName(
                             $statement->getPhase(),
                             $statement->isSubmittedByCitizen()
                         );
@@ -79,20 +79,20 @@ class OriginalStatementCsvExporter extends CoreService
                     }
 
                     if ('meta.authoredDate' === $key) {
-                        $data['meta.authoredDate'] = $this->assesmentTableServiceOutput->getFormattedAuthoredDateFromStatement($statement);
+                        $statementArray['meta.authoredDate'] = $this->assesmentTableServiceOutput->getFormattedAuthoredDateFromStatement($statement);
                         continue;
                     }
                     // Try to access the property directly
-                    $data[$key] = $propertyAccessor->getValue($statement, $key);
+                    $statementArray[$key] = $propertyAccessor->getValue($statement, $key);
                 } catch (Exception $e) {
                     // For complex properties or when direct access fails
-                    $data[$key] = '';
+                    $statementArray[$key] = '';
                 }
             }
 
-            $result[] = $data;
+            $statementsArray[] = $statementArray;
         }
 
-        return $result;
+        return $statementsArray;
     }
 }
