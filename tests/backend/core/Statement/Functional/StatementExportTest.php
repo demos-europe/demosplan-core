@@ -92,7 +92,7 @@ class StatementExportTest extends FunctionalTestCase
             $twig,
             $formOptionsResolver,
             $loggerInterface,
-            $this->permissions ,
+            $this->permissions,
             $requestStack,
             $serviceImporter,
             $simpleSpreadsheetService,
@@ -138,227 +138,204 @@ class StatementExportTest extends FunctionalTestCase
         // Test basic statement processing without array attributes
         $statements = [
             [
-                'text' => '<p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore. statementjiahuu this was edited. Grüße aus Cypress!</p>',
-                'textShort' => '<p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore. statementjiahuu this was edited. Grüße aus Cypress!</p>',
-                'recommendation' => '<p>Meine Empfehlung</p>',
+                'text'                => '<p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore. statementjiahuu this was edited. Grüße aus Cypress!</p>',
+                'textShort'           => '<p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore. statementjiahuu this was edited. Grüße aus Cypress!</p>',
+                'recommendation'      => '<p>Meine Empfehlung</p>',
                 'recommendationShort' => '<p>Meine Empfehlung</p>',
-                'id' => 'c0ec1585-3f87-48f9-822e-503b797d41d2',
-                'ident' => 'c0ec1585-3f87-48f9-822e-503b797d41d2',
-                'name' => '',
-                'oId' => NULL,
-                'oName' => 'Meine Insti',
-                'dName' => 'Test Abteilung',
-                'uName' => 'A name',
-                'uId' => NULL,
-                'pId' => 'c7284d80-8c28-48ce-9d48-2239ca7a4a92',
-                'organisation' => NULL,
-                'procedureId' => 'c7284d80-8c28-48ce-9d48-2239ca7a4a92',
-                'phase' => 'Beteiligung TöB - § 4 (2) BauGB',
-                'polygon' => '',
-                'file' => '',
-                'files' =>
-                    array (
-                    ),
-                'fileNames' =>
-                    array (
-                    ),
-                'mapFile' => '',
-                'movedStatementId' => NULL,
-                'movedToProcedureId' => NULL,
-                'movedFromProcedureId' => NULL,
-                'movedToProcedureName' => NULL,
-                'movedFromProcedureName' => NULL,
-                'isPlaceholder' => false,
-                'formerExternId' => NULL,
-                'status' => 'processing',
-                'publicStatement' => 'internal',
-                'publicCheck' => 'no',
-                'publicAllowed' => false,
-                'publicVerified' => 'no_check_since_not_allowed',
+                'id'                  => 'c0ec1585-3f87-48f9-822e-503b797d41d2',
+                'ident'               => 'c0ec1585-3f87-48f9-822e-503b797d41d2',
+                'name'                => '',
+                'oId'                 => null,
+                'oName'               => 'Meine Insti',
+                'dName'               => 'Test Abteilung',
+                'uName'               => 'A name',
+                'uId'                 => null,
+                'pId'                 => 'c7284d80-8c28-48ce-9d48-2239ca7a4a92',
+                'organisation'        => null,
+                'procedureId'         => 'c7284d80-8c28-48ce-9d48-2239ca7a4a92',
+                'phase'               => 'Beteiligung TöB - § 4 (2) BauGB',
+                'polygon'             => '',
+                'file'                => '',
+                'files'               => [
+                ],
+                'fileNames' => [
+                ],
+                'mapFile'                   => '',
+                'movedStatementId'          => null,
+                'movedToProcedureId'        => null,
+                'movedFromProcedureId'      => null,
+                'movedToProcedureName'      => null,
+                'movedFromProcedureName'    => null,
+                'isPlaceholder'             => false,
+                'formerExternId'            => null,
+                'status'                    => 'processing',
+                'publicStatement'           => 'internal',
+                'publicCheck'               => 'no',
+                'publicAllowed'             => false,
+                'publicVerified'            => 'no_check_since_not_allowed',
                 'publicVerifiedTranslation' => 'no',
-                'priority' => 'A-Punkt',
-                'prioritySort' => 'A-Punkt',
-                'elementId' => '14700ba3-7722-41da-a801-47e35c839160',
-                'elementTitle' => 'Gesamtstellungnahme',
-                'elementCategory' => 'statement',
-                'elementOrder' => 1,
-                'documentHash' => NULL,
-                'documentId' => NULL,
-                'documentParentId' => NULL,
-                'documentTitle' => NULL,
-                'paragraphId' => NULL,
-                'paragraphParentId' => NULL,
-                'paragraphParentTitle' => '',
-                'paragraphOrder' => NULL,
-                'paragraphTitle' => '',
-                'originalId' => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8',
-                'parentId' => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8',
-                'priorityAreaKeys' =>
-                    array (
-                    ),
-                'municipalityNames' =>
-                    array (
-                    ),
-                'countyNames' =>
-                    array (
-                    ),
-                'tags' =>
-                    array (
-                    ),
-                'tagNames' =>
-                    array (
-                    ),
-                'topicNames' =>
-                    array (
-                    ),
-                'externId' => 'M1',
-                'internId' => NULL,
-                'memo' => 'Mein Notiz!',
-                'feedback' => 'email',
-                'sentAssessment' => true,
-                'type' => 'm',
-                'submitObject' => '2023-10-26T12:00:19+00:00',
-                'submitDateString' => '26.10.2023',
-                'submit' => 1698321619,
-                'submitType' => 'unspecified',
+                'priority'                  => 'A-Punkt',
+                'prioritySort'              => 'A-Punkt',
+                'elementId'                 => '14700ba3-7722-41da-a801-47e35c839160',
+                'elementTitle'              => 'Gesamtstellungnahme',
+                'elementCategory'           => 'statement',
+                'elementOrder'              => 1,
+                'documentHash'              => null,
+                'documentId'                => null,
+                'documentParentId'          => null,
+                'documentTitle'             => null,
+                'paragraphId'               => null,
+                'paragraphParentId'         => null,
+                'paragraphParentTitle'      => '',
+                'paragraphOrder'            => null,
+                'paragraphTitle'            => '',
+                'originalId'                => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8',
+                'parentId'                  => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8',
+                'priorityAreaKeys'          => [
+                ],
+                'municipalityNames' => [
+                ],
+                'countyNames' => [
+                ],
+                'tags' => [
+                ],
+                'tagNames' => [
+                ],
+                'topicNames' => [
+                ],
+                'externId'             => 'M1',
+                'internId'             => null,
+                'memo'                 => 'Mein Notiz!',
+                'feedback'             => 'email',
+                'sentAssessment'       => true,
+                'type'                 => 'm',
+                'submitObject'         => '2023-10-26T12:00:19+00:00',
+                'submitDateString'     => '26.10.2023',
+                'submit'               => 1698321619,
+                'submitType'           => 'unspecified',
                 'submitTypeTranslated' => 'Sonstige',
-                'deleted' => false,
-                'consented' => false,
-                'consentRevoked' => false,
-                'headStatementId' => NULL,
-                'isClusterStatement' => false,
-                'votesNum' => 5,
-                'voteStk' => NULL,
-                'votePla' => NULL,
-                'likesNum' => 0,
-                'replied' => false,
-                'cluster' =>
-                    array (
-                    ),
-                'assignee' => NULL,
-                'meta' =>
-                    array (
-                        'orgaName' => 'Meine Insti',
-                        'orgaDepartmentName' => 'Test Abteilung',
-                        'orgaCity' => 'Berlin',
-                        'orgaStreet' => 'A streetTeststraße',
-                        'houseNumber' => '111',
-                        'orgaPostalCode' => '10024',
-                        'orgaEmail' => 'totally.valid@e.mailcypress-test@mail.com',
-                        'authorName' => 'A name',
-                        'authoredDate' => '26.10.2023',
-                        'submitName' => 'A name',
-                        'submitLastName' => 'name',
-                        'submitUId' => NULL,
-                        'caseWorkerName' => 'Selta Seewind',
-                        'caseWorkerLastName' => 'Seewind',
-                        'userGroup' => NULL,
-                        'userPosition' => NULL,
-                        'userOrganisation' => NULL,
-                        'userState' => NULL,
-                    ),
-                'votes' =>
-                    array (
-                        0 =>
-                            array (
-                                'uId' => NULL,
-                                'firstName' => '',
-                                'lastName' => 'Mary Merrywell',
-                            ),
-                        1 =>
-                            array (
-                                'uId' => NULL,
-                                'firstName' => '',
-                                'lastName' => 'Another name',
-                            ),
-                        2 =>
-                            array (
-                                'uId' => NULL,
-                                'firstName' => '',
-                                'lastName' => 'Jan Janssen',
-                            ),
-                        3 =>
-                            array (
-                                'uId' => NULL,
-                                'firstName' => '',
-                                'lastName' => 'A different name',
-                            ),
-                    ),
-                'attachmentsDeleted' => false,
+                'deleted'              => false,
+                'consented'            => false,
+                'consentRevoked'       => false,
+                'headStatementId'      => null,
+                'isClusterStatement'   => false,
+                'votesNum'             => 5,
+                'voteStk'              => null,
+                'votePla'              => null,
+                'likesNum'             => 0,
+                'replied'              => false,
+                'cluster'              => [
+                ],
+                'assignee' => null,
+                'meta'     => [
+                    'orgaName'           => 'Meine Insti',
+                    'orgaDepartmentName' => 'Test Abteilung',
+                    'orgaCity'           => 'Berlin',
+                    'orgaStreet'         => 'A streetTeststraße',
+                    'houseNumber'        => '111',
+                    'orgaPostalCode'     => '10024',
+                    'orgaEmail'          => 'totally.valid@e.mailcypress-test@mail.com',
+                    'authorName'         => 'A name',
+                    'authoredDate'       => '26.10.2023',
+                    'submitName'         => 'A name',
+                    'submitLastName'     => 'name',
+                    'submitUId'          => null,
+                    'caseWorkerName'     => 'Selta Seewind',
+                    'caseWorkerLastName' => 'Seewind',
+                    'userGroup'          => null,
+                    'userPosition'       => null,
+                    'userOrganisation'   => null,
+                    'userState'          => null,
+                ],
+                'votes' => [
+                    0 => [
+                        'uId'       => null,
+                        'firstName' => '',
+                        'lastName'  => 'Mary Merrywell',
+                    ],
+                    1 => [
+                        'uId'       => null,
+                        'firstName' => '',
+                        'lastName'  => 'Another name',
+                    ],
+                    2 => [
+                        'uId'       => null,
+                        'firstName' => '',
+                        'lastName'  => 'Jan Janssen',
+                    ],
+                    3 => [
+                        'uId'       => null,
+                        'firstName' => '',
+                        'lastName'  => 'A different name',
+                    ],
+                ],
+                'attachmentsDeleted'                   => false,
                 'submitterAndAuthorMetaDataAnonymized' => false,
-                'textPassagesAnonymized' => false,
-                'isSubmittedByCitizen' => false,
-                'anonymous' => false,
-                'fragments' =>
-                    array (
-                    ),
-                'original' =>
-                    array (
-                        'ident' => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8',
-                    ),
-                'parent' =>
-                    array (
-                        'ident' => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8',
-                    ),
-                'element' =>
-                    array (
-                        'title' => 'Gesamtstellungnahme',
-                    ),
-                'document' =>
-                    array (
-                        'title' => NULL,
-                    ),
-                'paragraph' =>
-                    array (
-                        'title' => '',
-                    ),
-                'fragments_total' =>
-                    array (
-                    ),
-                'attachments' =>
-                    array (
-                    )
-            ]
+                'textPassagesAnonymized'               => false,
+                'isSubmittedByCitizen'                 => false,
+                'anonymous'                            => false,
+                'fragments'                            => [
+                ],
+                'original' => [
+                    'ident' => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8',
+                ],
+                'parent' => [
+                    'ident' => 'cfe79c70-5dca-4282-9eba-821a0d0bd7b8',
+                ],
+                'element' => [
+                    'title' => 'Gesamtstellungnahme',
+                ],
+                'document' => [
+                    'title' => null,
+                ],
+                'paragraph' => [
+                    'title' => '',
+                ],
+                'fragments_total' => [
+                ],
+                'attachments' => [
+                ],
+            ],
         ];
 
-        //$this->permissions->method('hasPermission')->willReturn(false);
-        //$this->editorService->method('handleObscureTags')->willReturnArgument(0);
+        // $this->permissions->method('hasPermission')->willReturn(false);
+        // $this->editorService->method('handleObscureTags')->willReturnArgument(0);
 
-        $result =  $this->assessmentTableXlsExporter->prepareDataForExcelExport(
+        $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
             $statements,
             false,
             ['externId', 'text', 'recommendation', 'tagNames', 'topicNames', 'elementTitle', 'documentTitle', 'paragraphTitle', 'status', 'priority', 'oName', 'dName', 'meta.authorName', 'meta.submitName', 'meta.orgaEmail', 'meta.orgaStreet', 'meta.houseNumber', 'meta.orgaPostalCode', 'meta.orgaCity', 'fileNames', 'submitDateString', 'meta.authoredDate', 'memo', 'feedback', 'votesNum', 'phase', 'submitType', 'sentAssessment']
         );
 
         $expected = [
-            'externId' => 'M1',
-            'text' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore. statementjiahuu this was edited. Grüße aus Cypress!',
-            'recommendation' => 'Meine Empfehlung',
-            'tagNames' => '',
-            'topicNames' => '',
-            'elementTitle' => 'Gesamtstellungnahme',
-            'documentTitle' => '',
-            'paragraphTitle' => '',
-            'status' => 'In Bearbeitung',
-            'priority' => 'A-Punkt',
-            'oName' => 'Meine Insti',
-            'dName' => 'Test Abteilung',
-            'meta.authorName' => 'A name',
-            'meta.submitName' => 'A name',
-            'meta.orgaEmail' => 'totally.valid@e.mailcypress-test@mail.com',
-            'meta.orgaStreet' => 'A streetTeststraße',
-            'meta.houseNumber' => '111',
+            'externId'            => 'M1',
+            'text'                => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore. statementjiahuu this was edited. Grüße aus Cypress!',
+            'recommendation'      => 'Meine Empfehlung',
+            'tagNames'            => '',
+            'topicNames'          => '',
+            'elementTitle'        => 'Gesamtstellungnahme',
+            'documentTitle'       => '',
+            'paragraphTitle'      => '',
+            'status'              => 'In Bearbeitung',
+            'priority'            => 'A-Punkt',
+            'oName'               => 'Meine Insti',
+            'dName'               => 'Test Abteilung',
+            'meta.authorName'     => 'A name',
+            'meta.submitName'     => 'A name',
+            'meta.orgaEmail'      => 'totally.valid@e.mailcypress-test@mail.com',
+            'meta.orgaStreet'     => 'A streetTeststraße',
+            'meta.houseNumber'    => '111',
             'meta.orgaPostalCode' => '10024',
-            'meta.orgaCity' => 'Berlin',
-            'fileNames' => '',
-            'submitDateString' => '26.10.2023',
-            'meta.authoredDate' => '26.10.2023',
-            'memo' => 'Mein Notiz!',
-            'feedback' => 'email',
-            'votesNum' => '5',
-            'phase' => 'Beteiligung TöB - § 4 (2) BauGB',
-            'submitType' => 'unspecified',
-            'sentAssessment' => 'x',
+            'meta.orgaCity'       => 'Berlin',
+            'fileNames'           => '',
+            'submitDateString'    => '26.10.2023',
+            'meta.authoredDate'   => '26.10.2023',
+            'memo'                => 'Mein Notiz!',
+            'feedback'            => 'email',
+            'votesNum'            => '5',
+            'phase'               => 'Beteiligung TöB - § 4 (2) BauGB',
+            'submitType'          => 'unspecified',
+            'sentAssessment'      => 'x',
         ];
 
         self::assertCount(1, $result);
@@ -371,10 +348,10 @@ class StatementExportTest extends FunctionalTestCase
 
         $statements = [
             [
-                'id' => '123',
-                'text' => 'Statement with priority areas',
-                'priorityAreaKeys' => ['area1', 'area2', 'area3']
-            ]
+                'id'               => '123',
+                'text'             => 'Statement with priority areas',
+                'priorityAreaKeys' => ['area1', 'area2', 'area3'],
+            ],
         ];
 
         $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
@@ -402,14 +379,14 @@ class StatementExportTest extends FunctionalTestCase
 
         $statements = [
             [
-                'id' => '123',
-                'text' => 'Statement with tags',
+                'id'       => '123',
+                'text'     => 'Statement with tags',
                 'tagNames' => ['Environment', 'Traffic'],
-                'tags' => [
+                'tags'     => [
                     ['title' => 'Environment', 'topicTitle' => 'Environmental Protection'],
-                    ['title' => 'Traffic', 'topicTitle' => 'Transportation Planning']
-                ]
-            ]
+                    ['title' => 'Traffic', 'topicTitle' => 'Transportation Planning'],
+                ],
+            ],
         ];
 
         $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
@@ -438,10 +415,10 @@ class StatementExportTest extends FunctionalTestCase
 
         $statements = [
             [
-                'id' => '123',
-                'text' => '<obscure>Sensitive information</obscure> Public text',
-                'authorName' => '<obscure>John Doe</obscure>'
-            ]
+                'id'         => '123',
+                'text'       => '<obscure>Sensitive information</obscure> Public text',
+                'authorName' => '<obscure>John Doe</obscure>',
+            ],
         ];
 
         // Test with anonymous = true
@@ -466,11 +443,11 @@ class StatementExportTest extends FunctionalTestCase
 
         $statements = [
             [
-                'id' => '123',
-                'text' => 'Statement with empty arrays',
+                'id'               => '123',
+                'text'             => 'Statement with empty arrays',
                 'priorityAreaKeys' => [], // Empty array
-                'tagNames' => [] // Empty array
-            ]
+                'tagNames'         => [], // Empty array
+            ],
         ];
 
         $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
@@ -491,10 +468,10 @@ class StatementExportTest extends FunctionalTestCase
 
         $statements = [
             [
-                'id' => '123',
-                'text' => 'Statement with missing attributes'
+                'id'   => '123',
+                'text' => 'Statement with missing attributes',
                 // Missing 'authorName' that we'll request
-            ]
+            ],
         ];
 
         $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
@@ -515,21 +492,21 @@ class StatementExportTest extends FunctionalTestCase
 
         $statements = [
             [
-                'id' => '1',
-                'text' => 'First statement',
-                'priorityAreaKeys' => ['area1', 'area2']
+                'id'               => '1',
+                'text'             => 'First statement',
+                'priorityAreaKeys' => ['area1', 'area2'],
             ],
             [
-                'id' => '2',
-                'text' => 'Second statement',
+                'id'       => '2',
+                'text'     => 'Second statement',
                 'tagNames' => ['tag1'],
-                'tags' => [['title' => 'tag1', 'topicTitle' => 'Topic A']]
+                'tags'     => [['title' => 'tag1', 'topicTitle' => 'Topic A']],
             ],
             [
-                'id' => '3',
-                'text' => 'Third statement'
+                'id'   => '3',
+                'text' => 'Third statement',
                 // No array attributes
-            ]
+            ],
         ];
 
         $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
@@ -565,10 +542,10 @@ class StatementExportTest extends FunctionalTestCase
 
         $statements = [
             [
-                'id' => '123',
-                'text' => 'Statement with dot notation',
-                'user.name' => 'Should be ignored due to dot notation'
-            ]
+                'id'        => '123',
+                'text'      => 'Statement with dot notation',
+                'user.name' => 'Should be ignored due to dot notation',
+            ],
         ];
 
         $result = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
