@@ -54,7 +54,7 @@ class StatementExportController extends BaseController
         OriginalStatementCsvExporter $exporter,
         OriginalStatementResourceType $originalStatementResourceType,
         string $procedureId,
-        ?array $statementIds
+        ?array $statementIds,
     ): StreamedResponse {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
