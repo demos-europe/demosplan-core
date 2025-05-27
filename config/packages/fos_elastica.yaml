@@ -5,8 +5,8 @@ fos_elastica:
             # Updated for Elasticsearch 8 compatibility
             hosts: '%elasticsearch_urls%'
             connection_strategy: RoundRobin
-            username: 'username'
-            password: 'password'
+            username: '%env(ELASTICSEARCH_USERNAME)%'
+            password: '%env(ELASTICSEARCH_PASSWORD)%'
             # Add SSL configuration if needed
             client_config:
                 # Add any necessary SSL/security configuration here

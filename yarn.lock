@@ -12517,7 +12517,6 @@ __metadata:
     vue2-leaflet: "npm:^2.7.1"
     vue2-leaflet-markercluster: "npm:^3.1.0"
     vuedraggable: "npm:^2.24.3"
-    vuejs-datepicker: "npm:^1.5.4"
     vuex: "npm:^4.0.2"
     webpack: "npm:^5.96.1"
     webpack-bundle-analyzer: "npm:^4.10.2"
@@ -14486,15 +14485,6 @@ __metadata:
   dependencies:
     sortablejs: "npm:1.10.2"
   checksum: 10c0/1ae7913f90639900f8861a9ac70694e2a11f0ce9e59514d1324573535f98fed7a4b1d5fc48ed0f251c404128b45b41e4af3c424d15c7696e87ee971ae743d871
-  languageName: node
-  linkType: hard
-
-"vuejs-datepicker@npm:^1.5.4":
-  version: 1.6.2
-  resolution: "vuejs-datepicker@npm:1.6.2"
-  peerDependencies:
-    vue: ^2.6.10
-  checksum: 10c0/9f69334ed4b18c18a15fc028ee34aba510b6441815a40143ee65dd676b44fbc81e3e3dabd799154e027aca370580a4d7a2b190ac4f656cce18f94e298f2d24d8
   languageName: node
   linkType: hard
 
