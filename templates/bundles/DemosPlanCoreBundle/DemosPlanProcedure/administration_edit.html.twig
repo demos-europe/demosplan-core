@@ -233,7 +233,7 @@
                             <div class="u-mb">
                                 {% set addonProps = { 'procedureId': templateVars.proceduresettings.id } %}
                                 <addon-wrapper
-                                    hook-name="adminstration.edit.extra_fields"
+                                    hook-name="administration.edit.extra.fields"
                                     :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">
                                 </addon-wrapper>
                             </div>
@@ -738,7 +738,7 @@
                                         }]) %}
                                     {% endfor %}
                                     <participation-phases
-                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: 'procedure.phases.internal.analysis'|trans }) }}"
+                                        autoswitch-hint="{{ 'period.autoswitch.hint'|trans({ phase: evaluatingPhase|trans|default('') }) }}"
                                         data-cy="internalPhase"
                                         field-name="r_phase"
                                         help-text="{{ 'text.procedure.edit.internal.change_phase'|trans }}"

@@ -195,10 +195,12 @@ const mergeRangesAndSegments = (segmentMarks, segments) => {
   segmentMarks.forEach(mark => {
     const segment = segments.find(seg => seg.id === mark.segmentId)
     const mergedSegment = { ...segment }
+
     if (!segment) {
       console.warn('A segment was updated in Prosemirror but no corresponding segment found in store.')
       return
     }
+
     mergedSegment.status = mark.isConfirmed ? 'confirmed' : false
     mergedSegment.text = mark.text
     mergedSegments.push(mergedSegment)
