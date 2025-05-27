@@ -238,6 +238,7 @@ export default {
             {
               id: item.id,
               ...item.attributes,
+              competenceDescription: item.attributes.competenceDescription === '-' ? '' : item.attributes.competenceDescription,
               locationContacts: locationContact
                 ? {
                     id: locationContact.id,
