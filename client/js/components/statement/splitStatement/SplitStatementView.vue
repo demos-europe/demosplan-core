@@ -581,11 +581,11 @@ export default {
       }
     },
 
+    /**
+     * Find all occurrences of a `segmentMark` with the given ID in the document.
+     * This handles multiple occurrences across different paragraphs or blocks.
+     */
     getSegmentMarkRangesById (segmentId) {
-      /**
-       * Find all occurrences of a `segmentMark` with the given ID in the document.
-       * This handles multiple occurrences across different paragraphs or blocks.
-       */
       const { doc } = this.prosemirror.view.state
       const ranges = []
 
