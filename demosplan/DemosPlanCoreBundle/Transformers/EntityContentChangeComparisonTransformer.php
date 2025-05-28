@@ -60,6 +60,13 @@ class EntityContentChangeComparisonTransformer extends BaseTransformer
      */
     public function isFieldNameWhitelistedForEntityContentChangeComponent(EntityContentChange $object): bool
     {
+        if ($object->isCustomFieldChange()) {
+            return array_key_exists(
+                'customFields',
+                $this->entityContentChangeService->getFieldMapping($object->getEntityType())
+            );
+        }
+
         return array_key_exists($object->getEntityField(), $this->entityContentChangeService->getFieldMapping($object->getEntityType()));
     }
 }
