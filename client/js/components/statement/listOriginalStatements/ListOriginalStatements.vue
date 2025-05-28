@@ -481,13 +481,25 @@ export default {
       }
 
       if (this.selectedItemsCount < this.allItemsCount) {
+        payload.filter = {
+          ...payload.filter,
+          statementIds: {
+            condition: {
+              operator: 'IN',
+              path: 'id'
+            }
+          }
+        }
         const selectedStatementIds = this.getSelectedStatementIds()
         selectedStatementIds.forEach(id => {
-          payload.filter[id] = {
+          payload.filter.statementIds = {
+            ...payload.filter.statementIds,
             condition: {
-              operator: '=',
-              path: 'id',
-              value: id
+              ...payload.filter.statementIds.condition,
+              value: [
+                ...(payload.filter.statementIds.condition.value || []),
+                id
+              ]
             }
           }
         })
