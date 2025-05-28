@@ -32,7 +32,6 @@ use ReflectionException;
 use ReflectionProperty;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use Twig\Environment;
@@ -128,7 +127,6 @@ class EntityContentChangeService extends CoreService
     public function getMappingValue(string $fieldName, string $class, string $key)
     {
         if (!isset($this->getFieldMapping($class)[$fieldName][$key])) {
-
             // Cover custom field names: Use the name of the field in case of no translation key is set.
             if ('translationKey' === $key) {
                 return $fieldName;
@@ -151,6 +149,7 @@ class EntityContentChangeService extends CoreService
      * That's why the returning array can contain another array.
      *
      * @return array<string, string|array<string, string>>
+     *
      * @throws InvalidDataException
      */
     public function calculateChanges(CoreEntity|array $incomingData, string $entityClass): array
@@ -170,6 +169,7 @@ class EntityContentChangeService extends CoreService
                 $entityId = $this->entityHelper->extractId($incomingData);
                 $preUpdate = $relatedRepository->get($entityId);
                 $changes = $this->diffObjectAndArray($preUpdate, $incomingData);
+
                 return $this->calculateChangesOfStandardFieldsOfPreUpdateObjectAndPostUpdateArray(
                     $relatedRepository->get($this->entityHelper->extractId($incomingData)),
                     $incomingData,
@@ -336,7 +336,7 @@ class EntityContentChangeService extends CoreService
     /**
      * Bulk version of addEntityContentChangeEntry.
      *
-     * @param array $changes                <string, string|array<string, string>>
+     * @param array $changes    <string, string|array<string, string>>
      * @param bool  $isReviewer determines if the current user is stored or the department of the current user
      */
     public function addEntityContentChangeEntries(
@@ -360,7 +360,7 @@ class EntityContentChangeService extends CoreService
 
     /**
      * @param array $changes    array<string, string|array<string, string>>
-     * @param bool  $isReviewer determines if the change was made in the name of department.
+     * @param bool  $isReviewer determines if the change was made in the name of department
      *
      * @return array<int, EntityContentChange>
      */
@@ -369,13 +369,13 @@ class EntityContentChangeService extends CoreService
         array $changes,
         bool $isReviewer,
         DateTime $creationDate,
-        bool $isCustomFieldChange = false
+        bool $isCustomFieldChange = false,
     ): array {
         $changer = $this->determineChanger($isReviewer);
 
         $entries = [];
         foreach ($changes as $fieldName => $values) {
-            //indicates customField which is an array of changes
+            // indicates customField which is an array of changes
             if (is_array($values)) {
                 $customFieldEntries = $this->createEntityContentChangeEntries(
                     $updatedObject,
@@ -387,7 +387,7 @@ class EntityContentChangeService extends CoreService
 
                 $entries = array_merge($entries, $customFieldEntries);
             } else {
-                 $entry = $this->maybeCreateEntityContentChangeEntry(
+                $entry = $this->maybeCreateEntityContentChangeEntry(
                     $updatedObject,
                     $fieldName,
                     $values,
@@ -419,7 +419,7 @@ class EntityContentChangeService extends CoreService
         $contentChange,
         Department|User $changer,
         DateTime $creationDate,
-        bool $isCustomFieldChange = false
+        bool $isCustomFieldChange = false,
     ): ?EntityContentChange {
         // This is basically a form of validation. For technical reasons, it's not possible (worth it) sanitizing
         // this specific case earlier, so it's done here. Null means: there has not been any change, please ignore.
@@ -844,6 +844,7 @@ class EntityContentChangeService extends CoreService
     private function determineChanger(bool $setDepartmentAsChanger): Department|User
     {
         $user = $this->currentUserService->getUser();
+
         return $setDepartmentAsChanger ? $user->getDepartment() : $user;
     }
 
@@ -1035,14 +1036,15 @@ class EntityContentChangeService extends CoreService
     /**
      * Values to compare are actually a list of values here.
      * For each of them it is necessary to check for changes and calculate the changes.
+     *
      * @return array<string, array<string, string>>
+     *
      * @throws InvalidDataException|Exception
      */
     private function diffCustomFields(
         ?CustomFieldValuesList $preUpdateCustomFieldValueList,
         ?CustomFieldValuesList $postUpdateCustomFieldValueList,
     ): array {
-
         $emptyPre = null === $preUpdateCustomFieldValueList || $preUpdateCustomFieldValueList->isEmpty();
         $emptyPost = null === $postUpdateCustomFieldValueList || $postUpdateCustomFieldValueList->isEmpty();
 
@@ -1056,7 +1058,7 @@ class EntityContentChangeService extends CoreService
             $preUpdateValues = $preUpdateCustomFieldValueList->toJson();
             $preUpdateValues = collect($preUpdateValues)->mapWithKeys(
                 fn (array $preUpdateValue) => [
-                    $this->getCustomFieldName($preUpdateValue['id']) => $preUpdateValue['value']
+                    $this->getCustomFieldName($preUpdateValue['id']) => $preUpdateValue['value'],
                 ]
             );
         }
@@ -1066,29 +1068,29 @@ class EntityContentChangeService extends CoreService
             $postUpdateValues = $postUpdateCustomFieldValueList->toJson();
             $postUpdateValues = collect($postUpdateValues)->mapWithKeys(
                 fn (array $postUpdateValues) => [
-                    $this->getCustomFieldName($postUpdateValues['id']) => $postUpdateValues['value']
+                    $this->getCustomFieldName($postUpdateValues['id']) => $postUpdateValues['value'],
                 ]
             );
         }
 
-        //detect new and updated values
+        // detect new and updated values
         foreach ($postUpdateValues as $fieldName => $postUpdateValue) {
             $changes[$fieldName] = $this->createContentChangeData(
                 $preUpdateValues[$fieldName] ?? null,
                 $postUpdateValue,
                 $fieldName,
-                ClassUtils::getClass($postUpdateCustomFieldValueList) //will not find, but its fine
+                ClassUtils::getClass($postUpdateCustomFieldValueList) // will not find, but its fine
             );
         }
 
-        //detect deleted values
+        // detect deleted values
         $removedFields = $preUpdateValues->diffKeys($postUpdateValues);
         foreach ($removedFields as $fieldName => $removedValue) {
             $changes[$fieldName] = $this->createContentChangeData(
                 $removedValue,
                 null,
                 $fieldName,
-                ClassUtils::getClass($postUpdateCustomFieldValueList) //will not find, but its fine
+                ClassUtils::getClass($postUpdateCustomFieldValueList) // will not find, but its fine
             );
         }
 
@@ -1102,15 +1104,16 @@ class EntityContentChangeService extends CoreService
             ->getConfiguration()->getName();
     }
 
-     /**
+    /**
      * @return array<string, string|array<string,string>>
+     *
      * @throws InvalidDataException
      * @throws Exception
      */
     private function calculateChangesOfStandardFieldsOfPreUpdateArrayAndPostUpdateObject(
         array $preUpdateArray,
         CoreEntity $incomingUpdatedObject,
-        array $fieldsToTrack
+        array $fieldsToTrack,
     ): array {
         $changes = [];
 
@@ -1121,7 +1124,7 @@ class EntityContentChangeService extends CoreService
                     $incomingUpdatedObject->getCustomFields()
                 );
             } else {
-                $methodName = $this->getGetterMethodName($incomingUpdatedObject, $propertyName);// If the entity is not managed by doctrine (e.g. because it was just created)
+                $methodName = $this->getGetterMethodName($incomingUpdatedObject, $propertyName); // If the entity is not managed by doctrine (e.g. because it was just created)
                 // we use `null` as pre update value.
                 $preUpdateValue = $preUpdateArray[$propertyName] ?? null;
                 $postUpdateValue = $incomingUpdatedObject->$methodName();
@@ -1150,12 +1153,13 @@ class EntityContentChangeService extends CoreService
 
     /**
      * @return array<string, string|array<string, string>>
+     *
      * @throws InvalidDataException
      */
     private function calculateChangesOfStandardFieldsOfPreUpdateObjectAndPostUpdateArray(
         CoreEntity $preUpdateObject,
         array $incomingDataArray,
-        array $fieldsToTrack
+        array $fieldsToTrack,
     ): array {
         $changes = [];
         $class = ClassUtils::getClass($preUpdateObject);

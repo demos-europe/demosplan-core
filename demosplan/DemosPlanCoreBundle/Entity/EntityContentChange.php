@@ -234,6 +234,7 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface, Ent
     {
         if (null === $this->preUpdate) {
             $preUpdate = json_decode($this->getContentChange())[0][0]->old->lines[0] ?? null;
+
             return strip_tags($preUpdate);
         }
 
@@ -255,6 +256,7 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface, Ent
     {
         if (null === $this->postUpdate) {
             $postUpdate = json_decode($this->getContentChange())[0][0]->new->lines[0] ?? null;
+
             return strip_tags($postUpdate);
         }
 

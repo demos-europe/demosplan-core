@@ -46,7 +46,7 @@ class EntityContentChangeDisplayService extends CoreService
         EntityContentChangeService $entityContentChangeService,
         private readonly EntityContentChangeRepository $entityContentChangeRepository,
         Environment $twig,
-        private readonly RepositoryHelper $repositoryHelper
+        private readonly RepositoryHelper $repositoryHelper,
     ) {
         $this->entityContentChangeRollbackVersionService = $entityContentChangeRollbackVersionService;
         $this->entityContentChangeService = $entityContentChangeService;
@@ -112,7 +112,7 @@ class EntityContentChangeDisplayService extends CoreService
             );
         }
 
-        //todo: wtf is this? why do we even need the current object? the change holds the new as well as the old value
+        // todo: wtf is this? why do we even need the current object? the change holds the new as well as the old value
         // step 1: get the value stored in the parent entities. for example, assignee id or text
         /** @var CoreEntity $currentObject */
         $currentObject = $this->repositoryHelper->getRepository($entityContentChange->getEntityType())->find($entityContentChange->getEntityId());
