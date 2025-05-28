@@ -4,17 +4,9 @@
       id="statementModalButton"
       :class="prefixClass('left-[365px] top-[24px] pt-[11px] pb-[11px] pl-[20px] pr-[20px] absolute z-above-zero')"
       data-cy="statementModal"
-      :href="hasPermission('feature_new_statement') ? '#publicStatementForm' : Routing.generate('DemosPlan_user_login_alternative')"
       rounded
       :text="Translator.trans('statement.participate')"
-      @click="(event) => {
-        if (!hasPermission('feature_new_statement')) {
-          return
-        }
-        event.preventDefault()
-        event.stopPropagation()
-        toggleStatementModal({})
-      }" />
+      @click="statementButtonEvent" />
 
     <diplan-karte />
   </div>
@@ -36,6 +28,16 @@ instance.appContext.app.use(MapPlugin, {
     }
   }
 })
+
+const statementButtonEvent = (event) => {
+  if (!hasPermission('feature_new_statement')) {
+    window.location.href = hasPermission('feature_new_statement') ? '#publicStatementForm' : Routing.generate('DemosPlan_user_login_alternative')
+    return
+  }
+  event.preventDefault()
+  event.stopPropagation()
+  toggleStatementModal({})
+}
 
 const toggleStatementModal = (updateStatementPayload) => {
   console.log('updateStatementPayload', instance.parent)
