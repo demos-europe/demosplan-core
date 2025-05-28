@@ -32,7 +32,6 @@ class CustomFieldValueCreator extends CoreService
         string $sourceEntityClass,
         string $targetEntityClass,
     ): CustomFieldValuesList {
-
         // Store original data as JSON representation before making any changes
         // Create a completely new object - DON'T modify the passed-in object at all
         $updatedCustomFieldValuesList = new CustomFieldValuesList();
