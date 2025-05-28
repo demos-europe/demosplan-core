@@ -192,9 +192,26 @@ class StatementExportTest extends FunctionalTestCase
                 'priorityAreaKeys'          => [],
                 'municipalityNames'         => [],
                 'countyNames'               => [],
-                'tags'                      => [],
-                'tagNames'                  => [],
-                'topicNames'                => [],
+                'tags'                      => [
+                        0 =>
+                            array (
+                                'id' => '5ee359b6-4b4a-477d-9985-5a9bce8b682a',
+                                'title' => 'Cypress Zweites Test Schlagwort',
+                                'name' => 'Cypress Zweites Test Schlagwort',
+                                'topicTitle' => 'Cypress Zweites Test Thema',
+                            )
+
+                ],
+                'tagNames'                  => [
+
+                        0 => 'Cypress Zweites Test Schlagwort',
+
+                ],
+                'topicNames'                => [
+
+                        0 => 'Cypress Zweites Test Thema',
+
+                ],
                 'externId'                  => 'M1',
                 'internId'                  => null,
                 'memo'                      => 'Mein Notiz!',
@@ -299,8 +316,8 @@ class StatementExportTest extends FunctionalTestCase
             'externId'            => 'M1',
             'text'                => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore. statementjiahuu this was edited. Grüße aus Cypress!',
             'recommendation'      => 'Meine Empfehlung',
-            'tagNames'            => '',
-            'topicNames'          => '',
+            'tagNames' => 'Cypress Zweites Test Schlagwort',
+            'topicNames' => 'Cypress Zweites Test Thema',
             'elementTitle'        => 'Gesamtstellungnahme',
             'documentTitle'       => '',
             'paragraphTitle'      => '',
