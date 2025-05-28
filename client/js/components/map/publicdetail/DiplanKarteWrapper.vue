@@ -6,7 +6,7 @@
       data-cy="statementModal"
       rounded
       :text="Translator.trans('statement.participate')"
-      @click="statementButtonEvent" />
+      @click="openStatementModalOrLoginPage" />
 
     <diplan-karte />
   </div>
@@ -29,7 +29,7 @@ instance.appContext.app.use(MapPlugin, {
   }
 })
 
-const statementButtonEvent = (event) => {
+const openStatementModalOrLoginPage= (event) => {
   if (!hasPermission('feature_new_statement')) {
     window.location.href = hasPermission('feature_new_statement') ? '#publicStatementForm' : Routing.generate('DemosPlan_user_login_alternative')
     return
