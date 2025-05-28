@@ -231,7 +231,8 @@
                   v-if="textIsTruncated"
                   class="show-more cursor-pointer"
                   rel="noopener"
-                  @click.prevent.stop="() => fetchFullTextById(id)">
+                  @click.prevent.stop="() => fetchFullTextById(id)"
+                  @keydown.enter="() => fetchFullTextById(id)">
                   {{ Translator.trans('show.more') }}
                 </a>
               </template>
@@ -240,7 +241,8 @@
                 <a
                   class="cursor-pointer"
                   rel="noopener"
-                  @click="() => toggleIsFullTextDisplayed(id, !originalStatements[id].attributes.isFulltextDisplayed)">
+                  @click="() => toggleIsFullTextDisplayed(id, !originalStatements[id].attributes.isFulltextDisplayed)"
+                  @keydown.enter="() => toggleIsFullTextDisplayed(id, !originalStatements[id].attributes.isFulltextDisplayed)">
                   {{ Translator.trans(originalStatements[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
                 </a>
               </template>
@@ -261,10 +263,9 @@
 <script>
 import {
   formatDate as _formatDate,
-  CleanHtml,
   checkResponse,
+  CleanHtml,
   dpApi,
-  dpRpc,
   DpBulkEditHeader,
   DpButton,
   DpDataTable,
@@ -272,6 +273,7 @@ import {
   DpInlineNotification,
   DpLoading,
   DpPager,
+  dpRpc,
   hasAnyPermissions,
   hasOwnProp,
   tableSelectAllItems
