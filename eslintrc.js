@@ -46,6 +46,7 @@ module.exports = {
     }
   ],
   ignorePatterns: [
+    '**/addonDev/**/*',
     '**/addons/**/*',
     '**/local_modules/**/*',
     '**/node_modules/**/*',
