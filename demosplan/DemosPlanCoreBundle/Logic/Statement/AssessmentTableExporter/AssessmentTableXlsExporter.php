@@ -262,7 +262,6 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $this->addColumnDefinition($columnsDefinition, 'tagNames', 'feature_statements_tag', 'tag');
         $this->addColumnDefinition($columnsDefinition, 'topicNames', 'feature_statements_tag', 'tag.category');
 
-
         if ($isStatement) {
             $columnsDefinition[] = $this->createColumnDefinition('elementTitle', 'document.category');
             $columnsDefinition[] = $this->createColumnDefinition('documentTitle', 'document');
@@ -421,7 +420,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                     foreach ($statement[$attributeKey] as $singleAttributeValue) {
                         $formattedStatement[$attributeKey] = $singleAttributeValue;
 
-                        //@todo this line is failing because undefined array key tags
+                        // @todo this line is failing because undefined array key tags
 
                         // get Related TopicName of current single Tag to show only related topic to current tag in current row
                         if ('tagNames' === $attributeKey) {
