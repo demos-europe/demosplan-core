@@ -669,7 +669,7 @@ export default {
       }
     },
 
-    ...mapState('Layers', ['draggableOptions', 'draggableOptionsForBaseLayer']),
+    ...mapState('Layers', ['draggableOptions']),
     ...mapGetters('Layers', ['elementListForLayerSidebar'])
   },
 
@@ -780,9 +780,11 @@ export default {
       }
       if (this.preventActiveFromToggeling === false) {
         if (this.isActive) {
-          this.$store.commit('Layers/setActiveLayerId', '')
+          this.$store.commit('updateState', { key: 'activeLayerId', value: '' })
+
         } else {
-          this.$store.commit('Layers/setActiveLayerId', this.layer.id)
+          this.$store.commit('updateState', { key: 'activeLayerId', value: this.layer.id })
+
         }
       } else {
         this.preventActiveFromToggeling = false

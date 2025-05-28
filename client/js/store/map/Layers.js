@@ -25,34 +25,21 @@ const LayersStore = {
     apiData: {},
     procedureId: '',
     visibilityGroups: {},
+    visibleLayers: {},
     draggableOptions: {},
     draggableOptionsForBaseLayer: {},
     isMapLoaded: false
   },
 
   mutations: {
-
-    updateApiData (state, data) {
-      state.apiData = data
-    },
-
-    setDraggableOptions (state, data) {
-      state.draggableOptions = data
-    },
-
-    setDraggableOptionsForBaseLayer (state, data) {
-      state.draggableOptionsForBaseLayer = data
+    updateState (state, { key, value }) {
+      state[key] = value
     },
 
     saveOriginalState (state, data) {
       state.originalApiData = JSON.parse(JSON.stringify(data))
     },
-    setProcedureId (state, data) {
-      state.procedureId = data
-    },
-    setActiveLayerId (state, data) {
-      state.activeLayerId = data
-    },
+
     setHoverLayerId (state, data) {
       state.hoverLayerId = data
     },
@@ -193,12 +180,11 @@ const LayersStore = {
     setIsMapLoaded (state) {
       state.isMapLoaded = true
     }
-
   },
 
   actions: {
     get ({ commit, dispatch }, procedureId) {
-      commit('setProcedureId', procedureId)
+      commit('updateState', { key: 'procedureId', value: procedureId })
 
       return dpApi.get(Routing.generate('api_resource_list', {
         resourceType: 'GisLayerCategory',
@@ -246,7 +232,7 @@ const LayersStore = {
       }))
         .then(checkResponse)
         .then(data => {
-          commit('updateApiData', data)
+          commit('updateState', { key: 'apiData', value: data })
           commit('saveOriginalState', data)
           commit('setVisibilityGroups')
           dispatch('buildLegends')
@@ -358,7 +344,7 @@ const LayersStore = {
         .then(() => {
           dispatch('get', state.procedureId)
             .then(() => {
-              commit('setActiveLayerId', '')
+              commit('updateState', { key: 'activeLayerId', value: '' })
             })
             .catch(err => {
               console.error('Error: save layer', err)

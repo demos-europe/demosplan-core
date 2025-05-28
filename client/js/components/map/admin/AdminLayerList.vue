@@ -402,7 +402,7 @@ export default {
       }
     },
 
-    ...mapState('Layers', ['draggableOptions', 'draggableOptionsForBaseLayer', 'draggableOptionsForCategorysWithHiddenLayers']),
+    ...mapState('Layers', ['draggableOptions', 'draggableOptionsForBaseLayer']),
     ...mapGetters('Layers', ['gisLayerList', 'elementListForLayerSidebar', 'minimapLayer'])
   },
 
@@ -430,7 +430,7 @@ export default {
     },
 
     ...mapActions('Layers', ['saveAll', 'get']),
-    ...mapMutations('Layers', ['setChildrenFromCategory', 'resetOrder', 'setDraggableOptions', 'setDraggableOptionsForCategorysWithHiddenLayers', 'setDraggableOptionsForBaseLayer', 'setMinimapBaseLayer'])
+    ...mapMutations('Layers', ['setChildrenFromCategory', 'updateState', 'resetOrder', 'setMinimapBaseLayer'])
   },
 
   mounted () {
@@ -458,7 +458,7 @@ export default {
       dragClass: 'o-sortablelist__drag' // Class name for the dragging item
     }
 
-    this.setDraggableOptions({
+    this.updateState({ key: 'draggableOptions', value: {
       ...basicOptions,
       ...{
         group: {
@@ -468,9 +468,9 @@ export default {
           push: ['treeList']
         }
       }
-    })
+    }})
 
-    this.setDraggableOptionsForBaseLayer(basicOptions)
+    this.updateState({ key: 'draggableOptionsForBaseLayer', value: basicOptions })
   }
 }
 </script>
