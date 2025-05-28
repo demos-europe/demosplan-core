@@ -106,6 +106,7 @@ class EmailAddressRepository extends CoreRepository implements EmailAddressRepos
      */
     protected function sortByGivenArray(array $sortedStrings, array $unsortedEntities): array
     {
+        $sortedEmailAddresses = [];
         foreach ($sortedStrings as $sortedEmailAddressString) {
             foreach ($unsortedEntities as $unsortedEmailAddressEntity) {
                 $fullAddress = $unsortedEmailAddressEntity->getFullAddress();
