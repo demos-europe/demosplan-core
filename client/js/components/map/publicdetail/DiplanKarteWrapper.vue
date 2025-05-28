@@ -4,11 +4,17 @@
       id="statementModalButton"
       :class="prefixClass('left-[365px] top-[24px] pt-[11px] pb-[11px] pl-[20px] pr-[20px] absolute z-above-zero')"
       data-cy="statementModal"
-      :disabled="!hasPermission('feature_new_statement')"
-      href="#publicStatementForm"
+      :href="hasPermission('feature_new_statement') ? '#publicStatementForm' : Routing.generate('DemosPlan_user_login_alternative')"
       rounded
       :text="Translator.trans('statement.participate')"
-      @click.stop.prevent="() => hasPermission('feature_new_statement') ? toggleStatementModal({}) : null" />
+      @click="(event) => {
+        if (!hasPermission('feature_new_statement')) {
+          return
+        }
+        event.preventDefault()
+        event.stopPropagation()
+        toggleStatementModal({})
+      }" />
 
     <diplan-karte />
   </div>
