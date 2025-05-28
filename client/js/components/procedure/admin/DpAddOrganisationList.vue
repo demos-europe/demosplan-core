@@ -137,11 +137,7 @@
             <span
               v-if="selectedItems.length"
               class="weight--bold line-height--1_6">
-              {{
-                selectedItems.length
-              }} {{
-                (selectedItems.length === 1 && Translator.trans('entry.selected')) || Translator.trans('entries.selected')
-              }}
+              {{ selectedItemsText }}
             </span>
       </div>
       <div class="w-2/3 text-right inline-block space-x-2">
@@ -200,7 +196,7 @@ export default {
       ],
       isLoading: true,
       locationContactFields: ['street', 'postalcode', 'city'],
-      searchTerm: "",
+      searchTerm: '',
       selectedItems: [],
       currentPage: 1,
       itemsPerPage: 50,
@@ -264,6 +260,12 @@ export default {
 
     totalPages () {
       return Math.ceil(this.totalItems / this.itemsPerPage)
+    },
+
+    selectedItemsText () {
+      const count = this.selectedItems.length
+      const translationKey = count === 1 ? 'entry.selected' : 'entries.selected'
+      return `${count} ${Translator.trans(translationKey)}`
     }
   },
 
@@ -394,14 +396,18 @@ export default {
       this.searchTerm = searchValue
       this.currentPage = 1
       this.getInstitutionsWithContacts()
-        .then(() => { this.isLoading = false })
+        .then(() => {
+          this.isLoading = false
+        })
     },
 
     handleReset () {
       this.searchTerm = ''
       this.currentPage = 1
       this.getInstitutionsWithContacts()
-        .then(() => { this.isLoading = false })
+        .then(() => {
+          this.isLoading = false
+        })
     },
 
     handlePageChange (page) {
