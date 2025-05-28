@@ -391,8 +391,13 @@ class FunctionalTestCase extends WebTestCase
         }
 
         if (24 === strlen($dateString)) {
+            // Old format: 2025-05-28T07:22:25+0100 (24 chars)
             $dateString[10] = ' ';
             $dateString = substr($dateString, 0, -5);
+        } elseif (25 === strlen($dateString)) {
+            // New format: 2025-05-28T07:22:25+00:00 (25 chars)
+            $dateString[10] = ' ';
+            $dateString = substr($dateString, 0, -6);
         } else {
             if (19 !== strlen($dateString)) {
                 return false;
