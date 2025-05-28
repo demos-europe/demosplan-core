@@ -358,12 +358,16 @@ export default {
     }),
 
     items () {
-      return Object.values(this.originalStatements).map(originalStatement => {
-        return {
-          id: originalStatement.id,
-          ...originalStatement.attributes
-        }
-      })
+      return Object.values(this.originalStatements)
+        .map(originalStatement => {
+          return {
+            id: originalStatement.id,
+            ...originalStatement.attributes
+          }
+        })
+        .sort((a, b) => {
+          return new Date(b.submitDate) - new Date(a.submitDate)
+        })
     },
 
     storageKeyPagination () {
