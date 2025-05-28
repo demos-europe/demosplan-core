@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -20,8 +21,10 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 use Exception;
@@ -63,6 +66,8 @@ class EntityContentChangeService extends CoreService
         private readonly RouterInterface $router,
         TokenStorageInterface $tokenStorage,
         private readonly TranslatorInterface $translator,
+        private readonly CustomFieldValueCreator $customFieldValueCreator,
+        private readonly CurrentUserService $currentUserService,
     ) {
         $this->tokenStorage = $tokenStorage;
     }
@@ -166,10 +171,6 @@ class EntityContentChangeService extends CoreService
                     $fieldsToTrack
                 );
             } else {
-                $entityId = $this->entityHelper->extractId($incomingData);
-                $preUpdate = $relatedRepository->get($entityId);
-                $changes = $this->diffObjectAndArray($preUpdate, $incomingData);
-
                 return $this->calculateChangesOfStandardFieldsOfPreUpdateObjectAndPostUpdateArray(
                     $relatedRepository->get($this->entityHelper->extractId($incomingData)),
                     $incomingData,
