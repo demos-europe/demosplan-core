@@ -389,7 +389,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         array $statements,
         bool $anonymous,
         array $keysOfAttributesToExport,
-        bool $explodedParts = true
+        bool $explodedParts = true,
     ): array {
         $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys', 'tagNames']);
         $formattedStatements = collect([]);
