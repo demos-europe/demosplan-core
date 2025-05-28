@@ -91,8 +91,12 @@ class RadioButtonField extends AbstractCustomField
         return 'singleSelect';
     }
 
-    public function isValueValid(string $value): bool
+    public function isValueValid(?string $value): bool
     {
+        if (null === $value) {
+            return true;
+        }
+
         if (in_array($value, $this->options, true)) {
             return true;
         }
