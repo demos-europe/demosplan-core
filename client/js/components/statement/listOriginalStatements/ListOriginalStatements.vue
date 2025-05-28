@@ -19,17 +19,18 @@
             @click="handleExport" />
         </div>
 
-      <dp-bulk-edit-header
-        v-if="selectedItemsCount > 0"
-        class="layout__item u-12-of-12 u-mt-0_5"
-        :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
-        @reset-selection="resetSelection">
-        <dp-button
-          data-cy="exportCsv"
-          :text="Translator.trans('export.verb')"
-          variant="subtle"
-          @click="handleExport" />
-      </dp-bulk-edit-header>
+        <dp-bulk-edit-header
+          v-if="selectedItemsCount > 0"
+          class="layout__item u-12-of-12 u-mt-0_5"
+          :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
+          @reset-selection="resetSelection">
+          <dp-button
+            data-cy="exportCsv"
+            :text="Translator.trans('export.verb')"
+            variant="subtle"
+            @click="handleExport" />
+        </dp-bulk-edit-header>
+      </template>
 
       <dp-pager
         v-if="pagination.currentPage && items.length > 0"
