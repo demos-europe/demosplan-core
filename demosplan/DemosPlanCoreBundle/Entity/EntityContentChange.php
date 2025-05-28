@@ -108,11 +108,23 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface, Ent
     protected $postUpdate;
 
     /**
-     * @var string
+     * @var ?string
      *
      * @ORM\Column(type="text", nullable=true, length=15000000)
      */
     protected $contentChange;
+
+    /**
+     * @ORM\Column(
+     *     type="boolean",
+     *     nullable=false,
+     *     options={
+     *      "default":false,
+     *      "comment":"Determines if this change was made on a custom field."
+     *     }
+     * )
+     */
+    protected bool $customFieldChange = false;
 
     public function getId(): ?string
     {
@@ -271,5 +283,15 @@ class EntityContentChange extends CoreEntity implements UuidEntityInterface, Ent
     public function setUserName($userName)
     {
         $this->userName = $userName;
+    }
+
+    public function isCustomFieldChange(): bool
+    {
+        return $this->customFieldChange;
+    }
+
+    public function setCustomFieldChange(bool $customFieldChange): void
+    {
+        $this->customFieldChange = $customFieldChange;
     }
 }
