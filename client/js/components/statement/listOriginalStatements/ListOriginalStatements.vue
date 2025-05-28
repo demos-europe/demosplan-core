@@ -466,12 +466,29 @@ export default {
 
     handleExport () {
       const payload = {
+        filter: {
+          sameProcedure: {
+            condition: {
+              path: 'procedure.id',
+              value: this.procedureId
+            }
+          }
+        },
         procedureId: this.procedureId,
         sort: '-submitDate'
       }
 
       if (this.selectedItemsCount < this.allItemsCount) {
-        payload.statementIds = this.getSelectedStatementIds()
+        const selectedStatementIds = this.getSelectedStatementIds()
+        selectedStatementIds.forEach(id => {
+          payload.filter[id] = {
+            condition: {
+              operator: '=',
+              path: 'id',
+              value: id
+            }
+          }
+        })
       }
 
       window.location.href = Routing.generate('dplan_original_statement_csv_export', payload)
