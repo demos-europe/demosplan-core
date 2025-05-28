@@ -262,7 +262,9 @@
 import {
   formatDate as _formatDate,
   CleanHtml,
+  checkResponse,
   dpApi,
+  dpRpc,
   DpBulkEditHeader,
   DpButton,
   DpDataTable,
@@ -271,6 +273,7 @@ import {
   DpLoading,
   DpPager,
   hasAnyPermissions,
+  hasOwnProp,
   tableSelectAllItems
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -314,6 +317,7 @@ export default {
 
   data () {
     return {
+      allOriginalStatementIds: [],
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -441,7 +445,7 @@ export default {
       //   }
       //
       //   if (this.trackDeselected) {
-      //     statementIds = this.toggledItems.length === 0 ? allOriginalStatements : allOriginalStatements.filter(segment => !toggledIds.includes(segment))
+      //     statementIds = this.toggledItems.length === 0 ? this.allOriginalStatementIds : this.allOriginalStatementIds.filter(segment => !toggledIds.includes(segment))
       //   }
       //
       //   payload.statementIds = statementIds
@@ -478,6 +482,15 @@ export default {
         .then(response => {
           const { fullText } = response.data.data.attributes
           this.toggleIsFullTextDisplayed(originalStatementId, true, fullText)
+        })
+    },
+
+    fetchOriginalStatementIds () {
+      return dpRpc('originalStatement.load.id')
+        .then(response => checkResponse(response))
+        .then(response => {
+          this.allOriginalStatementIds = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
+          this.allItemsCount = this.allOriginalStatementIds.length
         })
     },
 
@@ -638,6 +651,7 @@ export default {
   mounted () {
     this.initPagination()
     this.fetchOriginalStatementsByPage(1)
+    this.fetchOriginalStatementIds()
   }
 }
 </script>
