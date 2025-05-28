@@ -420,7 +420,6 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
                     foreach ($statement[$attributeKey] as $singleAttributeValue) {
                         $formattedStatement[$attributeKey] = $singleAttributeValue;
 
-                        // @todo this line is failing because undefined array key tags
 
                         // get Related TopicName of current single Tag to show only related topic to current tag in current row
                         if ('tagNames' === $attributeKey) {
