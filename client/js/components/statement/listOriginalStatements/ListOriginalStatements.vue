@@ -434,30 +434,45 @@ export default {
       }
     },
 
+    getSelectedStatementIds () {
+      /**
+       * ToggledIds can be either
+       * - selected ids
+       * or
+       * - deselected ids after 'select all' was checked
+       */
+      const toggledIds = this.toggledItems.map(item => item.id)
+      let selectedStatementIds = []
+      const areSomeDeselectedAfterSelectAll = this.trackDeselected
+      const areSomeSelected = !this.trackDeselected
+
+      if (areSomeSelected) {
+        selectedStatementIds = toggledIds
+      }
+
+      if (areSomeDeselectedAfterSelectAll) {
+        const areNoneDeselected = this.toggledItems.length === 0
+
+        selectedStatementIds = areNoneDeselected
+          ? this.allOriginalStatementIds
+          : this.allOriginalStatementIds
+            .filter(id => !toggledIds.includes(id))
+      }
+
+      return selectedStatementIds
+    },
+
     handleExport () {
       const payload = {
         procedureId: this.procedureId,
         sort: '-submitDate'
       }
 
-      // if (this.selectedItemsCount < this.allItemsCount) {
-      //   const toggledIds = this.toggledItems.map(item => item.id)
-      //   let statementIds = []
-      //
-      //   if (!this.trackDeselected) {
-      //     statementIds = toggledIds
-      //   }
-      //
-      //   if (this.trackDeselected) {
-      //     statementIds = this.toggledItems.length === 0 ? this.allOriginalStatementIds : this.allOriginalStatementIds.filter(segment => !toggledIds.includes(segment))
-      //   }
-      //
-      //   payload.statementIds = statementIds
-      // }
+      if (this.selectedItemsCount < this.allItemsCount) {
+        payload.statementIds = this.getSelectedStatementIds()
+      }
 
-      const url = Routing.generate('dplan_original_statement_csv_export', payload)
-
-      window.open(url, '_blank')
+      window.location.href = Routing.generate('dplan_original_statement_csv_export', payload)
     },
 
     toggleIsFullTextDisplayed (originalStatementId, isFullTextDisplayed, fullText = null) {
