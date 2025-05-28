@@ -389,6 +389,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         array $statements,
         bool $anonymous,
         array $keysOfAttributesToExport,
+        bool $explodedParts = true
     ): array {
         $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys', 'tagNames']);
         $formattedStatements = collect([]);
@@ -399,7 +400,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         // collect Statements in unified data format
         foreach ($statements as $statement) {
             $pushed = false;
-            $formattedStatement = $this->formatStatement($keysOfAttributesToExport, $statement);
+            $formattedStatement = $this->formatStatement($keysOfAttributesToExport, $statement, $explodedParts);
 
             // loop again through the attributes
             foreach ($keysOfAttributesToExport as $attributeKey) {
@@ -479,7 +480,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         return $convertedText;
     }
 
-    protected function formatStatement(array $keysOfAttributesToExport, array $statementArray, bool $explodeParts = false): array
+    protected function formatStatement(array $keysOfAttributesToExport, array $statementArray, bool $explodeParts = true): array
     {
         $formattedStatement = [];
 

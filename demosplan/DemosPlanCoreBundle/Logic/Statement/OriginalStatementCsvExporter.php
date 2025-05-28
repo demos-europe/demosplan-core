@@ -35,7 +35,8 @@ class OriginalStatementCsvExporter extends CoreService
         $formattedData = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
             $statementArrays,
             false,
-            $attributesToExport
+            $attributesToExport,
+            false
         );
 
         return $this->generateCsv($formattedData, $columnsDefinition);
