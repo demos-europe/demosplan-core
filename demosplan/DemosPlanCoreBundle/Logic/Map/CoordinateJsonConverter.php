@@ -16,7 +16,7 @@ class CoordinateJsonConverter
 {
     public function convertCoordinatesToJson(?array $coordinates): string
     {
-        return null === $coordinates ? '' : Json::encode($coordinates, JSON_FORCE_OBJECT);
+        return null === $coordinates ? '' : Json::encode($coordinates);
     }
 
     public function convertJsonToCoordinates(string $rawCoordinateValues): ?array
