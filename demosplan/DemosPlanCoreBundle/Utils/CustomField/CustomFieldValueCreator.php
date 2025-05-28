@@ -32,9 +32,25 @@ class CustomFieldValueCreator extends CoreService
         string $sourceEntityClass,
         string $targetEntityClass,
     ): CustomFieldValuesList {
+
+        // Store original data as JSON representation before making any changes
+        // Create a completely new object - DON'T modify the passed-in object at all
+        $updatedCustomFieldValuesList = new CustomFieldValuesList();
+
+        // Copy all existing values to the new object first
+        if ($currentCustomFieldValuesList->getCustomFieldsValues()) {
+            foreach ($currentCustomFieldValuesList->getCustomFieldsValues() as $existingValue) {
+                $newValue = new CustomFieldValue();
+                $newValue->fromJson($existingValue->toJson());
+                $updatedCustomFieldValuesList->addCustomFieldValue($newValue);
+            }
+        }
+
+        // Parse the new values
         $newCustomFieldValuesList = new CustomFieldValuesList();
         $newCustomFieldValuesList->fromJson($newCustomFieldValuesData);
 
+        // Now apply changes to our new copy
         foreach ($newCustomFieldValuesList->getCustomFieldsValues() as $newCustomFieldValue) {
             /** @var CustomFieldValue $newCustomFieldValue */
             $customField = $this->getCustomField(
@@ -43,39 +59,36 @@ class CustomFieldValueCreator extends CoreService
                 $targetEntityClass,
                 $newCustomFieldValue->getId());
             $this->validateCustomFieldValue($customField, $newCustomFieldValue->getValue());
-            $existingCustomFieldValue = $currentCustomFieldValuesList->findById($newCustomFieldValue->getId());
+
+            // Find in our new copy, not in the original
+            $existingCustomFieldValue = $updatedCustomFieldValuesList->findById($newCustomFieldValue->getId());
 
             if ($existingCustomFieldValue) {
-                $this->handleExistingCustomField($currentCustomFieldValuesList, $existingCustomFieldValue, $newCustomFieldValue);
+                $this->handleExistingCustomField($updatedCustomFieldValuesList, $existingCustomFieldValue, $newCustomFieldValue);
             } else {
-                $this->handleNewCustomField($currentCustomFieldValuesList, $newCustomFieldValue);
+                $this->handleNewCustomField($updatedCustomFieldValuesList, $newCustomFieldValue);
             }
         }
 
         // Sort fields to ensure consistent ordering in the database
-        $currentCustomFieldValuesList->sortByFieldId();
+        $updatedCustomFieldValuesList->sortByFieldId();
 
         // At the very end, before returning, ensure array is properly indexed
-        $currentCustomFieldValuesList->reindexValues();
+        $updatedCustomFieldValuesList->reindexValues();
 
-        /*
-         * Clone `$currentCustomFieldValuesList` to ensure Doctrine detects changes to JSON-like columns.
-         * Doctrine only tracks updates when the object reference changes.
-         * @see CustomFieldValuesList
-         * @see CustomFieldValueType
-         */
-        return clone $currentCustomFieldValuesList;
+        // Never modify the passed-in object - return a completely new one
+        return $updatedCustomFieldValuesList;
     }
 
     protected function handleExistingCustomField(
-        CustomFieldValuesList $currentCustomFieldValuesList,
+        CustomFieldValuesList $updatedCustomFieldValuesList,
         CustomFieldValue $existingCustomFieldValue,
         CustomFieldValue $newCustomFieldValue,
     ): void {
         // If the value is null, remove this field from the updated list
 
         if (null === $newCustomFieldValue->getValue()) {
-            $currentCustomFieldValuesList->removeCustomFieldValue($newCustomFieldValue);
+            $updatedCustomFieldValuesList->removeCustomFieldValue($newCustomFieldValue);
 
             return;
         }
@@ -84,12 +97,14 @@ class CustomFieldValueCreator extends CoreService
     }
 
     protected function handleNewCustomField(
-        CustomFieldValuesList $currentCustomFieldValuesList,
+        CustomFieldValuesList $updatedCustomFieldValuesList,
         CustomFieldValue $newCustomFieldValue,
     ): void {
         // Skip adding fields marked for removal
         if (null !== $newCustomFieldValue->getValue()) {
-            $currentCustomFieldValuesList->addCustomFieldValue($newCustomFieldValue);
+            $brandNewValue = new CustomFieldValue();
+            $brandNewValue->fromJson($newCustomFieldValue->toJson());
+            $updatedCustomFieldValuesList->addCustomFieldValue($brandNewValue);
         }
     }
 
