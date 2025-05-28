@@ -31,7 +31,7 @@ instance.appContext.app.use(MapPlugin, {
 
 const openStatementModalOrLoginPage= (event) => {
   if (!hasPermission('feature_new_statement')) {
-    window.location.href = hasPermission('feature_new_statement') ? '#publicStatementForm' : Routing.generate('DemosPlan_user_login_alternative')
+    window.location.href = Routing.generate('DemosPlan_user_login_alternative')
     return
   }
   event.preventDefault()
