@@ -9,14 +9,15 @@
       class="u-mt" />
 
     <template v-else>
-      <div v-if="!selectedItemsCount">
-        <dp-button
-          class="mt-4"
-          data-cy="exportCsv"
-          :text="Translator.trans('export.verb')"
-          variant="subtle"
-          @click="handleExport" />
-      </div>
+      <template v-if="hasPermission('feature_admin_export_original_statement_csv')">
+        <div v-if="!selectedItemsCount">
+          <dp-button
+            class="mt-4"
+            data-cy="exportCsv"
+            :text="Translator.trans('export.verb')"
+            variant="subtle"
+            @click="handleExport" />
+        </div>
 
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0"
@@ -689,7 +690,10 @@ export default {
   mounted () {
     this.initPagination()
     this.fetchOriginalStatementsByPage(1)
-    this.fetchOriginalStatementIds()
+
+    if (hasPermission('feature_admin_export_original_statement_csv')) {
+      this.fetchOriginalStatementIds()
+    }
   }
 }
 </script>
