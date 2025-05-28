@@ -526,7 +526,16 @@ export default {
     },
 
     fetchOriginalStatementIds () {
-      return dpRpc('originalStatement.load.id')
+      return dpRpc('originalStatement.load.id', {
+        filter: {
+          sameProcedure: {
+            condition: {
+              path: 'procedure.id',
+              value: this.procedureId
+            }
+          }
+        }
+      })
         .then(response => checkResponse(response))
         .then(response => {
           this.allOriginalStatementIds = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
