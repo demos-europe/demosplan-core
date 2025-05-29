@@ -4,6 +4,8 @@
 - **Minor Version**: Incremented for each release.
 - **Patch Version**: Incremented for bug fixes.
 
+## UNRELEASED
+- Add Versioning of custom fields of segments
 
 ## UNRELEASED
 ## v4.1.0 (2025-05-21)

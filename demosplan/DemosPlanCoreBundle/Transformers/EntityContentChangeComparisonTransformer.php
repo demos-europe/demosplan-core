@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Transformers;
 
-use function array_key_exists;
-
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
+
+use function array_key_exists;
 
 class EntityContentChangeComparisonTransformer extends BaseTransformer
 {
@@ -25,7 +25,7 @@ class EntityContentChangeComparisonTransformer extends BaseTransformer
 
     public function __construct(
         private readonly EntityContentChangeDisplayService $entityContentChangeDisplayService,
-        private readonly EntityContentChangeService $entityContentChangeService
+        private readonly EntityContentChangeService $entityContentChangeService,
     ) {
         parent::__construct();
     }
@@ -60,6 +60,13 @@ class EntityContentChangeComparisonTransformer extends BaseTransformer
      */
     public function isFieldNameWhitelistedForEntityContentChangeComponent(EntityContentChange $object): bool
     {
+        if ($object->isCustomFieldChange()) {
+            return array_key_exists(
+                'customFields',
+                $this->entityContentChangeService->getFieldMapping($object->getEntityType())
+            );
+        }
+
         return array_key_exists($object->getEntityField(), $this->entityContentChangeService->getFieldMapping($object->getEntityType()));
     }
 }

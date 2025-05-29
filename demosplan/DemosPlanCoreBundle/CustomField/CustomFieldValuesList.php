@@ -73,4 +73,9 @@ class CustomFieldValuesList
             return strcmp($a->getId(), $b->getId());
         });
     }
+
+    public function isEmpty(): bool
+    {
+        return 0 === count($this->customFieldValues);
+    }
 }
