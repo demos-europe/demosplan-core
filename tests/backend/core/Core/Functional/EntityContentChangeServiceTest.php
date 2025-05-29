@@ -102,7 +102,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
 
     public function testGetHistoryOfEntity(): void
     {
-        //using AAA should erase the problem of amount of results are depending of the order of fixtures
+        // using AAA should erase the problem of amount of results are depending of the order of fixtures
         /** @var Statement $testStatement */
         $testStatement = $this->fixtures->getReference('testStatement');
 
@@ -241,7 +241,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
 
         self::assertCount($preUpdateContentChangeEntriesCount + 4, $this->getEntries(EntityContentChange::class));
 
-        //check history of segment1
+        // check history of segment1
         /** @var EntityContentChange[] $historyOfSegment1 */
         $historyOfSegment1 = $this->getEntries(
             EntityContentChange::class,
@@ -253,7 +253,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
 
         $newValuesOfHistoryOfSegment1 = [];
         foreach ($historyOfSegment1 as $entityContentChange) {
-            //this is necessary because of the order of the entries in the history is variable (sort by createdDate)
+            // this is necessary because of the order of the entries in the history is variable (sort by createdDate)
             $newValuesOfHistoryOfSegment1[] = Json::decodeToArray($entityContentChange->getContentChange())[0][0]['new']['lines'][0];
         }
 
@@ -269,7 +269,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
             $newValuesOfHistoryOfSegment1
         );
 
-        //check history of segment1
+        // check history of segment1
         /** @var EntityContentChange[] $historyOfSegment2 */
         $historyOfSegment2 = $this->getEntries(
             EntityContentChange::class,
@@ -279,10 +279,9 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         self::assertInstanceOf(EntityContentChange::class, $historyOfSegment2[0]);
         self::assertInstanceOf(EntityContentChange::class, $historyOfSegment2[1]);
 
-
         $newValuesOfHistoryOfSegment2 = [];
         foreach ($historyOfSegment2 as $entityContentChange) {
-            //this is necessary because of the order of the entries in the history is variable (sort by createdDate)
+            // this is necessary because of the order of the entries in the history is variable (sort by createdDate)
             $newValuesOfHistoryOfSegment2[] = Json::decodeToArray($entityContentChange->getContentChange())[0][0]['new']['lines'][0];
         }
 
