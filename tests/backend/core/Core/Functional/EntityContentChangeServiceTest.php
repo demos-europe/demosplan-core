@@ -63,7 +63,6 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
 
         $this->sut = $this->getContainer()->get(EntityContentChangeService::class);
         $this->segmentBulkEditService = $this->getContainer()->get(SegmentBulkEditorService::class);
-        $globalConfig = $this->getContainer()->get(GlobalConfigInterface::class);
         $this->segmentHandler = $this->getContainer()->get(SegmentHandler::class);
         $this->statementService = $this->getContainer()->get(StatementService::class);
         $this->entityHelper = $this->getContainer()->get(EntityHelper::class);
