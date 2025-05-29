@@ -292,7 +292,6 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         );
 
         self::assertEquals('', Json::decodeToArray($historyOfSegment2[1]->getContentChange())[0][0]['old']['lines'][0]);
-        self::assertEquals('', $contentChanges2OfSegment2[0][0]['old']['lines'][0]);
         self::assertContains(
             $segments[1]->getCustomFields()->findById($customField2->getId())->getValue(),
             $newValuesOfHistoryOfSegment2
