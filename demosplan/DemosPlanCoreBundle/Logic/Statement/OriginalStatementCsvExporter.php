@@ -20,9 +20,9 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 class OriginalStatementCsvExporter extends CoreService
 {
     public function __construct(
-        private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
-        private readonly StatementService $statementService,
-        private readonly AssessmentTableServiceOutput $assesmentTableServiceOutput)
+        private readonly AssessmentTableXlsExporter   $assessmentTableXlsExporter,
+        private readonly StatementService             $statementService,
+        private readonly AssessmentTableServiceOutput $assessmentTableServiceOutput)
     {
     }
 
@@ -80,7 +80,7 @@ class OriginalStatementCsvExporter extends CoreService
                     }
 
                     if ('meta.authoredDate' === $key) {
-                        $statementArray['meta.authoredDate'] = $this->assesmentTableServiceOutput->getFormattedAuthoredDateFromStatement($statement);
+                        $statementArray['meta.authoredDate'] = $this->assessmentTableServiceOutput->getFormattedAuthoredDateFromStatement($statement);
                         continue;
                     }
                     // Try to access the property directly
