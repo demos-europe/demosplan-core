@@ -53,9 +53,9 @@ class StatementExportController extends BaseController
         JsonApiActionService $jsonApiActionService,
         OriginalStatementCsvExporter $exporter,
         OriginalStatementResourceType $originalStatementResourceType,
-        string $procedureId,
-        ?array $statementIds,
     ): StreamedResponse {
+        // Filter parameters (procedureId, statementIds, etc.) are extracted from the current request query parameters
+        // by the JsonApiActionService rather than being passed as explicit method parameters
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
             $jsonApiActionService->getObjectsByQueryParams(
