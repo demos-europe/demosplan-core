@@ -159,6 +159,7 @@
 <script>
 import { dpApi, DpButton, DpDataTable, DpPager, DpSearchField } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
   name: 'DpAddOrganisationList',
@@ -186,6 +187,8 @@ export default {
     }
   },
 
+  mixins: [paginationMixin],
+
   data () {
     return {
       invitableToebFields: [
@@ -198,9 +201,12 @@ export default {
       locationContactFields: ['street', 'postalcode', 'city'],
       searchTerm: '',
       selectedItems: [],
-      currentPage: 1,
-      itemsPerPage: 50,
-      itemsPerPageOptions: [10, 25, 50, 100]
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 25, 50, 100],
+        perPage: 50
+      },
+      pagination: {}
     }
   },
 
@@ -218,7 +224,7 @@ export default {
     }),
 
     rowItems () {
-      const allItems = Object.values(this.invitableToebItems).reduce((acc, item) => {
+      return Object.values(this.invitableToebItems).map(item => {
         const locationContactId = item.relationships.locationContacts?.data.length > 0 ? item.relationships.locationContacts.data[0].id : null
         const locationContact = locationContactId ? this.getLocationContactById(locationContactId) : null
         const hasNoEmail = !item.attributes.participationFeedbackEmailAddress
@@ -228,38 +234,44 @@ export default {
           name: this.institutionTagItems?.[tag.id]?.attributes?.name || Translator.trans('error.tag.notfound')
         }))
 
-        return [
-          ...acc,
-          ...[
-            {
-              id: item.id,
-              ...item.attributes,
-              competenceDescription: item.attributes.competenceDescription === '-' ? '' : item.attributes.competenceDescription,
-              locationContacts: locationContact
-                ? {
-                    id: locationContact.id,
-                    ...locationContact.attributes
-                  }
-                : null,
-              assignedTags: institutionTags,
-              hasNoEmail
-            }
-          ]
-        ]
-      }, []) || []
-
-      // slicing for frontend-only pagination as it's not implemented on the backend
-      const start = (this.currentPage - 1) * this.itemsPerPage
-      const end = start + this.itemsPerPage
-      return allItems.slice(start, end)
+        return {
+          id: item.id,
+          ...item.attributes,
+          competenceDescription: item.attributes.competenceDescription === '-' ? '' : item.attributes.competenceDescription,
+          locationContacts: locationContact
+            ? {
+                id: locationContact.id,
+                ...locationContact.attributes
+              }
+            : null,
+          assignedTags: institutionTags,
+          hasNoEmail
+        }
+      }) || []
     },
 
     totalItems () {
-      return Object.keys(this.invitableToebItems).length
+      return this.pagination.total || 0
     },
 
     totalPages () {
-      return Math.ceil(this.totalItems / this.itemsPerPage)
+      return this.pagination.totalPages || 0
+    },
+
+    currentPage () {
+      return this.pagination.currentPage || 1
+    },
+
+    itemsPerPage () {
+      return this.pagination.perPage || this.defaultPagination.perPage
+    },
+
+    itemsPerPageOptions () {
+      return this.pagination.limits || this.defaultPagination.limits
+    },
+
+    storageKeyPagination () {
+      return `addOrganisationList:${this.procedureId}:pagination`
     },
 
     selectedItemsText () {
@@ -311,7 +323,7 @@ export default {
         })
     },
 
-    getInstitutionsWithContacts () {
+    getInstitutionsWithContacts (page = 1) {
       const permissionChecksToeb = [
         { permission: 'field_organisation_email2_cc', value: 'ccEmailAddresses' },
         { permission: 'field_organisation_contact_person', value: 'contactPerson' },
@@ -327,6 +339,10 @@ export default {
         : ['locationContacts']
 
       const requestParams = {
+        page: {
+          number: page,
+          size: this.pagination.perPage || this.defaultPagination.perPage
+        },
         include: includeParams.join(),
         fields: {
           InvitableToeb: this.invitableToebFields.concat(this.returnPermissionChecksValuesArray(permissionChecksToeb)).join(),
@@ -382,6 +398,10 @@ export default {
       }
 
       return this.getInstitutions(requestParams)
+        .then((data) => {
+          this.setLocalStorage(data.meta.pagination)
+          this.updatePagination(data.meta.pagination)
+        })
     },
 
     getLocationContactById (id) {
@@ -394,8 +414,7 @@ export default {
 
     handleSearch (searchValue) {
       this.searchTerm = searchValue
-      this.currentPage = 1
-      this.getInstitutionsWithContacts()
+      this.getInstitutionsWithContacts(1)
         .then(() => {
           this.isLoading = false
         })
@@ -403,20 +422,20 @@ export default {
 
     handleReset () {
       this.searchTerm = ''
-      this.currentPage = 1
-      this.getInstitutionsWithContacts()
+      this.getInstitutionsWithContacts(1)
         .then(() => {
           this.isLoading = false
         })
     },
 
     handlePageChange (page) {
-      this.currentPage = page
+      this.getInstitutionsWithContacts(page)
     },
 
     handleItemsPerPageChange (newItemsPerPage) {
-      this.itemsPerPage = newItemsPerPage
-      this.currentPage = 1
+      const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newItemsPerPage) + 1)
+      this.pagination.perPage = newItemsPerPage
+      this.getInstitutionsWithContacts(page)
     },
 
     returnPermissionChecksValuesArray (permissionChecks) {
@@ -434,7 +453,8 @@ export default {
   },
 
   mounted () {
-    this.getInstitutionsWithContacts()
+    this.initPagination()
+    this.getInstitutionsWithContacts(this.pagination.currentPage)
       .then(() => { this.isLoading = false })
   }
 }
