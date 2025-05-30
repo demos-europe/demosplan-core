@@ -120,7 +120,7 @@ class RpcStatementIdLoader implements RpcMethodSolverInterface
             Assert::isArray($params->filter);
         }
         if (property_exists($params, 'search')) {
-            Assert::isArray($params->searh);
+            Assert::isArray($params->search);
         }
     }
 
