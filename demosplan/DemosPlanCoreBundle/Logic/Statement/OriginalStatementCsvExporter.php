@@ -14,14 +14,15 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOu
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
+use League\Csv\CannotInsertRecord;
+use League\Csv\Exception;
+use League\Csv\InvalidArgument;
 use League\Csv\Writer;
 
 class OriginalStatementCsvExporter extends CoreService
 {
     public function __construct(
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
-        private readonly StatementService $statementService,
-        private readonly AssessmentTableServiceOutput $assessmentTableServiceOutput,
         private readonly SegmentsByStatementsExporter $segmentsByStatementsExporter)
     {
     }
@@ -41,6 +42,11 @@ class OriginalStatementCsvExporter extends CoreService
         return $this->generateCsv($formattedData, $columnsDefinition);
     }
 
+    /**
+     * @throws InvalidArgument
+     * @throws CannotInsertRecord
+     * @throws Exception
+     */
     private function generateCsv(array $formattedData, array $columnsDefinition): string
     {
         $csv = Writer::createFromString('');
@@ -60,6 +66,9 @@ class OriginalStatementCsvExporter extends CoreService
         return $csv->toString();
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function convertStatementsToArrays(array $statements): array
     {
         $statementsArray = [];
