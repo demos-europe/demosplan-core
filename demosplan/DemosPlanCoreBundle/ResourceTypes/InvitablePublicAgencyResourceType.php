@@ -107,7 +107,10 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
         $configBuilder->id->setReadableByPath();
 
         // Base properties that are always readable
-        $configBuilder->legalName->setReadableByPath(DefaultField::YES)->setAliasedPath(Paths::orga()->name);
+        $configBuilder->legalName
+            ->setReadableByPath(DefaultField::YES)
+            ->setAliasedPath(Paths::orga()->name)
+            ->setFilterable();
         $configBuilder->participationFeedbackEmailAddress->setReadableByPath()->setAliasedPath(Paths::orga()->email2);
         $configBuilder->locationContacts
             ->setRelationshipType($this->resourceTypeStore->getInstitutionLocationContactResourceType())
@@ -116,17 +119,9 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
 
         // Conditional properties based on permissions
         if ($this->currentUser->hasPermission('field_organisation_competence')) {
-            $configBuilder->competenceDescription->setReadableByCallable(
-                static function (Orga $orga): ?string {
-                    $competenceDescription = $orga->getCompetence();
-                    if ('-' === $competenceDescription || '' === $competenceDescription) {
-                        return null;
-                    }
-
-                    return $competenceDescription;
-                },
-                DefaultField::YES
-            );
+            $configBuilder->competenceDescription->setAliasedPath(Paths::orga()->competence)
+                ->setReadableByPath()
+                ->setFilterable();
         }
 
         if ($this->currentUser->hasPermission('field_organisation_email2_cc')) {
