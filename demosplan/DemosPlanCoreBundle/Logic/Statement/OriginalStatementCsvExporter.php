@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
@@ -18,6 +17,7 @@ use League\Csv\CannotInsertRecord;
 use League\Csv\Exception;
 use League\Csv\InvalidArgument;
 use League\Csv\Writer;
+use ReflectionException;
 
 class OriginalStatementCsvExporter extends CoreService
 {
@@ -67,7 +67,7 @@ class OriginalStatementCsvExporter extends CoreService
     }
 
     /**
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function convertStatementsToArrays(array $statements): array
     {

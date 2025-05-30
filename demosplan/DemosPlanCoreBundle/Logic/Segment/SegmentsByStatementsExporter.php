@@ -382,7 +382,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $exportData['countyNames'] = $segmentOrStatement->getCountyNames();
         $exportData['meta']['authoredDate'] = $segmentOrStatement->getAuthoredDateString();
 
-
         if ($segmentOrStatement instanceof Statement) {
             $exportData['phase'] = $this->statementService->getProcedurePhaseName(
                 $segmentOrStatement->getPhase(),
