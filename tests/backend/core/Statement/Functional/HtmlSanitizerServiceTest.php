@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace backend\core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\Logic\Statement\HtmlSanitizerService;
@@ -11,13 +19,13 @@ class HtmlSanitizerServiceTest extends FunctionalTestCase
      * @var HtmlSanitizerService;
      */
     protected $sut;
+
     public function setUp(): void
     {
         parent::setUp();
 
         $this->sut = static::getContainer()->get(HtmlSanitizerService::class);
     }
-
 
     public function testEscapeDisallowedTagsRemovesDisallowedTags()
     {

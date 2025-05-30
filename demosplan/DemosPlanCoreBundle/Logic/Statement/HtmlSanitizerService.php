@@ -34,7 +34,7 @@ class HtmlSanitizerService
         // Decode allowed tags in the input string
         $decodedString = strtr($inputString, $encodedToDecodedMap);
 
-        $tagsWithAttributeDrivenContent = ['a href','img'];
+        $tagsWithAttributeDrivenContent = ['a href', 'img'];
 
         // Decode Tags with Attribute Driven Content in the input string
         foreach ($tagsWithAttributeDrivenContent as $str) {
