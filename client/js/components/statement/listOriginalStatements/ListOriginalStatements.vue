@@ -112,29 +112,31 @@
                   </span>
                 </dd>
 
-                <dt class="font-semibold">
-                  {{ Translator.trans('paragraph') }}:
-                </dt>
-                <dd class="ml-0">
-                  {{ getParagraphTitle(id) }}
-                </dd>
+                <template v-if="hasPermission('feature_statements_location_and_document_refrence')">
+                  <dt class="font-semibold">
+                    {{ Translator.trans('paragraph') }}:
+                  </dt>
+                  <dd class="ml-0">
+                    {{ getParagraphTitle(id) }}
+                  </dd>
 
-                <dt class="font-semibold">
-                  {{ Translator.trans('public.participation.relation') }}:
-                </dt>
-                <dd class="ml-0">
-                  <button
-                    v-if="polygon !== ''"
-                    class="btn--blank o-link--default"
-                    data-cy="originalStatementList:toggleLocationModal"
-                    type="button"
-                    @click="toggleLocationModal(JSON.parse(polygon))">
-                    {{ Translator.trans('see') }}
-                  </button>
-                  <span v-else>
-                    -
-                  </span>
-                </dd>
+                  <dt class="font-semibold">
+                    {{ Translator.trans('public.participation.relation') }}:
+                  </dt>
+                  <dd class="ml-0">
+                    <button
+                      v-if="polygon !== ''"
+                      class="btn--blank o-link--default"
+                      data-cy="originalStatementList:toggleLocationModal"
+                      type="button"
+                      @click="toggleLocationModal(JSON.parse(polygon))">
+                      {{ Translator.trans('see') }}
+                    </button>
+                    <span v-else>
+                      -
+                    </span>
+                  </dd>
+                </template>
               </dl>
 
               <!-- Attachments -->
