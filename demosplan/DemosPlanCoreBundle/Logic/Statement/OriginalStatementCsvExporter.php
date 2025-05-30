@@ -28,7 +28,7 @@ class OriginalStatementCsvExporter extends CoreService
 
     public function export(array $statements): string
     {
-        $columnsDefinition = $this->assessmentTableXlsExporter->createColumnsDefinitionForStatementsOrSegments(true);
+        $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('statements');
         $attributesToExport = array_column($columnsDefinition, 'key');
 
         $statementArrays = $this->convertStatementsToArrays($statements, $attributesToExport);
