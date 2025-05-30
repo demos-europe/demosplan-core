@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentExporterFileNameGe
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use Doctrine\Common\Collections\ArrayCollection;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
@@ -55,6 +56,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
+        private readonly StatementService $statementService,
     ) {
         parent::__construct($currentUser, $htmlHelper, $imageManager, $imageLinkConverter, $slugify, $styleInitializer, $translator);
     }
@@ -372,13 +374,20 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @throws ReflectionException
      */
-    private function convertIntoExportableArray(StatementInterface $segmentOrStatement): array
+    public function convertIntoExportableArray(StatementInterface $segmentOrStatement): array
     {
         $exportData = $this->entityHelper->toArray($segmentOrStatement);
         $exportData['meta'] = $this->entityHelper->toArray($exportData['meta']);
         $exportData['submitDateString'] = $segmentOrStatement->getSubmitDateString();
         $exportData['countyNames'] = $segmentOrStatement->getCountyNames();
         $exportData['meta']['authoredDate'] = $segmentOrStatement->getAuthoredDateString();
+
+        if ($segmentOrStatement instanceof Statement) {
+            $exportData['phase'] = $this->statementService->getProcedurePhaseName(
+                $segmentOrStatement->getPhase(),
+                $segmentOrStatement->isSubmittedByCitizen()
+            );
+        }
 
         // Some data is stored on parentStatement instead on Segment and have to get from there
         if ($segmentOrStatement instanceof Segment) {
