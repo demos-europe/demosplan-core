@@ -51,6 +51,7 @@ use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -419,11 +420,13 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             $tagTitles = explode(',', (string) $tagTitlesString);
 
             foreach ($tagTitles as $tagTitle) {
+                $tagTitle = new UnicodeString($tagTitle);
+                $tagTitle = $tagTitle->trim()->toString();
                 $matchingTag = $this->getMatchingTag($tagTitle, $procedureId);
 
                 $createNewTag = null === $matchingTag;
                 if ($createNewTag) {
-                    $matchingTag = $this->tagService->createTag(trim($tagTitle), $miscTopic, false);
+                    $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, false);
                 }
 
                 // Check if valid tag
@@ -623,7 +626,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     private function getMatchingTag(string $tagTitle, string $procedureId): ?Tag
     {
         $titleCondition = $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue(trim($tagTitle), $this->tagResourceType->title),
+            $this->conditionFactory->propertyHasValue($tagTitle, $this->tagResourceType->title),
             $this->conditionFactory->propertyHasValue($procedureId, $this->tagResourceType->topic->procedure->id),
         );
 
