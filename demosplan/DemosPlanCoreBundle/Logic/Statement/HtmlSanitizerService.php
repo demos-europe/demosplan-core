@@ -43,7 +43,7 @@ class HtmlSanitizerService
 
             // Replace using a callback to conditionally replace the entities
             $decodedString = preg_replace_callback($pattern,
-                function ($matches) {
+                static function ($matches) {
                     return '<' . $matches[1] . '>';
                 }
                 , $decodedString
