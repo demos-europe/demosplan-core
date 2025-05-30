@@ -39,14 +39,13 @@ class HtmlSanitizerService
         // Decode Tags with Attribute Driven Content in the input string
         foreach ($tagsWithAttributeDrivenContent as $str) {
             // Create a pattern to find the specific HTML entities before and after the targeted strings
-            $pattern = '/&lt;(' . preg_quote($str, '/') . '[^&]*)&gt;/';
+            $pattern = '/&lt;('.preg_quote($str, '/').'[^&]*)&gt;/';
 
             // Replace using a callback to conditionally replace the entities
             $decodedString = preg_replace_callback($pattern,
                 static function ($matches) {
-                    return '<' . $matches[1] . '>';
-                }
-                , $decodedString
+                    return '<'.$matches[1].'>';
+                }, $decodedString
             );
         }
 
