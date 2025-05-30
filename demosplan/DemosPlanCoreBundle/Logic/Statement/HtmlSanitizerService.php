@@ -34,19 +34,18 @@ class HtmlSanitizerService
         // Decode allowed tags in the input string
         $decoded_string = strtr($input_string, $encoded_to_decoded_map);
 
-        $tagsWithAttributeDrivenContent = ['a href','img'];
+        $tagsWithAttributeDrivenContent = ['a href', 'img'];
 
         // Decode Tags with Attribute Driven Content in the input string
         foreach ($tagsWithAttributeDrivenContent as $str) {
             // Create a pattern to find the specific HTML entities before and after the targeted strings
-            $pattern = '/&lt;(' . preg_quote($str, '/') . '[^&]*)&gt;/';
+            $pattern = '/&lt;('.preg_quote($str, '/').'[^&]*)&gt;/';
 
             // Replace using a callback to conditionally replace the entities
             $decoded_string = preg_replace_callback($pattern,
                 function ($matches) {
-                    return '<' . $matches[1] . '>';
-                }
-                , $decoded_string
+                    return '<'.$matches[1].'>';
+                }, $decoded_string
             );
         }
 
