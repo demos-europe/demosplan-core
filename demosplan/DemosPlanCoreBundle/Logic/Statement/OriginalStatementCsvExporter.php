@@ -14,9 +14,7 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOu
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
-use Exception;
 use League\Csv\Writer;
-use Symfony\Component\PropertyAccess\PropertyAccess;
 
 class OriginalStatementCsvExporter extends CoreService
 {
@@ -24,7 +22,7 @@ class OriginalStatementCsvExporter extends CoreService
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         private readonly StatementService $statementService,
         private readonly AssessmentTableServiceOutput $assessmentTableServiceOutput,
-        private readonly SegmentsByStatementsExporter $segmentsByStatementsExporter )
+        private readonly SegmentsByStatementsExporter $segmentsByStatementsExporter)
     {
     }
 
@@ -32,7 +30,6 @@ class OriginalStatementCsvExporter extends CoreService
     {
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('statements');
         $attributesToExport = array_column($columnsDefinition, 'key');
-
 
         $statementArrays = $this->convertStatementsToArrays($statements);
         $formattedData = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
@@ -68,7 +65,6 @@ class OriginalStatementCsvExporter extends CoreService
         $statementsArray = [];
 
         foreach ($statements as $statement) {
-
             $statementArray = $this->segmentsByStatementsExporter->convertIntoExportableArray($statement);
             $statementsArray[] = $statementArray;
         }

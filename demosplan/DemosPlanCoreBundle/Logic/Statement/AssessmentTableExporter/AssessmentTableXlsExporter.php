@@ -388,7 +388,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     public function prepareDataForExcelExport(
         array $statements,
         bool $anonymous,
-        array $keysOfAttributesToExport
+        array $keysOfAttributesToExport,
     ): array {
         $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys', 'tagNames']);
         $formattedStatements = collect([]);
