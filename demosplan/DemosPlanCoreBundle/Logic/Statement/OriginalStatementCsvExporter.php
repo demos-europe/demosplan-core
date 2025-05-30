@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use Exception;
 use League\Csv\Writer;
@@ -22,7 +23,8 @@ class OriginalStatementCsvExporter extends CoreService
     public function __construct(
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         private readonly StatementService $statementService,
-        private readonly AssessmentTableServiceOutput $assessmentTableServiceOutput)
+        private readonly AssessmentTableServiceOutput $assessmentTableServiceOutput,
+        private readonly SegmentsByStatementsExporter $segmentsByStatementsExporter )
     {
     }
 
@@ -31,12 +33,12 @@ class OriginalStatementCsvExporter extends CoreService
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('statements');
         $attributesToExport = array_column($columnsDefinition, 'key');
 
-        $statementArrays = $this->convertStatementsToArrays($statements, $attributesToExport);
+
+        $statementArrays = $this->convertStatementsToArrays($statements);
         $formattedData = $this->assessmentTableXlsExporter->prepareDataForExcelExport(
             $statementArrays,
             false,
-            $attributesToExport,
-            false
+            $attributesToExport
         );
 
         return $this->generateCsv($formattedData, $columnsDefinition);
@@ -61,36 +63,13 @@ class OriginalStatementCsvExporter extends CoreService
         return $csv->toString();
     }
 
-    private function convertStatementsToArrays(array $statements, array $attributesToExport): array
+    public function convertStatementsToArrays(array $statements): array
     {
-        $propertyAccessor = PropertyAccess::createPropertyAccessor();
         $statementsArray = [];
 
         foreach ($statements as $statement) {
-            $statementArray = [];
 
-            foreach ($attributesToExport as $key) {
-                try {
-                    if ('phase' === $key) {
-                        $statementArray['phase'] = $this->statementService->getProcedurePhaseName(
-                            $statement->getPhase(),
-                            $statement->isSubmittedByCitizen()
-                        );
-                        continue;
-                    }
-
-                    if ('meta.authoredDate' === $key) {
-                        $statementArray['meta.authoredDate'] = $this->assessmentTableServiceOutput->getFormattedAuthoredDateFromStatement($statement);
-                        continue;
-                    }
-                    // Try to access the property directly
-                    $statementArray[$key] = $propertyAccessor->getValue($statement, $key);
-                } catch (Exception $e) {
-                    // For complex properties or when direct access fails
-                    $statementArray[$key] = '';
-                }
-            }
-
+            $statementArray = $this->segmentsByStatementsExporter->convertIntoExportableArray($statement);
             $statementsArray[] = $statementArray;
         }
 

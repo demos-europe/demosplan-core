@@ -372,7 +372,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @throws ReflectionException
      */
-    private function convertIntoExportableArray(StatementInterface $segmentOrStatement): array
+    public function convertIntoExportableArray(StatementInterface $segmentOrStatement): array
     {
         $exportData = $this->entityHelper->toArray($segmentOrStatement);
         $exportData['meta'] = $this->entityHelper->toArray($exportData['meta']);
