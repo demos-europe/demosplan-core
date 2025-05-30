@@ -240,7 +240,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
      * Creates an array with column definitions for statements.
      * Order of calls affects the order in the resulting xlsx document.
      */
-    public function createColumnsDefinitionForStatementsOrSegments(bool $isStatement): array
+    protected function createColumnsDefinitionForStatementsOrSegments(bool $isStatement): array
     {
         $columnsDefinition = [];
 
