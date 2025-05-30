@@ -20,8 +20,8 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 class OriginalStatementCsvExporter extends CoreService
 {
     public function __construct(
-        private readonly AssessmentTableXlsExporter   $assessmentTableXlsExporter,
-        private readonly StatementService             $statementService,
+        private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
+        private readonly StatementService $statementService,
         private readonly AssessmentTableServiceOutput $assessmentTableServiceOutput)
     {
     }
