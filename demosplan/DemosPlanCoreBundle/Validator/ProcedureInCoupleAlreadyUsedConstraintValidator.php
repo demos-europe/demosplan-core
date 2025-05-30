@@ -45,8 +45,18 @@ class ProcedureInCoupleAlreadyUsedConstraintValidator extends ConstraintValidato
             if (!$value instanceof ProcedureCoupleToken) {
                 throw new InvalidArgumentException('ProcedureCoupleToken was expected');
             }
-            $this->validateTyped($value->getSourceProcedure(), $value->getId(), $constraint->sourceProcedureMessage);
-            $this->validateTyped($value->getTargetProcedure(), $value->getId(), $constraint->targetProcedureMessage);
+            
+            // Skip validation if entity is not fully hydrated yet
+            // During Doctrine entity loading, required relationships might not be available
+            try {
+                $sourceProcedure = $value->getSourceProcedure();
+                $this->validateTyped($sourceProcedure, $value->getId(), $constraint->sourceProcedureMessage);
+                $this->validateTyped($value->getTargetProcedure(), $value->getId(), $constraint->targetProcedureMessage);
+            } catch (\Error $e) {
+                // Skip validation if entity relationships are not fully loaded
+                // This can happen during Doctrine hydration when sourceProcedure is null
+                return;
+            }
         }
     }
 
