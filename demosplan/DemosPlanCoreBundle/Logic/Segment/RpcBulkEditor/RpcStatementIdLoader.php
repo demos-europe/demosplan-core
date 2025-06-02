@@ -29,7 +29,7 @@ use Webmozart\Assert\Assert;
 
 class RpcStatementIdLoader implements RpcMethodSolverInterface
 {
-    final public const SEGMENT_ID_LOAD = 'originalStatement.load.id';
+    final public const STATEMENT_ID_LOAD = 'originalStatement.load.id';
 
     public function __construct(
         protected readonly DqlConditionFactory $conditionFactory,
@@ -45,7 +45,7 @@ class RpcStatementIdLoader implements RpcMethodSolverInterface
 
     public function supports(string $method): bool
     {
-        return self::SEGMENT_ID_LOAD === $method;
+        return self::STATEMENT_ID_LOAD === $method;
     }
 
     public function execute(?ProcedureInterface $procedure, $rpcRequests): array
@@ -68,23 +68,23 @@ class RpcStatementIdLoader implements RpcMethodSolverInterface
                 } else {
                     $sortMethods = [];
                 }
-                $segmentIdentifiers = $this->originalStatementResourceType->listEntityIdentifiers($conditions, $sortMethods);
+                $statementIdentifiers = $this->originalStatementResourceType->listEntityIdentifiers($conditions, $sortMethods);
                 $searchParams = SearchParams::createOptional(isset($params->search) ? $this->toArray($params->search) : []);
                 if ($searchParams instanceof SearchParams) {
                     $elasticsearchResult = $this->jsonApiEsService->getEsFilteredResult(
                         $this->originalStatementResourceType,
-                        $segmentIdentifiers,
+                        $statementIdentifiers,
                         $searchParams,
                         [] === $sortMethods,
                         null
                     );
                     $esResultArrays = $this->jsonApiEsService->toLegacyResultES($elasticsearchResult);
-                    $segmentIdentifiers = array_column($esResultArrays, 'id');
+                    $statementIdentifiers = array_column($esResultArrays, 'id');
                 }
 
-                $resultResponse[] = $this->generateMethodResult($rpcRequest, $segmentIdentifiers);
+                $resultResponse[] = $this->generateMethodResult($rpcRequest, $statementIdentifiers);
             } catch (Exception $exception) {
-                $this->logger->error('Error while loading segment IDs', ['exception' => $exception]);
+                $this->logger->error('Error while loading statement IDs', ['exception' => $exception]);
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }
@@ -93,13 +93,13 @@ class RpcStatementIdLoader implements RpcMethodSolverInterface
     }
 
     /**
-     * @param list<non-empty-string> $segmentIds
+     * @param list<non-empty-string> $statementIds
      */
-    public function generateMethodResult(object $rpcRequest, array $segmentIds): object
+    public function generateMethodResult(object $rpcRequest, array $statementIds): object
     {
         $result = new stdClass();
         $result->jsonrpc = '2.0';
-        $result->result = $segmentIds;
+        $result->result = $statementIds;
         $result->id = $rpcRequest->id;
 
         return $result;
