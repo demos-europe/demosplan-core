@@ -55,7 +55,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  */
 final class PlaceFactory extends PersistentProxyObjectFactory
 {
-
     public static function class(): string
     {
         return Place::class;
@@ -63,7 +62,6 @@ final class PlaceFactory extends PersistentProxyObjectFactory
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
      */
     protected function defaults(): array|callable
     {
