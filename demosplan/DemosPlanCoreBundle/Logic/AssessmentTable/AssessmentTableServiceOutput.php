@@ -555,27 +555,6 @@ class AssessmentTableServiceOutput
         return $statement;
     }
 
-    public function getFormattedAuthoredDateFromStatement(Statement $statement): string
-    {
-        $authoredDate = '';
-
-        if (0 !== $statement->getSubmit()) {
-            $authoredDate = $statement->getSubmitDateString();
-            $this->logger->debug('Use submitDate: '.$authoredDate);
-        }
-
-        if ('' !== $authoredDate && 100000 < strtotime($authoredDate) && 3 < strlen($authoredDate)) {
-            // authored-dates apparently arrive in iso-format
-            $date = strtotime($authoredDate);
-            $this->logger->debug('Found valid authoredDate: '.$date);
-            $this->logger->debug('authoredDate (formatted): '.date('d.m.Y', $date));
-
-            $authoredDate = date('d.m.Y', $date);
-        }
-
-        return $authoredDate;
-    }
-
     /**
      * Bürger und Gäste bekommen den externen Namen angezeigt.
      */
