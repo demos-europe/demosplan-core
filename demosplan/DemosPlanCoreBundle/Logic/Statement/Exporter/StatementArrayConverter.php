@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Doctrine\Common\Collections\ArrayCollection;
 use ReflectionException;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Service responsible for converting Statement and Segment entities into exportable arrays.
@@ -32,7 +31,6 @@ class StatementArrayConverter
     public function __construct(
         private readonly EntityHelper $entityHelper,
         private readonly StatementService $statementService,
-        private readonly TranslatorInterface $translator,
     ) {
     }
 
