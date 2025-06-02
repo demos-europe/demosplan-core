@@ -12,9 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Export;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -274,5 +272,4 @@ class StatementArrayConverterTest extends FunctionalTestCase
 
         return $segment->_real();
     }
-
 }
