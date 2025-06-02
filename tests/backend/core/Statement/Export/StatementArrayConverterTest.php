@@ -187,7 +187,6 @@ class StatementArrayConverterTest extends FunctionalTestCase
         $segment = $this->createMinimalTestSegment($parentStatement, 'Isabel Allende');
 
         $segmentResult = $this->sut->convertIntoExportableArray($segment);
-        // $segmentResult = $this->sut->convertIntoExportableArray($segment);
 
         // Both should have the same basic structure
         $commonFields = ['meta', 'submitDateString', 'countyNames', 'phase', 'tagNames', 'topicNames', 'isClusterStatement'];
