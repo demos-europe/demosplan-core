@@ -40,7 +40,7 @@ class StatementArrayConverterTest extends FunctionalTestCase
     {
         $this->loginTestUser();
 
-        $statement = $this->createMinimalTestStatement('test', 'internal123', 'John Doe');
+        $statement = $this->createMinimalTestStatement('test', 'internal123', 'a');
         $statement->setMemo('Test memo');
         $statement->_save();
 
@@ -63,7 +63,7 @@ class StatementArrayConverterTest extends FunctionalTestCase
         // Verify statement-specific data
         self::assertEquals('Test memo', $result['memo']);
         self::assertEquals('statement_intern_id_internal123', $result['internId']);
-        self::assertEquals('statement_author_name_John Doe', $result['meta']['authorName']);
+        self::assertEquals('statement_author_name_a', $result['meta']['authorName']);
 
         // Verify arrays are converted properly
         self::assertIsArray($result['tagNames']);
@@ -79,7 +79,7 @@ class StatementArrayConverterTest extends FunctionalTestCase
         $this->loginTestUser();
 
         // Create parent statement first
-        $parentStatement = $this->createMinimalTestStatement('parent', 'parent123', 'Jane Smith');
+        $parentStatement = $this->createMinimalTestStatement('parent', 'parent123', 'a');
         $parentStatement->setMemo('Parent memo');
         $parentStatement->getMeta()->setOrgaCity('Test City');
         $parentStatement->getMeta()->setOrgaStreet('Test Street');
@@ -102,7 +102,7 @@ class StatementArrayConverterTest extends FunctionalTestCase
         // Verify segment inherits data from parent statement
         self::assertEquals('Parent memo', $result['memo']);
         self::assertEquals('statement_intern_id_parent123', $result['internId']);
-        self::assertEquals('statement_author_name_Jane Smith', $result['meta']['authorName']);
+        self::assertEquals('statement_author_name_a', $result['meta']['authorName']);
         self::assertEquals('Test City', $result['meta']['orgaCity']);
         self::assertEquals('Test Street', $result['meta']['orgaStreet']);
         self::assertEquals('12345', $result['meta']['orgaPostalCode']);
@@ -127,10 +127,10 @@ class StatementArrayConverterTest extends FunctionalTestCase
     {
         $this->loginTestUser();
 
-        $parentStatement = $this->createMinimalTestStatement('parent', 'parent123', 'Jane Smith');
+        $parentStatement = $this->createMinimalTestStatement('parent', 'parent123', 'a');
         $parentStatement->_save();
 
-        $segment = $this->createMinimalTestSegment($parentStatement, 'Isabel Allende');
+        $segment = $this->createMinimalTestSegment($parentStatement, 'b');
 
         $result = $this->sut->convertIntoExportableArray($segment);
 
@@ -146,7 +146,7 @@ class StatementArrayConverterTest extends FunctionalTestCase
     {
         $this->loginTestUser();
 
-        $statement = $this->createMinimalTestStatement('test', 'internal123', 'John Doe');
+        $statement = $this->createMinimalTestStatement('test', 'internal123', 'a');
         $statement->_save();
 
         $result = $this->sut->convertIntoExportableArray($statement->_real());
@@ -182,7 +182,7 @@ class StatementArrayConverterTest extends FunctionalTestCase
         $statementResult = $this->sut->convertIntoExportableArray($parentStatement->_real());
 
         // Test with Segment
-        $segment = $this->createMinimalTestSegment($parentStatement, 'Isabel Allende');
+        $segment = $this->createMinimalTestSegment($parentStatement, 'Segment Statement Author');
 
         $segmentResult = $this->sut->convertIntoExportableArray($segment);
 
@@ -208,7 +208,7 @@ class StatementArrayConverterTest extends FunctionalTestCase
     {
         $this->loginTestUser();
 
-        $statement = $this->createMinimalTestStatement('test', 'internal123', 'John Doe');
+        $statement = $this->createMinimalTestStatement('test', 'internal123', 'a');
         $statement->_save();
 
         $result = $this->sut->convertIntoExportableArray($statement->_real());
@@ -224,7 +224,7 @@ class StatementArrayConverterTest extends FunctionalTestCase
     {
         $this->loginTestUser();
 
-        $statement = $this->createMinimalTestStatement('test', 'internal123', 'John Doe');
+        $statement = $this->createMinimalTestStatement('test', 'internal123', 'a');
         $statement->_save();
 
         $result = $this->sut->convertIntoExportableArray($statement->_real());
@@ -242,7 +242,7 @@ class StatementArrayConverterTest extends FunctionalTestCase
     {
         $this->loginTestUser();
 
-        $statement = $this->createMinimalTestStatement('test', 'internal123', 'John Doe');
+        $statement = $this->createMinimalTestStatement('test', 'internal123', 'a');
         $statement->_save();
 
         $result = $this->sut->convertIntoExportableArray($statement->_real());
