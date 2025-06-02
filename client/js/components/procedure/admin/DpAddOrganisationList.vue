@@ -45,9 +45,9 @@
                   :id="`filterCategorySelect:${category.label}`"
                   :checked="selectedFilterCategories.includes(category.label)"
                   :data-cy="`dpAddOrganisationList:filterCategoriesSelect:${category.label}`"
-                  :disabled="checkIfDisabled(category.id)"
+                  :disabled="filterCategoryHelpers.checkIfDisabled(appliedFilterQuery, category.id)"
                   :label="{
-                    text: `${category.label} (${getSelectedOptionsCount(category.id)})`
+                    text: `${category.label} (${filterCategoryHelpers.getSelectedOptionsCount(appliedFilterQuery, category.id)})`
                   }"
                   @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
               </div>
@@ -220,6 +220,12 @@ import { filterCategoryHelpers } from '@DpJs/lib/procedure/FilterFlyout/filterHe
 
 export default {
   name: 'DpAddOrganisationList',
+
+  setup() {
+    return {
+      filterCategoryHelpers
+    }
+  },
 
   components: {
     DpButton,
@@ -444,10 +450,6 @@ export default {
       this.getInstitutionsByPage(1, categoryId)
     },
 
-    checkIfDisabled (categoryId) {
-      return !!Object.values(this.appliedFilterQuery).find(el => el.condition?.memberOf === `${categoryId}_group`)
-    },
-
     createFilterOptions (params) {
       const { categoryId, isInitialWithQuery } = params
       let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0 ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
@@ -566,10 +568,6 @@ export default {
 
     getLocationContactById (id) {
       return this.institutionLocationContactItems[id]
-    },
-
-    getSelectedOptionsCount (categoryId) {
-      return Object.values(this.appliedFilterQuery).filter(el => el.condition?.memberOf === `${categoryId}_group`).length
     },
 
     handleChange (filterCategoryName, isSelected) {
