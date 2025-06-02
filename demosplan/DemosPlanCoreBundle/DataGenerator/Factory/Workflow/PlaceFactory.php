@@ -37,6 +37,7 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static Place[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
  * @method static Place[]|Proxy[]                          randomSet(int $number, array $attributes = [])
  *
+ *
  * @phpstan-method        Place&Proxy<Place> create(array|callable $attributes = [])
  * @phpstan-method static Place&Proxy<Place> createOne(array $attributes = [])
  * @phpstan-method static Place&Proxy<Place> find(object|array|mixed $criteria)
