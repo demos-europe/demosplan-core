@@ -57,7 +57,7 @@ class LastLoginActivityChecker implements UserActivityInterface
         $createdDate = $user->getCreatedDate();
         $modifiedDate = $user->getModifiedDate();
 
-        if ($createdDate && $modifiedDate && $createdDate !== $modifiedDate) {
+        if ($createdDate && $modifiedDate && $createdDate != $modifiedDate) {
             return true;
         }
 

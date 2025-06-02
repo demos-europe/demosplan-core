@@ -256,4 +256,20 @@ class UserActivityVoterIntegrationTest extends FunctionalTestCase
         // Assert
         $this->assertTrue($isActive);
     }
+
+    public function testUserIsInactiveWithIdenticalDateObjects(): void
+    {
+        // Arrange
+        $baseDate = new DateTimeImmutable('2023-01-01 12:00:00');
+        $user = UserFactory::createOne([
+            'createdDate' => $baseDate,
+            'modifiedDate' => new DateTimeImmutable('2023-01-01 12:00:00'), // Same value, different object
+        ]);
+
+        // Act
+        $isActive = $this->authorizationChecker->isGranted(UserActivityVoter::IS_ACTIVE_USER, $user->_real());
+
+        // Assert - User should be inactive since dates are equal (same values, different objects)
+        $this->assertFalse($isActive);
+    }
 }
