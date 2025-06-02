@@ -455,24 +455,7 @@ export default {
     },
 
     setFilterOptionsFromFilterQuery () {
-      const filterQueryFromStorage = filterQueryStorage.get()
-      const categoryIdsWithSelectedFilterOptions = Object.keys(filterQueryFromStorage)
-        .filter(id => id.includes('_group'))
-        .map(id => id.replace('_group', ''))
-
-      categoryIdsWithSelectedFilterOptions.forEach(id => {
-        const selectedFilterOptionIds = Object.values(filterQueryFromStorage)
-          .filter(el => el.condition?.memberOf === `${id}_group`)
-          .map(el => el.condition.value)
-
-        this.setInitialFlyoutFilterIds({ categoryId: id, filterIds: selectedFilterOptionIds })
-      })
-    },
-
-    getInstitutionsByPage (page = 1, categoryId = null) {
-      if (categoryId) {
-        this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
-      }
+      return filterOperations.setFilterOptionsFromFilterQuery(this)
     },
 
     getInstitutionsWithContacts () {

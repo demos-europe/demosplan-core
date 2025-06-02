@@ -587,12 +587,6 @@ export default {
         })
     },
 
-    getFilterQueryFromLocalStorage () {
-      const filterQueryInStorage = localStorage.getItem('filterQuery')
-
-      return filterQueryInStorage && filterQueryInStorage !== 'undefined' ? JSON.parse(filterQueryInStorage) : {}
-    },
-
     getTagById (tagId) {
       return this.tagList.find(el => el.id === tagId) ?? null
     },
@@ -624,31 +618,7 @@ export default {
     },
 
     resetQuery () {
-      this.searchTerm = ''
-      Object.keys(this.allFilterCategories).forEach((filterCategoryId, idx) => {
-        const filterFlyoutComponentExists = typeof this.$refs.filterFlyout[idx] !== 'undefined'
-        const hasFilterCategorySelectedOption = !!Object.values(this.filterQuery).find(el => el.condition?.memberOf === `${filterCategoryId}_group`)
-
-        if (filterFlyoutComponentExists) {
-          this.$refs.filterFlyout[idx].reset()
-          const isFilterFlyoutVisible = this.currentlySelectedFilterCategories.includes(this.allFilterCategories[filterCategoryId].label)
-
-          if (!isFilterFlyoutVisible && hasFilterCategorySelectedOption) {
-            const selectedFilterOptions = Object.values(this.filterQuery).filter(el => el.condition?.memberOf === `${filterCategoryId}_group`)
-            const payload = selectedFilterOptions.reduce((acc, el) => {
-              acc[el.condition.value] = el
-
-              return acc
-            }, {})
-
-            this.updateFilterQuery(payload)
-          }
-        }
-      })
-
-      filterQueryStorage.reset()
-      this.appliedFilterQuery = {}
-      this.getInstitutionsByPage(1)
+      return filterOperations.resetQuery(this)
     },
 
     /**
@@ -665,23 +635,7 @@ export default {
      */
     setAppliedFilterQuery (filter) {
       // Remove groups from filter
-      const selectedFilterOptions = Object.fromEntries(Object.entries(filter).filter(([_key, value]) => value.condition))
-      const isReset = Object.keys(selectedFilterOptions).length === 0
-      const isAppliedFilterQueryEmpty = Object.keys(this.appliedFilterQuery).length === 0
-
-      if (!isReset && isAppliedFilterQueryEmpty) {
-        Object.values(selectedFilterOptions).forEach(option => {
-          this.$set(this.appliedFilterQuery, option.condition.value, option)
-        })
-      } else if (isReset) {
-        const filtersWithConditions = Object.fromEntries(
-          Object.entries(this.filterQuery).filter(([key, value]) => value.condition)
-        )
-
-        this.appliedFilterQuery = Object.keys(filtersWithConditions).length ? filtersWithConditions : {}
-      } else {
-        this.appliedFilterQuery = selectedFilterOptions
-      }
+      return filterOperations.setAppliedFilterQuery(this, filter)
     },
 
     separateByCommas (institutionTags) {
@@ -705,18 +659,7 @@ export default {
     },
 
     setFilterOptionsFromFilterQuery () {
-      const filterQueryFromStorage = filterQueryStorage.get()
-      const categoryIdsWithSelectedFilterOptions = Object.keys(filterQueryFromStorage)
-        .filter(id => id.includes('_group'))
-        .map(id => id.replace('_group', ''))
-
-      categoryIdsWithSelectedFilterOptions.forEach(id => {
-        const selectedFilterOptionIds = Object.values(filterQueryFromStorage)
-          .filter(el => el.condition?.memberOf === `${id}_group`)
-          .map(el => el.condition.value)
-
-        this.setInitialFlyoutFilterIds({ categoryId: id, filterIds: selectedFilterOptionIds })
-      })
+      return filterOperations.setFilterOptionsFromFilterQuery(this)
     },
 
     /**
@@ -729,24 +672,11 @@ export default {
      * with the selected filter option ids from localStorage
      */
     setAppliedFilterQueryFromStorage () {
-      const filterQueryFromStorage = filterQueryStorage.get()
-
-      this.setAppliedFilterQuery(filterQueryFromStorage)
+      return filterOperations.setAppliedFilterQueryFromStorage(this)
     },
 
     setFilterQueryFromStorage () {
-      const filterQueryFromStorage = filterQueryStorage.get()
-      const filterIds = Object.keys(filterQueryFromStorage)
-
-      if (filterIds.length > 0) {
-        filterIds.forEach(id => {
-          const payload = { [id]: filterQueryFromStorage[id] }
-
-          if (filterQueryFromStorage[id].condition) {
-            this.updateFilterQuery(payload)
-          }
-        })
-      }
+      return filterOperations.setFilterQueryFromStorage(this)
     },
 
     setInitiallySelectedColumns () {
@@ -762,22 +692,7 @@ export default {
     },
 
     toggleAllSelectedFilterCategories () {
-      const allSelected = this.currentlySelectedFilterCategories.length === Object.keys(this.allFilterCategories).length
-      const selectedFilterOptions = Object.values(this.appliedFilterQuery)
-      const categoriesWithSelectedOptions = []
-
-      selectedFilterOptions.forEach(option => {
-        const categoryId = option.condition.memberOf.replace('_group', '')
-        const category = this.allFilterCategories[categoryId]
-
-        if (category && !categoriesWithSelectedOptions.includes(category.label)) {
-          categoriesWithSelectedOptions.push(category.label)
-        }
-      })
-
-      this.currentlySelectedFilterCategories = allSelected
-        ? categoriesWithSelectedOptions
-        : Object.values(this.allFilterCategories).map(filterCategory => filterCategory.label)
+      return filterOperations.toggleAllSelectedFilterCategories(this)
     },
 
     /**
@@ -786,28 +701,25 @@ export default {
      * @param isSelected {Boolean}
      */
     updateCurrentlySelectedFilterCategories (filterCategoryName, isSelected) {
-      if (isSelected) {
-        this.currentlySelectedFilterCategories.push(filterCategoryName)
-      } else {
-        this.currentlySelectedFilterCategories = this.currentlySelectedFilterCategories.filter(category => category !== filterCategoryName)
-      }
-    }
+      return filterOperations.updateCurrentlySelectedFilterCategories(this, filterCategoryName, isSelected)
+    },
   },
 
-  mounted () {
-    this.isLoading = true
-    this.setFilterQueryFromStorage()
-    this.setAppliedFilterQueryFromStorage()
+    mounted () {
+      this.isLoading = true
+      this.setFilterQueryFromStorage()
+      this.setAppliedFilterQueryFromStorage()
 
-    const promises = [
-      this.getInstitutionsByPage(1),
-      this.getInstitutionTagCategories(true)
-    ]
+      const promises = [
+        this.getInstitutionsByPage(1),
+        this.getInstitutionTagCategories(true)
+      ]
 
-    Promise.allSettled(promises)
-      .then(() => {
-        this.isLoading = false
-      })
+      Promise.allSettled(promises)
+        .then(() => {
+          this.isLoading = false
+        })
+    }
   }
-}
+
 </script>
