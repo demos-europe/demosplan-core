@@ -361,6 +361,7 @@ export default {
       originalStatements: 'items'
     }),
 
+    // Needs to be named items for tableSelectAllItems mixin to work
     items () {
       return Object.values(this.originalStatements)
         .map(originalStatement => {
