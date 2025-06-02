@@ -259,24 +259,6 @@ class StatementArrayConverterTest extends FunctionalTestCase
         self::assertIsString($result['phase']);
     }
 
-    private function createMinimalTestStatement(
-        string $idSuffix,
-        string $internIdSuffix,
-        string $submitterNameSuffix,
-    ): Statement|Proxy {
-        $statement = StatementFactory::createOne();
-        $statement->setExternId("statement_extern_id_$idSuffix");
-        $statement->_save();
-        $statement->setInternId("statement_intern_id_$internIdSuffix");
-        $statement->_save();
-        $statement->getMeta()->setOrgaName(UserInterface::ANONYMOUS_USER_NAME);
-        $statement->_save();
-        $statement->getMeta()->setAuthorName("statement_author_name_$submitterNameSuffix");
-        $statement->_save();
-
-        return $statement;
-    }
-
     private function createMinimalTestSegment(Statement|Proxy $parentStatement, string $submitterNameSuffix): Segment|Proxy
     {
         $segment = SegmentFactory::createOne([
@@ -292,4 +274,5 @@ class StatementArrayConverterTest extends FunctionalTestCase
 
         return $segment->_real();
     }
+
 }
