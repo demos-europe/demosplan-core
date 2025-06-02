@@ -484,23 +484,18 @@ export default {
       if (this.selectedItemsCount !== 0 && this.selectedItemsCount < this.allItemsCount) {
         payload.filter = {
           ...payload.filter,
-          statementIds: {
-            condition: {
-              operator: 'IN',
-              path: 'id'
-            }
+          statementFilterGroup: {
+            conjunction: this.trackDeselected ? 'AND' : 'OR'
           }
         }
-        const selectedStatementIds = this.getSelectedStatementIds()
-        selectedStatementIds.forEach(id => {
-          payload.filter.statementIds = {
-            ...payload.filter.statementIds,
+
+        this.toggledItems.forEach(item => {
+          payload.filter[item.id] = {
             condition: {
-              ...payload.filter.statementIds.condition,
-              value: [
-                ...(payload.filter.statementIds.condition.value || []),
-                id
-              ]
+              memberOf: 'statementFilterGroup',
+              operator: this.trackDeselected ? '<>' : '=',
+              path: 'id',
+              value: item.id
             }
           }
         })
