@@ -363,5 +363,4 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     {
         return $i !== count($statements) - 1;
     }
-
 }

@@ -400,11 +400,9 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
 
         // Create segment
         $segment = SegmentFactory::createOne([
-            'orderInProcedure' => 1,
-            'parentStatementOfSegment' => $parentStatement->_real()
+            'orderInProcedure'         => 1,
+            'parentStatementOfSegment' => $parentStatement->_real(),
         ])->setPlace(PlaceFactory);
-
-
 
         $result = $this->sut->convertIntoExportableArray($segment->_real());
 
@@ -449,7 +447,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $parentStatement->_save();
 
         $segment = SegmentFactory::createOne([
-            'parentStatementOfSegment' => $parentStatement->_real()
+            'parentStatementOfSegment' => $parentStatement->_real(),
         ]);
 
         $result = $this->sut->convertIntoExportableArray($segment->_real());
@@ -470,7 +468,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $parentStatement->_save();
 
         $segment = SegmentFactory::createOne([
-            'parentStatementOfSegment' => $parentStatement->_real()
+            'parentStatementOfSegment' => $parentStatement->_real(),
         ]);
 
         $result = $this->sut->convertIntoExportableArray($segment->_real());
@@ -527,7 +525,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $parentStatement->_save();
 
         $segment = SegmentFactory::createOne([
-            'parentStatementOfSegment' => $parentStatement->_real()
+            'parentStatementOfSegment' => $parentStatement->_real(),
         ]);
 
         $segmentResult = $this->sut->convertIntoExportableArray($segment->_real());
