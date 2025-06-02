@@ -208,17 +208,17 @@ import {
   DpSlidingPagination,
   formatDate
 } from '@demos-europe/demosplan-ui'
+import { filterCategoriesStorage, filterQueryStorage } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
-import { filterCategoriesStorage, filterQueryStorage, } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
 import { filterCategoryHelpers } from '@DpJs/lib/procedure/FilterFlyout/filterHelpers'
 import { filterOperations } from '@DpJs/lib/procedure/FilterFlyout/filterOperations'
 
 export default {
   name: 'InstitutionList',
 
-  setup() {
+  setup () {
     return {
       filterCategoryHelpers,
       filterOperations,
@@ -480,12 +480,10 @@ export default {
      * @param categoryId {String}
      */
     applyFilterQuery (filter, categoryId) {
-
       return filterOperations.applyFilterQuery(this, filter, categoryId)
     },
 
     createFilterOptions (params) {
-
       return filterOperations.createFilterOptions(this, params)
     },
 

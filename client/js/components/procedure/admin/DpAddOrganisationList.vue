@@ -213,17 +213,16 @@
 
 <script>
 import { dpApi, DpButton, DpCheckbox, DpDataTableExtended, DpFlyout, DpIcon } from '@demos-europe/demosplan-ui'
+import { filterCategoriesStorage, filterQueryStorage } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
-import { filterCategoriesStorage, filterQueryStorage, } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
 import { filterCategoryHelpers } from '@DpJs/lib/procedure/FilterFlyout/filterHelpers'
 import { filterOperations } from '@DpJs/lib/procedure/FilterFlyout/filterOperations'
-
 
 export default {
   name: 'DpAddOrganisationList',
 
-  setup() {
+  setup () {
     return {
       filterCategoryHelpers,
       filterOperations
@@ -448,17 +447,15 @@ export default {
     },
 
     applyFilterQuery (filter, categoryId) {
-
       return filterOperations.applyFilterQuery(this, filter, categoryId)
     },
 
     createFilterOptions (params) {
-
       return filterOperations.createFilterOptions(this, params)
     },
 
     setFilterOptionsFromFilterQuery () {
-      const filterQueryFromStorage = filterQueryStorage.get ()
+      const filterQueryFromStorage = filterQueryStorage.get()
       const categoryIdsWithSelectedFilterOptions = Object.keys(filterQueryFromStorage)
         .filter(id => id.includes('_group'))
         .map(id => id.replace('_group', ''))
