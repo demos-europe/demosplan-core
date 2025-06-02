@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Authorization\Voter\UserActivityVoter;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserActivityInterface;
 use PHPUnit\Framework\MockObject\MockObject;
+use stdClass;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Tests\Base\UnitTestCase;
 
@@ -71,7 +72,7 @@ class UserActivityVoterTest extends UnitTestCase
     public function testAbstainsOnNonUserSubjects(): void
     {
         // Arrange
-        $nonUser = new \stdClass();
+        $nonUser = new stdClass();
         $token = $this->createMock(TokenInterface::class);
 
         // Act
@@ -166,5 +167,4 @@ class UserActivityVoterTest extends UnitTestCase
         $this->assertCount(3, $checkers);
         $this->assertSame($newChecker, $checkers[0]); // Should be first due to highest priority
     }
-
 }

@@ -28,7 +28,7 @@ class ClaimedStatementsActivityCheckerTest extends UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->mockStatementRepository = $this->createMock(StatementRepository::class);
         $this->sut = new ClaimedStatementsActivityChecker($this->mockStatementRepository, 90);
     }
@@ -55,9 +55,9 @@ class ClaimedStatementsActivityCheckerTest extends UnitTestCase
         $user = $this->createMock(UserInterface::class);
         $statement = $this->createMock(Statement::class);
         $recentModification = new DateTimeImmutable('-10 days');
-        
+
         $statement->method('getModified')->willReturn($recentModification);
-        
+
         $this->mockStatementRepository
             ->method('findBy')
             ->with(['assignee' => $user])
@@ -76,9 +76,9 @@ class ClaimedStatementsActivityCheckerTest extends UnitTestCase
         $user = $this->createMock(UserInterface::class);
         $statement = $this->createMock(Statement::class);
         $oldModification = new DateTimeImmutable('-100 days');
-        
+
         $statement->method('getModified')->willReturn($oldModification);
-        
+
         $this->mockStatementRepository
             ->method('findBy')
             ->with(['assignee' => $user])
@@ -97,10 +97,10 @@ class ClaimedStatementsActivityCheckerTest extends UnitTestCase
         $user = $this->createMock(UserInterface::class);
         $oldStatement = $this->createMock(Statement::class);
         $recentStatement = $this->createMock(Statement::class);
-        
+
         $oldStatement->method('getModified')->willReturn(new DateTimeImmutable('-100 days'));
         $recentStatement->method('getModified')->willReturn(new DateTimeImmutable('-10 days'));
-        
+
         $this->mockStatementRepository
             ->method('findBy')
             ->with(['assignee' => $user])
@@ -118,9 +118,9 @@ class ClaimedStatementsActivityCheckerTest extends UnitTestCase
         // Arrange
         $user = $this->createMock(UserInterface::class);
         $statement = $this->createMock(Statement::class);
-        
+
         $statement->method('getModified')->willReturn(null);
-        
+
         $this->mockStatementRepository
             ->method('findBy')
             ->with(['assignee' => $user])
@@ -140,9 +140,9 @@ class ClaimedStatementsActivityCheckerTest extends UnitTestCase
         $statement = $this->createMock(Statement::class);
         // Create a modification that's just within the threshold
         $nearThresholdModification = new DateTimeImmutable('-89 days 23 hours 59 minutes');
-        
+
         $statement->method('getModified')->willReturn($nearThresholdModification);
-        
+
         $this->mockStatementRepository
             ->method('findBy')
             ->with(['assignee' => $user])
@@ -218,9 +218,9 @@ class ClaimedStatementsActivityCheckerTest extends UnitTestCase
         $user = $this->createMock(UserInterface::class);
         $statement = $this->createMock(Statement::class);
         $modification100DaysAgo = new DateTimeImmutable('-100 days');
-        
+
         $statement->method('getModified')->willReturn($modification100DaysAgo);
-        
+
         $this->mockStatementRepository
             ->method('findBy')
             ->with(['assignee' => $user])
@@ -228,7 +228,7 @@ class ClaimedStatementsActivityCheckerTest extends UnitTestCase
 
         // Act - First with 90 day threshold (should be inactive)
         $resultWith90Days = $this->sut->isUserActive($user);
-        
+
         // Act - Then with 120 day threshold (should be active)
         $this->sut->setDayThreshold(120);
         $resultWith120Days = $this->sut->isUserActive($user);
@@ -245,11 +245,11 @@ class ClaimedStatementsActivityCheckerTest extends UnitTestCase
         $statementWithNullDate = $this->createMock(Statement::class);
         $oldStatement = $this->createMock(Statement::class);
         $recentStatement = $this->createMock(Statement::class);
-        
+
         $statementWithNullDate->method('getModified')->willReturn(null);
         $oldStatement->method('getModified')->willReturn(new DateTimeImmutable('-200 days'));
         $recentStatement->method('getModified')->willReturn(new DateTimeImmutable('-30 days'));
-        
+
         $this->mockStatementRepository
             ->method('findBy')
             ->with(['assignee' => $user])
@@ -266,7 +266,7 @@ class ClaimedStatementsActivityCheckerTest extends UnitTestCase
     {
         // Arrange
         $user = $this->createMock(UserInterface::class);
-        
+
         $this->mockStatementRepository
             ->expects($this->once())
             ->method('findBy')

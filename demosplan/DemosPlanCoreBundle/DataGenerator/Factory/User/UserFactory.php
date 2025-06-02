@@ -87,7 +87,7 @@ final class UserFactory extends PersistentProxyObjectFactory
             $user->setNewsletter(false);
             $user->setForumNotification(false);
             $user->setAssignedTaskNotification(false);
-            
+
             // For new users, modifiedDate should equal createdDate to indicate no activity
             $user->setModifiedDate($user->getCreatedDate());
         });

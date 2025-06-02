@@ -13,7 +13,6 @@ namespace Tests\Core\User\Unit;
 use DateTimeImmutable;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\LastLoginActivityChecker;
-use PHPUnit\Framework\MockObject\MockObject;
 use Tests\Base\UnitTestCase;
 
 class LastLoginActivityCheckerTest extends UnitTestCase
@@ -156,7 +155,7 @@ class LastLoginActivityCheckerTest extends UnitTestCase
 
         // Act - First with 30 day threshold (should be inactive)
         $resultWith30Days = $this->sut->isUserActive($user);
-        
+
         // Act - Then with 40 day threshold (should be active)
         $this->sut->setDayThreshold(40);
         $resultWith40Days = $this->sut->isUserActive($user);

@@ -57,8 +57,7 @@ class UserActivityVoter extends Voter
 
         // Sort checkers by priority (highest first)
         $sortedCheckers = $this->activityCheckers;
-        usort($sortedCheckers, static fn(UserActivityInterface $a, UserActivityInterface $b): int => 
-            $b->getPriority() <=> $a->getPriority()
+        usort($sortedCheckers, static fn (UserActivityInterface $a, UserActivityInterface $b): int => $b->getPriority() <=> $a->getPriority()
         );
 
         // Check activity with each checker, returning true if any checker considers the user active
@@ -79,8 +78,7 @@ class UserActivityVoter extends Voter
     public function getActivityCheckers(): array
     {
         $checkers = $this->activityCheckers;
-        usort($checkers, static fn(UserActivityInterface $a, UserActivityInterface $b): int => 
-            $b->getPriority() <=> $a->getPriority()
+        usort($checkers, static fn (UserActivityInterface $a, UserActivityInterface $b): int => $b->getPriority() <=> $a->getPriority()
         );
 
         return $checkers;
