@@ -341,5 +341,4 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
             [false, true],
         ];
     }
-
 }
