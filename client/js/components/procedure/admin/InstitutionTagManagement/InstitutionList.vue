@@ -58,9 +58,9 @@
                       :id="`filterCategorySelect:${category.label}`"
                       :checked="selectedFilterCategories.includes(category.label)"
                       :data-cy="`institutionList:filterCategoriesSelect:${category.label}`"
-                      :disabled="checkIfDisabled(category.id)"
+                      :disabled="filterCategoryHelpers.checkIfDisabled(appliedFilterQuery, category.id)"
                       :label="{
-                        text: `${category.label} (${getSelectedOptionsCount(category.id)})`
+                        text: `${category.label} (${filterCategoryHelpers.getSelectedOptionsCount(appliedFilterQuery, category.id)})`
                       }"
                       @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
                   </div>
@@ -211,9 +211,17 @@ import {
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
+import { filterCategoriesStorage, filterQueryStorage, } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
+import { filterCategoryHelpers } from '@DpJs/lib/procedure/FilterFlyout/filterHelpers'
 
 export default {
   name: 'InstitutionList',
+
+  setup() {
+    return {
+      filterCategoryHelpers
+    }
+  },
 
   components: {
     DpButton,
@@ -470,22 +478,14 @@ export default {
      */
     applyFilterQuery (filter, categoryId) {
       this.setAppliedFilterQuery(filter)
-      this.setFilterQueryInLocalStorage('filterQuery', JSON.stringify(this.filterQuery))
+      filterQueryStorage.set(this.filterQuery)
       this.getInstitutionsByPage(1, categoryId)
-    },
-
-    checkIfDisabled (categoryId) {
-      return !!Object.values(this.appliedFilterQuery).find(el => el.condition?.memberOf === `${categoryId}_group`)
-    },
-
-    getSelectedOptionsCount (categoryId) {
-      return Object.values(this.appliedFilterQuery).filter(el => el.condition?.memberOf === `${categoryId}_group`).length
     },
 
     createFilterOptions (params) {
       const { categoryId, isInitialWithQuery } = params
       let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0 ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
-      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
+      const filterQueryFromStorage = filterQueryStorage.get()
       const selectedFilterOptionIds = Object.keys(filterQueryFromStorage).filter(id => !id.includes('_group'))
 
       if (Object.keys(filterOptions).length > 0) {
@@ -637,12 +637,6 @@ export default {
       return filterQueryInStorage && filterQueryInStorage !== 'undefined' ? JSON.parse(filterQueryInStorage) : {}
     },
 
-    getInitiallySelectedFilterCategoriesFromLocalStorage () {
-      const selectedFilterCategories = localStorage.getItem('visibleFilterFlyouts')
-
-      return selectedFilterCategories ? JSON.parse(selectedFilterCategories) : null
-    },
-
     getTagById (tagId) {
       return this.tagList.find(el => el.id === tagId) ?? null
     },
@@ -655,7 +649,7 @@ export default {
 
     handleChange (filterCategoryName, isSelected) {
       this.updateCurrentlySelectedFilterCategories(filterCategoryName, isSelected)
-      this.setSelectedFilterCategoriesInLocalStorage(this.currentlySelectedFilterCategories)
+      filterCategoriesStorage.set(this.currentlySelectedFilterCategories)
     },
 
     handleReset () {
@@ -671,10 +665,6 @@ export default {
         .then(() => {
           this.isLoading = false
         })
-    },
-
-    resetFilterQueryInLocalStorage () {
-      localStorage.setItem('filterQuery', JSON.stringify({}))
     },
 
     resetQuery () {
@@ -700,7 +690,7 @@ export default {
         }
       })
 
-      this.resetFilterQueryInLocalStorage()
+      filterQueryStorage.reset()
       this.appliedFilterQuery = {}
       this.getInstitutionsByPage(1)
     },
@@ -759,7 +749,7 @@ export default {
     },
 
     setFilterOptionsFromFilterQuery () {
-      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
+      const filterQueryFromStorage = filterQueryStorage.get()
       const categoryIdsWithSelectedFilterOptions = Object.keys(filterQueryFromStorage)
         .filter(id => id.includes('_group'))
         .map(id => id.replace('_group', ''))
@@ -783,13 +773,13 @@ export default {
      * with the selected filter option ids from localStorage
      */
     setAppliedFilterQueryFromStorage () {
-      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
+      const filterQueryFromStorage = filterQueryStorage.get()
 
       this.setAppliedFilterQuery(filterQueryFromStorage)
     },
 
     setFilterQueryFromStorage () {
-      const filterQueryFromStorage = this.getFilterQueryFromLocalStorage()
+      const filterQueryFromStorage = filterQueryStorage.get()
       const filterIds = Object.keys(filterQueryFromStorage)
 
       if (filterIds.length > 0) {
@@ -803,22 +793,14 @@ export default {
       }
     },
 
-    setFilterQueryInLocalStorage () {
-      localStorage.setItem('filterQuery', JSON.stringify(this.filterQuery))
-    },
-
     setInitiallySelectedColumns () {
       this.initiallySelectedColumns = this.institutionTagCategoriesValues
         .slice(0, 5)
         .map(category => category.attributes.name)
     },
 
-    setSelectedFilterCategoriesInLocalStorage (selectedFilterCategories) {
-      localStorage.setItem('visibleFilterFlyouts', JSON.stringify(selectedFilterCategories))
-    },
-
     setInitiallySelectedFilterCategories () {
-      const selectedFilterCategoriesInStorage = this.getInitiallySelectedFilterCategoriesFromLocalStorage()
+      const selectedFilterCategoriesInStorage = filterCategoriesStorage.get()
 
       this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null ? selectedFilterCategoriesInStorage : this.initiallySelectedColumns
     },
