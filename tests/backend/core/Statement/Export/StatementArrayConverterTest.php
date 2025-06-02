@@ -122,7 +122,6 @@ class StatementArrayConverterTest extends FunctionalTestCase
         self::assertIsArray($result['tags']);
     }
 
-
     /**
      * Test that segments inherit submit date from parent statement.
      */
@@ -188,7 +187,7 @@ class StatementArrayConverterTest extends FunctionalTestCase
         $segment = $this->createMinimalTestSegment($parentStatement, 'Isabel Allende');
 
         $segmentResult = $this->sut->convertIntoExportableArray($segment);
-        //$segmentResult = $this->sut->convertIntoExportableArray($segment);
+        // $segmentResult = $this->sut->convertIntoExportableArray($segment);
 
         // Both should have the same basic structure
         $commonFields = ['meta', 'submitDateString', 'countyNames', 'phase', 'tagNames', 'topicNames', 'isClusterStatement'];
@@ -278,6 +277,7 @@ class StatementArrayConverterTest extends FunctionalTestCase
 
         return $statement;
     }
+
     private function createMinimalTestSegment(Statement|Proxy $parentStatement, string $submitterNameSuffix): Segment|Proxy
     {
         $segment = SegmentFactory::createOne([
@@ -292,6 +292,5 @@ class StatementArrayConverterTest extends FunctionalTestCase
         $segment->_save();
 
         return $segment->_real();
-
     }
 }
