@@ -14,7 +14,6 @@
 import { DpUploadFiles, DpVideoPlayer, TableWrapper } from '@demos-europe/demosplan-ui'
 import DiplanKarteWrapper from '@DpJs/components/map/publicdetail/DiplanKarteWrapper'
 import DpPublicDetail from '@DpJs/components/map/publicdetail/DpPublicDetail'
-import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import { initialize } from '@DpJs/InitVue'
 import layers from '@DpJs/store/map/Layers'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
@@ -31,7 +30,6 @@ const stores = {
 const components = {
   DiplanKarteWrapper,
   DpPublicDetail,
-  DpPublicSurvey,
   DpUploadFiles,
   DpVideoPlayer,
   RegisterFlyout
