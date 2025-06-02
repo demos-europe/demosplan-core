@@ -381,13 +381,10 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $exportData['submitDateString'] = $segmentOrStatement->getSubmitDateString();
         $exportData['countyNames'] = $segmentOrStatement->getCountyNames();
         $exportData['meta']['authoredDate'] = $segmentOrStatement->getAuthoredDateString();
-
-        if ($segmentOrStatement instanceof Statement) {
-            $exportData['phase'] = $this->statementService->getProcedurePhaseName(
-                $segmentOrStatement->getPhase(),
-                $segmentOrStatement->isSubmittedByCitizen()
-            );
-        }
+        $exportData['phase'] = $this->statementService->getProcedurePhaseName(
+            $segmentOrStatement->getPhase(),
+            $segmentOrStatement->isSubmittedByCitizen()
+        );
 
         // Some data is stored on parentStatement instead on Segment and have to get from there
         if ($segmentOrStatement instanceof Segment) {
