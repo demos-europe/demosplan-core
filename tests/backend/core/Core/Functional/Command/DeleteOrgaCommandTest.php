@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
+use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
@@ -59,7 +60,7 @@ class DeleteOrgaCommandTest extends FunctionalTestCase
 
     public function testMissingArgument()
     {
-        $this->expectException("Symfony\Component\Console\Exception\RuntimeException");
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Not enough arguments (missing: "orgaIds")');
         $this->executeCommandWithoutArgument();
     }
