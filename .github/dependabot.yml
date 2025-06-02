@@ -5,9 +5,9 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-      time: "09:00"
+      time: "02:00"
       timezone: Europe/Berlin
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 20
     ignore:
       # D3 Upgrades are blocked because 8.x is not installing propperly
       # my guess: soething with fsevents 2.0
@@ -48,9 +48,9 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-      time: "09:01"
+      time: "02:01"
       timezone: Europe/Berlin
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 20
     labels:
       - dependencies:composer
     ignore:
