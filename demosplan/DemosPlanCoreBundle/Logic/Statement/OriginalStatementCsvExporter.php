@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
 use League\Csv\CannotInsertRecord;
 use League\Csv\Exception;
 use League\Csv\InvalidArgument;
@@ -23,7 +23,7 @@ class OriginalStatementCsvExporter extends CoreService
 {
     public function __construct(
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
-        private readonly SegmentsByStatementsExporter $segmentsByStatementsExporter)
+        private readonly StatementArrayConverter $statementArrayConverter)
     {
     }
 
@@ -74,7 +74,7 @@ class OriginalStatementCsvExporter extends CoreService
         $statementsArray = [];
 
         foreach ($statements as $statement) {
-            $statementArray = $this->segmentsByStatementsExporter->convertIntoExportableArray($statement);
+            $statementArray = $this->statementArrayConverter->convertIntoExportableArray($statement);
             $statementsArray[] = $statementArray;
         }
 

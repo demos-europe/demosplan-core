@@ -15,6 +15,7 @@ namespace Tests\Core\Statement\Functional;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementMetaFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -340,5 +341,225 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
             [true, false],
             [false, true],
         ];
+    }
+
+    /**
+     * Test convertIntoExportableArray with Statement object.
+     */
+    public function testConvertIntoExportableArrayWithStatement(): void
+    {
+        $this->loginTestUser();
+
+        $statement = $this->createMinimalTestStatement('test', 'internal123', 'John Doe');
+        $statement->setMemo('Test memo');
+        $statement->_save();
+
+        $result = $this->sut->convertIntoExportableArray($statement->_real());
+
+        // Verify basic statement data is present
+        self::assertIsArray($result);
+        self::assertArrayHasKey('meta', $result);
+        self::assertArrayHasKey('submitDateString', $result);
+        self::assertArrayHasKey('countyNames', $result);
+        self::assertArrayHasKey('phase', $result);
+        self::assertArrayHasKey('tagNames', $result);
+        self::assertArrayHasKey('topicNames', $result);
+        self::assertArrayHasKey('isClusterStatement', $result);
+
+        // Verify meta data structure
+        self::assertIsArray($result['meta']);
+        self::assertArrayHasKey('authoredDate', $result['meta']);
+
+        // Verify statement-specific data
+        self::assertEquals('Test memo', $result['memo']);
+        self::assertEquals('statement_intern_id_internal123', $result['internId']);
+        self::assertEquals('statement_author_name_John Doe', $result['meta']['authorName']);
+
+        // Verify arrays are converted properly
+        self::assertIsArray($result['tagNames']);
+        self::assertIsArray($result['topicNames']);
+        self::assertIsArray($result['tags']);
+    }
+
+    /**
+     * Test convertIntoExportableArray with Segment object.
+     */
+    public function testConvertIntoExportableArrayWithSegment(): void
+    {
+        $this->loginTestUser();
+
+        // Create parent statement first
+        $parentStatement = $this->createMinimalTestStatement('parent', 'parent123', 'Jane Smith');
+        $parentStatement->setMemo('Parent memo');
+        $parentStatement->getMeta()->setOrgaCity('Test City');
+        $parentStatement->getMeta()->setOrgaStreet('Test Street');
+        $parentStatement->getMeta()->setOrgaPostalCode('12345');
+        $parentStatement->getMeta()->setOrgaEmail('test@example.com');
+        $parentStatement->getMeta()->setHouseNumber('42');
+        $parentStatement->_save();
+
+        // Create segment
+        $segment = SegmentFactory::createOne([
+            'orderInProcedure' => 1,
+            'parentStatementOfSegment' => $parentStatement->_real()
+        ])->setPlace(PlaceFactory);
+
+
+
+        $result = $this->sut->convertIntoExportableArray($segment->_real());
+
+        // Verify basic segment data is present
+        self::assertIsArray($result);
+        self::assertArrayHasKey('meta', $result);
+        self::assertArrayHasKey('submitDateString', $result);
+        self::assertArrayHasKey('countyNames', $result);
+        self::assertArrayHasKey('phase', $result);
+
+        // Verify segment inherits data from parent statement
+        self::assertEquals('Parent memo', $result['memo']);
+        self::assertEquals('statement_intern_id_parent123', $result['internId']);
+        self::assertEquals('statement_author_name_Jane Smith', $result['meta']['authorName']);
+        self::assertEquals('Test City', $result['meta']['orgaCity']);
+        self::assertEquals('Test Street', $result['meta']['orgaStreet']);
+        self::assertEquals('12345', $result['meta']['orgaPostalCode']);
+        self::assertEquals('test@example.com', $result['meta']['orgaEmail']);
+        self::assertEquals('42', $result['meta']['houseNumber']);
+
+        // Verify segment uses place instead of status
+        self::assertArrayHasKey('status', $result);
+        // The status should come from the segment's place, not the parent statement
+
+        // Verify tag and topic data
+        self::assertArrayHasKey('tagNames', $result);
+        self::assertArrayHasKey('topicNames', $result);
+        self::assertArrayHasKey('tags', $result);
+        self::assertIsArray($result['tags']);
+    }
+
+    /**
+     * Test that segments inherit file data from parent statement.
+     */
+    public function testConvertIntoExportableArraySegmentInheritsFileData(): void
+    {
+        $this->loginTestUser();
+
+        $parentStatement = $this->createMinimalTestStatement('parent', 'parent123', 'Jane Smith');
+        // Mock file names on parent statement
+        $parentStatement->setFileNames(['file1.pdf', 'file2.docx']);
+        $parentStatement->_save();
+
+        $segment = SegmentFactory::createOne([
+            'parentStatementOfSegment' => $parentStatement->_real()
+        ]);
+
+        $result = $this->sut->convertIntoExportableArray($segment->_real());
+
+        // Verify segment inherits file data from parent
+        self::assertArrayHasKey('fileNames', $result);
+        self::assertEquals(['file1.pdf', 'file2.docx'], $result['fileNames']);
+    }
+
+    /**
+     * Test that segments inherit submit date from parent statement.
+     */
+    public function testConvertIntoExportableArraySegmentInheritsSubmitDate(): void
+    {
+        $this->loginTestUser();
+
+        $parentStatement = $this->createMinimalTestStatement('parent', 'parent123', 'Jane Smith');
+        $parentStatement->_save();
+
+        $segment = SegmentFactory::createOne([
+            'parentStatementOfSegment' => $parentStatement->_real()
+        ]);
+
+        $result = $this->sut->convertIntoExportableArray($segment->_real());
+
+        // Verify segment inherits submit date from parent
+        self::assertArrayHasKey('submitDateString', $result);
+        self::assertEquals($parentStatement->getSubmitDateString(), $result['submitDateString']);
+    }
+
+    /**
+     * Test tag processing for both statements and segments.
+     */
+    public function testConvertIntoExportableArrayTagProcessing(): void
+    {
+        $this->loginTestUser();
+
+        $statement = $this->createMinimalTestStatement('test', 'internal123', 'John Doe');
+        $statement->_save();
+
+        $result = $this->sut->convertIntoExportableArray($statement->_real());
+
+        // Verify tag-related fields are properly processed
+        self::assertArrayHasKey('tagNames', $result);
+        self::assertArrayHasKey('topicNames', $result);
+        self::assertArrayHasKey('tags', $result);
+
+        // Tags should be converted from ArrayCollection to array
+        self::assertIsArray($result['tags']);
+
+        // Each tag should have topic information
+        foreach ($result['tags'] as $tag) {
+            self::assertIsArray($tag);
+            if (isset($tag['topic'])) {
+                self::assertArrayHasKey('topicTitle', $tag);
+            }
+        }
+    }
+
+    /**
+     * Test that the method properly handles both StatementInterface types.
+     */
+    public function testConvertIntoExportableArrayPolymorphicBehavior(): void
+    {
+        $this->loginTestUser();
+
+        // Test with Statement
+        $statement = $this->createMinimalTestStatement('stmt', 'stmt123', 'Statement Author');
+        $statement->_save();
+
+        $statementResult = $this->sut->convertIntoExportableArray($statement->_real());
+
+        // Test with Segment
+        $parentStatement = $this->createMinimalTestStatement('parent', 'parent123', 'Parent Author');
+        $parentStatement->_save();
+
+        $segment = SegmentFactory::createOne([
+            'parentStatementOfSegment' => $parentStatement->_real()
+        ]);
+
+        $segmentResult = $this->sut->convertIntoExportableArray($segment->_real());
+
+        // Both should have the same basic structure
+        $commonFields = ['meta', 'submitDateString', 'countyNames', 'phase', 'tagNames', 'topicNames', 'isClusterStatement'];
+
+        foreach ($commonFields as $field) {
+            self::assertArrayHasKey($field, $statementResult, "Statement missing field: $field");
+            self::assertArrayHasKey($field, $segmentResult, "Segment missing field: $field");
+        }
+
+        // Statement should have its own data
+        self::assertEquals('Statement Author', $statementResult['meta']['authorName']);
+
+        // Segment should inherit from parent
+        self::assertEquals('Parent Author', $segmentResult['meta']['authorName']);
+    }
+
+    /**
+     * Test isClusterStatement field is correctly set.
+     */
+    public function testConvertIntoExportableArrayClusterStatement(): void
+    {
+        $this->loginTestUser();
+
+        $statement = $this->createMinimalTestStatement('test', 'internal123', 'John Doe');
+        $statement->_save();
+
+        $result = $this->sut->convertIntoExportableArray($statement->_real());
+
+        self::assertArrayHasKey('isClusterStatement', $result);
+        self::assertIsBool($result['isClusterStatement']);
     }
 }
