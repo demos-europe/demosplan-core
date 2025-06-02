@@ -26,7 +26,7 @@
         :total-items="totalItems"
         :total-pages="totalPages"
         class="flex-shrink-0"
-        @page-change="handlePageChange"
+        @page-change="page => getInstitutionsWithContacts(page)"
         @size-change="handleItemsPerPageChange" />
     </div>
     <dp-data-table
@@ -341,7 +341,7 @@ export default {
       const requestParams = {
         page: {
           number: page,
-          size: this.pagination.perPage || this.defaultPagination.perPage
+          size: this.pagination.perPage
         },
         include: includeParams.join(),
         fields: {
@@ -398,7 +398,7 @@ export default {
       }
 
       return this.getInstitutions(requestParams)
-        .then((data) => {
+        .then(data => {
           this.setLocalStorage(data.meta.pagination)
           this.updatePagination(data.meta.pagination)
         })
@@ -428,12 +428,9 @@ export default {
         })
     },
 
-    handlePageChange (page) {
-      this.getInstitutionsWithContacts(page)
-    },
-
     handleItemsPerPageChange (newItemsPerPage) {
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newItemsPerPage) + 1)
+
       this.pagination.perPage = newItemsPerPage
       this.getInstitutionsWithContacts(page)
     },
