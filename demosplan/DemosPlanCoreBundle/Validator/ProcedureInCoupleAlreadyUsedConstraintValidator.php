@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Error;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -45,14 +46,14 @@ class ProcedureInCoupleAlreadyUsedConstraintValidator extends ConstraintValidato
             if (!$value instanceof ProcedureCoupleToken) {
                 throw new InvalidArgumentException('ProcedureCoupleToken was expected');
             }
-            
+
             // Skip validation if entity is not fully hydrated yet
             // During Doctrine entity loading, required relationships might not be available
             try {
                 $sourceProcedure = $value->getSourceProcedure();
                 $this->validateTyped($sourceProcedure, $value->getId(), $constraint->sourceProcedureMessage);
                 $this->validateTyped($value->getTargetProcedure(), $value->getId(), $constraint->targetProcedureMessage);
-            } catch (\Error $e) {
+            } catch (Error $e) {
                 // Skip validation if entity relationships are not fully loaded
                 // This can happen during Doctrine hydration when sourceProcedure is null
                 return;
@@ -67,7 +68,7 @@ class ProcedureInCoupleAlreadyUsedConstraintValidator extends ConstraintValidato
     private function validateTyped(
         ?Procedure $procedure,
         ?string $tokenId,
-        string $constraintMessage
+        string $constraintMessage,
     ): void {
         if (null === $procedure) {
             return;
