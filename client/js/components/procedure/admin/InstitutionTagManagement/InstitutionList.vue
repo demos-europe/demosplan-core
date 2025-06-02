@@ -213,13 +213,16 @@ import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import { filterCategoriesStorage, filterQueryStorage, } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
 import { filterCategoryHelpers } from '@DpJs/lib/procedure/FilterFlyout/filterHelpers'
+import { filterOperations } from '@DpJs/lib/procedure/FilterFlyout/filterOperations'
 
 export default {
   name: 'InstitutionList',
 
   setup() {
     return {
-      filterCategoryHelpers
+      filterCategoryHelpers,
+      filterOperations,
+      date: formatDate
     }
   },
 
@@ -477,58 +480,13 @@ export default {
      * @param categoryId {String}
      */
     applyFilterQuery (filter, categoryId) {
-      this.setAppliedFilterQuery(filter)
-      filterQueryStorage.set(this.filterQuery)
-      this.getInstitutionsByPage(1, categoryId)
+
+      return filterOperations.applyFilterQuery(this, filter, categoryId)
     },
 
     createFilterOptions (params) {
-      const { categoryId, isInitialWithQuery } = params
-      let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0 ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
-      const filterQueryFromStorage = filterQueryStorage.get()
-      const selectedFilterOptionIds = Object.keys(filterQueryFromStorage).filter(id => !id.includes('_group'))
 
-      if (Object.keys(filterOptions).length > 0) {
-        filterOptions = Object.values(filterOptions).map(option => {
-          const { id, attributes } = option
-          const { name } = attributes
-          const selected = selectedFilterOptionIds.includes(id)
-
-          return {
-            id,
-            label: name,
-            selected
-          }
-        })
-      }
-
-      this.setUngroupedFilterOptions({ categoryId, options: filterOptions })
-      this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
-
-      if (isInitialWithQuery) {
-        this.setFilterOptionsFromFilterQuery()
-      }
-    },
-
-    date (d) {
-      return formatDate(d)
-    },
-
-    editInstitution (id) {
-      this.editingInstitutionTags = {}
-      this.editingInstitutionId = id
-      this.editingInstitution = this.invitableInstitutionList[id]
-
-      // Initialize editingInstitutionTags with categoryId
-      this.institutionTagCategoriesValues.forEach(category => {
-        if (!this.editingInstitutionTags[category.id]) {
-          this.$set(this.editingInstitutionTags, category.id, [])
-        }
-      })
-      this.editingInstitution.relationships.assignedTags.data.forEach(el => {
-        const tag = this.getTagById(el.id)
-        this.editingInstitutionTags[tag.category.id].push(tag)
-      })
+      return filterOperations.createFilterOptions(this, params)
     },
 
     getCategoryTags (categoryId) {
