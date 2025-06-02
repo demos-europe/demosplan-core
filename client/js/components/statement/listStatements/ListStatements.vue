@@ -309,6 +309,7 @@ import {
   DpSelect,
   DpStickyElement,
   formatDate,
+  sessionStorageMixin,
   tableSelectAllItems
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -343,7 +344,7 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  mixins: [paginationMixin, tableSelectAllItems],
+  mixins: [paginationMixin, sessionStorageMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -603,6 +604,7 @@ export default {
 
     applySort (sortValue) {
       this.selectedSort = sortValue
+      this.updateSessionStorage('selectedSort', sortValue)
       this.getItemsByPage(1)
     },
 
@@ -911,6 +913,14 @@ export default {
       this.$refs.customSearchStatements.toggleAllFields(false)
     },
 
+    restoreSelectedSort () {
+      const storedSort = this.getItemFromSessionStorage('selectedSort')
+
+      if (storedSort) {
+        this.selectedSort = storedSort
+      }
+    },
+
     /**
      * If the procedure is coupled get the num of total items, that are not synchronized yet and
      * therefor are selectable, and set the num of total items to it.
@@ -971,6 +981,7 @@ export default {
       }
     })
     this.initPagination()
+    this.restoreSelectedSort()
     this.getItemsByPage(this.pagination.currentPage)
   }
 }
