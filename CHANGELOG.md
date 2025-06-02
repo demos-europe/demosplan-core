@@ -6,9 +6,9 @@
 
 
 ## UNRELEASED
+- Export Original Statements as csv in the Statement List
 ## v4.1.0 (2025-05-21)
 ## v4.0.0 (2025-05-21)
-- Export Original Statements as csv in the Statement List
 - Update to symfony 6.4
 
 ## v3.3.0 (2025-05-13)
