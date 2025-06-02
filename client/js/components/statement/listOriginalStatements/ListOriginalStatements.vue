@@ -20,7 +20,7 @@
         </div>
 
         <dp-bulk-edit-header
-          v-if="selectedItemsCount > 0"
+          v-else
           class="layout__item u-12-of-12 u-mt-0_5"
           :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
           @reset-selection="resetSelection">
