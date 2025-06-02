@@ -6,7 +6,7 @@
  *
  * All rights reserved
  */
-// trigger buildx
+// trigger buildxd
 // For better readability, all props are quoted in this file.
 /* eslint-disable quote-props */
 

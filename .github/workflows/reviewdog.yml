@@ -29,6 +29,8 @@ jobs:
           node-version: '20'
       - run: npm install --ignore-scripts -g corepack && corepack enable && yarn set version 4.2.2
       - run: yarn install --immutable
+      - run: npm install -g eslint@^8.0.1
+      - run: npm install eslint-plugin-vue@latest --save-dev
 
       - uses: reviewdog/action-setup@v1.3.2
 
