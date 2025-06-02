@@ -47,6 +47,7 @@ class StatementArrayConverter
      * - Handles the polymorphic nature of StatementInterface
      *
      * @param StatementInterface $segmentOrStatement The statement or segment to convert
+     *
      * @return array<string, mixed> The exportable array representation
      *
      * @throws ReflectionException If reflection fails during conversion
