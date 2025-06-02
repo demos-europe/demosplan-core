@@ -21,7 +21,7 @@
 
         <dp-bulk-edit-header
           v-else
-          class="layout__item u-12-of-12 u-mt-0_5"
+          class="layout__item w-full mt-2"
           :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
           @reset-selection="resetSelection">
           <dp-button
