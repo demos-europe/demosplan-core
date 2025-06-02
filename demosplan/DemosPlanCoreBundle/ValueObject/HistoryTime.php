@@ -68,6 +68,8 @@ class HistoryTime extends ValueObject
      */
     protected $time;
 
+    protected bool $customFieldChange = false;
+
     /**
      * @param array<int, EntityContentChange> $changes
      */
@@ -82,6 +84,7 @@ class HistoryTime extends ValueObject
             $this->userName = $change->getUserName();
             $this->entityType = $change->getEntityType();
             $this->fieldNames[] = $change->getEntityField();
+            $this->customFieldChange = $change->isCustomFieldChange();
         }
         $this->time = $time;
         $this->lock();

@@ -554,7 +554,7 @@ export default {
       if (this.segment?.relationships?.assignee?.data?.id && this.segment.relationships.assignee.data.id !== '') {
         const assignee = this.assignableUserItems[this.segment.relationships.assignee.data.id]
         const name = `${assignee.attributes.firstname} ${assignee.attributes.lastname}`
-        const orga = assignee ? assignee.rel('orga') : ''
+        const orga = assignee?.rel ? assignee.rel('orga') : ''
 
         return { id: this.segment.relationships.assignee.data.id, name, orgaName: orga ? orga.attributes.name : '' }
       } else {
@@ -642,14 +642,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('AssignableUser', {
-      fetchAssignableUsers: 'list'
-    }),
-
-    ...mapActions('Place', {
-      fetchPlaces: 'list'
-    }),
-
     ...mapActions('SegmentSlidebar', [
       'toggleSlidebarContent'
     ]),
@@ -717,7 +709,7 @@ export default {
         }
       }
 
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
+      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
         .then(checkResponse)
         .then(() => {
           this.claimLoading = false
@@ -836,6 +828,9 @@ export default {
         data: {
           id: this.segment.id,
           type: 'StatementSegment',
+          attributes: {
+            recommendation: this.segment.attributes.recommendation
+          },
           relationships: {
             assignee,
             place
