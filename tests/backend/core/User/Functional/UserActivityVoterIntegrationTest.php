@@ -262,7 +262,7 @@ class UserActivityVoterIntegrationTest extends FunctionalTestCase
         // Arrange
         $baseDate = new DateTimeImmutable('2023-01-01 12:00:00');
         $user = UserFactory::createOne([
-            'createdDate' => $baseDate,
+            'createdDate'  => $baseDate,
             'modifiedDate' => new DateTimeImmutable('2023-01-01 12:00:00'), // Same value, different object
         ]);
 
