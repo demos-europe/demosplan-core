@@ -77,10 +77,8 @@ class StatementExportController extends BaseController
             'text/csv; charset=utf-8'
         );
 
-        $filename = sprintf(
-            $this->translator->trans('statements.original').'-%s.csv',
-            Carbon::now('Europe/Berlin')->format('d-m-Y-H:i')
-        );
+        $filename = $this->translator->trans('statements.original') . '-' .
+            Carbon::now('Europe/Berlin')->format('d-m-Y-H:i') . '.csv';
 
         $response->headers->set('Content-Disposition',
             $this->nameGenerator->generateDownloadFilename(
