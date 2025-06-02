@@ -271,6 +271,7 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_institution_tag_read',
                     'feature_institution_tag_update',
                     'feature_show_free_disk_space',
+                    'feature_statements_location_and_document_refrence',
                     'field_customer_accessibility_explanation_edit',
                 ],
             ],
