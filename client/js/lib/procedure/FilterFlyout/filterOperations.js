@@ -7,7 +7,7 @@ export const filterOperations = {
    * @param {Object} filter - Filter object
    * @param {string} categoryId - Category ID
    */
-  applyFilterQuery(context, filter, categoryId) {
+  applyFilterQuery (context, filter, categoryId) {
     context.setAppliedFilterQuery(filter)
     filterQueryStorage.set(context.filterQuery)
     context.getInstitutionsByPage(1, categoryId)
@@ -18,11 +18,12 @@ export const filterOperations = {
    * @param {Object} context - Vue component instance
    * @param {Object} params - Parameters object
    */
-  createFilterOptions(context, params) {
+  createFilterOptions (context, params) {
     const { categoryId, isInitialWithQuery } = params
     let filterOptions = context.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length >
     0
       ? context.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
+
     const filterQueryFromStorage = filterQueryStorage.get()
     const selectedFilterOptionIds = Object.keys(filterQueryFromStorage).filter(id => !id.includes('_group'))
 
@@ -48,7 +49,7 @@ export const filterOperations = {
    * Set filter options from filter query stored in localStorage
    * @param {Object} context - Vue component instance
    */
-  setFilterOptionsFromFilterQuery(context) {
+  setFilterOptionsFromFilterQuery (context) {
     const filterQueryFromStorage = filterQueryStorage.get()
     const categoryIdsWithSelectedFilterOptions = Object.keys(filterQueryFromStorage)
       .filter(id => id.includes('_group'))
@@ -68,7 +69,7 @@ export const filterOperations = {
    * @param {Object} context - Vue component instance
    * @param {Object} filter - Filter object
    */
-  setAppliedFilterQuery(context, filter) {
+  setAppliedFilterQuery (context, filter) {
     // Remove groups from filter
     const selectedFilterOptions = Object.fromEntries(Object.entries(filter).filter(([_key, value]) =>
       value.condition))
@@ -99,7 +100,7 @@ export const filterOperations = {
    * Set filter query from localStorage
    * @param {Object} context - Vue component instance
    */
-  setFilterQueryFromStorage(context) {
+  setFilterQueryFromStorage (context) {
     const filterQueryFromStorage = filterQueryStorage.get()
     const filterIds = Object.keys(filterQueryFromStorage)
 
@@ -118,7 +119,7 @@ export const filterOperations = {
    * Set applied filter query from localStorage
    * @param {Object} context - Vue component instance
    */
-  setAppliedFilterQueryFromStorage(context) {
+  setAppliedFilterQueryFromStorage (context) {
     const filterQueryFromStorage = filterQueryStorage.get()
     filterOperations.setAppliedFilterQuery(context, filterQueryFromStorage)
   },
@@ -127,7 +128,7 @@ export const filterOperations = {
    * Toggle all selected filter categories
    * @param {Object} context - Vue component instance
    */
-  toggleAllSelectedFilterCategories(context) {
+  toggleAllSelectedFilterCategories (context) {
     const allSelected = context.currentlySelectedFilterCategories.length ===
       Object.keys(context.allFilterCategories).length
     const selectedFilterOptions = Object.values(context.appliedFilterQuery)
@@ -153,7 +154,7 @@ export const filterOperations = {
    * @param {string} filterCategoryName - Category name
    * @param {boolean} isSelected - Is selected
    */
-  updateCurrentlySelectedFilterCategories(context, filterCategoryName, isSelected) {
+  updateCurrentlySelectedFilterCategories (context, filterCategoryName, isSelected) {
     if (isSelected) {
       context.currentlySelectedFilterCategories.push(filterCategoryName)
     } else {
@@ -166,7 +167,7 @@ export const filterOperations = {
    * Reset filter query and search
    * @param {Object} context - Vue component instance
    */
-  resetQuery(context) {
+  resetQuery (context) {
     context.searchTerm = ''
     Object.keys(context.allFilterCategories).forEach((filterCategoryId, idx) => {
       const filterFlyoutComponentExists = typeof context.$refs.filterFlyout[idx] !== 'undefined'
@@ -196,4 +197,3 @@ export const filterOperations = {
     context.getInstitutionsByPage(1)
   }
 }
-

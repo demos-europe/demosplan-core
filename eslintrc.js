@@ -52,7 +52,10 @@ module.exports = {
     '**/vendor/**/*',
     'client/js/legacy/**/*.js',
     'client/js/generated/*.js',
-    'projects/*/web/**/*'
+    'projects/*/web/**/*',
+    '**/var/**/*',
+    '**/translations/**/*',
+    '**/dist/**/*',
   ],
   // Required to lint *.vue files
   plugins: [

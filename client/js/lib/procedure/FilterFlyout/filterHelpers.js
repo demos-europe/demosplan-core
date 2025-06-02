@@ -10,7 +10,7 @@ export const filterCategoryHelpers = {
    * @param {string} categoryId - The category ID to count for
    * @returns {number} Number of selected options
    */
-  getSelectedOptionsCount(appliedFilterQuery, categoryId) {
+  getSelectedOptionsCount (appliedFilterQuery, categoryId) {
     return Object.values(appliedFilterQuery)
       .filter(el => el.condition?.memberOf === `${categoryId}_group`).length
   },
@@ -21,7 +21,7 @@ export const filterCategoryHelpers = {
    * @param {string} categoryId - The category ID to check
    * @returns {boolean} True if category should be disabled
    */
-  checkIfDisabled(appliedFilterQuery, categoryId) {
+  checkIfDisabled (appliedFilterQuery, categoryId) {
     return !!Object.values(appliedFilterQuery)
       .find(el => el.condition?.memberOf === `${categoryId}_group`)
   }

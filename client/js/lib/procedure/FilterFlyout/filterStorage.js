@@ -8,7 +8,7 @@ export const filterQueryStorage = {
    * Get filter query from localStorage
    * @returns {Object} Parsed filter query object or empty object
    */
-  get() {
+  get () {
     const filterQueryInStorage = localStorage.getItem('filterQuery')
     return filterQueryInStorage && filterQueryInStorage !== 'undefined'
       ? JSON.parse(filterQueryInStorage) : {}
@@ -18,14 +18,14 @@ export const filterQueryStorage = {
    * Set filter query in localStorage
    * @param {Object} filterQuery - Filter query object to store
    */
-  set(filterQuery) {
+  set (filterQuery) {
     localStorage.setItem('filterQuery', JSON.stringify(filterQuery))
   },
 
   /**
    * Reset filter query in localStorage
    */
-  reset() {
+  reset () {
     localStorage.setItem('filterQuery', JSON.stringify({}))
   }
 }
@@ -35,7 +35,7 @@ export const filterCategoriesStorage = {
    * Get selected filter categories from localStorage
    * @returns {Array|null} Array of selected categories or null
    */
-  get() {
+  get () {
     const selectedFilterCategories = localStorage.getItem('visibleFilterFlyouts')
     return selectedFilterCategories ? JSON.parse(selectedFilterCategories) : null
   },
@@ -44,7 +44,7 @@ export const filterCategoriesStorage = {
    * Set selected filter categories in localStorage
    * @param {Array} selectedFilterCategories - Array of selected category names
    */
-  set(selectedFilterCategories) {
+  set (selectedFilterCategories) {
     localStorage.setItem('visibleFilterFlyouts', JSON.stringify(selectedFilterCategories))
   }
 }
