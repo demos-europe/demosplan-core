@@ -480,7 +480,7 @@ export default {
         sort: '-submitDate'
       }
 
-      if (this.selectedItemsCount < this.allItemsCount) {
+      if (this.selectedItemsCount !== 0 && this.selectedItemsCount < this.allItemsCount) {
         payload.filter = {
           ...payload.filter,
           statementIds: {
