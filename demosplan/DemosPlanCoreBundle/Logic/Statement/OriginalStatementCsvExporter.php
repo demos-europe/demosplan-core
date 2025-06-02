@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
+use League\Csv\Bom;
 use League\Csv\CannotInsertRecord;
 use League\Csv\Exception;
 use League\Csv\InvalidArgument;
@@ -50,6 +51,8 @@ class OriginalStatementCsvExporter extends CoreService
     private function generateCsv(array $formattedData, array $columnsDefinition): string
     {
         $csv = Writer::createFromString('');
+        $csv->setOutputBOM(Bom::Utf8); // Add UTF-8 BOM - Excel needs this to properly display special characters in CSV files
+
         $csv->setDelimiter(',');
         $csv->setEnclosure('"');
         $csv->setEscape('\\');
