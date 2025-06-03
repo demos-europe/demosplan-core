@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
@@ -61,6 +62,10 @@ class StatementArrayConverter
             $segmentOrStatement->getPhase(),
             $segmentOrStatement->isSubmittedByCitizen()
         );
+
+        if ($segmentOrStatement instanceof Statement) {
+            $exportData['fileNames'] = $segmentOrStatement->getFileNames();
+        }
 
         // Some data is stored on parentStatement instead on Segment and have to get from there
         if ($segmentOrStatement instanceof Segment) {
