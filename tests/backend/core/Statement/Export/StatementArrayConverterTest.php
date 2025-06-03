@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Export;
 
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\FileFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -286,13 +285,12 @@ class StatementArrayConverterTest extends FunctionalTestCase
         // Create file strings - no need to create actual File entities since files property is transient
         $fileStrings = [
             'test-document.pdf:test-file-id-1',
-            'test-image.jpg:test-file-id-2'
+            'test-image.jpg:test-file-id-2',
         ];
 
         // Work with the real entity and set files
         $realStatement = $statement->_real();
         $realStatement->setFiles($fileStrings);
-
 
         // Test the converter with the entity that has files set
         $result = $this->sut->convertIntoExportableArray($realStatement);
@@ -308,6 +306,4 @@ class StatementArrayConverterTest extends FunctionalTestCase
         // Verify we have the expected number of files
         self::assertCount(2, $result['fileNames']);
     }
-
-
 }
