@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Export;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\FileFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -272,4 +273,41 @@ class StatementArrayConverterTest extends FunctionalTestCase
 
         return $segment->_real();
     }
+
+    /**
+     * Test that fileNames field is correctly set when segmentOrStatement is Statement instance.
+     */
+    public function testConvertIntoExportableArrayStatementFileNames(): void
+    {
+        $this->loginTestUser();
+
+        $statement = $this->createMinimalTestStatement('test', 'internal123', 'a');
+
+        // Create file strings - no need to create actual File entities since files property is transient
+        $fileStrings = [
+            'test-document.pdf:test-file-id-1',
+            'test-image.jpg:test-file-id-2'
+        ];
+
+        // Work with the real entity and set files
+        $realStatement = $statement->_real();
+        $realStatement->setFiles($fileStrings);
+
+
+        // Test the converter with the entity that has files set
+        $result = $this->sut->convertIntoExportableArray($realStatement);
+
+        // Verify fileNames field is present for Statement instances
+        self::assertArrayHasKey('fileNames', $result);
+
+        // The fileNames should come from the statement's getFileNames() method
+        self::assertEquals($realStatement->getFileNames(), $result['fileNames']);
+
+        self::assertEquals(['test-document.pdf', 'test-image.jpg'], $result['fileNames']);
+
+        // Verify we have the expected number of files
+        self::assertCount(2, $result['fileNames']);
+    }
+
+
 }
