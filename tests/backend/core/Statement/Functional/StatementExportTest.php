@@ -192,7 +192,6 @@ class StatementExportTest extends FunctionalTestCase
         ];
     }
 
-
     private function getComplexStatementAttributes(): array
     {
         return [
