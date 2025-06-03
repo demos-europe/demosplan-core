@@ -454,7 +454,9 @@ export default {
       })
 
       this.saveInvitableInstitution(id)
-        .then(dplan.notify.confirm(Translator.trans('confirm.saved')))
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
         .catch(err => {
           this.restoreInstitutionFromInitial(id)
           console.error(err)
@@ -465,19 +467,10 @@ export default {
     },
 
     /**
-     * Set appliedFilterQuery and request filtered institutions
-     * @param filter {Object} Object of objects as expected by json api, i.e.
-     * {
-     *    [id]: {
-     *      condition: {
-     *        path: <string>,
-     *        value: <string>
-     *      }
-     *    }
-     * }
-     * @param categoryId {String}
+     * Format date for display
+     * @param {string} d - Date string to format
+     * @returns {string} Formatted date
      */
-
     date (d) {
       return formatDate(d)
     },
@@ -634,19 +627,6 @@ export default {
         })
     },
 
-    /**
-     *
-     * @param filter {Object} Object of filter objects as expected by json api, i.e.
-     * {
-     *    [id]: {
-     *      condition: {
-     *        path: <string>,
-     *        value: <string>
-     *      }
-     *    }
-     * }
-     */
-
     setAppliedFilterQuery (filter) {
       return this.filterManager.setAppliedFilterQuery(filter)
     },
@@ -675,15 +655,6 @@ export default {
       this.filterManager.setFilterOptionsFromFilterQuery()
     },
 
-    /**
-     * Sets appliedFilterQuery if a filterQuery is stored in localStorage
-     * appliedFilterQuery is then used to create querIds
-     * queryIds are passed as initialQueryIds to FilterFlyout
-     * on mounted of the FilterFlyout, the filterOptions are then requested and created
-     * The selected filter option ids are written to the store
-     * the watcher in FilterFlyout is triggered and updates the currentQuery
-     * with the selected filter option ids from localStorage
-     */
     setAppliedFilterQueryFromStorage () {
       return this.filterManager.setAppliedFilterQueryFromStorage()
     },
