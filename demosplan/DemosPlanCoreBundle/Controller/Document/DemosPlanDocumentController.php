@@ -1337,19 +1337,9 @@ class DemosPlanDocumentController extends BaseController
             $documentList = $documentHandler->getPublicParaDocuments($procedureId, $elementId);
         } catch (RuntimeException $e) {
             if ('Access to this document is forbidden.' === $e->getMessage()) {
-                $templateVars = [];
 
-                if ($this->permissions instanceof Permissions
-                    && $this->permissions->hasPermission('area_combined_participation_area')
-                ) {
-                    $templateVars['procedureLayer'] = 'participation';
-                }
-
-                return $this->renderTemplate('@DemosPlanCore/DemosPlanDocument/public_paragaph_not_allowed.html.twig', [
-                    'procedure'    => $procedureId,
-                    'templateVars' => $templateVars,
-                    'title'        => 'element.paragraph',
-                    'category'     => $category,
+                return $this->redirectToRoute('core_404', [
+                    'currentPage' => $request->getPathInfo(),
                 ]);
             }
         }
