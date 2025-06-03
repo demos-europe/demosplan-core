@@ -125,7 +125,7 @@ All rights reserved
             text: Translator.trans('postalcode')
           }"
           pattern="^[0-9]{4,5}$"
-          :size="5" />
+        />
         <dp-input
           id="statementCity"
           v-model="localStatement.attributes.initialOrganisationCity"
@@ -138,14 +138,6 @@ All rights reserved
       </div>
     </div>
 
-    <similar-statement-submitters
-      v-if="hasPermission('feature_similar_statement_submitter')"
-      class="mb-4"
-      :editable="editable"
-      :procedure-id="procedure.id"
-      :similar-statement-submitters="similarStatementSubmitters"
-      :statement-id="statement.id" />
-
     <dp-button-row
       v-if="editable && isStatementManual"
       class="mt-2 w-full"
@@ -153,6 +145,14 @@ All rights reserved
       secondary
       @primary-action="dpValidateAction('statementSubmitterData', save, false)"
       @secondary-action="reset" />
+
+    <similar-statement-submitters
+      v-if="hasPermission('feature_similar_statement_submitter')"
+      class="mb-4"
+      :editable="editable"
+      :procedure-id="procedure.id"
+      :similar-statement-submitters="similarStatementSubmitters"
+      :statement-id="statement.id" />
   </fieldset>
 </template>
 
