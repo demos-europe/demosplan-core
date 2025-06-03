@@ -240,7 +240,7 @@ export default {
         new: Translator.trans('add'),
         add: Translator.trans(this.fieldsFullWidth ? 'add' : 'statement.similarStatementSubmitters.add'),
         abort: Translator.trans('abort'),
-        update: Translator.trans('save'),
+        update: Translator.trans('edit'),
         noEntries: Translator.trans('none'),
         delete: Translator.trans('delete')
       }
