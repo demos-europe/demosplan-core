@@ -1337,7 +1337,6 @@ class DemosPlanDocumentController extends BaseController
             $documentList = $documentHandler->getPublicParaDocuments($procedureId, $elementId);
         } catch (RuntimeException $e) {
             if ('Access to this document is forbidden.' === $e->getMessage()) {
-
                 return $this->redirectToRoute('core_404', [
                     'currentPage' => $request->getPathInfo(),
                 ]);
