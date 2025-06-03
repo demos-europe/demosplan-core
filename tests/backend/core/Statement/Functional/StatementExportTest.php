@@ -158,9 +158,9 @@ class StatementExportTest extends FunctionalTestCase
             'textShort' => '<p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore. statementjiahuu this was edited. Grüße aus
   Cypress!</p>',
             'recommendation'            => '<p>Meine Empfehlung</p>',
-            'recommendationShort'       => '<p>Meine Empfehlung</p>',
-            'id'                        => 'c0ec1585-3f87-48f9-822e-503b797d41d2',
-            'ident'                     => 'c0ec1585-3f87-48f9-822e-503b797d41d2',
+            'recommendationShort'       => '<p>Meine Empfehlung short</p>',
+            'id'                        => '123',
+            'ident'                     => '123',
             'name'                      => '',
             'oId'                       => null,
             'oName'                     => 'Meine Insti',
