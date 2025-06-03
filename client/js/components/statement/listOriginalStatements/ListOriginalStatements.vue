@@ -485,7 +485,9 @@ export default {
         payload.filter = {
           ...payload.filter,
           statementFilterGroup: {
-            conjunction: this.trackDeselected ? 'AND' : 'OR'
+            group: {
+              conjunction: this.trackDeselected ? 'AND' : 'OR'
+            }
           }
         }
 
