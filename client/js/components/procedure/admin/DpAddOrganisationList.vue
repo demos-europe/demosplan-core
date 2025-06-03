@@ -37,7 +37,7 @@
                 class="btn--blank o-link--default ml-auto"
                 data-cy="dpAddOrganisationList:toggleAllFilterCategories"
                 v-text="Translator.trans('toggle_all')"
-                @click="toggleAllSelectedFilterCategories" />
+                @click="filterManager.toggleAllCategories" />
               <div v-if="!isLoading">
                 <dp-checkbox
                   v-for="category in allFilterCategories"
@@ -49,7 +49,7 @@
                   :label="{
                     text: `${category.label} (${filterCategoryHelpers.getSelectedOptionsCount(appliedFilterQuery, category.id)})`
                   }"
-                  @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
+                  @change="filterManager.handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
               </div>
             </div>
           </dp-flyout>
@@ -66,8 +66,8 @@
           :member-of="category.memberOf"
           :operator="category.comparisonOperator"
           :path="category.rootPath"
-          @filterApply="(filtersToBeApplied) => applyFilterQuery(filtersToBeApplied, category.id)"
-          @filterOptions:request="(params) => createFilterOptions({ ...params, categoryId: category.id})" />
+          @filterApply="(filtersToBeApplied) => filterManager.applyFilter(filtersToBeApplied, category.id)"
+          @filterOptions:request="(params) => filterManager.createFilterOptions({ ...params, categoryId: category.id})" />
       </div>
 
       <dp-button
@@ -77,7 +77,7 @@
         :text="Translator.trans('reset')"
         variant="outline"
         v-tooltip="Translator.trans('search.filter.reset')"
-        @click="resetQuery" />
+        @click="filterManager.reset" />
     </template>
 
     <dp-data-table-extended
@@ -214,14 +214,14 @@
 <script>
 import { dpApi, DpButton, DpCheckbox, DpDataTableExtended, DpFlyout, DpIcon } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
-import { filterCategoriesStorage, filterQueryStorage, } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
+import { filterCategoriesStorage } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
 import { filterCategoryHelpers } from '@DpJs/lib/procedure/FilterFlyout/filterHelpers'
+import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 
 export default {
   name: 'DpAddOrganisationList',
 
-  setup() {
+  setup () {
     return {
       filterCategoryHelpers
     }
@@ -254,6 +254,11 @@ export default {
 
   data () {
     return {
+      appliedFilterQuery: {},
+      currentlySelectedFilterCategories: [],
+      filterManager: null,
+      initiallySelectedFilterCategories: [],
+      institutionTagCategoriesCopy: {},
       invitableToebFields: [
         'legalName',
         'participationFeedbackEmailAddress',
@@ -262,15 +267,11 @@ export default {
 
       ],
       isLoading: true,
-      itemsPerPageOptions: [10, 50, 100, 200],
       itemsPerPage: 50,
+      itemsPerPageOptions: [10, 50, 100, 200],
       locationContactFields: ['street', 'postalcode', 'city'],
-      sortOrder: { key: 'legalName', direction: 1 },
       selectedItems: [],
-      appliedFilterQuery: {},
-      currentlySelectedFilterCategories: [],
-      initiallySelectedFilterCategories: [],
-      institutionTagCategoriesCopy: {}
+      sortOrder: { key: 'legalName', direction: 1 }
 
     }
   },
@@ -445,52 +446,15 @@ export default {
     },
 
     applyFilterQuery (filter, categoryId) {
-      this.setAppliedFilterQuery(filter)
-      filterQueryStorage.set(this.filterQuery)
-      this.getInstitutionsByPage(1, categoryId)
+      this.filterManager.applyFilter(filter, categoryId)
     },
 
     createFilterOptions (params) {
-      const { categoryId, isInitialWithQuery } = params
-      let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0 ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() : []
-      const filterQueryFromStorage = filterQueryStorage.get ()
-      const selectedFilterOptionIds = Object.keys(filterQueryFromStorage).filter(id => !id.includes('_group'))
-
-      if (Object.keys(filterOptions).length > 0) {
-        filterOptions = Object.values(filterOptions).map(option => {
-          const { id, attributes } = option
-          const { name } = attributes
-          const selected = selectedFilterOptionIds.includes(id)
-
-          return {
-            id,
-            label: name,
-            selected
-          }
-        })
-      }
-
-      this.setUngroupedFilterOptions({ categoryId, options: filterOptions })
-      this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
-
-      if (isInitialWithQuery) {
-        this.setFilterOptionsFromFilterQuery()
-      }
+      this.filterManager.createFilterOptions(params)
     },
 
     setFilterOptionsFromFilterQuery () {
-      const filterQueryFromStorage = filterQueryStorage.get ()
-      const categoryIdsWithSelectedFilterOptions = Object.keys(filterQueryFromStorage)
-        .filter(id => id.includes('_group'))
-        .map(id => id.replace('_group', ''))
-
-      categoryIdsWithSelectedFilterOptions.forEach(id => {
-        const selectedFilterOptionIds = Object.values(filterQueryFromStorage)
-          .filter(el => el.condition?.memberOf === `${id}_group`)
-          .map(el => el.condition.value)
-
-        this.setInitialFlyoutFilterIds({ categoryId: id, filterIds: selectedFilterOptionIds })
-      })
+      this.filterManager.setFilterOptionsFromFilterQuery()
     },
 
     getInstitutionsByPage (page = 1, categoryId = null) {
@@ -571,8 +535,7 @@ export default {
     },
 
     handleChange (filterCategoryName, isSelected) {
-      this.updateCurrentlySelectedFilterCategories(filterCategoryName, isSelected)
-      filterCategoriesStorage.set(this.currentlySelectedFilterCategories)
+      this.filterManager.handleChange(filterCategoryName, isSelected)
     },
 
     hasAdress () {
@@ -588,31 +551,7 @@ export default {
 
     resetQuery () {
       this.searchTerm = ''
-      Object.keys(this.allFilterCategories).forEach((filterCategoryId, idx) => {
-        const filterFlyoutComponentExists = typeof this.$refs.filterFlyout[idx] !== 'undefined'
-        const hasFilterCategorySelectedOption = !!Object.values(this.filterQuery).find(el => el.condition?.memberOf === `${filterCategoryId}_group`)
-
-        if (filterFlyoutComponentExists) {
-          const isFilterFlyoutVisible = this.currentlySelectedFilterCategories.includes(this.allFilterCategories[filterCategoryId].label)
-
-          this.$refs.filterFlyout[idx].reset()
-
-          if (!isFilterFlyoutVisible && hasFilterCategorySelectedOption) {
-            const selectedFilterOptions = Object.values(this.filterQuery).filter(el => el.condition?.memberOf === `${filterCategoryId}_group`)
-            const payload = selectedFilterOptions.reduce((acc, el) => {
-              acc[el.condition.value] = el
-
-              return acc
-            }, {})
-
-            this.updateFilterQuery(payload)
-          }
-        }
-      })
-
-      filterQueryStorage.reset()
-      this.appliedFilterQuery = {}
-      this.getInstitutionsByPage(1)
+      this.filterManager.reset()
     },
 
     returnPermissionChecksValuesArray (permissionChecks) {
@@ -625,29 +564,11 @@ export default {
     },
 
     setAppliedFilterQuery (filter) {
-      // Remove groups from filter
-      const selectedFilterOptions = Object.fromEntries(Object.entries(filter).filter(([_key, value]) => value.condition))
-      const isReset = Object.keys(selectedFilterOptions).length === 0
-      const isAppliedFilterQueryEmpty = Object.keys(this.appliedFilterQuery).length === 0
-
-      if (!isReset && isAppliedFilterQueryEmpty) {
-        Object.values(selectedFilterOptions).forEach(option => {
-          this.appliedFilterQuery[option.condition.value] = option
-        })
-      } else if (isReset) {
-        const filtersWithConditions = Object.fromEntries(
-          Object.entries(this.filterQuery).filter(([key, value]) => value.condition)
-        )
-
-        this.appliedFilterQuery = Object.keys(filtersWithConditions).length ? filtersWithConditions : {}
-      } else {
-        this.appliedFilterQuery = selectedFilterOptions
-      }
+      return this.filterManager.setAppliedFilterQuery(filter)
     },
 
     setAppliedFilterQueryFromStorage () {
-      const filterQueryFromStorage = filterQueryStorage.get()
-      this.setAppliedFilterQuery(filterQueryFromStorage)
+      return this.filterManager.setAppliedFilterQueryFromStorage()
     },
 
     setCurrentlySelectedFilterCategories (selectedCategories) {
@@ -655,18 +576,7 @@ export default {
     },
 
     setFilterQueryFromStorage () {
-      const filterQueryFromStorage = filterQueryStorage.get()
-      const filterIds = Object.keys(filterQueryFromStorage)
-
-      if (filterIds.length > 0) {
-        filterIds.forEach(id => {
-          const payload = { [id]: filterQueryFromStorage[id] }
-
-          if (filterQueryFromStorage[id].condition) {
-            this.updateFilterQuery(payload)
-          }
-        })
-      }
+      return this.filterManager.setFilterQueryFromStorage()
     },
 
     setSelectedItems (selectedItems) {
@@ -681,43 +591,20 @@ export default {
     },
 
     toggleAllSelectedFilterCategories () {
-      const allSelected = this.currentlySelectedFilterCategories.length === Object.keys(this.allFilterCategories).length
-      const selectedFilterOptions = Object.values(this.appliedFilterQuery)
-      const categoriesWithSelectedOptions = []
-
-      selectedFilterOptions.forEach(option => {
-        const categoryId = option.condition.memberOf.replace('_group', '')
-        const category = this.allFilterCategories[categoryId]
-
-        if (category && !categoriesWithSelectedOptions.includes(category.label)) {
-          categoriesWithSelectedOptions.push(category.label)
-        }
-      })
-
-      this.currentlySelectedFilterCategories = allSelected
-        ? categoriesWithSelectedOptions
-        : Object.values(this.allFilterCategories).map(filterCategory => filterCategory.label)
-    },
-
-    updateCurrentlySelectedFilterCategories (filterCategoryName, isSelected) {
-      if (isSelected) {
-        this.currentlySelectedFilterCategories.push(filterCategoryName)
-      } else {
-        this.currentlySelectedFilterCategories = this.currentlySelectedFilterCategories.filter(category => category !== filterCategoryName)
-      }
+      this.filterManager.toggleAllCategories()
     }
-
   },
 
   mounted () {
+    this.filterManager = filterCategoryHelpers.createFilterManager(this)
+    this.isLoading = true
+
+    this.filterManager.setAppliedFilterQueryFromStorage()
+    this.filterManager.setFilterQueryFromStorage()
     const promises = [
       this.getInstitutionsWithContacts(),
       this.getInstitutionTagCategories(true)
     ]
-
-    this.isLoading = true
-    this.setFilterQueryFromStorage()
-    this.setAppliedFilterQueryFromStorage()
 
     Promise.allSettled(promises)
       .then(() => {
