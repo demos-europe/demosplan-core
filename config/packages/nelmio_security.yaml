@@ -5,18 +5,20 @@ nelmio_security:
         enforce:
             # see full description below
             level1_fallback: true
-            default-src: [ 'self' ]
+            report-uri: "%router.request_context.base_url%/nelmio/csp/report"
+#            default-src: [ 'self' ]
             frame-src: '%demosplan_csp_frame_src%'
             # Backward compatible frame-src
             child-src: [ ]
             frame-ancestors: '%demosplan_csp_frame_ancestors%'
             script-src: '%demosplan_csp_script_src%'
             font-src: '%demosplan_csp_font_src%'
-            style-src: '%demosplan_csp_style_src%'
+#            style-src: '%demosplan_csp_style_src%'
             img-src:
                 - 'self'
                 - '*' # needed for map layers
                 - 'data:'
+                - 'blob:'
             # needs to be set to * as gislayer getCapabilities are called via ajax
             connect-src:
                 - '*'

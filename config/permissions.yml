@@ -842,6 +842,11 @@ feature_department_edit:
     label: 'edit department'
     loginRequired: true
     parent: feature_department
+feature_diplan_karte:
+    description: 'Allows user to see the diplan map in the public area'
+    label: 'Display diplan map component'
+    expose: true
+    loginRequired: false
 feature_display_customer_names:
     description: 'In the orga edit details page some of the info displayed relates to the orga''s customers. With this permission we decide whether it will be shown or not.'
     expose: true
@@ -1262,6 +1267,7 @@ feature_mastertoeblist:
     label: 'activate Mastertöbliste'
     loginRequired: true
 feature_new_statement:
+    expose: true
     label: 'Stell. verfassen'
     loginRequired: true
     parent: feature_statement
