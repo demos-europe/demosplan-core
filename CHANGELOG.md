@@ -6,6 +6,7 @@
 
 ## UNRELEASED
 - Add Versioning of custom fields of segments
+- Update Elasticsearch to version 8
 
 ## UNRELEASED
 - Export Original Statements as csv in the Statement List
