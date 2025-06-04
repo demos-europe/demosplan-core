@@ -76,9 +76,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/eslint-parser@npm:^7.25.9":
-  version: 7.27.0
-  resolution: "@babel/eslint-parser@npm:7.27.0"
+"@babel/eslint-parser@npm:^7.27.5":
+  version: 7.27.5
+  resolution: "@babel/eslint-parser@npm:7.27.5"
   dependencies:
     "@nicolo-ribaudo/eslint-scope-5-internals": "npm:5.1.1-v1"
     eslint-visitor-keys: "npm:^2.1.0"
@@ -86,7 +86,7 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.11.0
     eslint: ^7.5.0 || ^8.0.0 || ^9.0.0
-  checksum: 10c0/bbecdc3f21413c4f0b21bc0ee93520ed47a61520a40d745f874097d01e6e22bf20a5f992d321656f4ef3ddbc04535a7da7ca6de2e87cecb82bbee0888f996480
+  checksum: 10c0/c1159946c0b41687945adbc7457f9c0895e0a439d59eb7020f03f08fb471ebf67ca9c6a799f667f869c93a846c627d709ec9da4b51afccd52be51f97ec26ddf0
   languageName: node
   linkType: hard
 
@@ -12395,7 +12395,7 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@babel/core": "npm:^7.26.0"
-    "@babel/eslint-parser": "npm:^7.25.9"
+    "@babel/eslint-parser": "npm:^7.27.5"
     "@babel/eslint-plugin": "npm:^7.25.9"
     "@babel/plugin-proposal-object-rest-spread": "npm:^7.20.7"
     "@babel/plugin-syntax-dynamic-import": "npm:^7.8.3"
