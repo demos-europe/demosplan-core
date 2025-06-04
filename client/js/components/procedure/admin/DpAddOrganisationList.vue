@@ -12,6 +12,25 @@
     ref="contentArea"
     class="mt-2">
 
+    <div class="flex flex-col sm:flex-row sm:items-center gap-4 mt-1">
+      <dp-search-field
+        class="flex-shrink-0"
+        data-cy="institutionList:searchField"
+        input-width="u-1-of-1"
+        @reset="handleReset"
+        @search="val => handleSearch(val)" />
+      <dp-pager
+        v-if="totalItems > itemsPerPageOptions[0]"
+        :current-page="currentPage"
+        :limits="itemsPerPageOptions"
+        :per-page="itemsPerPage"
+        :total-items="totalItems"
+        :total-pages="totalPages"
+        class="flex-shrink-0"
+        @page-change="page => getInstitutionsWithContacts(page)"
+        @size-change="handleItemsPerPageChange" />
+    </div>
+
     <dp-loading
       v-if="isLoading"
       class="mt-4" />
@@ -80,18 +99,16 @@
         @click="filterManager.reset" />
     </template>
 
-    <dp-data-table-extended
+    <dp-data-table
       ref="dataTable"
-      class="mt-2"
-      :default-sort-order="sortOrder"
       :header-fields="headerFields"
-      :init-items-per-page="itemsPerPage"
+      :items="rowItems"
+      :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
+      class="mt-2"
+      lock-checkbox-by="hasNoEmail"
+      track-by="id"
       is-expandable
       is-selectable
-      :items-per-page-options="itemsPerPageOptions"
-      lock-checkbox-by="hasNoEmail"
-      :table-items="rowItems"
-      :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
       @items-selected="setSelectedItems">
       <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
         <div class="lg:w-2/3 lg:flex pt-4">
@@ -184,39 +201,38 @@
           </dl>
         </div>
       </template>
-      <template v-slot:footer>
-        <div class="pt-2 flex">
-          <div class="w-1/3 inline-block">
+    </dp-data-table>
+    <div class="mt-2 pt-2 flex">
+      <div class="w-1/3 inline-block">
             <span
               v-if="selectedItems.length"
               class="weight--bold line-height--1_6">
-              {{ selectedItems.length }} {{ (selectedItems.length === 1 && Translator.trans('entry.selected')) || Translator.trans('entries.selected') }}
+              {{ selectedItemsText }}
             </span>
-          </div>
-          <div class="w-2/3 text-right inline-block space-x-2">
-            <dp-button
-              data-cy="addPublicAgency"
-              :text="Translator.trans('invitable_institution.add')"
-              @click="addPublicInterestBodies(selectedItems)" />
-            <a
-              :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
-              data-cy="organisationList:abortAndBack"
-              class="btn btn--secondary">
-              {{ Translator.trans('abort.and.back') }}
-            </a>
-          </div>
-        </div>
-      </template>
-    </dp-data-table-extended>
+      </div>
+      <div class="w-2/3 text-right inline-block space-x-2">
+        <dp-button
+          :text="Translator.trans('invitable_institution.add')"
+          data-cy="addPublicAgency"
+          @click="addPublicInterestBodies(selectedItems)"/>
+        <a
+          :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
+          data-cy="organisationList:abortAndBack"
+          class="btn btn--secondary">
+          {{ Translator.trans('abort.and.back') }}
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { dpApi, DpButton, DpCheckbox, DpDataTableExtended, DpFlyout, DpIcon } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpCheckbox, DpDataTable, DpFlyout, DpIcon, DpPager, DpSearchField  } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { filterCategoriesStorage } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
 import { filterCategoryHelpers } from '@DpJs/lib/procedure/FilterFlyout/filterHelpers'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
   name: 'DpAddOrganisationList',
@@ -230,10 +246,12 @@ export default {
   components: {
     DpButton,
     DpCheckbox,
-    DpDataTableExtended,
+    DpDataTable,
     DpFlyout,
     FilterFlyout,
-    DpIcon
+    DpIcon,
+    DpPager,
+    DpSearchField
   },
 
   props: {
@@ -252,10 +270,17 @@ export default {
     }
   },
 
+  mixins: [paginationMixin],
+
   data () {
     return {
       appliedFilterQuery: {},
       currentlySelectedFilterCategories: [],
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 25, 50, 100],
+        perPage: 50
+      },
       filterManager: null,
       initiallySelectedFilterCategories: [],
       institutionTagCategoriesCopy: {},
@@ -264,15 +289,14 @@ export default {
         'participationFeedbackEmailAddress',
         'locationContacts',
         ...(hasPermission('feature_institution_tag_read') ? ['assignedTags'] : [])
-
       ],
       isLoading: true,
       itemsPerPage: 50,
       itemsPerPageOptions: [10, 50, 100, 200],
       locationContactFields: ['street', 'postalcode', 'city'],
       selectedItems: [],
-      sortOrder: { key: 'legalName', direction: 1 }
-
+      searchTerm: '',
+      pagination: {}
     }
   },
 
@@ -343,7 +367,7 @@ export default {
     },
 
     rowItems () {
-      let items = Object.values(this.invitableToebItems).reduce((acc, item) => {
+      return Object.values(this.invitableToebItems).map(item => {
         const locationContactId = item.relationships.locationContacts?.data.length > 0 ? item.relationships.locationContacts.data[0].id : null
         const locationContact = locationContactId ? this.getLocationContactById(locationContactId) : null
         const hasNoEmail = !item.attributes.participationFeedbackEmailAddress
@@ -353,39 +377,59 @@ export default {
           name: this.institutionTagItems?.[tag.id]?.attributes?.name || Translator.trans('error.tag.notfound')
         }))
 
-        return [
-          ...acc,
-          ...[
-            {
-              id: item.id,
-              ...item.attributes,
-              locationContacts: locationContact
-                ? {
-                    id: locationContact.id,
-                    ...locationContact.attributes
-                  }
-                : null,
-              assignedTags: institutionTags,
-              hasNoEmail
-            }
-          ]
-        ]
-      }, []) || []
+        return {
+          id: item.id,
+          ...item.attributes,
+          competenceDescription: item.attributes.competenceDescription === '-' ? '' : item.attributes.competenceDescription,
+          locationContacts: locationContact
+            ? {
+                id: locationContact.id,
+                ...locationContact.attributes
+              }
+            : null,
+          assignedTags: institutionTags,
+          hasNoEmail
+        }
+      }).filter(item => {
+          if (Object.keys(this.appliedFilterQuery).length === 0) return true
 
-      // Filter
-      if (Object.keys(this.appliedFilterQuery).length > 0) {
-        items = items.filter(item => {
           return Object.values(this.appliedFilterQuery).every(filterCondition => {
             if (!filterCondition.condition) return true
 
             const tagIds = item.assignedTags.map(tag => tag.id)
-
             return tagIds.includes(filterCondition.condition.value)
           })
-        })
-      }
+        }) || []
+    },
 
-      return items
+    totalItems () {
+      return this.pagination.total || 0
+    },
+
+    totalPages () {
+      return this.pagination.totalPages || 0
+    },
+
+    currentPage () {
+      return this.pagination.currentPage || 1
+    },
+
+    itemsPerPage () {
+      return this.pagination.perPage || this.defaultPagination.perPage
+    },
+
+    itemsPerPageOptions () {
+      return this.pagination.limits || this.defaultPagination.limits
+    },
+
+    storageKeyPagination () {
+      return `addOrganisationList:${this.procedureId}:pagination`
+    },
+
+    selectedItemsText () {
+      const count = this.selectedItems.length
+      const translationKey = count === 1 ? 'entry.selected' : 'entries.selected'
+      return `${count} ${Translator.trans(translationKey)}`
     }
   },
 
@@ -463,7 +507,7 @@ export default {
       }
     },
 
-    getInstitutionsWithContacts () {
+    getInstitutionsWithContacts (page = 1) {
       const permissionChecksToeb = [
         { permission: 'field_organisation_email2_cc', value: 'ccEmailAddresses' },
         { permission: 'field_organisation_contact_person', value: 'contactPerson' },
@@ -479,6 +523,10 @@ export default {
         : ['locationContacts']
 
       const requestParams = {
+        page: {
+          number: page,
+          size: this.pagination.perPage
+        },
         include: includeParams.join(),
         fields: {
           InvitableToeb: this.invitableToebFields.concat(this.returnPermissionChecksValuesArray(permissionChecksToeb)).join(),
@@ -490,7 +538,54 @@ export default {
         requestParams.fields.InstitutionTag = 'name'
       }
 
+      if (this.searchTerm.trim() !== '') {
+        const filters = {
+          namefilter: {
+            condition: {
+              path: 'legalName',
+              operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+              value: this.searchTerm.trim(),
+              memberOf: 'searchFieldsGroup',
+            }
+          }
+        }
+
+        if (hasPermission('field_organisation_competence')) {
+          filters.competencefilter = {
+            condition: {
+              path: 'competenceDescription',
+              operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+              value: this.searchTerm.trim(),
+              memberOf: 'searchFieldsGroup',
+            }
+          }
+        }
+
+        if (hasPermission('feature_institution_tag_read')) {
+          filters.tagfilter = {
+            condition: {
+              path: 'assignedTags.name',
+              operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+              value: this.searchTerm.trim(),
+              memberOf: 'searchFieldsGroup',
+            }
+          }
+        }
+
+        filters.searchFieldsGroup = {
+          group: {
+            conjunction: 'OR'
+          }
+        }
+
+        requestParams.filter = filters
+      }
+
       return this.getInstitutions(requestParams)
+        .then(data => {
+          this.setLocalStorage(data.meta.pagination)
+          this.updatePagination(data.meta.pagination)
+        })
     },
 
     getInstitutionTagCategories (isInitial = false) {
@@ -540,6 +635,29 @@ export default {
 
     hasAdress () {
       return this.rowItems.locationContacts?.street || this.rowItems.locationContacts?.postalcode || this.rowItems.locationContacts?.city
+    },
+
+    handleSearch (searchValue) {
+      this.searchTerm = searchValue
+      this.getInstitutionsWithContacts(1)
+        .then(() => {
+          this.isLoading = false
+        })
+    },
+
+    handleReset () {
+      this.searchTerm = ''
+      this.getInstitutionsWithContacts(1)
+        .then(() => {
+          this.isLoading = false
+        })
+    },
+
+    handleItemsPerPageChange (newItemsPerPage) {
+      const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newItemsPerPage) + 1)
+
+      this.pagination.perPage = newItemsPerPage
+      this.getInstitutionsWithContacts(page)
     },
 
     isQueryApplied () {
@@ -596,13 +714,15 @@ export default {
   },
 
   mounted () {
+    this.initPagination()
     this.filterManager = filterCategoryHelpers.createFilterManager(this)
     this.isLoading = true
 
     this.filterManager.setAppliedFilterQueryFromStorage()
     this.filterManager.setFilterQueryFromStorage()
+
     const promises = [
-      this.getInstitutionsWithContacts(),
+      this.getInstitutionsWithContacts(this.pagination.currentPage),
       this.getInstitutionTagCategories(true)
     ]
 
