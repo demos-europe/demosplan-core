@@ -307,16 +307,16 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
     {
         $originalText = 'Original text content';
         $originalMemo = 'Original memo content';
-        
+
         /** @var Statement $testStatement */
         $testStatement = StatementFactory::createOne([
             'text' => $originalText,
             'memo' => $originalMemo,
         ])->_real();
-        
+
         $testStatement->setText('Updated text content');
         $testStatement->setMemo('Updated memo content');
-        
+
         $changes = $this->sut->calculateChanges($testStatement, Statement::class);
 
         static::assertIsArray($changes);
@@ -330,7 +330,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         $newMemo = $this->getPostUpdateValueOfContentChange('memo', $changes);
 
         static::assertStringContainsString($originalText, $oldText);
-        static::assertStringContainsString('Updated text content',$newText);
+        static::assertStringContainsString('Updated text content', $newText);
         static::assertStringContainsString($originalMemo, $oldMemo);
         static::assertStringContainsString('Updated memo content', $newMemo);
     }
@@ -343,19 +343,19 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
     {
         $originalText = 'Original text content for array test';
         $originalMemo = 'Original memo content for array test';
-        
+
         /** @var Statement $testStatement */
         $testStatement = StatementFactory::createOne([
             'text' => $originalText,
             'memo' => $originalMemo,
         ])->_real();
-        
+
         $updateData = [
             'ident' => $testStatement->getId(),
-            'text' => 'Updated text via array',
-            'memo' => 'Updated memo via array'
+            'text'  => 'Updated text via array',
+            'memo'  => 'Updated memo via array',
         ];
-        
+
         $changes = $this->sut->calculateChanges($updateData, Statement::class);
 
         static::assertIsArray($changes);
@@ -382,15 +382,15 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
     {
         /** @var Statement $testStatement */
         $testStatement = $this->fixtures->getReference('testStatement');
-        
+
         $updateData = [
             'ident' => $testStatement->getId(),
-            'text' => $testStatement->getText(),
-            'memo' => $testStatement->getMemo()
+            'text'  => $testStatement->getText(),
+            'memo'  => $testStatement->getMemo(),
         ];
-        
+
         $changes = $this->sut->calculateChanges($updateData, Statement::class);
-        
+
         static::assertIsArray($changes);
         static::assertEmpty($changes);
     }
