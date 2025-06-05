@@ -107,11 +107,13 @@ export default {
 
     buttonLabel () {
       let buttonLabel
+
       if (this.selectedFiles.length > 0 && this.selectedFiles.length !== this.allFiles.length) {
         buttonLabel = `Ausgewählte Dokumente herunterladen (Zip, ca. ${this.accumulatedFileSize(this.selectedFiles)})`
       } else {
         buttonLabel = `Alle Dokumente herunterladen (Zip, ca. ${this.accumulatedFileSize(this.allFiles)})`
       }
+
       return buttonLabel
     },
 
@@ -156,8 +158,7 @@ export default {
     },
 
     nodeSelectionChange (selectedNodes) {
-      const selectedSingleDocuments = selectedNodes.filter(el => el.nodeType === 'leaf')
-      this.selectedFiles = selectedSingleDocuments
+      this.selectedFiles = selectedNodes.filter(el => el.nodeType === 'leaf')
     },
 
     /*
