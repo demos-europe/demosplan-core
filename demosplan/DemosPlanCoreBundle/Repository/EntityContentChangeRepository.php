@@ -163,7 +163,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
 
         // Use stored flag to determine changes of custom fields
         // because usage of names of fields are not possible due to custom field names
-        if (in_array('customFields', $whitelistedFields, true)) {
+        if (null !== $whitelistedFields && in_array('customFields', $whitelistedFields, true)) {
             $queryBuilder->orWhere('change.customFieldChange = 1');
         } else {
             $queryBuilder->andWhere('change.customFieldChange = 0');
