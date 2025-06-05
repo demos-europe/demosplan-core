@@ -52,7 +52,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         private readonly StatementService $statementService,
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
         private readonly FileContainerRepository $fileContainerRepository,
-        private readonly JsonApiEsService $jsonApiEsService
+        private readonly JsonApiEsService $jsonApiEsService,
     ) {
     }
 
