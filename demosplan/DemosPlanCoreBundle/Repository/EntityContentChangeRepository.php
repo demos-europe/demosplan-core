@@ -157,14 +157,16 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
 
         if (is_array($whitelistedFields)) {
             $queryBuilder
-                ->andWhere(
-                    'change.entityField IN (:whitelistedFields) 
-                    OR change.customFieldChange = :includeCustomFields'
-                )
-                ->setParameter('whitelistedFields', $whitelistedFields)
-                // Use stored flag to determine changes of custom fields
-                // because usage of names of fields are not possible due to custom field names
-                ->setParameter('includeCustomFields', in_array('customFields', $whitelistedFields, true));
+                ->andWhere('change.entityField IN (:whitelistedFields)')
+                ->setParameter('whitelistedFields', $whitelistedFields);
+        }
+
+        // Use stored flag to determine changes of custom fields
+        // because usage of names of fields are not possible due to custom field names
+        if (in_array('customFields', $whitelistedFields, true)) {
+            $queryBuilder->orWhere('change.customFieldChange = 1');
+        } else {
+            $queryBuilder->andWhere('change.customFieldChange = 0');
         }
 
         return $queryBuilder->getQuery()->getResult();
