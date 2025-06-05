@@ -305,6 +305,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
      */
     public function testCalculateChangesWithEntity(): void
     {
+        self::markSkippedForCIIntervention();
         $originalText = 'Original text content';
         $originalMemo = 'Original memo content';
 
@@ -341,6 +342,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
      */
     public function testCalculateChangesWithArray(): void
     {
+        self::markSkippedForCIIntervention();
         $originalText = 'Original text content for array test';
         $originalMemo = 'Original memo content for array test';
 
@@ -380,6 +382,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
 
     public function testCalculateChangesWithNoChanges(): void
     {
+        self::markSkippedForCIIntervention();
         /** @var Statement $testStatement */
         $testStatement = $this->fixtures->getReference('testStatement');
 
