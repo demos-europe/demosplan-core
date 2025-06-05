@@ -1086,6 +1086,7 @@ class EntityContentChangeService extends CoreService
 
         // detect deleted values
         $removedFields = $preUpdateValues->diffKeys($postUpdateValues);
+        $changes = [];
         foreach ($removedFields as $fieldName => $removedValue) {
             $changes[$fieldName] = $this->createContentChangeData(
                 $removedValue,
