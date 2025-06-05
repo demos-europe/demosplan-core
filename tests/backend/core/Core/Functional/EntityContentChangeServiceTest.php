@@ -11,15 +11,18 @@
 namespace Tests\Core\Core\Functional;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
@@ -294,5 +297,117 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
             $segments[1]->getCustomFields()->findById($customField2->getId())->getValue(),
             $newValuesOfHistoryOfSegment2
         );
+    }
+
+    /**
+     * @throws InvalidDataException
+     * @throws JsonException
+     */
+    public function testCalculateChangesWithEntity(): void
+    {
+        $originalText = 'Original text content';
+        $originalMemo = 'Original memo content';
+
+        /** @var Statement $testStatement */
+        $testStatement = StatementFactory::createOne([
+            'text' => $originalText,
+            'memo' => $originalMemo,
+        ])->_real();
+
+        $testStatement->setText('Updated text content');
+        $testStatement->setMemo('Updated memo content');
+
+        $changes = $this->sut->calculateChanges($testStatement, Statement::class);
+
+        static::assertIsArray($changes);
+
+        static::assertArrayHasKey('text', $changes);
+        $oldText = $this->getPreUpdateValueOfContentChange('text', $changes);
+        $newText = $this->getPostUpdateValueOfContentChange('text', $changes);
+
+        static::assertArrayHasKey('memo', $changes);
+        $oldMemo = $this->getPreUpdateValueOfContentChange('memo', $changes);
+        $newMemo = $this->getPostUpdateValueOfContentChange('memo', $changes);
+
+        static::assertStringContainsString($originalText, $oldText);
+        static::assertStringContainsString('Updated text content', $newText);
+        static::assertStringContainsString($originalMemo, $oldMemo);
+        static::assertStringContainsString('Updated memo content', $newMemo);
+    }
+
+    /**
+     * @throws InvalidDataException
+     * @throws JsonException
+     */
+    public function testCalculateChangesWithArray(): void
+    {
+        $originalText = 'Original text content for array test';
+        $originalMemo = 'Original memo content for array test';
+
+        /** @var Statement $testStatement */
+        $testStatement = StatementFactory::createOne([
+            'text' => $originalText,
+            'memo' => $originalMemo,
+        ])->_real();
+
+        $updateData = [
+            'ident' => $testStatement->getId(),
+            'text'  => 'Updated text via array',
+            'memo'  => 'Updated memo via array',
+        ];
+
+        $changes = $this->sut->calculateChanges($updateData, Statement::class);
+
+        static::assertIsArray($changes);
+        static::assertArrayHasKey('text', $changes);
+        static::assertArrayHasKey('memo', $changes);
+        static::assertIsString($changes['text']);
+        static::assertIsString($changes['memo']);
+
+        static::assertArrayHasKey('text', $changes);
+        $oldText = $this->getPreUpdateValueOfContentChange('text', $changes);
+        $newText = $this->getPostUpdateValueOfContentChange('text', $changes);
+
+        static::assertArrayHasKey('memo', $changes);
+        $oldMemo = $this->getPreUpdateValueOfContentChange('memo', $changes);
+        $newMemo = $this->getPostUpdateValueOfContentChange('memo', $changes);
+
+        static::assertStringContainsString($originalText, $oldText);
+        static::assertStringContainsString('Updated text via array', $newText);
+        static::assertStringContainsString($originalMemo, $oldMemo);
+        static::assertStringContainsString('Updated memo via array', $newMemo);
+    }
+
+    public function testCalculateChangesWithNoChanges(): void
+    {
+        /** @var Statement $testStatement */
+        $testStatement = $this->fixtures->getReference('testStatement');
+
+        $updateData = [
+            'ident' => $testStatement->getId(),
+            'text'  => $testStatement->getText(),
+            'memo'  => $testStatement->getMemo(),
+        ];
+
+        $changes = $this->sut->calculateChanges($updateData, Statement::class);
+
+        static::assertIsArray($changes);
+        static::assertEmpty($changes);
+    }
+
+    /**
+     * @throws JsonException
+     */
+    private function getPreUpdateValueOfContentChange(string $key, array $changes): string
+    {
+        return strip_tags(Json::decodeToArray($changes[$key])[0][0]['old']['lines'][0]);
+    }
+
+    /**
+     * @throws JsonException
+     */
+    private function getPostUpdateValueOfContentChange(string $key, array $changes): string
+    {
+        return strip_tags(Json::decodeToArray($changes[$key])[0][0]['new']['lines'][0]);
     }
 }
