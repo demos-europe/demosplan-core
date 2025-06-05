@@ -339,28 +339,27 @@ export default {
     },
 
     allFilterCategories () {
-      return (this.institutionTagCategoriesValues || []).reduce((acc, category) => {
-        if (!category || !category.id || !category.attributes) return acc
+      return (this.institutionTagCategoriesValues || [])
+        .filter(category => category && category.id && category.attributes)
+        .map(category => {
+          const { id, attributes } = category
+          const groupKey = `${id}_group`
 
-        const { id, attributes } = category
-        const groupKey = `${id}_group`
-
-        acc[id] = {
-          id,
-          comparisonOperator: 'ARRAY_CONTAINS_VALUE',
-          label: attributes.name,
-          rootPath: 'assignedTags',
-          selected: false,
-          memberOf: groupKey
-        }
-
-        return acc
-      }, {})
+          return {
+            id,
+            comparisonOperator: 'ARRAY_CONTAINS_VALUE',
+            label: attributes.name,
+            rootPath: 'assignedTags',
+            selected: false,
+            memberOf: groupKey
+          }
+        })
     },
 
     filterCategoriesToBeDisplayed () {
-      return Object.values(this.allFilterCategories || {})
-        .filter(filter => this.currentlySelectedFilterCategories.includes(filter.label))
+      return (this.allFilterCategories || [])
+        .filter(filter =>
+          this.currentlySelectedFilterCategories.includes(filter.label))
     },
 
     selectedFilterCategories () {
