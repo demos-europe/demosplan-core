@@ -23,7 +23,7 @@
           data-cy="addOrganisationList:searchField"
           input-width="u-1-of-1"
           @reset="handleReset"
-          @search="val => handleSearch(val)" />
+          @search="handleSearch" />
 
         <div class="sm:relative flex flex-col sm:flex-row flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-0 pl-0 sm:ml-2 sm:pl-[38px]">
           <div class="sm:absolute sm:top-0 sm:left-0 mt-1">
@@ -229,7 +229,16 @@
 </template>
 
 <script>
-import { dpApi, DpButton, DpCheckbox, DpDataTable, DpFlyout, DpIcon, DpPager, DpSearchField  } from '@demos-europe/demosplan-ui'
+import {
+  dpApi,
+  DpButton,
+  DpCheckbox,
+  DpDataTable,
+  DpFlyout,
+  DpIcon,
+  DpPager,
+  DpSearchField
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { filterCategoriesStorage } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
 import { filterCategoryHelpers } from '@DpJs/lib/procedure/FilterFlyout/filterHelpers'
@@ -275,6 +284,7 @@ export default {
   mixins: [paginationMixin],
 
   data () {
+    console.log(this)
     return {
       appliedFilterQuery: {},
       currentlySelectedFilterCategories: [],
@@ -283,7 +293,7 @@ export default {
         limits: [10, 25, 50, 100],
         perPage: 50
       },
-      filterManager: null,
+      filterManager: filterCategoryHelpers.createFilterManager(this),
       initiallySelectedFilterCategories: [],
       institutionTagCategoriesCopy: {},
       invitableToebFields: [
@@ -358,14 +368,11 @@ export default {
     },
 
     queryIds () {
-      let ids = []
-      const isFilterApplied = Object.keys(this.appliedFilterQuery).length > 0
-
-      if (isFilterApplied) {
-        ids = Object.values(this.appliedFilterQuery).map(el => el.condition.value)
+      if (Object.keys(this.appliedFilterQuery).length === 0) {
+        return []
       }
 
-      return ids
+      return Object.values(this.appliedFilterQuery).map(el => el.condition.value)
     },
 
     rowItems () {
@@ -499,10 +506,6 @@ export default {
       this.filterManager.createFilterOptions(params)
     },
 
-    setFilterOptionsFromFilterQuery () {
-      this.filterManager.setFilterOptionsFromFilterQuery()
-    },
-
     getInstitutionsByPage (page = 1, categoryId = null) {
       if (categoryId) {
         this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
@@ -623,6 +626,7 @@ export default {
         })
         .catch(err => {
           console.error('Error loading tag categories:', err)
+
           return {}
         })
     },
@@ -695,6 +699,10 @@ export default {
       this.currentlySelectedFilterCategories = selectedCategories
     },
 
+    setFilterOptionsFromFilterQuery () {
+      this.filterManager.setFilterOptionsFromFilterQuery()
+    },
+
     setFilterQueryFromStorage () {
       return this.filterManager.setFilterQueryFromStorage()
     },
@@ -705,6 +713,7 @@ export default {
 
     setInitiallySelectedFilterCategories () {
       const selectedFilterCategoriesInStorage = filterCategoriesStorage.get()
+
       this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null
         ? selectedFilterCategoriesInStorage
         : this.institutionTagCategoriesValues.slice(0, 5).map(category => category.attributes.name)
@@ -717,8 +726,6 @@ export default {
 
   mounted () {
     this.initPagination()
-    this.filterManager = filterCategoryHelpers.createFilterManager(this)
-    this.isLoading = true
 
     this.filterManager.setAppliedFilterQueryFromStorage()
     this.filterManager.setFilterQueryFromStorage()

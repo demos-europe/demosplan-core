@@ -256,7 +256,7 @@ export default {
       editingInstitutionId: null,
       editingInstitution: null,
       editingInstitutionTags: {},
-      filterManager: null,
+      filterManager: filterCategoryHelpers.createFilterManager(this),
       initiallySelectedColumns: [],
       initiallySelectedFilterCategories: [],
       institutionTagCategoriesCopy: {},
@@ -651,12 +651,12 @@ export default {
       this.currentlySelectedFilterCategories = selectedCategories
     },
 
-    setFilterOptionsFromFilterQuery () {
-      this.filterManager.setFilterOptionsFromFilterQuery()
-    },
-
     setAppliedFilterQueryFromStorage () {
       return this.filterManager.setAppliedFilterQueryFromStorage()
+    },
+
+    setFilterOptionsFromFilterQuery () {
+      this.filterManager.setFilterOptionsFromFilterQuery()
     },
 
     setFilterQueryFromStorage () {
@@ -681,9 +681,6 @@ export default {
   },
 
   mounted () {
-    this.filterManager = filterCategoryHelpers.createFilterManager(this)
-    this.isLoading = true
-
     this.filterManager.setAppliedFilterQueryFromStorage()
     this.filterManager.setFilterQueryFromStorage()
 
