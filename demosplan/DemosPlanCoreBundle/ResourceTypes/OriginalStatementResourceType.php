@@ -20,6 +20,7 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -51,6 +52,7 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         private readonly StatementService $statementService,
         private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
         private readonly FileContainerRepository $fileContainerRepository,
+        private readonly JsonApiEsService $jsonApiEsService,
     ) {
     }
 
