@@ -203,7 +203,7 @@ class SegmentController extends BaseController
             } catch (AddonResourceNotFoundException) {
                 $this->getMessageBag()->add(
                     'error',
-                    'error.split_statement.no_place',
+                    'error.import_segment.no_place',
                     [],
                     'messages',
                     'DemosPlan_procedure_places_list',
