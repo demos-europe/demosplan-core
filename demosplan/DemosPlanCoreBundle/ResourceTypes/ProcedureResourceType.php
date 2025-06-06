@@ -33,9 +33,9 @@ use EDT\PathBuilding\End;
  * @property-read End                                 $deleted
  * @property-read End                                 $agencyMainEmailAddress
  * @property-read OrgaResourceType                    $owningOrganisation
- * @property-read OrgaResourceType                    $invitedOrganisations
+ * @property-read InvitedPublicAgencyResourceType     $invitedOrganisations
  * @property-read OrgaResourceType                    $orga                         Do not expose! Alias usage only.
- * @property-read OrgaResourceType                    $organisation                 Do not expose! Alias usage only.
+ * @property-read InvitedPublicAgencyResourceType     $organisation                 Do not expose! Alias usage only.
  * @property-read ProcedureTypeResourceType           $procedureType
  * @property-read ProcedureUiDefinitionResourceType   $procedureUiDefinition
  * @property-read StatementFormDefinitionResourceType $statementFormDefinition
@@ -179,7 +179,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         ];
 
         $properties[] = $this->createToManyRelationship($this->availableElements)->readable()->sortable()->filterable()->aliasedPath($this->elements);
-        if ($this->hasAdminPermissions()) {
+        if ($this->hasAdminPermissions()) { // todo check if hasAdminPermissions() is clear to use for the bew context
             $owningOrganisation->readable()->sortable()->filterable();
             $invitedOrganisations->readable()->sortable()->filterable();
             $properties[] = $this->createAttribute($this->agencyMainEmailAddress)->readable(true)->sortable()->filterable();
