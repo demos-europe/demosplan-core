@@ -199,7 +199,7 @@
                                 } %}
                                 {{ form_errors(form.agencyMainEmailAddress) }}
                                 <dp-input
-                                    id="main-email"
+                                    id="{{ form.agencyMainEmailAddress.vars.id }}"
                                     data-cy="agencyMainEmailAddress"
                                     data-dp-validate-error-fieldname="{{ 'email.procedure.agency'|trans }}"
                                     name="agencyMainEmailAddress[fullAddress]"
