@@ -26,6 +26,8 @@ const stores = {
   publicStatement
 }
 
+const apiStores = ['Elements']
+
 //  (Unmounted) vue parent components
 const components = {
   DiplanKarteWrapper,
@@ -35,7 +37,7 @@ const components = {
   RegisterFlyout
 }
 
-initialize(components, stores).then(() => {
+initialize(components, stores, apiStores).then(() => {
   //  Code to be run after mount of vue instance
   StatementForm()
   TableWrapper()
