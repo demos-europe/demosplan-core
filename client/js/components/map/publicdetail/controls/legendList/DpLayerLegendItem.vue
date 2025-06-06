@@ -22,6 +22,7 @@
 
 <script>
 import { prefixClass } from '@demos-europe/demosplan-ui'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'DpLayerLegendItem',
@@ -30,24 +31,25 @@ export default {
     legend: {
       required: true,
       type: Object,
-      default: () => { return { layerId: '', url: '#', defaultVisibility: false } }
+      default: () => { return { layerId: '', url: '#' } }
     }
   },
 
   data () {
     return {
-      isVisible: this.legend.defaultVisibility,
       isBroken: false
     }
   },
 
-  methods: {
-    toggle (layerId, visibilityState) {
-      if (this.legend.layerId.replace(/-/g, '') === layerId) {
-        this.isVisible = visibilityState
-      }
-    },
+  computed: {
+    ...mapGetters('Layers', ['isLayerVisible']),
 
+    isVisible () {
+      return this.isLayerVisible(this.legend.layerId)
+    }
+  },
+
+  methods: {
     prefixClass (classList) {
       return prefixClass(classList)
     },
@@ -55,12 +57,6 @@ export default {
     deleteImage () {
       this.isBroken = true
     }
-  },
-
-  created () {
-    this.$root.$on('layer:toggleLegend', ({ id, isVisible }) => {
-      this.toggle(id, isVisible)
-    })
   }
 }
 </script>
