@@ -647,19 +647,8 @@ export default {
      *
      * returns Array|List of Layers/Categories
      */
-    childElements: {
-      get () {
-        return this.elementListForLayerSidebar(this.element.id, 'overlay', true)
-      },
-      set (value) {
-        this.setChildrenFromCategory({
-          setPayload: value,
-          categoryId: this.element.id,
-          data: value.newOrder,
-          orderType: 'treeOrder',
-          parentOrder: this.layer.attributes.treeOrder
-        })
-      }
+    childElements () {
+      return this.elementListForLayerSidebar(this.element.id, 'overlay', true)
     },
 
     /**
@@ -711,8 +700,7 @@ export default {
     updateChildren (event) {
       this.setChildrenFromCategory({
         newCategoryId: event.to.id,
-        categoryId: event.from.id,
-        data: null,
+        oldCategoryId: event.from.id,
         movedElement: {
           id: event.item.id,
           newIndex: event.newIndex,

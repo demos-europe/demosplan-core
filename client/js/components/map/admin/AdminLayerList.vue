@@ -286,30 +286,12 @@ export default {
      * Model to switch the Models but keeping the Markup lean
      * refers to mapList or treeList
      */
-    currentList: {
-      get () {
-        return (this.currentTab === 'mapOrder') ? this.mapList : this.treeList
-      },
-      set ({ newOrder }) {
-        if (this.currentTab === 'mapOrder') {
-          this.mapList = newOrder
-        } else {
-          this.treeList = newOrder
-        }
-      }
+    currentList () {
+      return (this.currentTab === 'mapOrder') ? this.mapList : this.treeList
     },
 
-    currentBaseList: {
-      get () {
-        return (this.currentTab === 'mapOrder') ? this.mapBaseList : this.treeBaseList
-      },
-      set ({ newOrder }) {
-        if (this.currentTab === 'mapOrder') {
-          this.mapBaseList = newOrder
-        } else {
-          this.treeBaseList = newOrder
-        }
-      }
+    currentBaseList () {
+      return (this.currentTab === 'mapOrder') ? this.mapBaseList : this.treeBaseList
     },
 
     /*
@@ -317,19 +299,8 @@ export default {
      * layerType overlay
      * mapList and treeList have different order-numbers
      */
-    treeList: {
-      get () {
-        return this.elementListForLayerSidebar(null, 'overlay', true)
-      },
-      set (value) {
-        this.setChildrenFromCategory({
-          setPayload: value,
-          categoryId: null,
-          data: value,
-          orderType: 'treeOrder',
-          parentOrder: this.parentOrderPosition
-        })
-      }
+    treeList () {
+      return this.elementListForLayerSidebar(null, 'overlay', true)
     },
 
     /*
@@ -337,27 +308,8 @@ export default {
      * layerType overlay
      * mapList and treeList have different order-numbers
      */
-    mapList: {
-      get () {
-        return this.gisLayerList('overlay')
-      },
-      set (value) {
-        this.setChildrenFromCategory({
-          categoryId: null,
-          data: value,
-          orderType: 'mapOrder',
-          parentOrder: this.parentOrderPosition
-        })
-        /* If there is just one order (map) -then the treeorder should match the map-order */
-        if (this.canHaveCategories === false) {
-          this.setChildrenFromCategory({
-            categoryId: null,
-            data: value,
-            orderType: 'treeOrder',
-            parentOrder: this.parentOrderPosition
-          })
-        }
-      }
+    mapList () {
+      return this.gisLayerList('overlay')
     },
 
     /*
@@ -365,18 +317,8 @@ export default {
      * layerType base
      * mapList and treeList have different order-numbers
      */
-    treeBaseList: {
-      get () {
-        return this.elementListForLayerSidebar(null, 'base', false)
-      },
-      set (value) {
-        this.setChildrenFromCategory({
-          categoryId: null,
-          data: value,
-          orderType: 'treeOrder',
-          parentOrder: this.parentOrderPosition
-        })
-      }
+    treeBaseList () {
+      return this.elementListForLayerSidebar(null, 'base', false)
     },
 
     /*
@@ -384,27 +326,8 @@ export default {
      * layerType base
      * mapList and treeList have different order-numbers
      */
-    mapBaseList: {
-      get () {
-        return this.gisLayerList('base')
-      },
-      set (value) {
-        this.setChildrenFromCategory({
-          categoryId: null,
-          data: value,
-          orderType: 'mapOrder',
-          parentOrder: this.parentOrderPosition
-        })
-        /* If there is just one order (map) -then the treeorder should match the map-order */
-        if (this.canHaveCategories === false) {
-          this.setChildrenFromCategory({
-            categoryId: null,
-            data: value,
-            orderType: 'treeOrder',
-            parentOrder: this.parentOrderPosition
-          })
-        }
-      }
+    mapBaseList () {
+      return this.gisLayerList('base')
     },
 
     canHaveCategories () {
@@ -434,19 +357,33 @@ export default {
       'setMinimapBaseLayer'
     ]),
 
-    updateChildren (event) {
+    updateChildren (ev) {
       this.setChildrenFromCategory({
-        newCategoryId: event.to.id,
-        categoryId: event.from.id,
-        data: null,
+        newCategoryId: ev.to.id,
+        oldCategoryId: ev.from.id,
         movedElement: {
-          id: event.item.id,
-          newIndex: event.newIndex,
-          oldIndex: event.oldIndex
+          id: ev.item.id,
+          newIndex: ev.newIndex,
+          oldIndex: ev.oldIndex
         },
-        orderType: 'treeOrder',
+        orderType: this.currentTab,
         parentOrder: 0
       })
+
+      // If there is just one order (map) -then the treeorder should match the map-order
+      if (this.currentTab === 'mapOrder' && !this.canHaveCategories) {
+        this.setChildrenFromCategory({
+          newCategoryId: ev.to.id,
+          categoryId: ev.from.id,
+          movedElement: {
+            id: ev.item.id,
+            newIndex: ev.newIndex,
+            oldIndex: ev.oldIndex
+          },
+          orderType: 'mapOrder',
+          parentOrder: 0
+        })
+      }
     },
 
     saveOrder (redirect) {

@@ -198,9 +198,8 @@ const LayersStore = {
      * Updates the children of a category including their order positions and parent relationships
      *
      * @param {Object} data - Data object
-     * @param {string|null} data.categoryId - old Category ID (null for root category)
+     * @param {string|null} data.oldCategoryId - old Category ID (null for root category)
      * @param {string|null} data.newCategoryId - new Category ID (null for root category)
-     * @param {Array} data.data - Array of child elements
      * @param {string} data.orderType - Order type ('treeOrder')
      * @param {number} data.parentOrder - Parent order position
      * @param {Object} [data.movedElement] - Optional moved element data for drag & drop
@@ -216,7 +215,7 @@ const LayersStore = {
 
       const rootEl = state.apiData.data[0]
       // Get the old and new categories
-      const oldCategory = (data.categoryId === null || data.categoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.categoryId)
+      const oldCategory = (data.oldCategoryId === null || data.oldCategoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.oldCategoryId)
       const newCategory = (data.newCategoryId === null || data.newCategoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.newCategoryId)
 
       // List all elements with the givven categoryId
@@ -239,8 +238,10 @@ const LayersStore = {
         childElements.splice(data.movedElement.newIndex, 0, childElements.splice(data.movedElement.oldIndex, 1)[0])
       }
 
+      // Set the new parentId or categoryId for the current element
       currentElement.attributes[currentElementType[0]] = newCategory.id
 
+      // Set new order positions for all child elements
       childElements.forEach((el, idx) => {
         el.attributes[data.orderType] = (data.parentOrder * 100) + idx + 1
       })
