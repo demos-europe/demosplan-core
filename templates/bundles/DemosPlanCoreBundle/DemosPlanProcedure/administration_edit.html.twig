@@ -198,13 +198,15 @@
                                     showPlainHint: true
                                 } %}
                                 {{ form_errors(form.agencyMainEmailAddress) }}
-                                <input id="{{ form.agencyMainEmailAddress.vars.id }}"
-                                       name="agencyMainEmailAddress[fullAddress]"
-                                       value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}"
-                                       data-cy="internal:agencyMainEmailAddress"
-                                       class="o-form__control-input w-full"
-                                       type="email"
-                                       required>
+                                <dp-input
+                                    id="{{ form.agencyMainEmailAddress.vars.id }}"
+                                    data-cy="agencyMainEmailAddress"
+                                    data-dp-validate-error-fieldname="{{ 'email.procedure.agency'|trans }}"
+                                    name="agencyMainEmailAddress[fullAddress]"
+                                    required
+                                    type="email"
+                                    value="{{ form.agencyMainEmailAddress.vars.value.fullAddress }}">
+                                </dp-input>
                             </div>
 
                             <div class="u-mb">
