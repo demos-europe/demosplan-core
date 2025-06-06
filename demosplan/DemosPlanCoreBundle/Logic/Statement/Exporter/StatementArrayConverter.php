@@ -63,9 +63,7 @@ class StatementArrayConverter
             $segmentOrStatement->isSubmittedByCitizen()
         );
 
-        if ($segmentOrStatement instanceof Statement) {
-            $exportData['fileNames'] = $segmentOrStatement->getFileNames();
-        }
+        $exportData['fileNames'] = $segmentOrStatement->getFileNames();
 
         // Some data is stored on parentStatement instead on Segment and have to get from there
         if ($segmentOrStatement instanceof Segment) {
