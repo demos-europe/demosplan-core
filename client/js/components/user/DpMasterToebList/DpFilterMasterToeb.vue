@@ -66,7 +66,7 @@ export default {
   },
 
   emits: [
-    'items-filtered'
+    'items:filtered'
   ],
 
   data () {
@@ -94,7 +94,7 @@ export default {
         return filteredByDistricts && filteredByDocuments
       })
 
-      this.$emit('items-filtered', filteredItems)
+      this.$emit('items:filtered', filteredItems)
     },
 
     getFieldsByPattern (fields, pattern) {

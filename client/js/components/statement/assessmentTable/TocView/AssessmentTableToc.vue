@@ -52,7 +52,7 @@ export default {
   },
 
   emits: [
-    'update-assessment-table'
+    'update:assessmentTable'
   ],
 
   computed: {
@@ -73,10 +73,10 @@ export default {
     triggerUpdate () {
       this.setRefreshButtonVisibility(false)
       /*
-       *  Update-assessment-table is defined in mounted() of DpTable.vue.
+       *  Update:assessmentTable is defined in mounted() of DpTable.vue.
        *  Otherwise triggerApiCallForStatements() would not be accessible in AssessmentTableToc which refreshes the assessment list without page reload
        */
-      this.$root.$emit('update-assessment-table')
+      this.$root.$emit('update:assessmentTable')
     }
   }
 }

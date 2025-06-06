@@ -226,9 +226,9 @@ export default {
            *  remove respective item from DOM
            */
           if (button === 'notifyButton') {
-            this.$root.$emit('fragment-reassigned', response.data)
+            this.$root.$emit('fragment:reassigned', response.data)
           } else {
-            this.$root.$emit('fragment-saved', response.data)
+            this.$root.$emit('fragment:saved', response.data)
 
             //  Set this to new data
             this.considerationAdvice = response.data.considerationAdvice

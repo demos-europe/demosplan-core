@@ -48,7 +48,7 @@ export default {
   },
 
   emits: [
-    'layer:features:changed'
+    'layerFeatures:changed'
   ],
 
   data () {
@@ -143,7 +143,7 @@ export default {
 
       //  Whenever drawing changes, emit current features
       vectorSource.on('change', () => {
-        this.$emit('layer:features:changed', vectorSource.getFeatures())
+        this.$emit('layerFeatures:changed', vectorSource.getFeatures())
       })
     }
   },

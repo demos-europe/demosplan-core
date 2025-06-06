@@ -59,7 +59,7 @@
       :total-items="pagination.total"
       :per-page="pagination.count"
       :limits="pagination.limits"
-      @page-change="handlePageChange"
+      @pageChange="handlePageChange"
       @size-change="handleSizeChange"
       :key="`pager1_${pagination.current_page}_${pagination.count}`" />
 
@@ -129,8 +129,8 @@
           :key="idx"
           :procedure-id="procedureId"
           :statement-id="statement.id"
-          @add-to-selection="addToSelectionAction"
-          @remove-from-selection="removeFromSelectionAction" />
+          @addToSelection="addToSelectionAction"
+          @removeFromSelection="removeFromSelectionAction" />
       </tbody>
     </table>
 
@@ -351,7 +351,7 @@ export default {
         this.isLoading = false
       })
 
-    this.$root.$on('toggle-select-all', () => {
+    this.$root.$on('toggleSelectAll', () => {
       this.allCheckboxesToggled = !this.allCheckboxesToggled
       this.toggleAllCheckboxes()
     })

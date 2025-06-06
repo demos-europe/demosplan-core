@@ -131,7 +131,7 @@ export default {
   },
 
   emits: [
-    'show-slidebar',
+    'showSlidebar',
     'version:history'
   ],
 
@@ -220,7 +220,7 @@ export default {
         event.preventDefault()
         const externalId = this.isCopy ? Translator.trans('copyof') + ' ' + this.externId : this.externId
         this.$root.$emit('version:history', this.statementId, 'statement', externalId)
-        this.$root.$emit('show-slidebar')
+        this.$root.$emit('showSlidebar')
       })
     }
 
@@ -228,7 +228,7 @@ export default {
       clusterHistoryButton.addEventListener('click', (event) => {
         event.preventDefault()
         this.$root.$emit('version:history', this.statementId, 'statement', this.externId)
-        this.$root.$emit('show-slidebar')
+        this.$root.$emit('showSlidebar')
       })
     }
   }

@@ -68,7 +68,7 @@
       :total-items="pagination.total"
       :per-page="pagination.count"
       :limits="pagination.limits"
-      @page-change="handlePageChange"
+      @pageChange="handlePageChange"
       @size-change="handleSizeChange"
       :key="`pager1_${pagination.current_page}_${pagination.count}`" />
 
@@ -119,7 +119,7 @@
       :view-mode="viewMode"
       ref="filter"
       @exportModal:toggle="tab => $refs.exportModal.toggleModal(tab)"
-      @handle-sort-change="option => handleSortChange(option)" />
+      @handle:sortChange="option => handleSortChange(option)" />
 
     <!-- Version History Slidebar -->
     <dp-slidebar>
@@ -229,7 +229,7 @@
       :total-items="pagination.total"
       :per-page="pagination.count"
       :limits="pagination.limits"
-      @page-change="handlePageChange"
+      @pageChange="handlePageChange"
       @size-change="handleSizeChange"
       :key="`pager2_${pagination.current_page}_${pagination.count}`" />
   </form>
@@ -400,7 +400,7 @@ export default {
   },
 
   emits: [
-    'assessment-table-loaded'
+    'assessmentTable:loaded'
   ],
 
   data () {
@@ -788,15 +788,15 @@ export default {
              */
             this.stickyHeader = new Stickier(this.$refs.filter.$refs.header, this.$refs.root, 0)
 
-            this.$root.$emit('assessment-table-loaded')
+            this.$root.$emit('assessmentTable:loaded')
           })
       })
 
-    this.$root.$on('update-assessment-table', () => {
+    this.$root.$on('update:assessmentTable', () => {
       this.triggerApiCallForStatements()
     })
 
-    this.$root.$on('update-pagination-assessment-table', () => {
+    this.$root.$on('update:paginationAssessmentTable', () => {
       this.updatePagination(this.initPagination)
     })
   },

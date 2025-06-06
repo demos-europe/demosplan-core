@@ -87,7 +87,7 @@
           :per-page="pagination.perPage"
           :total-pages="pagination.totalPages"
           :total-items="pagination.total"
-          @page-change="applyQuery"
+          @pageChange="applyQuery"
           @size-change="handleSizeChange" />
         <dp-column-selector
           data-cy="segmentsList:selectableColumns"
@@ -123,7 +123,7 @@
           :multi-page-selection-items-toggled="toggledItems.length"
           :should-be-selected-items="currentlySelectedItems"
           track-by="id"
-          @select-all="handleSelectAll"
+          @selectAll="handleSelectAll"
           @items-toggled="handleToggleItem">
           <template v-slot:externId="rowData">
             <v-popover trigger="hover focus">
@@ -966,7 +966,7 @@ export default {
 
     showVersionHistory (segmentId, externId) {
       this.$root.$emit('version:history', segmentId, 'segment', externId)
-      this.$root.$emit('show-slidebar')
+      this.$root.$emit('showSlidebar')
     },
 
     updateQueryHash () {

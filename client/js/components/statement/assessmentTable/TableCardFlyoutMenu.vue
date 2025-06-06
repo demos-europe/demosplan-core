@@ -99,7 +99,7 @@
       v-if="entity === 'fragment'"
       :disabled="fragmentAssigneeId !== currentUserId"
       :title="fragmentAssigneeId === currentUserId ? false : Translator.trans('locked.title')"
-      v-on="fragmentAssigneeId === currentUserId ? { click: () => $emit('fragment-delete', entityId) } : {}">
+      v-on="fragmentAssigneeId === currentUserId ? { click: () => $emit('fragment:delete', entityId) } : {}">
       {{ Translator.trans('delete') }}
     </button>
 
@@ -198,8 +198,8 @@ export default {
   },
 
   emits: [
-    'fragment-delete',
-    'show-slidebar',
+    'fragment:delete',
+    'showSlidebar',
     'statement:copy',
     'statement:move',
     'version:history'
@@ -224,7 +224,7 @@ export default {
 
     showVersionHistory () {
       this.$root.$emit('version:history', this.entityId, this.entity, this.externId)
-      this.$root.$emit('show-slidebar')
+      this.$root.$emit('showSlidebar')
     },
 
     toggleAssignEntityModal (entity, assigneeId) {

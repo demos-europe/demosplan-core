@@ -129,10 +129,10 @@ export default {
 
   emits: [
     'changeActive',
-    'fullscreen-toggle',
+    'fullscreen:toggle',
     'layer:toggleLayer',
     'layer:toggleVisibiltyGroup',
-    'update-statement-form-map-data'
+    'updateStatementFormMapData'
   ],
 
   data () {
@@ -1046,7 +1046,7 @@ export default {
           r_location_point: '',
           location_is_set: ''
         }
-        this.$root.$emit('update-statement-form-map-data', resetData, false)
+        this.$root.$emit('updateStatementFormMapData', resetData, false)
       })
 
       window.dplan.clearMapDrawings = () => {
@@ -1166,7 +1166,7 @@ export default {
           r_location_point: '',
           location_is_set: 'geometry'
         }
-        this.$root.$emit('update-statement-form-map-data', statementFormGeometryData, false)
+        this.$root.$emit('updateStatementFormMapData', statementFormGeometryData, false)
 
         saveStatementButton
           .addClass(this.prefixClass('is-active c-actionbox__toggle-shake'))
@@ -1196,7 +1196,7 @@ export default {
             r_location_point: '',
             location_is_set: 'geometry'
           }
-          this.$root.$emit('update-statement-form-map-data', statementFormGeometryData)
+          this.$root.$emit('updateStatementFormMapData', statementFormGeometryData)
         } else {
           alert('Bitte nehmen Sie zuerst eine Einzeichnung vor!')
         }
@@ -1385,7 +1385,7 @@ export default {
     doStatementAction () {
       // Window.dplan.statement.toggleFormFromMap(event)
       this.popupoverlay.setPosition(undefined)
-      this.$root.$emit('update-statement-form-map-data', this.statementActionFields)
+      this.$root.$emit('updateStatementFormMapData', this.statementActionFields)
     },
 
     drawFillSelector (selector) {
@@ -1647,7 +1647,7 @@ export default {
       this.map.updateSize()
       // On FullScreen Mode, focus for all elements in Map Container.
       const fullScreenMode = document.getElementsByClassName('fullscreen-mode')
-      this.$emit('fullscreen-toggle', fullScreenMode.length > 0)
+      this.$emit('fullscreen:toggle', fullScreenMode.length > 0)
     },
 
     handleZoom (delta, duration) {
@@ -2050,11 +2050,11 @@ export default {
         this.toggleLayer(id, exclusively, isVisible)
       })
 
-      this.$root.$on('layer-opacity:change', ({ id, opacity }) => {
+      this.$root.$on('layerOpacity:change', ({ id, opacity }) => {
         this.findLayerById(id).setOpacity(opacity)
       })
 
-      this.$root.$on('layer-opacity:changed', ({ id, opacity }) => {
+      this.$root.$on('layerOpacity:changed', ({ id, opacity }) => {
         this.saveOpacitiesToSessionStorage(id, opacity)
       })
       this.$root.$on('toolbar:drag', () => this.resizeOnDrag())

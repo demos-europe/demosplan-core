@@ -192,7 +192,7 @@
         :init-cluster-list="clusterList"
         :current-user-id="currentUserId"
         :procedure-id="procedureId"
-        @selected-cluster="setClusterSelection"
+        @selectedCluster="setClusterSelection"
         ref="clusterSelect" />
     </fieldset>
     <dp-button

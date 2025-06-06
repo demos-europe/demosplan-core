@@ -61,7 +61,7 @@ export default {
 
   emits: [
     'addCustomlayer',
-    'custom-layer:unfolded'
+    'customLayer:unfolded'
   ],
 
   data () {
@@ -95,7 +95,7 @@ export default {
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
       if (unfolded) {
-        this.$emit('custom-layer:unfolded')
+        this.$emit('customLayer:unfolded')
       }
     },
 

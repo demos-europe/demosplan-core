@@ -57,7 +57,7 @@ export default {
   },
 
   emits: [
-    'layer-list:unfolded'
+    'layerList:unfolded'
   ],
 
   data () {
@@ -93,7 +93,7 @@ export default {
       const unfolded = this.unfolded = !this.unfolded
 
       if (unfolded) {
-        this.$emit('layer-list:unfolded')
+        this.$emit('layerList:unfolded')
       }
     },
 

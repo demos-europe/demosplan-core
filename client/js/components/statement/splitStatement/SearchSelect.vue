@@ -35,7 +35,7 @@
       </template>
       <template v-slot:beforeList>
         <button
-          @click="$emit('open-create-form')"
+          @click="$emit('openCreateForm')"
           class="btn--blank o-link--default weight--bold u-ph-0_5 u-pv-0_5 text-left u-1-of-1 whitespace-nowrap">
           {{ Translator.trans('tag.topic.new') }}
         </button>
@@ -73,7 +73,7 @@ export default {
   },
 
   emits: [
-    'open-create-form'
+    'openCreateForm'
   ],
 
   computed: {
