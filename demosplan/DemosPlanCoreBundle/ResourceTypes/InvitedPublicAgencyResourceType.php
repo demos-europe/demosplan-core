@@ -16,6 +16,9 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\InvitedPublicAgencyResourceConfigBuilder;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
@@ -28,6 +31,13 @@ use EDT\Querying\Contracts\PathException;
  */
 class InvitedPublicAgencyResourceType extends DplanResourceType
 {
+    public function __construct(
+        private readonly StatementRepository $statementRepository,
+        private readonly ProcedureService $procedureService,
+        private readonly StatementService $statementService,
+    ) {
+    }
+
     public static function getName(): string
     {
         return 'InvitedToeb';
@@ -107,19 +117,99 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
                 ->setFilterable();
         }
 
-        // todo add bool indicating this orga had an invitation sent via email within thin procedure phase
         $configBuilder->hasReceivedInvitationMailInCurrentProcedurePhase
             ->setReadableByCallable(
-                fn (OrgaInterface $orga) => true,
+                fn (OrgaInterface $orga) => $this->hasReceivedInvitationMailInCurrentPhase($orga->getId()),
                 DefaultField::YES
             );
-        // todo transmit count of statements handed in by orga within Procedure
+        // todo why does the es implementation differ in their counts to the musch easier doctrine version
         $configBuilder->originalStatementsCountInProcedure
             ->setReadableByCallable(
-                fn (OrgaInterface $orga) => 0,
+                fn (OrgaInterface $orga) => $this->getOriginalStatementsCountForOrgaES($orga),
                 DefaultField::YES
             );
 
         return $configBuilder;
+    }
+
+    /**
+     * Repository approach: Uses StatementMeta.submitOrgaId to count statements originally submitted by the organization.
+     * This represents the immutable original submitting organization, regardless of any subsequent reassignments.
+     */
+    private function getOriginalStatementsCountForOrga(string $orgaId): int
+    {
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (null === $procedure) {
+            return 0;
+        }
+
+        $statements = $this->statementRepository->getStatementsOfProcedureAndOrganisation(
+            $procedure->getId(),
+            $orgaId
+        );
+
+        return count($statements);
+    }
+
+    private function hasReceivedInvitationMailInCurrentPhase(string $orgaId): bool
+    {
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (null === $procedure) {
+            return false;
+        }
+
+        $invitationEmailList = $this->procedureService->getInstitutionMailList(
+            $procedure->getId(),
+            $procedure->getPhase()
+        );
+
+        if (!is_array($invitationEmailList['result']) || 0 === count($invitationEmailList['result'])) {
+            return false;
+        }
+
+        foreach ($invitationEmailList['result'] as $invitedOrga) {
+            if (array_key_exists('organisation', $invitedOrga)
+                && $invitedOrga['organisation'] instanceof Orga
+                && $invitedOrga['organisation']->getId() === $orgaId
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * ES approach: Uses Statement.oId which represents the current organization association of the statement.
+     * This may differ from the original submitting organization if statements have been reassigned/transferred.
+     * Note: For counting original submissions, this may give different results than the repository approach.
+     */
+    private function getOriginalStatementsCountForOrgaES(OrgaInterface $orga): int
+    {
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (null === $procedure) {
+            return 0;
+        }
+
+        $filters = [
+            'original' => 'IS NULL',
+            'deleted' => false,
+        ];
+        $statements = $this->statementService->getStatementsByProcedureId(
+            $procedure->getId(),
+            $filters,
+            null,
+            null,
+            1_000_000
+        );
+
+        $count = 0;
+        foreach ($statements->getResult() as $statement) {
+            if ($statement['oId'] === $orga->getId()) {
+                ++$count;
+            }
+        }
+
+        return $count;
     }
 }
