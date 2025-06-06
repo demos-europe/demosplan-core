@@ -122,7 +122,7 @@ export default {
     isMapAndLayersReady: {
       handler () {
         if (this.layerType === 'base' && this.firstActiveBaseLayerId === '') {
-          this.$root.$emit('layer:toggleLayer', { layerId: this.layers[0].id.replace(/-/g, ''), isVisible: true })
+          this.$root.$emit('layer:toggleLayer', { layerId: this.layers[0].id, isVisible: true })
         }
       },
       deep: false // Set default for migrating purpose. To know this occurrence is checked
