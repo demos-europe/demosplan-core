@@ -107,8 +107,18 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
                 ->setFilterable();
         }
 
-        // todo transmit count of statements handed in by orga within Procedure
         // todo add bool indicating this orga had an invitation sent via email within thin procedure phase
+        $configBuilder->hasReceivedInvitationMailInCurrentProcedurePhase
+            ->setReadableByCallable(
+                fn (OrgaInterface $orga) => true,
+                DefaultField::YES
+            );
+        // todo transmit count of statements handed in by orga within Procedure
+        $configBuilder->originalStatementsCountInProcedure
+            ->setReadableByCallable(
+                fn (OrgaInterface $orga) => 0,
+                DefaultField::YES
+            );
 
         return $configBuilder;
     }
