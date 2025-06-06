@@ -101,26 +101,29 @@
               v-tooltip="Translator.trans('explanation.gislayer.visibility')" />
           </div>
 
-          <div class="w-1/12 text-right">
+          <div class="w-2/12 text-right">
             {{ Translator.trans('edit') }}
           </div>
         </div>
       </div>
       <dp-draggable
         v-if="false === this.isLoading"
+        :class="{ 'color--grey': false === isEditable }"
+        :content-data="currentList"
+        :id="rootId"
+        :node-id="rootId"
         :opts="draggableOptions"
-        v-model="currentList"
-        :class="{'color--grey': false === isEditable}">
+        @end="updateChildren">
         <admin-layer-list-item
           v-for="(item, idx) in currentList"
-          :key="item.id"
-          :element="item"
-          :sorting-type="currentTab"
-          :is-loading="(false === isEditable)"
-          layer-type="overlay"
           data-cy="overlaysMapLayerListItem"
+          :element="item"
           :index="idx"
-          :parent-order-position="1" />
+          :is-loading="(false === isEditable)"
+          :key="item.id"
+          layer-type="overlay"
+          :parent-order-position="1"
+          :sorting-type="currentTab" />
       </dp-draggable>
 
       <dp-loading
@@ -161,17 +164,18 @@
         <dp-draggable
           v-if="false === this.isLoading"
           :opts="draggableOptionsForBaseLayer"
-          v-model="currentBaseList"
+          :content-data="currentBaseList"
+          :node-id="rootId"
           :class="{'color--grey': false === isEditable}">
           <admin-layer-list-item
             v-for="(item, idx) in currentBaseList"
-            :key="item.id"
-            :element="item"
-            :sorting-type="currentTab"
-            :is-loading="(false === isEditable)"
-            layer-type="base"
             data-cy="baseMapLayerListItem"
-            :index="idx" />
+            :element="item"
+            :index="idx"
+            :is-loading="(false === isEditable)"
+            :key="item.id"
+            layer-type="base"
+            :sorting-type="currentTab" />
         </dp-draggable>
         <div class="my-4">
           <h3>
@@ -264,6 +268,19 @@ export default {
   },
 
   computed: {
+    ...mapState('Layers', [
+      'draggableOptions',
+      'draggableOptionsForBaseLayer',
+      'draggableOptionsForCategorysWithHiddenLayers'
+    ]),
+
+    ...mapGetters('Layers', [
+      'gisLayerList',
+      'elementListForLayerSidebar',
+      'minimapLayer',
+      'rootId'
+    ]),
+
     /**
      *
      * Model to switch the Models but keeping the Markup lean
@@ -306,6 +323,7 @@ export default {
       },
       set (value) {
         this.setChildrenFromCategory({
+          setPayload: value,
           categoryId: null,
           data: value,
           orderType: 'treeOrder',
@@ -400,21 +418,48 @@ export default {
       set (value) {
         this.setMinimapBaseLayer(value.id)
       }
-    },
-
-    ...mapState('Layers', ['draggableOptions', 'draggableOptionsForBaseLayer', 'draggableOptionsForCategorysWithHiddenLayers']),
-    ...mapGetters('Layers', ['gisLayerList', 'elementListForLayerSidebar', 'minimapLayer'])
+    }
   },
 
   methods: {
+    ...mapActions('Layers', ['saveAll', 'get']),
+
+    ...mapMutations('Layers', [
+      'setAttributeForLayer',
+      'setChildrenFromCategory',
+      'resetOrder',
+      'setDraggableOptions',
+      'setDraggableOptionsForCategorysWithHiddenLayers',
+      'setDraggableOptionsForBaseLayer',
+      'setMinimapBaseLayer'
+    ]),
+
+    updateChildren (event) {
+      this.setChildrenFromCategory({
+        newCategoryId: event.to.id,
+        categoryId: event.from.id,
+        data: null,
+        movedElement: {
+          id: event.item.id,
+          newIndex: event.newIndex,
+          oldIndex: event.oldIndex
+        },
+        orderType: 'treeOrder',
+        parentOrder: 0
+      })
+    },
+
     saveOrder (redirect) {
       this.isEditable = false
-      this.saveAll().then(() => {
-        this.isEditable = true
-        if (redirect === true) {
-          window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
-        }
-      })
+
+      this.saveAll()
+        .then(() => {
+          this.isEditable = true
+
+          if (redirect === true) {
+            window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
+          }
+        })
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
@@ -427,10 +472,7 @@ export default {
     setActiveTab (sortOrder) {
       this.currentTab = sortOrder
       lscache.set('layerOrderTab', sortOrder, 300)
-    },
-
-    ...mapActions('Layers', ['saveAll', 'get']),
-    ...mapMutations('Layers', ['setChildrenFromCategory', 'resetOrder', 'setDraggableOptions', 'setDraggableOptionsForCategorysWithHiddenLayers', 'setDraggableOptionsForBaseLayer', 'setMinimapBaseLayer'])
+    }
   },
 
   mounted () {
