@@ -69,7 +69,7 @@
     </template>
 
     <div
-      class="min-w-12 border--bottom u-p-0_5">
+      class="min-w-12 border--bottom u-p-0_5 leading-[2] whitespace-nowrap">
       <dp-resettable-input
         :data-cy="`searchField:${path}`"
         :id="`searchField_${path}`"
