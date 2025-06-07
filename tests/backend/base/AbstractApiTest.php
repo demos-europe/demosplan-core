@@ -42,14 +42,7 @@ abstract class AbstractApiTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        static::ensureKernelShutdown();
-        // the createClient() method cannot be used when kernel is booted
-        $this->client = static::createClient();
-        $serverParameters = $this->getServerParameters();
-        $this->client->setServerParameters($serverParameters);
-
-        $this->router = $this->getContainer()->get(RouterInterface::class);
-        $this->tokenManager = $this->getContainer()->get(JWTTokenManagerInterface::class);
+        $this->setUpHttpClient();
     }
 
     /**
@@ -60,6 +53,7 @@ abstract class AbstractApiTest extends FunctionalTestCase
         $token = $this->tokenManager->create($user);
         $userToken = new JWTUserToken($user->getDplanRolesArray(), $user, $token);
         $this->tokenStorage->setToken($userToken);
+        $this->client->setServerParameter(SetHttpTestPermissionsListener::X_DPLAN_TEST_USER_ID, $user->getId());
 
         return $token;
     }
@@ -102,4 +96,16 @@ abstract class AbstractApiTest extends FunctionalTestCase
     }
 
     abstract protected function getServerParameters(): array;
+
+    public function setUpHttpClient(): void
+    {
+        static::ensureKernelShutdown();
+
+        $this->client = static::createClient();
+        $serverParameters = $this->getServerParameters();
+        $this->client->setServerParameters($serverParameters);
+
+        $this->router = $this->getContainer()->get(RouterInterface::class);
+        $this->tokenManager = $this->getContainer()->get(JWTTokenManagerInterface::class);
+    }
 }
