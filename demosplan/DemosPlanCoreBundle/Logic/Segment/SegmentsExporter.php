@@ -41,7 +41,7 @@ class SegmentsExporter
     /**
      * @var array<string, mixed>
      */
-    protected array $styles;
+    public array $styles;
 
     protected TranslatorInterface $translator;
 
@@ -106,7 +106,7 @@ class SegmentsExporter
         }
     }
 
-    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
+    public function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
     {
         $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
         $header->addText(

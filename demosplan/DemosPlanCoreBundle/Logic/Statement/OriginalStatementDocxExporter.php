@@ -14,6 +14,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
+use PhpOffice\PhpWord\Element\Footer;
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 
@@ -34,7 +37,7 @@ class OriginalStatementDocxExporter extends CoreService
             return $this->segmentsByStatementsExporter->exportEmptyStatements($phpWord, $procedure);
         }
 
-        return $this->segmentsByStatementsExporter->exportStatements(
+        return $this->exportStatements(
             $phpWord,
             $procedure,
             $statements,
@@ -44,5 +47,34 @@ class OriginalStatementDocxExporter extends CoreService
             false,
             true,
         );
+    }
+
+
+    public function exportStatements(
+        PhpWord $phpWord,
+        Procedure $procedure,
+        array $statements,
+        array $tableHeaders,
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
+        bool $obscure,
+        bool $isOriginalStatementExport,
+    ): WriterInterface {
+        $section = $phpWord->addSection($this->segmentsByStatementsExporter->styles['globalSection']);
+        $this->segmentsByStatementsExporter->addHeader($section, $procedure, Footer::FIRST);
+        $this->segmentsByStatementsExporter->addHeader($section, $procedure);
+
+        foreach ($statements as $index => $statement) {
+            $censored = $this->segmentsByStatementsExporter->needsToBeCensored(
+                $statement,
+                $censorCitizenData,
+                $censorInstitutionData,
+            );
+
+            $this->segmentsByStatementsExporter->exportStatement($section, $statement, $tableHeaders, $censored, $obscure, $isOriginalStatementExport);
+            $section = $this->segmentsByStatementsExporter->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
+        }
+
+        return IOFactory::createWriter($phpWord);
     }
 }

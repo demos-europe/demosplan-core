@@ -351,7 +351,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     /**
      * @param array<int, Statement> $statements
      */
-    private function getNewSectionIfNeeded(PhpWord $phpWord, Section $section, int $i, array $statements): Section
+    public function getNewSectionIfNeeded(PhpWord $phpWord, Section $section, int $i, array $statements): Section
     {
         if ($this->isNotLastStatement($statements, $i)) {
             $section = $phpWord->addSection($this->styles['globalSection']);
