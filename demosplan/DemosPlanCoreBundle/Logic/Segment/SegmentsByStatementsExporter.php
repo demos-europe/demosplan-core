@@ -174,7 +174,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     /**
      * @throws Exception
      */
-    private function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure): WriterInterface
+    public function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
@@ -188,7 +188,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      *
      * @throws Exception
      */
-    private function exportStatements(
+    public function exportStatements(
         PhpWord $phpWord,
         Procedure $procedure,
         array $statements,

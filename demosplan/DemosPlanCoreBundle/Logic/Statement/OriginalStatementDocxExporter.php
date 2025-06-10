@@ -12,7 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
+use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 
 class OriginalStatementDocxExporter extends CoreService
@@ -24,14 +26,23 @@ class OriginalStatementDocxExporter extends CoreService
 
     public function export(array $statements, Procedure $procedure): WriterInterface
     {
-        return $this->segmentsByStatementsExporter->exportAll(
-            [],
+        Settings::setOutputEscapingEnabled(true);
+
+        $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
+
+        if (0 === count($statements)) {
+            return $this->segmentsByStatementsExporter->exportEmptyStatements($phpWord, $procedure);
+        }
+
+        return $this->segmentsByStatementsExporter->exportStatements(
+            $phpWord,
             $procedure,
+            $statements,
+            [],
             false,
             false,
             false,
             true,
-            ...$statements
         );
     }
 }
