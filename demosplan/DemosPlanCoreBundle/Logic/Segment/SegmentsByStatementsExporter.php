@@ -172,18 +172,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     }
 
     /**
-     * @throws Exception
-     */
-    public function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure): WriterInterface
-    {
-        $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST);
-        $this->addHeader($section, $procedure);
-
-        return $this->addNoStatementsMessage($phpWord, $section);
-    }
-
-    /**
      * @param array<int, Statement> $statements
      *
      * @throws Exception
@@ -335,17 +323,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         return $withDbId
             ? "$fileName-$dbId.docx"
             : "$fileName.docx";
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function addNoStatementsMessage(PhpWord $phpWord, Section $section): WriterInterface
-    {
-        $noEntriesMessage = $this->translator->trans('statements.filtered.none');
-        $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
-
-        return IOFactory::createWriter($phpWord);
     }
 
     /**

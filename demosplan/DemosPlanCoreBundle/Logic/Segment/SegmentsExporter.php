@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Logic\DocumentExporter\BaseDocxExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
@@ -36,14 +37,12 @@ use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SegmentsExporter
+class SegmentsExporter extends BaseDocxExporter
 {
     /**
      * @var array<string, mixed>
      */
     public array $styles;
-
-    protected TranslatorInterface $translator;
 
     protected Slugify $slugify;
 
@@ -56,9 +55,9 @@ class SegmentsExporter
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
     ) {
-        $this->translator = $translator;
-        $this->styles = $styleInitializer->initialize();
         $this->slugify = $slugify;
+
+        parent::__construct($styleInitializer, $translator);
     }
 
     /**

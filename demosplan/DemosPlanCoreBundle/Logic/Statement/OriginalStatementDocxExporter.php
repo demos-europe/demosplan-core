@@ -11,20 +11,31 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
+use demosplan\DemosPlanCoreBundle\Logic\DocumentExporter\BaseDocxExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use PhpOffice\PhpWord\Element\Footer;
+use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Writer\WriterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-class OriginalStatementDocxExporter extends CoreService
+class OriginalStatementDocxExporter extends BaseDocxExporter
 {
+
+
     public function __construct(
+        protected  StyleInitializer  $styleInitializer,
+        protected TranslatorInterface $translator,
         private readonly SegmentsByStatementsExporter $segmentsByStatementsExporter)
     {
+        parent::__construct(
+            $styleInitializer,
+            $translator,
+        );
     }
 
     public function export(array $statements, Procedure $procedure): WriterInterface
@@ -75,5 +86,10 @@ class OriginalStatementDocxExporter extends CoreService
         }
 
         return IOFactory::createWriter($phpWord);
+    }
+
+    public function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
+    {
+        // TODO: Implement addHeader() method.
     }
 }
