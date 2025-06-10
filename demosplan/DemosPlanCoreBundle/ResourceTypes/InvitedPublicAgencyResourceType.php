@@ -203,7 +203,7 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
 
         $filters = [
             'original' => 'IS NULL',
-            'deleted' => false,
+            'deleted'  => false,
         ];
         $statements = $this->statementService->getStatementsByProcedureId(
             $procedure->getId(),
