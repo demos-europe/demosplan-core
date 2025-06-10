@@ -14,8 +14,6 @@ class RadioButtonField extends AbstractCustomField
 {
     protected string $id = '';
 
-    protected string $name = '';
-
     protected string $fieldType = 'singleSelect';
 
     /**

@@ -4,8 +4,12 @@
 - **Minor Version**: Incremented for each release.
 - **Patch Version**: Incremented for bug fixes.
 
+## UNRELEASED
+- Add Versioning of custom fields of segments
+- Update Elasticsearch to version 8
 
 ## UNRELEASED
+- Export Original Statements as csv in the Statement List
 
 ### Features
 - Allow filtering of institution tags in DpAddOrganizationList
