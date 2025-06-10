@@ -65,17 +65,22 @@
       :text="Translator.trans('layers')"
       for="r_layers"
       required />
+
     <dp-multiselect
-      @input="filterMatrixSetByLayers"
-      required
-      track-by="label"
-      label="label"
-      multiple
       id="r_layers"
       v-model="layers"
-      data-cy="newMapLayerLayers"
       :options="layersOptions"
-      class="u-mb-0_5" />
+      :selection-controls="true"
+      class="u-mb-0_5"
+      data-cy="newMapLayerLayers"
+      label="label"
+      track-by="label"
+      multiple
+      required
+      @input="filterMatrixSetByLayers"
+      @select-all="selectAllLayers"
+      @unselect-all="resetLayerSelection"
+    />
 
     <input
       type="hidden"
@@ -482,6 +487,14 @@ export default {
         // Otherwise reset selection to empty
         this.layers = []
       }
+    },
+
+    selectAllLayers () {
+      this.layers = [...this.layersOptions]
+    },
+
+    unselectAllLayers () {
+      this.layers = []
     },
 
     setServiceInUrl () {
