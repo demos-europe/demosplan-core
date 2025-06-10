@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "bulk.delete.invited.organisations",
+  "type": "object",
+  "required": ["jsonrpc", "method", "id", "params"],
+  "properties": {
+    "jsonrpc": {
+      "enum": ["2.0"]
+    },
+    "method": {
+      "enum": ["bulk.delete.invited.organisations"]
+    },
+    "id": {
+      "type": "string"
+    },
+    "params": {
+      "$id": "#/items/anyOf/0/properties/params",
+      "type": "object",
+      "properties": {
+        "ids": {
+          "$id": "ids",
+          "type": "array",
+          "additionalItems": false,
+          "items": {
+            "$id": "ids/items",
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      },
+      "required": ["ids"]
+    }
+  }
+}
