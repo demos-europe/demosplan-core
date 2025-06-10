@@ -48,7 +48,7 @@ class SegmentsExporter extends BaseDocxExporter
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
-        private readonly HtmlHelper $htmlHelper,
+        protected HtmlHelper $htmlHelper,
         private readonly ImageManager $imageManager,
         protected readonly ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,
@@ -57,7 +57,7 @@ class SegmentsExporter extends BaseDocxExporter
     ) {
         $this->slugify = $slugify;
 
-        parent::__construct($styleInitializer, $translator);
+        parent::__construct($styleInitializer, $translator, $htmlHelper);
     }
 
     /**
@@ -102,33 +102,6 @@ class SegmentsExporter extends BaseDocxExporter
             );
 
             $section->addTextBreak(2);
-        }
-    }
-
-    public function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
-    {
-        $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
-        $header->addText(
-            $procedure->getName(),
-            $this->styles['documentTitleFont'],
-            $this->styles['documentTitleParagraph']
-        );
-
-        $this->addPreambleIfFirstHeader($header, $headerType);
-
-        $currentDate = new DateTime();
-        $header->addText(
-            $this->translator->trans('segments.export.statement.export.date', ['date' => $currentDate->format('d.m.Y')]),
-            $this->styles['currentDateFont'],
-            $this->styles['currentDateParagraph']
-        );
-    }
-
-    private function addPreambleIfFirstHeader(Header $header, ?string $headerType): void
-    {
-        if (Footer::FIRST === $headerType) {
-            $preamble = $this->translator->trans('docx.export.preamble');
-            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
         }
     }
 

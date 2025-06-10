@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\DocumentExporter\BaseDocxExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
@@ -28,11 +29,13 @@ class OriginalStatementDocxExporter extends BaseDocxExporter
     public function __construct(
         protected StyleInitializer $styleInitializer,
         protected TranslatorInterface $translator,
+        protected HtmlHelper $htmlHelper,
         private readonly SegmentsByStatementsExporter $segmentsByStatementsExporter)
     {
         parent::__construct(
             $styleInitializer,
             $translator,
+            $htmlHelper
         );
     }
 
@@ -69,8 +72,8 @@ class OriginalStatementDocxExporter extends BaseDocxExporter
         bool $isOriginalStatementExport,
     ): WriterInterface {
         $section = $phpWord->addSection($this->segmentsByStatementsExporter->styles['globalSection']);
-        $this->segmentsByStatementsExporter->addHeader($section, $procedure, Footer::FIRST);
-        $this->segmentsByStatementsExporter->addHeader($section, $procedure);
+        $this->addHeader($section, $procedure, Footer::FIRST);
+        $this->addHeader($section, $procedure);
 
         foreach ($statements as $index => $statement) {
             $censored = $this->segmentsByStatementsExporter->needsToBeCensored(
@@ -84,10 +87,5 @@ class OriginalStatementDocxExporter extends BaseDocxExporter
         }
 
         return IOFactory::createWriter($phpWord);
-    }
-
-    public function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
-    {
-        // TODO: Implement addHeader() method.
     }
 }

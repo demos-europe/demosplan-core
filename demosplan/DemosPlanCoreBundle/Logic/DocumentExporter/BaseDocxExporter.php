@@ -10,13 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\DocumentExporter;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use PhpOffice\PhpWord\Element\Footer;
+use PhpOffice\PhpWord\Element\Header;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -30,6 +34,7 @@ abstract class BaseDocxExporter
     public function __construct(
         protected StyleInitializer $styleInitializer,
         protected TranslatorInterface $translator,
+        protected HtmlHelper $htmlHelper,
     ) {
         $this->styles = $styleInitializer->initialize();
     }
@@ -46,8 +51,6 @@ abstract class BaseDocxExporter
         return $this->addNoStatementsMessage($phpWord, $section);
     }
 
-    abstract public function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void;
-
     /**
      * @throws Exception
      */
@@ -57,5 +60,32 @@ abstract class BaseDocxExporter
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
 
         return IOFactory::createWriter($phpWord);
+    }
+
+    public function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
+    {
+        $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
+        $header->addText(
+            $procedure->getName(),
+            $this->styles['documentTitleFont'],
+            $this->styles['documentTitleParagraph']
+        );
+
+        $this->addPreambleIfFirstHeader($header, $headerType);
+
+        $currentDate = new DateTime();
+        $header->addText(
+            $this->translator->trans('segments.export.statement.export.date', ['date' => $currentDate->format('d.m.Y')]),
+            $this->styles['currentDateFont'],
+            $this->styles['currentDateParagraph']
+        );
+    }
+
+    private function addPreambleIfFirstHeader(Header $header, ?string $headerType): void
+    {
+        if (Footer::FIRST === $headerType) {
+            $preamble = $this->translator->trans('docx.export.preamble');
+            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
+        }
     }
 }
