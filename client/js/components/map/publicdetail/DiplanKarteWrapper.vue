@@ -15,7 +15,7 @@
 
 <script setup>
 import { DpButton, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import { MapPlugin } from '@init/diplan-karten'
+import { MapPlugin, registerWebComponent } from '@init/diplan-karten'
 import { getCurrentInstance } from 'vue'
 
 const instance = getCurrentInstance()
@@ -41,7 +41,19 @@ const openStatementModalOrLoginPage= (event) => {
   toggleStatementModal({})
 }
 
+const props = defineProps({
+  styleNonce: {
+    type: String,
+    default: '',
+    required: false,
+  }
+})
+
 const toggleStatementModal = (updateStatementPayload) => {
   instance.parent.refs.statementModal.toggleModal(true, updateStatementPayload)
 }
+
+registerWebComponent({
+  nonce: props.styleNonce,
+})
 </script>

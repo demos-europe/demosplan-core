@@ -2414,9 +2414,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@init/diplan-karten@npm:^0.5.0":
-  version: 0.5.0
-  resolution: "@init/diplan-karten@npm:0.5.0"
+"@init/diplan-karten@npm:^0.6.1":
+  version: 0.6.1
+  resolution: "@init/diplan-karten@npm:0.6.1"
   dependencies:
     "@formkit/addons": "npm:1.6.9"
     "@formkit/auto-animate": "npm:0.8.2"
@@ -2430,14 +2430,15 @@ __metadata:
     "@vueuse/components": "npm:^13.0.0"
     "@vueuse/core": "npm:^13.0.0"
     axios: "npm:^1.7.9"
-    bootstrap: "npm:^5.3.3"
     diplanung-style: "npm:^13.1.0"
     lodash-es: "npm:^4.17.21"
     ol: "npm:10.3.1"
     ol-ext: "npm:^4.0.26"
   peerDependencies:
+    "@popperjs/core": ^2.11.8
+    bootstrap: ^5.3.3
     vue: ^3.5.13
-  checksum: 10c0/5637f6da8d149d32b8cacaf956860a29e1dd573c36fc2ab04d21152a955d64711047b05a2bc170c25150fa6f9b088fd88b845d385550fe21c2404f85571348c8
+  checksum: 10c0/dfb6941d8e43d9bab89a0fc99cdc56eb08f9abd21b05de167aa43e9604b7f84c413d938ccb35e4102968e74d731c08810c8d946a6be72847ecdc93c8e14c7d52
   languageName: node
   linkType: hard
 
@@ -14774,7 +14775,7 @@ __metadata:
     "@demos-europe/dp-consent": "npm:^1.3"
     "@efrane/vuex-json-api": "npm:^0.1.3"
     "@fullhuman/postcss-purgecss": "npm:^7.0.2"
-    "@init/diplan-karten": "npm:^0.5.0"
+    "@init/diplan-karten": "npm:^0.6.1"
     "@masterportal/masterportalapi": "npm:2.48.0"
     "@sentry/browser": "npm:^9.12.0"
     "@sentry/tracing": "npm:^7.120.3"
