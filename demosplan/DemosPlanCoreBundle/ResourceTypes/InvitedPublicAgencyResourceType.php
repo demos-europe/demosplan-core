@@ -17,7 +17,6 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\InvitedPublicAgencyResourceConfigBuilder;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
@@ -35,7 +34,6 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
     public function __construct(
         private readonly StatementRepository $statementRepository,
         private readonly ProcedureService $procedureService,
-        private readonly StatementService $statementService,
     ) {
     }
 
@@ -110,6 +108,18 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
             ->setReadableByPath()
             ->setFilterable();
 
+        // Virtual properties that are always readable
+        $configBuilder->hasReceivedInvitationMailInCurrentProcedurePhase
+            ->setReadableByCallable(
+                fn (OrgaInterface $orga) => $this->hasReceivedInvitationMailInCurrentPhase($orga->getId()),
+                DefaultField::YES
+            );
+        $configBuilder->originalStatementsCountInProcedure
+            ->setReadableByCallable(
+                fn (OrgaInterface $orga) => $this->getOriginalStatementsCountForOrga($orga->getId()),
+                DefaultField::YES
+            );
+
         // Conditional properties based on permissions
         if ($this->currentUser->hasPermission('field_organisation_competence')) {
             $configBuilder->competenceDescription->setAliasedPath(Paths::orga()->competence)
@@ -123,18 +133,6 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
                 ->setReadableByPath(DefaultField::YES, DefaultInclude::YES)
                 ->setFilterable();
         }
-
-        $configBuilder->hasReceivedInvitationMailInCurrentProcedurePhase
-            ->setReadableByCallable(
-                fn (OrgaInterface $orga) => $this->hasReceivedInvitationMailInCurrentPhase($orga->getId()),
-                DefaultField::YES
-            );
-        // todo why does the es implementation differ in their counts to the musch easier doctrine version
-        $configBuilder->originalStatementsCountInProcedure
-            ->setReadableByCallable(
-                fn (OrgaInterface $orga) => $this->getOriginalStatementsCountForOrga($orga->getId()),
-                DefaultField::YES
-            );
 
         return $configBuilder;
     }
@@ -189,37 +187,4 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
         return false;
     }
 
-    /**
-     * ES approach: Uses Statement.oId which represents the current organization association of the statement.
-     * This may differ from the original submitting organization if statements have been reassigned/transferred.
-     * Note: For counting original submissions, this may give different results than the repository approach.
-     */
-    private function getOriginalStatementsCountForOrgaES(OrgaInterface $orga): int
-    {
-        $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
-            return 0;
-        }
-
-        $filters = [
-            'original' => 'IS NULL',
-            'deleted'  => false,
-        ];
-        $statements = $this->statementService->getStatementsByProcedureId(
-            $procedure->getId(),
-            $filters,
-            null,
-            null,
-            1_000_000
-        );
-
-        $count = 0;
-        foreach ($statements->getResult() as $statement) {
-            if ($statement['oId'] === $orga->getId()) {
-                ++$count;
-            }
-        }
-
-        return $count;
-    }
 }
