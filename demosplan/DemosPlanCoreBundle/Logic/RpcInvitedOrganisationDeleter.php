@@ -106,7 +106,7 @@ class RpcInvitedOrganisationDeleter implements RpcMethodSolverInterface
                     if (false === $organisation) {
                         $errorMessage = sprintf('Organisation %s is not invited to procedure %s', $organisationId, $procedure->getId());
                         $this->logger->error($errorMessage);
-                        $this->messageBag->add('error', 'error.organisation.not.invited', ['organisationId' => $organisationId]);
+                        $this->messageBag->add('error', 'error.organisation.not.invited');
                         throw new OrgaNotFoundException($errorMessage);
                     }
 
@@ -119,7 +119,7 @@ class RpcInvitedOrganisationDeleter implements RpcMethodSolverInterface
                 }
 
                 $resultResponse[] = $this->generateMethodSuccessResult($rpcRequest);
-                $this->messageBag->add('confirm', 'confirm.invited.organisations.removed');
+                $this->messageBag->add('confirm', 'confirm.invitable_institutions.deleted');
             } catch (Exception $e) {
                 $this->messageBag->add('error', 'warning.invited.organisations.bulk.delete.generic.error');
                 $this->logger->error(
