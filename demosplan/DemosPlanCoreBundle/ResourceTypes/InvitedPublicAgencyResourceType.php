@@ -186,5 +186,4 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
 
         return false;
     }
-
 }
