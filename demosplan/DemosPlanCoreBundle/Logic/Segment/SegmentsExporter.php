@@ -250,8 +250,6 @@ class SegmentsExporter
             } else {
                 $this->addNoSegmentsMessage($section);
             }
-
-
         } else {
             $this->addSegmentsTable($section, $statement, $tableHeaders, $isObscure);
         }

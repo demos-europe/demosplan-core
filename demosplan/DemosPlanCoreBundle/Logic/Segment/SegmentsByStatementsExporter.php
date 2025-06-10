@@ -196,7 +196,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscure,
-        bool $isOriginalStatementExport
+        bool $isOriginalStatementExport,
     ): WriterInterface {
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
@@ -245,7 +245,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         array $tableHeaders,
         $censored = false,
         $obscure = false,
-        $isOriginalStatementExport = false
+        $isOriginalStatementExport = false,
     ): void {
         $this->addStatementInfo($section, $statement, $censored);
         $this->addSimilarStatementSubmitters($section, $statement);
