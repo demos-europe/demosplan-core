@@ -245,7 +245,8 @@ class SegmentsExporter
     protected function addSegments(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void
     {
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
-            $this->addNoSegmentsMessage($section);
+           // $this->addNoSegmentsMessage($section, $statement);
+            $this->addStatementTable($section, $statement, $tableHeaders, $isObscure);
         } else {
             $this->addSegmentsTable($section, $statement, $tableHeaders, $isObscure);
         }
@@ -286,6 +287,12 @@ class SegmentsExporter
         $this->imageManager->addImages($section);
     }
 
+    private function addStatementTable(Section $section, Statement $statement, array $tableHeaders, bool $isObscure): void
+    {
+        $table = $this->addStatementsTableHeader($section, $tableHeaders);
+        $this->addStatementTableBody($table, $statement);
+    }
+
     protected function sortSegmentsByOrderInProcedure(array $segments): array
     {
         uasort($segments, [$this, 'compareOrderInProcedure']);
@@ -296,6 +303,35 @@ class SegmentsExporter
     private function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
     {
         return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
+    }
+
+    private function addStatementsTableHeader(Section $section, array $tableHeaders): Table
+    {
+        $table = $section->addTable($this->styles['segmentsTable']);
+        $headerRow = $table->addRow(
+            $this->styles['segmentsTableHeaderRowHeight'],
+            $this->styles['segmentsTableHeaderRow']
+        );
+        $this->addSegmentCell(
+            $headerRow,
+            htmlspecialchars(
+                $tableHeaders['col1'] ?? $this->translator->trans('statements.export.statement.id'),
+                ENT_NOQUOTES,
+                'UTF-8'
+            ),
+            $this->styles['segmentsTableHeaderCellID']
+        );
+        $this->addSegmentCell(
+            $headerRow,
+            htmlspecialchars(
+                $tableHeaders['col2'] ?? $this->translator->trans('statements.export.statement.label'),
+                ENT_NOQUOTES,
+                'UTF-8'
+            ),
+            $this->styles['segmentsTableHeaderCell']
+        );
+
+        return $table;
     }
 
     private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
@@ -354,6 +390,23 @@ class SegmentsExporter
         $this->addSegmentHtmlCell(
             $textRow,
             $convertedSegment->getRecommendationText(),
+            $this->styles['segmentsTableBodyCell']
+        );
+    }
+
+    private function addStatementTableBody(Table $table, Statement $statement): void
+    {
+        $textRow = $table->addRow();
+        $statementText = $statement->getText();
+        $newStatementText = str_replace('<br>', '<br/>', $statementText);
+        $this->addSegmentHtmlCell(
+            $textRow,
+            $statement->getExternId(),
+            $this->styles['segmentsTableBodyCellID']
+        );
+        $this->addSegmentHtmlCell(
+            $textRow,
+            $newStatementText,
             $this->styles['segmentsTableBodyCell']
         );
     }

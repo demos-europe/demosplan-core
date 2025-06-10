@@ -3217,10 +3217,12 @@ segments.bulk.edit.recommendations.warning.empty.text.replace: |
     }
 segments.export.pagination: "Seite {PAGE} von {NUMPAGES}"
 segments.export.segment.id: "Abschnitts-ID"
+statements.export.statement.id: "Stellungnahme-ID"
 segments.export.statement.export.date: "Synopse vom {date}"
 segments.export.statement.extern.id: "ID: {externId}"
 segments.export.statement.intern.id: "Eingangsnummer: {internId}"
 segments.export.statement.label: "Einwendung / Stellungnahme"
+statements.export.statement.label: "Stellungnahme"
 segments.export.statement.similar.submitters: 'Weitere Einreichende der gleichen Stellungnahme: {similarSubmitters}'
 segments.fields.configurable: "Konfigurierbare Abschnittsfelder"
 segments.fields.edit.info: "Hier können Sie die Felder anpassen, die in einem Verfahren an Abschnitten verfügbar sind."
