@@ -25,6 +25,7 @@ use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\DefaultInclude;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\Querying\Contracts\PathException;
+use Exception;
 
 /**
  * @template-extends DplanResourceType<Orga>
@@ -77,7 +78,7 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
         $invitedOrgaIds = $procedure->getOrganisation()->map(
             static fn (OrgaInterface $orga): string => $orga->getId()
         );
-        // use least strict rules to even show by now rejected orgas that still had received an ivitation
+        // use least strict rules to even show by now rejected orgas that still had received an invitation
         $conditions = $this->resourceTypeStore->getOrgaResourceType()->getMandatoryConditions();
         $conditions[] = $this->conditionFactory->propertyHasAnyOfValues($invitedOrgaIds->toArray(), Paths::orga()->id);
 
@@ -102,6 +103,12 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
             ->setRelationshipType($this->resourceTypeStore->getInstitutionLocationContactResourceType())
             ->setReadableByPath()
             ->setAliasedPath(Paths::orga()->addresses);
+        $configBuilder->paperCopy
+            ->setReadableByPath()
+            ->setFilterable();
+        $configBuilder->paperCopySpec
+            ->setReadableByPath()
+            ->setFilterable();
 
         // Conditional properties based on permissions
         if ($this->currentUser->hasPermission('field_organisation_competence')) {
@@ -125,7 +132,7 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
         // todo why does the es implementation differ in their counts to the musch easier doctrine version
         $configBuilder->originalStatementsCountInProcedure
             ->setReadableByCallable(
-                fn (OrgaInterface $orga) => $this->getOriginalStatementsCountForOrgaES($orga),
+                fn (OrgaInterface $orga) => $this->getOriginalStatementsCountForOrga($orga->getId()),
                 DefaultField::YES
             );
 
@@ -133,8 +140,9 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
     }
 
     /**
-     * Repository approach: Uses StatementMeta.submitOrgaId to count statements originally submitted by the organization.
-     * This represents the immutable original submitting organization, regardless of any subsequent reassignments.
+     * Repository approach: Uses Statement.organisation (_o_id) to count statements submitted via draft-to-statement workflow.
+     * This counts statements where the organisation is set directly on the statement, representing
+     * statements submitted by the organisation through the draft-to-statement process.
      */
     private function getOriginalStatementsCountForOrga(string $orgaId): int
     {
@@ -143,12 +151,14 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
             return 0;
         }
 
-        $statements = $this->statementRepository->getStatementsOfProcedureAndOrganisation(
-            $procedure->getId(),
-            $orgaId
-        );
-
-        return count($statements);
+        try {
+            return $this->statementRepository->countDraftToStatementSubmissionsByOrganisation(
+                $procedure->getId(),
+                $orgaId
+            );
+        } catch (Exception) {
+            return 0;
+        }
     }
 
     private function hasReceivedInvitationMailInCurrentPhase(string $orgaId): bool
