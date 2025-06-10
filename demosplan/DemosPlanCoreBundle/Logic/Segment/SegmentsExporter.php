@@ -245,7 +245,7 @@ class SegmentsExporter
     protected function addSegments(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void
     {
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
-           // $this->addNoSegmentsMessage($section, $statement);
+            // $this->addNoSegmentsMessage($section, $statement);
             $this->addStatementTable($section, $statement, $tableHeaders, $isObscure);
         } else {
             $this->addSegmentsTable($section, $statement, $tableHeaders, $isObscure);
