@@ -85,8 +85,8 @@
                         selection-controls
                         track-by="id"
                         @input="sortSelected('AuthUsers')"
-                        @select-all="selectAllAuthUsers"
-                        @unselect-all="unselectAllAuthUsers">
+                        @selectAll="selectAllAuthUsers"
+                        @unselectAll="unselectAllAuthUsers">
                         <template v-slot:option="{ props }">
                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                         </template>
