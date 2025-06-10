@@ -49,7 +49,6 @@ class OriginalStatementDocxExporter extends CoreService
         );
     }
 
-
     public function exportStatements(
         PhpWord $phpWord,
         Procedure $procedure,
