@@ -94,8 +94,7 @@ class StatementExportController extends BaseController
         options: ['expose' => true],
         methods: 'GET'
     )]
-    public function exportByStatementsFilterDocxAction() {
-
+    public function exportByStatementsFilterDocxAction()
+    {
     }
-
 }
