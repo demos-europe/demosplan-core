@@ -342,19 +342,18 @@ class StatementArrayConverterTest extends FunctionalTestCase
         self::assertContains('original-statement.pdf', $resultWithOriginal['fileNames']);
     }
 
-
     private function addOriginalFileToStatement(Statement|Proxy $statement, string $filename): void
     {
         // Create a File entity
         $file = FileFactory::createOne([
-            'name' => $filename,
+            'name'     => $filename,
             'filename' => $filename,
         ]);
 
         // Create a StatementAttachment for the original file
         $statementAttachment = StatementAttachmentFactory::createOne([
-            'file' => $file->_real(),
-            'type' => StatementAttachmentInterface::SOURCE_STATEMENT,
+            'file'      => $file->_real(),
+            'type'      => StatementAttachmentInterface::SOURCE_STATEMENT,
             'statement' => $statement->_real(),
         ]);
 
@@ -362,5 +361,4 @@ class StatementArrayConverterTest extends FunctionalTestCase
         $statement->addAttachment($statementAttachment->_real());
         $statement->_save();
     }
-
 }

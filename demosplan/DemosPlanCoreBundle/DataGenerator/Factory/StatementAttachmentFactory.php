@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
@@ -47,7 +55,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  */
 final class StatementAttachmentFactory extends PersistentProxyObjectFactory
 {
-
     public static function class(): string
     {
         return StatementAttachment::class;
@@ -55,14 +62,13 @@ final class StatementAttachmentFactory extends PersistentProxyObjectFactory
 
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
      */
     protected function defaults(): array|callable
     {
         return [
-            'file' => FileFactory::new(),
+            'file'      => FileFactory::new(),
             'statement' => StatementFactory::new(),
-            'type' => self::faker()->text(),
+            'type'      => self::faker()->text(),
         ];
     }
 

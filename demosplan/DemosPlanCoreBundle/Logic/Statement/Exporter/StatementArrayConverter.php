@@ -65,7 +65,6 @@ class StatementArrayConverter
 
         $exportData['fileNames'] = $this->getFileNamesWithOriginal($segmentOrStatement);
 
-
         // Some data is stored on parentStatement instead on Segment and have to get from there
         if ($segmentOrStatement instanceof Segment) {
             $parentStatement = $segmentOrStatement->getParentStatementOfSegment();
@@ -115,7 +114,7 @@ class StatementArrayConverter
         if (null !== $originalFile) {
             $fileNames[] = $originalFile->getFilename();
         }
+
         return $fileNames;
     }
-
 }
