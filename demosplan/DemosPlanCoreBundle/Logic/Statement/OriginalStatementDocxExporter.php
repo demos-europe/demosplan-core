@@ -30,6 +30,7 @@ class OriginalStatementDocxExporter extends CoreService
             false,
             false,
             false,
+            true,
             ...$statements
         );
     }

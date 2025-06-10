@@ -242,11 +242,16 @@ class SegmentsExporter
         $section->addTextBreak(2);
     }
 
-    protected function addSegments(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void
+    protected function addSegments(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false, $isOriginalStatementExport = false): void
     {
         if ($statement->getSegmentsOfStatement()->isEmpty()) {
-            // $this->addNoSegmentsMessage($section, $statement);
-            $this->addStatementTable($section, $statement, $tableHeaders, $isObscure);
+            if ($isOriginalStatementExport) {
+                $this->addStatementTable($section, $statement, $tableHeaders, $isObscure);
+            } else {
+                $this->addNoSegmentsMessage($section);
+            }
+
+
         } else {
             $this->addSegmentsTable($section, $statement, $tableHeaders, $isObscure);
         }
