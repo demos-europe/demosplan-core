@@ -43,7 +43,7 @@ class OriginalStatementDocxExporter extends BaseDocxExporter
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
 
         if (0 === count($statements)) {
-            return $this->segmentsByStatementsExporter->exportEmptyStatements($phpWord, $procedure);
+            return $this->exportEmptyStatements($phpWord, $procedure);
         }
 
         return $this->exportStatements(
