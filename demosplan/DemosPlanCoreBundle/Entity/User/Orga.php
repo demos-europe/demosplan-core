@@ -1265,6 +1265,10 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return false;
     }
 
+    /**
+     * @deprecated This was used to get the customer of a procedure before the
+     *             procedure had a customer relationship.
+     */
     public function getMainCustomer(): ?CustomerInterface
     {
         /** @var OrgaStatusInCustomer $customerOrgaTypes */

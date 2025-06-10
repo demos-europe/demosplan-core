@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\PermissionException;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
@@ -125,6 +126,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         private ProcedureRepository $procedureRepository,
         private readonly ValidatorInterface $validator,
         private readonly AccessControlService $accessControlPermission,
+        private readonly UserAccessControlService $userAccessControlService,
     ) {
         $this->addonPermissionInitializers = $addonRegistry->getPermissionInitializers();
         $this->globalConfig = $globalConfig;
@@ -155,12 +157,30 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
     public function loadDynamicPermissions(): void
     {
-        // In this case, permission is not core permission, then check if permission is DB in table access_control_permissions
-
+        // Load role-based permissions from access_control table
         $permissions = $this->accessControlPermission->getPermissions($this->user->getOrga(), $this->user->getCurrentCustomer(), $this->user->getRoles());
 
         if (!empty($permissions)) {
             $this->enablePermissions($permissions);
+        }
+
+        // Load user-specific permissions from user_access_control table
+        if (null !== $this->user && !$this->user->hasRole(Role::GUEST)) {
+            try {
+                $userPermissions = $this->userAccessControlService->getUserPermissions($this->user);
+
+                // User permissions take precedence - enable them directly
+                foreach ($userPermissions as $userAccessControl) {
+                    $permissionName = $userAccessControl->getPermission();
+                    if (isset($this->permissions[$permissionName])) {
+                        $this->permissions[$permissionName]->enable();
+                        $this->logger->debug("Enabled user-specific permission: {$permissionName}");
+                    }
+                }
+            } catch (Exception $e) {
+                // Log error but don't break permission loading
+                $this->logger->warning('Error loading user-specific permissions: ' . $e->getMessage());
+            }
         }
     }
 
