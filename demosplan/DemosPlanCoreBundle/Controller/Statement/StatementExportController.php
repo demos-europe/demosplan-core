@@ -16,8 +16,11 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\OriginalStatementCsvExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\OriginalStatementDocxExporter;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
 use Doctrine\ORM\Query\QueryException;
 use Exception;
@@ -28,10 +31,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementExportController extends BaseController
 {
+
+    private const OUTPUT_DESTINATION = 'php://output';
+
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly TranslatorInterface $translator,
         private readonly NameGenerator $nameGenerator,
+        private readonly ProcedureHandler $procedureHandler,
     ) {
     }
 
@@ -89,12 +96,54 @@ class StatementExportController extends BaseController
     }
 
     #[Route(
-        path: '/verfahren/{procedureId}/originalStellungnahme/export/csv',
+        path: '/verfahren/{procedureId}/originalStellungnahme/export/docx',
         name: 'dplan_original_statement_docx_export',
         options: ['expose' => true],
         methods: 'GET'
     )]
-    public function exportByStatementsFilterDocxAction()
+    public function exportByStatementsFilterDocxAction(
+        JsonApiActionService $jsonApiActionService,
+        OriginalStatementDocxExporter $exporter,
+        OriginalStatementResourceType $originalStatementResourceType,
+        CurrentProcedureService $currentProcedureService,
+    )
     {
+
+        /** @var Statement[] $statementEntities */
+        $statementEntities = array_values(
+            $jsonApiActionService->getObjectsByQueryParams(
+                $this->requestStack->getCurrentRequest()->query,
+                $originalStatementResourceType
+            )->getList()
+        );
+        $currentProcedure = $currentProcedureService->getProcedure();
+
+        $response = new StreamedResponse(
+            static function () use (
+                $statementEntities,
+                $currentProcedure,
+                $exporter) {
+                $exportedDoc = $exporter->export($statementEntities, $currentProcedure);
+                $exportedDoc->save(self::OUTPUT_DESTINATION);
+            }
+        );
+
+        $this->setResponseHeaders($response, 'original.docx');
+
+        return $response;
+
+
+    }
+
+    private function setResponseHeaders(
+        StreamedResponse $response,
+        string $filename,
+    ): void {
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
+        );
+        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($filename));
     }
 }
