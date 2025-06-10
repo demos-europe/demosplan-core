@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
-use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -27,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 use PhpOffice\PhpWord\Element\Footer;
-use PhpOffice\PhpWord\Element\Header;
 use PhpOffice\PhpWord\Element\Row;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
