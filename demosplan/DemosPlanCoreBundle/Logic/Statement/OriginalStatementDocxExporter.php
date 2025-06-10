@@ -24,7 +24,7 @@ class OriginalStatementDocxExporter extends CoreService
 
     public function export(array $statements, Procedure $procedure): WriterInterface
     {
-       return $this->segmentsByStatementsExporter->exportAll(
+        return $this->segmentsByStatementsExporter->exportAll(
             [],
             $procedure,
             false,
@@ -32,6 +32,5 @@ class OriginalStatementDocxExporter extends CoreService
             false,
             ...$statements
         );
-
     }
 }

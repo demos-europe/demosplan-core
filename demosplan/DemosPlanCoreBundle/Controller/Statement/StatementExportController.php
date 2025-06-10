@@ -31,7 +31,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementExportController extends BaseController
 {
-
     private const OUTPUT_DESTINATION = 'php://output';
 
     public function __construct(
@@ -106,9 +105,7 @@ class StatementExportController extends BaseController
         OriginalStatementDocxExporter $exporter,
         OriginalStatementResourceType $originalStatementResourceType,
         CurrentProcedureService $currentProcedureService,
-    )
-    {
-
+    ) {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
             $jsonApiActionService->getObjectsByQueryParams(
@@ -131,8 +128,6 @@ class StatementExportController extends BaseController
         $this->setResponseHeaders($response, 'original.docx');
 
         return $response;
-
-
     }
 
     private function setResponseHeaders(
