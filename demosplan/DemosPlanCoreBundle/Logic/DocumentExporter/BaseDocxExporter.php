@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Logic\DocumentExporter;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -18,8 +26,9 @@ abstract class BaseDocxExporter
      * @var array<string, mixed>
      */
     public array $styles;
+
     public function __construct(
-        protected  StyleInitializer $styleInitializer,
+        protected StyleInitializer $styleInitializer,
         protected TranslatorInterface $translator,
     ) {
         $this->styles = $styleInitializer->initialize();

@@ -25,10 +25,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OriginalStatementDocxExporter extends BaseDocxExporter
 {
-
-
     public function __construct(
-        protected  StyleInitializer  $styleInitializer,
+        protected StyleInitializer $styleInitializer,
         protected TranslatorInterface $translator,
         private readonly SegmentsByStatementsExporter $segmentsByStatementsExporter)
     {
