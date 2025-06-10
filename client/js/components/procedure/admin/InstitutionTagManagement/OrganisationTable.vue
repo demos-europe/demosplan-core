@@ -102,7 +102,7 @@ All rights reserved
       @size-change="handleItemsPerPageChange" />
 
     <dp-data-table
-      ref="dataTable"
+      ref="DpDataTable"
       :header-fields="headerFields"
       :items="rowItems"
       :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
@@ -211,7 +211,6 @@ All rights reserved
 
 <script>
 import {
-  dpApi,
   DpButton,
   DpCheckbox,
   DpDataTable,
@@ -229,7 +228,7 @@ import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 export default {
   name: 'OrganisationList',
 
-  setup() {
+  setup () {
     return {
       filterCategoryHelpers
      }
@@ -689,6 +688,4 @@ export default {
       })
   }
 }
-</script>
-<script setup lang="ts">
 </script>

@@ -9,11 +9,13 @@
 
 <template>
 
-      <organisation-list
-        resource-type="InvitableToeb"
+      <organisation-table
         :header-fields="headerFields"
+        ref="organisationTable"
+        resource-type="InvitableToeb"
         :procedure-id="procedureId"
-        track-by-id="id" />
+        track-by-id="id"
+        @selected-items="setSelectedItems" />
 
       <div class="mt-2 pt-2 flex">
         <div class="w-1/3 inline-block">
@@ -40,15 +42,16 @@
 
 
 <script>
-import { DpButton } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton } from '@demos-europe/demosplan-ui'
 import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable.vue'
 
 export default {
   name: 'DpAddOrganisationList',
 
   components: {
+    dpApi,
     DpButton,
-    OrganisationList: OrganisationTable
+    OrganisationTable
   },
 
   props: {
@@ -74,6 +77,15 @@ export default {
     }
   },
 
+  computed: {
+    selectedItemsText () {
+      return this.selectedItems.length === 1
+        ? Translator.trans('entry.selected')
+        : Translator.trans('entries.selected', { count:
+          this.selectedItems.length })
+    }
+  },
+
   methods: {
     addPublicInterestBodies (publicAgenciesIds) {
       if (publicAgenciesIds.length === 0) {
@@ -96,15 +108,12 @@ export default {
       })
         // Refetch invitable institutions list to ensure that invited institutions are not displayed anymore
         .then(() => {
-          this.getInstitutionsWithContacts()
+          this.$refs.organisationTable.getInstitutionsWithContacts()
             .then(() => {
               dplan.notify.notify('confirm', Translator.trans('confirm.invitable_institutions.added'))
-              this.$refs.dataTable.updateFields()
 
               // Reset selected items so that the footer updates accordingly
-              this.selectedItems = []
-              // Also reset selection in DpDataTableExtended as this.selectedItems resets only local variable
-              this.$refs.dataTable.resetSelection()
+              this.$refs.organisationTable.setSelectedItems([])
             })
         })
         .catch(() => {
