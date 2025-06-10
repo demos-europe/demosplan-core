@@ -85,7 +85,7 @@
       required
       @input="filterMatrixSetByLayers"
       @selectAll="selectAllLayers"
-      @unselectAll="resetLayerSelection"
+      @unselectAll="unselectAllLayers"
     />
 
     <input
