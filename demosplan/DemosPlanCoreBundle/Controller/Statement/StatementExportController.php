@@ -87,4 +87,15 @@ class StatementExportController extends BaseController
 
         return $response;
     }
+
+    #[Route(
+        path: '/verfahren/{procedureId}/originalStellungnahme/export/csv',
+        name: 'dplan_original_statement_docx_export',
+        options: ['expose' => true],
+        methods: 'GET'
+    )]
+    public function exportByStatementsFilterDocxAction() {
+
+    }
+
 }
