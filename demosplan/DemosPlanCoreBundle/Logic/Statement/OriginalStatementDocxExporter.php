@@ -40,7 +40,6 @@ class OriginalStatementDocxExporter extends SegmentsExporter
         TranslatorInterface $translator,
     ) {
         parent::__construct($currentUser, $htmlHelper, $imageManager, $imageLinkConverter, $slugify, $styleInitializer, $translator, self::STATEMENT_TEXT_COLUMN_WIDTH);
-
     }
 
     public function exportOriginalStatements(array $statements, Procedure $procedure): WriterInterface
