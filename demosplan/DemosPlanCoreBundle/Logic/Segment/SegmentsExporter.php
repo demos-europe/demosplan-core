@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -26,16 +27,18 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 use PhpOffice\PhpWord\Element\Footer;
+use PhpOffice\PhpWord\Element\Header;
 use PhpOffice\PhpWord\Element\Row;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SegmentsExporter extends BaseDocxExporter
+class SegmentsExporter
 {
     /**
      * @var array<string, mixed>
@@ -51,11 +54,10 @@ class SegmentsExporter extends BaseDocxExporter
         protected readonly ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
-        TranslatorInterface $translator,
+        protected TranslatorInterface $translator,
     ) {
+        $this->styles = $styleInitializer->initialize();
         $this->slugify = $slugify;
-
-        parent::__construct($styleInitializer, $translator, $htmlHelper);
     }
 
     /**
@@ -430,5 +432,55 @@ class SegmentsExporter extends BaseDocxExporter
         return
             ($statement->isSubmittedByOrganisation() && $censorInstitutionData)
             || ($statement->isSubmittedByCitizen() && $censorCitizenData);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure): WriterInterface
+    {
+        $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST);
+        $this->addHeader($section, $procedure);
+
+        return $this->addNoStatementsMessage($phpWord, $section);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function addNoStatementsMessage(PhpWord $phpWord, Section $section): WriterInterface
+    {
+        $noEntriesMessage = $this->translator->trans('statements.filtered.none');
+        $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
+
+        return IOFactory::createWriter($phpWord);
+    }
+
+    public function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
+    {
+        $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
+        $header->addText(
+            $procedure->getName(),
+            $this->styles['documentTitleFont'],
+            $this->styles['documentTitleParagraph']
+        );
+
+        $this->addPreambleIfFirstHeader($header, $headerType);
+
+        $currentDate = new DateTime();
+        $header->addText(
+            $this->translator->trans('segments.export.statement.export.date', ['date' => $currentDate->format('d.m.Y')]),
+            $this->styles['currentDateFont'],
+            $this->styles['currentDateParagraph']
+        );
+    }
+
+    private function addPreambleIfFirstHeader(Header $header, ?string $headerType): void
+    {
+        if (Footer::FIRST === $headerType) {
+            $preamble = $this->translator->trans('docx.export.preamble');
+            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
+        }
     }
 }

@@ -120,7 +120,7 @@ class StatementExportController extends BaseController
                 $statementEntities,
                 $currentProcedure,
                 $exporter) {
-                $exportedDoc = $exporter->export($statementEntities, $currentProcedure);
+                $exportedDoc = $exporter->exportOriginalStatements($statementEntities, $currentProcedure);
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
