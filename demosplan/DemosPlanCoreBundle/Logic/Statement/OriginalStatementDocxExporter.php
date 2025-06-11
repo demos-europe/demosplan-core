@@ -125,5 +125,4 @@ class OriginalStatementDocxExporter extends SegmentsExporter
     {
         return $i !== count($statements) - 1;
     }
-
 }
