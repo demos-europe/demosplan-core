@@ -42,7 +42,9 @@ abstract class SegmentsExporter
     /**
      * @var array<string, mixed>
      */
-    public array $styles;
+    protected array $styles;
+
+    protected TranslatorInterface $translator;
 
     protected Slugify $slugify;
 
@@ -53,10 +55,38 @@ abstract class SegmentsExporter
         protected readonly ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
-        protected TranslatorInterface $translator,
+        TranslatorInterface $translator,
     ) {
+        $this->translator = $translator;
         $this->styles = $styleInitializer->initialize();
         $this->slugify = $slugify;
+    }
+
+    public function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
+    {
+        $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
+        $header->addText(
+            $procedure->getName(),
+            $this->styles['documentTitleFont'],
+            $this->styles['documentTitleParagraph']
+        );
+
+        $this->addPreambleIfFirstHeader($header, $headerType);
+
+        $currentDate = new DateTime();
+        $header->addText(
+            $this->translator->trans('segments.export.statement.export.date', ['date' => $currentDate->format('d.m.Y')]),
+            $this->styles['currentDateFont'],
+            $this->styles['currentDateParagraph']
+        );
+    }
+
+    private function addPreambleIfFirstHeader(Header $header, ?string $headerType): void
+    {
+        if (Footer::FIRST === $headerType) {
+            $preamble = $this->translator->trans('docx.export.preamble');
+            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
+        }
     }
 
     /**
@@ -322,7 +352,7 @@ abstract class SegmentsExporter
         );
     }
 
-    public function addSegmentHtmlCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
+    protected function addSegmentHtmlCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
     {
         // remove STX (start of text) EOT (end of text) special chars
         $text = str_replace([chr(2), chr(3)], '', $text);
@@ -333,7 +363,7 @@ abstract class SegmentsExporter
         Html::addHtml($cell, $this->htmlHelper->getHtmlValidText($text), false, false);
     }
 
-    public function addSegmentCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
+    protected function addSegmentCell(Row $row, string $text, CellExportStyle $cellExportStyle): void
     {
         $cell = $row->addCell(
             $cellExportStyle->getWidth(),
@@ -363,7 +393,7 @@ abstract class SegmentsExporter
         return null !== $text && '' !== trim($text);
     }
 
-    public function needsToBeCensored(Statement $statement, bool $censorCitizenData, bool $censorInstitutionData): bool
+    protected function needsToBeCensored(Statement $statement, bool $censorCitizenData, bool $censorInstitutionData): bool
     {
         return
             ($statement->isSubmittedByOrganisation() && $censorInstitutionData)
@@ -373,7 +403,7 @@ abstract class SegmentsExporter
     /**
      * @throws Exception
      */
-    public function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure): WriterInterface
+    protected function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
@@ -391,33 +421,6 @@ abstract class SegmentsExporter
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
 
         return IOFactory::createWriter($phpWord);
-    }
-
-    public function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
-    {
-        $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
-        $header->addText(
-            $procedure->getName(),
-            $this->styles['documentTitleFont'],
-            $this->styles['documentTitleParagraph']
-        );
-
-        $this->addPreambleIfFirstHeader($header, $headerType);
-
-        $currentDate = new DateTime();
-        $header->addText(
-            $this->translator->trans('segments.export.statement.export.date', ['date' => $currentDate->format('d.m.Y')]),
-            $this->styles['currentDateFont'],
-            $this->styles['currentDateParagraph']
-        );
-    }
-
-    private function addPreambleIfFirstHeader(Header $header, ?string $headerType): void
-    {
-        if (Footer::FIRST === $headerType) {
-            $preamble = $this->translator->trans('docx.export.preamble');
-            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
-        }
     }
 
     public function exportStatement(
@@ -468,7 +471,7 @@ abstract class SegmentsExporter
     /**
      * @param array<int, Statement> $statements
      */
-    public function getNewSectionIfNeeded(PhpWord $phpWord, Section $section, int $i, array $statements): Section
+    protected function getNewSectionIfNeeded(PhpWord $phpWord, Section $section, int $i, array $statements): Section
     {
         if ($this->isNotLastStatement($statements, $i)) {
             $section = $phpWord->addSection($this->styles['globalSection']);
