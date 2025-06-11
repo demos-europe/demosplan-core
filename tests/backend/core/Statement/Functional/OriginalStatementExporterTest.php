@@ -85,14 +85,12 @@ class OriginalStatementExporterTest extends FunctionalTestCase
         $this->assertStatementInSection($secondSection->getElements()[3]->getRows(), 'STMT-002', 'Second statement content');
     }
 
-
-
     /**
      * Asserts that a statement is correctly formatted in the given section.
      *
-     * @param \PhpOffice\PhpWord\Element\Row[] $rows The rows of the table containing the statement.
-     * @param string $expectedExternId The expected external ID of the statement.
-     * @param string $expectedText The expected text content of the statement.
+     * @param \PhpOffice\PhpWord\Element\Row[] $rows             the rows of the table containing the statement
+     * @param string                           $expectedExternId the expected external ID of the statement
+     * @param string                           $expectedText     the expected text content of the statement
      */
     private function assertStatementInSection(array $rows, string $expectedExternId, string $expectedText): void
     {
@@ -120,6 +118,4 @@ class OriginalStatementExporterTest extends FunctionalTestCase
         static::assertEquals($expectedExternId, $actualExternId, 'Statement ID mismatch');
         static::assertStringContainsString($expectedText, $actualContent, 'Statement content not found');
     }
-
-
 }
