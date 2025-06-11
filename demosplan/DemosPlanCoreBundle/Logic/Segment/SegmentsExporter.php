@@ -256,6 +256,7 @@ class SegmentsExporter
         }
         $this->imageManager->addImages($section);
     }
+
     protected function sortSegmentsByOrderInProcedure(array $segments): array
     {
         uasort($segments, [$this, 'compareOrderInProcedure']);
