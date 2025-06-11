@@ -577,7 +577,6 @@ export default {
         'assignee',
         'authoredDate',
         'authorName',
-        'consentRevoked',
         'counties',
         'document',
         'elements',
@@ -609,7 +608,6 @@ export default {
         'sourceAttachment',
         'submitDate',
         'submitName',
-        'submitterAndAuthorMetaDataAnonymized',
         'submitterEmailAddress',
         'submitType',
         'status',
@@ -664,7 +662,6 @@ export default {
       if (hasPermission('feature_statements_vote')) {
         allFields.StatementVote = [
           'city',
-          'createdDate',
           'createdByCitizen',
           'departmentName',
           'email',
@@ -698,7 +695,6 @@ export default {
         'genericAttachments',
         'genericAttachments.file',
         'paragraph',
-        'paragraphs',
         'paragraphVersion.paragraph',
         'sourceAttachment',
         'sourceAttachment.file',
