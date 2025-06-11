@@ -75,11 +75,6 @@ class OriginalStatementExporter extends SegmentsExporter
 
     protected function addContent(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void
     {
-        $this->addStatementTable($section, $statement, $tableHeaders);
-    }
-
-    private function addStatementTable(Section $section, Statement $statement, array $tableHeaders): void
-    {
         $table = $this->addStatementsTableHeader($section, $tableHeaders);
         $this->addStatementTableBody($table, $statement);
     }
