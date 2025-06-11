@@ -218,7 +218,7 @@ const LayersStore = {
       const oldCategory = (data.oldCategoryId === null || data.oldCategoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.oldCategoryId)
       const newCategory = (data.newCategoryId === null || data.newCategoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.newCategoryId)
       const currentElement = state.apiData.included.find(el => el.id === data.movedElement.id)
-      const { idKey, relationshipKey } = currentElement.type === 'GisLayerCategory' ? { idKey: 'parentId', relationshipKey: 'categories' } : { idKey: 'categoryId', relationshipKey: 'gisLayers' }
+      const { parentIdKey, relationshipKey } = currentElement.type === 'GisLayerCategory' ? { parentIdKey: 'parentId', relationshipKey: 'categories' } : { parentIdKey: 'categoryId', relationshipKey: 'gisLayers' }
       const isBaseLayer = currentElement.attributes.layerType === 'base'
 
       if (!oldCategory || !newCategory || !currentElement) {
@@ -261,7 +261,7 @@ const LayersStore = {
       }
 
       // Set the new parentId or categoryId for the current element
-      currentElement.attributes[idKey] = newCategory.id
+      currentElement.attributes[parentIdKey] = newCategory.id
 
       // Set new order positions for all child elements
       childElements.forEach((el, idx) => {
