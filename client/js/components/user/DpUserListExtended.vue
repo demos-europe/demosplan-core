@@ -14,7 +14,7 @@
       :items="headerItems"
       class="u-pt"
       @reset-search="resetSearch"
-      @select-all="val => dpToggleAll(val, users)"
+      @selectAll="val => dpToggleAll(val, users)"
       @search="val => handleSearch(val)"
       search-placeholder="search.users"
       searchable
