@@ -32,7 +32,6 @@ use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Exception\Exception;
-use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Writer\WriterInterface;
@@ -284,5 +283,4 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             ? "$fileName-$dbId.docx"
             : "$fileName.docx";
     }
-
 }
