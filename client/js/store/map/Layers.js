@@ -567,7 +567,14 @@ const LayersStore = {
       if (parentId === rootId) {
         return parentId
       } else {
-        return dispatch('findMostParentCategory', state.apiData.included.find(el => el.id === parentId))
+        const parent = state.apiData.included.find(el => el.id === parentId)
+
+        if (!parent) {
+          console.error('Parent category not found for layer:', layer.id)
+          return rootId
+        }
+
+        return dispatch('findMostParentCategory', parent)
       }
     },
 
