@@ -278,8 +278,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
     }
 
-
-
     protected function addNoSegmentsMessage(Section $section): void
     {
         $noEntriesMessage = $this->translator->trans('statement.has.no.segments');
