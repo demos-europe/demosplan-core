@@ -85,7 +85,7 @@
       selection-controls
       @input="filterMatrixSetByLayers"
       @selectAll="selectAllLayers"
-      @unselectAll="unselectAllLayers"
+      @deselectAll="deselectAllLayers"
     />
 
     <input
@@ -504,7 +504,7 @@ export default {
       this.layers = [...this.layersOptions]
     },
 
-    unselectAllLayers () {
+    deselectAllLayers () {
       this.layers = []
     },
 

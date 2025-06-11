@@ -294,7 +294,7 @@
                                         selection-controls
                                         track-by="id"
                                         @selectAll="selectAllAuthUsers"
-                                        @unselectAll="unselectAllAuthUsers">
+                                        @deselectAll="unselectAllAuthUsers">
                                         <template v-slot:option="{ props }">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </template>
