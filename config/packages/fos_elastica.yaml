@@ -8,12 +8,7 @@ fos_elastica:
             username: '%env(ELASTICSEARCH_USERNAME)%'
             password: '%env(ELASTICSEARCH_PASSWORD)%'
             # Add SSL configuration if needed
-            client_config:
-                # Add any necessary SSL/security configuration here
-                # Example:
-                # ssl:
-                #    verify: false
-                #    certificate: /path/to/cert
+            client_config: '%elasticsearch_client_config%'
             # Add other client options if needed
             # client_options:
             #    timeout: 30
