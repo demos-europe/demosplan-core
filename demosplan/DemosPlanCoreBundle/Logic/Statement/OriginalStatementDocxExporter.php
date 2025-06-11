@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
+use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
@@ -59,8 +60,7 @@ class OriginalStatementDocxExporter extends SegmentsExporter
             [],
             false,
             false,
-            false,
-            true,
+            false
         );
     }
 
@@ -71,8 +71,7 @@ class OriginalStatementDocxExporter extends SegmentsExporter
         array $tableHeaders,
         bool $censorCitizenData,
         bool $censorInstitutionData,
-        bool $obscure,
-        bool $isOriginalStatementExport,
+        bool $obscure
     ): WriterInterface {
         $section = $phpWord->addSection($this->styles['globalSection']);
         $this->addHeader($section, $procedure, Footer::FIRST);
@@ -85,7 +84,7 @@ class OriginalStatementDocxExporter extends SegmentsExporter
                 $censorInstitutionData,
             );
 
-            $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscure, $isOriginalStatementExport);
+            $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscure);
             $section = $this->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
         }
 
@@ -98,11 +97,10 @@ class OriginalStatementDocxExporter extends SegmentsExporter
         array $tableHeaders,
         $censored = false,
         $obscure = false,
-        $isOriginalStatementExport = false,
     ): void {
         $this->addStatementInfo($section, $statement, $censored);
         $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement, $tableHeaders, $obscure, $isOriginalStatementExport);
+        $this->addSegments($section, $statement, $tableHeaders, $obscure);
         $this->addFooter($section, $statement, $censored);
     }
 
@@ -125,4 +123,63 @@ class OriginalStatementDocxExporter extends SegmentsExporter
     {
         return $i !== count($statements) - 1;
     }
+
+    protected function addSegments(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void
+    {
+        $this->addStatementTable($section, $statement, $tableHeaders, $isObscure);
+    }
+
+    private function addStatementTable(Section $section, Statement $statement, array $tableHeaders, bool $isObscure): void
+    {
+        $table = $this->addStatementsTableHeader($section, $tableHeaders);
+        $this->addStatementTableBody($table, $statement);
+    }
+
+    private function addStatementsTableHeader(Section $section, array $tableHeaders): Table
+    {
+        $table = $section->addTable($this->styles['segmentsTable']);
+        $headerRow = $table->addRow(
+            $this->styles['segmentsTableHeaderRowHeight'],
+            $this->styles['segmentsTableHeaderRow']
+        );
+        $this->addSegmentCell(
+            $headerRow,
+            htmlspecialchars(
+                $tableHeaders['col1'] ?? $this->translator->trans('statements.export.statement.id'),
+                ENT_NOQUOTES,
+                'UTF-8'
+            ),
+            $this->styles['segmentsTableHeaderCellID']
+        );
+        $this->addSegmentCell(
+            $headerRow,
+            htmlspecialchars(
+                $tableHeaders['col2'] ?? $this->translator->trans('statements.export.statement.label'),
+                ENT_NOQUOTES,
+                'UTF-8'
+            ),
+            $this->styles['segmentsTableHeaderCell']
+        );
+
+        return $table;
+    }
+
+    private function addStatementTableBody(Table $table, Statement $statement): void
+    {
+        $textRow = $table->addRow();
+        $statementText = $statement->getText();
+        $newStatementText = str_replace('<br>', '<br/>', $statementText);
+        $this->addSegmentHtmlCell(
+            $textRow,
+            $statement->getExternId(),
+            $this->styles['segmentsTableBodyCellID']
+        );
+        $this->addSegmentHtmlCell(
+            $textRow,
+            $newStatementText,
+            $this->styles['segmentsTableBodyCell']
+        );
+    }
+
+
 }

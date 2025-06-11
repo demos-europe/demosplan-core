@@ -146,7 +146,6 @@ class SegmentsExportController extends BaseController
                     $obscureParameter,
                     $censorCitizenData,
                     $censorInstitutionData,
-                    false,
                     ...$statementEntities
                 );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
