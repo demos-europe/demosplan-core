@@ -31,6 +31,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
+use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
@@ -47,7 +48,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         CurrentUserInterface $currentUser,
         HtmlHelper $htmlHelper,
-        ImageManager $imageManager,
+        protected ImageManager $imageManager,
         ImageLinkConverter $imageLinkConverter,
         private readonly SegmentExporterFileNameGenerator $fileNameGenerator,
         Slugify $slugify,
@@ -210,6 +211,79 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         } else {
             $this->addSegmentsTable($section, $statement, $tableHeaders, $isObscure);
         }
+    }
+
+    protected function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders, bool $isObscure): void
+    {
+        $table = $this->addSegmentsTableHeader($section, $tableHeaders);
+        $sortedSegments = $this->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
+
+        foreach ($sortedSegments as $segment) {
+            $this->addSegmentTableBody($table, $segment, $statement->getExternId(), $isObscure);
+        }
+        $this->imageManager->addImages($section);
+    }
+
+    private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId, bool $isObscure): void
+    {
+        $textRow = $table->addRow();
+        // Replace image tags in segment text and in segment recommendation text with text references.
+        $convertedSegment = $this->imageLinkConverter->convert($segment, $statementExternId, true, $isObscure);
+        $this->addSegmentHtmlCell(
+            $textRow,
+            $segment->getExternId(),
+            $this->styles['segmentsTableBodyCellID']
+        );
+        $this->addSegmentHtmlCell(
+            $textRow,
+            $convertedSegment->getText(),
+            $this->styles['segmentsTableBodyCell']
+        );
+        $this->addSegmentHtmlCell(
+            $textRow,
+            $convertedSegment->getRecommendationText(),
+            $this->styles['segmentsTableBodyCell']
+        );
+    }
+
+    private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
+    {
+        $headerConfigs = [
+            [
+                'text'  => $tableHeaders['col1'] ?? $this->translator->trans('segments.export.segment.id'),
+                'style' => $this->styles['segmentsTableHeaderCellID'],
+            ],
+            [
+                'text'  => $tableHeaders['col2'] ?? $this->translator->trans('segments.export.statement.label'),
+                'style' => $this->styles['segmentsTableHeaderCell'],
+            ],
+            [
+                'text'  => $tableHeaders['col3'] ?? $this->translator->trans('segment.recommendation'),
+                'style' => $this->styles['segmentsTableHeaderCell'],
+            ],
+        ];
+
+        return $this->createTableWithHeader($section, $headerConfigs);
+    }
+
+    protected function sortSegmentsByOrderInProcedure(array $segments): array
+    {
+        uasort($segments, [$this, 'compareOrderInProcedure']);
+
+        return $segments;
+    }
+
+    private function compareOrderInProcedure(Segment $segmentA, Segment $segmentB): int
+    {
+        return $segmentA->getOrderInProcedure() - $segmentB->getOrderInProcedure();
+    }
+
+
+
+    protected function addNoSegmentsMessage(Section $section): void
+    {
+        $noEntriesMessage = $this->translator->trans('statement.has.no.segments');
+        $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
     }
 
     /**
