@@ -86,7 +86,7 @@ abstract class SegmentsExporter
         $this->addHeader($section, $procedure);
         $this->addStatementInfo($section, $statement, $isCensored);
         $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement, $tableHeaders, $isObscure);
+        $this->addContent($section, $statement, $tableHeaders, $isObscure);
         $this->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
