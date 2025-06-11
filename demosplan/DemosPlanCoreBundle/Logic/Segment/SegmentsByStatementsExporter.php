@@ -59,7 +59,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         parent::__construct(
             $currentUser,
             $htmlHelper,
-            $imageManager,
             $imageLinkConverter,
             $slugify,
             $styleInitializer,
