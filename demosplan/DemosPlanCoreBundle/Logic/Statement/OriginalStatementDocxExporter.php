@@ -20,11 +20,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
-use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
-use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -62,53 +59,6 @@ class OriginalStatementDocxExporter extends SegmentsExporter
             false,
             false
         );
-    }
-
-    public function exportStatements(
-        PhpWord $phpWord,
-        Procedure $procedure,
-        array $statements,
-        array $tableHeaders,
-        bool $censorCitizenData,
-        bool $censorInstitutionData,
-        bool $obscure,
-    ): WriterInterface {
-        $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST);
-        $this->addHeader($section, $procedure);
-
-        foreach ($statements as $index => $statement) {
-            $censored = $this->needsToBeCensored(
-                $statement,
-                $censorCitizenData,
-                $censorInstitutionData,
-            );
-
-            $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscure);
-            $section = $this->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
-        }
-
-        return IOFactory::createWriter($phpWord);
-    }
-
-    /**
-     * @param array<int, Statement> $statements
-     */
-    public function getNewSectionIfNeeded(PhpWord $phpWord, Section $section, int $i, array $statements): Section
-    {
-        if ($this->isNotLastStatement($statements, $i)) {
-            $section = $phpWord->addSection($this->styles['globalSection']);
-        }
-
-        return $section;
-    }
-
-    /**
-     * @param array<int, Statement> $statements
-     */
-    private function isNotLastStatement(array $statements, int $i): bool
-    {
-        return $i !== count($statements) - 1;
     }
 
     protected function addContent(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void

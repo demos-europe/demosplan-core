@@ -432,4 +432,56 @@ abstract class SegmentsExporter
         $this->addContent($section, $statement, $tableHeaders, $obscure);
         $this->addFooter($section, $statement, $censored);
     }
+
+    /**
+     * @param array<int, Statement> $statements
+     *
+     * @throws Exception
+     */
+    public function exportStatements(
+        PhpWord $phpWord,
+        Procedure $procedure,
+        array $statements,
+        array $tableHeaders,
+        bool $censorCitizenData,
+        bool $censorInstitutionData,
+        bool $obscure,
+    ): WriterInterface {
+        $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST);
+        $this->addHeader($section, $procedure);
+
+        foreach ($statements as $index => $statement) {
+            $censored = $this->needsToBeCensored(
+                $statement,
+                $censorCitizenData,
+                $censorInstitutionData,
+            );
+
+            $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscure);
+            $section = $this->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
+        }
+
+        return IOFactory::createWriter($phpWord);
+    }
+
+    /**
+     * @param array<int, Statement> $statements
+     */
+    public function getNewSectionIfNeeded(PhpWord $phpWord, Section $section, int $i, array $statements): Section
+    {
+        if ($this->isNotLastStatement($statements, $i)) {
+            $section = $phpWord->addSection($this->styles['globalSection']);
+        }
+
+        return $section;
+    }
+
+    /**
+     * @param array<int, Statement> $statements
+     */
+    private function isNotLastStatement(array $statements, int $i): bool
+    {
+        return $i !== count($statements) - 1;
+    }
 }
