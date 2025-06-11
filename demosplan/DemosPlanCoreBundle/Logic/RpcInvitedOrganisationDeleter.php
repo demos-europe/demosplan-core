@@ -30,7 +30,7 @@ use function sprintf;
 
 class RpcInvitedOrganisationDeleter implements RpcMethodSolverInterface
 {
-    public const DELETE_INVITED_ORGANISATIONS_METHOD = 'bulk.delete.invited.organisations';
+    public const SUPPORTED_METHOD_NAME = 'invitedInstitutions.bulk.delete';
 
     public function __construct(
         private readonly MessageBagInterface $messageBag,
