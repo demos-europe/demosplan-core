@@ -217,14 +217,30 @@ const LayersStore = {
       // Get the old and new categories
       const oldCategory = (data.oldCategoryId === null || data.oldCategoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.oldCategoryId)
       const newCategory = (data.newCategoryId === null || data.newCategoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.newCategoryId)
+      const currentElement = state.apiData.included.find(el => el.id === data.movedElement.id)
+      const currentElementType = currentElement.type === 'GisLayerCategory' ? ['parentId', 'categories'] : ['categoryId', 'gisLayers']
+      const isBaseLayer = currentElement.attributes.layerType === 'base'
 
       // List all elements with the givven categoryId
       const childElements = state.apiData.included
-        .filter(el => el.type === 'GisLayerCategory' ? el.attributes.parentId === oldCategory.id : el.attributes.categoryId === oldCategory.id)
-        .sort((a, b) => a.attributes[data.orderType] - b.attributes[data.orderType])
+        .filter(el => {
+          let isInList = 0
 
-      const currentElement = state.apiData.included.find(el => el.id === data.movedElement.id)
-      const currentElementType = currentElement.type === 'GisLayerCategory' ? ['parentId', 'categories'] : ['categoryId', 'gisLayers']
+          if (el.type === 'GisLayerCategory' ? el.attributes.parentId === oldCategory.id : el.attributes.categoryId === oldCategory.id) {
+            isInList++
+          }
+
+          /* We want only Layer from the same kind as the current element in the List.
+           * And Categories are always for the overlay layers
+           * This is necessary because both base and overlay layers have the same root Category
+           */
+          if (isBaseLayer === (el.attributes.layerType === 'base') || (!isBaseLayer && el.attributes.layerType === undefined)) {
+            isInList++
+          }
+
+          return isInList > 1
+        })
+        .sort((a, b) => a.attributes[data.orderType] - b.attributes[data.orderType])
 
       // If Element is not in the list, we have to remove it from the old parent ...
       if (oldCategory.id !== newCategory.id) {
