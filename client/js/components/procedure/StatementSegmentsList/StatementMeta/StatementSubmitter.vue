@@ -271,6 +271,15 @@ export default {
     }
   },
 
+  watch: {
+    statement: {
+      handler(newStatement) {
+        this.localStatement = JSON.parse(JSON.stringify(newStatement))
+      },
+      deep: true
+    }
+  },
+
   methods: {
     isSubmitterAnonymized () {
       const { consentRevoked, submitterAndAuthorMetaDataAnonymized } = this.localStatement.attributes
