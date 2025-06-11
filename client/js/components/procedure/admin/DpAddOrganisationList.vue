@@ -405,6 +405,7 @@ export default {
             if (!filterCondition.condition) return true
 
             const tagIds = item.assignedTags.map(tag => tag.id)
+
             return tagIds.includes(filterCondition.condition.value)
           })
         }) || []
