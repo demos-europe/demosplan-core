@@ -101,10 +101,10 @@ class StatementExportController extends BaseController
         methods: 'GET'
     )]
     public function exportByStatementsFilterDocxAction(
-        JsonApiActionService          $jsonApiActionService,
-        OriginalStatementExporter     $exporter,
+        JsonApiActionService $jsonApiActionService,
+        OriginalStatementExporter $exporter,
         OriginalStatementResourceType $originalStatementResourceType,
-        CurrentProcedureService       $currentProcedureService,
+        CurrentProcedureService $currentProcedureService,
     ) {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
