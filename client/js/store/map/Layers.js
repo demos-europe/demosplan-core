@@ -253,15 +253,12 @@ const LayersStore = {
         oldCategory.relationships[relationshipKey].data.splice(data.movedElement.oldIndex, 1)
         // And add it to the new List ...
         newCategory.relationships[relationshipKey].data.splice(data.movedElement.newIndex, 0, ({ id: currentElement.id, type: currentElement.type }))
-      }
-
-      // ... Otherwise we have to move it
-      if (childElements.find(el => el.id === data.movedElement.id) !== undefined) {
+        // ... And set the new parentId or categoryId for the current element
+        currentElement.attributes[parentIdKey] = newCategory.id
+        // ... Otherwise we have to move it
+      } else if (childElements.find(el => el.id === data.movedElement.id) !== undefined) {
         childElements.splice(data.movedElement.newIndex, 0, childElements.splice(data.movedElement.oldIndex, 1)[0])
       }
-
-      // Set the new parentId or categoryId for the current element
-      currentElement.attributes[parentIdKey] = newCategory.id
 
       // Set new order positions for all child elements
       childElements.forEach((el, idx) => {
