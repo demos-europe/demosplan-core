@@ -218,7 +218,7 @@ const LayersStore = {
       const oldCategory = (data.oldCategoryId === null || data.oldCategoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.oldCategoryId)
       const newCategory = (data.newCategoryId === null || data.newCategoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.newCategoryId)
       const currentElement = state.apiData.included.find(el => el.id === data.movedElement.id)
-      const currentElementType = currentElement.type === 'GisLayerCategory' ? ['parentId', 'categories'] : ['categoryId', 'gisLayers']
+      const { idKey, relationshipKey } = currentElement.type === 'GisLayerCategory' ? { idKey: 'parentId', relationshipKey: 'categories' } : { idKey: 'categoryId', relationshipKey: 'gisLayers' }
       const isBaseLayer = currentElement.attributes.layerType === 'base'
 
       if (!oldCategory || !newCategory || !currentElement) {
@@ -250,9 +250,9 @@ const LayersStore = {
 
       // If Element is not in the list, we have to remove it from the old parent ...
       if (oldCategory.id !== newCategory.id) {
-        oldCategory.relationships[currentElementType[1]].data.splice(data.movedElement.oldIndex, 1)
+        oldCategory.relationships[relationshipKey].data.splice(data.movedElement.oldIndex, 1)
         // And add it to the new List ...
-        newCategory.relationships[currentElementType[1]].data.splice(data.movedElement.newIndex, 0, ({ id: currentElement.id, type: currentElement.type }))
+        newCategory.relationships[relationshipKey].data.splice(data.movedElement.newIndex, 0, ({ id: currentElement.id, type: currentElement.type }))
       }
 
       // ... Otherwise we have to move it
@@ -261,7 +261,7 @@ const LayersStore = {
       }
 
       // Set the new parentId or categoryId for the current element
-      currentElement.attributes[currentElementType[0]] = newCategory.id
+      currentElement.attributes[idKey] = newCategory.id
 
       // Set new order positions for all child elements
       childElements.forEach((el, idx) => {
