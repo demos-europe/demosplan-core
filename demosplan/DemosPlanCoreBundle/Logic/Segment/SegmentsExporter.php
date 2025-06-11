@@ -92,6 +92,21 @@ abstract class SegmentsExporter
         return IOFactory::createWriter($phpWord);
     }
 
+    protected function addSimilarStatementSubmitters(Section $section, Statement $statement): void
+    {
+        $similarStatementSubmitters = $this->getSimilarStatementSubmitters($statement);
+        if ('' !== $similarStatementSubmitters) {
+            $similarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $similarStatementSubmitters]);
+            $section->addText(
+                $similarStatementSubmittersText,
+                $this->styles['globalFont'],
+                $this->styles['globalSection']
+            );
+
+            $section->addTextBreak(2);
+        }
+    }
+
     protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
     {
         $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
@@ -116,21 +131,6 @@ abstract class SegmentsExporter
         if (Footer::FIRST === $headerType) {
             $preamble = $this->translator->trans('docx.export.preamble');
             Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
-        }
-    }
-
-    protected function addSimilarStatementSubmitters(Section $section, Statement $statement): void
-    {
-        $similarStatementSubmitters = $this->getSimilarStatementSubmitters($statement);
-        if ('' !== $similarStatementSubmitters) {
-            $similarStatementSubmittersText = $this->translator->trans('segments.export.statement.similar.submitters', ['similarSubmitters' => $similarStatementSubmitters]);
-            $section->addText(
-                $similarStatementSubmittersText,
-                $this->styles['globalFont'],
-                $this->styles['globalSection']
-            );
-
-            $section->addTextBreak(2);
         }
     }
 
