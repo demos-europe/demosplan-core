@@ -8,7 +8,7 @@
       "enum": ["2.0"]
     },
     "method": {
-      "enum": ["bulk.delete.invited.organisations"]
+      "enum": ["invitedInstitutions.bulk.delete"]
     },
     "id": {
       "type": "string"
