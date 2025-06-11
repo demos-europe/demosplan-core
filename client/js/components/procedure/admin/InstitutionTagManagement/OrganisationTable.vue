@@ -259,7 +259,7 @@ export default {
     resourceType: {
       type: String,
       required: true,
-      validator: value => ['InvitableToeb', 'Member'].includes(value)
+      validator: value => ['InvitableToeb', 'InvitedToeb'].includes(value)
     },
   },
 
@@ -306,9 +306,9 @@ export default {
       institutionTagCategories: 'items'
     }),
 
-    ...mapState('InvitableToeb', {
-      invitableToebItems: 'items'
-    }),
+    // ...mapState('InvitableToeb', {
+    //   invitableToebItems: 'items'
+    // }),
 
     ...mapState('InstitutionTag', {
       institutionTagItems: 'items'
@@ -356,7 +356,7 @@ export default {
     },
 
     rowItems () {
-      return Object.values(this.invitableToebItems).map(item => {
+      return Object.values(this.storeItems).map(item => {
         const locationContactId = item.relationships.locationContacts?.data.length > 0 ? item.relationships.locationContacts.data[0].id : null
         const locationContact = locationContactId ? this.getLocationContactById(locationContactId) : null
         const hasNoEmail = !item.attributes.participationFeedbackEmailAddress
@@ -401,6 +401,15 @@ export default {
       return `${count} ${Translator.trans(translationKey)}`
     },
 
+    storeItems() {
+      return this.$store.state[this.storeModule]?.items || {}
+    },
+
+    storeModule() {
+      return this.resourceType
+    },
+
+
     storageKeyPagination () {
       console.log('procedureId:', this.procedureId)
       console.log('resourceType:', this.resourceType)
@@ -434,9 +443,9 @@ export default {
       fetchInstitutionTagCategories: 'list'
     }),
 
-    ...mapActions('InvitableToeb', {
-      getInstitutions: 'list'
-    }),
+    // ...mapActions('InvitableToeb', {
+    //   getInstitutions: 'list'
+    // }),
 
     ...mapMutations('FilterFlyout', {
       setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
@@ -518,7 +527,7 @@ export default {
         },
         include: includeParams.join(),
         fields: {
-          InvitableToeb: this.invitableToebFields.concat(this.returnPermissionChecksValuesArray(permissionChecksToeb)).join(),
+          [this.resourceType]: this.invitableToebFields.concat(this.returnPermissionChecksValuesArray(permissionChecksToeb)).join(),
           InstitutionLocationContact: this.locationContactFields.concat(this.returnPermissionChecksValuesArray(permissionChecksContact)).join()
         }
       }
@@ -570,7 +579,7 @@ export default {
         requestParams.filter = filters
       }
 
-      return this.getInstitutions(requestParams)
+      return this.$store.dispatch(`${this.storeModule}/list`, requestParams)
         .then(data => {
           this.setLocalStorage(data.meta.pagination)
           this.updatePagination(data.meta.pagination)
