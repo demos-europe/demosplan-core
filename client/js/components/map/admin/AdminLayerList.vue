@@ -111,7 +111,6 @@
         :class="{ 'color--grey': false === isEditable }"
         :content-data="currentList"
         :id="rootId"
-        :node-id="rootId"
         :opts="draggableOptions"
         @end="updateChildren">
         <admin-layer-list-item
@@ -165,8 +164,8 @@
           v-if="false === this.isLoading"
           :opts="draggableOptionsForBaseLayer"
           :content-data="currentBaseList"
-          :node-id="rootId"
-          :class="{'color--grey': false === isEditable}">
+          :class="{'color--grey': false === isEditable}"
+          @end="updateChildren">
           <admin-layer-list-item
             v-for="(item, idx) in currentBaseList"
             data-cy="baseMapLayerListItem"
