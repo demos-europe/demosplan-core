@@ -62,33 +62,6 @@ abstract class SegmentsExporter
         $this->slugify = $slugify;
     }
 
-    public function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
-    {
-        $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
-        $header->addText(
-            $procedure->getName(),
-            $this->styles['documentTitleFont'],
-            $this->styles['documentTitleParagraph']
-        );
-
-        $this->addPreambleIfFirstHeader($header, $headerType);
-
-        $currentDate = new DateTime();
-        $header->addText(
-            $this->translator->trans('segments.export.statement.export.date', ['date' => $currentDate->format('d.m.Y')]),
-            $this->styles['currentDateFont'],
-            $this->styles['currentDateParagraph']
-        );
-    }
-
-    private function addPreambleIfFirstHeader(Header $header, ?string $headerType): void
-    {
-        if (Footer::FIRST === $headerType) {
-            $preamble = $this->translator->trans('docx.export.preamble');
-            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
-        }
-    }
-
     /**
      * @throws Exception
      */
@@ -117,6 +90,33 @@ abstract class SegmentsExporter
         $this->addFooter($section, $statement);
 
         return IOFactory::createWriter($phpWord);
+    }
+
+    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null): void
+    {
+        $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
+        $header->addText(
+            $procedure->getName(),
+            $this->styles['documentTitleFont'],
+            $this->styles['documentTitleParagraph']
+        );
+
+        $this->addPreambleIfFirstHeader($header, $headerType);
+
+        $currentDate = new DateTime();
+        $header->addText(
+            $this->translator->trans('segments.export.statement.export.date', ['date' => $currentDate->format('d.m.Y')]),
+            $this->styles['currentDateFont'],
+            $this->styles['currentDateParagraph']
+        );
+    }
+
+    private function addPreambleIfFirstHeader(Header $header, ?string $headerType): void
+    {
+        if (Footer::FIRST === $headerType) {
+            $preamble = $this->translator->trans('docx.export.preamble');
+            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
+        }
     }
 
     protected function addSimilarStatementSubmitters(Section $section, Statement $statement): void
