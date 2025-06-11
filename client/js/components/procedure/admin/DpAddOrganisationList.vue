@@ -284,7 +284,6 @@ export default {
   mixins: [paginationMixin],
 
   data () {
-    console.log(this)
     return {
       appliedFilterQuery: {},
       currentlySelectedFilterCategories: [],
