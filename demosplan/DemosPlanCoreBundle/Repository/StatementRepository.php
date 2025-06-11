@@ -1155,11 +1155,13 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     }
 
     /**
+     * Gets statements created or imported by the procedure-owning organisation
+     * including statements created on behalf of a specified organisation by the owning organisation.
+     *
      * @return array<int, Statement>
      */
     public function getStatementsOfProcedureAndOrganisation(string $procedureId, string $organisationId): array
     {
-        // get all original statements from statements
         return $this->getEntityManager()->createQueryBuilder()
             ->select('original.id, original.created, original.externId')
             ->from(Statement::class, 'statement')
@@ -1178,6 +1180,31 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->orderBy('original.created', 'DESC')
             ->getQuery()
             ->getArrayResult();
+    }
+
+    /**
+     * Counts statements submitted by an organisation via the draft-to-statement workflow.
+     * This method counts statements where the organisation is set directly on the statement
+     * (indicating they were submitted via the draft-to-statement workflow) rather than through statement.meta.
+     */
+    public function countDraftToStatementSubmissionsByOrganisation(string $procedureId, string $organisationId): int
+    {
+        return (int) $this->getEntityManager()->createQueryBuilder()
+            ->select('COUNT(original.id)')
+            ->from(Statement::class, 'statement')
+            ->leftJoin('statement.original', 'original')
+            ->andWhere('original.original IS NULL')
+            ->andWhere('statement.deleted = false')
+            ->andWhere('original.deleted = false')
+            ->andWhere('statement.movedStatement IS NULL') // isPlaceholder === false
+            ->andWhere('statement.procedure = :procedureId')
+            ->andWhere('original.procedure = :procedureId')
+            ->setParameter('procedureId', $procedureId)
+            ->andWhere('statement.original IS NOT NULL')
+            ->andWhere('original.organisation = :orgaId')
+            ->setParameter('orgaId', $organisationId)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     /**
