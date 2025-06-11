@@ -86,32 +86,20 @@ class OriginalStatementDocxExporter extends SegmentsExporter
 
     private function addStatementsTableHeader(Section $section, array $tableHeaders): Table
     {
-        $table = $section->addTable($this->styles['segmentsTable']);
-        $headerRow = $table->addRow(
-            $this->styles['segmentsTableHeaderRowHeight'],
-            $this->styles['segmentsTableHeaderRow']
-        );
-        $this->addSegmentCell(
-            $headerRow,
-            htmlspecialchars(
-                $tableHeaders['col1'] ?? $this->translator->trans('statements.export.statement.id'),
-                ENT_NOQUOTES,
-                'UTF-8'
-            ),
-            $this->styles['segmentsTableHeaderCellID']
-        );
-        $this->addSegmentCell(
-            $headerRow,
-            htmlspecialchars(
-                $tableHeaders['col2'] ?? $this->translator->trans('statements.export.statement.label'),
-                ENT_NOQUOTES,
-                'UTF-8'
-            ),
-            $this->styles['segmentsTableHeaderCell']
-        );
+        $headerConfigs = [
+            [
+                'text' => $tableHeaders['col1'] ?? $this->translator->trans('statements.export.statement.id'),
+                'style' => $this->styles['segmentsTableHeaderCellID']
+            ],
+            [
+                'text' => $tableHeaders['col2'] ?? $this->translator->trans('statements.export.statement.label'),
+                'style' => $this->styles['segmentsTableHeaderCell']
+            ]
+        ];
 
-        return $table;
+        return $this->createTableWithHeader($section, $headerConfigs);
     }
+
 
     private function addStatementTableBody(Table $table, Statement $statement): void
     {

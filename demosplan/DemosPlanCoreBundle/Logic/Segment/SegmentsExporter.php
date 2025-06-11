@@ -296,41 +296,24 @@ abstract class SegmentsExporter
 
     private function addSegmentsTableHeader(Section $section, array $tableHeaders): Table
     {
-        $table = $section->addTable($this->styles['segmentsTable']);
-        $headerRow = $table->addRow(
-            $this->styles['segmentsTableHeaderRowHeight'],
-            $this->styles['segmentsTableHeaderRow']
-        );
-        $this->addSegmentCell(
-            $headerRow,
-            htmlspecialchars(
-                $tableHeaders['col1'] ?? $this->translator->trans('segments.export.segment.id'),
-                ENT_NOQUOTES,
-                'UTF-8'
-            ),
-            $this->styles['segmentsTableHeaderCellID']
-        );
-        $this->addSegmentCell(
-            $headerRow,
-            htmlspecialchars(
-                $tableHeaders['col2'] ?? $this->translator->trans('segments.export.statement.label'),
-                ENT_NOQUOTES,
-                'UTF-8'
-            ),
-            $this->styles['segmentsTableHeaderCell']
-        );
-        $this->addSegmentCell(
-            $headerRow,
-            htmlspecialchars(
-                $tableHeaders['col3'] ?? $this->translator->trans('segment.recommendation'),
-                ENT_NOQUOTES,
-                'UTF-8'
-            ),
-            $this->styles['segmentsTableHeaderCell']
-        );
+        $headerConfigs = [
+            [
+                'text' => $tableHeaders['col1'] ?? $this->translator->trans('segments.export.segment.id'),
+                'style' => $this->styles['segmentsTableHeaderCellID']
+            ],
+            [
+                'text' => $tableHeaders['col2'] ?? $this->translator->trans('segments.export.statement.label'),
+                'style' => $this->styles['segmentsTableHeaderCell']
+            ],
+            [
+                'text' => $tableHeaders['col3'] ?? $this->translator->trans('segment.recommendation'),
+                'style' => $this->styles['segmentsTableHeaderCell']
+            ]
+        ];
 
-        return $table;
+        return $this->createTableWithHeader($section, $headerConfigs);
     }
+
 
     private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId, bool $isObscure): void
     {
@@ -489,4 +472,29 @@ abstract class SegmentsExporter
     {
         return $i !== count($statements) - 1;
     }
+
+    protected function createTableWithHeader(Section $section, array $headerConfigs): Table
+    {
+        $table = $section->addTable($this->styles['segmentsTable']);
+        $headerRow = $table->addRow(
+            $this->styles['segmentsTableHeaderRowHeight'],
+            $this->styles['segmentsTableHeaderRow']
+        );
+
+        foreach ($headerConfigs as $config) {
+            $this->addSegmentCell(
+                $headerRow,
+                htmlspecialchars(
+                    $config['text'],
+                    ENT_NOQUOTES,
+                    'UTF-8'
+                ),
+                $config['style']
+            );
+        }
+
+        return $table;
+    }
+
+
 }
