@@ -35,7 +35,7 @@ class StatementExportController extends BaseController
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly TranslatorInterface $translator,
-        private readonly NameGenerator $nameGenerator
+        private readonly NameGenerator $nameGenerator,
     ) {
     }
 
