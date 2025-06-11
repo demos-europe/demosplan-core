@@ -255,7 +255,7 @@ export default {
       type: String,
       required: true
     },
-// Member for now
+
     resourceType: {
       type: String,
       required: true,

@@ -46,18 +46,16 @@ export default {
         ...(hasPermission('field_organisation_paper_copy_spec') ?
           [{
           field: 'paperCopySpec',
-            label: Translator.trans('copies.kind') }]
-          : []),
+          label: Translator.trans('copies.kind') }] : []),
         ...(hasPermission('field_organisation_paper_copy') ?
           [{
           field: 'paperCopy',
-            label: Translator.trans('copies') }]
-          : []),
+          label: Translator.trans('copies') }] : []),
         {
-          field: 'statementCount',
+          field: 'originalStatementsCountInProcedure',
           label: Translator.trans('statement') },
         {
-          field: 'invitationDate',
+          field: 'hasReceivedInvitationMailInCurrentProcedurePhase',
           label: Translator.trans('invitation') }
       ]
     }

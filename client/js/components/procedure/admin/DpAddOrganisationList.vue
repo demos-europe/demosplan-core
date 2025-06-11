@@ -73,7 +73,18 @@ export default {
   data () {
     return {
       selectedItems: [],
-      searchTerm: ''
+      searchTerm: '',
+      headerFields: [
+        {
+          field: 'legalName',
+          label: Translator.trans('invitable_institution')
+        },
+        ...(hasPermission('field_organisation_competence') ? [{
+          field: 'competenceDescription',
+          label: Translator.trans('competence.explanation') }]
+          : [])
+      ]
+
     }
   },
 
