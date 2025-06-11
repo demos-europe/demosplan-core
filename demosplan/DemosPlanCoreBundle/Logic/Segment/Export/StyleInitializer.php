@@ -26,11 +26,11 @@ class StyleInitializer
     /**
      * @return array<string, mixed>
      */
-    public function initialize(): array
+    public function initialize(int $wideColumnWidth = 6950): array
     {
         $this->initializeGlobalStyles();
         $this->initializeHeaderStyles();
-        $this->initializeSegmentStyles();
+        $this->initializeSegmentStyles($wideColumnWidth);
         $this->initializeFooterStyles();
 
         return $this->styles;
@@ -63,10 +63,9 @@ class StyleInitializer
         $this->styles['statementInfoEmptyCell'] = new CellExportStyle(6500);
     }
 
-    private function initializeSegmentStyles(): void
+    private function initializeSegmentStyles(int $wideColumnWidth): void
     {
         $this->styles['noInfoMessageFont'] = ['size' => 12];
-        $wideColumnWidth = 6950;
         $smallColumnWidth = 1550;
         $headerCellStyle = ['borderSize'  => 5, 'borderColor' => '000000', 'bold' => true];
         $headerPargraphStyle = ['spaceBefore' => Converter::cmToTwip(0.15), 'spaceAfter' => Converter::cmToTwip(0.15)];

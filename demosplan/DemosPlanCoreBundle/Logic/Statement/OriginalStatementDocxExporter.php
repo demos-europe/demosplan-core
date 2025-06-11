@@ -37,7 +37,8 @@ class OriginalStatementDocxExporter extends SegmentsExporter
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
     ) {
-        parent::__construct($currentUser, $htmlHelper, $imageManager, $imageLinkConverter, $slugify, $styleInitializer, $translator);
+        parent::__construct($currentUser, $htmlHelper, $imageManager, $imageLinkConverter, $slugify, $styleInitializer, $translator, 13900);
+
     }
 
     public function exportOriginalStatements(array $statements, Procedure $procedure): WriterInterface
