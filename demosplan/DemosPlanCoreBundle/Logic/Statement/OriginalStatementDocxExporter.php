@@ -88,18 +88,17 @@ class OriginalStatementDocxExporter extends SegmentsExporter
     {
         $headerConfigs = [
             [
-                'text' => $tableHeaders['col1'] ?? $this->translator->trans('statements.export.statement.id'),
-                'style' => $this->styles['segmentsTableHeaderCellID']
+                'text'  => $tableHeaders['col1'] ?? $this->translator->trans('statements.export.statement.id'),
+                'style' => $this->styles['segmentsTableHeaderCellID'],
             ],
             [
-                'text' => $tableHeaders['col2'] ?? $this->translator->trans('statements.export.statement.label'),
-                'style' => $this->styles['segmentsTableHeaderCell']
-            ]
+                'text'  => $tableHeaders['col2'] ?? $this->translator->trans('statements.export.statement.label'),
+                'style' => $this->styles['segmentsTableHeaderCell'],
+            ],
         ];
 
         return $this->createTableWithHeader($section, $headerConfigs);
     }
-
 
     private function addStatementTableBody(Table $table, Statement $statement): void
     {

@@ -298,22 +298,21 @@ abstract class SegmentsExporter
     {
         $headerConfigs = [
             [
-                'text' => $tableHeaders['col1'] ?? $this->translator->trans('segments.export.segment.id'),
-                'style' => $this->styles['segmentsTableHeaderCellID']
+                'text'  => $tableHeaders['col1'] ?? $this->translator->trans('segments.export.segment.id'),
+                'style' => $this->styles['segmentsTableHeaderCellID'],
             ],
             [
-                'text' => $tableHeaders['col2'] ?? $this->translator->trans('segments.export.statement.label'),
-                'style' => $this->styles['segmentsTableHeaderCell']
+                'text'  => $tableHeaders['col2'] ?? $this->translator->trans('segments.export.statement.label'),
+                'style' => $this->styles['segmentsTableHeaderCell'],
             ],
             [
-                'text' => $tableHeaders['col3'] ?? $this->translator->trans('segment.recommendation'),
-                'style' => $this->styles['segmentsTableHeaderCell']
-            ]
+                'text'  => $tableHeaders['col3'] ?? $this->translator->trans('segment.recommendation'),
+                'style' => $this->styles['segmentsTableHeaderCell'],
+            ],
         ];
 
         return $this->createTableWithHeader($section, $headerConfigs);
     }
-
 
     private function addSegmentTableBody(Table $table, Segment $segment, string $statementExternId, bool $isObscure): void
     {
@@ -495,6 +494,4 @@ abstract class SegmentsExporter
 
         return $table;
     }
-
-
 }
