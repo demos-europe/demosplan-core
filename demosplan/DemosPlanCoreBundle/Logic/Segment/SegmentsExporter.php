@@ -56,10 +56,11 @@ abstract class SegmentsExporter
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
+        int $smallColumnWidth = 1550,
         int $wideColumnWidth = 6950,
     ) {
         $this->translator = $translator;
-        $this->styles = $styleInitializer->initialize($wideColumnWidth);
+        $this->styles = $styleInitializer->initialize($smallColumnWidth, $wideColumnWidth);
         $this->slugify = $slugify;
     }
 
