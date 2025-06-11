@@ -661,7 +661,7 @@ const LayersStore = {
          * If the layer is an overlay and the flag hasAlternateVisibility is set, we need to hide all other categories and category-members,
          * that don't belong to the category of the current layer
          */
-        const toggledCat = dispatch('findMostParentCategory', layer)
+        const toggledCat = dispatch('findMostParentCategory', layer) || {}
 
         dispatch('toggleCategoryAndItsChildren', { id: toggledCat.id, value: true })
 
