@@ -224,17 +224,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         return $phpWord;
     }
 
-    public function exportStatement(
-        Section $section,
-        Statement $statement,
-        array $tableHeaders,
-        $censored = false,
-        $obscure = false,
-    ): void {
-        $this->addStatementInfo($section, $statement, $censored);
-        $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement, $tableHeaders, $obscure);
-        $this->addFooter($section, $statement, $censored);
+    protected function addContent(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void
+    {
+        if ($statement->getSegmentsOfStatement()->isEmpty()) {
+            $this->addNoSegmentsMessage($section);
+        } else {
+            $this->addSegmentsTable($section, $statement, $tableHeaders, $isObscure);
+        }
     }
 
     /**

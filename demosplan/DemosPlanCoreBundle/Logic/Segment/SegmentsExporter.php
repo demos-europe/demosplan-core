@@ -37,7 +37,7 @@ use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SegmentsExporter
+abstract class SegmentsExporter
 {
     /**
      * @var array<string, mixed>
@@ -213,14 +213,7 @@ class SegmentsExporter
         $section->addTextBreak(2);
     }
 
-    protected function addSegments(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void
-    {
-        if ($statement->getSegmentsOfStatement()->isEmpty()) {
-            $this->addNoSegmentsMessage($section);
-        } else {
-            $this->addSegmentsTable($section, $statement, $tableHeaders, $isObscure);
-        }
-    }
+    abstract protected function addContent(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void;
 
     protected function addFooter(Section $section, Statement $statement, bool $censored = false): void
     {
@@ -240,13 +233,13 @@ class SegmentsExporter
         );
     }
 
-    private function addNoSegmentsMessage(Section $section): void
+    protected function addNoSegmentsMessage(Section $section): void
     {
         $noEntriesMessage = $this->translator->trans('statement.has.no.segments');
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
     }
 
-    private function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders, bool $isObscure): void
+    protected function addSegmentsTable(Section $section, Statement $statement, array $tableHeaders, bool $isObscure): void
     {
         $table = $this->addSegmentsTableHeader($section, $tableHeaders);
         $sortedSegments = $this->sortSegmentsByOrderInProcedure($statement->getSegmentsOfStatement()->toArray());
@@ -425,5 +418,18 @@ class SegmentsExporter
             $preamble = $this->translator->trans('docx.export.preamble');
             Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
         }
+    }
+
+    public function exportStatement(
+        Section $section,
+        Statement $statement,
+        array $tableHeaders,
+        $censored = false,
+        $obscure = false
+    ): void {
+        $this->addStatementInfo($section, $statement, $censored);
+        $this->addSimilarStatementSubmitters($section, $statement);
+        $this->addContent($section, $statement, $tableHeaders, $obscure);
+        $this->addFooter($section, $statement, $censored);
     }
 }

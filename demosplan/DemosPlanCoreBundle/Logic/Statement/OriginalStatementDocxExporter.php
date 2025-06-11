@@ -91,19 +91,6 @@ class OriginalStatementDocxExporter extends SegmentsExporter
         return IOFactory::createWriter($phpWord);
     }
 
-    public function exportStatement(
-        Section $section,
-        Statement $statement,
-        array $tableHeaders,
-        $censored = false,
-        $obscure = false,
-    ): void {
-        $this->addStatementInfo($section, $statement, $censored);
-        $this->addSimilarStatementSubmitters($section, $statement);
-        $this->addSegments($section, $statement, $tableHeaders, $obscure);
-        $this->addFooter($section, $statement, $censored);
-    }
-
     /**
      * @param array<int, Statement> $statements
      */
@@ -124,7 +111,7 @@ class OriginalStatementDocxExporter extends SegmentsExporter
         return $i !== count($statements) - 1;
     }
 
-    protected function addSegments(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void
+    protected function addContent(Section $section, Statement $statement, array $tableHeaders, bool $isObscure = false): void
     {
         $this->addStatementTable($section, $statement, $tableHeaders, $isObscure);
     }
