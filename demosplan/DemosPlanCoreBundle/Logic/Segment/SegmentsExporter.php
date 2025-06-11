@@ -49,8 +49,7 @@ abstract class SegmentsExporter
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
-        protected HtmlHelper $htmlHelper,
-        private readonly ImageManager $imageManager,
+        private readonly HtmlHelper $htmlHelper,
         protected readonly ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
