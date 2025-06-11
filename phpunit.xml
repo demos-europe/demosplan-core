@@ -5,12 +5,7 @@
     bootstrap="tests/backend/bootstrap.php"
     beStrictAboutOutputDuringTests="true"
     colors="true"
-    displayDetailsOnTestsThatTriggerDeprecations="true"
-    displayDetailsOnTestsThatTriggerErrors="true"
-    displayDetailsOnTestsThatTriggerNotices="true"
-    displayDetailsOnTestsThatTriggerWarnings="true"
-    cacheDirectory=".phpunit.cache"
-    requireCoverageMetadata="false">
+    stopOnError="true">
 
     <php>
         <ini name="display_errors" value="1" />
