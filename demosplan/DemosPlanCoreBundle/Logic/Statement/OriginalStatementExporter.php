@@ -26,7 +26,7 @@ use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class OriginalStatementDocxExporter extends SegmentsExporter
+class OriginalStatementExporter extends SegmentsExporter
 {
     private const STATEMENT_ID_COLUMN_WIDTH = 1950;
     private const STATEMENT_TEXT_COLUMN_WIDTH = 13500;

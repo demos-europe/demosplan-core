@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\OriginalStatementCsvExporter;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\OriginalStatementDocxExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\OriginalStatementExporter;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
 use Doctrine\ORM\Query\QueryException;
 use Exception;
@@ -101,10 +101,10 @@ class StatementExportController extends BaseController
         methods: 'GET'
     )]
     public function exportByStatementsFilterDocxAction(
-        JsonApiActionService $jsonApiActionService,
-        OriginalStatementDocxExporter $exporter,
+        JsonApiActionService          $jsonApiActionService,
+        OriginalStatementExporter     $exporter,
         OriginalStatementResourceType $originalStatementResourceType,
-        CurrentProcedureService $currentProcedureService,
+        CurrentProcedureService       $currentProcedureService,
     ) {
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
