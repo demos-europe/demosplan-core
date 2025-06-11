@@ -40,6 +40,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentsByStatementsExporter extends SegmentsExporter
 {
+    private const SEGMENT_ID_COLUMN_WIDTH = 1550;
+    private const SEGMENT_TEXT_AND_RECOMMENDATION_COLUMN_WIDTH = 6950;
+
     public function __construct(
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         CurrentUserInterface $currentUser,
@@ -52,7 +55,16 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         TranslatorInterface $translator,
         private readonly StatementArrayConverter $statementArrayConverter,
     ) {
-        parent::__construct($currentUser, $htmlHelper, $imageManager, $imageLinkConverter, $slugify, $styleInitializer, $translator);
+        parent::__construct(
+            $currentUser,
+            $htmlHelper,
+            $imageManager,
+            $imageLinkConverter,
+            $slugify,
+            $styleInitializer,
+            $translator,
+        self::SEGMENT_ID_COLUMN_WIDTH,
+        self::SEGMENT_TEXT_AND_RECOMMENDATION_COLUMN_WIDTH);
     }
 
     public function getSynopseFileName(Procedure $procedure, string $suffix): string
