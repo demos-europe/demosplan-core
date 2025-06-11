@@ -78,36 +78,48 @@ class OriginalStatementExporterTest extends FunctionalTestCase
         // Should have multiple sections (one per statement)
         static::assertCount(2, $phpWord->getSections());
 
-        // Test first statement section
+        // Assert each section contains the correct statement
         $firstSection = $phpWord->getSection(0);
         $secondSection = $phpWord->getSection(1);
         $this->assertStatementInSection($firstSection->getElements()[3]->getRows(), 'STMT-001', 'First statement content');
         $this->assertStatementInSection($secondSection->getElements()[3]->getRows(), 'STMT-002', 'Second statement content');
     }
 
-    private function assertStatementInSection($rows, string $expectedExternId, string $expectedText): void
-    {
-        // Stellungnahme-ID
-        static::assertEquals('Stellungnahme-ID', $rows[0]->getCells()[0]->getElements()[0]->getText(), 'Statement ID mismatch');
-        static::assertEquals('Stellungnahme', $rows[0]->getCells()[1]->getElements()[0]->getText(), 'Statement ID mismatch');
 
-        // Assert table structure: header row + content row
+
+    /**
+     * Asserts that a statement is correctly formatted in the given section.
+     *
+     * @param \PhpOffice\PhpWord\Element\Row[] $rows The rows of the table containing the statement.
+     * @param string $expectedExternId The expected external ID of the statement.
+     * @param string $expectedText The expected text content of the statement.
+     */
+    private function assertStatementInSection(array $rows, string $expectedExternId, string $expectedText): void
+    {
+        // Verify table structure
         static::assertCount(2, $rows, 'Table should have exactly 2 rows (header + content)');
 
-        // Check header row has 2 columns
-        $headerCells = $rows[0]->getCells();
-        static::assertCount(2, $headerCells, 'Header row should have 2 columns');
+        $headerRow = $rows[0];
+        $contentRow = $rows[1];
 
-        // Check content row has 2 columns
-        $contentCells = $rows[1]->getCells();
-        static::assertCount(2, $contentCells, 'Content row should have 2 columns');
+        // Verify column count
+        static::assertCount(2, $headerRow->getCells(), 'Header row should have 2 columns');
+        static::assertCount(2, $contentRow->getCells(), 'Content row should have 2 columns');
 
-        // Assert statement ID in first column
-        $idCellText = $contentCells[0]->getElements()[0]->getText();
-        static::assertEquals($expectedExternId, $idCellText, 'Statement ID mismatch');
+        // Verify header texts
+        $headerIdText = $headerRow->getCells()[0]->getElements()[0]->getText();
+        $headerContentText = $headerRow->getCells()[1]->getElements()[0]->getText();
 
-        // Assert statement content in second column
-        $contentCellText = $contentCells[1]->getElements()[0]->getText();
-        static::assertStringContainsString($expectedText, $contentCellText, 'Statement content not found');
+        static::assertEquals('Stellungnahme-ID', $headerIdText, 'Header ID column mismatch');
+        static::assertEquals('Stellungnahme', $headerContentText, 'Header content column mismatch');
+
+        // Verify statement data
+        $actualExternId = $contentRow->getCells()[0]->getElements()[0]->getText();
+        $actualContent = $contentRow->getCells()[1]->getElements()[0]->getText();
+
+        static::assertEquals($expectedExternId, $actualExternId, 'Statement ID mismatch');
+        static::assertStringContainsString($expectedText, $actualContent, 'Statement content not found');
     }
+
+
 }
