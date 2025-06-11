@@ -134,23 +134,23 @@ const LayersStore = {
     /**
      * Sets the ID of the currently hovered layer
      *
-     * @param {string} data - Layer ID
+     * @param {string} id - Layer ID
      *
      * @returns {void}
      */
-    setHoverLayerId (state, data) {
-      state.hoverLayerId = data
+    setHoverLayerId (state, id) {
+      state.hoverLayerId = id
     },
 
     /**
      * Sets whether the hover layer icon is currently being hovered
      *
-     * @param {boolean} data - Hover state
+     * @param {boolean} isHovered - Hover state
      *
      * @returns {void}
      */
-    setHoverLayerIconIsHovered (state, data) {
-      state.hoverLayerIconIsHovered = data
+    setHoverLayerIconIsHovered (state, isHovered) {
+      state.hoverLayerIconIsHovered = isHovered
     },
 
     /**
