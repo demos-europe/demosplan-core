@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\OriginalStatementCsvExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\OriginalStatementExporter;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OriginalStatementResourceType;
@@ -36,8 +35,7 @@ class StatementExportController extends BaseController
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly TranslatorInterface $translator,
-        private readonly NameGenerator $nameGenerator,
-        private readonly ProcedureHandler $procedureHandler,
+        private readonly NameGenerator $nameGenerator
     ) {
     }
 

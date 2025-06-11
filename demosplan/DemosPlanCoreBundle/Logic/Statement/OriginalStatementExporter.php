@@ -58,7 +58,7 @@ class OriginalStatementExporter extends SegmentsExporter
 
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
 
-        if (0 === count($statements)) {
+        if (empty($statements)) {
             return $this->exportEmptyStatements($phpWord, $procedure);
         }
 
