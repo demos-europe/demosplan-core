@@ -34,7 +34,6 @@ class OriginalStatementExporter extends SegmentsExporter
     public function __construct(
         CurrentUserInterface $currentUser,
         HtmlHelper $htmlHelper,
-        ImageManager $imageManager,
         ImageLinkConverter $imageLinkConverter,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
@@ -43,7 +42,6 @@ class OriginalStatementExporter extends SegmentsExporter
         parent::__construct(
             $currentUser,
             $htmlHelper,
-            $imageManager,
             $imageLinkConverter,
             $slugify,
             $styleInitializer,
