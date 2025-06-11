@@ -28,6 +28,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OriginalStatementDocxExporter extends SegmentsExporter
 {
+    private const STATEMENT_TEXT_COLUMN_WIDTH = 13900;
+
     public function __construct(
         CurrentUserInterface $currentUser,
         HtmlHelper $htmlHelper,
@@ -37,7 +39,8 @@ class OriginalStatementDocxExporter extends SegmentsExporter
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
     ) {
-        parent::__construct($currentUser, $htmlHelper, $imageManager, $imageLinkConverter, $slugify, $styleInitializer, $translator, 13900);
+        parent::__construct($currentUser, $htmlHelper, $imageManager, $imageLinkConverter, $slugify, $styleInitializer, $translator, self::STATEMENT_TEXT_COLUMN_WIDTH);
+
     }
 
     public function exportOriginalStatements(array $statements, Procedure $procedure): WriterInterface
