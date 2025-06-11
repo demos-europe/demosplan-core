@@ -227,7 +227,7 @@ const LayersStore = {
         return
       }
 
-      // List all elements with the givven categoryId
+      // List all elements with the given categoryId
       const childElements = state.apiData.included
         .filter(el => {
           let isInList = 0
@@ -588,16 +588,16 @@ const LayersStore = {
      * @returns {void}
      */
     toggleCategoryAndItsChildren ({ dispatch, commit, state }, { id, value }) {
-      const el = state.apiData.included.find(el => el.id === id)
+      const category = state.apiData.included.find(el => el.id === id)
 
-      commit('setLayerState', { id: el.id, key: 'isVisible', value })
+      commit('setLayerState', { id: category.id, key: 'isVisible', value })
 
-      if (el.type === 'GisLayerCategory') {
-        el.relationships?.categories?.data.forEach(cat => {
+      if (category.type === 'GisLayerCategory') {
+        category.relationships?.categories?.data.forEach(cat => {
           dispatch('toggleCategoryAndItsChildren', { id: cat.id, value })
         })
 
-        el.relationships?.gisLayers?.data.forEach(layer => {
+        category.relationships?.gisLayers?.data.forEach(layer => {
           dispatch('toggleCategoryAndItsChildren', { id: layer.id, value })
         })
       }
@@ -609,8 +609,8 @@ const LayersStore = {
      * Gets the complete object for an element by ID and type
      *
      * @param {Object} element - Element identifier
-     * @param {string} element.id - Element ID
-     * @param {string} element.type - Element type
+     * @param {string} element.id
+     * @param {string} element.type
      *
      * @returns {Object} Complete element object or empty object if not found
      */
