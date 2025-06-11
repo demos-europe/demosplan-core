@@ -10,24 +10,24 @@
 <template>
   <div>
     <dp-input
-      class="u-mb-0_5"
       id="r_name"
       v-model="name"
       :label="{
         text: Translator.trans('name')
       }"
+      class="u-mb-0_5"
       data-cy="newMapLayerName"
       name="r_name"
       required
     />
 
     <dp-input
-      class="u-mb-0_5"
       id="r_url"
       v-model="url"
       :label="{
         text: Translator.trans('url')
       }"
+      class="u-mb-0_5"
       data-cy="newMapLayerURL"
       name="r_url"
       required
@@ -36,12 +36,12 @@
     />
 
     <dp-select
-      class="u-mb-0_5"
       v-model="serviceType"
       :label="{
         text: Translator.trans('type')
       }"
       :options="serviceTypeOptions"
+      class="u-mb-0_5"
       data-cy="layerSettings:serviceType"
       name="r_serviceType"
       required
@@ -55,12 +55,12 @@
 
     <dp-checkbox
       v-if="hasPermission('feature_xplan_defaultlayers') && showXplanDefaultLayer"
-      class="u-mb-0_5"
       id="r_xplanDefaultlayers"
       :label="{
         text: Translator.trans('explanation.gislayer.xplan.default')
       }"
       :title="Translator.trans('explanation.gislayer.default.defined') + ': ' + xplanDefaultLayer"
+      class="u-mb-0_5"
       name="r_xplanDefaultlayers"
       style="display: none;"
       value="1"
@@ -73,11 +73,10 @@
     />
 
     <dp-multiselect
-      class="u-mb-0_5"
       id="r_layers"
       v-model="layers"
       :options="layersOptions"
-      :selection-controls="true"
+      class="u-mb-0_5"
       data-cy="newMapLayerLayers"
       label="label"
       track-by="label"
@@ -96,7 +95,6 @@
 
     <dp-select
       v-if="hasPermission('feature_map_wmts') && serviceType === 'wmts'"
-      class="u-mb-0_5"
       id="r_tileMatrixSet"
       v-model="matrixSet"
       :disabled="disabledMatrixSelect"
@@ -104,6 +102,7 @@
         text: Translator.trans('map.tilematrixset')
       }"
       :options="matrixSetOptions"
+      class="u-mb-0_5"
       data-cy="layerSettings:matrixSet"
       name="r_tileMatrixSet"
       required
@@ -116,7 +115,6 @@
       type="hidden">
 
     <dp-select
-      class="u-mb-0_5"
       id="r_layerProjection"
       v-model="projection"
       :disabled="disabledProjectionSelect"
@@ -124,6 +122,7 @@
         text: Translator.trans('projection')
       }"
       :options="projectionOptions"
+      class="u-mb-0_5"
       name="r_layerProjection"
       required
     />
