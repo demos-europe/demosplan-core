@@ -63,8 +63,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $slugify,
             $styleInitializer,
             $translator,
-        self::SEGMENT_ID_COLUMN_WIDTH,
-        self::SEGMENT_TEXT_AND_RECOMMENDATION_COLUMN_WIDTH);
+            self::SEGMENT_ID_COLUMN_WIDTH,
+            self::SEGMENT_TEXT_AND_RECOMMENDATION_COLUMN_WIDTH);
     }
 
     public function getSynopseFileName(Procedure $procedure, string $suffix): string
