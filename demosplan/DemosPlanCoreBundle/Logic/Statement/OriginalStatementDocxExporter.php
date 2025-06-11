@@ -28,8 +28,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OriginalStatementDocxExporter extends SegmentsExporter
 {
-    private const STATEMENT_ID_COLUMN_WIDTH = 1550;
-    private const STATEMENT_TEXT_COLUMN_WIDTH = 13900;
+    private const STATEMENT_ID_COLUMN_WIDTH = 1950;
+    private const STATEMENT_TEXT_COLUMN_WIDTH = 13500;
 
     public function __construct(
         CurrentUserInterface $currentUser,
