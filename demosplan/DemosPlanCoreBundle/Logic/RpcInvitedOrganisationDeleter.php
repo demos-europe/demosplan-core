@@ -44,7 +44,7 @@ class RpcInvitedOrganisationDeleter implements RpcMethodSolverInterface
 
     public function supports(string $method): bool
     {
-        return self::DELETE_INVITED_ORGANISATIONS_METHOD === $method;
+        return self::SUPPORTED_METHOD_NAME === $method;
     }
 
     /**
