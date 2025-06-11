@@ -221,6 +221,12 @@ const LayersStore = {
       const currentElementType = currentElement.type === 'GisLayerCategory' ? ['parentId', 'categories'] : ['categoryId', 'gisLayers']
       const isBaseLayer = currentElement.attributes.layerType === 'base'
 
+      if (!oldCategory || !newCategory || !currentElement) {
+        console.error('Invalid categories or current element, cannot update order')
+
+        return
+      }
+
       // List all elements with the givven categoryId
       const childElements = state.apiData.included
         .filter(el => {
