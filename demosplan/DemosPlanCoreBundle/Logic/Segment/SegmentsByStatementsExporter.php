@@ -98,7 +98,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             $tableHeaders,
             $censorCitizenData,
             $censorInstitutionData,
-            $obscure,
+            $obscure
         );
     }
 
