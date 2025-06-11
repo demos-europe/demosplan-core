@@ -50,7 +50,6 @@ class OriginalStatementDocxExporter extends SegmentsExporter
             $translator,
             self::STATEMENT_ID_COLUMN_WIDTH,
             self::STATEMENT_TEXT_COLUMN_WIDTH);
-
     }
 
     public function exportOriginalStatements(array $statements, Procedure $procedure): WriterInterface
