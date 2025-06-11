@@ -32,10 +32,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -135,10 +131,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 3
@@ -157,10 +149,6 @@ fos_elastica:
                                 - stemmer_german
                                 - unique
                                 - asciifolding
-                        ducet_sort:
-                            tokenizer: keyword
-                            filter:
-                                - icu_filter
             properties:
                 name:
                     type: text
@@ -243,10 +231,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -313,10 +297,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -684,10 +664,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -710,10 +686,6 @@ fos_elastica:
                                 - stemmer_german
                                 - unique
                                 - asciifolding
-                        ducet_sort:
-                            tokenizer: keyword
-                            filter:
-                                - icu_filter
                         file_name:
                             type: custom
                             char_filter: remove_filename_extension
