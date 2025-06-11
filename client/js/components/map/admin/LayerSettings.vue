@@ -83,6 +83,7 @@
       track-by="label"
       multiple
       required
+      selection-controls
       @input="filterMatrixSetByLayers"
       @selectAll="selectAllLayers"
       @unselectAll="unselectAllLayers"
