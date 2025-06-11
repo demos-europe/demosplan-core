@@ -2,6 +2,14 @@
 
 declare(strict_types=1);
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
@@ -21,7 +29,7 @@ class OriginalStatementExporterTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut =  static::getContainer()->get(OriginalStatementExporter::class);
+        $this->sut = static::getContainer()->get(OriginalStatementExporter::class);
     }
 
     public function testExportOriginalStatementsWithEmptyArray(): void
@@ -42,24 +50,23 @@ class OriginalStatementExporterTest extends FunctionalTestCase
         static::assertCount(1, $elements);
         static::assertInstanceOf(Text::class, $elements[0]);
 
-        /** @var \PhpOffice\PhpWord\Element\Text $textElement */
+        /** @var Text $textElement */
         $textElement = $elements[0];
         static::assertStringContainsString('Für die aktuelle Filterung sind keine Stellungnahmen verfügbar.', $textElement->getText());
     }
-
 
     public function testExportOriginalStatementsWithMultipleStatements(): void
     {
         $procedure = ProcedureFactory::createOne();
         $statement1 = StatementFactory::createOne([
             'procedure' => $procedure->_real(),
-            'text' => 'First statement content',
-            'externId' => 'STMT-001'
+            'text'      => 'First statement content',
+            'externId'  => 'STMT-001',
         ]);
         $statement2 = StatementFactory::createOne([
             'procedure' => $procedure->_real(),
-            'text' => 'Second statement content',
-            'externId' => 'STMT-002'
+            'text'      => 'Second statement content',
+            'externId'  => 'STMT-002',
         ]);
 
         $statements = [$statement1->_real(), $statement2->_real()];
@@ -76,13 +83,11 @@ class OriginalStatementExporterTest extends FunctionalTestCase
         $secondSection = $phpWord->getSection(1);
         $this->assertStatementInSection($firstSection->getElements()[3]->getRows(), 'STMT-001', 'First statement content');
         $this->assertStatementInSection($secondSection->getElements()[3]->getRows(), 'STMT-002', 'Second statement content');
-
     }
 
     private function assertStatementInSection($rows, string $expectedExternId, string $expectedText): void
     {
-
-        //Stellungnahme-ID
+        // Stellungnahme-ID
         static::assertEquals('Stellungnahme-ID', $rows[0]->getCells()[0]->getElements()[0]->getText(), 'Statement ID mismatch');
         static::assertEquals('Stellungnahme', $rows[0]->getCells()[1]->getElements()[0]->getText(), 'Statement ID mismatch');
 
@@ -105,6 +110,4 @@ class OriginalStatementExporterTest extends FunctionalTestCase
         $contentCellText = $contentCells[1]->getElements()[0]->getText();
         static::assertStringContainsString($expectedText, $contentCellText, 'Statement content not found');
     }
-
 }
-
