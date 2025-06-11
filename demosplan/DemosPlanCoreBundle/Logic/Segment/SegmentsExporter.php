@@ -425,7 +425,7 @@ abstract class SegmentsExporter
         Statement $statement,
         array $tableHeaders,
         $censored = false,
-        $obscure = false
+        $obscure = false,
     ): void {
         $this->addStatementInfo($section, $statement, $censored);
         $this->addSimilarStatementSubmitters($section, $statement);
