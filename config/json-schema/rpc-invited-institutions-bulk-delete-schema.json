@@ -20,6 +20,7 @@
         "ids": {
           "$id": "ids",
           "type": "array",
+          "minItems": 1,
           "additionalItems": false,
           "items": {
             "$id": "ids/items",
