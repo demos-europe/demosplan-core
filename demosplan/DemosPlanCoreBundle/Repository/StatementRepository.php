@@ -1186,6 +1186,8 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
      * Counts statements submitted by an organisation via the draft-to-statement workflow.
      * This method counts statements where the organisation is set directly on the statement
      * (indicating they were submitted via the draft-to-statement workflow) rather than through statement.meta.
+     *
+     * @throws NoResultException|NonUniqueResultException
      */
     public function countDraftToStatementSubmissionsByOrganisation(string $procedureId, string $organisationId): int
     {
