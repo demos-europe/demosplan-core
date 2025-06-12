@@ -106,7 +106,7 @@
         <input
           type="checkbox"
           data-cy="adminLayerListItem:toggleDefaultVisibility"
-          :disabled="null !== layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
+          :disabled="layer.attributes.visibilityGroupId || (true === isChildOfCategoryThatAppearsAsLayer)"
           @change.prevent="toggleHasDefaultVisibility"
           :checked="hasDefaultVisibility"
           :class="[iconClass, 'o-sortablelist__checkbox']">
