@@ -44,7 +44,6 @@ const openStatementModalOrLoginPage= (event) => {
 const props = defineProps({
   styleNonce: {
     type: String,
-    default: '',
     required: true,
   }
 })
