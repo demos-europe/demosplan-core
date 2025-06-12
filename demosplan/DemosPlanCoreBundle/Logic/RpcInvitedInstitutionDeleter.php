@@ -17,9 +17,12 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcErrorGeneratorInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
+use DemosEurope\DemosplanAddon\Utilities\Json;
+use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\ORM\EntityManager;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -28,9 +31,9 @@ use Webmozart\Assert\Assert;
 
 use function sprintf;
 
-class RpcInvitedOrganisationDeleter implements RpcMethodSolverInterface
+class RpcInvitedInstitutionDeleter implements RpcMethodSolverInterface
 {
-    public const DELETE_INVITED_ORGANISATIONS_METHOD = 'bulk.delete.invited.organisations';
+    public const SUPPORTED_METHOD_NAME = 'invitedInstitutions.bulk.delete';
 
     public function __construct(
         private readonly MessageBagInterface $messageBag,
@@ -39,27 +42,28 @@ class RpcInvitedOrganisationDeleter implements RpcMethodSolverInterface
         private readonly TransactionService $transactionService,
         private readonly CurrentUserInterface $currentUser,
         private readonly ProcedureService $procedureService,
+        private readonly JsonSchemaValidator $jsonSchemaValidator,
     ) {
     }
 
     public function supports(string $method): bool
     {
-        return self::DELETE_INVITED_ORGANISATIONS_METHOD === $method;
+        return self::SUPPORTED_METHOD_NAME === $method;
     }
 
     /**
-     * This method handles the removal of multiple organisations from a procedure's invitation list.
+     * This method handles the removal of multiple institutions from a procedure's invitation list.
      */
     public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
         if (!$this->currentUser->hasPermission('area_admin_invitable_institution')) {
-            $this->logger->error('User does not have permission to manage invited organisations');
+            $this->logger->error('User does not have permission to manage invited institutions');
 
             return [$this->rpcErrorGenerator->internalError()];
         }
 
         if (null === $procedure) {
-            $this->logger->error('No procedure provided for invited organisation deletion');
+            $this->logger->error('No procedure provided for invited institution deletion');
 
             return [$this->rpcErrorGenerator->internalError()];
         }
@@ -70,10 +74,10 @@ class RpcInvitedOrganisationDeleter implements RpcMethodSolverInterface
             );
         } catch (Exception $e) {
             $this->logger->error(
-                'An error occurred trying to remove invited organisations via RpcInvitedOrganisationDeleter',
+                'An error occurred trying to remove invited institutions via RpcInvitedInstitutionDeleter',
                 ['ExceptionMessage' => $e->getMessage(), 'Exception' => $e]
             );
-            $this->messageBag->add('error', 'warning.invited.organisations.bulk.delete.generic.error');
+            $this->messageBag->add('error', 'warning.invited.institutions.bulk.delete.generic.error');
 
             return [$this->rpcErrorGenerator->internalError($rpcRequests)];
         }
@@ -88,42 +92,42 @@ class RpcInvitedOrganisationDeleter implements RpcMethodSolverInterface
 
         foreach ($rpcRequests as $rpcRequest) {
             try {
-                /** @var array<int, array{id: string}> $organisationIds */
-                $organisationIds = $rpcRequest->params->ids ?? null;
-                Assert::isIterable($organisationIds, 'expected params->ids to be a list of organisation IDs');
+                /** @var array<int, array{id: string}> $institutionIds */
+                $institutionIds = $rpcRequest->params->ids ?? null;
+                Assert::isIterable($institutionIds, 'expected params->ids to be a list of institution IDs');
 
-                $invitedOrganisations = $procedure->getOrganisation();
-                $organisationsToRemove = [];
+                $invitedInstitutions = $procedure->getOrganisation();
+                $institutionsToRemove = [];
 
-                foreach ($organisationIds as $organisationData) {
-                    $organisationId = $organisationData->id ?? '';
-                    Assert::stringNotEmpty($organisationId, 'organisationId is expected to be a non-empty string');
+                foreach ($institutionIds as $institutionData) {
+                    $institutionId = $institutionData->id ?? '';
+                    Assert::stringNotEmpty($institutionId, 'institutionId is expected to be a non-empty string');
 
-                    $organisation = $invitedOrganisations->filter(
-                        static fn ($org) => $org->getId() === $organisationId
+                    $institution = $invitedInstitutions->filter(
+                        static fn ($org) => $org->getId() === $institutionId
                     )->first();
 
-                    if (false === $organisation) {
-                        $errorMessage = sprintf('Organisation %s is not invited to procedure %s', $organisationId, $procedure->getId());
+                    if (false === $institution) {
+                        $errorMessage = sprintf('Institution %s is not invited to procedure %s', $institutionId, $procedure->getId());
                         $this->logger->error($errorMessage);
-                        $this->messageBag->add('error', 'error.organisation.not.invited');
+                        $this->messageBag->add('error', 'error.institution.not.invited');
                         throw new OrgaNotFoundException($errorMessage);
                     }
 
-                    $organisationsToRemove[] = $organisation;
+                    $institutionsToRemove[] = $institution;
                 }
 
-                if (0 < count($organisationsToRemove)) {
-                    $this->procedureService->detachOrganisations($procedure, $organisationsToRemove);
-                    $this->logger->info(sprintf('Removed %d organisations from procedure %s', count($organisationsToRemove), $procedure->getId()));
+                if (0 < count($institutionsToRemove)) {
+                    $this->procedureService->detachOrganisations($procedure, $institutionsToRemove);
+                    $this->logger->info(sprintf('Removed %d institutions from procedure %s', count($institutionsToRemove), $procedure->getId()));
                 }
 
                 $resultResponse[] = $this->generateMethodSuccessResult($rpcRequest);
                 $this->messageBag->add('confirm', 'confirm.invitable_institutions.deleted');
             } catch (Exception $e) {
-                $this->messageBag->add('error', 'warning.invited.organisations.bulk.delete.generic.error');
+                $this->messageBag->add('error', 'warning.invited.institutions.bulk.delete.generic.error');
                 $this->logger->error(
-                    'An error occurred trying to remove invited organisations via RpcInvitedOrganisationDeleter',
+                    'An error occurred trying to remove invited institutions via RpcInvitedInstitutionDeleter',
                     ['ExceptionMessage' => $e->getMessage(), 'Exception' => $e]
                 );
                 $resultResponse[] = $this->rpcErrorGenerator->internalError($rpcRequest);
@@ -141,8 +145,13 @@ class RpcInvitedOrganisationDeleter implements RpcMethodSolverInterface
     public function validateRpcRequest(object $rpcRequest): void
     {
         if (!$this->currentUser->hasPermission('area_admin_invitable_institution')) {
-            throw new AccessDeniedException('User does not have permission to manage invited organisations');
+            throw new AccessDeniedException('User does not have permission to manage invited institutions');
         }
+
+        $this->jsonSchemaValidator->validate(
+            Json::encode($rpcRequest),
+            DemosPlanPath::getConfigPath('json-schema/rpc-invited-institutions-bulk-delete-schema.json')
+        );
     }
 
     private function generateMethodSuccessResult(object $rpcRequest): object
