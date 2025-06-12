@@ -27,9 +27,9 @@
             <directory suffix=".php">demosplan</directory>
         </include>
     </coverage>
-    <listeners>
-        <listener class="\Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
-    </listeners>
+    <extensions>
+        <bootstrap class="\Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
+    </extensions>
 
     <testsuites>
         <testsuite name="core">
