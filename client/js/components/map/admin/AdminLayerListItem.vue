@@ -779,13 +779,7 @@ export default {
         return
       }
       if (this.preventActiveFromToggeling === false) {
-        if (this.isActive) {
-          this.$store.commit('updateState', { key: 'activeLayerId', value: '' })
-
-        } else {
-          this.$store.commit('updateState', { key: 'activeLayerId', value: this.layer.id })
-
-        }
+        this.updateState({ key: 'activeLayerId', value: this.isActive ? '' : this.layer.id })
       } else {
         this.preventActiveFromToggeling = false
       }
@@ -821,14 +815,14 @@ export default {
         return false
       }
       if (this.layer.attributes.layerType === 'overlay' && typeof this.activeLayer.id !== 'undefined') {
-        this.$store.commit('Layers/setHoverLayerIconIsHovered', true)
+        this.setHoverLayerIconIsHovered(true)
       } else {
         this.unsetIconHoverState()
       }
     },
 
     unsetIconHoverState () {
-      this.$store.commit('Layers/setHoverLayerIconIsHovered', false)
+      this.setHoverLayerIconIsHovered(false)
     },
 
     /**
@@ -921,7 +915,7 @@ export default {
       }
     },
 
-    ...mapMutations('Layers', ['setAttributeForLayer', 'setChildrenFromCategory'])
+    ...mapMutations('Layers', ['setAttributeForLayer', 'setChildrenFromCategory', 'setHoverLayerIconIsHovered', 'updateState'])
   },
 
   beforeCreate () {
