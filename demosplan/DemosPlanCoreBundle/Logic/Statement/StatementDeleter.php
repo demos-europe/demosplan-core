@@ -13,10 +13,14 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementPreDeleteEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementDeleteEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\SegmentDeleteEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
+use demosplan\DemosPlanCoreBundle\Event\Statement\SegmentDeleteEvent;
+use demosplan\DemosPlanCoreBundle\Event\Statement\StatementDeleteEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementPreDeleteEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -193,6 +197,14 @@ class StatementDeleter extends CoreService
                     }
 
                     $this->entityContentChangeService->deleteByEntityIds([$statementId]);
+                    $this->eventDispatcher->dispatch(
+                        new StatementDeleteEvent($statement),
+                        StatementDeleteEventInterface::class
+                    );
+                    $this->eventDispatcher->dispatch(
+                        new SegmentDeleteEvent($statement),
+                        SegmentDeleteEventInterface::class
+                    );
                     $success = true;
                 } catch (DemosException $demosException) {
                     $this->getLogger()->error('Fehler beim Löschen eines Statements: ', [$demosException]);

@@ -929,6 +929,10 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 try {
                     $this->updateProcedure($data);
                     $this->getLogger()->info('Procedure marked as deleted: '.\var_export($procedureId, true));
+                    $this->eventDispatcher->dispatch(
+                        new PostProcedureDeletedEvent($procedureId),
+                        PostProcedureDeletedEventInterface::class
+                    );
                     ++$deletionCount;
                 } catch (Exception $e) {
                     $this->getLogger()->warning("Mark Procedure '$procedureId' as deleted failed Message: ", [$e]);
