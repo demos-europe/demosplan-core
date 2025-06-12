@@ -5,7 +5,12 @@
     bootstrap="tests/backend/bootstrap.php"
     beStrictAboutOutputDuringTests="true"
     colors="true"
-    stopOnError="true">
+    displayDetailsOnTestsThatTriggerDeprecations="true"
+    displayDetailsOnTestsThatTriggerErrors="true"
+    displayDetailsOnTestsThatTriggerNotices="true"
+    displayDetailsOnTestsThatTriggerWarnings="true"
+    cacheDirectory=".phpunit.cache"
+    requireCoverageMetadata="false">
 
     <php>
         <ini name="display_errors" value="1" />
@@ -14,6 +19,7 @@
         <server name="SHELL_VERBOSITY" value="-1" />
         <server name="SYMFONY_PHPUNIT_REMOVE" value="" />
         <server name="SYMFONY_PHPUNIT_VERSION" value="10.0" />
+        <server name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
 
         <!-- ###+ symfony/lock ### -->
         <!-- Choose one of the stores below -->
@@ -22,14 +28,11 @@
         <!-- ###- symfony/lock ### -->
     </php>
 
-    <coverage processUncoveredFiles="false">
+    <source>
         <include>
             <directory suffix=".php">demosplan</directory>
         </include>
-    </coverage>
-    <extensions>
-        <bootstrap class="\Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
-    </extensions>
+    </source>
 
     <testsuites>
         <testsuite name="core">
