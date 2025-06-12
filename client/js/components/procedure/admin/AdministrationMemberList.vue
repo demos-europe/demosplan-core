@@ -154,14 +154,50 @@ export default {
     },
 
     writeEmail() {
+      console.log('writeEmail called, selectedItems:', this.selectedItems)
+
       if (this.selectedItems.length === 0) {
         dplan.notify.notify('warning', Translator.trans('organisation.select.first'))
-
         return
       }
 
-      document.getElementById('writeEmailButton')?.click()
+      // Erstelle verstecktes Form mit ausgewählten IDs
+      const form = document.createElement('form')
+      form.method = 'POST'
+      form.action = Routing.generate('DemosPlan_admin_member_email', {
+        procedureId: this.procedureId
+      })
+      form.style.display = 'none'
+
+      // Füge selected organisation IDs hinzu
+      this.selectedItems.forEach(orgId => {
+        const input = document.createElement('input')
+        input.type = 'hidden'
+        input.name = 'orga_selected[]'  // Legacy-Format
+        input.value = orgId
+        form.appendChild(input)
+      })
+
+      // Email-Action Flag
+      const actionInput = document.createElement('input')
+      actionInput.type = 'hidden'
+      actionInput.name = 'email_orga_action'
+      actionInput.value = '1'
+      form.appendChild(actionInput)
+
+      // CSRF-Token
+      const csrfInput = document.createElement('input')
+      csrfInput.type = 'hidden'
+      csrfInput.name = '_token'
+      csrfInput.value = dplan.csrfToken
+      form.appendChild(csrfInput)
+
+      // Submit form
+      document.body.appendChild(form)
+      form.submit()
+      document.body.removeChild(form)
     },
+
 
     exportPdf() {
       if (this.selectedItems.length === 0) {
