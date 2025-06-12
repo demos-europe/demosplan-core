@@ -78,7 +78,6 @@ All rights reserved
             @filterApply="(filtersToBeApplied) => filterManager.applyFilter(filtersToBeApplied, category.id)"
             @filterOptions:request="(params) => filterManager.createFilterOptions({ ...params, categoryId: category.id})" />
         </div>
-      </div >
 
       <dp-button
         class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
@@ -88,6 +87,7 @@ All rights reserved
         variant="outline"
         v-tooltip="Translator.trans('search.filter.reset')"
         @click="filterManager.reset" />
+      </div>
     </template>
 
     <dp-pager
@@ -277,12 +277,6 @@ export default {
       filterManager: filterCategoryHelpers.createFilterManager(this),
       initiallySelectedFilterCategories: [],
       institutionTagCategoriesCopy: {},
-      invitableToebFields: [
-        'legalName',
-        'participationFeedbackEmailAddress',
-        'locationContacts',
-        ...(hasPermission('feature_institution_tag_read') ? ['assignedTags'] : [])
-      ],
       isLoading: true,
       itemsPerPage: 50,
       itemsPerPageOptions: [10, 50, 100, 200],
@@ -330,6 +324,27 @@ export default {
             memberOf: groupKey
           }
         })
+    },
+
+    apiRequestFields () {
+      console.log('totalItems:', this.totalItems)
+      console.log('itemsPerPageOptions[0]:', this.itemsPerPageOptions[0])
+      console.log('Show pager?:', this.totalItems > this.itemsPerPageOptions[0])
+
+      // Felder aus headerFields (für sichtbare Spalten)
+      const headerFieldNames = this.headerFields.map(field => field.field)
+
+      // Basis-Felder für OrganisationTable-Funktionalität (immer gebraucht)
+      const baseFields = ['participationFeedbackEmailAddress',
+        'locationContacts']
+
+      // Tags falls Permission
+      const tagFields = hasPermission('feature_institution_tag_read') ?
+          ['assignedTags'] : []
+
+      // Kombiniere alle ohne Duplikate
+      return [...new Set([...headerFieldNames, ...baseFields,
+        ...tagFields])]
     },
 
     currentPage () {
@@ -527,7 +542,7 @@ export default {
         },
         include: includeParams.join(),
         fields: {
-          [this.resourceType]: this.invitableToebFields.concat(this.returnPermissionChecksValuesArray(permissionChecksToeb)).join(),
+          [this.resourceType]: this.apiRequestFields.concat(this.returnPermissionChecksValuesArray(permissionChecksToeb)).join(),
           InstitutionLocationContact: this.locationContactFields.concat(this.returnPermissionChecksValuesArray(permissionChecksContact)).join()
         }
       }
@@ -575,6 +590,14 @@ export default {
             conjunction: 'OR'
           }
         }
+        return this.$store.dispatch(`${this.storeModule}/list`, requestParams)
+          .then(data => {
+            console.log('Backend pagination data:', data.meta.pagination)  // ← HIER
+            this.setLocalStorage(data.meta.pagination)
+            this.updatePagination(data.meta.pagination)
+            console.log('After updatePagination, this.pagination:', this.pagination)  // ← UND HIER
+            console.log('After updatePagination, this.totalItems:', this.totalItems)  // ← UND HIER
+          })
 
         requestParams.filter = filters
       }
@@ -589,6 +612,8 @@ export default {
     getLocationContactById (id) {
       return this.institutionLocationContactItems[id]
     },
+
+
 
     handleChange (filterCategoryName, isSelected) {
       this.filterManager.handleChange(filterCategoryName, isSelected)

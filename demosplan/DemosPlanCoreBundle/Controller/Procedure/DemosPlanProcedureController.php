@@ -2272,7 +2272,7 @@ class DemosPlanProcedureController extends BaseController
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_procedure_member_add', path: '/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen')]
+    #[Route(name: 'DemosPlan_procedure_member_add', path: '/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen', options: ['expose' => true])]
     public function administrationNewMemberListAction(
         Breadcrumb $breadcrumb,
         MessageBagInterface $messageBag,
