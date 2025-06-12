@@ -14,6 +14,8 @@ namespace Tests\Core\Core\Functional\Command;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
+use demosplan\DemosPlanCoreBundle\Command\Permission\DisablePermissionForCustomerOrgaRoleCommand;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaTypeFactory;
@@ -27,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Proxy;
 
@@ -89,4 +92,22 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $this->assertStringContainsString('Customer '.$this->testCustomer->getId().' '.$this->testCustomer->getName(), $output);
         $this->assertStringContainsString('Role '.$this->testRole->getId().' '.$this->testRole->getName(), $output);
     }
+
+    public function testCommandExists(): void
+    {
+        $kernel = self::bootKernel();
+        $application = new ConsoleApplication($kernel, false);
+
+        $application->add(new DisablePermissionForCustomerOrgaRoleCommand(
+            $this->createMock(ParameterBagInterface::class),
+            $this->customerService,
+            $this->roleService,
+            $this->accessControlService,
+        ));
+
+        $command = $application->find(DisablePermissionForCustomerOrgaRoleCommand::getDefaultName());
+        $this->assertNotNull($command);
+    }
+
+
 }

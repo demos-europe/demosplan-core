@@ -22,4 +22,10 @@ class StatementSynchronizerTest extends FunctionalTestCase
         parent::setUp();
         $this->sut = $this->getContainer()->get(StatementSynchronizer::class);
     }
+
+    public function testServiceExists(): void
+    {
+        $this->assertInstanceOf(StatementSynchronizer::class, $this->sut);
+    }
+
 }
