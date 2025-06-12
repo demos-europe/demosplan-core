@@ -163,7 +163,7 @@ import {
   DpInput,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'SimilarStatementSubmitters',
@@ -230,6 +230,10 @@ export default {
   },
 
   computed: {
+    ...mapState('Statement', {
+      statements: 'items'
+    }),
+
     /**
      * The "add" button text of EditableList is too long when inside the narrow context.
      * This is why a shorter button text is rendered there.
@@ -249,7 +253,8 @@ export default {
 
   methods: {
     ...mapMutations('Statement', {
-      updateStatement: 'update'
+      updateStatement: 'update',
+      setInitialStatement: 'setItem'
     }),
 
     ...mapMutations('SimilarStatementSubmitter', {
@@ -294,6 +299,8 @@ export default {
               type: 'SimilarStatementSubmitter'
             }
           })
+          this.setInitialStatement(this.statements[this.statementId])
+          console.log(this.statements[this.statementId])
 
           // Update local state - similarStatementSubmitter
           this.setSimilarStatementSubmitter({
@@ -313,6 +320,7 @@ export default {
           type: 'SimilarStatementSubmitter'
         }
       })
+      this.setInitialStatement(this.statements[this.statementId])
 
       this.listEntries.splice(index, 1)
 

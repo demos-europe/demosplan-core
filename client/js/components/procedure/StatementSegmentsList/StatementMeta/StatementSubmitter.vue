@@ -164,6 +164,7 @@ import {
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
+import { mapState } from 'vuex'
 export default {
   name: 'StatementSubmitter',
 
@@ -210,6 +211,10 @@ export default {
   },
 
   computed: {
+    ...mapState('Statement', {
+      statements: 'items'
+    }),
+
     isStatementManual () {
       return this.localStatement.attributes.isManual
     },
@@ -271,15 +276,6 @@ export default {
     }
   },
 
-  watch: {
-    statement: {
-      handler(newStatement) {
-        this.localStatement = JSON.parse(JSON.stringify(newStatement))
-      },
-      deep: true
-    }
-  },
-
   methods: {
     isSubmitterAnonymized () {
       const { consentRevoked, submitterAndAuthorMetaDataAnonymized } = this.localStatement.attributes
@@ -292,7 +288,18 @@ export default {
     },
 
     save () {
-      this.$emit('save', this.localStatement)
+      // Get current statement from store (includes any relationship changes from SimilarStatementSubmitter)
+      const currentStatement = this.statements[this.statement.id]
+
+      const updatedStatement = {
+        ...currentStatement,
+        attributes: {
+          ...currentStatement.attributes,
+          ...this.localStatement.attributes
+        }
+      }
+
+      this.$emit('save', updatedStatement)
     },
 
     setInitValues () {
