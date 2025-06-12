@@ -258,7 +258,7 @@ export default {
       const layersLength = layers.length
 
       return layers.map(layer => {
-        const name = layer.id // .replaceAll('-', '')
+        const name = layer.id.replaceAll('-', '')
         const visiblility = layersLength > 1 ? layer.attributes.hasDefaultVisibility : true
         const source = visiblility ? this.createLayerSource(layer) : null
 
@@ -339,8 +339,8 @@ export default {
         this.handleZoom(1, duration)
       })
 
-      for (let i = 0; i < mapCustomZoomReset.length; i++) {
-        mapCustomZoomReset[i].addEventListener('click', () => {
+      for (const element of mapCustomZoomReset) {
+        element.addEventListener('click', () => {
           this.map.getView().fit(this.initialExtent, { duration })
         })
       }
@@ -584,7 +584,7 @@ export default {
      * @return {*}
      */
     createLayer ({ layer, opacity = 1, visibility = true, preload = 0 }) {
-      const name = layer.id // .replaceAll('-', '')
+      const name = layer.id.replaceAll('-', '')
       const visible = layer.attributes.hasDefaultVisibility && visibility
       const source = visibility ? this.createLayerSource(layer) : null
 
@@ -624,7 +624,6 @@ export default {
       let hasBplan = false
       let hasScope = false
       let i = 0
-      const tempLayers = []
       let layer
       let layerId
       let overlayLayer
@@ -669,19 +668,11 @@ export default {
         }
 
         this.overlayLayers.push(overlayLayer)
-
-        tempLayers.push({
-          id: layer.id,
-          treeOrder: layer.attributes.treeOrder,
-          mapOrder: layer.attributes.mapOrder,
-          defaultVisibility: layer.attributes.hasDefaultVisibility,
-        })
       }
-      tempLayers.sort((a, b) => a.treeOrder - b.treeOrder)
 
       this.overlayLayerGroup = new LayerGroup({
         layers: this.overlayLayers.reverse(),
-        name: 'overlayLayerGroup',
+        name: 'overlayLayerGroup'
       })
     },
 
@@ -898,7 +889,7 @@ export default {
           opacity: 1,
           type: 'overlay',
           source: new TileWMS({
-            url: 'http://temporary.de',
+            url: 'https://temporary.de',
           }),
         })
 
@@ -1977,43 +1968,49 @@ export default {
       this.toggleLayer(layerName, false, newState)
 
       if (element.id === 'territorySwitcher' && hasOwnProp(this.scope, 'id')) {
-        layerId = this.scope.id // .replace(/-/g, '')
+        layerId = this.scope.id.replace(/-/g, '')
       } else if (hasOwnProp(this.bPlan, 'id')) {
-        layerId = this.bPlan.id // .replace(/-/g, '')
+        layerId = this.bPlan.id.replace(/-/g, '')
       }
 
-      this.updateLayerVisibility({ id: layerId, value: newState, layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility })
+      this.updateLayerVisibility({ id: layerId, isVisible: newState, layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility })
     },
 
-    toggleLayer (layerId, toggleExclusive = false, newState) {
+    toggleLayer (layerId, toggleExclusive, newState) {
       if (!this.map) return
 
       const layerGroup = this.map.getLayerGroup()
-      const layer = this.findBy(layerGroup, 'name', layerId) // .replace(/-/g, ''))
+      const layer = this.findBy(layerGroup, 'name', layerId.replace(/-/g, ''))
 
       if (toggleExclusive === true) {
-        const baseLayerGroup = this.findBy(layerGroup, 'name', 'baseLayerGroup')
-        if (baseLayerGroup) {
-          const layers = baseLayerGroup.getLayers().getArray()
-          const len = layers.length
-          //  Hide all baselayers except those which have to be shown additionally
-          for (let i = 0; i < len; i++) {
-            if (layers[i].get('doNotToggleLayer') !== true) {
-              layers[i].setVisible(false)
-            }
-          }
-          if (layer) {
-            this.setLayerSource(layer)
-            layer.setVisible(true)
-          }
-        }
-      } else {
+        this.toggleLayerExclusively(layerGroup)
+      } else if (layer) {
         const stateSetter = (typeof newState !== 'undefined') ? newState : (layer.getVisible() === false)
-        if (layer) {
-          layer.setVisible(stateSetter)
-        }
+
+        layer.setVisible(stateSetter)
       }
     },
+
+    toggleLayerExclusively (layerGroup) {
+      const baseLayerGroup = this.findBy(layerGroup, 'name', 'baseLayerGroup')
+
+      if (baseLayerGroup) {
+        const layers = baseLayerGroup.getLayers().getArray()
+        const len = layers.length
+
+        //  Hide all baselayers except those which have to be shown additionally
+        for (let i = 0; i < len; i++) {
+          if (layers[i].get('doNotToggleLayer') !== true) {
+            layers[i].setVisible(false)
+          }
+        }
+
+        if (layer) {
+          this.setLayerSource(layer)
+          layer.setVisible(true)
+        }
+      }
+    }
   },
 
   mounted () {
