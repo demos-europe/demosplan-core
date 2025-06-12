@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use demosplan\DemosPlanCoreBundle\Command\Permission\DisablePermissionForCustomerOrgaRoleCommand;
+use demosplan\DemosPlanCoreBundle\Command\Permission\EnablePermissionForCustomerOrgaRoleCommand;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaTypeFactory;
@@ -63,6 +64,48 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $this->testCustomer = CustomerFactory::createOne();
     }
 
+    public function testExecuteEnablePermissionForCustomerOrgaRoleCommand(): CommandTester
+    {
+        $kernel = self::bootKernel();
+        $application = new ConsoleApplication($kernel, false);
+
+        $application->add(new EnablePermissionForCustomerOrgaRoleCommand(
+            $this->createMock(ParameterBagInterface::class),
+            $this->customerService,
+            $this->roleService,
+            $this->accessControlService,
+        ));
+
+        $command = $application->find(EnablePermissionForCustomerOrgaRoleCommand::getDefaultName());
+        $commandTester = new CommandTester($command);
+
+        $this->assertStringsInCommandOutput($commandTester, true, 'This is a dry run. No changes have been made to the database.');
+        $this->assertStringsInCommandOutput($commandTester, false, 'Changes have been applied to the database.');
+
+        return $commandTester;
+    }
+
+    public function testExecuteDisablePermissionForCustomerOrgaRoleCommand(): CommandTester
+    {
+        $kernel = self::bootKernel();
+        $application = new ConsoleApplication($kernel, false);
+
+        $application->add(new DisablePermissionForCustomerOrgaRoleCommand(
+            $this->createMock(ParameterBagInterface::class),
+            $this->customerService,
+            $this->roleService,
+            $this->accessControlService,
+        ));
+
+        $command = $application->find(DisablePermissionForCustomerOrgaRoleCommand::getDefaultName());
+        $commandTester = new CommandTester($command);
+
+        $this->assertStringsInCommandOutput($commandTester, true, 'This is a dry run. No changes have been made to the database.');
+        $this->assertStringsInCommandOutput($commandTester, false, 'Changes have been applied to the database.');
+
+        return $commandTester;
+    }
+
     protected function assertStringsInCommandOutput(CommandTester $commandTester, bool $dryRun, string $expectedMessage): void
     {
         $commandTester->execute([
@@ -108,4 +151,5 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $command = $application->find(DisablePermissionForCustomerOrgaRoleCommand::getDefaultName());
         $this->assertNotNull($command);
     }
+
 }
