@@ -1186,10 +1186,13 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
      * Counts statements submitted by an organisation via the draft-to-statement workflow.
      * This method counts statements where the organisation is set directly on the statement
      * (indicating they were submitted via the draft-to-statement workflow) rather than through statement.meta.
+     *
+     * @throws NonUniqueResultException
+     * @throws NoResultException
      */
     public function countDraftToStatementSubmissionsByOrganisation(string $procedureId, string $organisationId): int
     {
-        return (int) $this->getEntityManager()->createQueryBuilder()
+        $singleScalarResult = $this->getEntityManager()->createQueryBuilder()
             ->select('COUNT(original.id)')
             ->from(Statement::class, 'statement')
             ->leftJoin('statement.original', 'original')
@@ -1205,6 +1208,19 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->setParameter('orgaId', $organisationId)
             ->getQuery()
             ->getSingleScalarResult();
+
+        if (is_int($singleScalarResult)) {
+            return $singleScalarResult;
+        }
+        if (is_string($singleScalarResult) && is_numeric($singleScalarResult)) {
+            return (int) $singleScalarResult;
+        }
+
+        $this->logger->error(
+            'queried count got no number - countDraftToStatementSubmissionsByOrganisation',
+            ['result' => $singleScalarResult]
+        );
+        throw new NonUniqueResultException('queried count is not a number');
     }
 
     /**
