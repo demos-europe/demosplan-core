@@ -67,7 +67,7 @@
       </header>
 
       <dp-inline-notification
-        :class="prefixClass('mt-3 mb-2')"
+        :class="prefixClass('mb-2')"
         dismissible
         dismissible-key="statementModalCloseExplanation"
         :message="Translator.trans('explanation.statement.autosave')"
@@ -79,7 +79,7 @@
         data-dp-validate="statementForm">
         <dp-inline-notification
           v-if="loggedIn === false"
-          :class="prefixClass('mt-3')"
+          :class="prefixClass('mb-2')"
           type="info">
           <p
             v-if="statementFormHintStatement"
@@ -90,7 +90,7 @@
 
         <dp-inline-notification
           v-if="dpValidate.statementForm === false"
-          :class="prefixClass('mt-3 mb-2')"
+          :class="prefixClass('mb-2')"
           id="statementFormErrors"
           aria-labelledby="statementFormErrorsContent"
           tabindex="0">
