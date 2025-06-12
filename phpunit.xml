@@ -22,11 +22,14 @@
         <!-- ###- symfony/lock ### -->
     </php>
 
-    <source>
+    <coverage processUncoveredFiles="false">
         <include>
             <directory suffix=".php">demosplan</directory>
         </include>
-    </source>
+    </coverage>
+    <listeners>
+        <listener class="\Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
+    </listeners>
 
     <testsuites>
         <testsuite name="core">
