@@ -108,6 +108,4 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $command = $application->find(DisablePermissionForCustomerOrgaRoleCommand::getDefaultName());
         $this->assertNotNull($command);
     }
-
-
 }

@@ -27,5 +27,4 @@ class StatementSynchronizerTest extends FunctionalTestCase
     {
         $this->assertInstanceOf(StatementSynchronizer::class, $this->sut);
     }
-
 }
