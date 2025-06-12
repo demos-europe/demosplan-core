@@ -30,7 +30,6 @@ class CustomFieldResourceTypeTest extends JsonApiTest
 
     public function testCreateCustomField(): void
     {
-        $this->setUpHttpClient();
         $this->user = UserFactory::createOne();
         $this->customer = CustomerFactory::createOne();
         $this->role = RoleFactory::createOne([
