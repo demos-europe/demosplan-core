@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use DemosEurope\DemosplanAddon\Contracts\Events\StatementPreDeleteEventInterface;
-use DemosEurope\DemosplanAddon\Contracts\Events\StatementDeleteEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\SegmentDeleteEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementDeleteEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementPreDeleteEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -124,7 +124,7 @@ class StatementDeleter extends CoreService
         Statement $statement,
         bool $ignoreAssignment = false,
         bool $ignoreOriginal = false,
-        bool $canTransaction = true
+        bool $canTransaction = true,
     ): bool {
         /** @var Connection $doctrineConnection */
         $doctrineConnection = $this->getDoctrine()->getConnection();

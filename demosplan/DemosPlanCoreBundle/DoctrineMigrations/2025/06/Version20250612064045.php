@@ -1,4 +1,14 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
 
 namespace Application\Migrations;
 
@@ -21,7 +31,6 @@ class Version20250612064045 extends AbstractMigration
     {
         $this->abortIfNotMysql();
         $this->addSql("ALTER TABLE _procedure ADD demos_pipes_pi_retries INT NOT NULL DEFAULT 0 COMMENT 'Number of retries for Demos Pipes PI to process this procedure.'");
-
     }
 
     /**
