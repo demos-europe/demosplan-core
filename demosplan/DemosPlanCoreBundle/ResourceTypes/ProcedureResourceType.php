@@ -174,8 +174,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             $this->createAttribute($this->name)
                 ->readable(
                     true,
-                    fn (Procedure $procedure): ?string
-                    => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                    fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
                     ? $procedure->getName() : null
                 )
                 ->sortable()
