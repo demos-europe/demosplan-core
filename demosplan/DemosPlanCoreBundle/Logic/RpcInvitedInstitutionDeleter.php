@@ -17,8 +17,8 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcErrorGeneratorInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
-use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
@@ -42,7 +42,7 @@ class RpcInvitedInstitutionDeleter implements RpcMethodSolverInterface
         private readonly TransactionService $transactionService,
         private readonly CurrentUserInterface $currentUser,
         private readonly ProcedureService $procedureService,
-        private readonly JsonSchemaValidator $jsonSchemaValidator
+        private readonly JsonSchemaValidator $jsonSchemaValidator,
     ) {
     }
 
