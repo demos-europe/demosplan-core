@@ -5,6 +5,7 @@
     bootstrap="tests/backend/bootstrap.php"
     beStrictAboutOutputDuringTests="true"
     colors="true"
+    stopOnError="true"
     displayDetailsOnTestsThatTriggerDeprecations="true"
     displayDetailsOnTestsThatTriggerErrors="true"
     displayDetailsOnTestsThatTriggerNotices="true"
@@ -16,9 +17,9 @@
         <ini name="display_errors" value="1" />
         <ini name="error_reporting" value="E_ALL &amp; ~E_DEPRECATED" />
         <server name="APP_ENV" value="test" force="true" />
-        <server name="SHELL_VERBOSITY" value="3" />
+        <server name="SHELL_VERBOSITY" value="-1" />
         <server name="SYMFONY_PHPUNIT_REMOVE" value="" />
-        <server name="SYMFONY_PHPUNIT_VERSION" value="10.5" />
+        <server name="SYMFONY_PHPUNIT_VERSION" value="10.0" />
 
         <!-- ###+ symfony/lock ### -->
         <!-- Choose one of the stores below -->
