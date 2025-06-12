@@ -45,7 +45,7 @@ const props = defineProps({
   styleNonce: {
     type: String,
     default: '',
-    required: false,
+    required: true,
   }
 })
 
