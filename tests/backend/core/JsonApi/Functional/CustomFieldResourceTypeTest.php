@@ -42,8 +42,6 @@ class CustomFieldResourceTypeTest extends JsonApiTest
         $this->user->_save();
         $this->user->setCurrentCustomer($this->customer->_real());
         $this->user->_save();
-        $this->tokenStorage = $this->getContainer()->get('security.token_storage');
-        $this->logIn($this->user->_real());
 
         $this->enablePermissions(['area_admin_custom_fields', 'feature_json_api_create']);
 
