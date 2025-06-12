@@ -58,7 +58,7 @@
         :should-be-selected-items="currentlySelectedItems"
         track-by="id"
         @items-toggled="handleToggleItem"
-        @select-all="handleSelectAll">
+        @selectAll="handleSelectAll">
         <template v-slot:externId="{ externId }">
           <span
             class="font-semibold"
