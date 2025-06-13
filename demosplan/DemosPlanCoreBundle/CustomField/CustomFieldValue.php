@@ -14,7 +14,7 @@ class CustomFieldValue
 {
     protected string $id = '';
 
-    protected string $value = '';
+    protected ?string $value = null;
 
     public function fromJson(array $json): void
     {
@@ -45,7 +45,7 @@ class CustomFieldValue
         $this->value = $value;
     }
 
-    public function getValue(): string
+    public function getValue(): ?string
     {
         return $this->value;
     }

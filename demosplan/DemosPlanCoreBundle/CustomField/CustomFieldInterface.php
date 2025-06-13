@@ -19,7 +19,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 interface CustomFieldInterface
 {
-
     public const TYPE_CLASSES = [
         'singleSelect' => RadioButtonField::class,
         // 'dropdown' => DropdownField::class,
@@ -33,6 +32,8 @@ interface CustomFieldInterface
     public function getFormat(): string;
 
     public function getType(): string;
+
+    public function getName(): string;
 
     /**
      * Will be called during database fetch
@@ -51,6 +52,7 @@ interface CustomFieldInterface
 
     public function getCustomFieldsList(): ?array;
 
-    public function setId($id ): void;
+    public function setId($id): void;
+
     public function getId(): string;
 }
