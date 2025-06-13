@@ -7,6 +7,7 @@
 ## UNRELEASED
 - Add Versioning of custom fields of segments
 - Update Elasticsearch to version 8
+- Migrate to Tailwind CSS v4
 
 ## UNRELEASED
 
