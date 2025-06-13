@@ -5,7 +5,6 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
-## v4.2.0 (2025-06-13)
 - Add Versioning of custom fields of segments
 - Update Elasticsearch to version 8
 - Export Original Statements as csv in the Statement List
