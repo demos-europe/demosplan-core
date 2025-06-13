@@ -95,7 +95,7 @@
         :should-be-selected-items="currentlySelectedItems"
         track-by="id"
         :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection.sharedStatement') }"
-        @select-all="handleSelectAll"
+        @selectAll="handleSelectAll"
         @items-toggled="handleToggleItem">
         <template v-slot:externId="{ assignee = {}, externId, id: statementId, synchronized }">
           <span
