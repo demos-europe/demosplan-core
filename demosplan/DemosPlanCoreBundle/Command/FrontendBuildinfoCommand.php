@@ -68,7 +68,7 @@ class FrontendBuildinfoCommand extends CoreCommand
     {
         file_put_contents(
             DemosPlanPath::getRootPath('client/css/generated/project.css'),
-            "@source \"../../../projects/".$project."/templates/bundles/DemosPlanCoreBundle/**/*.html.twig\";"
+            '@source "../../../projects/' . $project . '/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";'
         );
     }
 
