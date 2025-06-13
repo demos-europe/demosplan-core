@@ -1375,6 +1375,8 @@ error.statments.zip.export.attachment: |
     }
 error.statements.zip.export.attachments.not.addable: 'Es konnten dem ZIP-Archiv keine Anhänge hinzugefügt werden. Export abgebrochen.'
 error.statements.zip.import.contains.error.textfile: 'Es wurde versucht, ein fehlerhaft erstelltes ZIP-Archiv zu importieren. Bitte versuchen Sie das Zip-Archiv zu ersetzen.'
+error.statements.of.institution.count.retrieval.failed: "Die Anzahl der Stellungnahmen der Institution konnte nicht ermittelt werden."
+error.institution.invitation.mail.list.retrieval.failed: "Es konnte nicht für alle Institutionen ermittelt werden, ob bereits eine Einladung verschickt wurde."
 error.tag.notfound: "Das Schlagwort konnte nicht gefunden werden."
 error.topic.notfound: "Das Thema wurde nicht gefunden. Möglicherweise wurde es zwischenzeitlich gelöscht."
 error.text: "Bitte geben Sie einen Text der Stellungnahme ein."

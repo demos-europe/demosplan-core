@@ -69,6 +69,7 @@ use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+use Webmozart\Assert\Assert;
 use function array_combine;
 
 /**
@@ -1189,6 +1190,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
      *
      * @throws NonUniqueResultException
      * @throws NoResultException
+     * @throws InvalidArgumentException
      */
     public function countDraftToStatementSubmissionsByOrganisation(string $procedureId, string $organisationId): int
     {
@@ -1209,18 +1211,9 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->getQuery()
             ->getSingleScalarResult();
 
-        if (is_int($singleScalarResult)) {
-            return $singleScalarResult;
-        }
-        if (is_string($singleScalarResult) && is_numeric($singleScalarResult)) {
-            return (int) $singleScalarResult;
-        }
+        Assert::integer($singleScalarResult);
 
-        $this->logger->error(
-            'queried count got no number - countDraftToStatementSubmissionsByOrganisation',
-            ['result' => $singleScalarResult]
-        );
-        throw new NonUniqueResultException('queried count is not a number');
+        return $singleScalarResult;
     }
 
     /**

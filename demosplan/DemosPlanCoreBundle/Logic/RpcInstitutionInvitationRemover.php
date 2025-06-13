@@ -31,7 +31,7 @@ use Webmozart\Assert\Assert;
 
 use function sprintf;
 
-class RpcInvitedInstitutionDeleter implements RpcMethodSolverInterface
+class RpcInstitutionInvitationRemover implements RpcMethodSolverInterface
 {
     public const SUPPORTED_METHOD_NAME = 'invitedInstitutions.bulk.delete';
 
@@ -74,7 +74,7 @@ class RpcInvitedInstitutionDeleter implements RpcMethodSolverInterface
             );
         } catch (Exception $e) {
             $this->logger->error(
-                'An error occurred trying to remove invited institutions via RpcInvitedInstitutionDeleter',
+                'An error occurred trying to remove invited institutions via RpcInstitutionInvitationRemover',
                 ['ExceptionMessage' => $e->getMessage(), 'Exception' => $e]
             );
             $this->messageBag->add('error', 'warning.invited.institutions.bulk.delete.generic.error');
@@ -127,7 +127,7 @@ class RpcInvitedInstitutionDeleter implements RpcMethodSolverInterface
             } catch (Exception $e) {
                 $this->messageBag->add('error', 'warning.invited.institutions.bulk.delete.generic.error');
                 $this->logger->error(
-                    'An error occurred trying to remove invited institutions via RpcInvitedInstitutionDeleter',
+                    'An error occurred trying to remove invited institutions via RpcInstitutionInvitationRemover',
                     ['ExceptionMessage' => $e->getMessage(), 'Exception' => $e]
                 );
                 $resultResponse[] = $this->rpcErrorGenerator->internalError($rpcRequest);
