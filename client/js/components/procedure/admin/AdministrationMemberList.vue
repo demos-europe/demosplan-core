@@ -10,6 +10,9 @@ All rights reserved
 
 <template>
   <div>
+    <p class="u-mt-0_5">
+      {{ Translator.trans('Invitable_institution.add.explanation') }}
+    </p>
     <!-- Bulk Actions Section -->
       <button
         class="btn--blank o-link--default u-mr-0_5"
@@ -40,11 +43,11 @@ All rights reserved
       </button>
 
     <dp-button
+      class="btn btn--primary float-right"
       data-cy="addPublicAgency"
       :href="addMemberPath"
       :text="Translator.trans('invitable_institution.add')"
       variant="primary" />
-
   </div>
 
     <organisation-table
@@ -104,19 +107,11 @@ export default {
 
   computed: {
     addMemberPath() {
-      console.log('Generating addMemberPath for procedure:', this.procedureId)
-
-      const baseRoute = 'DemosPlan_procedure_member_add'
-      const masterRoute = 'DemosPlan_procedure_member_add_mastertoeblist'
-
       const routeName = hasPermission('area_use_mastertoeblist')
-        ? masterRoute
-        : baseRoute
+        ? 'DemosPlan_procedure_member_add_mastertoeblist'
+        : 'DemosPlan_procedure_member_add'
 
-      const path = Routing.generate(routeName, { procedure: this.procedureId })
-      console.log('Generated path:', path)
-
-      return path
+      return Routing.generate(routeName, { procedure: this.procedureId })
     }
   },
 
@@ -153,60 +148,75 @@ export default {
         })
     },
 
-    writeEmail() {
-      console.log('writeEmail called, selectedItems:', this.selectedItems)
+    /**
+     * Bulk action: Export selected organisations to PDF
+     * Uses dedicated PDF route - no action flag needed
+     */
+    exportPdf() {
+      this.submitBulkActionForm(
+        'DemosPlan_procedure_member_index_pdf',
+        { procedure: this.procedureId }
+      )
+    },
 
+    /**
+     * Generic method to submit bulk actions to legacy backend routes
+     * Creates a form with selected organisation IDs and submits to specified route
+     *
+     * @param {string} routeName - Symfony route name to submit to
+     * @param {Object} routeParams - Parameters for route generation
+     * @param {string|null} actionFieldName - Optional action flag field name for legacy routes
+     */
+    submitBulkActionForm(routeName, routeParams, actionFieldName = null ) {
       if (this.selectedItems.length === 0) {
-        dplan.notify.notify('warning', Translator.trans('organisation.select.first'))
+        dplan.notify.notify('warning',
+          Translator.trans('organisation.select.first'))
         return
       }
-
-      // Erstelle verstecktes Form mit ausgewählten IDs
+      // Create hidden form for legacy route compatibility
       const form = document.createElement('form')
       form.method = 'POST'
-      form.action = Routing.generate('DemosPlan_admin_member_email', {
-        procedureId: this.procedureId
-      })
+      form.action = Routing.generate(routeName, routeParams)
       form.style.display = 'none'
 
-      // Füge selected organisation IDs hinzu
+      // Add selected organisation IDs as form data
       this.selectedItems.forEach(orgId => {
         const input = document.createElement('input')
         input.type = 'hidden'
-        input.name = 'orga_selected[]'  // Legacy-Format
+        input.name = 'orga_selected[]' // Legacy format expected by backend
         input.value = orgId
         form.appendChild(input)
       })
 
-      // Email-Action Flag
+      // Add action-specific flag if required (legacy email route needs this)
       const actionInput = document.createElement('input')
       actionInput.type = 'hidden'
-      actionInput.name = 'email_orga_action'
+      actionInput.name = actionFieldName
       actionInput.value = '1'
       form.appendChild(actionInput)
 
-      // CSRF-Token
+      // CSRF protection
       const csrfInput = document.createElement('input')
       csrfInput.type = 'hidden'
       csrfInput.name = '_token'
       csrfInput.value = dplan.csrfToken
       form.appendChild(csrfInput)
 
-      // Submit form
       document.body.appendChild(form)
       form.submit()
       document.body.removeChild(form)
     },
 
-
-    exportPdf() {
-      if (this.selectedItems.length === 0) {
-        dplan.notify.notify('warning', Translator.trans('organisation.select.first'))
-
-        return
-      }
-
-      document.getElementById('pdfExportButton')?.click()
+    /**
+     * Bulk action: Send email to selected organisations
+     * Uses legacy email route that requires an action flag
+     */
+    writeEmail() {
+      this.submitBulkActionForm(
+        'DemosPlan_admin_member_email',
+        { procedureId: this.procedureId },
+        'email_orga_action'
+      )
     }
   }
 }

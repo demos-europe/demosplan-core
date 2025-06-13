@@ -92,25 +92,25 @@ All rights reserved
 
     <dp-pager
       v-if="totalItems > itemsPerPageOptions[0]"
+      class="flex-shrink-0 mt-2"
       :current-page="currentPage"
       :limits="itemsPerPageOptions"
       :per-page="itemsPerPage"
       :total-items="totalItems"
       :total-pages="totalPages"
-      class="flex-shrink-0 mt-2"
       @page-change="page => getInstitutionsWithContacts(page)"
       @size-change="handleItemsPerPageChange" />
 
     <dp-data-table
+      class="mt-2"
       ref="DpDataTable"
       :header-fields="headerFields"
-      :items="rowItems"
-      :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
-      class="mt-2"
-      lock-checkbox-by="hasNoEmail"
-      track-by="id"
       is-expandable
       is-selectable
+      :items="rowItems"
+      lock-checkbox-by="hasNoEmail"
+      track-by="id"
+      :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
       @items-selected="setSelectedItems">
 
       <!-- Resource-specific content based on resourceType -->
@@ -238,10 +238,10 @@ export default {
     DpButton,
     DpCheckbox,
     DpDataTable,
-    DpIcon,
-    DpSearchField,
     DpFlyout,
+    DpIcon,
     DpPager,
+    DpSearchField,
     FilterFlyout
   },
 
@@ -300,10 +300,6 @@ export default {
       institutionTagCategories: 'items'
     }),
 
-    // ...mapState('InvitableToeb', {
-    //   invitableToebItems: 'items'
-    // }),
-
     ...mapState('InstitutionTag', {
       institutionTagItems: 'items'
     }),
@@ -327,10 +323,6 @@ export default {
     },
 
     apiRequestFields () {
-      console.log('totalItems:', this.totalItems)
-      console.log('itemsPerPageOptions[0]:', this.itemsPerPageOptions[0])
-      console.log('Show pager?:', this.totalItems > this.itemsPerPageOptions[0])
-
       // Felder aus headerFields (für sichtbare Spalten)
       const headerFieldNames = this.headerFields.map(field => field.field)
 
@@ -342,7 +334,6 @@ export default {
       const tagFields = hasPermission('feature_institution_tag_read') ?
           ['assignedTags'] : []
 
-      // Kombiniere alle ohne Duplikate
       return [...new Set([...headerFieldNames, ...baseFields,
         ...tagFields])]
     },
@@ -384,6 +375,14 @@ export default {
         return {
           id: item.id,
           ...item.attributes,
+
+          //add icon for hasReceivedInvitationMailInCurrentProcedurePhase
+          hasReceivedInvitationMailInCurrentProcedurePhase:
+            item.attributes.hasReceivedInvitationMailInCurrentProcedurePhase
+              ? '<i class="fa fa-check-circle text-[#4c8b22]" ></i>'
+              : '',
+          originalStatementsCountInProcedure: item.attributes.originalStatementsCountInProcedure ||
+            '-',
           competenceDescription: item.attributes.competenceDescription === '-' ? '' : item.attributes.competenceDescription,
           locationContacts: locationContact
             ? {
@@ -457,10 +456,6 @@ export default {
     ...mapActions('InstitutionTagCategory', {
       fetchInstitutionTagCategories: 'list'
     }),
-
-    // ...mapActions('InvitableToeb', {
-    //   getInstitutions: 'list'
-    // }),
 
     ...mapMutations('FilterFlyout', {
       setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
@@ -590,16 +585,13 @@ export default {
             conjunction: 'OR'
           }
         }
-        return this.$store.dispatch(`${this.storeModule}/list`, requestParams)
-          .then(data => {
-            console.log('Backend pagination data:', data.meta.pagination)  // ← HIER
-            this.setLocalStorage(data.meta.pagination)
-            this.updatePagination(data.meta.pagination)
-            console.log('After updatePagination, this.pagination:', this.pagination)  // ← UND HIER
-            console.log('After updatePagination, this.totalItems:', this.totalItems)  // ← UND HIER
-          })
 
         requestParams.filter = filters
+        return this.$store.dispatch(`${this.storeModule}/list`, requestParams)
+          .then(data => {
+            this.setLocalStorage(data.meta.pagination)
+            this.updatePagination(data.meta.pagination)
+          })
       }
 
       return this.$store.dispatch(`${this.storeModule}/list`, requestParams)
