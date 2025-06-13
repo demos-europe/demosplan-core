@@ -376,6 +376,7 @@ submenu_procedures:
         path: 'dplan_segments_list'
         child_paths: [
             'dplan_segments_list_by_query_hash',
+            'dplan_drafts_list_edit'
         ]
         path_params: ['procedureId']
         permission: 'area_statement_segmentation'
