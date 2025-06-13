@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d1bda94d8033ebc104549b6aa4413ef1",
+    "content-hash": "3db4a6721e8c3ddfaad61f52c3c361c9",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -3737,26 +3737,27 @@
         },
         {
             "name": "efrane/console-additions",
-            "version": "v0.6.2",
+            "version": "v0.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eFrane/ConsoleAdditions.git",
-                "reference": "37eed6cba30791c9dbf926ed99aaf0d01b181098"
+                "reference": "80e2eb9ff799c6608dd8b66216daafeb153db0ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eFrane/ConsoleAdditions/zipball/37eed6cba30791c9dbf926ed99aaf0d01b181098",
-                "reference": "37eed6cba30791c9dbf926ed99aaf0d01b181098",
+                "url": "https://api.github.com/repos/eFrane/ConsoleAdditions/zipball/80e2eb9ff799c6608dd8b66216daafeb153db0ed",
+                "reference": "80e2eb9ff799c6608dd8b66216daafeb153db0ed",
                 "shasum": ""
             },
             "require": {
-                "symfony/console": ">=3.4||^5.0"
+                "php": ">=8.0,<9",
+                "symfony/console": "^6.0"
             },
             "require-dev": {
-                "league/flysystem": "^1.0 || ^2.0",
-                "phpstan/phpstan": "^0.11.16 || ^0.12.0",
-                "phpunit/phpunit": "^6.4 || ^8.0 || ^9.0",
-                "symfony/process": ">=3.4||^5.0"
+                "league/flysystem": "^2.0 || ^3.0",
+                "phpstan/phpstan": "^1.0.0",
+                "phpunit/phpunit": "^9.0",
+                "symfony/process": "^6.0"
             },
             "suggest": {
                 "league/flysystem": "To use the FlysystemFileOutput",
@@ -3789,7 +3790,7 @@
             ],
             "support": {
                 "issues": "https://github.com/eFrane/ConsoleAdditions/issues",
-                "source": "https://github.com/eFrane/ConsoleAdditions/tree/v0.6.2"
+                "source": "https://github.com/eFrane/ConsoleAdditions/tree/v0.8.0"
             },
             "funding": [
                 {
@@ -3797,7 +3798,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-04-10T20:57:04+00:00"
+            "time": "2023-05-14T09:47:41+00:00"
         },
         {
             "name": "efrane/tus-bundle",
@@ -12813,16 +12814,16 @@
         },
         {
             "name": "symfony/cache-contracts",
-            "version": "v3.5.1",
+            "version": "v3.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/cache-contracts.git",
-                "reference": "15a4f8e5cd3bce9aeafc882b1acab39ec8de2c1b"
+                "reference": "5d68a57d66910405e5c0b63d6f0af941e66fc868"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/cache-contracts/zipball/15a4f8e5cd3bce9aeafc882b1acab39ec8de2c1b",
-                "reference": "15a4f8e5cd3bce9aeafc882b1acab39ec8de2c1b",
+                "url": "https://api.github.com/repos/symfony/cache-contracts/zipball/5d68a57d66910405e5c0b63d6f0af941e66fc868",
+                "reference": "5d68a57d66910405e5c0b63d6f0af941e66fc868",
                 "shasum": ""
             },
             "require": {
@@ -12836,7 +12837,7 @@
                     "name": "symfony/contracts"
                 },
                 "branch-alias": {
-                    "dev-main": "3.5-dev"
+                    "dev-main": "3.6-dev"
                 }
             },
             "autoload": {
@@ -12869,7 +12870,7 @@
                 "standards"
             ],
             "support": {
-                "source": "https://github.com/symfony/cache-contracts/tree/v3.5.1"
+                "source": "https://github.com/symfony/cache-contracts/tree/v3.6.0"
             },
             "funding": [
                 {
@@ -12885,7 +12886,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-25T14:20:29+00:00"
+            "time": "2025-03-13T15:25:07+00:00"
         },
         {
             "name": "symfony/clock",
@@ -13038,16 +13039,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v6.4.21",
+            "version": "v6.4.22",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "a3011c7b7adb58d89f6c0d822abb641d7a5f9719"
+                "reference": "7d29659bc3c9d8e9a34e2c3414ef9e9e003e6cf3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/a3011c7b7adb58d89f6c0d822abb641d7a5f9719",
-                "reference": "a3011c7b7adb58d89f6c0d822abb641d7a5f9719",
+                "url": "https://api.github.com/repos/symfony/console/zipball/7d29659bc3c9d8e9a34e2c3414ef9e9e003e6cf3",
+                "reference": "7d29659bc3c9d8e9a34e2c3414ef9e9e003e6cf3",
                 "shasum": ""
             },
             "require": {
@@ -13112,7 +13113,7 @@
                 "terminal"
             ],
             "support": {
-                "source": "https://github.com/symfony/console/tree/v6.4.21"
+                "source": "https://github.com/symfony/console/tree/v6.4.22"
             },
             "funding": [
                 {
@@ -13128,7 +13129,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-04-07T15:42:41+00:00"
+            "time": "2025-05-07T07:05:04+00:00"
         },
         {
             "name": "symfony/css-selector",
