@@ -68,8 +68,8 @@ use Illuminate\Support\Collection;
 use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-
 use Webmozart\Assert\Assert;
+
 use function array_combine;
 
 /**

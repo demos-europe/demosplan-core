@@ -159,9 +159,9 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
             $this->logger->error(
                 'Failed to retrieve original statements count for institution',
                 [
-                'orgaId' => $orgaId,
-                'procedureId' => $procedure->getId(),
-                'exception' => $e,
+                    'orgaId'      => $orgaId,
+                    'procedureId' => $procedure->getId(),
+                    'exception'   => $e,
                 ]
             );
             $this->messageBag->add('error', 'error.statements.of.institution.count.retrieval.failed');
@@ -183,15 +183,14 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
 
             $hasValidResultFormat = is_array($invitationEmailList['result']) && 0 < count($invitationEmailList['result']);
             Assert::true($hasValidResultFormat);
-
         } catch (Exception $e) {
             $this->logger->error(
                 'Failed to retrieve institution invitation mail list',
                 [
-                'orgaId' => $orgaId,
-                'procedureId' => $procedure->getId(),
-                'phase' => $procedure->getPhase(),
-                'exception' => $e,
+                    'orgaId'      => $orgaId,
+                    'procedureId' => $procedure->getId(),
+                    'phase'       => $procedure->getPhase(),
+                    'exception'   => $e,
                 ]
             );
             $this->messageBag->add('error', 'error.institution.invitation.mail.list.retrieval.failed');
