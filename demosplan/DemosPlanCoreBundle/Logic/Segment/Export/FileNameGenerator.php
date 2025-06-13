@@ -17,7 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SegmentExporterFileNameGenerator
+class FileNameGenerator
 {
     protected TranslatorInterface $translator;
 
