@@ -34,6 +34,8 @@ class FrontendBuildinfoCommand extends CoreCommand
         $data = $this->getParameters();
 
         try {
+            $this->createProjectCSSFile($data['projectName']);
+
             $this->exportAdditionalData(new NullOutput());
         } catch (Exception $e) {
             $output->writeln('Error: Additional data load failed');
@@ -61,6 +63,13 @@ class FrontendBuildinfoCommand extends CoreCommand
             'projectDir'  => $this->parameterBag->get('demosplan.project_dir'),
             'projectName' => $this->parameterBag->get('demosplan.project_name'),
         ];
+    }
+    private function createProjectCSSFile(String $project): void
+    {
+        file_put_contents(
+            DemosPlanPath::getRootPath('client/css/generated/project.css'),
+            "@source \"../../../projects/".$project."/templates/bundles/DemosPlanCoreBundle/**/*.html.twig\";"
+        );
     }
 
     private function exportAdditionalData(OutputInterface $output): void

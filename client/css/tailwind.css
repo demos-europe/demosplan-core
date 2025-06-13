@@ -23,7 +23,7 @@
     @FIXME TW4 still struggles with globs as it seems. This entry must be generated on build time,
     to tell Tailwind where to look for classes without exposing project information.
  */
-@import "./generated/projects.css";
+@import "./generated/project.css";
 
 /*
     This is an example of how to whitelist classes in Tailwind 4.
