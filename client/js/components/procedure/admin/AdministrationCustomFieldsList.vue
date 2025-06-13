@@ -163,7 +163,8 @@ export default {
       newFieldOptions: [
         '',
         ''
-      ]
+      ],
+      expandedFields: {},
     }
   },
 
@@ -200,7 +201,7 @@ export default {
               name,
               description,
               options,
-              open: false
+              open: this.expandedFields[id] || false
             }
           }
         })
@@ -284,11 +285,7 @@ export default {
     },
 
     hideOptions (rowData) {
-      const field = this.customFieldsReduced.find(field => field.id === rowData.id)
-
-      if (field) {
-        field.open = false
-      }
+     delete this.expandedFields[rowData.id]
     },
 
     removeOptionInput (index) {
@@ -360,11 +357,7 @@ export default {
     },
 
     showOptions (rowData) {
-      const field = this.customFieldsReduced.find(field => field.id === rowData.id)
-
-      if (field) {
-        field.open = true
-      }
+    this.expandedFields[rowData.id] = true
     },
 
     /**
