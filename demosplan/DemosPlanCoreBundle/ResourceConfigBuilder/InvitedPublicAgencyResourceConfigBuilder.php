@@ -23,6 +23,8 @@ use EDT\JsonApi\PropertyConfig\Builder\ToManyRelationshipConfigBuilderInterface;
 /**
  * @template-extends BaseOrgaResourceConfigBuilder<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,OrgaInterface>
  *
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,OrgaInterface> $hasReceivedInvitationMailInCurrentProcedurePhase
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,OrgaInterface> $originalStatementsCountInProcedure
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,OrgaInterface> $legalName
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,OrgaInterface> $competenceDescription
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,OrgaInterface> $participationFeedbackEmailAddress
