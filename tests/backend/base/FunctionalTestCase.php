@@ -13,6 +13,7 @@ namespace Tests\Base;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -58,6 +59,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 use Symfony\Component\Yaml\Yaml;
+use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Test\Factories;
 
 class FunctionalTestCase extends WebTestCase
@@ -756,5 +758,23 @@ class FunctionalTestCase extends WebTestCase
         }
 
         return null;
+    }
+
+    protected function createMinimalTestStatement(
+        string $idSuffix,
+        string $internIdSuffix,
+        string $submitterNameSuffix,
+    ): Statement|Proxy {
+        $statement = StatementFactory::createOne();
+        $statement->setExternId("statement_extern_id_$idSuffix");
+        $statement->_save();
+        $statement->setInternId("statement_intern_id_$internIdSuffix");
+        $statement->_save();
+        $statement->getMeta()->setOrgaName(\DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface::ANONYMOUS_USER_NAME);
+        $statement->_save();
+        $statement->getMeta()->setAuthorName("statement_author_name_$submitterNameSuffix");
+        $statement->_save();
+
+        return $statement;
     }
 }

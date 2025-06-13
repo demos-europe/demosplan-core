@@ -9,13 +9,39 @@
       class="u-mt" />
 
     <template v-else>
+      <template v-if="hasPermission('feature_admin_export_original_statement_csv')">
+        <div v-if="!selectedItemsCount">
+          <dp-button
+            class="mt-4"
+            data-cy="exportCsv"
+            :text="Translator.trans('export.verb')"
+            variant="subtle"
+            @click="handleExport" />
+        </div>
+
+        <dp-bulk-edit-header
+          v-else
+          class="layout__item w-full mt-2"
+          :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
+          @reset-selection="resetSelection">
+          <dp-button
+            data-cy="exportCsv"
+            :text="Translator.trans('export.verb')"
+            variant="subtle"
+            @click="handleExport" />
+        </dp-bulk-edit-header>
+      </template>
+
       <dp-pager
-        v-if="pagination.currentPage && originalStatements.length > 0"
+        v-if="pagination.currentPage && items.length > 0"
         :class="{ 'invisible': isLoading }"
-        class="mt-4 mb-2"
+        class="m-2"
         :current-page="pagination.currentPage"
         :key="`pager1_${pagination.currentPage}_${pagination.perPage}`"
         :limits="pagination.limits"
+        :multi-page-all-selected="allSelectedVisually"
+        :multi-page-selection-items-total="allItemsCount"
+        :multi-page-selection-items-toggled="toggledItems.length"
         :per-page="pagination.perPage"
         :total-items="pagination.total"
         :total-pages="pagination.totalPages"
@@ -23,12 +49,16 @@
         @size-change="handleSizeChange" />
 
       <dp-data-table
-        v-if="originalStatements.length > 0"
+        v-if="items.length > 0"
         has-flyout
         :header-fields="headerFields"
         is-expandable
-        :items="originalStatements"
-        track-by="id">
+        is-selectable
+        :items="items"
+        :should-be-selected-items="currentlySelectedItems"
+        track-by="id"
+        @items-toggled="handleToggleItem"
+        @selectAll="handleSelectAll">
         <template v-slot:externId="{ externId }">
           <span
             class="font-semibold"
@@ -203,17 +233,19 @@
                   v-if="textIsTruncated"
                   class="show-more cursor-pointer"
                   rel="noopener"
-                  @click.prevent.stop="() => fetchFullTextById(id)">
+                  @click.prevent.stop="() => fetchFullTextById(id)"
+                  @keydown.enter="() => fetchFullTextById(id)">
                   {{ Translator.trans('show.more') }}
                 </a>
               </template>
               <template v-else>
-                <div v-cleanhtml="items[id].attributes.isFulltextDisplayed ? fullText : shortText" />
+                <div v-cleanhtml="originalStatements[id].attributes.isFulltextDisplayed ? fullText : shortText" />
                 <a
                   class="cursor-pointer"
                   rel="noopener"
-                  @click="() => toggleIsFullTextDisplayed(id, !items[id].attributes.isFulltextDisplayed)">
-                  {{ Translator.trans(items[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
+                  @click="() => toggleIsFullTextDisplayed(id, !originalStatements[id].attributes.isFulltextDisplayed)"
+                  @keydown.enter="() => toggleIsFullTextDisplayed(id, !originalStatements[id].attributes.isFulltextDisplayed)">
+                  {{ Translator.trans(originalStatements[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
                 </a>
               </template>
             </div>
@@ -233,27 +265,36 @@
 <script>
 import {
   formatDate as _formatDate,
+  checkResponse,
   CleanHtml,
   dpApi,
+  DpBulkEditHeader,
+  DpButton,
   DpDataTable,
   DpFlyout,
   DpInlineNotification,
   DpLoading,
   DpPager,
-  hasAnyPermissions
+  dpRpc,
+  hasAnyPermissions,
+  hasOwnProp,
+  tableSelectAllItems
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
   name: 'ListOriginalStatements',
 
   components: {
+    DpBulkEditHeader,
+    DpButton,
     DpDataTable,
     DpFlyout,
     DpInlineNotification,
     DpLoading,
-    DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
+    DpMapModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpMapModal')),
     DpPager
   },
 
@@ -261,7 +302,10 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  mixins: [paginationMixin],
+  mixins: [
+    paginationMixin,
+    tableSelectAllItems
+  ],
 
   props: {
     currentUserId: {
@@ -277,6 +321,7 @@ export default {
 
   data () {
     return {
+      allOriginalStatementIds: [],
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -313,16 +358,21 @@ export default {
 
   computed: {
     ...mapState('OriginalStatement', {
-      items: 'items'
+      originalStatements: 'items'
     }),
 
-    originalStatements () {
-      return Object.values(this.items).map(originalStatement => {
-        return {
-          id: originalStatement.id,
-          ...originalStatement.attributes
-        }
-      })
+    // Needs to be named items for tableSelectAllItems mixin to work
+    items () {
+      return Object.values(this.originalStatements)
+        .map(originalStatement => {
+          return {
+            id: originalStatement.id,
+            ...originalStatement.attributes
+          }
+        })
+        .sort((a, b) => {
+          return new Date(b.submitDate) - new Date(a.submitDate)
+        })
     },
 
     storageKeyPagination () {
@@ -338,32 +388,6 @@ export default {
     ...mapMutations('OriginalStatement', {
       setOriginalStatement: 'set'
     }),
-
-    /**
-     * Get orgaName if the statement was submitted by an institution
-     * Get authorName if the statement was submitted by a citizen
-     * @param {String} originalStatementId
-     */
-    getSubmitterName (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
-      const originalStatementMeta = originalStatement.relationships.meta.get()
-      const {
-        isSubmittedByCitizen
-      } = originalStatement.attributes
-      const {
-        authorName,
-        orgaName
-      } = originalStatementMeta.attributes
-
-      // Statement Institution
-      if (isSubmittedByCitizen === false) {
-        return orgaName
-      }
-
-      if (isSubmittedByCitizen) {
-        return authorName
-      }
-    },
 
     fetchOriginalStatementById (originalStatementId) {
       return dpApi.get(Routing.generate('api_resource_get', {
@@ -384,12 +408,106 @@ export default {
           this.setLocalStorage(response.meta.pagination)
           this.updatePagination(response.meta.pagination)
 
+          this.allItemsCount = response.meta.pagination.total
           this.isLoading = false
         })
     },
 
+    /**
+     * Get orgaName if the statement was submitted by an institution
+     * Get authorName if the statement was submitted by a citizen
+     * @param {String} originalStatementId
+     */
+    getSubmitterName (originalStatementId) {
+      const originalStatement = this.originalStatements[originalStatementId]
+      const originalStatementMeta = originalStatement.relationships.meta.get()
+      const {
+        isSubmittedByCitizen
+      } = originalStatement.attributes
+      const {
+        authorName,
+        orgaName
+      } = originalStatementMeta.attributes
+
+      // Statement Institution
+      if (isSubmittedByCitizen === false) {
+        return orgaName
+      }
+
+      if (isSubmittedByCitizen) {
+        return authorName
+      }
+    },
+
+    getSelectedStatementIds () {
+      /**
+       * ToggledIds can be either
+       * - selected ids
+       * or
+       * - deselected ids after 'select all' was checked
+       */
+      const toggledIds = this.toggledItems.map(item => item.id)
+      let selectedStatementIds = []
+      const areSomeDeselectedAfterSelectAll = this.trackDeselected
+      const areSomeSelected = !this.trackDeselected
+
+      if (areSomeSelected) {
+        selectedStatementIds = toggledIds
+      }
+
+      if (areSomeDeselectedAfterSelectAll) {
+        const areNoneDeselected = this.toggledItems.length === 0
+
+        selectedStatementIds = areNoneDeselected
+          ? this.allOriginalStatementIds
+          : this.allOriginalStatementIds
+            .filter(id => !toggledIds.includes(id))
+      }
+
+      return selectedStatementIds
+    },
+
+    handleExport () {
+      const payload = {
+        filter: {
+          sameProcedure: {
+            condition: {
+              path: 'procedure.id',
+              value: this.procedureId
+            }
+          }
+        },
+        procedureId: this.procedureId,
+        sort: '-submitDate'
+      }
+
+      if (this.selectedItemsCount !== 0 && this.selectedItemsCount < this.allItemsCount) {
+        payload.filter = {
+          ...payload.filter,
+          statementFilterGroup: {
+            group: {
+              conjunction: this.trackDeselected ? 'AND' : 'OR'
+            }
+          }
+        }
+
+        this.toggledItems.forEach(item => {
+          payload.filter[item.id] = {
+            condition: {
+              memberOf: 'statementFilterGroup',
+              operator: this.trackDeselected ? '<>' : '=',
+              path: 'id',
+              value: item.id
+            }
+          }
+        })
+      }
+
+      window.location.href = Routing.generate('dplan_original_statement_csv_export', payload)
+    },
+
     toggleIsFullTextDisplayed (originalStatementId, isFullTextDisplayed, fullText = null) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
 
       this.setOriginalStatement({
         ...originalStatement,
@@ -417,40 +535,58 @@ export default {
         })
     },
 
+    fetchOriginalStatementIds () {
+      return dpRpc('originalStatement.load.id', {
+        filter: {
+          sameProcedure: {
+            condition: {
+              path: 'procedure.id',
+              value: this.procedureId
+            }
+          }
+        }
+      })
+        .then(response => checkResponse(response))
+        .then(response => {
+          this.allOriginalStatementIds = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
+          this.allItemsCount = this.allOriginalStatementIds.length
+        })
+    },
+
     formatDate (date) {
       return _formatDate(date)
     },
 
     getAuthorName (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const originalStatementMeta = originalStatement.relationships.meta?.data ? originalStatement.relationships.meta.get() : null
 
       return originalStatementMeta?.attributes.authorName ?? '-'
     },
 
     getDepartmentName (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const originalStatementMeta = originalStatement.relationships.meta?.data ? originalStatement.relationships.meta.get() : null
 
       return originalStatementMeta?.attributes.orgaDepartmentName ?? '-'
     },
 
     getDocumentTitle (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const document = originalStatement.relationships.document?.data ? originalStatement.relationships.document.get() : null
 
       return document ? document.attributes.title : ''
     },
 
     getElementTitle (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const element = originalStatement.relationships.elements?.data ? originalStatement.relationships.elements.get() : null
 
       return element ? element.attributes.title : '-'
     },
 
     getGenericAttachments (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const genericAttachments = originalStatement.relationships.genericAttachments?.data.length > 0 ? originalStatement.relationships.genericAttachments.list() : []
 
       return Object.values(genericAttachments).length > 0
@@ -471,21 +607,21 @@ export default {
     },
 
     getOrganisationName (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const originalStatementMeta = originalStatement.relationships.meta?.data ? originalStatement.relationships.meta.get() : null
 
       return originalStatementMeta?.attributes.orgaName ?? '-'
     },
 
     getOriginalStatementAsAttachment (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const attachments = originalStatement.relationships.sourceAttachment?.data.length > 0 ? Object.values(originalStatement.relationships.sourceAttachment.list()) : []
 
       return attachments?.length > 0 ? attachments[0].relationships?.file.get() : null
     },
 
     getParagraphTitle (originalStatementId) {
-      const originalStatement = this.items[originalStatementId]
+      const originalStatement = this.originalStatements[originalStatementId]
       const paragraph = originalStatement.relationships.paragraph?.data ? originalStatement.relationships.paragraph.get() : null
 
       return paragraph ? paragraph.attributes.title : '-'
@@ -574,6 +710,10 @@ export default {
   mounted () {
     this.initPagination()
     this.fetchOriginalStatementsByPage(1)
+
+    if (hasPermission('feature_admin_export_original_statement_csv')) {
+      this.fetchOriginalStatementIds()
+    }
   }
 }
 </script>

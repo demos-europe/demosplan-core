@@ -4,8 +4,16 @@
 - **Minor Version**: Incremented for each release.
 - **Patch Version**: Incremented for bug fixes.
 
-
 ## UNRELEASED
+
+### Chore
+- Update Elasticsearch to version 8
+
+### Features
+- Add Versioning of custom fields of segments
+- Allow filtering of institution tags in DpAddOrganizationList
+- Export Original Statements as csv in the Statement List
+
 ## v4.2.0 (2025-05-22)
 ## v4.1.0 (2025-05-21)
 ## v4.0.0 (2025-05-21)
