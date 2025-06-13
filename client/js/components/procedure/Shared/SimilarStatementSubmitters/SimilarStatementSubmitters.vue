@@ -300,7 +300,6 @@ export default {
             }
           })
           this.setInitialStatement(this.statements[this.statementId])
-          console.log(this.statements[this.statementId])
 
           // Update local state - similarStatementSubmitter
           this.setSimilarStatementSubmitter({
