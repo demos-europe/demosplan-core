@@ -64,11 +64,12 @@ class FrontendBuildinfoCommand extends CoreCommand
             'projectName' => $this->parameterBag->get('demosplan.project_name'),
         ];
     }
-    private function createProjectCSSFile(String $project): void
+
+    private function createProjectCSSFile(string $project): void
     {
         file_put_contents(
             DemosPlanPath::getRootPath('client/css/generated/project.css'),
-            '@source "../../../projects/' . $project . '/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";'
+            '@source "../../../projects/'.$project.'/templates/bundles/DemosPlanCoreBundle/**/*.html.twig";'
         );
     }
 
