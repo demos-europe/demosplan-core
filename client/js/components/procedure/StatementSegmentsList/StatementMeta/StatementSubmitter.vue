@@ -295,7 +295,16 @@ export default {
         ...currentStatement,
         attributes: {
           ...currentStatement.attributes,
-          ...this.localStatement.attributes
+          initialOrganisationDepartmentName: this.localStatement.attributes.initialOrganisationDepartmentName,
+          initialOrganisationName: this.localStatement.attributes.initialOrganisationName,
+          authorName: this.localStatement.attributes.authorName,
+          submitName: this.localStatement.attributes.submitName,
+          submitterEmailAddress: this.localStatement.attributes.submitterEmailAddress,
+          representationChecked: this.localStatement.attributes.representationChecked,
+          initialOrganisationStreet: this.localStatement.attributes.initialOrganisationStreet,
+          initialOrganisationHouseNumber: this.localStatement.attributes.initialOrganisationHouseNumber,
+          initialOrganisationPostalCode: this.localStatement.attributes.initialOrganisationPostalCode,
+          initialOrganisationCity: this.localStatement.attributes.initialOrganisationCity
         }
       }
 
