@@ -5,6 +5,26 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Add Versioning of custom fields of segments
+- Update Elasticsearch to version 8
+
+## UNRELEASED
+
+### Features
+- Allow filtering of institution tags in DpAddOrganizationList
+- Export Original Statements as csv in the Statement List
+
+## v4.1.0 (2025-05-21)
+## v4.0.0 (2025-05-21)
+- Update to symfony 6.4
+
+## v3.3.0 (2025-05-13)
+- restore deleted logger entry 
+
+## v3.2.0 (2025-05-13)
+- Enable Custom Field feature on segments: Allow users to add/edit custom fields to their segments     based on the custom fields defined in the procedure
+- Add Custom Field feature: Allow users to add custom fields to their procedures
+
 ## v2.27.1 (2025-04-09)
 - Fix zip import encoding and recursion
 
@@ -12,6 +32,7 @@
 - create deletion report entry when procedure is deleted
 - Migrate to Vue 3
 - Implement VirusCheckSocket to directly check files for viruses via remote sockets
+- Enhance security by sanitizing HTTP headers to prevent injection attacks
 
 ## v2.26.5 (2025-03-28)
 - new parameter proxy_no_proxy to allow to exclude local services from the proxy

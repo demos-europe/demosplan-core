@@ -166,7 +166,7 @@
         v-else-if="currentAction === 'editText'"
         :current-user="currentUser"
         :editable="editable"
-        :segment-draft-list="this.statement.attributes.segmentDraftList"
+        :has-draft-segments="hasDraftSegments()"
         :statement-id="statementId"
         @statement-text-updated="checkStatementClaim"
         @save-statement="saveStatement" />
@@ -332,9 +332,13 @@ export default {
       statements: 'items'
     }),
 
-    ...mapState('SegmentSlidebar', ['slidebar']),
+    ...mapState('SegmentSlidebar', [
+      'slidebar'
+    ]),
 
-    ...mapGetters('SegmentSlidebar', ['commentsList']),
+    ...mapGetters('SegmentSlidebar', [
+      'commentsList'
+    ]),
 
     additionalAttachments () {
       if (this.statement?.hasRelationship('genericAttachments')) {
@@ -462,6 +466,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('AdminProcedure', {
+      getAdminProcedureWithFields: 'get'
+    }),
+
     ...mapMutations('SegmentSlidebar', [
       'setContent',
       'setProperty'
@@ -542,6 +550,26 @@ export default {
         .finally(() => {
           this.isLoading = false
         })
+    },
+
+
+    fetchCustomFields () {
+      const payload = {
+        id: this.procedure.id,
+        fields: {
+          AdminProcedure: [
+            'segmentCustomFields'
+          ].join(),
+          CustomField: [
+            'name',
+            'description',
+            'options'
+          ].join()
+        },
+        include: ['segmentCustomFields'].join()
+      }
+
+      this.getAdminProcedureWithFields(payload)
     },
 
     getStatement () {
@@ -690,6 +718,10 @@ export default {
         include: include.join(),
         fields: allFields
       })
+    },
+
+    hasDraftSegments () {
+      return Boolean(this.statement?.attributes?.segmentDraftList?.data?.attributes?.segments?.length)
     },
 
     resetSlidebar () {
@@ -851,6 +883,9 @@ export default {
 
   mounted () {
     this.getStatement()
+    if (hasPermission('field_segments_custom_fields')) {
+      this.fetchCustomFields()
+    }
     this.listAssignableUser({
       include: 'orga',
       fields: {
