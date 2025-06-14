@@ -43,6 +43,10 @@ parameters:
     # who are granted access (true)
     procedure_user_restricted_access: false
 
+    # User activity checking thresholds (in days)
+    user_activity_last_login_threshold_days: 180
+    user_activity_claimed_statements_threshold_days: 180
+
     # Route and parameters for the public index page
     #
     # - Using the controller forward notation here will result in an internal forward
