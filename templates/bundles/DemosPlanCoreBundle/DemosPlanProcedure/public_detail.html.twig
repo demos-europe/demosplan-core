@@ -393,7 +393,7 @@
 
                     {% if hasPermission('feature_diplan_karte') or hasDiplanKarte %}
                         {# diplan-karte #}
-                        <diplan-karte-wrapper />
+                        <diplan-karte-wrapper login-path="{{ getLoginPath() }}" />
                     {% else %}
                         {# openlayers map #}
                         {% include '@DemosPlanCore/DemosPlanMap/map_public_participation_detail.html.twig' %}

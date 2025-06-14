@@ -18,6 +18,13 @@ import { DpButton, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { MapPlugin } from '@init/diplan-karten'
 import { getCurrentInstance } from 'vue'
 
+const props = defineProps({
+  loginPath: {
+    type: String,
+    required: true
+  }
+})
+
 const instance = getCurrentInstance()
 
 instance.appContext.app.mixin(prefixClassMixin)
@@ -31,7 +38,7 @@ instance.appContext.app.use(MapPlugin, {
 
 const openStatementModalOrLoginPage= (event) => {
   if (!hasPermission('feature_new_statement')) {
-    window.location.href = Routing.generate('DemosPlan_user_login_alternative')
+    window.location.href = props.loginPath
 
     return
   }
