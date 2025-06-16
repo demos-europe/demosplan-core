@@ -134,8 +134,7 @@ class PublicIndexProcedureLister
 
         $procedures['externalPhases'] = $this->globalConfig->getExternalPhases('read||write', $includePreviewed);
         $procedures['internalPhases'] = $this->globalConfig->getInternalPhases('read||write', $includePreviewed);
-        $procedures['useInternalFields'] = $isLoggedIn && !$this->currentUser->getUser()->hasRole(
-            Role::CITIZEN);
+        $procedures['useInternalFields'] = $isLoggedIn && !$this->currentUser->getUser()->hasRole(RoleInterface::CITIZEN);
 
         // Wenn es Verfahren gibt, dann ersetze die Label der Phasen aus der Config
         $procedures['filterName'] = [
