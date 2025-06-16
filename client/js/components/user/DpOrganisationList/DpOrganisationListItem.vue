@@ -175,7 +175,7 @@ export default {
     },
 
     icon () {
-      return this.isOpen ? 'chevron-up' : 'chevron-down'
+      return this.isOpen ? 'caret-up' : 'caret-down'
     }
   },
 
