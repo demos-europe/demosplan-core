@@ -62,6 +62,11 @@
 
         {% if templateVars.list.procedures is defined and templateVars.list.procedures|length %}
             <table class="c-table">
+                <colgroup>
+                    <col class="w-[5%]">
+                    <col class="w-[95%]">
+                </colgroup>
+
                 <thead>
                     <tr>
                         <th>
@@ -69,7 +74,7 @@
                                 <input
                                     id="select_all"
                                     type="checkbox"
-                                    class="u-mr-0"
+                                    class="mr-0"
                                     data-cy="selectAll"
                                     aria-label="{{ 'markall'|trans }}"
                                     data-form-actions-check-all>
