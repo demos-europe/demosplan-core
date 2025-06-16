@@ -20,6 +20,7 @@ use DemosEurope\DemosplanAddon\Permission\PermissionInitializerInterface;
 use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -712,6 +713,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
         $invitedOrgaIds = $this->procedureRepository->getInvitedOrgaIds($this->procedure->getId());
         $dataInputOrganisations = $this->procedure->getDataInputOrganisations();
+        /** @var Orga $orga */
         $dataInputOrgaIds = $dataInputOrganisations?->map(fn ($orga) => $orga->getId())->toArray() ?? [];
 
         // Keine Institution eingeladen und keine Datenerfasser-Organisationen
