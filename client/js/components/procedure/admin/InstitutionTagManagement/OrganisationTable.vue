@@ -56,8 +56,8 @@ All rights reserved
                     :data-cy="`dpAddOrganisationList:filterCategoriesSelect:${category.label}`"
                     :disabled="filterCategoryHelpers.checkIfDisabled(appliedFilterQuery, category.id)"
                     :label="{
-                            text: `${category.label} (${filterCategoryHelpers.getSelectedOptionsCount(appliedFilterQuery, category.id)})`
-                          }"
+                      text: `${category.label} (${filterCategoryHelpers.getSelectedOptionsCount(appliedFilterQuery, category.id)})`
+                    }"
                     @change="filterManager.handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
                 </div>
               </div>
@@ -79,14 +79,14 @@ All rights reserved
             @filterOptions:request="(params) => filterManager.createFilterOptions({ ...params, categoryId: category.id})" />
         </div>
 
-      <dp-button
-        class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
-        data-cy="dpAddOrganisationList:resetFilter"
-        :disabled="!isQueryApplied"
-        :text="Translator.trans('reset')"
-        variant="outline"
-        v-tooltip="Translator.trans('search.filter.reset')"
-        @click="filterManager.reset" />
+        <dp-button
+          class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
+          data-cy="dpAddOrganisationList:resetFilter"
+          :disabled="!isQueryApplied"
+          :text="Translator.trans('reset')"
+          variant="outline"
+          v-tooltip="Translator.trans('search.filter.reset')"
+          @click="filterManager.reset" />
       </div>
     </template>
 
@@ -220,10 +220,10 @@ import {
   DpSearchField
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { filterCategoriesStorage } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
 import { filterCategoryHelpers } from '@DpJs/lib/procedure/FilterFlyout/filterHelpers'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
   name: 'OrganisationList',
@@ -231,10 +231,10 @@ export default {
   setup () {
     return {
       filterCategoryHelpers
-     }
-    },
+    }
+  },
 
-    components: {
+  components: {
     DpButton,
     DpCheckbox,
     DpDataTable,
@@ -244,6 +244,8 @@ export default {
     DpSearchField,
     FilterFlyout
   },
+
+  mixins: [paginationMixin],
 
   props: {
     headerFields: {
@@ -260,10 +262,12 @@ export default {
       type: String,
       required: true,
       validator: value => ['InvitableToeb', 'InvitedToeb'].includes(value)
-    },
+    }
   },
 
-  mixins: [paginationMixin],
+  emits: [
+    'selectedItems'
+  ],
 
   data () {
     return {
@@ -278,12 +282,10 @@ export default {
       initiallySelectedFilterCategories: [],
       institutionTagCategoriesCopy: {},
       isLoading: true,
-      itemsPerPage: 50,
-      itemsPerPageOptions: [10, 50, 100, 200],
       locationContactFields: ['street', 'postalcode', 'city'],
       pagination: {},
       searchTerm: '',
-      selectedItems: [],
+      selectedItems: []
     }
   },
 
@@ -323,16 +325,12 @@ export default {
     },
 
     apiRequestFields () {
-      // Felder aus headerFields (für sichtbare Spalten)
       const headerFieldNames = this.headerFields.map(field => field.field)
 
-      // Basis-Felder für OrganisationTable-Funktionalität (immer gebraucht)
       const baseFields = ['participationFeedbackEmailAddress',
         'locationContacts']
 
-      // Tags falls Permission
-      const tagFields = hasPermission('feature_institution_tag_read') ?
-          ['assignedTags'] : []
+      const tagFields = hasPermission('feature_institution_tag_read') ? ['assignedTags'] : []
 
       return [...new Set([...headerFieldNames, ...baseFields,
         ...tagFields])]
@@ -376,7 +374,7 @@ export default {
           id: item.id,
           ...item.attributes,
 
-          //add icon for hasReceivedInvitationMailInCurrentProcedurePhase
+          // Add icon for hasReceivedInvitationMailInCurrentProcedurePhase
           hasReceivedInvitationMailInCurrentProcedurePhase:
             item.attributes.hasReceivedInvitationMailInCurrentProcedurePhase
               ? '<i class="fa fa-check-circle text-[#4c8b22]" ></i>'
@@ -386,9 +384,9 @@ export default {
           competenceDescription: item.attributes.competenceDescription === '-' ? '' : item.attributes.competenceDescription,
           locationContacts: locationContact
             ? {
-              id: locationContact.id,
-              ...locationContact.attributes
-            }
+                id: locationContact.id,
+                ...locationContact.attributes
+              }
             : null,
           assignedTags: institutionTags,
           hasNoEmail
@@ -415,14 +413,13 @@ export default {
       return `${count} ${Translator.trans(translationKey)}`
     },
 
-    storeItems() {
+    storeItems () {
       return this.$store.state[this.storeModule]?.items || {}
     },
 
-    storeModule() {
+    storeModule () {
       return this.resourceType
     },
-
 
     storageKeyPagination () {
       console.log('procedureId:', this.procedureId)
@@ -445,7 +442,7 @@ export default {
       }
 
       return Object.values(this.appliedFilterQuery).map(el => el.condition.value)
-    },
+    }
   },
 
   methods: {
@@ -553,7 +550,7 @@ export default {
               path: 'legalName',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               value: this.searchTerm.trim(),
-              memberOf: 'searchFieldsGroup',
+              memberOf: 'searchFieldsGroup'
             }
           }
         }
@@ -564,7 +561,7 @@ export default {
               path: 'competenceDescription',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               value: this.searchTerm.trim(),
-              memberOf: 'searchFieldsGroup',
+              memberOf: 'searchFieldsGroup'
             }
           }
         }
@@ -575,7 +572,7 @@ export default {
               path: 'assignedTags.name',
               operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
               value: this.searchTerm.trim(),
-              memberOf: 'searchFieldsGroup',
+              memberOf: 'searchFieldsGroup'
             }
           }
         }
@@ -604,8 +601,6 @@ export default {
     getLocationContactById (id) {
       return this.institutionLocationContactItems[id]
     },
-
-
 
     handleChange (filterCategoryName, isSelected) {
       this.filterManager.handleChange(filterCategoryName, isSelected)
@@ -689,7 +684,7 @@ export default {
     },
 
     setSelectedItems (items) {
-      this.$emit('selected-items', items)
+      this.$emit('selectedItems', items)
     },
 
     toggleAllSelectedFilterCategories () {
