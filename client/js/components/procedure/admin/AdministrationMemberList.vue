@@ -1,4 +1,3 @@
-
 <license>
 (c) 2010-present DEMOS plan GmbH.
 
@@ -14,33 +13,39 @@ All rights reserved
       {{ Translator.trans('Invitable_institution.add.explanation') }}
     </p>
     <!-- Bulk Actions Section -->
-      <button
-        class="btn--blank o-link--default u-mr-0_5"
-        type="button"
-        @click="deleteSelected"
-        :data-form-actions-confirm="Translator.trans('check.invitable_institutions.marked.delete')"
-      >
-        <i class="fa fa-times-circle" aria-hidden="true"></i>
-        {{ Translator.trans('remove') }}
-      </button>
+    <button
+      class="btn--blank o-link--default u-mr-0_5"
+      type="button"
+      @click="deleteSelected"
+      :data-form-actions-confirm="Translator.trans('check.invitable_institutions.marked.delete')"
+    >
+      <i
+        class="fa fa-times-circle"
+        aria-hidden="true" />
+      {{ Translator.trans('remove') }}
+    </button>
 
-      <button
-        class="btn--blank o-link--default u-mr-0_5"
-        type="button"
-        @click="writeEmail"
-      >
-        <i class="fa fa-envelope" aria-hidden="true"></i>
-        {{ Translator.trans('email.invitation.write') }}
-      </button>
+    <button
+      class="btn--blank o-link--default u-mr-0_5"
+      type="button"
+      @click="writeEmail"
+    >
+      <i
+        class="fa fa-envelope"
+        aria-hidden="true" />
+      {{ Translator.trans('email.invitation.write') }}
+    </button>
 
-      <button
-        class="btn--blank o-link--default"
-        type="button"
-        @click="exportPdf"
-      >
-        <i class="fa fa-file" aria-hidden="true"></i>
-        {{ Translator.trans('pdf.export') }}
-      </button>
+    <button
+      class="btn--blank o-link--default"
+      type="button"
+      @click="exportPdf"
+    >
+      <i
+        class="fa fa-file"
+        aria-hidden="true" />
+      {{ Translator.trans('pdf.export') }}
+    </button>
 
     <dp-button
       class="btn btn--primary float-right"
@@ -50,18 +55,17 @@ All rights reserved
       variant="primary" />
   </div>
 
-    <organisation-table
-      :header-fields="headerFields"
-      ref="organisationTable"
-      resource-type="InvitedToeb"
-      :procedure-id="procedureId"
-      track-by-id="id"
-      @selected-items="setSelectedItems" />
-
+  <organisation-table
+    :header-fields="headerFields"
+    ref="organisationTable"
+    resource-type="InvitedToeb"
+    :procedure-id="procedureId"
+    track-by-id="id"
+    @selected-items="setSelectedItems" />
 </template>
 
 <script>
-import { DpButton, dpRpc, checkResponse } from '@demos-europe/demosplan-ui'
+import { DpButton, dpRpc } from '@demos-europe/demosplan-ui'
 import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable'
 
 export default {
@@ -79,7 +83,7 @@ export default {
     }
   },
 
-  data() {
+  data () {
     return {
       selectedItems: [],
       headerFields: [
@@ -87,26 +91,32 @@ export default {
           field: 'legalName',
           label: Translator.trans('invitable_institution')
         },
-        ...(hasPermission('field_organisation_paper_copy_spec') ?
-          [{
-          field: 'paperCopySpec',
-          label: Translator.trans('copies.kind') }] : []),
-        ...(hasPermission('field_organisation_paper_copy') ?
-          [{
-          field: 'paperCopy',
-          label: Translator.trans('copies') }] : []),
+        ...(hasPermission('field_organisation_paper_copy_spec')
+          ? [{
+              field: 'paperCopySpec',
+              label: Translator.trans('copies.kind')
+            }]
+          : []),
+        ...(hasPermission('field_organisation_paper_copy')
+          ? [{
+              field: 'paperCopy',
+              label: Translator.trans('copies')
+            }]
+          : []),
         {
           field: 'originalStatementsCountInProcedure',
-          label: Translator.trans('statement') },
+          label: Translator.trans('statement')
+        },
         {
           field: 'hasReceivedInvitationMailInCurrentProcedurePhase',
-          label: Translator.trans('invitation') }
+          label: Translator.trans('invitation')
+        }
       ]
     }
   },
 
   computed: {
-    addMemberPath() {
+    addMemberPath () {
       const routeName = hasPermission('area_use_mastertoeblist')
         ? 'DemosPlan_procedure_member_add_mastertoeblist'
         : 'DemosPlan_procedure_member_add'
@@ -116,11 +126,11 @@ export default {
   },
 
   methods: {
-    setSelectedItems(selectedItems) {
+    setSelectedItems (selectedItems) {
       this.selectedItems = selectedItems
     },
 
-    deleteSelected() {
+    deleteSelected () {
       if (this.selectedItems.length === 0) {
         dplan.notify.notify('warning', Translator.trans('organisation.select.first'))
         return
@@ -129,7 +139,7 @@ export default {
       if (!confirm(Translator.trans('check.invitable_institutions.marked.delete'))) {
         return
       }
-      // selectedItems from DpDataTable are strings in an array, so we need to map them to ids
+      // SelectedItems from DpDataTable are strings in an array, so we need to map them to ids
       const organisationIds = this.selectedItems.map(item =>
         typeof item === 'string' ? item : item.id
       )
@@ -137,13 +147,12 @@ export default {
       dpRpc('invitedInstitutions.bulk.delete', {
         ids: organisationIds.map(id => ({ id }))
       })
-        .then(checkResponse)
         .then(response => {
           this.$refs.organisationTable.getInstitutionsWithContacts()
           dplan.notify.notify('confirm', Translator.trans('confirm.invitable_institutions.deleted', { count: organisationIds.length }))
           this.selectedItems = []
         })
-        .catch(error => {
+        .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.invitable_institutions.delete'))
         })
     },
@@ -152,7 +161,7 @@ export default {
      * Bulk action: Export selected organisations to PDF
      * Uses dedicated PDF route - no action flag needed
      */
-    exportPdf() {
+    exportPdf () {
       this.submitBulkActionForm(
         'DemosPlan_procedure_member_index_pdf',
         { procedure: this.procedureId }
@@ -167,7 +176,7 @@ export default {
      * @param {Object} routeParams - Parameters for route generation
      * @param {string|null} actionFieldName - Optional action flag field name for legacy routes
      */
-    submitBulkActionForm(routeName, routeParams, actionFieldName = null ) {
+    submitBulkActionForm (routeName, routeParams, actionFieldName = null) {
       if (this.selectedItems.length === 0) {
         dplan.notify.notify('warning',
           Translator.trans('organisation.select.first'))
@@ -211,7 +220,7 @@ export default {
      * Bulk action: Send email to selected organisations
      * Uses legacy email route that requires an action flag
      */
-    writeEmail() {
+    writeEmail () {
       this.submitBulkActionForm(
         'DemosPlan_admin_member_email',
         { procedureId: this.procedureId },
