@@ -26,36 +26,20 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 class SetHttpTestPermissionsListener
 {
     public const X_DPLAN_TEST_PERMISSIONS = 'x-dplan-test-permissions';
-    public const X_DPLAN_TEST_USER_ID = 'x-dplan-test-user-id';
 
     public function __construct(
         private readonly KernelInterface $kernel,
         private readonly PermissionsInterface $permissions,
-        private readonly UserService $userService,
-        private readonly CurrentUserInterface $currentUser,
-        private readonly GlobalConfigInterface $globalConfig,
-        private readonly TokenStorageInterface $tokenStorage,
     ) {
     }
 
     public function onKernelController(ControllerEvent $controllerEvent): void
     {
-        if ('test' !== $this->kernel->getEnvironment()) {
+        if ($this->kernel->getEnvironment() !== 'test') {
             return;
         }
 
         $request = $controllerEvent->getRequest();
-        if ($request->server->has(self::X_DPLAN_TEST_USER_ID)) {
-            $user = $this->userService->getSingleUser($request->server->get(self::X_DPLAN_TEST_USER_ID));
-            $this->currentUser->setUser($user);
-
-            $this->globalConfig->setSubdomain($user->getCurrentCustomer()->getSubdomain());
-
-            $existingToken = $this->tokenStorage->getToken();
-            $securityUser = new SecurityUser($user);
-            $existingToken->setUser($securityUser);
-            $this->permissions->initPermissions($user);
-        }
 
         if ($request->server->has(self::X_DPLAN_TEST_PERMISSIONS)) {
             $permissions = $request->server->get(self::X_DPLAN_TEST_PERMISSIONS);
