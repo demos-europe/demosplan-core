@@ -711,8 +711,8 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
 
         $invitedOrgaIds = $this->procedureRepository->getInvitedOrgaIds($this->procedure->getId());
-        $dataInputOrgaIds = $this->procedure->getDataInputOrganisations()->map(fn($orga) => $orga->getId())->toArray();
-        
+        $dataInputOrgaIds = $this->procedure->getDataInputOrganisations()->map(fn ($orga) => $orga->getId())->toArray();
+
         // Keine Institution eingeladen und keine Datenerfasser-Organisationen
         if (0 === count($invitedOrgaIds) && 0 === count($dataInputOrgaIds)) {
             $this->logger->debug('Procedure doesn\'t have Orgas or DataInput Orgas');
