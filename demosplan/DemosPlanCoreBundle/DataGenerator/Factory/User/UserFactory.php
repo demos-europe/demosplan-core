@@ -86,4 +86,13 @@ final class UserFactory extends PersistentProxyObjectFactory
     {
         return $this;
     }
+
+    public static function createOneWithCompletedProfile(array $attributes = []): User|Proxy
+    {
+        $user = self::createOne($attributes);
+        $user->setProfileCompleted(true);
+        $user->_save();
+        return $user;
+    }
+
 }

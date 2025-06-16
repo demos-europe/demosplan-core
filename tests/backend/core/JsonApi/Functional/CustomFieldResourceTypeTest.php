@@ -30,7 +30,9 @@ class CustomFieldResourceTypeTest extends JsonApiTest
 
     public function testCreateCustomField(): void
     {
-        $this->user = UserFactory::createOne();
+        $procedure = ProcedureFactory::createOne();
+
+        $this->user = UserFactory::createOneWithCompletedProfile();
         $this->customer = CustomerFactory::createOne();
         $this->role = RoleFactory::createOne([
             'name'      => Role::PLANNING_AGENCY_ADMIN,
@@ -48,7 +50,6 @@ class CustomFieldResourceTypeTest extends JsonApiTest
 
         $user = $this->user->_real();
 
-        $procedure = ProcedureFactory::createOne();
 
         $data = [
             'type'       => 'CustomField',
