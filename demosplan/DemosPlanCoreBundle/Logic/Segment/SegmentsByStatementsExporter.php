@@ -20,9 +20,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentExporterFileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
@@ -47,7 +47,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         HtmlHelper $htmlHelper,
         ImageManager $imageManager,
         ImageLinkConverter $imageLinkConverter,
-        private readonly SegmentExporterFileNameGenerator $fileNameGenerator,
+        private readonly FileNameGenerator $fileNameGenerator,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,

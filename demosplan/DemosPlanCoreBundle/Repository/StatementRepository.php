@@ -68,6 +68,7 @@ use Illuminate\Support\Collection;
 use Pagerfanta\Pagerfanta;
 use ReflectionException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Webmozart\Assert\Assert;
 
 use function array_combine;
 
@@ -818,9 +819,6 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             $statement->setParagraph(null);
         }
 
-        if (array_key_exists('phase', $data)) {
-            $statement->setPhase($data['phase']);
-        }
         if (array_key_exists('pId', $data) && 36 === strlen((string) $data['pId'])) {
             $statement->setProcedure($em->getReference(Procedure::class, $data['pId']));
         }
@@ -992,6 +990,10 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
 
         if (array_key_exists('phase', $data)) {
             $statement->setPhase($data['phase']);
+        } else {
+            // Set default phase if not provided to prevent NOT NULL constraint violation
+            $procedure = $statement->getProcedure();
+            $statement->setPhase($procedure->getPhase());
         }
 
         if (array_key_exists('replied', $data)) {
@@ -1186,10 +1188,14 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
      * Counts statements submitted by an organisation via the draft-to-statement workflow.
      * This method counts statements where the organisation is set directly on the statement
      * (indicating they were submitted via the draft-to-statement workflow) rather than through statement.meta.
+     *
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     * @throws InvalidArgumentException
      */
     public function countDraftToStatementSubmissionsByOrganisation(string $procedureId, string $organisationId): int
     {
-        return (int) $this->getEntityManager()->createQueryBuilder()
+        $singleScalarResult = $this->getEntityManager()->createQueryBuilder()
             ->select('COUNT(original.id)')
             ->from(Statement::class, 'statement')
             ->leftJoin('statement.original', 'original')
@@ -1205,6 +1211,10 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             ->setParameter('orgaId', $organisationId)
             ->getQuery()
             ->getSingleScalarResult();
+
+        Assert::integer($singleScalarResult);
+
+        return $singleScalarResult;
     }
 
     /**

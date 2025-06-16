@@ -25,6 +25,7 @@ use EDT\JsonApi\ApiDocumentation\DefaultInclude;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\Querying\Contracts\PathException;
 use Exception;
+use Webmozart\Assert\Assert;
 
 /**
  * @template-extends DplanResourceType<Orga>
@@ -138,7 +139,7 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
     }
 
     /**
-     * Repository approach: Uses Statement.organisation (_o_id) to count statements submitted via draft-to-statement workflow.
+     * Uses Statement.organisation (_o_id) to count statements submitted via draft-to-statement workflow.
      * This counts statements where the organisation is set directly on the statement, representing
      * statements submitted by the organisation through the draft-to-statement process.
      */
@@ -154,24 +155,46 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
                 $procedure->getId(),
                 $orgaId
             );
-        } catch (Exception) {
+        } catch (Exception $e) {
+            $this->logger->error(
+                'Failed to retrieve original statements count for institution',
+                [
+                    'orgaId'      => $orgaId,
+                    'procedureId' => $procedure->getId(),
+                    'exception'   => $e,
+                ]
+            );
+            $this->messageBag->add('error', 'error.statements.of.institution.count.retrieval.failed');
+
             return 0;
         }
     }
 
     private function hasReceivedInvitationMailInCurrentPhase(string $orgaId): bool
     {
-        $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
-            return false;
-        }
+        try {
+            $procedure = $this->currentProcedureService->getProcedure();
+            Assert::notNull($procedure);
 
-        $invitationEmailList = $this->procedureService->getInstitutionMailList(
-            $procedure->getId(),
-            $procedure->getPhase()
-        );
+            $invitationEmailList = $this->procedureService->getInstitutionMailList(
+                $procedure->getId(),
+                $procedure->getPhase()
+            );
 
-        if (!is_array($invitationEmailList['result']) || 0 === count($invitationEmailList['result'])) {
+            $hasValidResultFormat = is_array($invitationEmailList['result']) && 0 < count($invitationEmailList['result']);
+            Assert::true($hasValidResultFormat);
+        } catch (Exception $e) {
+            $this->logger->error(
+                'Failed to retrieve institution invitation mail list',
+                [
+                    'orgaId'      => $orgaId,
+                    'procedureId' => $procedure->getId(),
+                    'phase'       => $procedure->getPhase(),
+                    'exception'   => $e,
+                ]
+            );
+            $this->messageBag->add('error', 'error.institution.invitation.mail.list.retrieval.failed');
+
             return false;
         }
 
