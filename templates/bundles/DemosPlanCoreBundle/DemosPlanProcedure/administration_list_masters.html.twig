@@ -61,10 +61,11 @@
         {% endif %}
 
         {% if templateVars.list.procedures is defined and templateVars.list.procedures|length %}
-            <table class="c-table">
+            {# table-fixed class ensures browser respects <col> width declarations #}
+            <table class="c-table table-fixed">
                 <colgroup>
-                    <col class="w-[5%]">
-                    <col class="w-[95%]">
+                    <col class="w-[40px]">
+                    <col>
                 </colgroup>
 
                 <thead>
