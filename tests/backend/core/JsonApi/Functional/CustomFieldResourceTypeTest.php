@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValidator;
 use Tests\Base\JsonApiTest;
 use Zenstruck\Foundry\Persistence\Proxy;
 
