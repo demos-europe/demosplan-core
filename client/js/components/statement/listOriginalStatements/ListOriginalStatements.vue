@@ -9,7 +9,7 @@
       class="u-mt" />
 
     <template v-else>
-      <template v-if="hasPermission('feature_admin_export_original_statement_csv')">
+      <template v-if="hasPermission('feature_admin_export_original_statement')">
         <div v-if="!selectedItemsCount">
           <export-flyout
             class="block mt-1"
