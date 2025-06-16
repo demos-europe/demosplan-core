@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use Symfony\Component\HttpFoundation\Request;
@@ -67,7 +67,7 @@ class PublicIndexProcedureLister
             $requestPost['oId'] = $user->getOrganisationId();
         }
 
-        if (!$user->isGuestOnly() && !$user->isPlanner()) {
+        if (!$user->isGuestOnly() && !$user->isPlanner() && !$user->hasRole(RoleInterface::PROCEDURE_DATA_INPUT)) {
             $requestPost['participationGuestOnly'] = false;
         }
 
