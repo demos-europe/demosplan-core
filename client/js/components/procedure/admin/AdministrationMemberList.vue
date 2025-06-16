@@ -27,6 +27,7 @@ All rights reserved
         <button
           class="btn--blank o-link--default u-mr-0_5"
           :data-form-actions-confirm="Translator.trans('check.invitable_institutions.marked.delete')"
+          data-cy="administrationMemberList:deleteSelected"
           type="button"
           @click="deleteSelected">
           <i
@@ -37,6 +38,7 @@ All rights reserved
 
         <button
           class="btn--blank o-link--default u-mr-0_5"
+          data-cy="administrationMemberList:writeEmail"
           type="button"
           @click="writeEmail">
           <i
@@ -47,6 +49,7 @@ All rights reserved
 
         <button
           class="btn--blank o-link--default"
+          data-cy="administrationMemberList:exportPdf"
           type="button"
           @click="exportPdf">
           <i
