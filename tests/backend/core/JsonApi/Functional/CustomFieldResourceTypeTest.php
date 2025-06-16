@@ -33,11 +33,6 @@ class CustomFieldResourceTypeTest extends JsonApiTest
     {
         $procedure = ProcedureFactory::createOne();
 
-        // Mock CustomFieldValidator to eliminate validation race condition entirely
-        $mockValidator = $this->createMock(CustomFieldValidator::class);
-        $mockValidator->method('validate'); // Always pass validation (void method, no return)
-        $this->getContainer()->set(CustomFieldValidator::class, $mockValidator);
-
         $this->user = UserFactory::createOneWithCompletedProfile();
         $this->customer = CustomerFactory::createOne();
         $this->role = RoleFactory::createOne([
