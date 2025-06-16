@@ -10,49 +10,8 @@ All rights reserved
 <template>
   <div>
     <p class="u-mt-0_5">
-      {{ Translator.trans('Invitable_institution.add.explanation') }}
+      {{ Translator.trans('invitable_institution.add.explanation') }}
     </p>
-    <!-- Bulk Actions Section -->
-    <button
-      class="btn--blank o-link--default u-mr-0_5"
-      type="button"
-      @click="deleteSelected"
-      :data-form-actions-confirm="Translator.trans('check.invitable_institutions.marked.delete')"
-    >
-      <i
-        class="fa fa-times-circle"
-        aria-hidden="true" />
-      {{ Translator.trans('remove') }}
-    </button>
-
-    <button
-      class="btn--blank o-link--default u-mr-0_5"
-      type="button"
-      @click="writeEmail"
-    >
-      <i
-        class="fa fa-envelope"
-        aria-hidden="true" />
-      {{ Translator.trans('email.invitation.write') }}
-    </button>
-
-    <button
-      class="btn--blank o-link--default"
-      type="button"
-      @click="exportPdf"
-    >
-      <i
-        class="fa fa-file"
-        aria-hidden="true" />
-      {{ Translator.trans('pdf.export') }}
-    </button>
-
-    <dp-button
-      class="btn btn--primary float-right"
-      data-cy="addPublicAgency"
-      :href="addMemberPath"
-      :text="Translator.trans('invitable_institution.add')"
-      variant="primary" />
   </div>
 
   <organisation-table
@@ -61,7 +20,50 @@ All rights reserved
     resource-type="InvitedToeb"
     :procedure-id="procedureId"
     track-by-id="id"
-    @selected-items="setSelectedItems" />
+    @selected-items="setSelectedItems" >
+    <template #bulkActions>
+      <!-- Bulk Actions Section -->
+      <div class="my-2">
+        <button
+          class="btn--blank o-link--default u-mr-0_5"
+          :data-form-actions-confirm="Translator.trans('check.invitable_institutions.marked.delete')"
+          type="button"
+          @click="deleteSelected">
+          <i
+            aria-hidden="true"
+            class="fa fa-times-circle" />
+          {{ Translator.trans('remove') }}
+        </button>
+
+        <button
+          class="btn--blank o-link--default u-mr-0_5"
+          type="button"
+          @click="writeEmail">
+          <i
+            aria-hidden="true"
+            class="fa fa-envelope" />
+          {{ Translator.trans('email.invitation.write') }}
+        </button>
+
+        <button
+          class="btn--blank o-link--default"
+          type="button"
+          @click="exportPdf">
+          <i
+            aria-hidden="true"
+            class="fa fa-file" />
+          {{ Translator.trans('pdf.export') }}
+        </button>
+
+        <dp-button
+          class="btn btn--primary float-right"
+          data-cy="addPublicAgency"
+          :href="addMemberPath"
+          :text="Translator.trans('invitable_institution.add')"
+          variant="primary" />
+      </div>
+    </template>
+  </organisation-table>
 </template>
 
 <script>

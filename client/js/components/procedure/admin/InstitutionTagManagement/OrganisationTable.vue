@@ -87,7 +87,9 @@ All rights reserved
           variant="outline"
           v-tooltip="Translator.trans('search.filter.reset')"
           @click="filterManager.reset" />
+        <!-- Slot for bulk actions -->
       </div>
+      <slot name="bulkActions"></slot>
     </template>
 
     <dp-pager
