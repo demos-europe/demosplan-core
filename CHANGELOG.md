@@ -6,6 +6,7 @@
 
 ## UNRELEASED
 - Allow filtering of institution tags in DpAddOrganizationList
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
 
 ## v4.3.0 (2025-06-13)
 - Add Versioning of custom fields of segments
