@@ -8,48 +8,46 @@
 </license>
 
 <template>
+  <organisation-table
+    :header-fields="headerFields"
+    ref="organisationTable"
+    resource-type="InvitableToeb"
+    :procedure-id="procedureId"
+    track-by-id="id"
+    @selected-items="setSelectedItems" />
 
-      <organisation-table
-        :header-fields="headerFields"
-        ref="organisationTable"
-        resource-type="InvitableToeb"
-        :procedure-id="procedureId"
-        track-by-id="id"
-        @selected-items="setSelectedItems" />
-
-      <div class="mt-2 pt-2 flex">
-        <div class="w-1/3 inline-block">
-            <span
-              v-if="selectedItems.length"
-              class="weight--bold line-height--1_6">
-              {{ selectedItemsText }}
-            </span>
-        </div>
-        <div class="w-2/3 text-right inline-block space-x-2">
-          <dp-button
-            :text="Translator.trans('invitable_institution.add')"
-            data-cy="addPublicAgency"
-            @click="addPublicInterestBodies(selectedItems)"/>
-          <a
-            :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
-            data-cy="organisationList:abortAndBack"
-            class="btn btn--secondary">
-            {{ Translator.trans('abort.and.back') }}
-          </a>
-        </div>
-      </div>
-    </template>
-
+  <div class="mt-2 pt-2 flex">
+    <div class="w-1/3 inline-block">
+      <span
+        v-if="selectedItems.length"
+        class="weight--bold line-height--1_6">
+        {{ selectedItemsText }}
+      </span>
+    </div>
+    <div class="w-2/3 text-right inline-block space-x-2">
+      <dp-button
+        :text="Translator.trans('invitable_institution.add')"
+        data-cy="addPublicAgency"
+        @click="addPublicInterestBodies(selectedItems)" />
+      <a
+        :href="Routing.generate('DemosPlan_procedure_member_index', { procedure: procedureId })"
+        data-cy="organisationList:abortAndBack"
+        class="btn btn--secondary">
+        {{ Translator.trans('abort.and.back') }}
+      </a>
+    </div>
+  </div>
+</template>
 
 <script>
 import { dpApi, DpButton } from '@demos-europe/demosplan-ui'
-import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable.vue'
+import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable'
 
 export default {
   name: 'DpAddOrganisationList',
 
   components: {
-    dpApi,
+    dpApi, // eslint-disable-line vue/no-unused-components
     DpButton,
     OrganisationTable
   },
@@ -58,15 +56,6 @@ export default {
     procedureId: {
       type: String,
       required: true
-    },
-
-    headerFields: {
-      type: Array,
-      required: false,
-      default: () => [
-        { field: 'legalName', label: Translator.trans('invitable_institution') },
-        ...hasPermission('field_organisation_competence') ? [{ field: 'competenceDescription', label: Translator.trans('competence.explanation') }] : []
-      ]
     }
   },
 
@@ -79,12 +68,13 @@ export default {
           field: 'legalName',
           label: Translator.trans('invitable_institution')
         },
-        ...(hasPermission('field_organisation_competence') ? [{
-          field: 'competenceDescription',
-          label: Translator.trans('competence.explanation') }]
+        ...(hasPermission('field_organisation_competence')
+          ? [{
+              field: 'competenceDescription',
+              label: Translator.trans('competence.explanation')
+            }]
           : [])
       ]
-
     }
   },
 
@@ -92,8 +82,7 @@ export default {
     selectedItemsText () {
       return this.selectedItems.length === 1
         ? Translator.trans('entry.selected')
-        : Translator.trans('entries.selected', { count:
-          this.selectedItems.length })
+        : Translator.trans('entries.selected', { count: this.selectedItems.length })
     }
   },
 
