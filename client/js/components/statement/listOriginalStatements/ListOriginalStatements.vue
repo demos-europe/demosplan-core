@@ -268,7 +268,6 @@ import {
   CleanHtml,
   dpApi,
   DpBulkEditHeader,
-  DpButton,
   DpDataTable,
   DpFlyout,
   DpInlineNotification,
@@ -289,7 +288,6 @@ export default {
 
   components: {
     DpBulkEditHeader,
-    DpButton,
     DpDataTable,
     DpFlyout,
     DpInlineNotification,
