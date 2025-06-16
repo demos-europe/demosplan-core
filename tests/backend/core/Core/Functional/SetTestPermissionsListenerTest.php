@@ -12,15 +12,11 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\EventListener\SetHttpTestPermissionsListener;
-use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Tests\Base\FunctionalTestCase;
 
 class SetTestPermissionsListenerTest extends FunctionalTestCase
@@ -35,19 +31,11 @@ class SetTestPermissionsListenerTest extends FunctionalTestCase
         $permissions->expects($this->once())
             ->method('enablePermissions')
             ->with($this->equalTo($expectedPermissions));
-        $userService = $this->createMock(UserService::class);
-        $currentUser = $this->createMock(CurrentUserInterface::class);
-        $globalConfig = $this->createMock(GlobalConfigInterface::class);
-        $tokenStorage = $this->createMock(TokenStorageInterface::class);
 
         // Create an instance of SetHttpTestPermissionsListener
         $listener = new SetHttpTestPermissionsListener(
             static::$kernel,
-            $permissions,
-            $userService,
-            $currentUser,
-            $globalConfig,
-            $tokenStorage);
+            $permissions);
 
         // Create a mock request
         $request = new Request();
