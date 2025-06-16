@@ -50,7 +50,6 @@ class CustomFieldResourceTypeTest extends JsonApiTest
 
         $user = $this->user->_real();
 
-
         $data = [
             'type'       => 'CustomField',
             'attributes' => [

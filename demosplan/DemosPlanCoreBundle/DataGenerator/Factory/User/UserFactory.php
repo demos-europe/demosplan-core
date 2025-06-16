@@ -92,7 +92,7 @@ final class UserFactory extends PersistentProxyObjectFactory
         $user = self::createOne($attributes);
         $user->setProfileCompleted(true);
         $user->_save();
+
         return $user;
     }
-
 }
