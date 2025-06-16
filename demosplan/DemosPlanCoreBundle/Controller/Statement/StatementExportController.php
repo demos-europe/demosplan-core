@@ -45,7 +45,7 @@ class StatementExportController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions(
-        'feature_admin_export_original_statement_csv'
+        'feature_admin_export_original_statement'
     )]
     #[Route(
         path: '/verfahren/{procedureId}/originalStellungnahme/export/csv',
@@ -92,6 +92,9 @@ class StatementExportController extends BaseController
         return $response;
     }
 
+    #[DplanPermissions(
+        'feature_admin_export_original_statement'
+    )]
     #[Route(
         path: '/verfahren/{procedureId}/originalStellungnahme/export/docx',
         name: 'dplan_original_statement_docx_export',
