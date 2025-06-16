@@ -60,6 +60,10 @@ export default {
     }
   },
 
+  emits: [
+    'export'
+  ],
+
   data () {
     return {
       isExpanded: false
