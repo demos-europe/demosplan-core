@@ -2,7 +2,7 @@
   <dp-flyout
     ref="exportFlyout"
     align="left"
-    data-cy="listOriginalStatementsExport"
+    data-cy="exportFlyout"
     :padded="false"
     @close="handleClose"
     @open="handleOpen">
