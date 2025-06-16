@@ -12,15 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
-use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 #[AsEventListener(event: 'kernel.controller', priority: 5)]
 class SetHttpTestPermissionsListener
@@ -35,7 +30,7 @@ class SetHttpTestPermissionsListener
 
     public function onKernelController(ControllerEvent $controllerEvent): void
     {
-        if ($this->kernel->getEnvironment() !== 'test') {
+        if ('test' !== $this->kernel->getEnvironment()) {
             return;
         }
 
