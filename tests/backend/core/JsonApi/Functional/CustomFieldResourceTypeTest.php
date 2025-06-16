@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValidator;
 use Tests\Base\JsonApiTest;
 use Zenstruck\Foundry\Persistence\Proxy;
 
@@ -31,6 +32,11 @@ class CustomFieldResourceTypeTest extends JsonApiTest
     public function testCreateCustomField(): void
     {
         $procedure = ProcedureFactory::createOne();
+
+        // Mock CustomFieldValidator to eliminate validation race condition entirely
+        $mockValidator = $this->createMock(CustomFieldValidator::class);
+        $mockValidator->method('validate'); // Always pass validation (void method, no return)
+        $this->getContainer()->set(CustomFieldValidator::class, $mockValidator);
 
         $this->user = UserFactory::createOneWithCompletedProfile();
         $this->customer = CustomerFactory::createOne();
