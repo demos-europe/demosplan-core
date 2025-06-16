@@ -424,9 +424,6 @@ export default {
     },
 
     storageKeyPagination () {
-      console.log('procedureId:', this.procedureId)
-      console.log('resourceType:', this.resourceType)
-
       return `addOrganisationList:${this.procedureId}:pagination`
     },
 
