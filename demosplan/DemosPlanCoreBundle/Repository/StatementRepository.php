@@ -993,12 +993,7 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         } else {
             // Set default phase if not provided to prevent NOT NULL constraint violation
             $procedure = $statement->getProcedure();
-            if ($procedure instanceof Procedure) {
-                $statement->setPhase($procedure->getPhase());
-            } else {
-                // Fallback to 'configuration' if procedure is not available
-                $statement->setPhase('configuration');
-            }
+            $statement->setPhase($procedure->getPhase());
         }
 
         if (array_key_exists('replied', $data)) {
