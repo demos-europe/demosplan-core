@@ -12,7 +12,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Export;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\FileFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\StatementAttachmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -305,5 +308,57 @@ class StatementArrayConverterTest extends FunctionalTestCase
 
         // Verify we have the expected number of files
         self::assertCount(2, $result['fileNames']);
+    }
+
+    /**
+     * Test that fileNames field is correctly set when segmentOrStatement is Statement instance.
+     * Also tests the getFileNamesWithOriginal method to ensure original files are included.
+     */
+    public function testConvertIntoExportableArrayStatementFileNamesWithOrginal(): void
+    {
+        $this->loginTestUser();
+
+        // Now test with original file - create a new statement for this test
+        $statementWithOriginal = $this->createMinimalTestStatement('test2', 'internal456', 'b');
+        $realStatementWithOriginal = $statementWithOriginal->_real();
+
+        // Create and attach an original file
+        $this->addOriginalFileToStatement($statementWithOriginal, 'original-statement.pdf');
+
+        // Test the converter with the entity that has an original file
+        $resultWithOriginal = $this->sut->convertIntoExportableArray($realStatementWithOriginal);
+
+        // Verify fileNames field includes the original file
+        self::assertArrayHasKey('fileNames', $resultWithOriginal);
+
+        // The fileNames should include both regular files and the original file
+        $expectedFileNames = ['original-statement.pdf'];
+        self::assertEquals($expectedFileNames, $resultWithOriginal['fileNames']);
+
+        // Verify we have the expected number of files (2 regular + 1 original)
+        self::assertCount(1, $resultWithOriginal['fileNames']);
+
+        // Verify that the original file name is included
+        self::assertContains('original-statement.pdf', $resultWithOriginal['fileNames']);
+    }
+
+    private function addOriginalFileToStatement(Statement|Proxy $statement, string $filename): void
+    {
+        // Create a File entity
+        $file = FileFactory::createOne([
+            'name'     => $filename,
+            'filename' => $filename,
+        ]);
+
+        // Create a StatementAttachment for the original file
+        $statementAttachment = StatementAttachmentFactory::createOne([
+            'file'      => $file->_real(),
+            'type'      => StatementAttachmentInterface::SOURCE_STATEMENT,
+            'statement' => $statement->_real(),
+        ]);
+
+        // Add to statement's attachments collection
+        $statement->addAttachment($statementAttachment->_real());
+        $statement->_save();
     }
 }
