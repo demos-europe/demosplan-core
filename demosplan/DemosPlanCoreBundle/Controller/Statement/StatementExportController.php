@@ -126,7 +126,13 @@ class StatementExportController extends BaseController
             }
         );
 
-        $this->setResponseHeaders($response, 'original.docx');
+        $filename = $this->translator->trans('statements.original').'-'.
+            Carbon::now('Europe/Berlin')->format('d-m-Y-H:i').'.docx';
+
+        $response->headers->set('Content-Disposition',
+            $this->nameGenerator->generateDownloadFilename(
+                $filename
+            ));
 
         return $response;
     }
