@@ -28,8 +28,7 @@
           v-if="canEdit('name')"
           type="text"
           :id="organisation.id + ':orgaName'"
-          class="w-full u-mb-0_5 block"
-          style="height: 27px;"
+          class="w-full u-mb-0_5 block h-[27px]"
           data-cy="orgaFormField:orgaName"
           @input="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.name"
@@ -51,8 +50,7 @@
           v-if="canEdit('street')"
           type="text"
           :id="organisation.id + 'addressStreet'"
-          class="w-full u-mb-0_5"
-          style="height: 27px;"
+          class="w-full u-mb-0_5 h-[27px]"
           data-cy="orgaFormField:addressStreet"
           @input="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.street">
@@ -80,8 +78,7 @@
           v-if="canEdit('houseNumber')"
           type="text"
           :id="organisation.id + 'addressHouseNumber'"
-          class="w-full u-mb-0_5"
-          style="height: 27px;"
+          class="w-full u-mb-0_5 h-[27px]"
           data-cy="orgaFormField:addressHouseNumber"
           @input="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.houseNumber">
@@ -104,8 +101,7 @@
           v-if="canEdit('addressExtension')"
           type="text"
           :id="organisation.id + 'addressExtension'"
-          class="w-full u-mb-0_5"
-          style="height: 27px;"
+          class="w-full u-mb-0_5 h-[27px]"
           data-cy="orgaFormField:addressExtension"
           @input="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.addressExtension">
@@ -127,8 +123,7 @@
               v-if="canEdit('postalcode')"
               type="text"
               :id="organisation.id + ':addressPostalCode'"
-              class="w-full"
-              style="height: 27px;"
+              class="w-full h-[27px]"
               data-cy="orgaFormField:addressPostalCode"
               pattern="^[0-9]{5}$"
               @input="emitOrganisationUpdate"
@@ -154,8 +149,7 @@
               v-if="canEdit('city')"
               type="text"
               :id="organisation.id + ':addressCity'"
-              class="w-full"
-              style="height: 27px;"
+              class="w-full h-[27px]"
               data-cy="orgaFormField:addressCity"
               @input="emitOrganisationUpdate"
               v-model="localOrganisation.attributes.city">
@@ -184,8 +178,7 @@
           v-if="canEdit('phone')"
           type="text"
           :id="organisation.id + ':addressPhone'"
-          class="w-full u-mb-0_5"
-          style="height: 27px;"
+          class="w-full u-mb-0_5 h-[27px]"
           data-cy="orgaFormField:addressPhone"
           @input="emitOrganisationUpdate"
           v-model="localOrganisation.attributes.phone">
@@ -383,8 +376,7 @@
         </p>
         <input
           v-if="canEdit('slug')"
-          class="w-full inline u-mb-0_5 u-1-of-3 organisationSlug"
-          style="height: 27px;"
+          class="w-full h-[27px] inline u-mb-0_5 u-1-of-3 organisationSlug"
           type="text"
           :data-organisation-id="organisation.id"
           data-slug
@@ -472,8 +464,7 @@
           <input
             v-if="canEdit('email2')"
             :id="organisation.id + ':email2'"
-            class="layout__item u-1-of-2 u-mb-0_5 u-pr-0_5"
-            style="height: 27px;"
+            class="layout__item u-1-of-2 u-mb-0_5 u-pr-0_5 h-[27px]"
             data-cy="orgaFormField:emailParticipation"
             type="email"
             @input="emitOrganisationUpdate"
@@ -505,8 +496,7 @@
                 class="weight--normal lbl__hint"
                 v-cleanhtml="Translator.trans('explanation.organisation.email.cc')" />
               <input
-                class="layout__item u-1-of-2"
-                style="height: 27px;"
+                class="layout__item u-1-of-2 h-[27px]"
                 type="email"
                 data-cy="orgaFormField:emailCC"
                 @input="emitOrganisationUpdate"
@@ -539,8 +529,7 @@
             class="weight--normal"
             v-cleanhtml="Translator.trans('explanation.organisation.email.reviewer.admin')" />
           <input
-            class="layout__item u-1-of-2"
-            style="height: 27px;"
+            class="layout__item u-1-of-2 h-[27px]"
             type="email"
             @input="emitOrganisationUpdate"
             v-model="localOrganisation.attributes.reviewerEmail">
