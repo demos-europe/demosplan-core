@@ -13,7 +13,6 @@
     ref="organisationTable"
     resource-type="InvitableToeb"
     :procedure-id="procedureId"
-    track-by-id="id"
     @selected-items="setSelectedItems" />
 
   <div class="mt-2 pt-2 flex">

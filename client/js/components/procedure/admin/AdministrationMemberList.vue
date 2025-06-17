@@ -8,20 +8,17 @@ All rights reserved
 </license>
 
 <template>
-  <div>
-    <p class="u-mt-0_5">
-      {{ Translator.trans('invitable_institution.add.explanation') }}
-    </p>
-  </div>
+  <p class="u-mt-0_5">
+    {{ Translator.trans('invitable_institution.add.explanation') }}
+  </p>
 
   <organisation-table
     :header-fields="headerFields"
     ref="organisationTable"
     resource-type="InvitedToeb"
     :procedure-id="procedureId"
-    track-by-id="id"
-    @selected-items="setSelectedItems" >
-    <template #bulkActions>
+    @selected-items="setSelectedItems">
+    <template v-slot:bulkActions>
       <!-- Bulk Actions Section -->
       <div class="my-2">
         <button
@@ -138,6 +135,7 @@ export default {
     deleteSelected () {
       if (this.selectedItems.length === 0) {
         dplan.notify.notify('warning', Translator.trans('organisation.select.first'))
+
         return
       }
 
@@ -185,6 +183,7 @@ export default {
       if (this.selectedItems.length === 0) {
         dplan.notify.notify('warning',
           Translator.trans('organisation.select.first'))
+
         return
       }
       // Create hidden form for legacy route compatibility

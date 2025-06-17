@@ -11,7 +11,6 @@ All rights reserved
   <div
     ref="contentArea"
     class="mt-2">
-
     <dp-loading
       v-if="isLoading"
       class="mt-4" />
@@ -89,7 +88,7 @@ All rights reserved
           @click="filterManager.reset" />
         <!-- Slot for bulk actions -->
       </div>
-      <slot name="bulkActions"></slot>
+      <slot name="bulkActions" />
     </template>
 
     <dp-pager
@@ -114,7 +113,6 @@ All rights reserved
       track-by="id"
       :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
       @items-selected="setSelectedItems">
-
       <!-- Resource-specific content based on resourceType -->
       <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
         <div class="lg:w-2/3 lg:flex pt-4">
@@ -328,10 +326,7 @@ export default {
 
     apiRequestFields () {
       const headerFieldNames = this.headerFields.map(field => field.field)
-
-      const baseFields = ['participationFeedbackEmailAddress',
-        'locationContacts']
-
+      const baseFields = ['participationFeedbackEmailAddress', 'locationContacts']
       const tagFields = hasPermission('feature_institution_tag_read') ? ['assignedTags'] : []
 
       return [...new Set([...headerFieldNames, ...baseFields,
@@ -400,6 +395,7 @@ export default {
           if (!filterCondition.condition) return true
 
           const tagIds = item.assignedTags.map(tag => tag.id)
+
           return tagIds.includes(filterCondition.condition.value)
         })
       }) || []
@@ -583,6 +579,7 @@ export default {
         }
 
         requestParams.filter = filters
+
         return this.$store.dispatch(`${this.storeModule}/list`, requestParams)
           .then(data => {
             this.setLocalStorage(data.meta.pagination)
