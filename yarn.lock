@@ -1998,9 +1998,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:0.4.17":
-  version: 0.4.17
-  resolution: "@demos-europe/demosplan-ui@npm:0.4.17"
+"@demos-europe/demosplan-ui@portal:/srv/www/local_modules/demosplan-ui::locator=root-workspace-0b6124%40workspace%3A.":
+  version: 0.0.0-use.local
+  resolution: "@demos-europe/demosplan-ui@portal:/srv/www/local_modules/demosplan-ui::locator=root-workspace-0b6124%40workspace%3A."
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.4.5"
@@ -2028,13 +2028,12 @@ __metadata:
     "@tiptap/pm": "npm:^3.0.0"
     "@tiptap/suggestion": "npm:^3.0.0"
     "@tiptap/vue-3": "npm:^3.0.0"
-    "@uppy/core": "npm:^4.4.4"
-    "@uppy/drag-drop": "npm:^4.1.2"
-    "@uppy/progress-bar": "npm:^4.2.1"
-    "@uppy/tus": "npm:^4.2.2"
+    "@uppy/core": "npm:^4.3.1"
+    "@uppy/drag-drop": "npm:^4.0.5"
+    "@uppy/progress-bar": "npm:^4.1.0"
+    "@uppy/tus": "npm:^3.0.1"
     "@vue/server-renderer": "npm:^3.4.29"
     "@vue/vue3-jest": "npm:^29.2.6"
-    "@vueuse/components": "npm:^13.0.0"
     "@vueuse/integrations": "npm:^11.1.0"
     a11y-datepicker: "npm: ^0.9.0"
     dayjs: "npm:^1.11.5"
@@ -2050,10 +2049,10 @@ __metadata:
     v-tooltip: "npm:2.1.3"
     vue-click-outside: "npm:^1.1.0"
     vue-multiselect: "npm:^3.1.0"
-    vue-sliding-pagination: "npm:^v2.0.0-alpha-1"
-  checksum: 10c0/416d17b8ed514fbc2035f09408207f29585d03f2a1b042ca1b61c3c384fcc64416ec8b509ed7d0919310d6ca11bffb7c563a79f1a6e606935b0ac0298e1a38ca
+    vue-omnibox: "npm:^0.3.7"
+    vue-sliding-pagination: "npm:^1.3.2"
   languageName: node
-  linkType: hard
+  linkType: soft
 
 "@demos-europe/dp-consent@npm:^1.3":
   version: 1.3.0
@@ -3498,13 +3497,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/web-bluetooth@npm:^0.0.21":
-  version: 0.0.21
-  resolution: "@types/web-bluetooth@npm:0.0.21"
-  checksum: 10c0/5f47c5ec452ca31e6a9b44c8aaa54b66c4f57d4aca00166c45902a3883139580e14b254b774172ff982ba4458cc444b5aa59bb4573c2fd34562cfa599721f8e4
-  languageName: node
-  linkType: hard
-
 "@types/yargs-parser@npm:*":
   version: 21.0.3
   resolution: "@types/yargs-parser@npm:21.0.3"
@@ -3588,16 +3580,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/companion-client@npm:^4.4.1":
-  version: 4.4.1
-  resolution: "@uppy/companion-client@npm:4.4.1"
+"@uppy/companion-client@npm:^3.8.1":
+  version: 3.8.2
+  resolution: "@uppy/companion-client@npm:3.8.2"
   dependencies:
-    "@uppy/utils": "npm:^6.1.1"
+    "@uppy/utils": "npm:^5.9.0"
     namespace-emitter: "npm:^2.0.1"
     p-retry: "npm:^6.1.0"
   peerDependencies:
-    "@uppy/core": ^4.4.1
-  checksum: 10c0/7550d7e18952b96e3be76b9942f04dcce47a3fa0873b0d58b5b82bb6fbc9d49404a190ff38479b3fb1dcc771ea4500bcaf7bf48d8ff757c9bacb7b827dcb6350
+    "@uppy/core": ^3.13.1
+  checksum: 10c0/523341e617e92bff572b6f180eab02c0bd294543328e355f91554b8b4ac9376e4183496ce95961f8e73aa8d1d3e62df05a8c4ceee8646ada02f207410e684fc2
+  languageName: node
+  linkType: hard
+
+"@uppy/core@npm:^4.3.1":
+  version: 4.4.6
+  resolution: "@uppy/core@npm:4.4.6"
+  dependencies:
+    "@transloadit/prettier-bytes": "npm:^0.3.4"
+    "@uppy/store-default": "npm:^4.2.0"
+    "@uppy/utils": "npm:^6.1.5"
+    lodash: "npm:^4.17.21"
+    mime-match: "npm:^1.0.2"
+    namespace-emitter: "npm:^2.0.1"
+    nanoid: "npm:^5.0.9"
+    preact: "npm:^10.5.13"
+  checksum: 10c0/97620be19f24365dbb6bdf62ea2fa23995f5b46b0083e0a34b07c0a071ce5c77779080d93f401dcb5aa5fc4323e313f8f0b2c0a3b6b7e513b45675de32e176c8
   languageName: node
   linkType: hard
 
@@ -3617,19 +3625,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/core@npm:^4.4.4":
-  version: 4.4.4
-  resolution: "@uppy/core@npm:4.4.4"
+"@uppy/drag-drop@npm:^4.0.5":
+  version: 4.1.3
+  resolution: "@uppy/drag-drop@npm:4.1.3"
   dependencies:
-    "@transloadit/prettier-bytes": "npm:^0.3.4"
-    "@uppy/store-default": "npm:^4.2.0"
-    "@uppy/utils": "npm:^6.1.3"
-    lodash: "npm:^4.17.21"
-    mime-match: "npm:^1.0.2"
-    namespace-emitter: "npm:^2.0.1"
-    nanoid: "npm:^5.0.9"
+    "@uppy/utils": "npm:^6.1.4"
     preact: "npm:^10.5.13"
-  checksum: 10c0/b4605333001d03fe09999f51e72525948a8bec839661066772a37c2c38ed1dc7dc9efbd5e27cf9851c85145af2881e97c3f75aa47ddd95ae04c19c87ce9eb4e8
+  peerDependencies:
+    "@uppy/core": ^4.4.5
+  checksum: 10c0/f0d0cbb136d2a7acf553ba6962a05e9936d1e92462310f352d63e074c66cd836b9e919f3073215cb1d0c1bad9b4f546ade239666d00aaceb310615d3f6814139
   languageName: node
   linkType: hard
 
@@ -3645,19 +3649,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/drag-drop@npm:^4.1.2":
-  version: 4.1.2
-  resolution: "@uppy/drag-drop@npm:4.1.2"
-  dependencies:
-    "@uppy/utils": "npm:^6.1.3"
-    preact: "npm:^10.5.13"
-  peerDependencies:
-    "@uppy/core": ^4.4.4
-  checksum: 10c0/9f729a7787ab505223c31b75dc790cf0a3f8f90466067cc8af67d40d7b9e92285dc364f048b0019b0d21521cd0438a62bd167369c9a32c093b93217d7bd900df
-  languageName: node
-  linkType: hard
-
-"@uppy/progress-bar@npm:^4.2.1":
+"@uppy/progress-bar@npm:^4.1.0, @uppy/progress-bar@npm:^4.2.1":
   version: 4.2.1
   resolution: "@uppy/progress-bar@npm:4.2.1"
   dependencies:
@@ -3676,16 +3668,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/tus@npm:^4.2.2":
-  version: 4.2.2
-  resolution: "@uppy/tus@npm:4.2.2"
+"@uppy/tus@npm:^3.0.1":
+  version: 3.5.5
+  resolution: "@uppy/tus@npm:3.5.5"
   dependencies:
-    "@uppy/companion-client": "npm:^4.4.1"
-    "@uppy/utils": "npm:^6.1.1"
-    tus-js-client: "npm:^4.2.3"
+    "@uppy/companion-client": "npm:^3.8.1"
+    "@uppy/utils": "npm:^5.9.0"
+    tus-js-client: "npm:^3.1.3"
   peerDependencies:
-    "@uppy/core": ^4.4.1
-  checksum: 10c0/5d2cf5c7b5d1cbbd93aa84402922ee0995f5d09ac81c83ab5263a30ca24a893ff419c5ab04995c70ba5ffbf45618edd667cb73bf749b4e89d30c1965b931af96
+    "@uppy/core": ^3.11.3
+  checksum: 10c0/e67a66e217bcfc6d1986deab0e7f3483f420b7f5ed7cf7e8fe9a5ba5d4a6aa7895318f116749d20908c787f3765f9d2606220969a8ac2d73486156787520bbf6
+  languageName: node
+  linkType: hard
+
+"@uppy/utils@npm:^5.9.0":
+  version: 5.9.0
+  resolution: "@uppy/utils@npm:5.9.0"
+  dependencies:
+    lodash: "npm:^4.17.21"
+    preact: "npm:^10.5.13"
+  checksum: 10c0/857c8fa11814816f0a1d97ce78f86cac8c9f4e46267d2d64631f7cce8d3b8caf3796cccdd4cecdfe110862ebbed5a76896522a965f09b0940f0979b91f04c793
   languageName: node
   linkType: hard
 
@@ -3699,17 +3701,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@uppy/utils@npm:^6.1.3":
-  version: 6.1.3
-  resolution: "@uppy/utils@npm:6.1.3"
+"@uppy/utils@npm:^6.1.4, @uppy/utils@npm:^6.1.5":
+  version: 6.1.5
+  resolution: "@uppy/utils@npm:6.1.5"
   dependencies:
     lodash: "npm:^4.17.21"
     preact: "npm:^10.5.13"
-  checksum: 10c0/5474e0932a2379acb0767409992a7da9d4ef20d87e90e152ccbd614b8cf53ed6dfd3ea1dcb4bccc0a52c12be8ed8d794453a91285896e8e8f88352f1394c6e4f
+  checksum: 10c0/9064f40174ed43b2226329826a70bb77a1a6366bcc24df043677b4e0b92f79c09ae16629e102f3e5906db0c079eb8d96dbb8f65957d8e79035a7027df290cf30
   languageName: node
   linkType: hard
 
-"@vue/compat@npm:3.5.13, @vue/compat@npm:^3.4.38":
+"@vue/compat@npm:3.5.13":
   version: 3.5.13
   resolution: "@vue/compat@npm:3.5.13"
   dependencies:
@@ -3877,18 +3879,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vueuse/components@npm:^13.0.0":
-  version: 13.0.0
-  resolution: "@vueuse/components@npm:13.0.0"
-  dependencies:
-    "@vueuse/core": "npm:13.0.0"
-    "@vueuse/shared": "npm:13.0.0"
-  peerDependencies:
-    vue: ^3.5.0
-  checksum: 10c0/1df5067c25667efcb17dbad56ffa5d4c027d4914ba45409385b9ea82b4bea1b0fe5d01ba0f9dab33949f0c86320269014dbe961c7c7167623087b17194bc9e43
-  languageName: node
-  linkType: hard
-
 "@vueuse/core@npm:11.3.0":
   version: 11.3.0
   resolution: "@vueuse/core@npm:11.3.0"
@@ -3898,19 +3888,6 @@ __metadata:
     "@vueuse/shared": "npm:11.3.0"
     vue-demi: "npm:>=0.14.10"
   checksum: 10c0/57ebed3ee2fd5b33297bbb36727424dc1707357db52954a1715366dd6583a4d53a05b10d17d16d1e5bf91fe8f12ea69fd6b232551f60167098ebc606b7234d4a
-  languageName: node
-  linkType: hard
-
-"@vueuse/core@npm:13.0.0":
-  version: 13.0.0
-  resolution: "@vueuse/core@npm:13.0.0"
-  dependencies:
-    "@types/web-bluetooth": "npm:^0.0.21"
-    "@vueuse/metadata": "npm:13.0.0"
-    "@vueuse/shared": "npm:13.0.0"
-  peerDependencies:
-    vue: ^3.5.0
-  checksum: 10c0/1ec663fb17870b43d176180f114b46a235564276ca38e87b487685c6e44f6d1a5cec5569ca73f0641b8e5aa2acb874e36f5ad0e8c241a1505e9b5d79d83629ec
   languageName: node
   linkType: hard
 
@@ -3970,28 +3947,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vueuse/metadata@npm:13.0.0":
-  version: 13.0.0
-  resolution: "@vueuse/metadata@npm:13.0.0"
-  checksum: 10c0/335d09b15088b47c52487a74316f4298dc5323c261d9d17aba30cf5e21a3cb8b623134cf10fa538cf29952bb77dcdc4a25b6ed92db1633218125eb6c7b64a053
-  languageName: node
-  linkType: hard
-
 "@vueuse/shared@npm:11.3.0":
   version: 11.3.0
   resolution: "@vueuse/shared@npm:11.3.0"
   dependencies:
     vue-demi: "npm:>=0.14.10"
   checksum: 10c0/820af5359d204e434b27ef570e5dfb5fe765e19d540738665c51c8d1569b81dd000dbe292add15dffb1b9538cbcec890626d0b47a5525e624273a0963b524e1f
-  languageName: node
-  linkType: hard
-
-"@vueuse/shared@npm:13.0.0":
-  version: 13.0.0
-  resolution: "@vueuse/shared@npm:13.0.0"
-  peerDependencies:
-    vue: ^3.5.0
-  checksum: 10c0/d7730ed05f90a421763f9b5e6e5ac64f0e085fade6090724f09990018106bca8dd63ed6070f2f471a472b84eaf98e0fc8307c282ec0ecb798eaf4035cb195cee
   languageName: node
   linkType: hard
 
@@ -5348,6 +5309,13 @@ __metadata:
   version: 3.41.0
   resolution: "core-js@npm:3.41.0"
   checksum: 10c0/a29ed0b7fe81acf49d04ce5c17a1947166b1c15197327a5d12f95bbe84b46d60c3c13de701d808f41da06fa316285f3f55ce5903abc8d5642afc1eac4457afc8
+  languageName: node
+  linkType: hard
+
+"core-js@npm:^3.6.5":
+  version: 3.43.0
+  resolution: "core-js@npm:3.43.0"
+  checksum: 10c0/9d4ad66296e60380777de51d019b5c3e6cce023b7999750a5094f9a4b0ea53bf3600beb4ef11c56548f2c8791d43d4056e270d1cf55ba87273011aa7d4597871
   languageName: node
   linkType: hard
 
@@ -6936,12 +6904,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-promise@npm:^6.0.1":
-  version: 6.6.0
-  resolution: "eslint-plugin-promise@npm:6.6.0"
+"eslint-plugin-promise@npm:^7.2.1":
+  version: 7.2.1
+  resolution: "eslint-plugin-promise@npm:7.2.1"
+  dependencies:
+    "@eslint-community/eslint-utils": "npm:^4.4.0"
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
-  checksum: 10c0/93a667dbc9ff15c4d586b0d40a31c7828314cbbb31b2b9a75802aa4ef536e9457bb3e1a89b384b07aa336dd61b315ae8b0aadc0870210378023dd018819b59b3
+  checksum: 10c0/d494982faeeafbd2aa5fae9cbceca546169a8399000f72d5d940fa5c4ba554612903bcafbb8033647179e5d21ccf1d621b433d089695f7f47ce3d9fcf4cd0abf
   languageName: node
   linkType: hard
 
@@ -12455,7 +12425,7 @@ __metadata:
     eslint-plugin-jquery: "npm:^1.5.1"
     eslint-plugin-n: "npm:^16.0.2"
     eslint-plugin-node: "npm:^11.1.0"
-    eslint-plugin-promise: "npm:^6.0.1"
+    eslint-plugin-promise: "npm:^7.2.1"
     eslint-plugin-standard: "npm:^5.0.0"
     eslint-plugin-vue: "npm:^10.0.0"
     eslint-plugin-vuejs-accessibility: "npm:^2.4.1"
@@ -13985,9 +13955,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tus-js-client@npm:^4.2.3":
-  version: 4.3.1
-  resolution: "tus-js-client@npm:4.3.1"
+"tus-js-client@npm:^3.1.3":
+  version: 3.1.3
+  resolution: "tus-js-client@npm:3.1.3"
   dependencies:
     buffer-from: "npm:^1.1.2"
     combine-errors: "npm:^3.0.3"
@@ -13996,7 +13966,7 @@ __metadata:
     lodash.throttle: "npm:^4.1.1"
     proper-lockfile: "npm:^4.1.2"
     url-parse: "npm:^1.5.7"
-  checksum: 10c0/db36ec17cff0217f1199b84f355f8aa07abab47d98d003926f67d9bad08e15e77c3ef61f98aa360133f27ad4944cf519170ff5b5eb5b93a8a762c28dd49df59d
+  checksum: 10c0/526a82147292cb31404866ef16c315fab231d3f8761dc17509ececcf264d8c32a4a02a377dff0939fb50026bfd4bf62ac6518f657cda7b09033e230814cbb467
   languageName: node
   linkType: hard
 
@@ -14380,6 +14350,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"vue-omnibox@npm:^0.3.7":
+  version: 0.3.7
+  resolution: "vue-omnibox@npm:0.3.7"
+  dependencies:
+    core-js: "npm:^3.6.5"
+  checksum: 10c0/e3c1d86ad9f3b963e2ffdcf59b7460dfc8b02d8af26aa74ccaaf108f05becb1c50badd350846abcf8eae63eabe56f689e303f5f4475c5a89898e911d32260789
+  languageName: node
+  linkType: hard
+
 "vue-resize@npm:^1.0.1":
   version: 1.0.1
   resolution: "vue-resize@npm:1.0.1"
@@ -14406,16 +14385,6 @@ __metadata:
   dependencies:
     vue: "npm:^2.6"
   checksum: 10c0/6627e35698b7c22171de7000b3a290b8c1656217bfb4ae152ff095dbe707678f00bdc13e207a7d5f821dca2a6c2c01a059a7f342648a39767dbb3ad64530a77c
-  languageName: node
-  linkType: hard
-
-"vue-sliding-pagination@npm:^v2.0.0-alpha-1":
-  version: 2.0.0-alpha-1
-  resolution: "vue-sliding-pagination@npm:2.0.0-alpha-1"
-  dependencies:
-    "@vue/compat": "npm:^3.4.38"
-    vue: "npm:^3.4.38"
-  checksum: 10c0/07ba8090a8ced7b5526058d2f9a9441fb2fe379954236a1261d272020d135a5b5c06fefc564d2498dd1d4efefa0df4e79833d3d9a39941157eb6500786240d88
   languageName: node
   linkType: hard
 
@@ -14451,7 +14420,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue@npm:3.5.13, vue@npm:^3.4.38":
+"vue@npm:3.5.13":
   version: 3.5.13
   resolution: "vue@npm:3.5.13"
   dependencies:
