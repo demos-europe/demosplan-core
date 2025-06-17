@@ -5,13 +5,11 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
-- Add Versioning of custom fields of segments
-- Update Elasticsearch to version 8
 - Migrate to Tailwind CSS v4
 
-## UNRELEASED
-
-### Features
+## v4.3.0 (2025-06-13)
+- Add Versioning of custom fields of segments
+- Update Elasticsearch to version 8
 - Allow filtering of institution tags in DpAddOrganizationList
 - Export Original Statements as csv in the Statement List
 
