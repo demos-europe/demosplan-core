@@ -1621,7 +1621,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
     {
         $result = $this->sut->filterDraftStatementsBySelectedIds(self::DRAFT_STATEMENT_LIST_TO_TEST, ['id1', 'id3']);
         static::assertCount(2, $result);
-        
+
         // array_filter preserves keys, so we need to get values or use array_values
         $resultValues = array_values($result);
         static::assertEquals('id1', $resultValues[0]['ident']);

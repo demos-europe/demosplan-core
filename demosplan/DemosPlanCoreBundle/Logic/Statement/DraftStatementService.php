@@ -2112,7 +2112,7 @@ class DraftStatementService extends CoreService
      */
     public function filterDraftStatementsBySelectedIds(
         array $draftStatementList,
-        ?array $selectedStatementsToExport
+        ?array $selectedStatementsToExport,
     ): array {
         if (null === $selectedStatementsToExport) {
             return $draftStatementList;
@@ -2120,7 +2120,7 @@ class DraftStatementService extends CoreService
 
         return array_filter(
             $draftStatementList,
-            fn(array $statementArray) => in_array(
+            fn (array $statementArray) => in_array(
                 $this->entityHelper->extractId($statementArray),
                 $selectedStatementsToExport
             )
