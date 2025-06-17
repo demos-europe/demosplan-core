@@ -5,11 +5,12 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
-- Allow filtering of institution tags in DpAddOrganizationList
+- Migrate to Tailwind CSS v4
 
 ## v4.3.0 (2025-06-13)
 - Add Versioning of custom fields of segments
 - Update Elasticsearch to version 8
+- Allow filtering of institution tags in DpAddOrganizationList
 - Export Original Statements as csv in the Statement List
 
 ## v4.1.0 (2025-05-21)
