@@ -82,8 +82,8 @@ class StatementExportController extends BaseController
         );
 
         $this->setResponseHeaders($response, '.csv');
-        return $response;
 
+        return $response;
     }
 
     #[DplanPermissions(
@@ -138,7 +138,7 @@ class StatementExportController extends BaseController
         string $extension,
     ): void {
         $filename = $this->translator->trans('statements.original').'-'.
-            Carbon::now('Europe/Berlin')->format('d-m-Y-H:i'). $extension;
+            Carbon::now('Europe/Berlin')->format('d-m-Y-H:i').$extension;
 
         $response->headers->set('Content-Disposition',
             $this->nameGenerator->generateDownloadFilename(
