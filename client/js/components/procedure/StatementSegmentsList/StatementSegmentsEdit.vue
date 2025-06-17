@@ -39,6 +39,7 @@
             class="inline-block break-words"
             style="width: 95%">
           <dp-edit-field
+            class="c-styled-html"
             :editable="isAssigneeEditable(segment)"
             label=""
             :label-grid-cols="0"
