@@ -313,7 +313,7 @@ export default {
         ...this.segment,
         attributes: {
           ...this.segment.attributes,
-          updatedAttributes
+          ...updatedAttributes
         },
         id: this.segment.id
       }
