@@ -62,7 +62,7 @@
                     {{ Object.values(customFields).find(field => field.id === customField.id)?.attributes?.name || '' }}:
                   </dt>
                   <dd>
-                    {{ customField.value ? customField.value : Translator.trans('not.assigned')}}
+                    {{ customField.value ? customField.value : Translator.trans('not.assigned') }}
                   </dd>
                 </div>
               </template>
@@ -385,9 +385,11 @@
           }"
           data-cy="segmentMap"
           @click.prevent="showMap">
-          <i
-            class="fa fa-map-marker"
-            aria-hidden="true" />
+          <dp-icon
+            class="mx-auto"
+            icon="map-pin"
+            :weight="hasPolygonFeatures() ? 'fill' : 'regular'"
+          />
         </button>
       </div>
     </div>
@@ -736,6 +738,19 @@ export default {
       this.activeId = id
     },
 
+    hasPolygonFeatures () {
+      const raw = this.segment.attributes.polygon
+
+      if (!raw || typeof raw !== 'string') {
+        return false
+      }
+
+      const parsedPolygon = JSON.parse(raw)
+      const features = parsedPolygon?.features
+
+      return Array.isArray(features) && features.length > 0
+    },
+
     initAssignableUsers () {
       const assignableUsersLoaded = Object.keys(this.assignableUserItems).length
 
@@ -847,12 +862,14 @@ export default {
         type: 'StatementSegment',
         attributes: {
           ...this.segment.attributes,
-          ...(hasCustomFields ? {
-            customFields: {
-              ...this.segment.attributes.customFields,
-              ...payload.data.attributes?.customFields
-            }
-          } : {})
+          ...(hasCustomFields
+            ? {
+                customFields: {
+                  ...this.segment.attributes.customFields,
+                  ...payload.data.attributes?.customFields
+                }
+              }
+            : {})
         },
         relationships: {
           ...this.segment.relationships,
