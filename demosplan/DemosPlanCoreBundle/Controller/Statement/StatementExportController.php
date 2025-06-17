@@ -81,15 +81,9 @@ class StatementExportController extends BaseController
             'text/csv; charset=utf-8'
         );
 
-        $filename = $this->translator->trans('statements.original').'-'.
-            Carbon::now('Europe/Berlin')->format('d-m-Y-H:i').'.csv';
-
-        $response->headers->set('Content-Disposition',
-            $this->nameGenerator->generateDownloadFilename(
-                $filename
-            ));
-
+        $this->setResponseHeaders($response, '.csv');
         return $response;
+
     }
 
     #[DplanPermissions(
@@ -134,18 +128,21 @@ class StatementExportController extends BaseController
                 $filename
             ));
 
+        $this->setResponseHeaders($response, '.docx');
+
         return $response;
     }
 
     private function setResponseHeaders(
         StreamedResponse $response,
-        string $filename,
+        string $extension,
     ): void {
-        $response->headers->set('Pragma', 'public');
-        $response->headers->set(
-            'Content-Type',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
-        );
-        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($filename));
+        $filename = $this->translator->trans('statements.original').'-'.
+            Carbon::now('Europe/Berlin')->format('d-m-Y-H:i'). $extension;
+
+        $response->headers->set('Content-Disposition',
+            $this->nameGenerator->generateDownloadFilename(
+                $filename
+            ));
     }
 }
