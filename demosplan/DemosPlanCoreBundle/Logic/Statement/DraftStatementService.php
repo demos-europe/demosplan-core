@@ -893,20 +893,12 @@ class DraftStatementService extends CoreService
 
         $filenameSuffix .= '.pdf';
 
-        $selectedStatementsToExport = null;
-        if (isset($itemsToExport) && is_string($itemsToExport)) {
-            $selectedStatementsToExport = explode(',', $itemsToExport);
-        }
-        if (isset($itemsToExport) && is_array($itemsToExport) && !empty($itemsToExport)) {
-            $selectedStatementsToExport = $itemsToExport;
-        }
-
-        $filteredStatementList = collect($draftStatementList)->filter(fn ($statement) => null === $selectedStatementsToExport || in_array($this->entityHelper->extractId($statement), $selectedStatementsToExport))->map(function (array $statement) use ($procedureId) {
-            $statement['documentlist'] = $this->paragraphService->getParaDocumentObjectList($procedureId, $statement['elementId']);
-            $statement = $this->checkMapScreenshotFile($statement, $procedureId);
-
-            return $statement;
-        })->all();
+        $selectedStatementsToExport = $this->parseItemsToExport($itemsToExport);
+        $filteredStatementList = $this->filterDraftStatementsBySelectedIds(
+            $draftStatementList,
+            $selectedStatementsToExport
+        );
+        $filteredStatementList = $this->addContentToStatementsArrayForPdfProcess($filteredStatementList, $procedureId);
 
         $firstOrganisationId = $filteredStatementList[0]['oId'] ?? '';
 
@@ -2092,6 +2084,62 @@ class DraftStatementService extends CoreService
                 'user'      => $this->currentUser->getUser()->getId(),
                 'procedure' => $procedureId,
             ]
+        );
+    }
+
+    /**
+     * Parses itemsToExport parameter into array of statement IDs.
+     * Returns null if no items specified (indicates all statements should be exported).
+     *
+     * @param string|array|null $itemsToExport Comma-separated string or array of statement IDs
+     *
+     * @return array<int, string>|null
+     */
+    public function parseItemsToExport($itemsToExport): ?array
+    {
+        if (is_string($itemsToExport)) {
+            return explode(',', $itemsToExport);
+        }
+        if (is_array($itemsToExport) && !empty($itemsToExport)) {
+            return $itemsToExport;
+        }
+
+        return null;
+    }
+
+    /**
+     * Filters statements by selected IDs. Returns all statements if no selection provided.
+     */
+    public function filterDraftStatementsBySelectedIds(
+        array $draftStatementList,
+        ?array $selectedStatementsToExport
+    ): array {
+        if (null === $selectedStatementsToExport) {
+            return $draftStatementList;
+        }
+
+        return array_filter(
+            $draftStatementList,
+            fn(array $statementArray) => in_array(
+                $this->entityHelper->extractId($statementArray),
+                $selectedStatementsToExport
+            )
+        );
+    }
+
+    /**
+     * Enriches statement arrays with documentlist and map screenshots for PDF processing.
+     */
+    public function addContentToStatementsArrayForPdfProcess(array $filteredStatementList, string $procedureId): array
+    {
+        return array_map(
+            function (array $statementArray) use ($procedureId) {
+                $statementArray['documentlist'] = $this->paragraphService
+                    ->getParaDocumentObjectList($procedureId, $statementArray['elementId']);
+
+                return $this->checkMapScreenshotFile($statementArray, $procedureId);
+            },
+            $filteredStatementList
         );
     }
 }

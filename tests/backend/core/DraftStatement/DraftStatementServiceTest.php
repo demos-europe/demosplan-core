@@ -67,6 +67,12 @@ class DraftStatementServiceTest extends FunctionalTestCase
      */
     private $otherUserName = 'ein ganz anderer';
 
+    private const DRAFT_STATEMENT_LIST_TO_TEST = [
+        ['ident' => 'id1', 'text' => 'statement 1'],
+        ['ident' => 'id2', 'text' => 'statement 2'],
+        ['ident' => 'id3', 'text' => 'statement 3'],
+    ];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -1576,5 +1582,49 @@ class DraftStatementServiceTest extends FunctionalTestCase
             'oName'     => $this->fixtures->getReference('testOrgaInvitableInstitution')->getName(),
             'elementId' => $this->fixtures->getReference('testElement1')->getId(),
         ];
+    }
+
+    public function testParseItemsToExportWithNull()
+    {
+        $result = $this->sut->parseItemsToExport(null);
+        static::assertNull($result);
+    }
+
+    public function testParseItemsToExportWithEmptyArray()
+    {
+        $result = $this->sut->parseItemsToExport([]);
+        static::assertNull($result);
+    }
+
+    public function testParseItemsToExportWithString()
+    {
+        $result = $this->sut->parseItemsToExport('id1,id2,id3');
+        static::assertIsArray($result);
+        static::assertEquals(['id1', 'id2', 'id3'], $result);
+    }
+
+    public function testParseItemsToExportWithArray()
+    {
+        $inputArray = ['id1', 'id2', 'id3'];
+        $result = $this->sut->parseItemsToExport($inputArray);
+        static::assertIsArray($result);
+        static::assertEquals($inputArray, $result);
+    }
+
+    public function testFilterDraftStatementsBySelectedIdsWithNull()
+    {
+        $result = $this->sut->filterDraftStatementsBySelectedIds(self::DRAFT_STATEMENT_LIST_TO_TEST, null);
+        static::assertEquals(self::DRAFT_STATEMENT_LIST_TO_TEST, $result);
+    }
+
+    public function testFilterDraftStatementsBySelectedIds()
+    {
+        $result = $this->sut->filterDraftStatementsBySelectedIds(self::DRAFT_STATEMENT_LIST_TO_TEST, ['id1', 'id3']);
+        static::assertCount(2, $result);
+        
+        // array_filter preserves keys, so we need to get values or use array_values
+        $resultValues = array_values($result);
+        static::assertEquals('id1', $resultValues[0]['ident']);
+        static::assertEquals('id3', $resultValues[1]['ident']);
     }
 }
