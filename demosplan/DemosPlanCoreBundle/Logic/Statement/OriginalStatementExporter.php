@@ -84,7 +84,7 @@ class OriginalStatementExporter extends SegmentsExporter
                 'style' => $this->styles['segmentsTableHeaderCellID'],
             ],
             [
-                'text'  => $tableHeaders['col2'] ?? $this->translator->trans('statements.export.statement.label'),
+                'text'  => $tableHeaders['col2'] ?? $this->translator->trans('statement'),
                 'style' => $this->styles['segmentsTableHeaderCell'],
             ],
         ];
