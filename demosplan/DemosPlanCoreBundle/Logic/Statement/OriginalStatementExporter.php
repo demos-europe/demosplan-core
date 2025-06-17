@@ -80,7 +80,7 @@ class OriginalStatementExporter extends SegmentsExporter
     {
         $headerConfigs = [
             [
-                'text'  => $tableHeaders['col1'] ?? $this->translator->trans('statements.export.statement.id'),
+                'text'  => $tableHeaders['col1'] ?? $this->translator->trans('statement.external_id'),
                 'style' => $this->styles['segmentsTableHeaderCellID'],
             ],
             [
