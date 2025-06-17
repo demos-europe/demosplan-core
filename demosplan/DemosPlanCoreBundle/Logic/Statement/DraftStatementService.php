@@ -893,9 +893,13 @@ class DraftStatementService extends CoreService
 
         $filenameSuffix .= '.pdf';
 
-        $selectedStatementsToExport = isset($itemsToExport)
-            ? explode(',', $itemsToExport)
-            : null;
+        $selectedStatementsToExport = null;
+        if (isset($itemsToExport) && is_string($itemsToExport)) {
+            $selectedStatementsToExport = explode(',', $itemsToExport);
+        }
+        if (isset($itemsToExport) && is_array($itemsToExport) && !empty($itemsToExport)) {
+            $selectedStatementsToExport = $itemsToExport;
+        }
 
         $filteredStatementList = collect($draftStatementList)->filter(fn ($statement) => null === $selectedStatementsToExport || in_array($this->entityHelper->extractId($statement), $selectedStatementsToExport))->map(function (array $statement) use ($procedureId) {
             $statement['documentlist'] = $this->paragraphService->getParaDocumentObjectList($procedureId, $statement['elementId']);
