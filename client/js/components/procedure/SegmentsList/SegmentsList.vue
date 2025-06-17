@@ -123,7 +123,7 @@
           :multi-page-selection-items-toggled="toggledItems.length"
           :should-be-selected-items="currentlySelectedItems"
           track-by="id"
-          @select-all="handleSelectAll"
+          @selectAll="handleSelectAll"
           @items-toggled="handleToggleItem">
           <template v-slot:externId="rowData">
             <v-popover trigger="hover focus">

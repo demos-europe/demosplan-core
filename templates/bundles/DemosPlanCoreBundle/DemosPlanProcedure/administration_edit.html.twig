@@ -293,8 +293,8 @@
                                         :options="authUsersOptions"
                                         selection-controls
                                         track-by="id"
-                                        @select-all="selectAllAuthUsers"
-                                        @unselect-all="unselectAllAuthUsers">
+                                        @selectAll="selectAllAuthUsers"
+                                        @deselectAll="unselectAllAuthUsers">
                                         <template v-slot:option="{ props }">
                                             {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                         </template>
@@ -384,6 +384,7 @@
                         name="infoForm"
                         {% if proceduresettings.infoComplete is defined %}data-wizard-finished="true"{% endif %}
                         data-wizard-topic="{{ 'wizard.topic.info'|trans }}"
+                        data-dp-validate-topic="{{ 'wizard.topic.info'|trans }}"
                         class="o-wizard"
                         data-dp-validate="infoForm">
 
