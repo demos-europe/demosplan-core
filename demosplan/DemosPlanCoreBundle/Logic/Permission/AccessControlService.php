@@ -38,8 +38,15 @@ class AccessControlService extends CoreService
     public function __construct(
         private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
-        private readonly OrgaService $orgaService
+        private readonly OrgaService $orgaService,
     ) {
+    }
+
+    public function createPermissions(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, array $roles)
+    {
+        foreach ($roles as $role) {
+            $this->createPermission($permissionName, $orga, $customer, $role);
+        }
     }
 
     public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): ?AccessControl
@@ -124,6 +131,13 @@ class AccessControlService extends CoreService
         $enabledPermissions = array_unique($enabledPermissions);
 
         return $enabledPermissions;
+    }
+
+    public function removePermissions(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, array $roles): void
+    {
+        foreach ($roles as $role) {
+            $this->removePermission($permissionName, $orga, $customer, $role);
+        }
     }
 
     public function removePermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): void
@@ -238,8 +252,8 @@ class AccessControlService extends CoreService
 
             // check whether role to grant the permission is allowed in the given orga type
             // to avoid e.g. granting planner permission to institution orga
-            if (array_key_exists($orgaTypeInCustomer, OrgaTypeInterface::ORGATYPE_ROLE) &&
-                !in_array($role->getCode(), OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeInCustomer],true)) {
+            if (array_key_exists($orgaTypeInCustomer, OrgaTypeInterface::ORGATYPE_ROLE)
+                && !in_array($role->getCode(), OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeInCustomer], true)) {
                 continue;
             }
 
