@@ -107,11 +107,13 @@ export default {
 
     buttonLabel () {
       let buttonLabel
+
       if (this.selectedFiles.length > 0 && this.selectedFiles.length !== this.allFiles.length) {
         buttonLabel = `Ausgewählte Dokumente herunterladen (Zip, ca. ${this.accumulatedFileSize(this.selectedFiles)})`
       } else {
         buttonLabel = `Alle Dokumente herunterladen (Zip, ca. ${this.accumulatedFileSize(this.allFiles)})`
       }
+
       return buttonLabel
     },
 
@@ -156,8 +158,7 @@ export default {
     },
 
     nodeSelectionChange (selectedNodes) {
-      const selectedSingleDocuments = selectedNodes.filter(el => el.nodeType === 'leaf')
-      this.selectedFiles = selectedSingleDocuments
+      this.selectedFiles = selectedNodes.filter(el => el.nodeType === 'leaf')
     },
 
     /*
@@ -175,24 +176,29 @@ export default {
      * See https://stackoverflow.com/questions/18017869/build-tree-array-from-flat-array-in-javascript
      */
     listToTree (list) {
+      const listCopy = JSON.parse(JSON.stringify(list))
       const map = {}
+      let nodeCopy
       let node
       let roots = []
       let index
 
       // Initialize map and children in list elements
-      for (index = 0; index < list.length; index += 1) {
-        map[list[index].id] = index
-        list[index].children = []
+      for (index = 0; index < listCopy.length; index += 1) {
+        map[listCopy[index].id] = index
+        listCopy[index].children = []
       }
 
-      for (index = 0; index < list.length; index += 1) {
+      for (index = 0; index < listCopy.length; index += 1) {
+        nodeCopy = listCopy[index]
         node = list[index]
-        const isTopLevel = node.attributes.parentId === null
+        const isTopLevel = nodeCopy.attributes.parentId === null
 
         // Make documents direct children of node, if there are any
-        if (node.hasRelationship('visibleDocuments')) {
-          node.children = [...node.children, ...Object.values(node.relationships.visibleDocuments.list())]
+        if (node.relationships.visibleDocuments && node.relationships.visibleDocuments.data.length > 0) {
+          nodeCopy.children = [
+            ...nodeCopy.children,
+            ...Object.values(node.relationships.visibleDocuments.list())]
         }
 
         // Push item to correct position in map
@@ -201,10 +207,10 @@ export default {
           const hasEnabledParent = typeof nodeParentIdx !== 'undefined'
 
           if (hasEnabledParent) {
-            list[nodeParentIdx].children.push(node)
+            listCopy[nodeParentIdx].children.push(nodeCopy)
           }
         } else {
-          roots.push(node)
+          roots.push(nodeCopy)
         }
       }
 

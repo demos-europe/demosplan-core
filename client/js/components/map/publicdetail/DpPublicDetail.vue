@@ -34,6 +34,7 @@ export default {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
       return DpVideoPlayer
     }),
+    ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList')),
     StatementModal
   },
 
