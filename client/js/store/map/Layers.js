@@ -218,8 +218,6 @@ const LayersStore = {
       const oldCategory = (data.oldCategoryId === null || data.oldCategoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.oldCategoryId)
       const newCategory = (data.newCategoryId === null || data.newCategoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.newCategoryId)
       const currentElement = state.apiData.included.find(el => el.id === data.movedElement.id)
-      const { parentIdKey, relationshipKey } = currentElement.type === 'GisLayerCategory' ? { parentIdKey: 'parentId', relationshipKey: 'categories' } : { parentIdKey: 'categoryId', relationshipKey: 'gisLayers' }
-      const isBaseLayer = currentElement.attributes.layerType === 'base'
 
       if (!oldCategory || !newCategory || !currentElement) {
         console.error('Invalid categories or current element, cannot update order')
@@ -227,6 +225,8 @@ const LayersStore = {
         return
       }
 
+      const { parentIdKey, relationshipKey } = currentElement.type === 'GisLayerCategory' ? { parentIdKey: 'parentId', relationshipKey: 'categories' } : { parentIdKey: 'categoryId', relationshipKey: 'gisLayers' }
+      const isBaseLayer = currentElement.attributes.layerType === 'base'
       // List all elements with the given categoryId
       const childElements = state.apiData.included
         .filter(el => {
@@ -638,6 +638,7 @@ const LayersStore = {
      */
     gisLayerList: state => type => {
       if (typeof state.apiData.included === 'undefined') return []
+
       return state.apiData.included.filter(current => {
         const putInList = (type) ? (type === current.attributes.layerType) : true
         return (current.type === 'GisLayer' && putInList)
