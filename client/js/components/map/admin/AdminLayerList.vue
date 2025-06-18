@@ -344,14 +344,16 @@ export default {
   },
 
   methods: {
-    ...mapActions('Layers', ['saveAll', 'get']),
+    ...mapActions('Layers', {
+      saveLayers: 'saveAll',
+      getLayers: 'get'
+    }),
 
     ...mapMutations('Layers', [
       'setAttributeForLayer',
       'setChildrenFromCategory',
       'resetOrder',
       'setDraggableOptions',
-      'setDraggableOptionsForCategorysWithHiddenLayers',
       'setDraggableOptionsForBaseLayer',
       'setMinimapBaseLayer'
     ]),
@@ -366,7 +368,7 @@ export default {
           oldIndex: ev.oldIndex
         },
         orderType: this.currentTab,
-        parentOrder: 0
+        parentOrder: this.parentOrderPosition
       })
 
       // If there is just one order (map) -then the treeorder should match the map-order
@@ -380,7 +382,7 @@ export default {
             oldIndex: ev.oldIndex
           },
           orderType: 'mapOrder',
-          parentOrder: 0
+          parentOrder: this.parentOrderPosition
         })
       }
     },
@@ -388,7 +390,7 @@ export default {
     saveOrder (redirect) {
       this.isEditable = false
 
-      this.saveAll()
+      this.saveLayers()
         .then(() => {
           this.isEditable = true
 
@@ -412,7 +414,7 @@ export default {
   },
 
   mounted () {
-    this.get(this.procedureId)
+    this.getLayers(this.procedureId)
       .then(() => {
         this.isLoading = false
         this.currentMinimapLayer = this.minimapLayer

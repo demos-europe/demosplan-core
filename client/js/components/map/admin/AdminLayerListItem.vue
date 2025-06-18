@@ -171,7 +171,7 @@
         :element="{ id: item.id, type: item.type }"
         :sorting-type="sortingType"
         :layer-type="layerType"
-        :parent-order-position="layer.attributes[sortingType]"
+        :parent-order-position="orderPosition"
         :index="idx" />
       <div
         v-if="childElements.length <= 0"
@@ -706,7 +706,7 @@ export default {
           newIndex: event.newIndex,
           oldIndex: event.oldIndex
         },
-        orderType: 'treeOrder',
+        orderType: this.sortingType,
         parentOrder: this.layer.attributes.treeOrder
       })
     },
