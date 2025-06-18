@@ -14,8 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use Symfony\Component\HttpFoundation\Request;
@@ -67,7 +67,7 @@ class PublicIndexProcedureLister
             $requestPost['oId'] = $user->getOrganisationId();
         }
 
-        if (!$user->isGuestOnly() && !$user->isPlanner()) {
+        if (!$user->isGuestOnly() && !$user->isPlanner() && !$user->hasRole(RoleInterface::PROCEDURE_DATA_INPUT)) {
             $requestPost['participationGuestOnly'] = false;
         }
 
@@ -134,8 +134,7 @@ class PublicIndexProcedureLister
 
         $procedures['externalPhases'] = $this->globalConfig->getExternalPhases('read||write', $includePreviewed);
         $procedures['internalPhases'] = $this->globalConfig->getInternalPhases('read||write', $includePreviewed);
-        $procedures['useInternalFields'] = $isLoggedIn && !$this->currentUser->getUser()->hasRole(
-            Role::CITIZEN);
+        $procedures['useInternalFields'] = $isLoggedIn && !$this->currentUser->getUser()->hasRole(RoleInterface::CITIZEN);
 
         // Wenn es Verfahren gibt, dann ersetze die Label der Phasen aus der Config
         $procedures['filterName'] = [

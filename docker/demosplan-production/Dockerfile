@@ -100,6 +100,8 @@ COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/paramet
 
 RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     ln -s /opt/config/parameters.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
+    touch /opt/config/.env.local && \
+    ln -s /opt/config/.env.local /srv/www/.env.local && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/uploads/files && \
     chmod -R 775 /srv/www/projects/$PROJECT_NAME/web/uploads && \
     mkdir -p /opt/uploads && \
