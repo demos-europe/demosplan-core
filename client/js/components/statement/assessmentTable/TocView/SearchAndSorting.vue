@@ -67,6 +67,10 @@ export default {
     SearchModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'))
   },
 
+  emits: [
+    'exportModal:toggle'
+  ],
+
   computed: {
     ...mapGetters('AssessmentTable', [
       'appliedFilters',
