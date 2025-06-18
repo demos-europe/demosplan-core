@@ -236,7 +236,8 @@ const LayersStore = {
             isInList++
           }
 
-          /* We want only Layer from the same kind as the current element in the List.
+          /*
+           * We want only Layer from the same kind as the current element in the List.
            * And Categories are always for the overlay layers
            * This is necessary because both base and overlay layers have the same root Category
            */
@@ -405,9 +406,9 @@ const LayersStore = {
         })
 
         // Add each layer to GetLegendGraphic request
-        for (let j = 0; j < layerParamSplit.length; j++) {
+        layerParamSplit.forEach(item => {
           if (layer.attributes.isEnabled) {
-            const legendUrl = legendUrlBase + 'Layer=' + layerParamSplit[j] + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
+            const legendUrl = legendUrlBase + 'Layer=' + item + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
             const legend = {
               layerId: layer.id,
               treeOrder: layer.attributes.treeOrder,
@@ -417,7 +418,7 @@ const LayersStore = {
             }
             commit('setLegend', legend)
           }
-        }
+        })
       }
     },
 
