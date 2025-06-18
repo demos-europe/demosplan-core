@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureDeletedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureSoftDeletedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -42,6 +43,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\NewProcedureAdditionalDataEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PostNewProcedureCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PostProcedureDeletedEvent;
+use demosplan\DemosPlanCoreBundle\Event\Procedure\PostProcedureSoftDeletedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\PostProcedureUpdatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\CriticalConcernException;
@@ -930,8 +932,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                     $this->updateProcedure($data);
                     $this->getLogger()->info('Procedure marked as deleted: '.\var_export($procedureId, true));
                     $this->eventDispatcher->dispatch(
-                        new PostProcedureDeletedEvent($procedureId),
-                        PostProcedureDeletedEventInterface::class
+                        new PostProcedureSoftDeletedEvent($procedureId),
+                        PostProcedureSoftDeletedEventInterface::class
                     );
                     ++$deletionCount;
                 } catch (Exception $e) {

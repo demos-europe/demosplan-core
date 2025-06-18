@@ -585,7 +585,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @ORM\Column(name="demos_pipes_pi_retries", type="integer", options={"default": 0}, nullable=false, options="comment: 'Number of retries for Demos Pipes PI to process this procedure.'})")
      */
-    private $demosPipesPiRetries;
+    private int $demosPipesPiRetries = 0;
 
     protected ?CustomFieldConfiguration $customFieldConfiguration = null;
 
@@ -610,7 +610,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->phase = new ProcedurePhase();
         $this->publicParticipationPhase = new ProcedurePhase();
         $this->customFieldConfiguration = null;
-        $this->demosPipesPiRetries = 0;
     }
 
     /**
