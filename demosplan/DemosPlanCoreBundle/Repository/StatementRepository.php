@@ -819,9 +819,6 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             $statement->setParagraph(null);
         }
 
-        if (array_key_exists('phase', $data)) {
-            $statement->setPhase($data['phase']);
-        }
         if (array_key_exists('pId', $data) && 36 === strlen((string) $data['pId'])) {
             $statement->setProcedure($em->getReference(Procedure::class, $data['pId']));
         }
@@ -993,6 +990,10 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
 
         if (array_key_exists('phase', $data)) {
             $statement->setPhase($data['phase']);
+        } else {
+            // Set default phase if not provided to prevent NOT NULL constraint violation
+            $procedure = $statement->getProcedure();
+            $statement->setPhase($procedure->getPhase());
         }
 
         if (array_key_exists('replied', $data)) {
