@@ -148,7 +148,7 @@ final class ImageLinkConverter
             return $this->fileService->ensureLocalFileFromHash($hash);
         } catch (Exception $e) {
             // Log the specific error to help debug file storage issues
-            $this->logger->debug('Failed to retrieve file from storage', [
+            $this->logger->error('Failed to retrieve file from storage', [
                 'hash'  => $hash,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
