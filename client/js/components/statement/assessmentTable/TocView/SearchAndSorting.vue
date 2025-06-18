@@ -18,7 +18,7 @@
       :current-user-id="currentUserId"
       :current-user-name="currentUserName"
       ref="editSelectedItemsMenu"
-      @exportModal:toggle="tab => $refs.exportModal.toggleModal(tab)">
+      @exportModal:toggle="tab => $emit('exportModal:toggle', tab)">
       <div class="flex items-center space-inline-m">
         <!-- Search field and advanced search button -->
         <search-modal
