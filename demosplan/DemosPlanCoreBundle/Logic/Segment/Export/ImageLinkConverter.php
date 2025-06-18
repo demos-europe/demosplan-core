@@ -39,7 +39,7 @@ final class ImageLinkConverter
     private int $imageCounter = 1;
 
     public function __construct(private readonly HtmlHelper $htmlHelper, private readonly FileService $fileService, private readonly EditorService $editorService,
-    private readonly LoggerInterface $logger)
+        private readonly LoggerInterface $logger)
     {
     }
 
@@ -149,10 +149,11 @@ final class ImageLinkConverter
         } catch (Exception $e) {
             // Log the specific error to help debug file storage issues
             $this->logger->debug('Failed to retrieve file from storage', [
-                'hash' => $hash,
+                'hash'  => $hash,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
+
             // The src attribute probably didn't contain a hash --> assume it is a valid path instead.
             return trim($hash);
         }
