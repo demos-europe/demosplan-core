@@ -11,13 +11,84 @@
   <div
     ref="contentArea"
     class="mt-2">
-    <div class="flex flex-col sm:flex-row sm:items-center gap-4 mt-1">
-      <dp-search-field
-        class="flex-shrink-0"
-        data-cy="institutionList:searchField"
-        input-width="u-1-of-1"
-        @reset="handleReset"
-        @search="val => handleSearch(val)" />
+
+    <dp-loading
+      v-if="isLoading"
+      class="mt-4" />
+
+    <template v-else>
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-1">
+        <dp-search-field
+          class="h-fit mt-1 col-span-1 sm:col-span-3"
+          data-cy="addOrganisationList:searchField"
+          input-width="u-1-of-1"
+          @reset="handleReset"
+          @search="handleSearch" />
+
+        <div class="sm:relative flex flex-col sm:flex-row flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-0 pl-0 sm:ml-2 sm:pl-[38px]">
+          <div class="sm:absolute sm:top-0 sm:left-0 mt-1">
+            <dp-flyout
+              align="left"
+              :aria-label="Translator.trans('filters.more')"
+              class="bg-surface-medium rounded pb-1 pt-[4px]"
+              data-cy="dpAddOrganisationList:filterCategories">
+              <template v-slot:trigger>
+                <span :title="Translator.trans('filters.more')">
+                  <dp-icon
+                    aria-hidden="true"
+                    class="inline"
+                    icon="faders" />
+                </span>
+              </template>
+              <!-- 'More filters' flyout -->
+              <div>
+                <button
+                  class="btn--blank o-link--default ml-auto"
+                  data-cy="dpAddOrganisationList:toggleAllFilterCategories"
+                  v-text="Translator.trans('toggle_all')"
+                  @click="filterManager.toggleAllCategories" />
+                <div v-if="!isLoading">
+                  <dp-checkbox
+                    v-for="category in allFilterCategories"
+                    :key="category.id"
+                    :id="`filterCategorySelect:${category.label}`"
+                    :checked="selectedFilterCategories.includes(category.label)"
+                    :data-cy="`dpAddOrganisationList:filterCategoriesSelect:${category.label}`"
+                    :disabled="filterCategoryHelpers.checkIfDisabled(appliedFilterQuery, category.id)"
+                    :label="{
+                      text: `${category.label} (${filterCategoryHelpers.getSelectedOptionsCount(appliedFilterQuery, category.id)})`
+                    }"
+                    @change="filterManager.handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
+                </div>
+              </div>
+            </dp-flyout>
+          </div>
+
+          <filter-flyout
+            v-for="category in filterCategoriesToBeDisplayed"
+            :key="`filter_${category.label}`"
+            ref="filterFlyout"
+            :category="{ id: category.id, label: category.label }"
+            class="inline-block"
+            :data-cy="`dpAddOrganisationList:${category.label}`"
+            :initial-query-ids="queryIds"
+            :member-of="category.memberOf"
+            :operator="category.comparisonOperator"
+            :path="category.rootPath"
+            @filterApply="(filtersToBeApplied) => filterManager.applyFilter(filtersToBeApplied, category.id)"
+            @filterOptions:request="(params) => filterManager.createFilterOptions({ ...params, categoryId: category.id})" />
+        </div>
+
+        <dp-button
+          class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
+          data-cy="dpAddOrganisationList:resetFilter"
+          :disabled="!isQueryApplied"
+          :text="Translator.trans('reset')"
+          variant="outline"
+          v-tooltip="Translator.trans('search.filter.reset')"
+          @click="filterManager.reset" />
+      </div>
+
       <dp-pager
         v-if="totalItems > itemsPerPageOptions[0]"
         :current-page="currentPage"
@@ -25,10 +96,11 @@
         :per-page="itemsPerPage"
         :total-items="totalItems"
         :total-pages="totalPages"
-        class="flex-shrink-0"
+        class="flex-shrink-0 mt-2"
         @page-change="page => getInstitutionsWithContacts(page)"
         @size-change="handleItemsPerPageChange" />
-    </div>
+    </template>
+
     <dp-data-table
       ref="dataTable"
       :header-fields="headerFields"
@@ -157,16 +229,38 @@
 </template>
 
 <script>
-import { dpApi, DpButton, DpDataTable, DpPager, DpSearchField } from '@demos-europe/demosplan-ui'
-import { mapActions, mapState } from 'vuex'
+import {
+  dpApi,
+  DpButton,
+  DpCheckbox,
+  DpDataTable,
+  DpFlyout,
+  DpIcon,
+  DpPager,
+  DpSearchField
+} from '@demos-europe/demosplan-ui'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { filterCategoriesStorage } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
+import { filterCategoryHelpers } from '@DpJs/lib/procedure/FilterFlyout/filterHelpers'
+import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
   name: 'DpAddOrganisationList',
 
+  setup () {
+    return {
+      filterCategoryHelpers
+    }
+  },
+
   components: {
     DpButton,
+    DpCheckbox,
     DpDataTable,
+    DpFlyout,
+    FilterFlyout,
+    DpIcon,
     DpPager,
     DpSearchField
   },
@@ -191,6 +285,16 @@ export default {
 
   data () {
     return {
+      appliedFilterQuery: {},
+      currentlySelectedFilterCategories: [],
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 25, 50, 100],
+        perPage: 50
+      },
+      filterManager: filterCategoryHelpers.createFilterManager(this),
+      initiallySelectedFilterCategories: [],
+      institutionTagCategoriesCopy: {},
       invitableToebFields: [
         'legalName',
         'participationFeedbackEmailAddress',
@@ -198,21 +302,26 @@ export default {
         ...(hasPermission('feature_institution_tag_read') ? ['assignedTags'] : [])
       ],
       isLoading: true,
+      itemsPerPage: 50,
+      itemsPerPageOptions: [10, 50, 100, 200],
       locationContactFields: ['street', 'postalcode', 'city'],
-      searchTerm: '',
       selectedItems: [],
-      defaultPagination: {
-        currentPage: 1,
-        limits: [10, 25, 50, 100],
-        perPage: 50
-      },
+      searchTerm: '',
       pagination: {}
     }
   },
 
   computed: {
+    ...mapGetters('FilterFlyout', {
+      filterQuery: 'getFilterQuery'
+    }),
+
     ...mapState('InstitutionLocationContact', {
       institutionLocationContactItems: 'items'
+    }),
+
+    ...mapState('InstitutionTagCategory', {
+      institutionTagCategories: 'items'
     }),
 
     ...mapState('InvitableToeb', {
@@ -222,6 +331,47 @@ export default {
     ...mapState('InstitutionTag', {
       institutionTagItems: 'items'
     }),
+
+    institutionTagCategoriesValues () {
+      return Object.values(this.institutionTagCategoriesCopy || {})
+        .sort((a, b) => new Date(a.attributes?.creationDate || 0) - new Date(b.attributes?.creationDate || 0))
+    },
+
+    allFilterCategories () {
+      return (this.institutionTagCategoriesValues || [])
+        .filter(category => category && category.id && category.attributes)
+        .map(category => {
+          const { id, attributes } = category
+          const groupKey = `${id}_group`
+
+          return {
+            id,
+            comparisonOperator: 'ARRAY_CONTAINS_VALUE',
+            label: attributes.name,
+            rootPath: 'assignedTags',
+            selected: false,
+            memberOf: groupKey
+          }
+        })
+    },
+
+    filterCategoriesToBeDisplayed () {
+      return (this.allFilterCategories || [])
+        .filter(filter =>
+          this.currentlySelectedFilterCategories.includes(filter.label))
+    },
+
+    selectedFilterCategories () {
+      return this.currentlySelectedFilterCategories
+    },
+
+    queryIds () {
+      if (Object.keys(this.appliedFilterQuery).length === 0) {
+        return []
+      }
+
+      return Object.values(this.appliedFilterQuery).map(el => el.condition.value)
+    },
 
     rowItems () {
       return Object.values(this.invitableToebItems).map(item => {
@@ -247,7 +397,17 @@ export default {
           assignedTags: institutionTags,
           hasNoEmail
         }
-      }) || []
+      }).filter(item => {
+          if (Object.keys(this.appliedFilterQuery).length === 0) return true
+
+          return Object.values(this.appliedFilterQuery).every(filterCondition => {
+            if (!filterCondition.condition) return true
+
+            const tagIds = item.assignedTags.map(tag => tag.id)
+
+            return tagIds.includes(filterCondition.condition.value)
+          })
+        }) || []
     },
 
     totalItems () {
@@ -282,8 +442,22 @@ export default {
   },
 
   methods: {
+    ...mapActions('FilterFlyout', [
+      'updateFilterQuery'
+    ]),
+
     ...mapActions('InvitableToeb', {
       getInstitutions: 'list'
+    }),
+
+    ...mapActions('InstitutionTagCategory', {
+      fetchInstitutionTagCategories: 'list'
+    }),
+
+    ...mapMutations('FilterFlyout', {
+      setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
+      setIsFilterFlyoutLoading: 'setIsLoading',
+      setUngroupedFilterOptions: 'setUngroupedOptions'
     }),
 
     addPublicInterestBodies (publicAgenciesIds) {
@@ -321,6 +495,20 @@ export default {
         .catch(() => {
           dplan.notify.error(Translator.trans('warning.invitable_institution.not.added'))
         })
+    },
+
+    applyFilterQuery (filter, categoryId) {
+      this.filterManager.applyFilter(filter, categoryId)
+    },
+
+    createFilterOptions (params) {
+      this.filterManager.createFilterOptions(params)
+    },
+
+    getInstitutionsByPage (page = 1, categoryId = null) {
+      if (categoryId) {
+        this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
+      }
     },
 
     getInstitutionsWithContacts (page = 1) {
@@ -404,8 +592,50 @@ export default {
         })
     },
 
+    getInstitutionTagCategories (isInitial = false) {
+      return this.fetchInstitutionTagCategories({
+        fields: {
+          InstitutionTagCategory: [
+            'creationDate',
+            'name',
+            'tags'
+          ].join(),
+          InstitutionTag: [
+            'creationDate',
+            'isUsed',
+            'name',
+            'category'
+          ].join()
+        },
+        include: [
+          'tags',
+          'tags.category'
+        ].join()
+      })
+        .then(() => {
+          // Copy the object to avoid issues with filter requests that update the categories in the store
+          this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
+
+          if (isInitial) {
+            this.setInitiallySelectedFilterCategories()
+            this.setCurrentlySelectedFilterCategories(this.initiallySelectedFilterCategories)
+          }
+
+          return this.institutionTagCategoriesCopy
+        })
+        .catch(err => {
+          console.error('Error loading tag categories:', err)
+
+          return {}
+        })
+    },
+
     getLocationContactById (id) {
       return this.institutionLocationContactItems[id]
+    },
+
+    handleChange (filterCategoryName, isSelected) {
+      this.filterManager.handleChange(filterCategoryName, isSelected)
     },
 
     hasAdress () {
@@ -435,6 +665,18 @@ export default {
       this.getInstitutionsWithContacts(page)
     },
 
+    isQueryApplied () {
+      const isFilterApplied = Object.keys(this.appliedFilterQuery).length > 0
+      const isSearchApplied = this.searchTerm !== ''
+
+      return isFilterApplied || isSearchApplied
+    },
+
+    resetQuery () {
+      this.searchTerm = ''
+      this.filterManager.reset()
+    },
+
     returnPermissionChecksValuesArray (permissionChecks) {
       return permissionChecks.reduce((acc, check) => {
         if (hasPermission(check.permission)) {
@@ -444,15 +686,58 @@ export default {
       }, [])
     },
 
+    setAppliedFilterQuery (filter) {
+      return this.filterManager.setAppliedFilterQuery(filter)
+    },
+
+    setAppliedFilterQueryFromStorage () {
+      return this.filterManager.setAppliedFilterQueryFromStorage()
+    },
+
+    setCurrentlySelectedFilterCategories (selectedCategories) {
+      this.currentlySelectedFilterCategories = selectedCategories
+    },
+
+    setFilterOptionsFromFilterQuery () {
+      this.filterManager.setFilterOptionsFromFilterQuery()
+    },
+
+    setFilterQueryFromStorage () {
+      return this.filterManager.setFilterQueryFromStorage()
+    },
+
     setSelectedItems (selectedItems) {
       this.selectedItems = selectedItems
+    },
+
+    setInitiallySelectedFilterCategories () {
+      const selectedFilterCategoriesInStorage = filterCategoriesStorage.get()
+
+      this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null
+        ? selectedFilterCategoriesInStorage
+        : this.institutionTagCategoriesValues.slice(0, 5).map(category => category.attributes.name)
+    },
+
+    toggleAllSelectedFilterCategories () {
+      this.filterManager.toggleAllCategories()
     }
   },
 
   mounted () {
     this.initPagination()
-    this.getInstitutionsWithContacts(this.pagination.currentPage)
-      .then(() => { this.isLoading = false })
+
+    this.filterManager.setAppliedFilterQueryFromStorage()
+    this.filterManager.setFilterQueryFromStorage()
+
+    const promises = [
+      this.getInstitutionsWithContacts(this.pagination.currentPage),
+      this.getInstitutionTagCategories(true)
+    ]
+
+    Promise.allSettled(promises)
+      .then(() => {
+        this.isLoading = false
+      })
   }
 }
 </script>

@@ -2,7 +2,7 @@
   <div class="h-full w-full">
     <dp-button
       id="statementModalButton"
-      :class="prefixClass('left-[365px] top-[24px] pt-[11px] pb-[11px] pl-[20px] pr-[20px] absolute z-above-zero')"
+      :class="prefixClass('left-[365px] top-[24px] pt-[11px] pb-[11px] pl-[20px] pr-[20px] !absolute z-above-zero')"
       data-cy="statementModal"
       rounded
       :text="Translator.trans('statement.participate')"
@@ -15,7 +15,7 @@
 
 <script setup>
 import { DpButton, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import { MapPlugin } from '@init/diplan-karten'
+import { MapPlugin, registerWebComponent } from '@init/diplan-karten'
 import { getCurrentInstance } from 'vue'
 
 const instance = getCurrentInstance()
@@ -41,7 +41,18 @@ const openStatementModalOrLoginPage= (event) => {
   toggleStatementModal({})
 }
 
+const props = defineProps({
+  styleNonce: {
+    type: String,
+    required: true,
+  }
+})
+
 const toggleStatementModal = (updateStatementPayload) => {
   instance.parent.refs.statementModal.toggleModal(true, updateStatementPayload)
 }
+
+registerWebComponent({
+  nonce: props.styleNonce,
+})
 </script>

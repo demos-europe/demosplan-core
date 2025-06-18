@@ -134,6 +134,7 @@ import {
   DpTextArea,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
+import { mapState } from 'vuex'
 export default {
   name: 'StatementEntry',
 
@@ -178,6 +179,10 @@ export default {
   },
 
   computed: {
+    ...mapState('Statement', {
+      statements: 'items'
+    }),
+
     availableProcedurePhases () {
       const phases = this.statement.attributes?.availableProcedurePhases || []
 
@@ -227,7 +232,26 @@ export default {
       if (this.localStatement.attributes.authorName !== this.statement.attributes.authorName) {
         this.syncAuthorAndSubmitter()
       }
-      this.$emit('save', this.localStatement)
+
+      // Get current statement from store (includes any relationship changes from other components)
+      const currentStatement = this.statements[this.statement.id]
+
+      const updatedStatement = {
+        ...currentStatement,
+        attributes: {
+          ...currentStatement.attributes,
+          authoredDate: this.localStatement.attributes.authoredDate,
+          submitDate: this.localStatement.attributes.submitDate,
+          submitType: this.localStatement.attributes.submitType,
+          internId: this.localStatement.attributes.internId,
+          procedurePhase: this.localStatement.attributes.procedurePhase,
+          memo: this.localStatement.attributes.memo,
+          authorName: this.localStatement.attributes.authorName,
+          submitName: this.localStatement.attributes.submitName
+        }
+      }
+
+      this.$emit('save', updatedStatement)
     },
 
     setDate (val, field) {

@@ -20,9 +20,8 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentExporterFileNameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
@@ -62,9 +61,9 @@ class SegmentsExportController extends BaseController
         methods: 'GET'
     )]
     public function exportAction(
-        SegmentsExporter $exporter,
+        SegmentsByStatementsExporter $segmentsExporter,
         StatementHandler $statementHandler,
-        SegmentExporterFileNameGenerator $fileNameGenerator,
+        FileNameGenerator $fileNameGenerator,
         string $procedureId,
         string $statementId,
     ): StreamedResponse {
@@ -78,8 +77,8 @@ class SegmentsExportController extends BaseController
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
 
         $response = new StreamedResponse(
-            static function () use ($procedure, $statement, $exporter, $tableHeaders, $censorCitizenData, $censorInstitutionData, $isObscure) {
-                $exportedDoc = $exporter->export(
+            static function () use ($procedure, $statement, $segmentsExporter, $tableHeaders, $censorCitizenData, $censorInstitutionData, $isObscure) {
+                $exportedDoc = $segmentsExporter->export(
                     $procedure,
                     $statement,
                     $tableHeaders,

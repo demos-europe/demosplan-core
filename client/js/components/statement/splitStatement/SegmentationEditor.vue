@@ -14,7 +14,10 @@
     @focusout="$emit('focusout')"
     @mouseleave="$emit('mouseleave')"
     @mouseover="event => $emit('mouseover', event)">
-    <div id="editor" />
+    <div
+      id="editor"
+      class="c-styled-html"
+    />
   </div>
 </template>
 
