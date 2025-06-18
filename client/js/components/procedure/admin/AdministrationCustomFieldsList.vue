@@ -285,7 +285,7 @@ export default {
     },
 
     hideOptions (rowData) {
-     delete this.expandedFields[rowData.id]
+      delete this.expandedFields[rowData.id]
     },
 
     removeOptionInput (index) {
@@ -357,7 +357,7 @@ export default {
     },
 
     showOptions (rowData) {
-    this.expandedFields[rowData.id] = true
+      this.expandedFields[rowData.id] = true
     },
 
     /**
