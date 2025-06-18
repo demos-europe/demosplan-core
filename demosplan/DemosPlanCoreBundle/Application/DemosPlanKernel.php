@@ -81,7 +81,7 @@ class DemosPlanKernel extends Kernel
         bool $debug,
     ) {
         parent::__construct($environment, $debug);
-
+        date_default_timezone_set('Europe/Berlin');
         DemosPlanPath::setProjectPathFromConfig("projects/{$activeProject}");
     }
 
