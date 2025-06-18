@@ -581,8 +581,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     private $segmentPlaces;
 
     /**
-     * @var int
-     *
      * @ORM\Column(name="demos_pipes_pi_retries", type="integer", options={"default": 0}, nullable=false, options="comment: 'Number of retries for Demos Pipes PI to process this procedure.'})")
      */
     private int $demosPipesPiRetries = 0;
