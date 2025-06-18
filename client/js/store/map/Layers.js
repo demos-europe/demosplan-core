@@ -247,6 +247,19 @@ const LayersStore = {
 
           return isInList > 1
         })
+        .map(el => {
+          /*
+           * In some cases the orderType holds the pure Index without the parentOrder.
+           * To align it with the other elements, we have to calculate the order number
+           * This is probably a migration issue, where the orderNumber was handled differently before
+           */
+          const orderNumber = el.attributes[data.orderType] < data.parentOrder * 100
+            ? data.parentOrder * 100 + el.attributes[data.orderType]
+            : el.attributes[data.orderType]
+
+          console.log('map orderNuber', orderNumber, 'for element', el.attributes.name)
+          return { ...el, attributes: { ...el.attributes, [data.orderType]: orderNumber } }
+        })
         .sort((a, b) => a.attributes[data.orderType] - b.attributes[data.orderType])
 
       // If Element is not in the list, we have to remove it from the old parent ...
@@ -262,8 +275,10 @@ const LayersStore = {
       }
 
       // Set new order positions for all child elements
+      let index = null
       childElements.forEach((el, idx) => {
-        el.attributes[data.orderType] = (data.parentOrder * 100) + idx + 1
+        index = state.apiData.included.findIndex(elem => elem.id === el.id)
+        state.apiData.included[index].attributes[data.orderType] = (data.parentOrder * 100) + idx + 1
       })
     },
 
