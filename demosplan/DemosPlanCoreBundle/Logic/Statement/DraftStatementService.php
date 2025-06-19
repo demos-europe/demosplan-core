@@ -55,7 +55,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\NonUniqueResultException;
-use Illuminate\Support\Collection as IlluminateCollection;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
@@ -67,6 +66,7 @@ use Elastica\Query\BoolQuery;
 use Elastica\Query\MatchQuery;
 use Elastica\Query\Terms;
 use Exception;
+use Illuminate\Support\Collection as IlluminateCollection;
 use League\Flysystem\FilesystemOperator;
 use ReflectionException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -2094,8 +2094,6 @@ class DraftStatementService extends CoreService
      * Returns null if no items specified (indicates all statements should be exported).
      *
      * @param string|array|null $itemsToExport Comma-separated string or array of statement IDs
-     *
-     * @return IlluminateCollection|null
      */
     public function parseItemsToExport($itemsToExport): ?IlluminateCollection
     {
