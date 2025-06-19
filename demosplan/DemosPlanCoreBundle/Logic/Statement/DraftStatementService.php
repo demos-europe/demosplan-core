@@ -55,6 +55,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\NonUniqueResultException;
+use Illuminate\Support\Collection as IlluminateCollection;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
@@ -899,6 +900,7 @@ class DraftStatementService extends CoreService
             $selectedStatementsToExport
         );
         $filteredStatementList = $this->addContentToStatementsArrayForPdfProcess($filteredStatementList, $procedureId);
+        $filteredStatementList = $filteredStatementList->all();
 
         $firstOrganisationId = $filteredStatementList[0]['oId'] ?? '';
 
@@ -2088,20 +2090,20 @@ class DraftStatementService extends CoreService
     }
 
     /**
-     * Parses itemsToExport parameter into array of statement IDs.
+     * Parses itemsToExport parameter into Collection of statement IDs.
      * Returns null if no items specified (indicates all statements should be exported).
      *
      * @param string|array|null $itemsToExport Comma-separated string or array of statement IDs
      *
-     * @return array<int, string>|null
+     * @return IlluminateCollection|null
      */
-    public function parseItemsToExport($itemsToExport): ?array
+    public function parseItemsToExport($itemsToExport): ?IlluminateCollection
     {
         if (is_string($itemsToExport)) {
-            return explode(',', $itemsToExport);
+            return collect(explode(',', $itemsToExport));
         }
         if (is_array($itemsToExport) && !empty($itemsToExport)) {
-            return $itemsToExport;
+            return collect($itemsToExport);
         }
 
         return null;
@@ -2112,17 +2114,15 @@ class DraftStatementService extends CoreService
      */
     public function filterDraftStatementsBySelectedIds(
         array $draftStatementList,
-        ?array $selectedStatementsToExport,
-    ): array {
+        ?IlluminateCollection $selectedStatementsToExport,
+    ): IlluminateCollection {
         if (null === $selectedStatementsToExport) {
-            return $draftStatementList;
+            return collect($draftStatementList);
         }
 
-        return array_filter(
-            $draftStatementList,
-            fn (array $statementArray) => in_array(
-                $this->entityHelper->extractId($statementArray),
-                $selectedStatementsToExport
+        return collect($draftStatementList)->filter(
+            fn (array $statementArray) => $selectedStatementsToExport->contains(
+                $this->entityHelper->extractId($statementArray)
             )
         );
     }
@@ -2130,16 +2130,15 @@ class DraftStatementService extends CoreService
     /**
      * Enriches statement arrays with documentlist and map screenshots for PDF processing.
      */
-    public function addContentToStatementsArrayForPdfProcess(array $filteredStatementList, string $procedureId): array
+    public function addContentToStatementsArrayForPdfProcess(IlluminateCollection $filteredStatementList, string $procedureId): IlluminateCollection
     {
-        return array_map(
+        return $filteredStatementList->map(
             function (array $statementArray) use ($procedureId) {
                 $statementArray['documentlist'] = $this->paragraphService
                     ->getParaDocumentObjectList($procedureId, $statementArray['elementId']);
 
                 return $this->checkMapScreenshotFile($statementArray, $procedureId);
-            },
-            $filteredStatementList
+            }
         );
     }
 }
