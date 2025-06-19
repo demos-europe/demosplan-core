@@ -32,13 +32,14 @@
         {% endif %}
 
         {% set filters = [] %}
-        {% for filter in templateVars.definition.interfaceFilters|default([])|filter(filter => hasPermission(filter.permission)) %}
-            {% set options = [] %}
-            {% for filterOption in filter.values|default([]) %}
-                {% set options = options|merge([{ label: filterOption.label, value: filterOption.value }]) %}
-            {% endfor %}
-            {% set filters = filters|merge([{ title: filter.titleKey|trans, name: filter.name, options: options, contextHelp: filter.contextHelpKey|trans }]) %}
-        {% endfor %}
+{#        {% set interfaceFilters = templateVars.definition.interfaceFilters ?? []  %}#}
+{#        {% for filter in interfaceFilters|filter(filter => hasPermission(filter.permission)) %}#}
+{#            {% set options = [] %}#}
+{#            {% for filterOption in filter.values|default([]) %}#}
+{#                {% set options = options|merge([{ label: filterOption.label, value: filterOption.value }]) %}#}
+{#            {% endfor %}#}
+{#            {% set filters = filters|merge([{ title: filter.titleKey|trans, name: filter.name, options: options, contextHelp: filter.contextHelpKey|trans }]) %}#}
+{#        {% endfor %}#}
 
         {% if hasPermission('feature_procedures_show_municipal_filter') %}
             {% set kreise = { label: 'Kreise', options: [

@@ -213,10 +213,23 @@ const LayersStore = {
         return
       }
 
+      // From some legacy states, the oldCategoryId and newCategoryId can be 'noIdGiven'
+      if (data.oldCategoryId === 'noIdGiven') {
+        data.oldCategoryId = null
+      }
+
+      if (data.newCategoryId === 'noIdGiven') {
+        data.newCategoryId = null
+      }
+
       const rootEl = state.apiData.data[0]
       // Get the old and new categories
-      const oldCategory = (data.oldCategoryId === null || data.oldCategoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.oldCategoryId)
-      const newCategory = (data.newCategoryId === null || data.newCategoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.newCategoryId)
+      const oldCategory = (data.oldCategoryId === null || data.oldCategoryId === rootEl.id)
+        ? rootEl
+        : state.apiData.included.find(elem => elem.id === data.oldCategoryId)
+      const newCategory = (data.newCategoryId === null || data.newCategoryId === rootEl.id)
+        ? rootEl
+        : state.apiData.included.find(elem => elem.id === data.newCategoryId)
       const currentElement = state.apiData.included.find(el => el.id === data.movedElement.id)
 
       if (!oldCategory || !newCategory || !currentElement) {
@@ -225,7 +238,9 @@ const LayersStore = {
         return
       }
 
-      const { parentIdKey, relationshipKey } = currentElement.type === 'GisLayerCategory' ? { parentIdKey: 'parentId', relationshipKey: 'categories' } : { parentIdKey: 'categoryId', relationshipKey: 'gisLayers' }
+      const { parentIdKey, relationshipKey } = currentElement.type === 'GisLayerCategory'
+        ? { parentIdKey: 'parentId', relationshipKey: 'categories' }
+        : { parentIdKey: 'categoryId', relationshipKey: 'gisLayers' }
       const isBaseLayer = currentElement.attributes.layerType === 'base'
       // List all elements with the given categoryId
       const childElements = state.apiData.included
@@ -275,10 +290,10 @@ const LayersStore = {
       }
 
       // Set new order positions for all child elements
-      let index = null
+      let layerIndex = null
       childElements.forEach((el, idx) => {
-        index = state.apiData.included.findIndex(elem => elem.id === el.id)
-        state.apiData.included[index].attributes[data.orderType] = (data.parentOrder * 100) + idx + 1
+        layerIndex = state.apiData.included.findIndex(elem => elem.id === el.id)
+        state.apiData.included[layerIndex].attributes[data.orderType] = (data.parentOrder * 100) + idx + 1
       })
     },
 
@@ -288,7 +303,7 @@ const LayersStore = {
      * @returns {void}
      */
     resetOrder (state) {
-    // We have to clone the original state because otherwise after the first reset the reactivity will bound these two objects and will cause changing of originalApiData anytime state.apiData changes
+      // We have to clone the original state because otherwise after the first reset the reactivity will bound these two objects and will cause changing of originalApiData anytime state.apiData changes
       state.apiData = JSON.parse(JSON.stringify(state.originalApiData))
       state.apiData.included.sort((a, b) => ('' + a.attributes.mapOrder).padEnd(21, 0) - ('' + b.attributes.mapOrder).padEnd(21, 0))
     },
@@ -655,10 +670,11 @@ const LayersStore = {
     gisLayerList: state => type => {
       if (typeof state.apiData.included === 'undefined') return []
 
-      return state.apiData.included.filter(current => {
-        const putInList = (type) ? (type === current.attributes.layerType) : true
-        return (current.type === 'GisLayer' && putInList)
-      }).sort((a, b) => (a.attributes.mapOrder).toString().padEnd(21, '0') - (b.attributes.mapOrder).toString().padEnd(21, '0'))
+      return state.apiData.included
+        .filter(current => type === current.attributes.layerType)
+        .sort((a, b) => {
+          return (a.attributes.mapOrder).toString().padEnd(21, '0') - (b.attributes.mapOrder).toString().padEnd(21, '0')
+        })
     },
 
     /**

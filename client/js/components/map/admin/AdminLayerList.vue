@@ -375,13 +375,13 @@ export default {
       if (this.currentTab === 'mapOrder' && !this.canHaveCategories) {
         this.setChildrenFromCategory({
           newCategoryId: ev.to.id,
-          categoryId: ev.from.id,
+          oldCategoryId: ev.from.id,
           movedElement: {
             id: ev.item.id,
             newIndex: ev.newIndex,
             oldIndex: ev.oldIndex
           },
-          orderType: 'mapOrder',
+          orderType: 'treeOrder',
           parentOrder: this.parentOrderPosition
         })
       }
