@@ -394,6 +394,7 @@
                     {% if hasPermission('feature_diplan_karte') or hasDiplanKarte %}
                         {# diplan-karte #}
                         <diplan-karte-wrapper
+                            login-path="{{ getLoginPath() }}"
                             style-nonce="{{ csp_nonce('style') }}"
                         />
                     {% else %}
