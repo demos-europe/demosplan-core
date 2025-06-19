@@ -215,7 +215,7 @@ export default {
   },
 
   mounted () {
-    this.$root.$on('save-success', () => {
+    this.$root.$on('entity:updated', () => {
       this.loading = false
       this.editingEnabled = false
     })
