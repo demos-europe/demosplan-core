@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
 use Exception;
+use Illuminate\Support\Collection as IlluminateCollection;
 use Tests\Base\FunctionalTestCase;
 
 class DraftStatementServiceTest extends FunctionalTestCase
@@ -1599,31 +1600,34 @@ class DraftStatementServiceTest extends FunctionalTestCase
     public function testParseItemsToExportWithString()
     {
         $result = $this->sut->parseItemsToExport('id1,id2,id3');
-        static::assertIsArray($result);
-        static::assertEquals(['id1', 'id2', 'id3'], $result);
+        static::assertInstanceOf(IlluminateCollection::class, $result);
+        static::assertEquals(['id1', 'id2', 'id3'], $result->toArray());
     }
 
     public function testParseItemsToExportWithArray()
     {
         $inputArray = ['id1', 'id2', 'id3'];
         $result = $this->sut->parseItemsToExport($inputArray);
-        static::assertIsArray($result);
-        static::assertEquals($inputArray, $result);
+        static::assertInstanceOf(IlluminateCollection::class, $result);
+        static::assertEquals($inputArray, $result->toArray());
     }
 
     public function testFilterDraftStatementsBySelectedIdsWithNull()
     {
         $result = $this->sut->filterDraftStatementsBySelectedIds(self::DRAFT_STATEMENT_LIST_TO_TEST, null);
-        static::assertEquals(self::DRAFT_STATEMENT_LIST_TO_TEST, $result);
+        static::assertInstanceOf(IlluminateCollection::class, $result);
+        static::assertEquals(self::DRAFT_STATEMENT_LIST_TO_TEST, $result->toArray());
     }
 
     public function testFilterDraftStatementsBySelectedIds()
     {
-        $result = $this->sut->filterDraftStatementsBySelectedIds(self::DRAFT_STATEMENT_LIST_TO_TEST, ['id1', 'id3']);
+        $selectedIds = collect(['id1', 'id3']);
+        $result = $this->sut->filterDraftStatementsBySelectedIds(self::DRAFT_STATEMENT_LIST_TO_TEST, $selectedIds);
+        static::assertInstanceOf(IlluminateCollection::class, $result);
         static::assertCount(2, $result);
 
-        // array_filter preserves keys, so we need to get values or use array_values
-        $resultValues = array_values($result);
+        // Collection values() resets keys, similar to array_values
+        $resultValues = $result->values();
         static::assertEquals('id1', $resultValues[0]['ident']);
         static::assertEquals('id3', $resultValues[1]['ident']);
     }
