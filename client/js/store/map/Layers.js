@@ -289,8 +289,10 @@ const LayersStore = {
 
     saveAll ({ state, dispatch }) {
       /* Save each GIS layer and GIS layer category with its relationships */
+      const allRequests = []
+
       state.apiData.included.forEach(el => {
-        dispatch('save', el)
+        allRequests.push(dispatch('save', el))
       })
     },
 
@@ -444,6 +446,8 @@ const LayersStore = {
       return state.apiData.included.filter(current => {
         return current.attributes[attribute.type] === attribute.value
       })
+
+      return Promise.all(allRequests)
     },
 
     /**
