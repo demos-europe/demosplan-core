@@ -26,7 +26,6 @@ const LayersStore = {
     procedureId: '',
     layerStates: {},
     visibilityGroups: {},
-    visibleVisibilityGroups: [],
     draggableOptions: {},
     draggableOptionsForBaseLayer: {},
     isMapLoaded: false
@@ -284,7 +283,7 @@ const LayersStore = {
         newCategory.relationships[relationshipKey].data.splice(data.movedElement.newIndex, 0, ({ id: currentElement.id, type: currentElement.type }))
         // ... And set the new parentId or categoryId for the current element
         currentElement.attributes[parentIdKey] = newCategory.id
-        // ... Otherwise we have to move it
+        // ... otherwise we have to move it
       } else if (childElements.find(el => el.id === data.movedElement.id) !== undefined) {
         childElements.splice(data.movedElement.newIndex, 0, childElements.splice(data.movedElement.oldIndex, 1)[0])
       }
@@ -581,57 +580,6 @@ const LayersStore = {
             relationshipType: element.relationshipType
           })
         })
-    },
-
-    /**
-     * Recursively finds the topmost parent category for a given layer
-     *
-     * @param {Object} payload - Payload object
-     * @param {Object} payload.layer - Layer object to find parent for
-     *
-     * @returns {string} Root category ID
-     */
-    findMostParentCategory ({ dispatch, state }, { layer }) {
-      const rootId = state.apiData[0].id
-      const parentId = layer.attributes.categoryId
-
-      if (parentId === rootId) {
-        return parentId
-      } else {
-        const parent = state.apiData.included.find(el => el.id === parentId)
-
-        if (!parent) {
-          console.error('Parent category not found for layer:', layer.id)
-          return rootId
-        }
-
-        return dispatch('findMostParentCategory', parent)
-      }
-    },
-
-    /**
-     * Recursively toggles visibility of a category and all its children
-     *
-     * @param {Object} payload - Payload object
-     * @param {string} payload.id - Category ID
-     * @param {boolean} payload.value - Visibility value
-     *
-     * @returns {void}
-     */
-    toggleCategoryAndItsChildren ({ dispatch, commit, state }, { id, value }) {
-      const category = state.apiData.included.find(el => el.id === id)
-
-      commit('setLayerState', { id: category.id, key: 'isVisible', value })
-
-      if (category.type === 'GisLayerCategory') {
-        category.relationships?.categories?.data.forEach(cat => {
-          dispatch('toggleCategoryAndItsChildren', { id: cat.id, value })
-        })
-
-        category.relationships?.gisLayers?.data.forEach(layer => {
-          dispatch('toggleCategoryAndItsChildren', { id: layer.id, value })
-        })
-      }
     }
   },
 
@@ -702,17 +650,6 @@ const LayersStore = {
      */
     isLayerVisible: state => layerId => {
       return state.layerStates[layerId]?.isVisible || false
-    },
-
-    /**
-     * Gets the visibility state of a visibility group
-     *
-     * @param {string} visibilityGroupId - Visibility group ID
-     *
-     * @returns {boolean} Visibility group state
-     */
-    isVisibilityGroupVisible: state => visibilityGroupId => {
-      return state.visibleVisibilityGroups.includes(visibilityGroupId)
     },
 
     /**
