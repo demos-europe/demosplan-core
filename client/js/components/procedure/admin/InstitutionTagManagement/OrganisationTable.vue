@@ -14,7 +14,9 @@ All rights reserved
 
     <client-side-tag-filter
       :filter-categories="allFilterCategories"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+      :raw-items="rowItems"
+      @items-filtered="filteredItems = $event" />
 
     <dp-loading
       v-if="isLoading"
@@ -114,7 +116,7 @@ All rights reserved
       :header-fields="headerFields"
       is-expandable
       is-selectable
-      :items="rowItems"
+      :items="filteredItems || rowItems"
       lock-checkbox-by="hasNoEmail"
       track-by="id"
       :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
@@ -286,6 +288,7 @@ export default {
         limits: [10, 25, 50, 100],
         perPage: 50
       },
+      filteredItems: null,
       filterManager: filterCategoryHelpers.createFilterManager(this),
       initiallySelectedFilterCategories: [],
       institutionTagCategoriesCopy: {},
