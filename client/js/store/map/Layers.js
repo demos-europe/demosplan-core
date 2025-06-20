@@ -462,6 +462,8 @@ const LayersStore = {
       state.apiData.included.forEach(el => {
         allRequests.push(dispatch('save', el))
       })
+
+      return Promise.all(allRequests)
     },
 
     /**
@@ -640,8 +642,6 @@ const LayersStore = {
       return state.apiData.included.filter(current => {
         return current.attributes[attribute.type] === attribute.value
       })
-
-      return Promise.all(allRequests)
     },
 
     /**
