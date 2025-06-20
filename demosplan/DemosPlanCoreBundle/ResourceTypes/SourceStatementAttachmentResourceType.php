@@ -84,7 +84,7 @@ final class SourceStatementAttachmentResourceType extends DplanResourceType
         $properties = [
             $this->createIdentifier()->readable()->sortable()->filterable(),
             $this->createAttribute($this->attachmentType)
-                ->setReadableByCallable(fn (StatementAttachment $attachment): string => StatementAttachmentInterface::SOURCE_STATEMENT)
+                ->setReadableByCallable(fn (StatementAttachment $attachment): string => StatementAttachmentInterface::SOURCE_STATEMENT),
         ];
 
         if ($this->currentUser->hasPermission('feature_read_source_statement_via_api')) {
