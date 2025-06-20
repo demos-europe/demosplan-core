@@ -480,8 +480,8 @@ export default {
         'paragraph',
         'document',
         'assignee',
-        'attachments',
-        'attachments.file',
+        'sourceAttachment',
+        'sourceAttachment.file',
         'files'
       ]
 
@@ -539,7 +539,7 @@ export default {
               ...statementFields,
               'anonymous',
               'assignee',
-              'attachments',
+              'sourceAttachment',
               'authoredDate',
               'authorName',
               'document',
