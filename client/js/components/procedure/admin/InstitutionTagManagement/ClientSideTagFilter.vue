@@ -73,7 +73,7 @@ All rights reserved
 </template>
 
 <script>
-import { DpButton, DpCheckbox, DpFlyout } from '@demos-europe/demosplan-ui'
+import { DpButton, DpCheckbox, DpIcon, DpFlyout } from '@demos-europe/demosplan-ui'
 import { filterCategoryHelpers } from '@DpJs/lib/procedure/FilterFlyout/filterHelpers'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout.vue'
 
@@ -83,6 +83,7 @@ export default {
   components: {
     DpButton,
     DpCheckbox,
+    DpIcon,
     DpFlyout,
     FilterFlyout
   },
