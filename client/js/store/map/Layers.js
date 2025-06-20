@@ -271,7 +271,6 @@ const LayersStore = {
             ? data.parentOrder * 100 + el.attributes[data.orderType]
             : el.attributes[data.orderType]
 
-          console.log('map orderNuber', orderNumber, 'for element', el.attributes.name)
           return { ...el, attributes: { ...el.attributes, [data.orderType]: orderNumber } }
         })
         .sort((a, b) => a.attributes[data.orderType] - b.attributes[data.orderType])
