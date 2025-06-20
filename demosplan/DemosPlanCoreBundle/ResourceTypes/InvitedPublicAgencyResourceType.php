@@ -181,7 +181,7 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
                 $procedure->getPhase()
             );
 
-            $hasValidResultFormat = is_array($invitationEmailList['result']) && 0 < count($invitationEmailList['result']);
+            $hasValidResultFormat = is_array($invitationEmailList['result']);
             Assert::true($hasValidResultFormat);
         } catch (Exception $e) {
             $this->logger->error(
