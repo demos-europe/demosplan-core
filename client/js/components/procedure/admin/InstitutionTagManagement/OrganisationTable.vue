@@ -11,9 +11,15 @@ All rights reserved
   <div
     ref="contentArea"
     class="mt-2">
+
+    <client-side-tag-filter
+      :filter-categories="allFilterCategories"
+      :procedure-id="procedureId" />
+
     <dp-loading
       v-if="isLoading"
       class="mt-4" />
+
 
     <template v-else>
       <div class="grid grid-cols-1 sm:grid-cols-12 gap-1">
@@ -219,6 +225,7 @@ import {
   DpPager,
   DpSearchField
 } from '@demos-europe/demosplan-ui'
+import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { filterCategoriesStorage } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
 import { filterCategoryHelpers } from '@DpJs/lib/procedure/FilterFlyout/filterHelpers'
@@ -235,6 +242,7 @@ export default {
   },
 
   components: {
+    ClientSideTagFilter,
     DpButton,
     DpCheckbox,
     DpDataTable,
