@@ -472,7 +472,9 @@
             v-cleanhtml="createErrorMessage('submitterForm')" />
         </div>
 
+        <!-- Show radio buttons if anonymous statements are allowed -->
         <fieldset
+          v-if="allowAnonymousStatements"
           aria-required="true"
           :aria-hidden="step === 2"
           :class="prefixClass('mt-5')"
@@ -529,6 +531,21 @@
               @change="val => setPrivacyPreference({r_useName: '0'})" />
           </div>
         </fieldset>
+
+        <!-- Show the form directly if anonymous statements are not allowed -->
+        <div
+          v-else
+          v-show="formData.r_useName === '1'"
+          :class="prefixClass('layout mb-3 ml-2')">
+          <component
+            v-for="formDefinition in personalDataFormDefinitions"
+            :is="formDefinition.component"
+            :draft-statement-id="draftStatementId"
+            :required="formDefinition.required"
+            :form-options="formOptions"
+            :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
+            :key="formDefinition.key" />
+        </div>
 
         <component
           v-for="formDefinition in statementFeedbackDefinitions"
@@ -762,6 +779,12 @@ export default {
   mixins: [dpValidateMixin, prefixClassMixin],
 
   props: {
+    allowAnonymousStatements: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+
     counties: {
       type: Array,
       required: false,

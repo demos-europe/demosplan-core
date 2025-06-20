@@ -968,6 +968,36 @@
                                     {# allow publishing of Statements by default #}
                                     <input type="hidden" name="r_publicParticipationPublicationEnabled" value="1">
                                 {% endif %}
+
+                                {# INPUT version #}
+                                {% if hasPermission('field_submit_anonymous_statements') %}
+                                    <label>
+                                        <input type="checkbox" name="r_publicParticipationPublicationEnabled" {% if proceduresettings.publicParticipationPublicationEnabled %}checked{% endif %}>
+                                        {{ "public.participation.anonymous.statements"|trans }}
+                                    </label>
+                                {% else %}
+                                    {# allow anonymous statements by default #}
+                                    <input type="hidden" name="r_publicParticipationPublicationEnabled" value="1">
+                                {% endif %}
+
+                                {# using VUE comps #}
+                                {% if hasPermission('field_submit_anonymous_statements') %}
+                                    <dp-checkbox
+                                        class="mb-4"
+                                        id="r_allowAnonymousStatements"
+{#                                        data-cy="procedure:publicParticipationPublicationEnabled"#}
+                                        name="r_allowAnonymousStatements"
+                                        :label="{ text: Translator.trans('public.participation.anonymous.statements') }"
+                                        :checked="{{ proceduresettings.publicParticipationPublicationEnabled ? 'true' : 'false' }}">
+                                    </dp-checkbox>
+                                {% else %}
+                                    {# Allow anonymous statements by default #}
+                                    <dp-input
+                                        name="r_publicParticipationPublicationEnabled"
+                                        type="hidden"
+                                        value="1">
+                                    </dp-input>
+                                {% endif %}
                             </div>
 
                             <label class="o-wizard__mark u-mb-0">
