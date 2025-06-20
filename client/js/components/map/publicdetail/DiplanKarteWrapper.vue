@@ -22,6 +22,10 @@ const props = defineProps({
   loginPath: {
     type: String,
     required: true
+  },
+  styleNonce: {
+    type: String,
+    required: true,
   }
 })
 
@@ -47,13 +51,6 @@ const openStatementModalOrLoginPage= (event) => {
   event.stopPropagation()
   toggleStatementModal({})
 }
-
-const props = defineProps({
-  styleNonce: {
-    type: String,
-    required: true,
-  }
-})
 
 const toggleStatementModal = (updateStatementPayload) => {
   instance.parent.refs.statementModal.toggleModal(true, updateStatementPayload)
