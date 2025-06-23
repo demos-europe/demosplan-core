@@ -629,7 +629,7 @@
                 </a>
                 <!-- Attached files -->
                 <a
-                  v-for="file in statement.files"
+                  v-for="file in statement.genericAttachments"
                   :key="file.hash"
                   class="u-pr-0_5 o-hellip"
                   :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"

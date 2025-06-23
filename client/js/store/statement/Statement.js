@@ -131,6 +131,7 @@ function transformStatementStructure ({ el, includes, meta }) {
   statement.files = statement.files || []
   statement.attachments = statement.attachments || []
   statement.sourceAttachment = statement.sourceAttachment || ''
+  statement.genericAttachments = statement.genericAttachments || []
   statement.initialFilteredFragmentsCount = statement.filteredFragmentsCount || 0 // This Information is missing from BE-Side by now
   statement.phase = Translator.trans(statement.phase)
   statement.isFiltered = meta.isFiltered || false
@@ -150,20 +151,34 @@ function transformStatementStructure ({ el, includes, meta }) {
           const type = relation.data[0].type
 
           statement[relationKey] = includes.filter(incl => ids.includes(incl.id) && type === incl.type)
-          statement[relationKey] = statement[relationKey].map(statementRel => Object.assign(statementRel.attributes, { id: statementRel.id }))
+          statement[relationKey] = statement[relationKey].map(statementRel => Object.assign(statementRel.attributes,
+            {
+              id: statementRel.id,
+              ...(statementRel.relationships && { relationships: statementRel.relationships })
+            }))
+
+          if (relationKey === 'genericAttachments') {
+            statement.genericAttachments = statement.genericAttachments.map(attachment => {
+              if (hasOwnProp(attachment, 'relationships')) {
+                const fileId = attachment.relationships.file?.data.id
+                const file = includes.find(i => i.type === 'File' && i.id === fileId)
+
+                if (file) {
+                  return { id: file.id, ...file.attributes }
+                }
+              }
+              return attachment
+            })
+          }
 
           if (type === 'SourceStatementAttachment' && hasOwnProp(statement[relationKey][0], 'id')) {
-            const attachment = includes
-              .filter(incl => incl.type === 'SourceStatementAttachment')
-              .filter(incl => statement[relationKey][0].id === incl.id)
+            if (hasOwnProp(statement.sourceAttachment[0], 'relationships')) {
+              const fileId = statement.sourceAttachment[0].relationships.file?.data.id
+              const file = includes.find(i => i.type === 'File' && i.id === fileId)
 
-            if (hasOwnProp(attachment[0], 'relationships')) {
-              const sourceAttachment = includes
-                .filter(incl => incl.type === 'File')
-                .filter(incl => attachment[0].relationships.file.data.id === incl.id)
-                .map(sourceAtt => Object.assign(sourceAtt.attributes, { id: sourceAtt.id }))
-
-              statement.sourceAttachment = sourceAttachment[0]
+              if (file) {
+                statement.sourceAttachment = { id: file.id, ...file.attributes }
+              }
             } else {
               statement.sourceAttachment = undefined
             }
@@ -482,7 +497,7 @@ export default {
         'assignee',
         'sourceAttachment',
         'sourceAttachment.file',
-        'files'
+        'genericAttachments.file'
       ]
 
       /*
@@ -539,7 +554,6 @@ export default {
               ...statementFields,
               'anonymous',
               'assignee',
-              'sourceAttachment',
               'authoredDate',
               'authorName',
               'document',
@@ -547,7 +561,7 @@ export default {
               'elementId',
               'elements',
               'externId',
-              'files',
+              'genericAttachments',
               'filteredFragmentsCount',
               'formerExternId',
               'fragmentsCount',
@@ -574,6 +588,7 @@ export default {
               'publicVerifiedTranslation',
               'recommendation',
               'recommendationIsTruncated',
+              'sourceAttachment',
               'status',
               'submitDate',
               'submitName',
