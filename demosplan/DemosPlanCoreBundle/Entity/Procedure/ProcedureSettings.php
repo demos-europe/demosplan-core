@@ -112,6 +112,14 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     protected $planEnable = false;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="allow_anonymous_atatements", type="boolean", nullable=false, options={"default":false})
+     */
+    private bool $allowAnonymousStatements = true;
+
+
+    /**
      * @var string
      *
      * @ORM\Column(name="_ps_plan_text", type="text", length=65535, nullable=false)
