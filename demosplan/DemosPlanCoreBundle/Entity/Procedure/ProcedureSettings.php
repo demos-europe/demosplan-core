@@ -821,6 +821,11 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
         return $this->pictogram;
     }
 
+    public function getAllowAnonymousStatements(): bool
+    {
+        return $this->allowAnonymousStatements;
+    }
+
     public function setAllowAnonymousStatements(bool $allowAnonymousStatements): ProcedureSettingsInterface
     {
         $this->allowAnonymousStatements = $allowAnonymousStatements;
