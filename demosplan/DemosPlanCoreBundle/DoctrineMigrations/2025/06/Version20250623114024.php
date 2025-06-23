@@ -31,7 +31,7 @@ class Version20250623114024 extends AbstractMigration
     {
         $this->abortIfNotMysql();
         $this->addSql(<<<'SQL'
-            ALTER TABLE _procedure_settings ADD allow_anonymous_atatements TINYINT(1) DEFAULT 1 NOT NULL
+            ALTER TABLE _procedure_settings ADD allow_anonymous_statements TINYINT(1) DEFAULT 1 NOT NULL
         SQL);
     }
 
@@ -43,7 +43,7 @@ class Version20250623114024 extends AbstractMigration
         $this->abortIfNotMysql();
 
         $this->addSql(<<<'SQL'
-            ALTER TABLE _procedure_settings DROP allow_anonymous_atatements
+            ALTER TABLE _procedure_settings DROP allow_anonymous_statements
         SQL);
     }
 
