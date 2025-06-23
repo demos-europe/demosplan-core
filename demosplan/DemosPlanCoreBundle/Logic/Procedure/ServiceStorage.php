@@ -675,7 +675,6 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
             $path = $this->fileService->ensureLocalFile($pictogramFileInfo->getAbsolutePath());
             $imageInfo = getimagesize($path);
-
         } catch (Exception $e) {
             throw new InvalidArgumentException($e->getMessage());
         }
