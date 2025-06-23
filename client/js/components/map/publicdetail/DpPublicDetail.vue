@@ -135,6 +135,10 @@ export default {
       }
     },
 
+    handleLocationDrawing (payload) {
+      this.$refs.statementModal.setLocation(payload, false)
+    },
+
     isElementVisible (el) {
       const isInDom = el.offsetParent !== null
       const style = window.getComputedStyle(el)

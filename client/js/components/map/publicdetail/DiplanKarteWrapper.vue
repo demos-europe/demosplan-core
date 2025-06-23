@@ -8,7 +8,9 @@
       :text="Translator.trans('statement.participate')"
       @click="openStatementModalOrLoginPage" />
 
-    <diplan-karte />
+    <diplan-karte
+      @diplan-karte:geojson-update="handleDrawing"
+    />
   </div>
 </template>
 
@@ -29,6 +31,8 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['locationDrawing'])
+
 const instance = getCurrentInstance()
 
 instance.appContext.app.mixin(prefixClassMixin)
@@ -39,6 +43,18 @@ instance.appContext.app.use(MapPlugin, {
     }
   }
 })
+
+const handleDrawing = (event) => {
+  const payload = {
+    "r_location": "point",
+    "r_location_geometry": event.detail,
+    "r_location_priority_area_key": "",
+    "r_location_priority_area_type": "",
+    "r_location_point": "",
+    "location_is_set": "geometry"
+  }
+  emit('locationDrawing', payload)
+}
 
 const openStatementModalOrLoginPage= (event) => {
   if (!hasPermission('feature_new_statement')) {
