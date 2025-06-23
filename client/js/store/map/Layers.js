@@ -614,7 +614,7 @@ const LayersStore = {
     /**
      * Gets a filtered and sorted list of GIS layers
      *
-     * @param {string} [type] - Layer type filter ('overlay', 'base', etc.)
+     * @param {string|undefined} [type] - Layer type filter ('overlay', 'base'. Can be undefined. Then it falls back to all layers)
      *
      * @returns {Array} Array of GisLayer objects sorted by mapOrder
      */
@@ -622,7 +622,11 @@ const LayersStore = {
       if (typeof state.apiData.included === 'undefined') return []
 
       return state.apiData.included
-        .filter(current => type === current.attributes.layerType)
+        .filter(current => {
+          const putInList = (type) ? (type === current.attributes.layerType) : true
+
+          return (current.type === 'GisLayer' && putInList)
+        })
         .sort((a, b) => {
           return (a.attributes.mapOrder).toString().padEnd(21, '0') - (b.attributes.mapOrder).toString().padEnd(21, '0')
         })
