@@ -636,9 +636,12 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 $procedure['settings']['pictogram'] = '';
             }
 
-            if ($this->permissions->hasPermission('field_submit_anonymous_statements')
-            && array_key_exists('allowAnonymousStatements', $data)) {
-                $procedure['settings']['allowAnonymousStatements'] = $data['allowAnonymousStatements'];
+            if ($this->permissions->hasPermission('field_submit_anonymous_statements')) {
+                if (array_key_exists('allowAnonymousStatements', $data)) {
+                    $procedure['settings']['allowAnonymousStatements'] = true;
+                } else {
+                    $procedure['settings']['allowAnonymousStatements'] = false;
+                }
             }
 
             if (array_key_exists('r_pictogramCopyright', $data)) {
