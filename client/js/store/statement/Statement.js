@@ -89,6 +89,47 @@ function getDataFromResponse (response, dataToUpdate, updatedData) {
   return dataToUpdate
 }
 
+function extractGenericAttachments (attachments, includes) {
+  return attachments.map(att => {
+    if (!att.relationships) return att
+
+    const fileId = att.relationships.file?.data.id
+    const file = includes.find(include => include.type === 'File' && include.id === fileId)
+
+    return file ? { id: file.id, ...file.attributes } : att
+  })
+}
+
+function extractSourceAttachment (entries, includes) {
+  const entry = entries[0]
+  if (!entry || !entry.relationships) return undefined
+
+  const fileId = entry.relationships.file?.data.id
+  const file = includes.find(i => i.type === 'File' && i.id === fileId)
+
+  return file ? { id: file.id, ...file.attributes } : undefined
+}
+
+function mapRelations (data, includes) {
+  const ids = data.map(el => el.id)
+  const type = data[0].type
+
+  return includes
+    .filter(item => item.type === type && ids.includes(item.id))
+    .map(item => ({
+      id: item.id,
+      ...item.attributes,
+      ...(item.relationships && { relationships: item.relationships })
+    }))
+}
+
+function mapSingleRelation (data, includes) {
+  if (!data?.id) return null
+  const item = includes.find(incl => incl.id === data.id && incl.type === data.type)
+
+  return item ? { id: item.id, ...item.attributes } : null
+}
+
 function setUpdatedProps (data) {
   // If we update element/paragraph/document we want to update title too, so we set it as attribute to get the value from response in the loop below
   data.data.attributes = {
@@ -123,20 +164,20 @@ function setUpdatedProps (data) {
 function transformStatementStructure ({ el, includes, meta }) {
   // Map attributes to match the old structure/naming
   const statement = el.attributes
-  statement.id = el.id
+  statement.attachments = statement.attachments || []
   statement.clusterName = statement.name || ''
+  statement.files = statement.files || []
   statement.fragments = statement.fragments || []
   statement.fragmentsElements = statement.fragmentsElements || []
   statement.fragmentsTotal = statement.fragmentsCount || 0
-  statement.files = statement.files || []
-  statement.attachments = statement.attachments || []
-  statement.sourceAttachment = statement.sourceAttachment || ''
   statement.genericAttachments = statement.genericAttachments || []
+  statement.id = el.id
   statement.initialFilteredFragmentsCount = statement.filteredFragmentsCount || 0 // This Information is missing from BE-Side by now
-  statement.phase = Translator.trans(statement.phase)
   statement.isFiltered = meta.isFiltered || false
-  statement.orgaName = statement.organisationName
   statement.orgaDepartmentName = statement.organisationDepartmentName
+  statement.orgaName = statement.organisationName
+  statement.phase = Translator.trans(statement.phase)
+  statement.sourceAttachment = statement.sourceAttachment || ''
 
   if (hasOwnProp(el, 'relationships')) {
     const relationships = Object.keys(el.relationships)
@@ -144,61 +185,27 @@ function transformStatementStructure ({ el, includes, meta }) {
     // Get the data for the relationships and put it into the statement-element
     relationships.forEach(relationKey => {
       const relation = el.relationships[relationKey]
+      const data = relation?.data
+
       // For 1-n Relations
-      if (relation.data instanceof Array) {
-        if (relation.data.length > 0) {
-          const ids = relation.data.map(id => id.id)
-          const type = relation.data[0].type
+      if (Array.isArray(data)) {
+        const items = data.length ? mapRelations(data, includes) : []
+        statement[relationKey] = items
 
-          statement[relationKey] = includes.filter(incl => ids.includes(incl.id) && type === incl.type)
-          statement[relationKey] = statement[relationKey].map(statementRel => Object.assign(statementRel.attributes,
-            {
-              id: statementRel.id,
-              ...(statementRel.relationships && { relationships: statementRel.relationships })
-            }))
+        if (relationKey === 'genericAttachments') {
+          statement.genericAttachments = extractGenericAttachments(items, includes)
+        }
 
-          if (relationKey === 'genericAttachments') {
-            statement.genericAttachments = statement.genericAttachments.map(attachment => {
-              if (hasOwnProp(attachment, 'relationships')) {
-                const fileId = attachment.relationships.file?.data.id
-                const file = includes.find(i => i.type === 'File' && i.id === fileId)
-
-                if (file) {
-                  return { id: file.id, ...file.attributes }
-                }
-              }
-              return attachment
-            })
-          }
-
-          if (type === 'SourceStatementAttachment' && hasOwnProp(statement[relationKey][0], 'id')) {
-            if (hasOwnProp(statement.sourceAttachment[0], 'relationships')) {
-              const fileId = statement.sourceAttachment[0].relationships.file?.data.id
-              const file = includes.find(i => i.type === 'File' && i.id === fileId)
-
-              if (file) {
-                statement.sourceAttachment = { id: file.id, ...file.attributes }
-              }
-            } else {
-              statement.sourceAttachment = undefined
-            }
-          }
-        } else {
-          statement[relationKey] = []
+        if (relationKey === 'sourceAttachment') {
+          statement.sourceAttachment = extractSourceAttachment(items, includes)
         }
 
         return
       }
+
       // For 1-1 relations
-      if (relation.data instanceof Object) {
-        if (hasOwnProp(relation.data, 'id')) {
-          const id = relation.data.id
-          const type = relation.data.type
-          statement[relationKey] = includes.find(incl => id === incl.id && type === incl.type)
-          statement[relationKey] = Object.assign(statement[relationKey].attributes, { id: statement[relationKey].id })
-        } else {
-          statement[relationKey] = null
-        }
+      if (data && typeof data === 'object') {
+        statement[relationKey] = mapSingleRelation(data, includes)
       }
     })
   }
