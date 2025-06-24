@@ -31,7 +31,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['locationDrawing'])
+const emit = defineEmits(['location-drawing'])
 
 const instance = getCurrentInstance()
 
@@ -45,13 +45,25 @@ instance.appContext.app.use(MapPlugin, {
 })
 
 const handleDrawing = (event) => {
-  const payload = {
-    "r_location": "point",
-    "r_location_geometry": event.detail,
-    "r_location_priority_area_key": "",
-    "r_location_priority_area_type": "",
-    "r_location_point": "",
-    "location_is_set": "geometry"
+  console.log(event.detail[0].features)
+  let payload = {}
+  // if all geometry was deleted, reset location reference
+  if (event.detail[0].features.length === 0) {
+    payload = {
+      "r_location": "notLocated",
+      "r_location_geometry": "",
+      "r_location_point": "",
+      "location_is_set": ""
+    }
+  } else {
+    payload = {
+      "r_location": "point",
+      "r_location_geometry": event.detail,
+      "r_location_priority_area_key": "",
+      "r_location_priority_area_type": "",
+      "r_location_point": "",
+      "location_is_set": "geometry"
+    }
   }
   emit('locationDrawing', payload)
 }
