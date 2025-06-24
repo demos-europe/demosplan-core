@@ -199,7 +199,7 @@ function transformStatementStructure ({ el, includes, meta }) {
       }
 
       // For 1-1 relations
-      if (data && typeof data === 'object') {
+      if (data?.id) {
         statement[relationKey] = mapSingleRelation(data, includes)
       }
     })
