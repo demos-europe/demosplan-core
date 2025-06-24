@@ -67,11 +67,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             self::SEGMENT_TEXT_AND_RECOMMENDATION_COLUMN_WIDTH);
     }
 
-    public function getSynopseFileName(Procedure $procedure, string $suffix): string
-    {
-        return 'Synopse-'.$this->slugify->slugify($procedure->getName()).'.'.$suffix;
-    }
-
     /**
      * @throws Exception
      */
