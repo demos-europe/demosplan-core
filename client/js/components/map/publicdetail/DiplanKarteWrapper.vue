@@ -5,7 +5,7 @@
       :class="prefixClass('left-[365px] top-[24px] pt-[11px] pb-[11px] pl-[20px] pr-[20px] !absolute z-above-zero')"
       data-cy="statementModal"
       rounded
-      :text="Translator.trans('statement.participate')"
+      :text="activeStatement ? Translator.trans('statement.participate.resume') : Translator.trans('statement.participate')"
       @click="openStatementModalOrLoginPage" />
 
     <diplan-karte
@@ -28,6 +28,10 @@ const props = defineProps({
   styleNonce: {
     type: String,
     required: true,
+  },
+  activeStatement: {
+    type: Boolean,
+    required: true
   }
 })
 
