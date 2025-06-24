@@ -193,24 +193,25 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
     public function testGetValidTags(): void
     {
         $procedure = ProcedureFactory::createOne();
-        $tag1 = TagFactory::createOne();
-        $tag2 = TagFactory::createOne();
         $tagTopic = TagTopicFactory::createOne();
 
         $tagTopic->setProcedure($procedure->_real());
-        $tagTopic->addTag($tag1->_real());
-        $tagTopic->addTag($tag2->_real());
         $tagTopic->_save();
+
+        $tag1 = TagFactory::createOne([
+            'title' => 'Unique Tag Title 1',
+            'topic' => $tagTopic->_real(),
+        ]);
+        $tag2 = TagFactory::createOne([
+            'title' => 'Unique Tag Title 2',
+            'topic' => $tagTopic->_real(),
+        ]);
 
         $procedure->addTagTopic($tagTopic->_real());
         $procedure->_save();
         /** @var Procedure $procedureReal */
         $procedureReal = $procedure->_real();
 
-        $tag1->setTopic($tagTopic->_real());
-        $tag2->setTopic($tagTopic->_real());
-        $tag1->_save();
-        $tag2->_save();
         /** @var Tag $tag1Real */
         $tag1Real = $tag1->_real();
         /** @var Tag $tag2Real */

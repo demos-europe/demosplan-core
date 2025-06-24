@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Functional;
 
 use Cocur\Slugify\Slugify;
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementMetaFactory;
@@ -312,24 +311,6 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $section = $exportResult->getPhpWord()->getSection(0);
 
         return $section->getElements()[0]->getRows()[0]->getCells()[0]->getElements()[0]->getText();
-    }
-
-    private function createMinimalTestStatement(
-        string $idSuffix,
-        string $internIdSuffix,
-        string $submitterNameSuffix,
-    ): Statement|Proxy {
-        $statement = StatementFactory::createOne();
-        $statement->setExternId("statement_extern_id_$idSuffix");
-        $statement->_save();
-        $statement->setInternId("statement_intern_id_$internIdSuffix");
-        $statement->_save();
-        $statement->getMeta()->setOrgaName(UserInterface::ANONYMOUS_USER_NAME);
-        $statement->_save();
-        $statement->getMeta()->setAuthorName("statement_author_name_$submitterNameSuffix");
-        $statement->_save();
-
-        return $statement;
     }
 
     public function getCensorParams(): array
