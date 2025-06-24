@@ -14,10 +14,11 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SegmentExporterFileNameGenerator
+class FileNameGenerator
 {
     protected TranslatorInterface $translator;
 
@@ -37,6 +38,11 @@ class SegmentExporterFileNameGenerator
     {
         $this->translator = $translator;
         $this->slugify = $slugify;
+    }
+
+    public function getSynopseFileName(Procedure $procedure, string $suffix): string
+    {
+        return 'Synopse-'.$this->slugify->slugify($procedure->getName()).'.'.$suffix;
     }
 
     public function getFileName(Statement $statement, string $templateName = '', bool $censored = false): string
