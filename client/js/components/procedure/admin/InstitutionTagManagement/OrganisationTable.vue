@@ -25,75 +25,75 @@ All rights reserved
 
     <template v-else>
       <div class="grid grid-cols-1 sm:grid-cols-12 gap-1">
-        <dp-search-field
-          class="h-fit mt-1 col-span-1 sm:col-span-3"
-          data-cy="addOrganisationList:searchField"
-          input-width="u-1-of-1"
-          @reset="handleReset"
-          @search="handleSearch" />
+<!--        <dp-search-field-->
+<!--          class="h-fit mt-1 col-span-1 sm:col-span-3"-->
+<!--          data-cy="addOrganisationList:searchField"-->
+<!--          input-width="u-1-of-1"-->
+<!--          @reset="handleReset"-->
+<!--          @search="handleSearch" />-->
 
-        <div class="sm:relative flex flex-col sm:flex-row flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-0 pl-0 sm:ml-2 sm:pl-[38px]">
-          <div class="sm:absolute sm:top-0 sm:left-0 mt-1">
-            <dp-flyout
-              align="left"
-              :aria-label="Translator.trans('filters.more')"
-              class="bg-surface-medium rounded pb-1 pt-[4px]"
-              data-cy="dpAddOrganisationList:filterCategories">
-              <template v-slot:trigger>
-                <span :title="Translator.trans('filters.more')">
-                  <dp-icon
-                    aria-hidden="true"
-                    class="inline"
-                    icon="faders" />
-                </span>
-              </template>
-              <!-- 'More filters' flyout -->
-              <div>
-                <button
-                  class="btn--blank o-link--default ml-auto"
-                  data-cy="dpAddOrganisationList:toggleAllFilterCategories"
-                  v-text="Translator.trans('toggle_all')"
-                  @click="filterManager.toggleAllCategories" />
-                <div v-if="!isLoading">
-                  <dp-checkbox
-                    v-for="category in allFilterCategories"
-                    :key="category.id"
-                    :id="`filterCategorySelect:${category.label}`"
-                    :checked="selectedFilterCategories.includes(category.label)"
-                    :data-cy="`dpAddOrganisationList:filterCategoriesSelect:${category.label}`"
-                    :disabled="filterCategoryHelpers.checkIfDisabled(appliedFilterQuery, category.id)"
-                    :label="{
-                      text: `${category.label} (${filterCategoryHelpers.getSelectedOptionsCount(appliedFilterQuery, category.id)})`
-                    }"
-                    @change="filterManager.handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
-                </div>
-              </div>
-            </dp-flyout>
-          </div>
+<!--        <div class="sm:relative flex flex-col sm:flex-row flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-0 pl-0 sm:ml-2 sm:pl-[38px]">-->
+<!--          <div class="sm:absolute sm:top-0 sm:left-0 mt-1">-->
+<!--            <dp-flyout-->
+<!--              align="left"-->
+<!--              :aria-label="Translator.trans('filters.more')"-->
+<!--              class="bg-surface-medium rounded pb-1 pt-[4px]"-->
+<!--              data-cy="dpAddOrganisationList:filterCategories">-->
+<!--              <template v-slot:trigger>-->
+<!--                <span :title="Translator.trans('filters.more')">-->
+<!--                  <dp-icon-->
+<!--                    aria-hidden="true"-->
+<!--                    class="inline"-->
+<!--                    icon="faders" />-->
+<!--                </span>-->
+<!--              </template>-->
+<!--              &lt;!&ndash; 'More filters' flyout &ndash;&gt;-->
+<!--              <div>-->
+<!--                <button-->
+<!--                  class="btn&#45;&#45;blank o-link&#45;&#45;default ml-auto"-->
+<!--                  data-cy="dpAddOrganisationList:toggleAllFilterCategories"-->
+<!--                  v-text="Translator.trans('toggle_all')"-->
+<!--                  @click="filterManager.toggleAllCategories" />-->
+<!--                <div v-if="!isLoading">-->
+<!--                  <dp-checkbox-->
+<!--                    v-for="category in allFilterCategories"-->
+<!--                    :key="category.id"-->
+<!--                    :id="`filterCategorySelect:${category.label}`"-->
+<!--                    :checked="selectedFilterCategories.includes(category.label)"-->
+<!--                    :data-cy="`dpAddOrganisationList:filterCategoriesSelect:${category.label}`"-->
+<!--                    :disabled="filterCategoryHelpers.checkIfDisabled(appliedFilterQuery, category.id)"-->
+<!--                    :label="{-->
+<!--                      text: `${category.label} (${filterCategoryHelpers.getSelectedOptionsCount(appliedFilterQuery, category.id)})`-->
+<!--                    }"-->
+<!--                    @change="filterManager.handleChange(category.label, !selectedFilterCategories.includes(category.label))" />-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </dp-flyout>-->
+<!--          </div>-->
 
-          <filter-flyout
-            v-for="category in filterCategoriesToBeDisplayed"
-            :key="`filter_${category.label}`"
-            ref="filterFlyout"
-            :category="{ id: category.id, label: category.label }"
-            class="inline-block"
-            :data-cy="`dpAddOrganisationList:${category.label}`"
-            :initial-query-ids="queryIds"
-            :member-of="category.memberOf"
-            :operator="category.comparisonOperator"
-            :path="category.rootPath"
-            @filterApply="(filtersToBeApplied) => filterManager.applyFilter(filtersToBeApplied, category.id)"
-            @filterOptions:request="(params) => filterManager.createFilterOptions({ ...params, categoryId: category.id})" />
-        </div>
+<!--          <filter-flyout-->
+<!--            v-for="category in filterCategoriesToBeDisplayed"-->
+<!--            :key="`filter_${category.label}`"-->
+<!--            ref="filterFlyout"-->
+<!--            :category="{ id: category.id, label: category.label }"-->
+<!--            class="inline-block"-->
+<!--            :data-cy="`dpAddOrganisationList:${category.label}`"-->
+<!--            :initial-query-ids="queryIds"-->
+<!--            :member-of="category.memberOf"-->
+<!--            :operator="category.comparisonOperator"-->
+<!--            :path="category.rootPath"-->
+<!--            @filterApply="(filtersToBeApplied) => filterManager.applyFilter(filtersToBeApplied, category.id)"-->
+<!--            @filterOptions:request="(params) => filterManager.createFilterOptions({ ...params, categoryId: category.id})" />-->
+<!--        </div>-->
 
-        <dp-button
-          class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
-          data-cy="dpAddOrganisationList:resetFilter"
-          :disabled="!isQueryApplied"
-          :text="Translator.trans('reset')"
-          variant="outline"
-          v-tooltip="Translator.trans('search.filter.reset')"
-          @click="filterManager.reset" />
+<!--        <dp-button-->
+<!--          class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"-->
+<!--          data-cy="dpAddOrganisationList:resetFilter"-->
+<!--          :disabled="!isQueryApplied"-->
+<!--          :text="Translator.trans('reset')"-->
+<!--          variant="outline"-->
+<!--          v-tooltip="Translator.trans('search.filter.reset')"-->
+<!--          @click="filterManager.reset" />-->
         <!-- Slot for bulk actions -->
       </div>
       <slot name="bulkActions" />
@@ -399,17 +399,7 @@ export default {
           assignedTags: institutionTags,
           hasNoEmail
         }
-      }).filter(item => {
-        if (Object.keys(this.appliedFilterQuery).length === 0) return true
-
-        return Object.values(this.appliedFilterQuery).every(filterCondition => {
-          if (!filterCondition.condition) return true
-
-          const tagIds = item.assignedTags.map(tag => tag.id)
-
-          return tagIds.includes(filterCondition.condition.value)
-        })
-      }) || []
+      })
     },
 
     selectedFilterCategories () {

@@ -74,7 +74,7 @@ All rights reserved
 
 <script>
 import { DpButton, DpCheckbox, DpIcon, DpFlyout } from '@demos-europe/demosplan-ui'
-import { mapActions, mapMutations, mapState} from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState} from 'vuex'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout.vue'
 
 export default {
@@ -109,11 +109,9 @@ export default {
     return {
       appliedFilterQuery: {},
       currentlySelectedFilterCategories: [],
-      filterQuery: {},
       institutionTagCategoriesCopy: {},
       initiallySelectedFilterCategories: [],
       isLoading: false,
-
       filterCategoriesStorage: {
         get () {
           const selectedFilterCategories =
@@ -145,6 +143,10 @@ export default {
   },
 
   computed: {
+    ...mapGetters('FilterFlyout', {
+      filterQuery: 'getFilterQuery'
+    }),
+
     ...mapState('InstitutionTagCategory', {
       institutionTagCategories: 'items'
     }),
@@ -158,13 +160,6 @@ export default {
     },
 
     filterAndEmitItems() {
-      console.log('🔥 filterAndEmitItems called')
-      console.log('🔥 rawItems:', this.rawItems?.length, 'items')
-      console.log('🔥 appliedFilterQuery:', this.appliedFilterQuery)
-
-      console.log('Debug rawItems:', this.rawItems)
-      console.log('Debug rawItems type:', typeof this.rawItems)
-
       if (!this.rawItems) {
         console.error('rawItems is undefined!')
         return
@@ -175,7 +170,6 @@ export default {
       // Wenn Filter angewendet sind
       if (Object.keys(this.appliedFilterQuery).length > 0) {
         filteredItems = this.rawItems.filter(item => {
-          // Prüfe ob Item die Filter erfüllt
           return Object.values(this.appliedFilterQuery).every(filterCondition => {
             if (!filterCondition.condition) return true
 
@@ -185,7 +179,6 @@ export default {
         })
       }
 
-      console.log('Filtered items:', filteredItems.length, 'of', this.rawItems.length)
       this.$emit('items-filtered', filteredItems)
     },
 
@@ -227,6 +220,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('FilterFlyout', {
+      updateFilterQuery: 'updateFilterQuery'
+    }),
+
     ...mapActions('InstitutionTagCategory', {
       fetchInstitutionTagCategories: 'list'
     }),
@@ -238,21 +235,15 @@ export default {
     }),
 
     applyFilter (filter, categoryId) {
-      console.log('applyFilter called with:', filter, categoryId)
-      console.log('🚨 Current appliedFilterQuery before:', this.appliedFilterQuery)
-
-      // ✅ Verwende die originale komplexe Logik
       this.appliedFilterQuery = this.setAppliedFilterQuery(
         filter,
         this.appliedFilterQuery,
-        this.filterQuery  // filterQuery parameter
+        this.filterQuery
       )
 
-      // ✅ localStorage speichern (war auch im Original)
       this.filterQueryStorage.set(this.filterQuery)
-
-      console.log('🚨 New appliedFilterQuery after:', this.appliedFilterQuery)
     },
+
 
     checkIfDisabled(appliedFilterQuery, categoryId) {
       return !!Object.values(appliedFilterQuery)
@@ -260,7 +251,6 @@ export default {
     },
 
     createFilterOptions (params) {
-      console.log('createFilterOptions called with:', params)
       const { categoryId, isInitialWithQuery } = params
 
       // Hole Tags für diese Kategorie
@@ -283,8 +273,6 @@ export default {
 
       this.setUngroupedFilterOptions({ categoryId, options: filterOptions })
       this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
-
-      console.log('Written to store:', filterOptions)
 
       if (isInitialWithQuery && filterQueryFromStorage) {
         this.filterQuery = { ...this.filterQuery, ...filterQueryFromStorage }
@@ -335,7 +323,6 @@ export default {
 
     // Methode 2: Handle einzelne Kategorie ändern
     handleChange(categoryLabel, isSelected) {
-      console.log('Category changed:', categoryLabel, 'selected:', isSelected)
 
       if (isSelected) {
         // Filter-Kategorie zu currentlySelectedFilterCategories hinzufügen
@@ -349,8 +336,6 @@ export default {
           this.currentlySelectedFilterCategories.splice(index, 1)
         }
       }
-
-      console.log('Selected categories:', this.currentlySelectedFilterCategories)
     },
 
     loadFilterStateFromStorage () {
@@ -367,8 +352,6 @@ export default {
 
     // Methode 3: Reset alle Filter
     reset() {
-      console.log('Reset clicked')
-
       // 1. Alle ausgewählten Filter-Kategorien zurücksetzen
       this.currentlySelectedFilterCategories = []
 
@@ -377,20 +360,15 @@ export default {
 
       // 3. Später: Auch Search zurücksetzen (kommt noch)
       // this.$emit('search-reset')
-
-      console.log('Reset completed - all filters cleared')
     },
 
-    // Aus filterHelpers.js - originale komplexe Filter-Merge-Logik
     setAppliedFilterQuery (filter, currentAppliedFilterQuery, filterQuery, setMethod = null) {
       // Remove groups from filter - only keep conditions
       const selectedFilterOptions = Object.fromEntries(
         Object.entries(filter).filter(([_key, value]) => value.condition)
       )
-
       const isReset = Object.keys(selectedFilterOptions).length === 0
       const isAppliedFilterQueryEmpty = Object.keys(currentAppliedFilterQuery).length === 0
-
       let newAppliedFilterQuery = { ...currentAppliedFilterQuery }
 
       if (!isReset && isAppliedFilterQueryEmpty) {
@@ -402,12 +380,32 @@ export default {
           }
         })
       } else if (isReset) {
+        // Filter entfernen: nimm nur was im filterQuery steht
         const filtersWithConditions = Object.fromEntries(
           Object.entries(filterQuery).filter(([key, value]) => value.condition)
         )
-        newAppliedFilterQuery = Object.keys(filtersWithConditions).length ? filtersWithConditions : {}
+        newAppliedFilterQuery = filtersWithConditions
       } else {
-        newAppliedFilterQuery = selectedFilterOptions
+        // Cross-category filtering: merge selectedFilterOptions with existing filters from other categories
+        const currentCategoryGroupKey = Object.values(selectedFilterOptions)[0]?.condition?.memberOf
+
+        if (currentCategoryGroupKey) {
+          // Remove all existing filters from this category
+          Object.keys(newAppliedFilterQuery).forEach(key => {
+            if (newAppliedFilterQuery[key].condition?.memberOf === currentCategoryGroupKey) {
+              delete newAppliedFilterQuery[key]
+            }
+          })
+        }
+
+        // Add the new filters for this category
+        Object.values(selectedFilterOptions).forEach(option => {
+          if (setMethod) {
+            setMethod(newAppliedFilterQuery, option.condition.value, option)
+          } else {
+            newAppliedFilterQuery[option.condition.value] = option
+          }
+        })
       }
 
       return newAppliedFilterQuery
@@ -415,7 +413,6 @@ export default {
 
     // Methode 1: Toggle alle Kategorien
     toggleAllCategories() {
-      console.log('Toggle all categories clicked')
 
       if (this.currentlySelectedFilterCategories.length === 0) {
         // Alle Kategorien auswählen
@@ -424,8 +421,6 @@ export default {
         // Alle Kategorien abwählen
         this.currentlySelectedFilterCategories = []
       }
-
-      console.log('All categories toggled:', this.currentlySelectedFilterCategories)
     },
 
     updateFilterQuery(payload) {
