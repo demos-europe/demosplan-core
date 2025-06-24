@@ -495,8 +495,7 @@
                         statement-form-hint-recheck="{{ templateVars.procedureUiDefinition.statementFormHintRecheck|default }}"
                         statement-form-hint-statement="{{ templateVars.procedureUiDefinition.statementFormHintStatement|default }}"
                         :public-participation-publication-enabled="Boolean({{ proceduresettings.publicParticipationPublicationEnabled }})"
-                        {# hard-coded for now #}
-                        :allow-anonymous-statements="false"
+                        :allow-anonymous-statements="Boolean({{ proceduresettings.allowAnonymousStatements }})"
                         :init-has-planning-documents="Boolean({{ templateVars.planningDocuments|default(false) }})"
                         :planning-documents-has-negative-statement="Boolean({{ templateVars.planningDocumentsHasNegativeStatement|default(false) }})"
                         :counties="JSON.parse('{{ counties|json_encode|e('js', 'utf-8') }}')"
