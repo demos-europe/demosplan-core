@@ -102,12 +102,12 @@ function extractGenericAttachments (attachments, includes) {
 
 function extractSourceAttachment (entries, includes) {
   const entry = entries[0]
-  if (!entry || !entry.relationships) return undefined
+  if (!entry || !entry.relationships) return null
 
   const fileId = entry.relationships.file?.data.id
   const file = includes.find(i => i.type === 'File' && i.id === fileId)
 
-  return file ? { id: file.id, ...file.attributes } : undefined
+  return file ? { id: file.id, ...file.attributes } : null
 }
 
 function mapRelations (data, includes) {
@@ -492,8 +492,8 @@ export default {
 
     /**
      * Get statements
-     * attachments are `Originalstellungnahme-Anhang` and can be only one file
-     * files are `weitere Anhänge`
+     * sourceAttachment are `Originalstellungnahme-Anhang` and can be only one file
+     * genericAttachments are `weitere Anhänge`
      * @param {Object} data
      */
     getStatementAction ({ commit, state, rootState }, data) {
@@ -878,12 +878,12 @@ export default {
           procedureId: state.procedureId,
           include: [
             'assignee',
-            'attachments',
-            'attachments.file',
+            'sourceAttachment',
+            'sourceAttachment.file',
             'counties',
             'document',
             'elements',
-            'files',
+            'genericAttachments.file',
             'fragmentsElements',
             'paragraph',
             'priorityAreas',
