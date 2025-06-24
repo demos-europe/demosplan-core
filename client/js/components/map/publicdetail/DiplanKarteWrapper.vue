@@ -65,7 +65,7 @@ const handleDrawing = (event) => {
       "location_is_set": "geometry"
     }
   }
-  emit('locationDrawing', payload)
+  emit('location-drawing', payload)
 }
 
 const openStatementModalOrLoginPage= (event) => {
