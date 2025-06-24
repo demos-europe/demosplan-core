@@ -89,25 +89,21 @@ function getDataFromResponse (response, dataToUpdate, updatedData) {
   return dataToUpdate
 }
 
-function extractGenericAttachments (attachments, includes) {
-  return attachments.map(att => {
-    if (!att.relationships) return att
+function extractFileAttachments (attachments, includes, { single = false } = {}) {
+  const results = attachments
+    .map(att => {
+      const fileId = att?.relationships?.file?.data?.id
+      const file = includes.find(include => include.type === 'File' && include.id === fileId)
 
-    const fileId = att.relationships.file?.data.id
-    const file = includes.find(include => include.type === 'File' && include.id === fileId)
+      return file ? { id: file.id, ...file.attributes } : null
+    })
+    .filter(Boolean)
 
-    return file ? { id: file.id, ...file.attributes } : att
-  })
-}
+  if (single) {
+    return results[0] || null
+  }
 
-function extractSourceAttachment (entries, includes) {
-  const entry = entries[0]
-  if (!entry || !entry.relationships) return null
-
-  const fileId = entry.relationships.file?.data.id
-  const file = includes.find(i => i.type === 'File' && i.id === fileId)
-
-  return file ? { id: file.id, ...file.attributes } : null
+  return results
 }
 
 function mapRelations (data, includes) {
@@ -164,7 +160,6 @@ function setUpdatedProps (data) {
 function transformStatementStructure ({ el, includes, meta }) {
   // Map attributes to match the old structure/naming
   const statement = el.attributes
-  statement.attachments = statement.attachments || []
   statement.clusterName = statement.name || ''
   statement.files = statement.files || []
   statement.fragments = statement.fragments || []
@@ -193,11 +188,11 @@ function transformStatementStructure ({ el, includes, meta }) {
         statement[relationKey] = items
 
         if (relationKey === 'genericAttachments') {
-          statement.genericAttachments = extractGenericAttachments(items, includes)
+          statement.genericAttachments = extractFileAttachments(items, includes)
         }
 
         if (relationKey === 'sourceAttachment') {
-          statement.sourceAttachment = extractSourceAttachment(items, includes)
+          statement.sourceAttachment = extractFileAttachments(items, includes, { single: true })
         }
 
         return
