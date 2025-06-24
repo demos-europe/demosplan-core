@@ -109,9 +109,38 @@ export default {
     return {
       appliedFilterQuery: {},
       currentlySelectedFilterCategories: [],
+      filterQuery: {},
       institutionTagCategoriesCopy: {},
       initiallySelectedFilterCategories: [],
-      isLoading: false
+      isLoading: false,
+
+      filterCategoriesStorage: {
+        get () {
+          const selectedFilterCategories =
+            localStorage.getItem('visibleFilterFlyouts')
+          return selectedFilterCategories ?
+            JSON.parse(selectedFilterCategories) : null
+        },
+        set (selectedFilterCategories) {
+          localStorage.setItem('visibleFilterFlyouts',
+            JSON.stringify(selectedFilterCategories))
+        }
+      },
+
+      filterQueryStorage: {
+        get () {
+          const filterQueryInStorage = localStorage.getItem('filterQuery')
+          return filterQueryInStorage && filterQueryInStorage !== 'undefined'
+            ? JSON.parse(filterQueryInStorage)
+            : {}
+        },
+        set (filterQuery) {
+          localStorage.setItem('filterQuery', JSON.stringify(filterQuery))
+        },
+        reset () {
+          localStorage.setItem('filterQuery', JSON.stringify({}))
+        }
+      }
     }
   },
 
@@ -129,6 +158,10 @@ export default {
     },
 
     filterAndEmitItems() {
+      console.log('🔥 filterAndEmitItems called')
+      console.log('🔥 rawItems:', this.rawItems?.length, 'items')
+      console.log('🔥 appliedFilterQuery:', this.appliedFilterQuery)
+
       console.log('Debug rawItems:', this.rawItems)
       console.log('Debug rawItems type:', typeof this.rawItems)
 
@@ -179,9 +212,16 @@ export default {
   watch: {
     appliedFilterQuery: {
       handler() {
-        const result = this.filterAndEmitItems
+        const result = this.filterAndEmitItems  // ✅ Ohne () - triggert die computed
       },
       deep: true,
+      immediate: true
+    },
+
+    rawItems: {
+      handler() {
+        const result = this.filterAndEmitItems
+      },
       immediate: true
     }
   },
@@ -199,15 +239,24 @@ export default {
 
     applyFilter (filter, categoryId) {
       console.log('applyFilter called with:', filter, categoryId)
+      console.log('🚨 Current appliedFilterQuery before:', this.appliedFilterQuery)
 
-      // Filter setzen
-      this.appliedFilterQuery = { ...this.appliedFilterQuery, ...filter }
-      console.log('Updated appliedFilterQuery:', this.appliedFilterQuery)
+      // ✅ Verwende die originale komplexe Logik
+      this.appliedFilterQuery = this.setAppliedFilterQuery(
+        filter,
+        this.appliedFilterQuery,
+        this.filterQuery  // filterQuery parameter
+      )
+
+      // ✅ localStorage speichern (war auch im Original)
+      this.filterQueryStorage.set(this.filterQuery)
+
+      console.log('🚨 New appliedFilterQuery after:', this.appliedFilterQuery)
     },
 
-    // Einfache Version von checkIfDisabled
     checkIfDisabled(appliedFilterQuery, categoryId) {
-      return false  // Erstmal alle enabled
+      return !!Object.values(appliedFilterQuery)
+        .find(el => el.condition?.memberOf === `${categoryId}_group`)
     },
 
     createFilterOptions (params) {
@@ -232,13 +281,15 @@ export default {
         })
       }
 
-      // INS NOTIZBUCH SCHREIBEN (das war das Fehlende!):
       this.setUngroupedFilterOptions({ categoryId, options: filterOptions })
       this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
 
       console.log('Written to store:', filterOptions)
-    },
 
+      if (isInitialWithQuery && filterQueryFromStorage) {
+        this.filterQuery = { ...this.filterQuery, ...filterQueryFromStorage }
+      }
+    },
 
     getInstitutionTagCategories(isInitial = false) {
       return this.fetchInstitutionTagCategories({
@@ -278,7 +329,8 @@ export default {
 
     // Einfache Version von getSelectedOptionsCount
     getSelectedOptionsCount(appliedFilterQuery, categoryId) {
-      return 0  // Erstmal zeige (0) für alle Kategorien
+      return Object.values(appliedFilterQuery)
+        .filter(el => el.condition?.memberOf === `${categoryId}_group`).length
     },
 
     // Methode 2: Handle einzelne Kategorie ändern
@@ -301,6 +353,18 @@ export default {
       console.log('Selected categories:', this.currentlySelectedFilterCategories)
     },
 
+    loadFilterStateFromStorage () {
+      const savedCategories = this.filterCategoriesStorage.get()
+      if (savedCategories) {
+        this.currentlySelectedFilterCategories = savedCategories
+      }
+
+      const savedFilterQuery = this.filterQueryStorage.get()
+      if (Object.keys(savedFilterQuery).length > 0) {
+        this.appliedFilterQuery = savedFilterQuery
+      }
+    },
+
     // Methode 3: Reset alle Filter
     reset() {
       console.log('Reset clicked')
@@ -317,6 +381,38 @@ export default {
       console.log('Reset completed - all filters cleared')
     },
 
+    // Aus filterHelpers.js - originale komplexe Filter-Merge-Logik
+    setAppliedFilterQuery (filter, currentAppliedFilterQuery, filterQuery, setMethod = null) {
+      // Remove groups from filter - only keep conditions
+      const selectedFilterOptions = Object.fromEntries(
+        Object.entries(filter).filter(([_key, value]) => value.condition)
+      )
+
+      const isReset = Object.keys(selectedFilterOptions).length === 0
+      const isAppliedFilterQueryEmpty = Object.keys(currentAppliedFilterQuery).length === 0
+
+      let newAppliedFilterQuery = { ...currentAppliedFilterQuery }
+
+      if (!isReset && isAppliedFilterQueryEmpty) {
+        Object.values(selectedFilterOptions).forEach(option => {
+          if (setMethod) {
+            setMethod(newAppliedFilterQuery, option.condition.value, option)
+          } else {
+            newAppliedFilterQuery[option.condition.value] = option
+          }
+        })
+      } else if (isReset) {
+        const filtersWithConditions = Object.fromEntries(
+          Object.entries(filterQuery).filter(([key, value]) => value.condition)
+        )
+        newAppliedFilterQuery = Object.keys(filtersWithConditions).length ? filtersWithConditions : {}
+      } else {
+        newAppliedFilterQuery = selectedFilterOptions
+      }
+
+      return newAppliedFilterQuery
+    },
+
     // Methode 1: Toggle alle Kategorien
     toggleAllCategories() {
       console.log('Toggle all categories clicked')
@@ -331,11 +427,18 @@ export default {
 
       console.log('All categories toggled:', this.currentlySelectedFilterCategories)
     },
+
+    updateFilterQuery(payload) {
+      this.filterQuery = { ...this.filterQuery, ...payload }
+
+      // localStorage speichern (wie im Original)
+      this.filterQueryStorage.set(this.filterQuery)
+    }
   },
 
   mounted() {
     const promises = [
-      this.getInstitutionTagCategories(true)  // ← Lädt alle Tags
+      this.getInstitutionTagCategories(true),  // ← Lädt alle Tags
     ]
   }
 }
