@@ -89,7 +89,7 @@ function getDataFromResponse (response, dataToUpdate, updatedData) {
   return dataToUpdate
 }
 
-function extractFileAttachments (attachments, includes, single = false) {
+function extractFileAttachments (attachments, includes) {
   const results = attachments
     .map(att => {
       const fileId = att?.relationships?.file?.data?.id
@@ -98,10 +98,6 @@ function extractFileAttachments (attachments, includes, single = false) {
       return file ? { id: file.id, ...file.attributes } : null
     })
     .filter(Boolean)
-
-  if (single) {
-    return results[0] || null
-  }
 
   return results
 }
@@ -192,7 +188,7 @@ function transformStatementStructure ({ el, includes, meta }) {
         }
 
         if (relationKey === 'sourceAttachment') {
-          statement.sourceAttachment = extractFileAttachments(items, includes, true)
+          statement.sourceAttachment = extractFileAttachments(items, includes)[0] ?? null
         }
 
         return
