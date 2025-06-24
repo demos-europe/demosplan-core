@@ -89,7 +89,7 @@ function getDataFromResponse (response, dataToUpdate, updatedData) {
   return dataToUpdate
 }
 
-function extractFileAttachments (attachments, includes, { single = false } = {}) {
+function extractFileAttachments (attachments, includes, single = false) {
   const results = attachments
     .map(att => {
       const fileId = att?.relationships?.file?.data?.id
@@ -119,9 +119,9 @@ function mapRelations (data, includes) {
     }))
 }
 
-function mapSingleRelation (data, includes) {
-  if (!data?.id) return null
-  const item = includes.find(incl => incl.id === data.id && incl.type === data.type)
+function mapSingleRelation ({ id, type }, includes) {
+  if (!id) return null
+  const item = includes.find(incl => incl.id === id && incl.type === type)
 
   return item ? { id: item.id, ...item.attributes } : null
 }
@@ -192,7 +192,7 @@ function transformStatementStructure ({ el, includes, meta }) {
         }
 
         if (relationKey === 'sourceAttachment') {
-          statement.sourceAttachment = extractFileAttachments(items, includes, { single: true })
+          statement.sourceAttachment = extractFileAttachments(items, includes, true)
         }
 
         return
