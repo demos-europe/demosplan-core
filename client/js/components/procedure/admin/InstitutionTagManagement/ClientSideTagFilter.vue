@@ -111,17 +111,15 @@ export default {
       currentlySelectedFilterCategories: [],
       institutionTagCategoriesCopy: {},
       initiallySelectedFilterCategories: [],
-      isLoading: false,
+      isLoading: true,
+
       filterCategoriesStorage: {
         get () {
-          const selectedFilterCategories =
-            localStorage.getItem('visibleFilterFlyouts')
-          return selectedFilterCategories ?
-            JSON.parse(selectedFilterCategories) : null
+          const selectedFilterCategories = localStorage.getItem('visibleFilterFlyouts')
+          return selectedFilterCategories ? JSON.parse(selectedFilterCategories) : null
         },
         set (selectedFilterCategories) {
-          localStorage.setItem('visibleFilterFlyouts',
-            JSON.stringify(selectedFilterCategories))
+          localStorage.setItem('visibleFilterFlyouts', JSON.stringify(selectedFilterCategories))
         }
       },
 
@@ -129,8 +127,8 @@ export default {
         get () {
           const filterQueryInStorage = localStorage.getItem('filterQuery')
           return filterQueryInStorage && filterQueryInStorage !== 'undefined'
-            ? JSON.parse(filterQueryInStorage)
-            : {}
+              ? JSON.parse(filterQueryInStorage)
+              : {}
         },
         set (filterQuery) {
           localStorage.setItem('filterQuery', JSON.stringify(filterQuery))
@@ -253,20 +251,25 @@ export default {
     createFilterOptions (params) {
       const { categoryId, isInitialWithQuery } = params
 
-      // Hole Tags für diese Kategorie
+      // 1. Selected Filter IDs aus APPLIED filters holen (KORREKT)
+      const selectedFilterOptionIds = Object.keys(this.appliedFilterQuery).filter(id => !id.includes('_group'))
+
+      // 2. Tags für diese Kategorie holen
       let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0
-        ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list()
-        : []
+          ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list()
+          : []
 
       if (Object.keys(filterOptions).length > 0) {
+        // 3. Options mit selected Status mappen
         filterOptions = Object.values(filterOptions).map(option => {
           const { id, attributes } = option
           const { name } = attributes
+          const selected = selectedFilterOptionIds.includes(id)
 
           return {
             id,
             label: name,
-            selected: false
+            selected
           }
         })
       }
@@ -274,8 +277,11 @@ export default {
       this.setUngroupedFilterOptions({ categoryId, options: filterOptions })
       this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
 
-      if (isInitialWithQuery && filterQueryFromStorage) {
-        this.filterQuery = { ...this.filterQuery, ...filterQueryFromStorage }
+      if (isInitialWithQuery) {
+        const filterQueryFromStorage = this.filterQueryStorage.get()
+        if (Object.keys(filterQueryFromStorage).length > 0) {
+          this.filterQuery = { ...this.filterQuery, ...filterQueryFromStorage }
+        }
       }
     },
 
@@ -336,6 +342,7 @@ export default {
           this.currentlySelectedFilterCategories.splice(index, 1)
         }
       }
+      this.filterCategoriesStorage.set(this.currentlySelectedFilterCategories)
     },
 
     loadFilterStateFromStorage () {
@@ -358,8 +365,9 @@ export default {
       // 2. Alle angewendeten Filter zurücksetzen
       this.appliedFilterQuery = {}
 
-      // 3. Später: Auch Search zurücksetzen (kommt noch)
-      // this.$emit('search-reset')
+      // 3. localStorage zurücksetzen (originalgetreu)
+      this.filterQueryStorage.reset()
+      this.filterCategoriesStorage.set([])
     },
 
     setAppliedFilterQuery (filter, currentAppliedFilterQuery, filterQuery, setMethod = null) {
@@ -380,11 +388,9 @@ export default {
           }
         })
       } else if (isReset) {
-        // Filter entfernen: nimm nur was im filterQuery steht
-        const filtersWithConditions = Object.fromEntries(
+        newAppliedFilterQuery = Object.fromEntries(
           Object.entries(filterQuery).filter(([key, value]) => value.condition)
         )
-        newAppliedFilterQuery = filtersWithConditions
       } else {
         // Cross-category filtering: merge selectedFilterOptions with existing filters from other categories
         const currentCategoryGroupKey = Object.values(selectedFilterOptions)[0]?.condition?.memberOf
@@ -411,30 +417,44 @@ export default {
       return newAppliedFilterQuery
     },
 
-    // Methode 1: Toggle alle Kategorien
     toggleAllCategories() {
+      const allSelected = this.currentlySelectedFilterCategories.length === this.filterCategories.length
+      const selectedFilterOptions = Object.values(this.appliedFilterQuery)
+      const categoriesWithSelectedOptions = []
 
-      if (this.currentlySelectedFilterCategories.length === 0) {
-        // Alle Kategorien auswählen
-        this.currentlySelectedFilterCategories = this.filterCategories.map(cat => cat.label)
-      } else {
-        // Alle Kategorien abwählen
-        this.currentlySelectedFilterCategories = []
-      }
+      selectedFilterOptions.forEach(option => {
+        const categoryId = option.condition.memberOf.replace('_group', '')
+        const category = this.filterCategories.find(cat => cat.id === categoryId)
+
+        if (category && !categoriesWithSelectedOptions.includes(category.label)) {
+          categoriesWithSelectedOptions.push(category.label)
+        }
+      })
+
+      this.currentlySelectedFilterCategories = allSelected
+          ? categoriesWithSelectedOptions  // Alle → nur die mit aktiven Filtern
+          : this.filterCategories.map(filterCategory => filterCategory.label)  // Nicht alle → alle
+
+      this.filterCategoriesStorage.set(this.currentlySelectedFilterCategories)
     },
 
     updateFilterQuery(payload) {
       this.filterQuery = { ...this.filterQuery, ...payload }
-
-      // localStorage speichern (wie im Original)
       this.filterQueryStorage.set(this.filterQuery)
     }
   },
 
   mounted() {
+    this.loadFilterStateFromStorage()
+
     const promises = [
-      this.getInstitutionTagCategories(true),  // ← Lädt alle Tags
+      this.getInstitutionTagCategories(true)
     ]
+
+    Promise.allSettled(promises)
+        .then(() => {
+          this.isLoading = false
+        })
   }
 }
 </script>
