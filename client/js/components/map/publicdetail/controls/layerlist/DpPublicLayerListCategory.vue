@@ -83,16 +83,8 @@ export default {
     }
   },
 
-  emits: [
-    'layer:hideOtherCategories',
-    'layer:showParent',
-    'layer:toggleChildCategories',
-    'layer:toggleChildLayer'
-  ],
-
   data () {
     return {
-      isVisible: true,
       unfolded: false,
       appearsAsLayer: this.group.attributes.layerWithChildrenHidden,
       contextualHelp: '',
@@ -105,16 +97,16 @@ export default {
       return 'contextualHelp' + this.group.id
     },
 
-    id () {
-      return 'layergroup' + this.group.id.replaceAll('-', '')
-    },
-
     isTopLevelCategory () {
       return this.rootId === this.group.attributes.parentId
     },
 
+    isVisible () {
+      return this.$store.state.Layers.layerStates[this.group.id]?.isVisible
+    },
+
     layers () {
-      return this.elementListForLayerSidebar(this.group.id, this.layerType, true)
+      return this.elementListForLayerSidebar(this.group.id, 'overlay', true)
     },
 
     ...mapGetters('Layers', ['rootId', 'element', 'elementListForLayerSidebar'])
@@ -129,115 +121,19 @@ export default {
       return prefixClass(classList)
     },
 
-    toggle (isVisible) {
-      this.isVisible = (typeof isVisible !== 'undefined') ? isVisible : (this.isVisible === false)
-    },
-
-    toggleChildren (isVisible, visibilityGroupId) {
-      visibilityGroupId = visibilityGroupId || false
-
-      const visible = isVisible || this.isVisible
-      this.$root.$emit('layer:toggleChildCategories', { categories: this.group.relationships.categories.data, isVisible: visible })
-      this.$root.$emit('layer:toggleChildLayer', { layer: this.group.relationships.gisLayers.data, isVisible: visible, visibilityGroupId })
-    },
-
     // Toggle self and children
     toggleFromSelf () {
-      this.toggle()
-      this.toggleChildren()
-
-      if (this.isVisible) {
-        this.$root.$emit('layer:showParent', this.group.attributes.parentId)
-      }
-
-      // If the feature layerGroupsAlternateVisibility is activated
-      if (this.isVisible && (this.layerGroupsAlternateVisibility === true && this.group.attributes.layerWithChildrenHidden === false)) {
-        this.$root.$emit('layer:hideOtherCategories', { groupId: this.id, categoryId: this.group.id })
-      }
-    },
-
-    // Toggle category visible when child category is toggled visible
-    toggleFromChild (id) {
-      if (id === this.group.id) {
-        this.toggle(true)
-        this.$root.$emit('layer:showParent', this.group.attributes.parentId)
-      }
-    },
-
-    // Toggle child categories when parent is toggled
-    toggleFromParent (childObjects, isVisible) {
-      if (childObjects.filter(category => category.id === this.group.id).length > 0) {
-        this.toggle(isVisible)
-        this.toggleChildren()
-      }
-    },
-
-    isParentOf (elementList, categoryId) {
-      let isParent = false
-
-      for (const key in elementList) {
-        //  Skip loop if the property is from prototype
-        if (hasOwnProp(elementList, key) === false) continue
-
-        const element = elementList[key]
-
-        //  If the currently looped category is the direct parent of the toggled layer, return here
-        if (element.type === 'GisLayerCategory' && element.id === categoryId) {
-          return true
-        }
-
-        //  If the currently looped category is not the parent of toggled layer, check its child categories
-        if (element.type === 'GisLayerCategory' && element.id !== categoryId) {
-          const elementList = this.elementListForLayerSidebar(element.id, 'overlay', true)
-
-          isParent = this.isParentOf(elementList, categoryId)
-        }
-      }
-
-      return isParent
-    },
-
-    toggleFromOtherCategories (visibilityGroupId, categoryId) {
-      if (this.isTopLevelCategory === false || /*  If this is not a top level category, return */
-                    this.appearsAsLayer || /* If its a category that appears as layer it should not act like a category */
-                    this.isParentOf(this.layers, categoryId) || /* If current category or any of its child categories is parent of toggled layer */
-                    this.group.id === categoryId) {
-        return
-      }
-
-      /*
-       * If toggled layer is not a child of current category
-       * or any of its child categories
-       * and not a top level layer
-       * toggle current category and its children invisible
-       */
-      if ((categoryId === this.rootId) === false) {
-        this.toggle(false)
-        this.toggleChildren(false, visibilityGroupId)
-      }
+      this.$store.dispatch('Layers/updateLayerVisibility', {
+        id: this.group.id,
+        isVisible: !this.isVisible,
+        layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility
+      })
     }
-
   },
 
   mounted () {
-    this.$root.$on('layer:showParent', id => {
-      this.toggleFromChild(id)
-    })
-
-    this.$root.$on('layer:toggleChildCategories', ({ categories, isVisible }) => {
-      this.toggleFromParent(categories, isVisible)
-    })
-
-    if (this.layerGroupsAlternateVisibility) {
-      this.$root.$on('layer:hideOtherCategories', ({ groupId, categoryId }) => {
-        this.toggleFromOtherCategories(groupId, categoryId)
-      })
-    }
-
     // Handle data for the category that has to appear as Layer and hides his children
-    if (this.group.attributes.layerWithChildrenHidden) {
-      this.appearsAsLayer = true
-      this.isVisible = this.group.attributes.hasDefaultVisibility
+    if (this.appearsAsLayer) {
       // Get contextualHelp from all children
       this.layers.forEach(el => {
         const contextualHelp = this.element({ id: el.id, type: 'ContextualHelp' })

@@ -153,6 +153,20 @@ const LayersStore = {
     },
 
     /**
+     * Sets the initial state of a layer based on API data
+     *
+     * @param state
+     * @param data
+     *
+     * returns {void}
+     */
+    setInitialLayerState (state) {
+      state.apiData.included.forEach(elem => {
+        state.layerStates[elem.id] = { isVisible: elem.attributes.hasDefaultVisibility, opacity: elem.attributes.opacity }
+      })
+    },
+
+    /**
      * Adds a legend object to the legends array
      *
      * @param {Object} data - Legend object with layerId, treeOrder, mapOrder, defaultVisibility, url
@@ -173,11 +187,11 @@ const LayersStore = {
      *
      * @returns {void}
      */
-    setAttributeForLayer (state, data) {
-      const index = state.apiData.included.findIndex(elem => elem.id === data.id)
+    setAttributeForLayer (state, { id, attribute, value }) {
+      const index = state.apiData.included.findIndex(elem => elem.id === id)
 
       if (index >= 0) {
-        state.apiData.included[index].attributes[data.attribute] = data.value
+        state.apiData.included[index].attributes[attribute] = value
       }
     },
 
@@ -349,7 +363,6 @@ const LayersStore = {
     setIsMapLoaded (state) {
       state.isMapLoaded = true
     }
-
   },
 
   actions: {
@@ -582,6 +595,187 @@ const LayersStore = {
             categoryId: element.categoryId,
             relationshipType: element.relationshipType
           })
+        })
+    },
+
+    /**
+     * Recursively finds the topmost parent category for a given layer
+     *
+     * @param {Object} layer - Layer object to find parent for
+     *
+     * @returns {string} Root category ID
+     */
+    findMostParentCategory ({ dispatch, state }, layer) {
+      const rootId = state.apiData.data[0].id
+      const parentId = layer.attributes.categoryId || layer.attributes.parentId
+
+      if (parentId === rootId) {
+        return layer.id
+      } else {
+        const parent = state.apiData.included.find(el => el.id === parentId)
+
+        // If the parent is not in the included list, it has to be the root category
+        if (!parent) {
+          return layer.id
+        }
+
+        return dispatch('findMostParentCategory', parent)
+      }
+    },
+
+    /**
+     * Recursively toggles visibility of a category and all its children
+     *
+     * @param {Object} payload - Payload object
+     * @param {string} payload.id - Category ID
+     * @param {boolean} payload.value - Visibility value
+     *
+     * @returns {void}
+     */
+    toggleCategoryAndItsChildren ({ dispatch, commit, state }, { id, isVisible }) {
+      const el = state.apiData.included.find(el => el.id === id)
+
+      commit('setLayerState', { id: el.id, key: 'isVisible', value: isVisible })
+
+      if (el.type === 'GisLayerCategory') {
+        el.relationships?.categories?.data.forEach(cat => {
+          dispatch('toggleCategoryAndItsChildren', { id: cat.id, isVisible })
+        })
+
+        el.relationships?.gisLayers?.data.forEach(layer => {
+          dispatch('toggleCategoryAndItsChildren', { id: layer.id, isVisible })
+        })
+      }
+    },
+
+    /**
+     * Toggles base layer visibility (only one base layer can be visible at a time)
+     *
+     * @param {Object} payload - Payload object
+     * @param {string} payload.id - Base layer ID
+     * @param {boolean} payload.value - Visibility value
+     *
+     * @returns {void}
+     */
+    toggleBaselayer ({ dispatch, state, commit }, { id, value }) {
+      // You can't toggle a base layer to invisible (if its visible, You have to toggle a different one)
+      if (value) {
+        console.log('toggle base layer -- really')
+        state.apiData.included.forEach(potetialBaseLayer => {
+          if (potetialBaseLayer.attributes.layerType === 'base' && potetialBaseLayer.id !== id) {
+            console.log('toggle base layer -- not the one', potetialBaseLayer.attributes.name, potetialBaseLayer.id)
+            commit('setLayerState', { id: potetialBaseLayer.id, key: 'isVisible', value: false })
+          }
+
+          if (potetialBaseLayer.attributes.layerType === 'base' && potetialBaseLayer.id === id) {
+            console.log('toggle base layer -- the one', potetialBaseLayer.attributes.name, potetialBaseLayer.id)
+            commit('setLayerState', { id: potetialBaseLayer.id, key: 'isVisible', value: true })
+          }
+        })
+      }
+      console.log('toggle baselayer -- end', state.layerStates)
+    },
+
+    /**
+     * Toggles visibility for all layers in a visibility group
+     *
+     * @param {Object} payload - Payload object
+     * @param {string} payload.visibilityGroupId - Visibility group ID
+     * @param {boolean} payload.value - Visibility value
+     *
+     * @returns {void}
+     */
+    toggleVisiblityGroup ({ dispatch, state, commit }, { visibilityGroupId, value }) {
+      state.apiData.included.forEach(potetialGroupMember => {
+        if (potetialGroupMember.attributes.visibilityGroupId === visibilityGroupId) {
+          commit('setLayerState', { id: potetialGroupMember.id, key: 'isVisible', value })
+        }
+      })
+    },
+
+    /**
+     * Updates layer visibility with various logic modes (exclusive, grouped, etc.)
+     *
+     * @param {string} id - Layer ID
+     * @param {boolean} isVisible - Visibility value
+     * @param {boolean} layerGroupsAlternateVisibility - Whether to use alternate visibility mode
+     * @param {boolean} exclusively - Whether this is exclusive (base layer) mode
+     * @param {boolean} updateChildren - Whether to update child layers as well
+     *
+     * @returns {void}
+     */
+    updateLayerVisibility ({ dispatch, state, commit }, {
+      id,
+      isVisible,
+      layerGroupsAlternateVisibility = false,
+      exclusively = false,
+      updateChildren = true
+    }) {
+      const layer = state.apiData.included.find(layer => layer.id === id)
+
+      if (!layer) {
+        console.error(`Layer with ID ${id} not found in the store.`)
+        return
+      }
+
+      const parentId = layer.attributes.categoryId || layer.attributes.parentId
+
+      if (exclusively) {
+        // If its a base layer, we toggle it exclusively (only one baselayer can be visible at a time)
+        dispatch('toggleBaselayer', { id, value: isVisible })
+      } else if (layer.attributes.visibilityGroupId) {
+        // If the Layer has a visibilityGroupId, we toggle the whole group (all layer with the same visibilityGroupId)
+        dispatch('toggleVisiblityGroup', { visibilityGroupId: layer.attributes.visibilityGroupId, value: isVisible })
+      } else if (layerGroupsAlternateVisibility && isVisible && layer.attributes.layerType === 'overlay') {
+        // If the layer is an overlay and the flag hasAlternateVisibility is set, we toggle all other categories and category-members
+        dispatch('toggleCategoryAlternatevely', { layer })
+      } else {
+        commit('setLayerState', { id, key: 'isVisible', value: isVisible })
+
+        // If we toggle a layer to visible, then the parent category should be visible as well
+        if (isVisible && parentId) {
+          /*
+           * When we update the parent of a Category, we have to prevent an infinity loop.
+           * So we have to prevent updating the children again
+           */
+          dispatch('updateLayerVisibility', { id: parentId, key: 'isVisible', isVisible, updateChildren: false })
+        }
+
+        // If we toggle a category, all children should be toggled as well
+        if (layer.type === 'GisLayerCategory' && updateChildren) {
+          dispatch('toggleAllChildren', { layer, isVisible })
+        }
+      }
+    },
+
+    toggleAllChildren ({ dispatch, state }, { layer, isVisible }) {
+      Object.values(layer.relationships).forEach(type => {
+        if (type.data) {
+          type.data.forEach(child => {
+            dispatch('updateLayerVisibility', { id: child.id, isVisible })
+          })
+        }
+      })
+    },
+
+    async toggleCategoryAlternatevely ({ dispatch, state, commit }, { layer }) {
+      /*
+       * If the layer is an overlay and the flag hasAlternateVisibility is set, we need to hide all other categories and category-members,
+       * that don't belong to the category of the current layer
+       */
+      const toggledCatId = await dispatch('findMostParentCategory', layer)
+        .catch(() => {
+          console.error('Error finding most parent category for layer:', layer.id)
+
+          return layer.id
+        })
+
+      dispatch('toggleCategoryAndItsChildren', { id: toggledCatId, isVisible: true })
+
+      state.apiData.data[0].relationships.categories.data
+        .filter(cat => cat.id !== toggledCatId)
+        .forEach(cat => {
+          dispatch('toggleCategoryAndItsChildren', { id: cat.id, isVisible: false })
         })
     }
   },
