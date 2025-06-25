@@ -475,42 +475,46 @@
         <!-- Show radio buttons if anonymous statements are allowed -->
         <fieldset
           v-if="allowAnonymousStatements"
-          aria-required="true"
+          id="personalInfoFieldset"
           :aria-hidden="step === 2"
           :class="prefixClass('mt-5')"
-          id="personalInfoFieldset"
+          aria-required="true"
           role="radiogroup"
-          required>
+          required
+        >
           <div
-            aria-live="polite"
-            aria-relevant="all"
             :class="[
               formData.r_useName === '1' ? prefixClass('bg-color--grey-light-2') : '',
               prefixClass('c-statement__formblock')
             ]"
-            aria-labelledby="statement-detail-post-publicly">
+            aria-labelledby="statement-detail-post-publicly"
+            aria-live="polite"
+            aria-relevant="all"
+          >
             <dp-radio
+              id="r_useName_1"
               :checked="formData.r_useName === '1'"
               :class="prefixClass('mb-1')"
-              data-cy="submitPublicly"
-              id="r_useName_1"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_publicly')
               }"
+              data-cy="submitPublicly"
               name="r_useName"
               value="1"
-              @change="val => setPrivacyPreference({r_useName: '1'})" />
+              @change="val => setPrivacyPreference({r_useName: '1'})"
+            />
             <div
               v-show="formData.r_useName === '1'"
               :class="prefixClass('layout mb-3 ml-2')">
               <component
                 v-for="formDefinition in personalDataFormDefinitions"
-                :is="formDefinition.component"
-                :draft-statement-id="draftStatementId"
-                :required="formDefinition.required"
-                :form-options="formOptions"
                 :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
-                :key="formDefinition.key" />
+                :draft-statement-id="draftStatementId"
+                :form-options="formOptions"
+                :is="formDefinition.component"
+                :key="formDefinition.key"
+                :required="formDefinition.required"
+              />
             </div>
           </div>
           <div
@@ -519,16 +523,17 @@
               prefixClass('c-statement__formblock')
             ]">
             <dp-radio
-              aria-labelledby="statement-detail-post-anonymously"
-              :checked="formData.r_useName === '0'"
-              data-cy="submitAnonymously"
               id="r_useName_0"
+              :checked="formData.r_useName === '0'"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_anonymously')
               }"
+              aria-labelledby="statement-detail-post-anonymously"
+              data-cy="submitAnonymously"
               name="r_useName"
               value="0"
-              @change="val => setPrivacyPreference({r_useName: '0'})" />
+              @change="val => setPrivacyPreference({r_useName: '0'})"
+            />
           </div>
         </fieldset>
 
@@ -539,12 +544,13 @@
           :class="prefixClass('layout mb-3 ml-2')">
           <component
             v-for="formDefinition in personalDataFormDefinitions"
-            :is="formDefinition.component"
-            :draft-statement-id="draftStatementId"
-            :required="formDefinition.required"
-            :form-options="formOptions"
             :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
-            :key="formDefinition.key" />
+            :draft-statement-id="draftStatementId"
+            :form-options="formOptions"
+            :is="formDefinition.component"
+            :key="formDefinition.key"
+            :required="formDefinition.required"
+          />
         </div>
 
         <component
