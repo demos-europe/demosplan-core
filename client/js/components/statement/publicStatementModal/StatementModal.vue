@@ -538,20 +538,26 @@
         </fieldset>
 
         <!-- Show the form directly if anonymous statements are not allowed -->
-        <div
+        <fieldset
           v-else
-          v-show="formData.r_useName === '1'"
-          :class="prefixClass('layout mb-3 ml-2')">
-          <component
-            v-for="formDefinition in personalDataFormDefinitions"
-            :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
-            :draft-statement-id="draftStatementId"
-            :form-options="formOptions"
-            :is="formDefinition.component"
-            :key="formDefinition.key"
-            :required="formDefinition.required"
-          />
-        </div>
+          id="personalInfoFieldset"
+          :aria-hidden="step === 2"
+          :class="prefixClass('mt-4')"
+          aria-required="true"
+        >
+          <legend class="sr-only">{{ Translator.trans('personal.data') }}</legend>
+          <div :class="prefixClass('layout mb-3')">
+            <component
+              v-for="formDefinition in personalDataFormDefinitions"
+              :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
+              :draft-statement-id="draftStatementId"
+              :form-options="formOptions"
+              :is="formDefinition.component"
+              :key="formDefinition.key"
+              :required="formDefinition.required"
+            />
+          </div>
+        </fieldset>
 
         <component
           v-for="formDefinition in statementFeedbackDefinitions"
