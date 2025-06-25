@@ -49,7 +49,6 @@ instance.appContext.app.use(MapPlugin, {
 })
 
 const handleDrawing = (event) => {
-  console.log(event.detail[0].features)
   let payload = {}
   // if all geometry was deleted, reset location reference
   if (event.detail[0].features.length === 0) {
@@ -62,7 +61,7 @@ const handleDrawing = (event) => {
   } else {
     payload = {
       "r_location": "point",
-      "r_location_geometry": event.detail,
+      "r_location_geometry": event.detail[0],
       "r_location_priority_area_key": "",
       "r_location_priority_area_type": "",
       "r_location_point": "",
