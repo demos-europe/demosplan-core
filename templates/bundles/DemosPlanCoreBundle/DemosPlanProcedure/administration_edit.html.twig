@@ -982,9 +982,9 @@
                                 {% else %}
                                     {# Allow anonymous statements by default #}
                                     <dp-input
+                                        :value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
                                         name="allowAnonymousStatements"
                                         type="hidden"
-                                        value="1"
                                     >
                                     </dp-input>
                                 {% endif %}
