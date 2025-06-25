@@ -61,7 +61,7 @@ const handleDrawing = (event) => {
   } else {
     payload = {
       "r_location": "point",
-      "r_location_geometry": event.detail[0],
+      "r_location_geometry": JSON.stringify(event.detail[0]),
       "r_location_priority_area_key": "",
       "r_location_priority_area_type": "",
       "r_location_point": "",
