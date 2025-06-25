@@ -503,6 +503,7 @@
               value="1"
               @change="val => setPrivacyPreference({r_useName: '1'})"
             />
+
             <div
               v-show="formData.r_useName === '1'"
               :class="prefixClass('layout mb-3 ml-2')">
@@ -517,6 +518,7 @@
               />
             </div>
           </div>
+
           <div
             :class="[
               formData.r_useName === '0' ? prefixClass('bg-color--grey-light-2') : '',
