@@ -52,6 +52,7 @@ instance.appContext.app.use(MapPlugin, {
 
 const handleDrawing = (event) => {
   let payload
+
   // if all geometry was deleted, reset location reference
   if (event.detail[0].features.length === 0) {
     payload = {
@@ -70,6 +71,7 @@ const handleDrawing = (event) => {
       "location_is_set": "geometry"
     }
   }
+
   emit('location-drawing', payload)
 }
 

@@ -1463,6 +1463,7 @@ export default {
 
     setLocation (data = {}, toggle = true) {
       this.setStatementData(data)
+
       if (toggle) {
         this.toggleModal(false)
         // We need this to reset the animation so it can be fired again.
