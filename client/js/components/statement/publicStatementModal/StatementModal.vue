@@ -1462,7 +1462,6 @@ export default {
     },
 
     setLocation (data = {}, toggle = true) {
-      console.log(data)
       this.setStatementData(data)
       if (toggle) {
         this.toggleModal(false)
