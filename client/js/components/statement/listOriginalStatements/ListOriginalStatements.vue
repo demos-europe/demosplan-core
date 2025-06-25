@@ -715,7 +715,7 @@ export default {
     this.initPagination()
     this.fetchOriginalStatementsByPage(1)
 
-    if (hasPermission('feature_admin_export_original_statement_csv')) {
+    if (hasPermission('feature_admin_export_original_statement')) {
       this.fetchOriginalStatementIds()
     }
   }
