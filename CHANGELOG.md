@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.5.0 (2025-06-25)
 - Export Original Statements as docx in the Statement List
 - Allow filtering of institution tags in DpAddOrganizationList
 
