@@ -304,22 +304,20 @@ class ServiceStorageTest extends FunctionalTestCase
 
     private function prepareNewProcedureDataArray(): array
     {
-
         return [
-            'r_copymaster' => $this->masterBlueprint->getId(),
-            'agencyMainEmailAddress' => 'test@example.com',
-            'action' => 'new',
-            'r_startdate' => '01.02.2055',
-            'r_enddate' => '01.02.2056',
-            'r_externalName' => 'testAnonymousDefault',
-            'r_name' => 'testAnonymousDefault',
-            'r_master' => false,
-            'orgaId' => $this->testUser->getOrganisationId(),
-            'orgaName' => $this->testUser->getOrgaName(),
+            'r_copymaster'             => $this->masterBlueprint->getId(),
+            'agencyMainEmailAddress'   => 'test@example.com',
+            'action'                   => 'new',
+            'r_startdate'              => '01.02.2055',
+            'r_enddate'                => '01.02.2056',
+            'r_externalName'           => 'testAnonymousDefault',
+            'r_name'                   => 'testAnonymousDefault',
+            'r_master'                 => false,
+            'orgaId'                   => $this->testUser->getOrganisationId(),
+            'orgaName'                 => $this->testUser->getOrgaName(),
             'publicParticipationPhase' => 'configuration',
-            'r_procedure_type' => $this->procedureType->getId(),
-            'r_desc' => 'Test default anonymous statements value',
+            'r_procedure_type'         => $this->procedureType->getId(),
+            'r_desc'                   => 'Test default anonymous statements value',
         ];
-
     }
 }
