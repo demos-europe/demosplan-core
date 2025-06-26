@@ -158,11 +158,7 @@ All rights reserved
 
 <script>
 import {
-  DpButton,
-  DpCheckbox,
   DpDataTable,
-  DpFlyout,
-  DpIcon,
   DpPager,
   DpSearchField
 } from '@demos-europe/demosplan-ui'
