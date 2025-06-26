@@ -16,12 +16,12 @@ All rights reserved
         class="bg-surface-medium rounded pb-1 pt-[4px]"
         data-cy="dpAddOrganisationList:filterCategories">
         <template v-slot:trigger>
-                <span :title="Translator.trans('filters.more')">
-                  <dp-icon
-                    aria-hidden="true"
-                    class="inline"
-                    icon="faders" />
-                </span>
+          <span :title="Translator.trans('filters.more')">
+            <dp-icon
+              aria-hidden="true"
+              class="inline"
+              icon="faders" />
+          </span>
         </template>
         <!-- 'More filters' flyout -->
         <div>
@@ -31,7 +31,6 @@ All rights reserved
             v-text="Translator.trans('toggle_all')"
             @click="toggleAllCategories" />
           <div v-if="!isLoading">
-
             <dp-checkbox
               v-for="category in filterCategories"
               :key="category.id"
@@ -40,8 +39,8 @@ All rights reserved
               :data-cy="`dpAddOrganisationList:filterCategoriesSelect:${category.label}`"
               :disabled="checkIfDisabled(appliedFilterQuery, category.id)"
               :label="{
-                      text: `${category.label} (${getSelectedOptionsCount(appliedFilterQuery, category.id)})`
-                    }"
+                text: `${category.label} (${getSelectedOptionsCount(appliedFilterQuery, category.id)})`
+              }"
               @change="handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
           </div>
         </div>
@@ -74,10 +73,25 @@ All rights reserved
 </template>
 
 <script>
-import { DpButton, DpCheckbox, DpIcon, DpFlyout } from '@demos-europe/demosplan-ui'
-import { mapActions, mapGetters, mapMutations, mapState} from 'vuex'
-import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout.vue'
+import { DpButton, DpCheckbox, DpFlyout, DpIcon } from '@demos-europe/demosplan-ui'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 
+/**
+ * ClientSideTagFilter - Client-side filtering component for institution tags
+ *
+ * Provides filtering functionality for organization tables by institution tags.
+ * Handles cross-category filtering, localStorage persistence, and FilterFlyout integration.
+ * Extracted from OrganizationTable to create a reusable filtering solution.
+ *
+ * @component
+ * @example
+ * <client-side-tag-filter
+ *   :filter-categories="allFilterCategories"
+ *   :raw-items="rowItems"
+ *   :procedure-id="procedureId"
+ *   @itemsFiltered="filteredItems = $event" />
+ */
 export default {
   name: 'ClientSideTagFilter',
 
@@ -106,6 +120,10 @@ export default {
     }
   },
 
+  emits: [
+    'itemsFiltered'
+  ],
+
   data () {
     return {
       appliedFilterQuery: {},
@@ -128,8 +146,8 @@ export default {
         get () {
           const filterQueryInStorage = localStorage.getItem('filterQuery')
           return filterQueryInStorage && filterQueryInStorage !== 'undefined'
-              ? JSON.parse(filterQueryInStorage)
-              : {}
+            ? JSON.parse(filterQueryInStorage)
+            : {}
         },
         set (filterQuery) {
           localStorage.setItem('filterQuery', JSON.stringify(filterQuery))
@@ -155,30 +173,7 @@ export default {
     }),
 
     isQueryApplied () {
-      return this.currentlySelectedFilterCategories.length > 0
-    },
-
-    filterAndEmitItems() {
-      if (!this.rawItems) {
-        console.error('rawItems is undefined!')
-        return
-      }
-
-      let filteredItems = this.rawItems
-
-      // Wenn Filter angewendet sind
-      if (Object.keys(this.appliedFilterQuery).length > 0) {
-        filteredItems = this.rawItems.filter(item => {
-          return Object.values(this.appliedFilterQuery).every(filterCondition => {
-            if (!filterCondition.condition) return true
-
-            const tagIds = item.assignedTags?.map(tag => tag.id) || []
-            return tagIds.includes(filterCondition.condition.value)
-          })
-        })
-      }
-
-      this.$emit('items-filtered', filteredItems)
+      return Object.keys(this.appliedFilterQuery).length > 0
     },
 
     filterCategoriesToBeDisplayed () {
@@ -203,25 +198,25 @@ export default {
 
   watch: {
     appliedFilterQuery: {
-      handler() {
-        const result = this.filterAndEmitItems  // ✅ Ohne () - triggert die computed
+      handler () {
+        this.filterAndEmitItems()
       },
       deep: true,
       immediate: true
     },
 
     rawItems: {
-      handler() {
-        const result = this.filterAndEmitItems
+      handler () {
+        this.filterAndEmitItems()
       },
       immediate: true
     }
   },
 
   methods: {
-    ...mapActions('FilterFlyout', {
-      updateFilterQuery: 'updateFilterQuery'
-    }),
+    ...mapActions('FilterFlyout', [
+      'updateFilterQuery'
+    ]),
 
     ...mapActions('InstitutionTagCategory', {
       fetchInstitutionTagCategories: 'list'
@@ -234,43 +229,35 @@ export default {
     }),
 
     applyFilter (filter, categoryId) {
-      console.log('🚀 applyFilter ENTRY - filter:', filter, 'categoryId:', categoryId)
-
-      console.log('🔥 APPLY FILTER CALLED:', filter)
-      console.log('🔥 categoryId:', categoryId)
-      console.log('🔥 BEFORE appliedFilterQuery:', this.appliedFilterQuery)
-
       this.appliedFilterQuery = this.setAppliedFilterQuery(
         filter,
         this.appliedFilterQuery,
-        this.filterQuery,
-          null,
-          categoryId
+        categoryId
       )
-      console.log('🔥 AFTER appliedFilterQuery:', this.appliedFilterQuery)
 
       this.filterQueryStorage.set(this.appliedFilterQuery)
     },
 
-
-    checkIfDisabled(appliedFilterQuery, categoryId) {
+    checkIfDisabled (appliedFilterQuery, categoryId) {
       return !!Object.values(appliedFilterQuery)
         .find(el => el.condition?.memberOf === `${categoryId}_group`)
     },
 
+    /**
+     * Creates filter options for FilterFlyout with correct selected state
+     * Maps institution tags to FilterFlyout format and marks selected options
+     * @param {Object} params - Parameters containing categoryId and isInitialWithQuery
+     */
     createFilterOptions (params) {
       const { categoryId, isInitialWithQuery } = params
 
-      // 1. Selected Filter IDs aus APPLIED filters holen (KORREKT)
       const selectedFilterOptionIds = Object.keys(this.appliedFilterQuery).filter(id => !id.includes('_group'))
 
-      // 2. Tags für diese Kategorie holen
       let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0
-          ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list()
-          : []
+        ? this.institutionTagCategoriesCopy[categoryId].relationships.tags.list()
+        : []
 
       if (Object.keys(filterOptions).length > 0) {
-        // 3. Options mit selected Status mappen
         filterOptions = Object.values(filterOptions).map(option => {
           const { id, attributes } = option
           const { name } = attributes
@@ -295,7 +282,33 @@ export default {
       }
     },
 
-    getInstitutionTagCategories(isInitial = false) {
+    /**
+     * Filters raw items based on applied filter query and emits result to parent
+     * Implements AND logic across filter conditions
+     */
+    filterAndEmitItems () {
+      let filteredItems = this.rawItems
+
+      if (!this.rawItems) {
+        console.error('rawItems is undefined!')
+        return
+      }
+
+      if (Object.keys(this.appliedFilterQuery).length > 0) {
+        filteredItems = this.rawItems.filter(item => {
+          return Object.values(this.appliedFilterQuery).every(filterCondition => {
+            if (!filterCondition.condition) return true
+
+            const tagIds = item.assignedTags?.map(tag => tag.id) || []
+            return tagIds.includes(filterCondition.condition.value)
+          })
+        })
+      }
+
+      this.$emit('itemsFiltered', filteredItems)
+    },
+
+    getInstitutionTagCategories (isInitial = false) {
       return this.fetchInstitutionTagCategories({
         fields: {
           InstitutionTagCategory: [
@@ -316,21 +329,17 @@ export default {
         ].join()
       })
         .then(() => {
-          // Copy the object to avoid issues with filter requests
           this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
 
           if (isInitial) {
-            // Initialwerte für Filter-Kategorien setzen (originalgetreu)
             const selectedFilterCategoriesInStorage = this.filterCategoriesStorage.get()
 
             this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null
-                ? selectedFilterCategoriesInStorage
-                : Object.values(this.institutionTagCategoriesCopy).slice(0, 5).map(category => category.attributes.name)
+              ? selectedFilterCategoriesInStorage
+              : Object.values(this.institutionTagCategoriesCopy).slice(0, 5).map(category => category.attributes.name)
 
-            // Aktuelle Auswahl setzen
             this.currentlySelectedFilterCategories = [...this.initiallySelectedFilterCategories]
           }
-
 
           return this.institutionTagCategoriesCopy
         })
@@ -340,20 +349,14 @@ export default {
         })
     },
 
-    getSelectedOptionsCount(appliedFilterQuery, categoryId) {
+    getSelectedOptionsCount (appliedFilterQuery, categoryId) {
       const result = Object.values(appliedFilterQuery)
         .filter(el => el.condition?.memberOf === `${categoryId}_group`).length
 
-
-      console.log(`📊 getSelectedOptionsCount for ${categoryId}:`, result)
-      console.log(`📊 appliedFilterQuery:`, appliedFilterQuery)
-
       return result
-
     },
 
-    handleChange(categoryLabel, isSelected) {
-
+    handleChange (categoryLabel, isSelected) {
       if (isSelected) {
         if (!this.currentlySelectedFilterCategories.includes(categoryLabel)) {
           this.currentlySelectedFilterCategories.push(categoryLabel)
@@ -367,60 +370,47 @@ export default {
       this.filterCategoriesStorage.set(this.currentlySelectedFilterCategories)
     },
 
+    /**
+     * Loads persisted filter state from localStorage on component mount
+     * Restores both visible categories and applied filters
+     */
     loadFilterStateFromStorage () {
-      console.log('🔄 LOAD START: localStorage keys:', Object.keys(localStorage))
-
       const savedCategories = this.filterCategoriesStorage.get()
-      console.log('🔄 LOAD: savedCategories:', savedCategories)
 
       if (savedCategories) {
         this.currentlySelectedFilterCategories = savedCategories
       }
 
       const savedFilterQuery = this.filterQueryStorage.get()
-      console.log('🔄 LOAD: savedFilterQuery:', savedFilterQuery)
-      console.log('🔄 LOAD: keys count:', Object.keys(savedFilterQuery).length)
-
-      console.log('🔄 RELOAD: savedFilterQuery:', savedFilterQuery)
-      console.log('🔄 RELOAD: keys count:', Object.keys(savedFilterQuery).length)
 
       if (Object.keys(savedFilterQuery).length > 0) {
-        console.log('🔄 LOAD: Setting appliedFilterQuery to:', savedFilterQuery)
-
         this.appliedFilterQuery = savedFilterQuery
-        this.updateFilterQuery(savedFilterQuery)
-
-        console.log('🔄 RELOAD: appliedFilterQuery set to:', this.appliedFilterQuery)
-        console.log('🔄 RELOAD: filterQuery set to:', this.filterQuery)
-
-        // Force watch trigger
-        this.$nextTick(() => {
-          console.log('🔄 LOAD: After nextTick - appliedFilterQuery:', this.appliedFilterQuery)
-          this.filterAndEmitItems
-        })
-
+        this.updateLocalFilterQuery(savedFilterQuery)
       }
     },
 
-    // Methode 3: Reset alle Filter
-    reset() {
+    reset () {
       this.appliedFilterQuery = {}
       this.filterQueryStorage.reset()
 
-      // FilterFlyouts resetten
       if (this.$refs.filterFlyout) {
         this.$refs.filterFlyout.forEach(flyout => {
           flyout.reset()
         })
       }
 
-      // Vuex FilterQuery auch resetten
-      this.updateFilterQuery({})
-
+      this.updateLocalFilterQuery({})
     },
 
-    setAppliedFilterQuery (filter, currentAppliedFilterQuery, filterQuery, setMethod = null, categoryId = null) {
-      // Remove groups from filter - only keep conditions
+    /**
+     * Core filtering logic handling cross-category filters and resets
+     * Manages filter state transitions and category-specific operations
+     * @param {Object} filter - Filter object from FilterFlyout
+     * @param {Object} currentAppliedFilterQuery - Current applied filters
+     * @param {string|null} categoryId - Category ID for targeted resets
+     * @returns {Object} Updated filter query object
+     */
+    setAppliedFilterQuery (filter, currentAppliedFilterQuery, categoryId = null) {
       const selectedFilterOptions = Object.fromEntries(
         Object.entries(filter).filter(([_key, value]) => value.condition)
       )
@@ -430,72 +420,39 @@ export default {
 
       if (!isReset && isAppliedFilterQueryEmpty) {
         Object.values(selectedFilterOptions).forEach(option => {
-          if (setMethod) {
-            setMethod(newAppliedFilterQuery, option.condition.value, option)
-          } else {
-            newAppliedFilterQuery[option.condition.value] = option
-          }
+          newAppliedFilterQuery[option.condition.value] = option
         })
       } else if (isReset) {
-        console.log('🔴 RESET DEBUG')
-        console.log('🔴 filter:', filter)
-        console.log('🔴 categoryId:', categoryId)
-
         if (categoryId) {
-          // FilterFlyout Reset → nur diese Kategorie leeren
-          console.log('🔴 Resetting only category:', categoryId)
           const groupKey = `${categoryId}_group`
           Object.keys(newAppliedFilterQuery).forEach(key => {
             if (newAppliedFilterQuery[key].condition?.memberOf === groupKey) {
-              console.log('🔴 Deleting filter:', key)
               delete newAppliedFilterQuery[key]
             }
           })
         } else {
-          // Global Reset → alle Filter löschen
-          console.log('🔴 Global reset - clearing all filters')
           newAppliedFilterQuery = {}
         }
       } else {
-        console.log('🟡 Cross-category case')
-        console.log('🟡 selectedFilterOptions:', selectedFilterOptions)
-        console.log('🟡 currentAppliedFilterQuery BEFORE:', currentAppliedFilterQuery)
-
-        // Cross-category filtering: merge selectedFilterOptions with existing filters from other categories
         const currentCategoryGroupKey = Object.values(selectedFilterOptions)[0]?.condition?.memberOf
 
-        console.log('🟡 currentCategoryGroupKey:', currentCategoryGroupKey)
-
-
         if (currentCategoryGroupKey) {
-          // Remove all existing filters from this category
           Object.keys(newAppliedFilterQuery).forEach(key => {
             if (newAppliedFilterQuery[key].condition?.memberOf === currentCategoryGroupKey) {
-              console.log('🟡 Deleting key:', key)
-
               delete newAppliedFilterQuery[key]
             }
           })
         }
 
-        // Add the new filters for this category
         Object.values(selectedFilterOptions).forEach(option => {
-          console.log('🟡 Adding option:', option)
-
-          if (setMethod) {
-            setMethod(newAppliedFilterQuery, option.condition.value, option)
-          } else {
-            newAppliedFilterQuery[option.condition.value] = option
-          }
+          newAppliedFilterQuery[option.condition.value] = option
         })
-        console.log('🟡 newAppliedFilterQuery AFTER:', newAppliedFilterQuery)
-
       }
 
       return newAppliedFilterQuery
     },
 
-    toggleAllCategories() {
+    toggleAllCategories () {
       const allSelected = this.currentlySelectedFilterCategories.length === this.filterCategories.length
       const selectedFilterOptions = Object.values(this.appliedFilterQuery)
       const categoriesWithSelectedOptions = []
@@ -510,22 +467,19 @@ export default {
       })
 
       this.currentlySelectedFilterCategories = allSelected
-          ? categoriesWithSelectedOptions  // Alle → nur die mit aktiven Filtern
-          : this.filterCategories.map(filterCategory => filterCategory.label)  // Nicht alle → alle
+        ? categoriesWithSelectedOptions
+        : this.filterCategories.map(filterCategory => filterCategory.label)
 
       this.filterCategoriesStorage.set(this.currentlySelectedFilterCategories)
     },
 
-    updateFilterQuery(payload) {
-      this.filterQuery = { ...this.filterQuery, ...payload }
-console.log('💾 SAVE: this.filterQuery:', this.filterQuery)
-console.log('💾 SAVE: this.appliedFilterQuery:', this.appliedFilterQuery)
- console.log('💾 SAVE: Saving to localStorage:', this.appliedFilterQuery)
+    updateLocalFilterQuery (payload) {
+      this.updateFilterQuery(payload)
       this.filterQueryStorage.set(this.appliedFilterQuery)
     }
   },
 
-  mounted() {
+  mounted () {
     this.loadFilterStateFromStorage()
 
     const promises = [
@@ -533,9 +487,9 @@ console.log('💾 SAVE: this.appliedFilterQuery:', this.appliedFilterQuery)
     ]
 
     Promise.allSettled(promises)
-        .then(() => {
-          this.isLoading = false
-        })
+      .then(() => {
+        this.isLoading = false
+      })
   }
 }
 </script>
