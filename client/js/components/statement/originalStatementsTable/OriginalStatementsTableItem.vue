@@ -73,7 +73,7 @@
             <td class="text-right">
               <dp-flyout v-if="hasPermission('area_statement_anonymize')">
                 <a
-                  class="u-pt-0"
+                  class="u-pt-0 block leading-[2] whitespace-nowrap"
                   :href="Routing.generate('DemosPlan_statement_anonymize_view', { procedureId: procedureId, statementId: statement.id })">
                   {{ Translator.trans('statement.anonymize', { externId: statement.externId }) }}
                 </a>
