@@ -232,4 +232,48 @@ class ServiceStorageTest extends FunctionalTestCase
             ]],
         ];
     }
+
+    public function testAllowAnonymousStatementsWithPermission(): void
+    {
+        $this->enablePermissions(['field_submit_anonymous_statements']);
+        $allowAnonymousStatements = $this->testProcedure->getSettings()->getAllowAnonymousStatements();
+        static::assertTrue($allowAnonymousStatements);
+
+        // Test with allowAnonymousStatements set to false (checkbox unchecked)
+        $dataWithAnonymousFalse = [
+            'action' => 'edit',
+            'r_ident' => $this->testProcedure->getId(),
+            'r_phase_iteration'                         => '1',
+            'r_name'                    => 'testAdded',
+            'r_phase'          => 'configuration',
+            'mandatoryError' => []
+            // allowAnonymousStatements key is not present (unchecked checkbox)
+        ];
+
+        $result = $this->sut->administrationEditHandler($dataWithAnonymousFalse);
+        static::assertIsArray($result);
+
+        /** @var Procedure $updatedProcedure */
+        $updatedProcedure = $this->find(Procedure::class, $result['id']);
+        static::assertFalse($updatedProcedure->getSettings()->getAllowAnonymousStatements());
+
+        // Test with allowAnonymousStatements set to true
+        $dataWithAnonymousTrue = [
+            'action' => 'edit',
+            'r_ident' => $this->testProcedure->getId(),
+            'allowAnonymousStatements' => '1',
+            'r_phase_iteration'                         => '1',
+            'r_name'                    => 'testAdded',
+            'r_phase'          => 'configuration',
+            'mandatoryError' => []
+        ];
+
+        $result = $this->sut->administrationEditHandler($dataWithAnonymousTrue);
+        static::assertIsArray($result);
+
+        /** @var Procedure $updatedProcedure */
+        $updatedProcedure = $this->find(Procedure::class, $result['id']);
+        static::assertTrue($updatedProcedure->getSettings()->getAllowAnonymousStatements());
+    }
+
 }
