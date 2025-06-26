@@ -583,7 +583,7 @@ const LayersStore = {
         resourceType: currentType,
         resourceId: id
       }))
-        .then(response => this.api.checkResponse(response, {
+        .then(response => checkResponse(response, {
           204: {
             text: Translator.trans('confirm.gislayer.delete'),
             type: 'confirm'
@@ -660,20 +660,18 @@ const LayersStore = {
     toggleBaselayer ({ dispatch, state, commit }, { id, value }) {
       // You can't toggle a base layer to invisible (if its visible, You have to toggle a different one)
       if (value) {
-        console.log('toggle base layer -- really')
         state.apiData.included.forEach(potetialBaseLayer => {
           if (potetialBaseLayer.attributes.layerType === 'base' && potetialBaseLayer.id !== id) {
-            console.log('toggle base layer -- not the one', potetialBaseLayer.attributes.name, potetialBaseLayer.id)
             commit('setLayerState', { id: potetialBaseLayer.id, key: 'isVisible', value: false })
           }
 
           if (potetialBaseLayer.attributes.layerType === 'base' && potetialBaseLayer.id === id) {
-            console.log('toggle base layer -- the one', potetialBaseLayer.attributes.name, potetialBaseLayer.id)
             commit('setLayerState', { id: potetialBaseLayer.id, key: 'isVisible', value: true })
           }
         })
       }
-      console.log('toggle baselayer -- end', state.layerStates)
+
+      return Promise.resolve()
     },
 
     /**
@@ -691,6 +689,8 @@ const LayersStore = {
           commit('setLayerState', { id: potetialGroupMember.id, key: 'isVisible', value })
         }
       })
+
+      return Promise.resolve()
     },
 
     /**
@@ -704,7 +704,7 @@ const LayersStore = {
      *
      * @returns {void}
      */
-    updateLayerVisibility ({ dispatch, state, commit }, {
+    async updateLayerVisibility ({ dispatch, state, commit }, {
       id,
       isVisible,
       layerGroupsAlternateVisibility = false,
@@ -714,21 +714,20 @@ const LayersStore = {
       const layer = state.apiData.included.find(layer => layer.id === id)
 
       if (!layer) {
-        console.error(`Layer with ID ${id} not found in the store.`)
-        return
+        return Promise.reject(new Error(`Layer with ID ${id} not found`))
       }
 
       const parentId = layer.attributes.categoryId || layer.attributes.parentId
 
       if (exclusively) {
         // If its a base layer, we toggle it exclusively (only one baselayer can be visible at a time)
-        dispatch('toggleBaselayer', { id, value: isVisible })
+        await dispatch('toggleBaselayer', { id, value: isVisible })
       } else if (layer.attributes.visibilityGroupId) {
         // If the Layer has a visibilityGroupId, we toggle the whole group (all layer with the same visibilityGroupId)
-        dispatch('toggleVisiblityGroup', { visibilityGroupId: layer.attributes.visibilityGroupId, value: isVisible })
+        await dispatch('toggleVisiblityGroup', { visibilityGroupId: layer.attributes.visibilityGroupId, value: isVisible })
       } else if (layerGroupsAlternateVisibility && isVisible && layer.attributes.layerType === 'overlay') {
         // If the layer is an overlay and the flag hasAlternateVisibility is set, we toggle all other categories and category-members
-        dispatch('toggleCategoryAlternatevely', { layer })
+        await dispatch('toggleCategoryAlternatevely', { layer })
       } else {
         commit('setLayerState', { id, key: 'isVisible', value: isVisible })
 
@@ -738,14 +737,16 @@ const LayersStore = {
            * When we update the parent of a Category, we have to prevent an infinity loop.
            * So we have to prevent updating the children again
            */
-          dispatch('updateLayerVisibility', { id: parentId, key: 'isVisible', isVisible, updateChildren: false })
+          await dispatch('updateLayerVisibility', { id: parentId, key: 'isVisible', isVisible, updateChildren: false })
         }
 
         // If we toggle a category, all children should be toggled as well
         if (layer.type === 'GisLayerCategory' && updateChildren) {
-          dispatch('toggleAllChildren', { layer, isVisible })
+          await dispatch('toggleAllChildren', { layer, isVisible })
         }
       }
+
+      return Promise.resolve()
     },
 
     toggleAllChildren ({ dispatch, state }, { layer, isVisible }) {
@@ -770,13 +771,15 @@ const LayersStore = {
           return layer.id
         })
 
-      dispatch('toggleCategoryAndItsChildren', { id: toggledCatId, isVisible: true })
+      await dispatch('toggleCategoryAndItsChildren', { id: toggledCatId, isVisible: true })
 
       state.apiData.data[0].relationships.categories.data
         .filter(cat => cat.id !== toggledCatId)
         .forEach(cat => {
           dispatch('toggleCategoryAndItsChildren', { id: cat.id, isVisible: false })
         })
+
+      return Promise.resolve()
     }
   },
 
