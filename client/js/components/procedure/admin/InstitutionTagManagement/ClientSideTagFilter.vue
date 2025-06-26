@@ -31,6 +31,7 @@ All rights reserved
             v-text="Translator.trans('toggle_all')"
             @click="toggleAllCategories" />
           <div v-if="!isLoading">
+
             <dp-checkbox
               v-for="category in filterCategories"
               :key="category.id"
@@ -233,13 +234,22 @@ export default {
     }),
 
     applyFilter (filter, categoryId) {
+      console.log('🚀 applyFilter ENTRY - filter:', filter, 'categoryId:', categoryId)
+
+      console.log('🔥 APPLY FILTER CALLED:', filter)
+      console.log('🔥 categoryId:', categoryId)
+      console.log('🔥 BEFORE appliedFilterQuery:', this.appliedFilterQuery)
+
       this.appliedFilterQuery = this.setAppliedFilterQuery(
         filter,
         this.appliedFilterQuery,
-        this.filterQuery
+        this.filterQuery,
+          null,
+          categoryId
       )
+      console.log('🔥 AFTER appliedFilterQuery:', this.appliedFilterQuery)
 
-      this.filterQueryStorage.set(this.filterQuery)
+      this.filterQueryStorage.set(this.appliedFilterQuery)
     },
 
 
@@ -310,8 +320,17 @@ export default {
           this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
 
           if (isInitial) {
-            // TODO: Später setInitiallySelectedFilterCategories implementieren
+            // Initialwerte für Filter-Kategorien setzen (originalgetreu)
+            const selectedFilterCategoriesInStorage = this.filterCategoriesStorage.get()
+
+            this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null
+                ? selectedFilterCategoriesInStorage
+                : Object.values(this.institutionTagCategoriesCopy).slice(0, 5).map(category => category.attributes.name)
+
+            // Aktuelle Auswahl setzen
+            this.currentlySelectedFilterCategories = [...this.initiallySelectedFilterCategories]
           }
+
 
           return this.institutionTagCategoriesCopy
         })
@@ -321,22 +340,25 @@ export default {
         })
     },
 
-    // Einfache Version von getSelectedOptionsCount
     getSelectedOptionsCount(appliedFilterQuery, categoryId) {
-      return Object.values(appliedFilterQuery)
+      const result = Object.values(appliedFilterQuery)
         .filter(el => el.condition?.memberOf === `${categoryId}_group`).length
+
+
+      console.log(`📊 getSelectedOptionsCount for ${categoryId}:`, result)
+      console.log(`📊 appliedFilterQuery:`, appliedFilterQuery)
+
+      return result
+
     },
 
-    // Methode 2: Handle einzelne Kategorie ändern
     handleChange(categoryLabel, isSelected) {
 
       if (isSelected) {
-        // Filter-Kategorie zu currentlySelectedFilterCategories hinzufügen
         if (!this.currentlySelectedFilterCategories.includes(categoryLabel)) {
           this.currentlySelectedFilterCategories.push(categoryLabel)
         }
       } else {
-        // Filter-Kategorie entfernen
         const index = this.currentlySelectedFilterCategories.indexOf(categoryLabel)
         if (index > -1) {
           this.currentlySelectedFilterCategories.splice(index, 1)
@@ -346,31 +368,58 @@ export default {
     },
 
     loadFilterStateFromStorage () {
+      console.log('🔄 LOAD START: localStorage keys:', Object.keys(localStorage))
+
       const savedCategories = this.filterCategoriesStorage.get()
+      console.log('🔄 LOAD: savedCategories:', savedCategories)
+
       if (savedCategories) {
         this.currentlySelectedFilterCategories = savedCategories
       }
 
       const savedFilterQuery = this.filterQueryStorage.get()
+      console.log('🔄 LOAD: savedFilterQuery:', savedFilterQuery)
+      console.log('🔄 LOAD: keys count:', Object.keys(savedFilterQuery).length)
+
+      console.log('🔄 RELOAD: savedFilterQuery:', savedFilterQuery)
+      console.log('🔄 RELOAD: keys count:', Object.keys(savedFilterQuery).length)
+
       if (Object.keys(savedFilterQuery).length > 0) {
+        console.log('🔄 LOAD: Setting appliedFilterQuery to:', savedFilterQuery)
+
         this.appliedFilterQuery = savedFilterQuery
+        this.updateFilterQuery(savedFilterQuery)
+
+        console.log('🔄 RELOAD: appliedFilterQuery set to:', this.appliedFilterQuery)
+        console.log('🔄 RELOAD: filterQuery set to:', this.filterQuery)
+
+        // Force watch trigger
+        this.$nextTick(() => {
+          console.log('🔄 LOAD: After nextTick - appliedFilterQuery:', this.appliedFilterQuery)
+          this.filterAndEmitItems
+        })
+
       }
     },
 
     // Methode 3: Reset alle Filter
     reset() {
-      // 1. Alle ausgewählten Filter-Kategorien zurücksetzen
-      this.currentlySelectedFilterCategories = []
-
-      // 2. Alle angewendeten Filter zurücksetzen
       this.appliedFilterQuery = {}
-
-      // 3. localStorage zurücksetzen (originalgetreu)
       this.filterQueryStorage.reset()
-      this.filterCategoriesStorage.set([])
+
+      // FilterFlyouts resetten
+      if (this.$refs.filterFlyout) {
+        this.$refs.filterFlyout.forEach(flyout => {
+          flyout.reset()
+        })
+      }
+
+      // Vuex FilterQuery auch resetten
+      this.updateFilterQuery({})
+
     },
 
-    setAppliedFilterQuery (filter, currentAppliedFilterQuery, filterQuery, setMethod = null) {
+    setAppliedFilterQuery (filter, currentAppliedFilterQuery, filterQuery, setMethod = null, categoryId = null) {
       // Remove groups from filter - only keep conditions
       const selectedFilterOptions = Object.fromEntries(
         Object.entries(filter).filter(([_key, value]) => value.condition)
@@ -388,17 +437,42 @@ export default {
           }
         })
       } else if (isReset) {
-        newAppliedFilterQuery = Object.fromEntries(
-          Object.entries(filterQuery).filter(([key, value]) => value.condition)
-        )
+        console.log('🔴 RESET DEBUG')
+        console.log('🔴 filter:', filter)
+        console.log('🔴 categoryId:', categoryId)
+
+        if (categoryId) {
+          // FilterFlyout Reset → nur diese Kategorie leeren
+          console.log('🔴 Resetting only category:', categoryId)
+          const groupKey = `${categoryId}_group`
+          Object.keys(newAppliedFilterQuery).forEach(key => {
+            if (newAppliedFilterQuery[key].condition?.memberOf === groupKey) {
+              console.log('🔴 Deleting filter:', key)
+              delete newAppliedFilterQuery[key]
+            }
+          })
+        } else {
+          // Global Reset → alle Filter löschen
+          console.log('🔴 Global reset - clearing all filters')
+          newAppliedFilterQuery = {}
+        }
       } else {
+        console.log('🟡 Cross-category case')
+        console.log('🟡 selectedFilterOptions:', selectedFilterOptions)
+        console.log('🟡 currentAppliedFilterQuery BEFORE:', currentAppliedFilterQuery)
+
         // Cross-category filtering: merge selectedFilterOptions with existing filters from other categories
         const currentCategoryGroupKey = Object.values(selectedFilterOptions)[0]?.condition?.memberOf
+
+        console.log('🟡 currentCategoryGroupKey:', currentCategoryGroupKey)
+
 
         if (currentCategoryGroupKey) {
           // Remove all existing filters from this category
           Object.keys(newAppliedFilterQuery).forEach(key => {
             if (newAppliedFilterQuery[key].condition?.memberOf === currentCategoryGroupKey) {
+              console.log('🟡 Deleting key:', key)
+
               delete newAppliedFilterQuery[key]
             }
           })
@@ -406,12 +480,16 @@ export default {
 
         // Add the new filters for this category
         Object.values(selectedFilterOptions).forEach(option => {
+          console.log('🟡 Adding option:', option)
+
           if (setMethod) {
             setMethod(newAppliedFilterQuery, option.condition.value, option)
           } else {
             newAppliedFilterQuery[option.condition.value] = option
           }
         })
+        console.log('🟡 newAppliedFilterQuery AFTER:', newAppliedFilterQuery)
+
       }
 
       return newAppliedFilterQuery
@@ -440,7 +518,10 @@ export default {
 
     updateFilterQuery(payload) {
       this.filterQuery = { ...this.filterQuery, ...payload }
-      this.filterQueryStorage.set(this.filterQuery)
+console.log('💾 SAVE: this.filterQuery:', this.filterQuery)
+console.log('💾 SAVE: this.appliedFilterQuery:', this.appliedFilterQuery)
+ console.log('💾 SAVE: Saving to localStorage:', this.appliedFilterQuery)
+      this.filterQueryStorage.set(this.appliedFilterQuery)
     }
   },
 
