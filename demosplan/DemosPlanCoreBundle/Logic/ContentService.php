@@ -606,9 +606,9 @@ class ContentService
             $successful = $this->settingRepository->delete($settingsId);
 
             if ($successful) {
-                $this->getLogger()->info('Successfully deleted setting.');
+                $this->logger->info('Successfully deleted setting.');
             } else {
-                $this->getLogger()->error('Setting could not be deleted.');
+                $this->logger->error('Setting could not be deleted.');
             }
 
             return $successful;
