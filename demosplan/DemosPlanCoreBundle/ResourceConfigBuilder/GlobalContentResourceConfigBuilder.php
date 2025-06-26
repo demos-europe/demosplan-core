@@ -23,7 +23,9 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
 /**
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,GlobalContent> $pictureTitle
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,GlobalContent> $pdfTitle
- * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,GlobalContent,File> $picture
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,GlobalContent> $pictureHash
+ * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,GlobalContent,File> $pictureFile
+ * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,GlobalContent,File> $pdfFile
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,GlobalContent,File> $pdf
  */
 class GlobalContentResourceConfigBuilder extends BaseGlobalContentResourceConfigBuilder
