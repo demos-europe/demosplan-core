@@ -59,21 +59,7 @@ class ServiceStorageTest extends FunctionalTestCase
 
     public function testAdministrationNewHandler(): void
     {
-        $procedureData = [
-            'r_copymaster'                => $this->masterBlueprint->getId(),
-            'agencyMainEmailAddress'      => 'aValidMailAddress@daklfkls.de',
-            'action'                      => 'new',
-            'r_startdate'                 => '01.02.2055',
-            'r_enddate'                   => '01.02.2056',
-            'r_externalName'              => 'testAdded',
-            'r_name'                      => 'testAdded',
-            'r_master'                    => false,
-            'orgaId'                      => $this->testUser->getOrganisationId(),
-            'orgaName'                    => $this->testUser->getOrgaName(),
-            'publicParticipationPhase'    => 'configuration',
-            'r_procedure_type'            => $this->procedureType->getId(),
-            'r_desc'                      => 'Test für ReleaseVorstellung',
-        ];
+        $procedureData = $this->prepareNewProcedureDataArray();
 
         $procedure = $this->sut->administrationNewHandler($procedureData, $this->testUser->getId());
 
@@ -308,25 +294,32 @@ class ServiceStorageTest extends FunctionalTestCase
     public function testAllowAnonymousStatementsDefaultValue(): void
     {
         // Create new procedure to test default value
-        $procedureData = [
-            'r_copymaster'             => $this->masterBlueprint->getId(),
-            'agencyMainEmailAddress'   => 'test@example.com',
-            'action'                   => 'new',
-            'r_startdate'              => '01.02.2055',
-            'r_enddate'                => '01.02.2056',
-            'r_externalName'           => 'testAnonymousDefault',
-            'r_name'                   => 'testAnonymousDefault',
-            'r_master'                 => false,
-            'orgaId'                   => $this->testUser->getOrganisationId(),
-            'orgaName'                 => $this->testUser->getOrgaName(),
-            'publicParticipationPhase' => 'configuration',
-            'r_procedure_type'         => $this->procedureType->getId(),
-            'r_desc'                   => 'Test default anonymous statements value',
-        ];
+        $procedureData = $this->prepareNewProcedureDataArray();
 
         $procedure = $this->sut->administrationNewHandler($procedureData, $this->testUser->getId());
 
         // Default value should be true
         static::assertTrue($procedure->getSettings()->getAllowAnonymousStatements());
+    }
+
+    private function prepareNewProcedureDataArray(): array
+    {
+
+        return [
+            'r_copymaster' => $this->masterBlueprint->getId(),
+            'agencyMainEmailAddress' => 'test@example.com',
+            'action' => 'new',
+            'r_startdate' => '01.02.2055',
+            'r_enddate' => '01.02.2056',
+            'r_externalName' => 'testAnonymousDefault',
+            'r_name' => 'testAnonymousDefault',
+            'r_master' => false,
+            'orgaId' => $this->testUser->getOrganisationId(),
+            'orgaName' => $this->testUser->getOrgaName(),
+            'publicParticipationPhase' => 'configuration',
+            'r_procedure_type' => $this->procedureType->getId(),
+            'r_desc' => 'Test default anonymous statements value',
+        ];
+
     }
 }
