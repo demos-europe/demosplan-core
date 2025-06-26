@@ -344,7 +344,6 @@ describe('Layers Actions', () => {
 
       setTimeout(() => {
         // Should update parent category
-        console.dir(StubStore.state.Layers.layerStates)
         expect(StubStore.state.Layers.layerStates['overlay-layer-1'].isVisible).toBe(true)
         expect(StubStore.state.Layers.layerStates['sub-category-1'].isVisible).toBe(true)
         expect(StubStore.state.Layers.layerStates['category-1'].isVisible).toBe(true)
@@ -376,8 +375,6 @@ describe('Layers Actions', () => {
       const dispatchSpy = jest.spyOn(StubStore, 'dispatch')
       const layer = mockLayersApiResponse.included.find(item => item.type === 'GisLayer')
 
-      console.dir('should toggle category alternatively')
-      console.dir(layer)
       await StubStore.dispatch('Layers/toggleCategoryAlternatevely', { layer })
 
       expect(dispatchSpy).toHaveBeenCalledWith('Layers/findMostParentCategory', layer)
