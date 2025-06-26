@@ -28,10 +28,11 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class ContentService extends CoreService
+class ContentService
 {
     /**
      * Used as one of the keys in {@link Setting}.
@@ -46,6 +47,7 @@ class ContentService extends CoreService
         private readonly ManualListSorter $manualListSorter,
         private readonly SettingRepository $settingRepository,
         private readonly CustomerService $customerService,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
