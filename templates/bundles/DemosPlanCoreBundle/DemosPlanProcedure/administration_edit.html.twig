@@ -968,6 +968,26 @@
                                     {# allow publishing of Statements by default #}
                                     <input type="hidden" name="r_publicParticipationPublicationEnabled" value="1">
                                 {% endif %}
+
+                                {% if hasPermission('field_submit_anonymous_statements') %}
+                                    <dp-checkbox
+                                        id="allowAnonymousStatements"
+                                        :checked="{{ proceduresettings.allowAnonymousStatements ? 'true' : 'false' }}"
+                                        :label="{ text: Translator.trans('public.participation.anonymous.statements') }"
+                                        class="mb-4"
+                                        data-cy="procedure:publicParticipationPublicationEnabled"
+                                        name="allowAnonymousStatements"
+                                    >
+                                    </dp-checkbox>
+                                {% else %}
+                                    {# Allow anonymous statements by default #}
+                                    <dp-input
+                                        :value="{{ proceduresettings.allowAnonymousStatements|default(true) ? '1' : '0' }}"
+                                        name="allowAnonymousStatements"
+                                        type="hidden"
+                                    >
+                                    </dp-input>
+                                {% endif %}
                             </div>
 
                             <label class="o-wizard__mark u-mb-0">
