@@ -2883,6 +2883,7 @@ public.index.filter.gfk.location.results: |
     }
 public.index.heading: "{projectName}: Plattform zur öffentlichen Mitwirkung bei räumlichen Planungen und Genehmigungsverfahren"
 public.or.invitable_institution: "Öffentlichkeit/Institutionen"
+public.participation.anonymous.statements: "Anonyme Einreichung von Stellungnahmen erlauben"
 public.participation.contact: "Ansprechperson"
 public.participation.contribute: "Mitreden"
 public.participation.faq_link_project: "Hier finden Sie Antworten."
