@@ -1,5 +1,5 @@
 gzip on;
-gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript font/woff2;
+gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript application/font-woff2 application/vnd.api+json;
 gzip_proxied any;
 gzip_vary on;
 
@@ -42,9 +42,29 @@ server
     fastcgi_read_timeout 600s;
     keepalive_timeout  600s;
 
-    # Handle requests to static files directly by Nginx
+    # Handle requests to static files directly by Nginx with caching
     location ~* ^/(css|files|fonts|img|js) {
         try_files $uri $uri/ =404;
+        
+        # Set MIME types
+        location ~* \.woff2$ {
+            add_header Content-Type application/font-woff2;
+        }
+        location ~* \.js$ {
+            add_header Content-Type application/javascript;
+        }
+        
+        # Cache images privately for 1 year
+        location ~* \.(jpg|jpeg|png|gif)$ {
+            expires 1y;
+            add_header Cache-Control "private, immutable";
+        }
+        
+        # Cache other static assets publicly for 1 year
+        location ~* \.(css|js|woff2)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
     }
 
     # Try all locations and relay to app.php as a fallback.
