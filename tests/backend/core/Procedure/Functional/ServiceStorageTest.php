@@ -241,12 +241,12 @@ class ServiceStorageTest extends FunctionalTestCase
 
         // Test with allowAnonymousStatements set to false (checkbox unchecked)
         $dataWithAnonymousFalse = [
-            'action' => 'edit',
-            'r_ident' => $this->testProcedure->getId(),
+            'action'                                    => 'edit',
+            'r_ident'                                   => $this->testProcedure->getId(),
             'r_phase_iteration'                         => '1',
-            'r_name'                    => 'testAdded',
-            'r_phase'          => 'configuration',
-            'mandatoryError' => []
+            'r_name'                                    => 'testAdded',
+            'r_phase'                                   => 'configuration',
+            'mandatoryError'                            => [],
             // allowAnonymousStatements key is not present (unchecked checkbox)
         ];
 
@@ -259,13 +259,13 @@ class ServiceStorageTest extends FunctionalTestCase
 
         // Test with allowAnonymousStatements set to true
         $dataWithAnonymousTrue = [
-            'action' => 'edit',
-            'r_ident' => $this->testProcedure->getId(),
-            'allowAnonymousStatements' => '1',
+            'action'                                    => 'edit',
+            'r_ident'                                   => $this->testProcedure->getId(),
+            'allowAnonymousStatements'                  => '1',
             'r_phase_iteration'                         => '1',
-            'r_name'                    => 'testAdded',
-            'r_phase'          => 'configuration',
-            'mandatoryError' => []
+            'r_name'                                    => 'testAdded',
+            'r_phase'                                   => 'configuration',
+            'mandatoryError'                            => [],
         ];
 
         $result = $this->sut->administrationEditHandler($dataWithAnonymousTrue);
@@ -275,5 +275,4 @@ class ServiceStorageTest extends FunctionalTestCase
         $updatedProcedure = $this->find(Procedure::class, $result['id']);
         static::assertTrue($updatedProcedure->getSettings()->getAllowAnonymousStatements());
     }
-
 }
