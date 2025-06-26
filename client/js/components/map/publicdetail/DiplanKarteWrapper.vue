@@ -3,12 +3,14 @@
     <dp-button
       id="statementModalButton"
       :class="prefixClass('left-[365px] top-[24px] pt-[11px] pb-[11px] pl-[20px] pr-[20px] !absolute z-above-zero')"
+      :text="activeStatement ? Translator.trans('statement.participate.resume') : Translator.trans('statement.participate')"
       data-cy="statementModal"
       rounded
-      :text="Translator.trans('statement.participate')"
       @click="openStatementModalOrLoginPage" />
 
-    <diplan-karte />
+    <diplan-karte
+      @diplan-karte:geojson-update="handleDrawing"
+    />
   </div>
 </template>
 
@@ -19,15 +21,23 @@ import { MapPlugin, registerWebComponent } from '@init/diplan-karten'
 import { getCurrentInstance } from 'vue'
 
 const props = defineProps({
+  activeStatement: {
+    type: Boolean,
+    required: true
+  },
+
   loginPath: {
     type: String,
     required: true
   },
+
   styleNonce: {
     type: String,
     required: true,
-  }
+  },
 })
+
+const emit = defineEmits(['location-drawing'])
 
 const instance = getCurrentInstance()
 
@@ -39,6 +49,31 @@ instance.appContext.app.use(MapPlugin, {
     }
   }
 })
+
+const handleDrawing = (event) => {
+  let payload
+
+  // if all geometry was deleted, reset location reference
+  if (event.detail[0].features.length === 0) {
+    payload = {
+      "r_location": "notLocated",
+      "r_location_geometry": "",
+      "r_location_point": "",
+      "location_is_set": ""
+    }
+  } else {
+    payload = {
+      "r_location": "point",
+      "r_location_geometry": JSON.stringify(event.detail[0]),
+      "r_location_priority_area_key": "",
+      "r_location_priority_area_type": "",
+      "r_location_point": "",
+      "location_is_set": "geometry"
+    }
+  }
+
+  emit('location-drawing', payload)
+}
 
 const openStatementModalOrLoginPage= (event) => {
   if (!hasPermission('feature_new_statement')) {
