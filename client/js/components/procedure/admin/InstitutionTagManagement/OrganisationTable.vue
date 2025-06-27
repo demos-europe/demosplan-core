@@ -142,10 +142,8 @@ All rights reserved
             </dt>
             <dd class="ml-0">
               <div class="flex flex-wrap gap-1 mt-1">
-                <span
-                  v-for="tag in assignedTags"
-                  :key="tag.id">
-                  {{ tag.name }}
+                <span>
+                  {{ assignedTags.map(tag => tag.name).join(', ') }}
                 </span>
               </div>
             </dd>
