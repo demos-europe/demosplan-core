@@ -463,7 +463,10 @@
                                         </label>
                                         {% if proceduresettings.settings.pictogram is defined and proceduresettings.settings.pictogram != "" %}
                                             <br><br>
-                                            <img class="layout__item u-1-of-6 u-pl-0 u-mb" src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"><!--
+                                            <img
+                                                class="layout__item u-1-of-6 u-pl-0 u-mb"
+                                                src="{{ path("core_logo", { 'hash': proceduresettings.settings.pictogram|getFile('hash') }) }}"
+                                                alt="{{ proceduresettings.settings.pictogramAltText|default('procedure.pictogram'|trans) }}"><!--
                                          --><label class="layout__item u-1-of-3 cursor-pointer weight--normal">
                                             {{ 'procedure.pictogram.delete'|trans }}
                                             <input name="r_deletePictogram" type="checkbox" value="1">
