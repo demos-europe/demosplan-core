@@ -24,7 +24,7 @@ class StatementAttachmentService
 {
     public function __construct(
         private readonly StatementAttachmentRepository $attachmentRepository,
-        private readonly StatementRepository $statementRepository
+        private readonly StatementRepository $statementRepository,
     ) {
     }
 
