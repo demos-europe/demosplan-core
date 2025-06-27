@@ -57,12 +57,13 @@
         <span :class="prefixClass('layout__item u-1-of-1')">
           {{ showPersonalDataText }}
           <button
-            type="button"
-            data-cy="statementModalRecheck:useNameText"
             :class="prefixClass('o-link--default btn-icns u-ml float-right')"
-            @click="$emit('edit-input', 'r_useName_1')"
             :title="Translator.trans('statement.form.input.change')"
-            aria-labelledby="useNameText inputDataChange">
+            aria-labelledby="useNameText inputDataChange"
+            data-cy="statementModalRecheck:useNameText"
+            type="button"
+            @click="$emit('edit-input', 'r_useName_1')"
+          >
             <i
               :class="prefixClass('fa fa-pencil')"
               aria-hidden="true" />
