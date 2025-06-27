@@ -241,6 +241,12 @@ export default {
   mixins: [prefixClassMixin],
 
   props: {
+    allowAnonymousStatements: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+
     formFields: {
       type: Array,
       required: false,
