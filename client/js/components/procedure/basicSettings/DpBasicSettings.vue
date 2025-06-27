@@ -79,6 +79,18 @@ export default {
       default: () => []
     },
 
+    initPictogramAltText: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
+    initPictogramCopyright: {
+      required: false,
+      type: String,
+      default: ''
+    },
+
     initProcedureCategories: {
       required: false,
       type: Array,
@@ -144,6 +156,8 @@ export default {
         value: ''
       },
       isLoadingPlisData: false,
+      pictogramAltText: this.initPictogramAltText,
+      pictogramCopyright: this.initPictogramCopyright,
       selectedAgencies: this.initAgencies,
       selectedDataInputOrgas: this.initDataInputOrgas,
       selectedAuthUsers: this.initAuthUsers,
