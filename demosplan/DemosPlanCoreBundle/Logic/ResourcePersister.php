@@ -29,7 +29,7 @@ class ResourcePersister
 {
     public function __construct(
         private readonly RepositoryHelper $repositoryHelper,
-        private readonly ResourceTypeService $resourceTypeService
+        private readonly ResourceTypeService $resourceTypeService,
     ) {
     }
 
@@ -45,7 +45,7 @@ class ResourcePersister
     public function updateBackingObjectWithEntity(
         ProcedureTypeResourceType|ProcedureUiDefinitionResourceType|ProcedureBehaviorDefinitionResourceType|StatementFieldDefinitionResourceType $resourceType,
         ProcedureType|ProcedureUiDefinition|ProcedureBehaviorDefinition|StatementFieldDefinition $entity,
-        array $properties
+        array $properties,
     ): ResourceChange {
         $allowedProperties = $resourceType->getUpdatableProperties();
         if ([] === $allowedProperties) {

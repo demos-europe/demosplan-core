@@ -34,7 +34,7 @@ class OriginalStatementAnonymizationService
         bool $attachmentsDeleted,
         bool $textPassagesAnonymized,
         bool $textVersionHistoryDeleted,
-        bool $submitterAndAuthorAnonymized
+        bool $submitterAndAuthorAnonymized,
     ): OriginalStatementAnonymization {
         $entity = new OriginalStatementAnonymization();
         $entity->setAttachmentsDeleted($attachmentsDeleted);
