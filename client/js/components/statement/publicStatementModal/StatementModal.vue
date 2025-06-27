@@ -1046,6 +1046,15 @@ export default {
   },
 
   watch: {
+    allowAnonymousStatements: {
+      immediate: true,
+      handler(isAllowed) {
+        if (!isAllowed && this.formData.r_useName !== '1') {
+          this.setPrivacyPreference({ r_useName: '1' })
+        }
+      }
+    },
+
     formData: {
       handler (newFormData) {
         const parsed = JSON.stringify(newFormData)
