@@ -12,11 +12,9 @@ All rights reserved
     ref="contentArea"
     class="mt-2">
 
-
     <dp-loading
       v-if="isLoading"
       class="mt-4" />
-
 
     <template v-else>
       <div class="grid grid-cols-1 sm:grid-cols-12 gap-1">
@@ -164,8 +162,8 @@ import {
   DpPager,
   DpSearchField
 } from '@demos-europe/demosplan-ui'
-import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
 import { mapActions, mapGetters, mapState } from 'vuex'
+import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
@@ -465,7 +463,7 @@ export default {
       return this.institutionLocationContactItems[id]
     },
 
-    handleFilterReset() {
+    handleFilterReset () {
       this.$refs.searchField.handleReset()
     },
 

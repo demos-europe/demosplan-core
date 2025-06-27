@@ -121,7 +121,8 @@ export default {
   },
 
   emits: [
-    'itemsFiltered'
+    'itemsFiltered',
+    'reset'
   ],
 
   data () {
