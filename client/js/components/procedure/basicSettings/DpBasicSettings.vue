@@ -67,13 +67,13 @@ export default {
       default: () => []
     },
 
-    initDataInputOrgas: {
+    initAuthUsers: {
       required: false,
       type: Array,
       default: () => []
     },
 
-    initAuthUsers: {
+    initDataInputOrgas: {
       required: false,
       type: Array,
       default: () => []
@@ -158,15 +158,15 @@ export default {
       isLoadingPlisData: false,
       pictogramAltText: this.initPictogramAltText,
       pictogramCopyright: this.initPictogramCopyright,
-      selectedAgencies: this.initAgencies,
-      selectedDataInputOrgas: this.initDataInputOrgas,
-      selectedAuthUsers: this.initAuthUsers,
-      selectedInternalPhase: this.initProcedurePhaseInternal,
-      selectedPublicPhase: this.initProcedurePhasePublic,
-      selectedProcedureCategories: this.initProcedureCategories,
-      selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures,
       procedureDescription: this.procedureExternalDesc,
-      procedureName: this.initProcedureName
+      procedureName: this.initProcedureName,
+      selectedAgencies: this.initAgencies,
+      selectedAuthUsers: this.initAuthUsers,
+      selectedDataInputOrgas: this.initDataInputOrgas,
+      selectedInternalPhase: this.initProcedurePhaseInternal,
+      selectedProcedureCategories: this.initProcedureCategories,
+      selectedPublicPhase: this.initProcedurePhasePublic,
+      selectedSimilarRecommendationProcedures: this.initSimilarRecommendationProcedures
     }
   },
 
