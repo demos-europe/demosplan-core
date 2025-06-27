@@ -585,6 +585,7 @@
         data-dp-validate="recheckForm">
         <statement-modal-recheck
           @edit-input="handleEditInput"
+          :allowAnonymousStatements="allowAnonymousStatements"
           :form-fields="formFields"
           :statement="formData"
           :public-participation-publication-enabled="publicParticipationPublicationEnabled"
