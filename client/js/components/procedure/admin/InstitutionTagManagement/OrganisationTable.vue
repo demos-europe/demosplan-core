@@ -165,7 +165,7 @@ import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTag
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
-  name: 'OrganisationList',
+  name: 'OrganisationTable',
 
   components: {
     ClientSideTagFilter,
