@@ -25,7 +25,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFieldDefinitionResource
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
-class ResourcePersister extends CoreService
+class ResourcePersister
 {
     public function __construct(
         private readonly RepositoryHelper $repositoryHelper,
