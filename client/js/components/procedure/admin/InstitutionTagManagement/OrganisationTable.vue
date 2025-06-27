@@ -24,6 +24,7 @@ All rights reserved
           class="h-fit mt-1 col-span-1 sm:col-span-3"
           data-cy="addOrganisationList:searchField"
           input-width="u-1-of-1"
+          ref="searchField"
           @reset="handleReset"
           @search="handleSearch" />
 
@@ -31,7 +32,8 @@ All rights reserved
           :filter-categories="allFilterCategories"
           :procedure-id="procedureId"
           :raw-items="rowItems"
-          @items-filtered="filteredItems = $event" />
+          @items-filtered="filteredItems = $event"
+          @reset="handleFilterReset" />
 
         <!-- Slot for bulk actions -->
       </div>
@@ -461,6 +463,10 @@ export default {
 
     getLocationContactById (id) {
       return this.institutionLocationContactItems[id]
+    },
+
+    handleFilterReset() {
+      this.$refs.searchField.handleReset()
     },
 
     handleReset () {

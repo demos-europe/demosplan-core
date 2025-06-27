@@ -400,6 +400,7 @@ export default {
       }
 
       this.updateLocalFilterQuery({})
+      this.$emit('reset')
     },
 
     /**
