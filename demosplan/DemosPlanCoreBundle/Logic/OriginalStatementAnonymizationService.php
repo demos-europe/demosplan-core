@@ -19,7 +19,7 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 
-class OriginalStatementAnonymizationService extends CoreService
+class OriginalStatementAnonymizationService
 {
     public function __construct(private readonly OriginalStatementAnonymizationRepository $originalStatementAnonymizationRepository, private readonly UserRepository $userRepository)
     {
