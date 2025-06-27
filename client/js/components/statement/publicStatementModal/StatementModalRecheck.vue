@@ -55,7 +55,7 @@
       :class="prefixClass('flow-root border--top u-pt-0_25')">
       <div :class="prefixClass('layout--flush')">
         <span :class="prefixClass('layout__item u-1-of-1')">
-          {{ Translator.trans('statement.detail.form.personal.post_publicly') }}
+          {{ showPersonalDataText }}
           <button
             type="button"
             data-cy="statementModalRecheck:useNameText"
@@ -298,6 +298,14 @@ export default {
 
     showHouseNumber () {
       return this.statement.r_houseNumber && this.statement.r_houseNumber !== ''
+    },
+
+    showPersonalDataText () {
+      if (this.allowAnonymousStatements) {
+        return Translator.trans('statement.detail.form.personal.post_publicly')
+      } else {
+        return Translator.trans('statement.detail.form.personal.edit')
+      }
     },
 
     showPostalCode () {
