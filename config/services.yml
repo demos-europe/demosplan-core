@@ -1341,6 +1341,8 @@ services:
         arguments:
             $resourceTypes: !tagged dplan.resourceType
 
+    demosplan\DemosPlanCoreBundle\Command\InitializeWorkflowPlacesCommand: ~
+
     Intervention\Image\ImageManager: ~
 
     Nelmio\SecurityBundle\EventListener\ContentSecurityPolicyListener: '@nelmio_security.csp_listener'
