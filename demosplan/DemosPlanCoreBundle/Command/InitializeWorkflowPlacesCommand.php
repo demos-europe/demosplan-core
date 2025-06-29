@@ -167,8 +167,6 @@ EOT
                 ->setParameter('procedureId', $procedureId);
         }
 
-        // Exclude master templates to avoid modifying blueprints
-        $qb->andWhere('p.masterTemplate = false OR p.masterTemplate IS NULL');
 
         return $qb->getQuery()->getResult();
     }
