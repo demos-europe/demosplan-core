@@ -48,6 +48,8 @@ services:
     DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider
 
+    DemosEurope\DemosplanAddon\Contracts\Repositories\UserRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\UserRepository'
+
     DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService'
 
