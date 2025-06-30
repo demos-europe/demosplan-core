@@ -16,11 +16,14 @@ use demosplan\DemosPlanCoreBundle\Repository\ContextualHelpRepository;
 use Doctrine\ORM\NoResultException;
 use Exception;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 
-class HelpService extends CoreService
+class HelpService
 {
-    public function __construct(private readonly ContextualHelpRepository $contextualHelpRepository)
-    {
+    public function __construct(
+        private readonly ContextualHelpRepository $contextualHelpRepository,
+        private readonly LoggerInterface $logger,
+    ){
     }
 
     /**
@@ -136,7 +139,7 @@ class HelpService extends CoreService
 
             return $help;
         } catch (Exception $e) {
-            $this->getLogger()->error('Create ContextualHelp failed: ', [$e]);
+            $this->logger->error('Create ContextualHelp failed: ', [$e]);
             throw $e;
         }
     }
