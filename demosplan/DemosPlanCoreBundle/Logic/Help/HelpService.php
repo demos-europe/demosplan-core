@@ -22,7 +22,7 @@ class HelpService
     public function __construct(
         private readonly ContextualHelpRepository $contextualHelpRepository,
         private readonly LoggerInterface $logger,
-    ){
+    ) {
     }
 
     /**
