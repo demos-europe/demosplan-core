@@ -2948,6 +2948,11 @@ field_statement_votes:
     label: 'Vote for statement (as a citizen)'
     loginRequired: true
     parent: field_statement
+field_submit_anonymous_statements:
+    description: 'Allow anonymous statements to be submitted in the public view.'
+    label: 'Allow anonymous statements'
+    loginRequired: true
+    expose: true
 field_vote_advice_docx:
     description: 'Show Abwägungsvorschlag (vote advice) in all docx exports'
     label: 'Show the vote advice (the short, predefined text, not the editable one) in the Docx exports'
