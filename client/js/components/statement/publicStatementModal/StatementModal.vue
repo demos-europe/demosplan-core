@@ -1047,15 +1047,6 @@ export default {
   },
 
   watch: {
-    allowAnonymousStatements: {
-      immediate: true,
-      handler (isAllowed) {
-        if (!isAllowed && this.formData.r_useName !== '1') {
-          this.setPrivacyPreference({ r_useName: '1' })
-        }
-      }
-    },
-
     formData: {
       handler (newFormData) {
         const parsed = JSON.stringify(newFormData)
@@ -1597,6 +1588,10 @@ export default {
   },
 
   mounted () {
+    if (!this.allowAnonymousStatements && this.formData.r_useName !== '1') {
+      this.setPrivacyPreference({ r_useName: '1' })
+    }
+
     // Set data from map
     this.$root.$on('update-statement-form-map-data', (data = {}, toggle = true) => {
       this.setStatementData(data)
