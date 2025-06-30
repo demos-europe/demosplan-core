@@ -397,6 +397,7 @@
                             login-path="{{ getLoginPath() }}"
                             style-nonce="{{ csp_nonce('style') }}"
                             :active-statement="activeStatement"
+                            :init-drawing="statement.r_location_geometry"
                             @location-drawing="handleLocationDrawing"
                         />
                     {% else %}

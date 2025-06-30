@@ -9,6 +9,8 @@
       @click="openStatementModalOrLoginPage" />
 
     <diplan-karte
+      v-if="store.state.PublicStatement.storeInitialised"
+      :geojson="props.initDrawing"
       @diplan-karte:geojson-update="handleDrawing"
     />
   </div>
@@ -18,12 +20,20 @@
 <script setup>
 import { DpButton, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { MapPlugin, registerWebComponent } from '@init/diplan-karten'
-import { getCurrentInstance } from 'vue'
+import { getCurrentInstance, onMounted } from 'vue'
+import { useStore } from 'vuex'
 
 const props = defineProps({
   activeStatement: {
     type: Boolean,
     required: true
+  },
+
+  initDrawing: {
+    type: Object,
+    required: false,
+    default: { "type": "FeatureCollection",
+    "features": []}
   },
 
   loginPath: {
@@ -40,6 +50,7 @@ const props = defineProps({
 const emit = defineEmits(['location-drawing'])
 
 const instance = getCurrentInstance()
+const store = useStore()
 
 instance.appContext.app.mixin(prefixClassMixin)
 instance.appContext.app.use(MapPlugin, {
@@ -91,7 +102,9 @@ const toggleStatementModal = (updateStatementPayload) => {
   instance.parent.refs.statementModal.toggleModal(true, updateStatementPayload)
 }
 
-registerWebComponent({
-  nonce: props.styleNonce,
+onMounted(() => {
+  registerWebComponent({
+    nonce: props.styleNonce,
+  })
 })
 </script>
