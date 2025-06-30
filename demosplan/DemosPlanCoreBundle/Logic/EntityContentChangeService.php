@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\EventListener\DoctrineLoggerListener;
 use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
@@ -30,6 +31,7 @@ use Doctrine\Common\Util\ClassUtils;
 use Exception;
 use InvalidArgumentException;
 use Jfcherng\Diff\DiffHelper;
+use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
@@ -44,7 +46,7 @@ use function array_key_exists;
 /**
  * Class EntityContentChangeService.
  */
-class EntityContentChangeService extends CoreService
+class EntityContentChangeService
 {
     /**
      * Mapping from classes to a list of properties, with each property mapping to a list of meta information.
@@ -68,6 +70,8 @@ class EntityContentChangeService extends CoreService
         private readonly TranslatorInterface $translator,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
         private readonly CurrentUserService $currentUserService,
+        private readonly LoggerInterface $logger,
+        private readonly DoctrineLoggerListener $doctrine,
     ) {
         $this->tokenStorage = $tokenStorage;
     }
