@@ -720,7 +720,7 @@ export default {
         'textIsTruncated',
         // Relationships:
         'assignee',
-        'genericAttachments',
+        'sourceAttachment',
         'segments'
       ]
       if (this.isSourceAndCoupledProcedure) {
@@ -751,13 +751,13 @@ export default {
         include: [
           'segments',
           'assignee',
-          'genericAttachments',
-          'genericAttachments.file'
+          'sourceAttachment',
+          'sourceAttachment.file'
         ].join(),
         fields: {
           Statement: statementFields.join(),
-          File: [
-            'hash'
+          SourceStatementAttachment: [
+            'file'
           ].join()
         }
       }).then((data) => {
@@ -775,15 +775,18 @@ export default {
      * Returns the hash of the original statement attachment
      */
     getOriginalPdfAttachmentHash (el) {
-      if (el.hasRelationship('genericAttachments')) {
-        const originalAttachment = Object.values(el.relationships.genericAttachments.list())
-          .filter(attachment => attachment.attributes.attachmentType === 'source_statement')
-        if (originalAttachment.length === 1) {
-          return originalAttachment[0].relationships.file.get().attributes.hash
-        }
+      if (!el.hasRelationship('sourceAttachment')) {
+        return null
       }
 
-      return null
+      const attachments = el.relationships.sourceAttachment.list()
+      const firstAttachment = Object.values(attachments)[0]
+
+      if (!firstAttachment?.relationships?.file) {
+        return null
+      }
+
+      return firstAttachment.relationships.file.get()?.attributes?.hash || null
     },
 
     /**
