@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EventListener\DoctrineLoggerListener;
+use demosplan\DemosPlanCoreBundle\EventListener\DoctrineProcedureListener;
 use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
@@ -35,6 +36,7 @@ use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -71,7 +73,7 @@ class EntityContentChangeService
         private readonly CustomFieldValueCreator $customFieldValueCreator,
         private readonly CurrentUserService $currentUserService,
         private readonly LoggerInterface $logger,
-        private readonly DoctrineLoggerListener $doctrine,
+        private readonly \Doctrine\Persistence\ManagerRegistry $doctrine,
     ) {
         $this->tokenStorage = $tokenStorage;
     }
