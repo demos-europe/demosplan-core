@@ -178,7 +178,7 @@ class EntityContentChangeService extends CoreService
                 );
             }
         } catch (Exception $e) {
-            $this->getLogger()->warning('Could not calculate content changes', [$e, $e->getTraceAsString()]);
+            $this->logger->warning('Could not calculate content changes', [$e, $e->getTraceAsString()]);
             throw $e;
         }
     }
@@ -354,7 +354,7 @@ class EntityContentChangeService extends CoreService
             );
             $this->entityContentChangeRepository->persistAndDelete($entries, []);
         } catch (Exception $e) {
-            $this->getLogger()->warning('Unable on addEntityContentChangeEntry. ', [$e]);
+            $this->logger->warning('Unable on addEntityContentChangeEntry. ', [$e]);
             throw new InvalidArgumentException('Unable on addEntityContentChangeEntry.');
         }
     }
@@ -438,7 +438,7 @@ class EntityContentChangeService extends CoreService
             $changedEntityField,
             $contentChange,
             $changer,
-            $this->getDoctrine()->getManager()->getClassMetadata(ClassUtils::getClass($updatedObject))->getName(),
+            $this->doctrine->getManager()->getClassMetadata(ClassUtils::getClass($updatedObject))->getName(),
             $creationDate,
             $isCustomFieldChange
         );
