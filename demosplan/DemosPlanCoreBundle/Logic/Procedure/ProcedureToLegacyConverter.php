@@ -69,6 +69,7 @@ class ProcedureToLegacyConverter extends CoreService
             $procedureArray['pictogram'] = $procedureArray['settings']['pictogram'];
             $procedureArray['pictogramCopyright'] = $procedureArray['settings']['pictogramCopyright'];
             $procedureArray['pictogramAltText'] = $procedureArray['settings']['pictogramAltText'];
+            $procedureArray['allowAnonymousStatements'] = $procedureArray['settings']['allowAnonymousStatements'];
         }
 
         $procedureArray['isMapEnabled'] = false;
