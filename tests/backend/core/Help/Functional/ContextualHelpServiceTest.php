@@ -34,7 +34,6 @@ class ContextualHelpServiceTest extends FunctionalTestCase
     {
         // Does he fetch all help items in the expected way
         $helpList = $this->sut->getHelpAll();
-        static::assertTrue(is_array($helpList));
         static::assertCount(2, $helpList);
         static::assertInstanceOf(ContextualHelp::class, $helpList[0]);
     }

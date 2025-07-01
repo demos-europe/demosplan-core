@@ -38,7 +38,7 @@ use EDT\Querying\Contracts\PathException;
 use Exception;
 use UnexpectedValueException;
 
-class FaqService extends CoreService
+class FaqService
 {
     public function __construct(
         private readonly CustomerHandler $customerHandler,
