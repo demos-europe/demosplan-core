@@ -305,7 +305,7 @@ export default {
       if (this.allowAnonymousStatements) {
         return Translator.trans('statement.detail.form.personal.post_publicly')
       } else {
-        return Translator.trans('statement.detail.form.personal.edit')
+        return Translator.trans('statement.detail.form.personal.submit')
       }
     },
 
