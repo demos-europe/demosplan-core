@@ -33,9 +33,9 @@ use EDT\PathBuilding\End;
  * @property-read End                                 $deleted
  * @property-read End                                 $agencyMainEmailAddress
  * @property-read OrgaResourceType                    $owningOrganisation
- * @property-read OrgaResourceType                    $invitedOrganisations
+ * @property-read InvitedPublicAgencyResourceType     $invitedOrganisations
  * @property-read OrgaResourceType                    $orga                         Do not expose! Alias usage only.
- * @property-read OrgaResourceType                    $organisation                 Do not expose! Alias usage only.
+ * @property-read InvitedPublicAgencyResourceType     $organisation                 Do not expose! Alias usage only.
  * @property-read ProcedureTypeResourceType           $procedureType
  * @property-read ProcedureUiDefinitionResourceType   $procedureUiDefinition
  * @property-read StatementFormDefinitionResourceType $statementFormDefinition
@@ -168,20 +168,35 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         $external = $this->currentUser->getUser()->isPublicUser();
 
         $owningOrganisation = $this->createToOneRelationship($this->owningOrganisation)->aliasedPath($this->orga);
-        $invitedOrganisations = $this->createToManyRelationship($this->invitedOrganisations)->aliasedPath($this->organisation);
+
         $properties = [
             $this->createIdentifier()->readable()->sortable()->filterable(),
-            $this->createAttribute($this->name)->readable(true, fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
-                ? $procedure->getName()
-                : null)->sortable()->filterable(),
+            $this->createAttribute($this->name)
+                ->readable(
+                    true,
+                    fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                    ? $procedure->getName() : null
+                )
+                ->sortable()
+                ->filterable(),
             $owningOrganisation,
-            $invitedOrganisations,
         ];
 
         $properties[] = $this->createToManyRelationship($this->availableElements)->readable()->sortable()->filterable()->aliasedPath($this->elements);
+
+        if ($this->currentUser->hasAllPermissions(
+            'area_admin_invitable_institution',
+            'area_main_procedures',
+        )) {
+            $properties[] = $this->createToManyRelationship($this->invitedOrganisations)
+                ->readable()
+                ->sortable()
+                ->filterable()
+                ->aliasedPath($this->organisation);
+        }
+
         if ($this->hasAdminPermissions()) {
             $owningOrganisation->readable()->sortable()->filterable();
-            $invitedOrganisations->readable()->sortable()->filterable();
             $properties[] = $this->createAttribute($this->agencyMainEmailAddress)->readable(true)->sortable()->filterable();
         }
 

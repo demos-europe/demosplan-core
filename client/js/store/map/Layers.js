@@ -212,14 +212,33 @@ const LayersStore = {
 
         return
       }
+      // From some legacy states, the oldCategoryId and newCategoryId can be 'noIdGiven'
+      if (data.oldCategoryId === 'noIdGiven') {
+        data.oldCategoryId = null
+      }
+
+      if (data.newCategoryId === 'noIdGiven') {
+        data.newCategoryId = null
+      }
+
+      if (category.type === 'GisLayerCategory') {
+        // Create new child-elements-arrays (relationships) for the parent of the given List
+        const categories = []
+        const layers = []
+
+      if (data.newCategoryId === 'noIdGiven') {
+        data.newCategoryId = null
+      }
 
       const rootEl = state.apiData.data[0]
       // Get the old and new categories
-      const oldCategory = (data.oldCategoryId === null || data.oldCategoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.oldCategoryId)
-      const newCategory = (data.newCategoryId === null || data.newCategoryId === rootEl.id) ? rootEl : state.apiData.included.find(elem => elem.id === data.newCategoryId)
+      const oldCategory = (data.oldCategoryId === null || data.oldCategoryId === rootEl.id)
+        ? rootEl
+        : state.apiData.included.find(elem => elem.id === data.oldCategoryId)
+      const newCategory = (data.newCategoryId === null || data.newCategoryId === rootEl.id)
+        ? rootEl
+        : state.apiData.included.find(elem => elem.id === data.newCategoryId)
       const currentElement = state.apiData.included.find(el => el.id === data.movedElement.id)
-      const { parentIdKey, relationshipKey } = currentElement.type === 'GisLayerCategory' ? { parentIdKey: 'parentId', relationshipKey: 'categories' } : { parentIdKey: 'categoryId', relationshipKey: 'gisLayers' }
-      const isBaseLayer = currentElement.attributes.layerType === 'base'
 
       if (!oldCategory || !newCategory || !currentElement) {
         console.error('Invalid categories or current element, cannot update order')
@@ -227,7 +246,11 @@ const LayersStore = {
         return
       }
 
-      // List all elements with the givven categoryId
+      const { parentIdKey, relationshipKey } = currentElement.type === 'GisLayerCategory'
+        ? { parentIdKey: 'parentId', relationshipKey: 'categories' }
+        : { parentIdKey: 'categoryId', relationshipKey: 'gisLayers' }
+      const isBaseLayer = currentElement.attributes.layerType === 'base'
+      // List all elements with the given categoryId
       const childElements = state.apiData.included
         .filter(el => {
           let isInList = 0
@@ -247,6 +270,18 @@ const LayersStore = {
 
           return isInList > 1
         })
+        .map(el => {
+          /*
+           * In some cases the orderType holds the pure Index without the parentOrder.
+           * To align it with the other elements, we have to calculate the order number
+           * This is probably a migration issue, where the orderNumber was handled differently before
+           */
+          const orderNumber = el.attributes[data.orderType] < data.parentOrder * 100
+            ? data.parentOrder * 100 + el.attributes[data.orderType]
+            : el.attributes[data.orderType]
+
+          return { ...el, attributes: { ...el.attributes, [data.orderType]: orderNumber } }
+        })
         .sort((a, b) => a.attributes[data.orderType] - b.attributes[data.orderType])
 
       // If Element is not in the list, we have to remove it from the old parent ...
@@ -256,14 +291,16 @@ const LayersStore = {
         newCategory.relationships[relationshipKey].data.splice(data.movedElement.newIndex, 0, ({ id: currentElement.id, type: currentElement.type }))
         // ... And set the new parentId or categoryId for the current element
         currentElement.attributes[parentIdKey] = newCategory.id
-        // ... Otherwise, we have to move it
+        // ... otherwise we have to move it
       } else if (childElements.find(el => el.id === data.movedElement.id) !== undefined) {
         childElements.splice(data.movedElement.newIndex, 0, childElements.splice(data.movedElement.oldIndex, 1)[0])
       }
 
       // Set new order positions for all child elements
+      let layerIndex = null
       childElements.forEach((el, idx) => {
-        el.attributes[data.orderType] = (data.parentOrder * 100) + idx + 1
+        layerIndex = state.apiData.included.findIndex(elem => elem.id === el.id)
+        state.apiData.included[layerIndex].attributes[data.orderType] = (data.parentOrder * 100) + idx + 1
       })
     },
 
@@ -406,9 +443,9 @@ const LayersStore = {
         })
 
         // Add each layer to GetLegendGraphic request
-        for (const element of layerParamSplit) {
+        layerParamSplit.forEach(item => {
           if (layer.attributes.isEnabled) {
-            const legendUrl = legendUrlBase + 'Layer=' + element + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
+            const legendUrl = legendUrlBase + 'Layer=' + item + '&Request=GetLegendGraphic&Format=image/png&version=1.1.1'
             const legend = {
               layerId: layer.id,
               treeOrder: layer.attributes.treeOrder,
@@ -418,7 +455,7 @@ const LayersStore = {
             }
             commit('setLegend', legend)
           }
-        }
+        })
       }
     },
 
@@ -429,9 +466,13 @@ const LayersStore = {
      */
     saveAll ({ state, dispatch }) {
       /* Save each GIS layer and GIS layer category with its relationships */
+      const allRequests = []
+
       state.apiData.included.forEach(el => {
-        dispatch('save', el)
+        allRequests.push(dispatch('save', el))
       })
+
+      return Promise.all(allRequests)
     },
 
     /**
@@ -740,10 +781,16 @@ const LayersStore = {
      */
     gisLayerList: state => type => {
       if (typeof state.apiData.included === 'undefined') return []
-      return state.apiData.included.filter(current => {
-        const putInList = (type) ? (type === current.attributes.layerType) : true
-        return (current.type === 'GisLayer' && putInList)
-      }).sort((a, b) => (a.attributes.mapOrder).toString().padEnd(21, '0') - (b.attributes.mapOrder).toString().padEnd(21, '0'))
+
+      return state.apiData.included
+        .filter(current => {
+          const putInList = (type) ? (type === current.attributes.layerType) : true
+
+          return (current.type === 'GisLayer' && putInList)
+        })
+        .sort((a, b) => {
+          return (a.attributes.mapOrder).toString().padEnd(21, '0') - (b.attributes.mapOrder).toString().padEnd(21, '0')
+        })
     },
 
     /**

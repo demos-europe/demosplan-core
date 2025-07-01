@@ -643,10 +643,10 @@ feature_admin_export_procedure:
     label: 'Is export of procedures allowed in general.'
     loginRequired: true
     parent: feature_admin
-feature_admin_export_original_statement_csv:
+feature_admin_export_original_statement:
     expose: true
-    label: 'Export Original Statements as CSV'
-    description: 'Export Original Statements as CSV in the detail view of a procedure.'
+    label: 'Export Original Statements in any format'
+    description: 'Export Original Statements in the detail view of a procedure.'
     loginRequired: true
     parent: feature_admin
 feature_admin_export_procedure_in_detail_view:
@@ -2942,6 +2942,11 @@ field_statement_votes:
     label: 'Vote for statement (as a citizen)'
     loginRequired: true
     parent: field_statement
+field_submit_anonymous_statements:
+    description: 'Allow anonymous statements to be submitted in the public view.'
+    label: 'Allow anonymous statements'
+    loginRequired: true
+    expose: true
 field_vote_advice_docx:
     description: 'Show Abwägungsvorschlag (vote advice) in all docx exports'
     label: 'Show the vote advice (the short, predefined text, not the editable one) in the Docx exports'
