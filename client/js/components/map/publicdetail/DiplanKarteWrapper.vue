@@ -9,7 +9,7 @@
       @click="openStatementModalOrLoginPage" />
 
     <diplan-karte
-      v-if="storeAvailable"
+      v-if="isStoreAvailable"
       :geojson="initDrawing"
       @diplan-karte:geojson-update="handleDrawing"
     />
@@ -63,7 +63,7 @@ instance.appContext.app.use(MapPlugin, {
   }
 })
 
-const storeAvailable = computed(()=>{
+const isStoreAvailable = computed(() => {
   return store.state.PublicStatement.storeInitialised
 })
 
