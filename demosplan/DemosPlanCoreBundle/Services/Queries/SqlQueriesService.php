@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Services\Queries;
 
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
