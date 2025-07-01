@@ -11,7 +11,6 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\MunicipalityRepository;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -48,7 +47,7 @@ class MunicipalityService
         $municipalities = $this->getAllMunicipalities();
 
         return \collect($municipalities)->map(
-            fn(Municipality $municipality) => ['id' => $municipality->getId(), 'name' => $municipality->getName()]
+            fn (Municipality $municipality) => ['id' => $municipality->getId(), 'name' => $municipality->getName()]
         )
             ->sortBy('name')
             ->values()
