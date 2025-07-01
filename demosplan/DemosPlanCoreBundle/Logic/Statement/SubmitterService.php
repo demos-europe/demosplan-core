@@ -33,7 +33,7 @@ class SubmitterService
         private readonly ProcedureReportEntryFactory $procedureReportEntryFactory,
         private readonly ProcedureRepository $procedureRepository,
         private readonly ReportService $reportService,
-        private readonly UserRepository $userRepository
+        private readonly UserRepository $userRepository,
     ) {
         $this->mailService = $mailService;
     }
@@ -48,7 +48,7 @@ class SubmitterService
     public function sendPreparationMailToStatementSubmittersFromUserId(
         $fromUser,
         $preparationMail,
-        $procedureId
+        $procedureId,
     ) {
         $userMailAddress = $fromUser->getEmail();
         $subject = $preparationMail->getMailSubject();
