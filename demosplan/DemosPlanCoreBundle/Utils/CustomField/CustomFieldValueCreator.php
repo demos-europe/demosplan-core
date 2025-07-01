@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 
 class CustomFieldValueCreator
