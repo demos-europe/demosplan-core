@@ -14,11 +14,14 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\PriorityAreaRepository;
 use Exception;
+use Psr\Log\LoggerInterface;
 
-class PriorityAreaService extends CoreService
+class PriorityAreaService
 {
-    public function __construct(private readonly PriorityAreaRepository $priorityAreaRepository)
-    {
+    public function __construct(
+        private readonly PriorityAreaRepository $priorityAreaRepository,
+        private readonly  LoggerInterface $logger,
+    ) {
     }
 
     /**
