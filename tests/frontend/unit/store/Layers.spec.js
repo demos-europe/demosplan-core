@@ -44,7 +44,7 @@ describe('Layers', () => {
 
   it('can store data', () => {
     expect(StubStore.state.Layers.apiData).toEqual({})
-    StubStore.commit('Layers/updateState', { key: 'apiData', value: apiData)
+    StubStore.commit('Layers/updateState', { key: 'apiData', value: apiData })
     expect(typeof StubStore.state.Layers.apiData.data).toBe('object')
   })
 
