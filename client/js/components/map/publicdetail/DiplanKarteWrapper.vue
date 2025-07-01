@@ -9,8 +9,8 @@
       @click="openStatementModalOrLoginPage" />
 
     <diplan-karte
-      v-if="store.state.PublicStatement.storeInitialised"
-      :geojson="props.initDrawing"
+      v-if="storeAvailable"
+      :geojson="initDrawing"
       @diplan-karte:geojson-update="handleDrawing"
     />
   </div>
@@ -20,10 +20,10 @@
 <script setup>
 import { DpButton, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { MapPlugin, registerWebComponent } from '@init/diplan-karten'
-import { getCurrentInstance, onMounted } from 'vue'
+import { computed, getCurrentInstance, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
-const props = defineProps({
+const { activeStatement, initDrawing, loginPath, styleNonce } = defineProps({
   activeStatement: {
     type: Boolean,
     required: true
@@ -32,8 +32,10 @@ const props = defineProps({
   initDrawing: {
     type: Object,
     required: false,
-    default: { "type": "FeatureCollection",
-    "features": []}
+    default: () => ({
+      type: 'FeatureCollection',
+      features: []
+    })
   },
 
   loginPath: {
@@ -59,6 +61,10 @@ instance.appContext.app.use(MapPlugin, {
       isCustomElement: (tag) => tag === "diplan-karte",
     }
   }
+})
+
+const storeAvailable = computed(()=>{
+  return store.state.PublicStatement.storeInitialised
 })
 
 const handleDrawing = (event) => {
@@ -88,7 +94,7 @@ const handleDrawing = (event) => {
 
 const openStatementModalOrLoginPage= (event) => {
   if (!hasPermission('feature_new_statement')) {
-    window.location.href = props.loginPath
+    window.location.href = loginPath
 
     return
   }
@@ -104,7 +110,7 @@ const toggleStatementModal = (updateStatementPayload) => {
 
 onMounted(() => {
   registerWebComponent({
-    nonce: props.styleNonce,
+    nonce: styleNonce,
   })
 })
 </script>
