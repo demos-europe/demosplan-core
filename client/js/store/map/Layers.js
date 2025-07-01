@@ -101,7 +101,7 @@ const LayersStore = {
      */
     setLayerState (state, { id, key, value }) {
       if (!state.layerStates[id]) {
-        state.layerStates[id] = { }
+        state.layerStates[id] = {}
       }
 
       state.layerStates[id][key] = value
@@ -221,15 +221,6 @@ const LayersStore = {
         data.newCategoryId = null
       }
 
-      if (category.type === 'GisLayerCategory') {
-        // Create new child-elements-arrays (relationships) for the parent of the given List
-        const categories = []
-        const layers = []
-
-      if (data.newCategoryId === 'noIdGiven') {
-        data.newCategoryId = null
-      }
-
       const rootEl = state.apiData.data[0]
       // Get the old and new categories
       const oldCategory = (data.oldCategoryId === null || data.oldCategoryId === rootEl.id)
@@ -288,7 +279,10 @@ const LayersStore = {
       if (oldCategory.id !== newCategory.id) {
         oldCategory.relationships[relationshipKey].data.splice(data.movedElement.oldIndex, 1)
         // And add it to the new List ...
-        newCategory.relationships[relationshipKey].data.splice(data.movedElement.newIndex, 0, ({ id: currentElement.id, type: currentElement.type }))
+        newCategory.relationships[relationshipKey].data.splice(data.movedElement.newIndex, 0, ({
+          id: currentElement.id,
+          type: currentElement.type
+        }))
         // ... And set the new parentId or categoryId for the current element
         currentElement.attributes[parentIdKey] = newCategory.id
         // ... otherwise we have to move it
@@ -342,9 +336,14 @@ const LayersStore = {
      */
     setMinimapBaseLayer (state, id) {
       const previousMinimap = state.apiData.included.find(elem => elem.attributes.isMinimap === true)
-      if (previousMinimap) { previousMinimap.attributes.isMinimap = false }
 
-      if (id === '') { return }
+      if (previousMinimap) {
+        previousMinimap.attributes.isMinimap = false
+      }
+
+      if (id === '') {
+        return
+      }
 
       const newMinimap = state.apiData.included.find(elem => elem.id === id)
       newMinimap.attributes.isMinimap = true
@@ -358,7 +357,6 @@ const LayersStore = {
     setIsMapLoaded (state) {
       state.isMapLoaded = true
     }
-
   },
 
   actions: {
