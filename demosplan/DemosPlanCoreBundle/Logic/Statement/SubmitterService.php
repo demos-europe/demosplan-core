@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
@@ -22,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\PreparationMailVO;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
-class SubmitterService extends CoreService
+class SubmitterService
 {
     /**
      * @var MailService
