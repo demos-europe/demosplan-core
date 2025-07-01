@@ -11,6 +11,7 @@
     <diplan-karte
       v-if="isStoreAvailable"
       :geojson="initDrawing"
+      profile="beteiligung"
       @diplan-karte:geojson-update="handleDrawing"
     />
   </div>
