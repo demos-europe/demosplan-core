@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Doctrine\DBAL\Schema\SchemaException;
 use Exception;
 
-class OrgaDeleter extends CoreService
+class OrgaDeleter
 {
     public function __construct(
         private readonly SqlQueriesService $queriesService,
