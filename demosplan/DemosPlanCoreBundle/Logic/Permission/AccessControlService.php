@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Psr\Log\LoggerInterface;
 
 /**
  * This file is part of the package demosplan.
@@ -31,14 +32,15 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
  *
  * All rights reserved
  */
-class AccessControlService extends CoreService
+class AccessControlService
 {
     public const CREATE_PROCEDURES_PERMISSION = 'feature_admin_new_procedure';
 
     public function __construct(
         private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
-        private readonly OrgaService $orgaService
+        private readonly OrgaService $orgaService,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
