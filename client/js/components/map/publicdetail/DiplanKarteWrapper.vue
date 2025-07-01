@@ -10,6 +10,7 @@
 
     <diplan-karte
       @diplan-karte:geojson-update="handleDrawing"
+      profile="beteiligung"
     />
   </div>
 </template>
