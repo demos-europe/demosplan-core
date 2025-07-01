@@ -14,7 +14,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ClusterStatementResourceType;
 use Doctrine\DBAL\Connection;
@@ -22,9 +21,8 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
-use ReflectionException;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 class StatementClusterService
 {
@@ -38,7 +36,7 @@ class StatementClusterService
         private readonly StatementRepository $statementRepository,
         private readonly \Doctrine\Persistence\ManagerRegistry $doctrine,
         private readonly LoggerInterface $logger,
-        StatementService $statementService
+        StatementService $statementService,
     ) {
         $this->statementService = $statementService;
     }
