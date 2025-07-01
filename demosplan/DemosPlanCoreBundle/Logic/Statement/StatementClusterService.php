@@ -23,8 +23,10 @@ use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
 use ReflectionException;
+use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Psr\Log\LoggerInterface;
 
-class StatementClusterService extends CoreService
+class StatementClusterService
 {
     /** @var StatementService */
     protected $statementService;
@@ -34,6 +36,8 @@ class StatementClusterService extends CoreService
         private readonly DqlConditionFactory $conditionFactory,
         private readonly StatementCopier $statementCopier,
         private readonly StatementRepository $statementRepository,
+        private readonly \Doctrine\Persistence\ManagerRegistry $doctrine,
+        private readonly LoggerInterface $logger,
         StatementService $statementService
     ) {
         $this->statementService = $statementService;
@@ -52,7 +56,7 @@ class StatementClusterService extends CoreService
     public function newStatementCluster(Statement $representativeStatement, array $statementIdsToCluster)
     {
         /** @var Connection $doctrineConnection */
-        $doctrineConnection = $this->getDoctrine()->getConnection();
+        $doctrineConnection = $this->doctrine->getConnection();
 
         try {
             $doctrineConnection->beginTransaction();
