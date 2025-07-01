@@ -29,8 +29,9 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
 
-class TagService extends CoreService
+class TagService
 {
     public function __construct(
         private readonly BoilerplateRepository $boilerplateRepository,
@@ -38,6 +39,7 @@ class TagService extends CoreService
         private readonly TagRepository $tagRepository,
         private readonly TagTopicRepository $tagTopicRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
