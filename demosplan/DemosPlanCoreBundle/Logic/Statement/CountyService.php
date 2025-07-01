@@ -16,11 +16,15 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\CountyRepository;
 use Exception;
+use Psr\Log\LoggerInterface;
 
-class CountyService extends CoreService
+class CountyService
 {
-    public function __construct(private readonly CountyRepository $countyRepository, private readonly CustomerService $customerService)
-    {
+    public function __construct(
+        private readonly CountyRepository $countyRepository,
+        private readonly CustomerService $customerService,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
