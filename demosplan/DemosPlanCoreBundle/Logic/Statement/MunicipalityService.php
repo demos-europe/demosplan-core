@@ -14,11 +14,14 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\MunicipalityRepository;
 use Exception;
+use Psr\Log\LoggerInterface;
 
-class MunicipalityService extends CoreService
+class MunicipalityService
 {
-    public function __construct(private readonly MunicipalityRepository $municipalityRepository)
-    {
+    public function __construct(
+        private readonly MunicipalityRepository $municipalityRepository,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
