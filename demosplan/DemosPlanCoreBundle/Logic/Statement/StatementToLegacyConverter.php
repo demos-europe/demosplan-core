@@ -26,8 +26,8 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\Common\Collections\Collection;
 use Exception;
-use ReflectionException;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 
 class StatementToLegacyConverter
 {
