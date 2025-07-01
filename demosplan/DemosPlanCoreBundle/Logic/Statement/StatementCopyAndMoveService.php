@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use Doctrine\ORM\EntityNotFoundException;
 
-class StatementCopyAndMoveService extends CoreService
+class StatementCopyAndMoveService
 {
     /** @var ReportService */
     protected $reportService;
