@@ -15,11 +15,14 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Exception;
+use Psr\Log\LoggerInterface;
 
-class SqlQueriesService extends CoreService
+class SqlQueriesService
 {
-    public function __construct(private readonly Connection $dbConnection)
-    {
+    public function __construct(
+        private readonly Connection $dbConnection,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     public function getConnection(): Connection
