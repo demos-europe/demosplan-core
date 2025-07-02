@@ -849,7 +849,7 @@ export default {
                   let popupContent = ''
                   popupContent = parsedData.body
 
-                  if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s\t\n\r↵]*<\/table>/mg) !== null) {
+                  if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s↵]*<\/table>/mg) !== null) {
                     popupContent = Translator.trans('map.getfeatureinfo.none')
                   }
 
@@ -1976,7 +1976,7 @@ export default {
       this.updateLayerVisibility({ id: layerId, isVisible: newState, layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility })
     },
 
-    toggleLayer (layerId, toggleExclusive, newState) {
+    toggleLayer (layerId, toggleExclusive, newVisibilityState) {
       if (!this.map) return
 
       const layerGroup = this.map.getLayerGroup()
@@ -1985,7 +1985,7 @@ export default {
       if (toggleExclusive === true) {
         this.toggleLayerExclusively(layerGroup)
       } else if (layer) {
-        const stateSetter = (typeof newState !== 'undefined') ? newState : (layer.getVisible() === false)
+        const stateSetter = (typeof newVisibilityState !== 'undefined') ? newVisibilityState : (layer.getVisible() === false)
 
         layer.setVisible(stateSetter)
       }
