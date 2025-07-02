@@ -367,11 +367,10 @@ class ProcedureNewsServiceTest extends FunctionalTestCase
         }
         /** @var News[] $news */
         $doctrine = self::getContainer()->get('doctrine');
-        $news =$doctrine->getManager()
+        $news = $doctrine->getManager()
             ->getRepository(News::class)->getNewsToAutoSetState();
 
         static::assertCount($assertedNewsToSwitch->count(), $news);
-
     }
 
     /**
