@@ -161,6 +161,32 @@ class TagService extends CoreService
     }
 
     /**
+     * Moves a tag to a new topic during import, bypassing TagUpdateEvent.
+     * Replicates moveTagToTopic logic without triggering events
+     * to avoid conflicts with unified event handling through $persistedTags[].
+     *
+     * @param Tag      $tag      The tag to move
+     * @param TagTopic $newTopic The target topic
+     *
+     * @return bool True if both tag and topic were successfully updated
+     *
+     * @throws Exception
+     */
+    public function moveTagToTopicViaTagImportBypassingTagUpdateEvent(Tag $tag, TagTopic $newTopic): bool
+    {
+        // Replicate the exact logic from moveTagToTopic
+        $newTopic->addTag($tag);
+        $tag->setTopic($newTopic);
+
+        $tagUpdated = $this->tagRepository->updateObject($tag);
+        $topicUpdated = $this->tagTopicRepository->updateObject($newTopic);
+
+        // Skip the event dispatch to avoid dual event handling
+
+        return $tagUpdated instanceof Tag && $topicUpdated instanceof TagTopic;
+    }
+
+    /**
      * Attach a BoilerplateText to a tag.
      *
      * @param Tag         $tag
