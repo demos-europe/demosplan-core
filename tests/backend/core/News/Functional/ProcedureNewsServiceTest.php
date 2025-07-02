@@ -224,7 +224,6 @@ class ProcedureNewsServiceTest extends FunctionalTestCase
         $sort = $doctrine->getRepository(ManualListSort::class)
             ->get($context);
 
-
         $this->assertObjectHasProperty('idents', $sort);
         static::assertEquals($sortedIds, $sort->getIdents());
     }
