@@ -2367,8 +2367,15 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $lastTopic = $currentTopicTitle;
             }
 
-            // Create the tag
-            $persistedTag[] = $tag = $this->handleTagImport($currentTagTitle, $topics[$currentTopicTitle]);
+            // $isNewTag needs to be evaluated before calling handleTagImport
+            $isNewTag = $this->tagRepository->isTagTitleFree($procedureId, $currentTagTitle);
+            // Create or update the tag
+            $tag = $this->handleTagImport($currentTagTitle, $topics[$currentTopicTitle], $procedureId);
+
+            // Only add to persistedTag array if it's a new tag (updated tags are handled by TagUpdateEvents)
+            if ($isNewTag) {
+                $persistedTag[] = $tag;
+            }
 
             // Create and attach a boilerplate object if required
             if ($tagData['useBoilerplate']) {
@@ -2494,22 +2501,61 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     }
 
     /**
+     * Finds an existing tag by title within a specific procedure.
+     * @throws Exception
+     */
+    protected function findExistingTagInProcedure(string $procedureId, string $tagTitle): ?Tag
+    {
+        $procedure = $this->procedureService->getProcedure($procedureId);
+        $matchingTags = $procedure->getTags()->filter(
+            static fn (Tag $tag) => $tag->getTitle() === $tagTitle
+        );
+
+        return $matchingTags->isEmpty() ? null : $matchingTags->first();
+    }
+
+    /**
      * Handles tag creation or retrieval during import.
-     * Checks if tag already exists in the topic before creating a new one.
+     * Ensures tag uniqueness per procedure by checking existing tags across all topics.
+     *
+     * Logic:
+     * 1. If tag exists in the target topic -> return existing tag
+     * 2. If tag exists in procedure but different topic -> move to target topic
+     * 3. Otherwise -> create new tag and attach to target topic
+     *
+     * @param string   $tagTitle    The title of the tag to create or retrieve
+     * @param TagTopic $topic       The target topic for the tag
+     * @param string   $procedureId The procedure ID for uniqueness checking
+     *
+     * @return Tag The tag entity (either existing, moved, or newly created)
      *
      * @throws Exception
      */
-    protected function handleTagImport(string $tagTitle, TagTopic $topic): Tag
+    protected function handleTagImport(string $tagTitle, TagTopic $topic, string $procedureId): Tag
     {
+        // First check if tag already exists in the current topic
         $topicTags = $topic->getTags();
         $existingTags = $topicTags->filter(
             static fn (Tag $tag) => $tag->getTitle() === $tagTitle
         );
 
         if (!$existingTags->isEmpty()) {
+            // Tag already exists in target topic - return as-is
             return $existingTags->first();
         }
 
+        // Check if tag title exists elsewhere in this procedure
+        if (!$this->tagRepository->isTagTitleFree($procedureId, $tagTitle)) {
+            // Tag exists in different topic - move it to target topic
+            $existingTagInProcedure = $this->findExistingTagInProcedure($procedureId, $tagTitle);
+            if (null !== $existingTagInProcedure) {
+                $this->tagService->moveTagToTopic($existingTagInProcedure, $topic);
+
+                return $existingTagInProcedure;
+            }
+        }
+
+        // Tag doesn't exist anywhere in procedure - create new one
         return $this->tagService->createTag($tagTitle, $topic);
     }
 
