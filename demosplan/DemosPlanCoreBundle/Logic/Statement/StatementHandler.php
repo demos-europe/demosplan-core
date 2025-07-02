@@ -2562,13 +2562,11 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
             // Inconsistent state: isTagTitleFree said tag exists but findExistingTagInProcedure found nothing
             $this->logger->error('Tag import inconsistency: isTagTitleFree returned false but tag not found', [
-                'procedureId' => $procedureId,
-                'tagTitle' => $tagTitle,
+                'procedureId'   => $procedureId,
+                'tagTitle'      => $tagTitle,
                 'targetTopicId' => $topic->getId(),
             ]);
-            throw new TagNotFoundException(
-                "Tag title '{$tagTitle}' reported as taken in procedure '{$procedureId}' but tag not found"
-            );
+            throw new TagNotFoundException("Tag title '{$tagTitle}' reported as taken in procedure '{$procedureId}' but tag not found");
         }
 
         // Tag doesn't exist anywhere in procedure - create new one
