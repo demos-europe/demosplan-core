@@ -2503,6 +2503,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
     /**
      * Finds an existing tag by title within a specific procedure.
+     *
      * @throws Exception
      */
     protected function findExistingTagInProcedure(string $procedureId, string $tagTitle): ?Tag
