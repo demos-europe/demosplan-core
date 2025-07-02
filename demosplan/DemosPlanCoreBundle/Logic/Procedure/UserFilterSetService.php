@@ -16,11 +16,16 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserFilterSetRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
+use Psr\Log\LoggerInterface;
 
-class UserFilterSetService extends CoreService
+class UserFilterSetService
 {
-    public function __construct(private readonly ProcedureRepository $procedureRepository, private readonly UserFilterSetRepository $userFilterSetRepository, private readonly UserRepository $userRepository)
-    {
+    public function __construct(
+        private readonly ProcedureRepository $procedureRepository,
+        private readonly UserFilterSetRepository $userFilterSetRepository,
+        private readonly UserRepository $userRepository,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -42,7 +47,7 @@ class UserFilterSetService extends CoreService
         $userFilterSet->setFilterSet($filterSet);
         $userFilterSet->setProcedure($procedure);
 
-        $this->getLogger()->debug('saveUserFilterSet()', ['procedureId' => $procedureId, 'name' => $name]);
+        $this->logger->debug('saveUserFilterSet()', ['procedureId' => $procedureId, 'name' => $name]);
 
         return $this->userFilterSetRepository->addObject($userFilterSet);
     }
