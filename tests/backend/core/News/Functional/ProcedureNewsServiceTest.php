@@ -218,10 +218,12 @@ class ProcedureNewsServiceTest extends FunctionalTestCase
 
         $result = $this->sut->setManualSortOfNews($procedureId, $sortedIds);
         static::assertTrue($result);
+        $doctrine = self::getContainer()->get('doctrine');
 
         /** @var ManualListSort $sort */
-        $sort = $this->sut->getDoctrine()->getRepository(ManualListSort::class)
+        $sort = $doctrine->getRepository(ManualListSort::class)
             ->get($context);
+
 
         $this->assertObjectHasProperty('idents', $sort);
         static::assertEquals($sortedIds, $sort->getIdents());
