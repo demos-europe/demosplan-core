@@ -539,7 +539,7 @@
             title="statement.text"
             class="u-pb-0 u-pt-0"
             is-fullscreen-row
-            :border-bottom="(statement.files.length > 0)">
+            :border-bottom="(statement.genericAttachments.length > 0)">
             <dp-claim
               v-if="hasPermission('feature_statement_assignment')"
               class="c-at-item__row-icon inline-block fullscreen-claim"
@@ -607,7 +607,7 @@
             </dl>
           </dp-item-row><!--
          --><div
-              v-if="statement.files.length > 0 || statement.sourceAttachment !== '' && statement.sourceAttachment?.filename"
+              v-if="statement.genericAttachments.length > 0 || statement.sourceAttachment !== '' && statement.sourceAttachment?.filename"
               class="layout--flush u-pv-0_25 u-ph-0_5">
               <div
                 class="layout__item c-at-item__row-icon color--grey"
@@ -629,7 +629,7 @@
                 </a>
                 <!-- Attached files -->
                 <a
-                  v-for="file in statement.files"
+                  v-for="file in statement.genericAttachments"
                   :key="file.hash"
                   class="u-pr-0_5 o-hellip"
                   :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"

@@ -367,6 +367,9 @@ class MailService extends CoreService
                     $this->mailer->send($message);
                     $mail->setStatus('sent');
                     $mail->setSendDate(new DateTime());
+                    // Clear any previous error information on successful send
+                    $mail->setErrorCode('');
+                    $mail->setErrorMessage('');
                 } catch (TransportExceptionInterface $e) {
                     $this->logger->warning('Could not send Mail',
                         [
@@ -381,12 +384,16 @@ class MailService extends CoreService
                     );
                     // update number of send attempts
                     $mail->setSendAttempt($mail->getSendAttempt() + 1);
+                    $mail->setErrorCode($e->getCode());
+                    $mail->setErrorMessage($e->getMessage());
                     $em->persist($mail);
 
                     continue;
                 } catch (Exception $e) {
                     $this->logger->error('General exception on sending e-mail.', [$e]);
                     $mail->setSendAttempt($mail->getSendAttempt() + 1);
+                    $mail->setErrorCode($e->getCode());
+                    $mail->setErrorMessage($e->getMessage());
                     $em->persist($mail);
 
                     continue;
@@ -409,11 +416,11 @@ class MailService extends CoreService
                 foreach ($mail->getAttachments() as $attachment) {
                     try {
                         if ($attachment->getDeleteOnSent()
-                            && $mail->getStatus() === 'sent'
+                            && 'sent' === $mail->getStatus()
                             && $this->defaultStorage->fileExists($attachment->getFilename())
-                            ) {
-                                $this->defaultStorage->delete($attachment->getFilename());
-                            }
+                        ) {
+                            $this->defaultStorage->delete($attachment->getFilename());
+                        }
                     } catch (Exception $exception) {
                         $this->logger->warning('failed to remove email attachment', [$exception]);
                     }
