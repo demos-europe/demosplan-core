@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use Doctrine\ORM\NoResultException;
 
-class PlaceService extends CoreService implements PlaceServiceInterface
+class PlaceService implements PlaceServiceInterface
 {
     public function __construct(private readonly PlaceRepository $placeRepository)
     {
