@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use ArrayIterator;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
@@ -2301,7 +2302,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         // Create a new records collection from the converted data
-        $records = new \ArrayIterator($convertedRecords);
+        $records = new ArrayIterator($convertedRecords);
         $records->rewind();
         $columnTitles = [];
         if ($records->valid()) {
@@ -2563,6 +2564,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * Handles boilerplate creation or update for a tag during import.
      * Creates new boilerplate if none exists with the title, otherwise updates existing text if different.
      * Only attaches boilerplate to tag if a new one was created.
+     *
      * @throws Exception
      */
     protected function handleBoilerplateImportForTag(Tag $tag, string $title, string $text, string $procedureId): void
