@@ -28,8 +28,9 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 
-class ProcedureNewsService extends CoreService implements ProcedureNewsServiceInterface
+class ProcedureNewsService implements ProcedureNewsServiceInterface
 {
     /**
      * @var FileService
@@ -44,6 +45,7 @@ class ProcedureNewsService extends CoreService implements ProcedureNewsServiceIn
         private readonly ManualListSorter $manualListSorter,
         private readonly NewsRepository $newsRepository,
         private readonly SortMethodFactory $sortMethodFactory,
+        private readonly LoggerInterface $logger,
     ) {
         $this->fileService = $fileService;
     }
