@@ -638,7 +638,7 @@ export default {
 
         const isHiddenPrintLayer = layer.attributes.isEnabled === false && layer.attributes.isPrint
 
-        layerId = layer.id // .replace(/-/g, '')
+        layerId = layer.id
         opacity = opacities['GisLayerlayer' + layerId] / 100
 
         overlayLayer = this.createLayer({ layer, opacity, visibility: !isHiddenPrintLayer })
