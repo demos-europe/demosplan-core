@@ -4,7 +4,7 @@
       id="statementModalButton"
       :class="prefixClass('left-[365px] top-[24px] pt-[11px] pb-[11px] pl-[20px] pr-[20px] !absolute z-above-zero')"
       :text="activeStatement ? Translator.trans('statement.participate.resume') : Translator.trans('statement.participate')"
-      data-cy="statementModal"
+      data-cy="publicStatementButton"
       rounded
       @click="openStatementModalOrLoginPage" />
 
