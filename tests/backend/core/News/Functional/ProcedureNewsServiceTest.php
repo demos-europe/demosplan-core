@@ -365,12 +365,13 @@ class ProcedureNewsServiceTest extends FunctionalTestCase
                 $assertedNewsToSwitch->push($news);
             }
         }
-
         /** @var News[] $news */
-        $news = $this->sut->getDoctrine()->getManager()
+        $doctrine = self::getContainer()->get('doctrine');
+        $news =$doctrine->getManager()
             ->getRepository(News::class)->getNewsToAutoSetState();
 
         static::assertCount($assertedNewsToSwitch->count(), $news);
+
     }
 
     /**
