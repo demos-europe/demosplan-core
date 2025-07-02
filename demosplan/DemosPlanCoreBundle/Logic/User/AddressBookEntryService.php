@@ -53,7 +53,7 @@ class AddressBookEntryService
     /**
      * Add a single AddressBookEntry to the AddressBook of the given Organisation.
      *
-     * @return addressBookEntry|false - true in case of successfully deleted, otherwise false
+     * @return AddressBookEntry|false - true in case of successfully deleted, otherwise false
      *
      * @throws ORMException
      * @throws OptimisticLockException
