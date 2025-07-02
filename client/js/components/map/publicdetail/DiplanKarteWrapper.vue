@@ -7,16 +7,25 @@
       rounded
       :text="Translator.trans('statement.participate')"
       @click="openStatementModalOrLoginPage" />
-
-    <diplan-karte />
+    <dp-notification
+      v-if="isLocationToolSelected && !isLocationInfoClosed"
+      id="locationReferenceInfo"
+      :message="{ text: Translator.trans('statement.map.draw.mark_place_notification'), type: 'warning' }"
+      :class="prefixClass('left-[565px] top-[5px] w-auto !absolute z-above-zero')"
+      @dp-notify-remove="closeLocationInfo"
+    />
+    <diplan-karte
+      profile="beteiligung"
+    />
   </div>
 </template>
 
 
 <script setup>
-import { DpButton, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { computed, getCurrentInstance, onMounted, ref } from 'vue'
+import { DpButton, prefixClassMixin, DpNotification } from '@demos-europe/demosplan-ui'
 import { MapPlugin, registerWebComponent } from '@init/diplan-karten'
-import { getCurrentInstance } from 'vue'
+import { useStore } from 'vuex'
 
 const props = defineProps({
   loginPath: {
@@ -29,23 +38,39 @@ const props = defineProps({
   }
 })
 
+const store = useStore()
+
 const instance = getCurrentInstance()
 
 instance.appContext.app.mixin(prefixClassMixin)
 instance.appContext.app.use(MapPlugin, {
   template: {
     compilerOptions: {
-      isCustomElement: (tag) => tag === "diplan-karte",
+      isCustomElement: (tag) => tag === 'diplan-karte',
     }
   }
 })
 
-const openStatementModalOrLoginPage= (event) => {
+let isLocationInfoClosed = ref(false)
+
+const isLocationToolSelected = computed(() => {
+  return store.state.PublicStatement.activeActionBoxTab === 'draw'
+})
+
+const closeLocationInfo = () => {
+  isLocationInfoClosed.value = true
+}
+
+const openStatementModalOrLoginPage = (event) => {
   if (!hasPermission('feature_new_statement')) {
     window.location.href = props.loginPath
 
     return
   }
+
+  isLocationInfoClosed.value = false
+
+  store.commit('PublicStatement/update', { key: 'activeActionBoxTab', val: 'talk' })
 
   event.preventDefault()
   event.stopPropagation()
@@ -59,4 +84,9 @@ const toggleStatementModal = (updateStatementPayload) => {
 registerWebComponent({
   nonce: props.styleNonce,
 })
+
+onMounted(() => {
+  store.commit('PublicStatement/update', { key: 'activeActionBoxTab', val: 'talk' })
+})
+
 </script>

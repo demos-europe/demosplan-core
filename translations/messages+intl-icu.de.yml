@@ -3494,6 +3494,7 @@ statement.map.draw.drawing_complete: "Sie können Ihre Einzeichnung nun als Stel
 statement.map.draw.drop_all: "Alle Einzeichnungen löschen"
 statement.map.draw.mark_line: "Linie einzeichnen"
 statement.map.draw.mark_place: "Ort markieren"
+statement.map.draw.mark_place_notification: "Bitte wählen Sie einen Ort auf der Karte!"
 statement.map.draw.mark_point: "Punkt einzeichnen"
 statement.map.draw.mark_polygon: "Fläche einzeichnen"
 statement.map.draw.no_drawing_warning: "Bitte nehmen Sie zuerst in der Karte eine Einzeichnung vor!"
