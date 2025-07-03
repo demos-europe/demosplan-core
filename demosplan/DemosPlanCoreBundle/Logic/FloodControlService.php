@@ -24,11 +24,11 @@ use demosplan\DemosPlanCoreBundle\Exception\HoneypotException;
 use demosplan\DemosPlanCoreBundle\Exception\IpFloodException;
 use demosplan\DemosPlanCoreBundle\Repository\FloodRepository;
 use Exception;
+use Illuminate\Support\Collection;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
-use Illuminate\Support\Collection;
 use Twig\Environment;
-use Psr\Log\LoggerInterface;
 
 class FloodControlService
 {
@@ -60,7 +60,6 @@ class FloodControlService
         private readonly MessageBagInterface $messageBag,
         private readonly LoggerInterface $logger,
         protected $ipFloodThreshold = self::IP_FLOOD_THRESHOLD,
-
     ) {
     }
 
