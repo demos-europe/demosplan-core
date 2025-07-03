@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\ValueObject\OrgaBranding;
 use Exception;
 
-class BrandingService extends CoreService
+class BrandingService
 {
     public function __construct(private readonly ProcedureService $procedureService)
     {
