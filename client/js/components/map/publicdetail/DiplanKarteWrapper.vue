@@ -6,9 +6,19 @@
       :text="activeStatement ? Translator.trans('statement.participate.resume') : Translator.trans('statement.participate')"
       data-cy="statementModal"
       rounded
-      @click="openStatementModalOrLoginPage" />
+      @click="openStatementModalOrLoginPage"
+    />
+
+    <dp-notification
+      v-if="isLocationToolSelected && !isLocationInfoClosed"
+      id="locationReferenceInfo"
+      :message="{ text: Translator.trans('statement.map.draw.mark_place_notification'), type: 'warning' }"
+      :class="prefixClass('left-[565px] top-[5px] w-auto !absolute z-above-zero')"
+      @dp-notify-remove="closeLocationInfo"
+    />
 
     <diplan-karte
+      profile="beteiligung"
       @diplan-karte:geojson-update="handleDrawing"
     />
   </div>
@@ -16,9 +26,10 @@
 
 
 <script setup>
-import { DpButton, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { computed, getCurrentInstance, onMounted, ref } from 'vue'
+import { DpButton, prefixClassMixin, DpNotification } from '@demos-europe/demosplan-ui'
 import { MapPlugin, registerWebComponent } from '@init/diplan-karten'
-import { getCurrentInstance } from 'vue'
+import { useStore } from 'vuex'
 
 const props = defineProps({
   activeStatement: {
@@ -39,16 +50,28 @@ const props = defineProps({
 
 const emit = defineEmits(['location-drawing'])
 
+const store = useStore()
+
 const instance = getCurrentInstance()
 
 instance.appContext.app.mixin(prefixClassMixin)
 instance.appContext.app.use(MapPlugin, {
   template: {
     compilerOptions: {
-      isCustomElement: (tag) => tag === "diplan-karte",
+      isCustomElement: (tag) => tag === 'diplan-karte',
     }
   }
 })
+
+let isLocationInfoClosed = ref(false)
+
+const isLocationToolSelected = computed(() => {
+  return store.state.PublicStatement.activeActionBoxTab === 'draw'
+})
+
+const closeLocationInfo = () => {
+  isLocationInfoClosed.value = true
+}
 
 const handleDrawing = (event) => {
   let payload
@@ -75,12 +98,16 @@ const handleDrawing = (event) => {
   emit('location-drawing', payload)
 }
 
-const openStatementModalOrLoginPage= (event) => {
+const openStatementModalOrLoginPage = (event) => {
   if (!hasPermission('feature_new_statement')) {
     window.location.href = props.loginPath
 
     return
   }
+
+  isLocationInfoClosed.value = false
+
+  store.commit('PublicStatement/update', { key: 'activeActionBoxTab', val: 'talk' })
 
   event.preventDefault()
   event.stopPropagation()
@@ -94,4 +121,9 @@ const toggleStatementModal = (updateStatementPayload) => {
 registerWebComponent({
   nonce: props.styleNonce,
 })
+
+onMounted(() => {
+  store.commit('PublicStatement/update', { key: 'activeActionBoxTab', val: 'talk' })
+})
+
 </script>
