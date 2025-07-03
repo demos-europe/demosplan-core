@@ -21,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadyConnectedToGdprConsentRevokeTokenException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EmailAddressService;
 use demosplan\DemosPlanCoreBundle\Logic\TokenFactory;
 use demosplan\DemosPlanCoreBundle\Repository\GdprConsentRevokeTokenRepository;
@@ -29,7 +28,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 
-class GdprConsentRevokeTokenService extends CoreService
+class GdprConsentRevokeTokenService
 {
     /** @var StatementService */
     protected $statementService;
