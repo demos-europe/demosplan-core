@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
-use Psr\Log\LoggerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use Psr\Log\LoggerInterface;
 
 class DraftsInfoService
 {
