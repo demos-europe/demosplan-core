@@ -28,7 +28,7 @@ use function collect;
 /**
  * @deprecated Use Procedure Object instead
  */
-class ProcedureToLegacyConverter extends CoreService
+class ProcedureToLegacyConverter
 {
     public function __construct(private readonly DateHelper $dateHelper, private readonly EntityHelper $entityHelper, private readonly ProcedureRepository $procedureRepository)
     {
