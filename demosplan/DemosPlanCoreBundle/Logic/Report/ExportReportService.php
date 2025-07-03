@@ -25,7 +25,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function Symfony\Component\String\u;
 
-class ExportReportService extends CoreService
+class ExportReportService
 {
     /** @var array */
     private $styles;
