@@ -237,16 +237,6 @@ export default {
       return submitterField
     },
 
-    statementSubmitterValue: {
-      get () {
-        return this.isSubmitterAnonymized() ? Translator.trans('anonymized') : this.localStatement.attributes[this.statementSubmitterField]
-      },
-
-      set (value) {
-        this.localStatement.attributes[this.statementSubmitterField] = value
-      }
-    },
-
     submitterHelpText () {
       const { consentRevoked, submitterAndAuthorMetaDataAnonymized } = this.localStatement.attributes
       let helpText = ''
@@ -277,6 +267,19 @@ export default {
   },
 
   methods: {
+    getDisplayValue (value) {
+      const isDisabled = !this.editable || !this.isStatementManual
+      return (isDisabled && (!value || value.trim() === '')) ? '---' : value
+    },
+
+    getSubmitterNameValue() {
+      if (this.isSubmitterAnonymized()) {
+        return Translator.trans('anonymized')
+      }
+      const value = this.localStatement.attributes[this.statementSubmitterField]
+      return this.getDisplayValue(value)
+    },
+
     isSubmitterAnonymized () {
       const { consentRevoked, submitterAndAuthorMetaDataAnonymized } = this.localStatement.attributes
 
