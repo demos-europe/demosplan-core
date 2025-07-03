@@ -380,6 +380,7 @@ const LayersStore = {
           GisLayer: [
             'canUserToggleVisibility',
             'categoryId',
+            'contextualHelp',
             'hasDefaultVisibility',
             'isBaseLayer',
             'isBplan',
