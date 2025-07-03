@@ -6,7 +6,9 @@
       data-cy="statementModal"
       rounded
       :text="activeStatement ? Translator.trans('statement.participate.resume') : Translator.trans('statement.participate')"
-      @click="openStatementModalOrLoginPage" />
+      @click="openStatementModalOrLoginPage"
+    />
+
     <dp-notification
       v-if="isLocationToolSelected && !isLocationInfoClosed"
       id="locationReferenceInfo"
