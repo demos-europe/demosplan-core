@@ -23,29 +23,34 @@ All rights reserved
       {{ submitterRole }}
     </div>
 
+    <!--  In the following section, v-model is replaced with :value && @input to allow custom display if input values -->
     <div class="grid grid-cols-1 gap-x-4 md:grid-cols-2">
       <dp-input
         v-if="hasPermission('field_statement_meta_orga_department_name') && !this.localStatement.attributes.isSubmittedByCitizen"
         id="statementDepartmentName"
-        v-model="localStatement.attributes.initialOrganisationDepartmentName"
+        :value="getDisplayValue(localStatement.attributes.initialOrganisationDepartmentName)"
         data-cy="statementSubmitter:departmentName"
         class="mb-2"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('department')
-        }" />
+        }"
+        @input="value => localStatement.attributes.initialOrganisationDepartmentName = value"
+      />
 
       <!--  TO DO: add if not participationGuestOnly -->
       <dp-input
         v-if="!this.localStatement.attributes.isSubmittedByCitizen"
         id="statementOrgaName"
-        v-model="localStatement.attributes.initialOrganisationName"
+        :value="getDisplayValue(localStatement.attributes.initialOrganisationName)"
         class="mb-2"
         data-cy="statementSubmitter:orgaName"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('organisation')
-        }" />
+        }"
+        @input="value => localStatement.attributes.initialOrganisationName = value"
+      />
 
       <dp-contextual-help
         v-if="isSubmitterAnonymized()"
@@ -54,25 +59,29 @@ All rights reserved
       <dp-input
         v-if="hasPermission('field_statement_meta_submit_name') && this.statementFormDefinitions.name.enabled"
         id="statementSubmitterName"
-        v-model="statementSubmitterValue"
+        :value="getSubmitterNameValue()"
         class="mb-2"
         data-cy="statementSubmitter:submitterName"
         :disabled="!isStatementManual || !editable || isSubmitterAnonymized()"
         :label="{
           text: Translator.trans('name')
-        }" />
+        }"
+        @input="value => localStatement.attributes[statementSubmitterField] = value"
+      />
 
       <dp-input
         v-if="hasPermission('field_statement_submitter_email_address') || isStatementManual"
         id="statementEmailAddress"
-        v-model="localStatement.attributes.submitterEmailAddress"
+        :value="getDisplayValue(localStatement.attributes.submitterEmailAddress)"
         class="mb-2"
         data-cy="statementSubmitter:emailAddress"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('email')
         }"
-        type="email" />
+        type="email"
+        @input="value => localStatement.attributes.submitterEmailAddress = value"
+      />
 
       <dp-input
         v-if="localStatement.attributes.represents"
@@ -82,7 +91,8 @@ All rights reserved
         :label="{
           text: Translator.trans('statement.representation.assessment')
         }"
-        :value="localStatement.attributes.represents" />
+        :value="localStatement.attributes.represents"
+      />
       <dp-checkbox
         v-if="localStatement.attributes.represents"
         id="representationCheck"
@@ -96,28 +106,32 @@ All rights reserved
       <div class="o-form__group mb-2">
         <dp-input
           id="statementStreet"
-          v-model="localStatement.attributes.initialOrganisationStreet"
+          :value="getDisplayValue(localStatement.attributes.initialOrganisationStreet)"
           class="o-form__group-item"
           data-cy="statementSubmitter:street"
           :disabled="!editable || !isStatementManual"
           :label="{
             text: Translator.trans('street')
-          }" />
+          }"
+          @input="value => localStatement.attributes.initialOrganisationStreet = value"
+        />
         <dp-input
           id="statementHouseNumber"
-          v-model="localStatement.attributes.initialOrganisationHouseNumber"
+          :value="getDisplayValue(localStatement.attributes.initialOrganisationHouseNumber)"
           class="o-form__group-item shrink"
           data-cy="statementSubmitter:houseNumber"
           :disabled="!editable || !isStatementManual"
           :label="{
             text: Translator.trans('street.number.short')
           }"
-          :size="3" />
+          :size="3"
+          @input="value => localStatement.attributes.initialOrganisationHouseNumber = value"
+        />
       </div>
       <div class="o-form__group mb-2">
         <dp-input
           id="statementPostalCode"
-          v-model="localStatement.attributes.initialOrganisationPostalCode"
+          :value="getDisplayValue(localStatement.attributes.initialOrganisationPostalCode)"
           class="o-form__group-item shrink"
           data-cy="statementSubmitter:postalCode"
           :disabled="!editable || !isStatementManual"
@@ -125,16 +139,19 @@ All rights reserved
             text: Translator.trans('postalcode')
           }"
           pattern="^[0-9]{4,5}$"
+          @input="value => localStatement.attributes.initialOrganisationPostalCode = value"
         />
         <dp-input
           id="statementCity"
-          v-model="localStatement.attributes.initialOrganisationCity"
+          :value="getDisplayValue(localStatement.attributes.initialOrganisationCity)"
           class="o-form__group-item"
           data-cy="statementSubmitter:city"
           :disabled="!editable || !isStatementManual"
           :label="{
             text: Translator.trans('city')
-          }" />
+          }"
+          @input="value => localStatement.attributes.initialOrganisationCity = value"
+        />
       </div>
     </div>
 
