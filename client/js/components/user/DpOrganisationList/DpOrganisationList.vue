@@ -177,17 +177,12 @@ import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
 
 const orgaFields = {
-  Branding: [
-    'cssvars'
-  ].join(),
   Customer: [
     'name',
     'subdomain'
-  ].join(),
+  ],
   Orga: [
     'addressExtension',
-    'branding',
-    'canCreateProcedures',
     'ccEmail2',
     'city',
     'competence',
@@ -211,19 +206,34 @@ const orgaFields = {
     'showlist',
     'showname',
     'state',
-    'statusInCustomer',
+    'statusInCustomers',
     'street',
     'submissionType',
     'types'
-  ].join(),
+  ],
   OrgaStatusInCustomer: [
     'customer',
     'status'
-  ].join()
+  ]
+}
+
+if (hasPermission('feature_orga_branding_edit')) {
+  orgaFields.Branding = ['cssvars']
+  orgaFields.Orga.push('branding')
 }
 
 if (hasPermission('feature_manage_procedure_creation_permission')) {
   orgaFields.Orga.push('canCreateProcedures')
+}
+
+const includeFields = [
+  'currentSlug',
+  'statusInCustomers.customer',
+  'statusInCustomers'
+]
+
+if (hasPermission('feature_orga_branding_edit')) {
+  includeFields.push('branding')
 }
 
 export default {
@@ -448,8 +458,13 @@ export default {
         },
         sort: 'name',
         filter: filterObject,
-        fields: orgaFields,
-        include: ['branding', 'currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
+        fields: {
+          Customer: orgaFields.Customer.join(),
+          Orga: orgaFields.Orga.join(),
+          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer.join(),
+          ...(orgaFields.Branding ? { Branding: orgaFields.Branding.join() } : {})
+        },
+        include: includeFields.join()
       })
         .then(() => { this.isLoading = false })
     },
@@ -461,7 +476,12 @@ export default {
         page: {
           number: page
         },
-        fields: orgaFields,
+        fields: {
+          Customer: orgaFields.Customer.join(),
+          Orga: orgaFields.Orga.join(),
+          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer.join(),
+          ...(orgaFields.Branding ? { Branding: orgaFields.Branding.join() } : {})
+        },
         sort: 'name',
         filter: {
           namefilter: {
@@ -472,7 +492,7 @@ export default {
             }
           }
         },
-        include: ['branding', 'currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
+        include: includeFields.join()
       })
         .then(() => {
           this.pendingOrganisationsLoading = false
@@ -491,9 +511,14 @@ export default {
         page: {
           number: page
         },
-        fields: orgaFields,
+        fields: {
+          Customer: orgaFields.Customer.join(),
+          Orga: orgaFields.Orga.join(),
+          OrgaStatusInCustomer: orgaFields.OrgaStatusInCustomer.join(),
+          ...(orgaFields.Branding ? { Branding: orgaFields.Branding.join() } : {})
+        },
         sort: 'name',
-        include: ['branding', 'currentSlug', 'statusInCustomers', 'statusInCustomers.customer'].join()
+        include: includeFields.join()
       })
         .then(() => {
           this.pendingOrganisationsLoading = false
