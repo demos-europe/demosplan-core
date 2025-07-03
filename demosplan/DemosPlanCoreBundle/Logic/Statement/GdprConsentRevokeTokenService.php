@@ -44,7 +44,7 @@ class GdprConsentRevokeTokenService
         private readonly GdprConsentRevokeTokenRepository $gdprConsentRevokeTokenRepository,
         PermissionsInterface $permissions,
         private readonly StatementAnonymizeService $statementAnonymizeService,
-        private readonly TokenFactory $tokenFactory
+        private readonly TokenFactory $tokenFactory,
     ) {
         $this->emailAddressService = $emailAddressService;
         $this->permissions = $permissions;
