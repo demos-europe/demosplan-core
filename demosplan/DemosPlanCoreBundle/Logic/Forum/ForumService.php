@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentUserStory;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Repository\DevelopmentReleaseRepository;
@@ -30,8 +29,9 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
 use ReflectionException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Psr\Log\LoggerInterface;
 
-class ForumService extends CoreService
+class ForumService
 {
     /**
      * @var User
@@ -53,7 +53,8 @@ class ForumService extends CoreService
         private readonly ForumEntryFileRepository $forumEntryFileRepository,
         private readonly ForumEntryRepository $forumEntryRepository,
         private readonly ForumThreadRepository $forumThreadRepository,
-        private readonly SortMethodFactory $sortMethodFactory
+        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly LoggerInterface $logger,
     ) {
         $this->currentUser = $currentUser->getUser();
     }
