@@ -20,7 +20,7 @@ class EmailAddressService
 {
     public function __construct(
         private readonly EmailAddressRepository $emailAddressRepository,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
