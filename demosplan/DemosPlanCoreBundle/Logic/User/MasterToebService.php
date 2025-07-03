@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\MasterToeb;
 use demosplan\DemosPlanCoreBundle\Entity\User\MasterToebVersion;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Report\MasterPublicAgencyReportEntryFactory;
@@ -28,8 +27,10 @@ use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Psr\Log\LoggerInterface;
 
-class MasterToebService extends CoreService
+
+class MasterToebService
 {
     /**
      * @var UserService
@@ -45,7 +46,8 @@ class MasterToebService extends CoreService
         private readonly MasterToebRepository $masterToebRepository,
         private readonly MasterToebVersionRepository $masterToebVersionRepository,
         private readonly ReportService $reportService,
-        UserService $serviceUser
+        UserService $serviceUser,
+        private readonly LoggerInterface $logger,
     ) {
         $this->serviceUser = $serviceUser;
     }
@@ -322,7 +324,7 @@ class MasterToebService extends CoreService
                 $this->serviceUser->updateDepartment($department->getId(), ['name' => $data['departmentName']]);
             }
         } catch (Exception $e) {
-            $this->getLogger()->error('Update der Orga nach Update der MasterTöbEntity nicht möglich. ', [$e]);
+            $this->logger->error('Update der Orga nach Update der MasterTöbEntity nicht möglich. ', [$e]);
         }
 
         try {
