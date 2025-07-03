@@ -295,6 +295,7 @@ export default {
       if (this.isSubmitterAnonymized()) {
         return Translator.trans('anonymized')
       }
+
       const value = this.localStatement.attributes[this.statementSubmitterField]
       return this.getDisplayValue(value)
     },
