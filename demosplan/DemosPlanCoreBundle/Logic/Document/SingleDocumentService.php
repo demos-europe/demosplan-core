@@ -26,9 +26,9 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Psr\Log\LoggerInterface;
 
 class SingleDocumentService implements SingleDocumentServiceInterface
 {
