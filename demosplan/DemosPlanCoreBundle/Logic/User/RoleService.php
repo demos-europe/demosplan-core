@@ -16,13 +16,15 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 
-class RoleService extends CoreService
+class RoleService
 {
-    public function __construct(private readonly CurrentUserInterface $currentUser, private readonly GlobalConfigInterface $globalConfig, private readonly RoleRepository $roleRepository)
-    {
+    public function __construct(
+        private readonly CurrentUserInterface $currentUser,
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly RoleRepository $roleRepository,
+    ) {
     }
 
     /**
