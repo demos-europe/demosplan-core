@@ -32,12 +32,14 @@ use demosplan\DemosPlanCoreBundle\Tools\VirusCheckInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Faker\Provider\Uuid;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToCopyFile;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -46,8 +48,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
-use Doctrine\Persistence\ManagerRegistry;
-use Psr\Log\LoggerInterface;
 
 class FileService implements FileServiceInterface
 {
