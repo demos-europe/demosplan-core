@@ -2361,7 +2361,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     } else {
                         $topics[$currentTopicTitle] = $this->createTopic($currentTopicTitle, $procedureId);
                     }
-                } catch (Exception) {
+                } catch (Exception $e) {
+                    $this->logger->error('Error creating topic during tag import', [
+                        'topicTitle' => $currentTopicTitle,
+                        'tagTitle' => $currentTagTitle,
+                        'procedureId' => $procedureId,
+                        'exception' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);
                     $this->getMessageBag()->add('warning', 'tag.or.topic.name.empty.error');
                     continue;
                 }
@@ -2373,7 +2380,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
             // Always add tag to persistedTag array for unified event handling
             // This includes new tags, existing tags, and tags moved between topics
-            // We avoid dual event handling by not using TagService::moveTagToTopic
+            // We avoid dual event handling by using TagService::moveTagToTopic with $dispatchEvent=false
             $persistedTag[] = $tag;
 
             // Create and attach a boilerplate object if required
@@ -2520,12 +2527,12 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      *
      * Logic:
      * 1. If tag exists in the target topic -> return existing tag
-     * 2. If tag exists in procedure but different topic -> manually move to target topic
+     * 2. If tag exists in procedure but different topic -> move to target topic using TagService
      * 3. Otherwise -> create new tag and attach to target topic
      *
      * Event Handling:
      * All returned tags are added to $persistedTags[] for unified event processing.
-     * We manually change topic relationships (instead of using TagService::moveTagToTopic)
+     * For case 2, we use TagService::moveTagToTopic() with $dispatchEvent=false
      * to avoid triggering TagUpdateEvent which would create dual event handling conflicts.
      *
      * @param string   $tagTitle    The title of the tag to create or retrieve
@@ -2552,10 +2559,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // Check if tag title exists elsewhere in this procedure
         if (!$this->tagRepository->isTagTitleFree($procedureId, $tagTitle)) {
             // Tag exists in different topic - move it to target topic
-            // Use specialized method that bypasses TagUpdateEvent to avoid dual event handling
+            // Bypass TagUpdateEvent to avoid dual event handling during import
             $existingTagInProcedure = $this->findExistingTagInProcedure($procedureId, $tagTitle);
             if (null !== $existingTagInProcedure) {
-                $this->tagService->moveTagToTopicViaTagImportBypassingTagUpdateEvent($existingTagInProcedure, $topic);
+                $this->tagService->moveTagToTopic($existingTagInProcedure, $topic, false);
 
                 return $existingTagInProcedure;
             }
@@ -2575,35 +2582,47 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
     /**
      * Handles boilerplate creation or update for a tag during import.
-     * Creates new boilerplate if none exists with the title, otherwise updates existing text if different.
-     * Only attaches boilerplate to tag if a new one was created.
+     * Checks if tag already has the desired boilerplate (matching title and text).
+     * If not, looks for existing boilerplate with matching title and text in procedure.
+     * If found, detaches current boilerplate and attaches the existing one.
+     * If not found, creates new boilerplate and attaches it to the tag.
      *
      * @throws Exception
      */
     protected function handleBoilerplateImportForTag(Tag $tag, string $title, string $text, string $procedureId): void
     {
-        $existingBoilerplates = $this->procedureService->getBoilerplateList($procedureId);
-        $matchingBoilerplates = array_filter(
-            $existingBoilerplates,
-            fn (BoilerplateInterface $boilerplate) => $boilerplate->getTitle() === $title
-        );
-
-        if (empty($matchingBoilerplates)) {
-            // Create new boilerplate and attach to tag
-            $boilerplateData = ['title' => $title, 'text' => $text];
-            $boilerplate = $this->procedureService->addBoilerplate($procedureId, $boilerplateData);
-            $this->tagService->attachBoilerplateToTag($tag, $boilerplate);
-
+        // Check if tag already has the desired boilerplate (matching title AND text)
+        $currentBoilerplate = $tag->getBoilerplate();
+        if (null !== $currentBoilerplate 
+            && $currentBoilerplate->getTitle() === $title 
+            && $currentBoilerplate->getText() === $text) {
+            // Tag already has the correct boilerplate, nothing to do
             return;
         }
 
-        // Update existing boilerplate text if different
-        $boilerplate = reset($matchingBoilerplates);
-        Assert::isInstanceOf($boilerplate, BoilerplateInterface::class);
+        // Look for existing boilerplate with matching title AND text in procedure
+        $existingBoilerplates = $this->procedureService->getBoilerplateList($procedureId);
+        $matchingBoilerplate = collect($existingBoilerplates)
+            ->filter(fn (BoilerplateInterface $boilerplate) => 
+                $boilerplate->getTitle() === $title && $boilerplate->getText() === $text)
+            ->first();
 
-        if ($boilerplate->getText() !== $text) {
-            $this->procedureService->updateBoilerplate($boilerplate->getId(), ['text' => $text]);
+        // Detach current boilerplate if tag has one
+        if ($tag->hasBoilerplate()) {
+            $this->tagService->detachBoilerplateFromTag($tag, $currentBoilerplate);
         }
+
+        if (null === $matchingBoilerplate) {
+            // Create new boilerplate and attach to tag
+            $boilerplateData = ['title' => $title, 'text' => $text];
+            $boilerplate = $this->procedureService->addBoilerplate($procedureId, $boilerplateData);
+        } else {
+            // Use existing matching boilerplate
+            $boilerplate = $matchingBoilerplate;
+        }
+
+        // Attach the boilerplate (new or existing) to the tag
+        $this->tagService->attachBoilerplateToTag($tag, $boilerplate);
     }
 
     /**
