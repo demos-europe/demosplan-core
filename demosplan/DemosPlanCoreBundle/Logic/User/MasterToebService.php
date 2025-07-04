@@ -26,9 +26,8 @@ use demosplan\DemosPlanCoreBundle\Repository\MasterToebVersionRepository;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use InvalidArgumentException;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Psr\Log\LoggerInterface;
-
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class MasterToebService
 {
@@ -95,8 +94,6 @@ class MasterToebService
      * Get Master toeb entry by ident.
      *
      * @param string $masterToebId
-     *
-     * @return mixed
      *
      * @throws Exception
      */
@@ -407,8 +404,6 @@ class MasterToebService
 
     /**
      * Get all organisations, which are not in the mastertoeblist.
-     *
-     * @return mixed
      */
     public function getOrganisations()
     {
