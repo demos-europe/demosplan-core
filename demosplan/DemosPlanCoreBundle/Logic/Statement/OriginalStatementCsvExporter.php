@@ -10,7 +10,6 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
 use League\Csv\Bom;
@@ -20,7 +19,7 @@ use League\Csv\InvalidArgument;
 use League\Csv\Writer;
 use ReflectionException;
 
-class OriginalStatementCsvExporter extends CoreService
+class OriginalStatementCsvExporter
 {
     public function __construct(
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,

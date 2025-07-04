@@ -13,12 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationHandler;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 
-class ProcedureListService extends CoreService
+class ProcedureListService
 {
     public function __construct(private readonly Breadcrumb $breadcrumb, private readonly CurrentUserInterface $currentUser, private readonly FileService $fileService, private readonly LocationHandler $locationHandler)
     {

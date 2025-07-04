@@ -17,12 +17,12 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Psr\Log\LoggerInterface;
 
 /**
  * This file is part of the package demosplan.
@@ -31,14 +31,15 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
  *
  * All rights reserved
  */
-class AccessControlService extends CoreService
+class AccessControlService
 {
     public const CREATE_PROCEDURES_PERMISSION = 'feature_admin_new_procedure';
 
     public function __construct(
         private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
-        private readonly OrgaService $orgaService
+        private readonly OrgaService $orgaService,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -238,8 +239,8 @@ class AccessControlService extends CoreService
 
             // check whether role to grant the permission is allowed in the given orga type
             // to avoid e.g. granting planner permission to institution orga
-            if (array_key_exists($orgaTypeInCustomer, OrgaTypeInterface::ORGATYPE_ROLE) &&
-                !in_array($role->getCode(), OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeInCustomer],true)) {
+            if (array_key_exists($orgaTypeInCustomer, OrgaTypeInterface::ORGATYPE_ROLE)
+                && !in_array($role->getCode(), OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeInCustomer], true)) {
                 continue;
             }
 

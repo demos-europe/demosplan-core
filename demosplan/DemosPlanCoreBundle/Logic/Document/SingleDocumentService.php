@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Event\CreateReportEntryEvent;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -27,11 +26,11 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-
-class SingleDocumentService extends CoreService implements SingleDocumentServiceInterface
+class SingleDocumentService implements SingleDocumentServiceInterface
 {
     /**
      * @var FileService
@@ -47,6 +46,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
         private readonly SingleDocumentReportEntryFactory $reportEntryFactory,
         private readonly ReportService $reportService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
         $this->fileService = $fileService;
     }

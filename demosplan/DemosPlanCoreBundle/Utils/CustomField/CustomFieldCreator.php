@@ -13,10 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 
-class CustomFieldCreator extends CoreService
+class CustomFieldCreator
 {
     public function __construct(private readonly CustomFieldFactory $customFieldFactory, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
     {
