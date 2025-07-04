@@ -359,8 +359,8 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\EditorService:
 
     demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayHandler:
-        parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
         lazy: true
+        parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
     demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayService:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
