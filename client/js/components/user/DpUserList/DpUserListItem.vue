@@ -102,7 +102,7 @@
       <dp-user-form-fields
         :user="user"
         :user-id="user.id"
-        @user-update="updateUser"
+        @user:update="updateUser"
         :ref="'user-form-fields-' + user.id" />
 
       <dp-button-row

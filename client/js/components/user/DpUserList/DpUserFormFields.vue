@@ -198,7 +198,7 @@ export default {
   },
 
   emits: [
-    'user-update'
+    'user:update'
   ],
 
   data () {
@@ -312,20 +312,20 @@ export default {
         type: 'Department'
       }
 
-      this.$emit('user-update', this.localUser)
+      this.$emit('user:update', this.localUser)
     },
 
     changeUserOrga (orga) {
       this.setCurrentUserOrganisation(orga)
       this.setDefaultDepartment(orga)
       this.resetRoles()
-      this.$emit('user-update', this.localUser)
+      this.$emit('user:update', this.localUser)
     },
 
     emitUserUpdate () {
       // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
       nextTick(() => {
-        this.$emit('user-update', this.localUser)
+        this.$emit('user:update', this.localUser)
       })
     },
 
@@ -522,7 +522,7 @@ export default {
   mounted () {
     this.setInitialOrgaData()
 
-    this.$root.$on('user-reset', () => {
+    this.$root.$on('user:reset', () => {
       if (!this.isUserSet) {
         this.resetData()
       }
