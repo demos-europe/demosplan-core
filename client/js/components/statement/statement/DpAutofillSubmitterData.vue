@@ -31,13 +31,13 @@
         v-for="role in roles"
         :key="role.value">
         <input
-          type="radio"
-          :data-cy="`roleInput:${role.dataCy}`"
           name="r_role"
-          :value="role.value"
-          @change="() => $emit('role-changed', currentRole)"
+          type="radio"
+          v-model="currentRole"
+          :data-cy="`roleInput:${role.dataCy}`"
           :id="`r_role_${role.value}`"
-          v-model="currentRole"><!--
+          :value="role.value"
+          @change="() => $emit('role-changed', currentRole)"><!--
      --><label
           class="lbl--text inline-block u-mb-0_5 u-pr u-ml-0_25"
           :for="`r_role_${role.value}`">
