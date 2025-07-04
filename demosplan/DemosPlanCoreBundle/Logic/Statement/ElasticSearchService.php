@@ -522,7 +522,12 @@ class ElasticSearchService extends CoreService
         $resultSet->setResult($list);
         $resultSet->setFilterSet($filterSet);
         $resultSet->setSortingSet($sortingSet);
-        $resultSet->setTotal(count($elasticsearchResult->getHits()['hits'] ?? []));
+        $total = $elasticsearchResult->getHits()['total'] ?? 0;
+        // Handle Elasticsearch 7+ format where total is an object with 'value' field
+        if (is_array($total) && array_key_exists('value', $total)) {
+            $total = $total['value'];
+        }
+        $resultSet->setTotal($total);
         $resultSet->setSearchFields($elasticsearchResult->getSearchFields());
         $resultSet->setSearch($search ?? '');
         $resultSet->setPager($elasticsearchResult->getPager());
