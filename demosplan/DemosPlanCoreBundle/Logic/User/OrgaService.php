@@ -51,11 +51,11 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\FunctionInterface;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Psr\Log\LoggerInterface;
 
 class OrgaService implements OrgaServiceInterface
 {
