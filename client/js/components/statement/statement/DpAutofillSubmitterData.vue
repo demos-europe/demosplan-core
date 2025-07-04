@@ -32,7 +32,7 @@
         :key="role.value">
         <input
           type="radio"
-          :data-cy="`roleInput-${role.dataCy}`"
+          :data-cy="`roleInput:${role.dataCy}`"
           name="r_role"
           :value="role.value"
           @change="() => $emit('role-changed', currentRole)"
