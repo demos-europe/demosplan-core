@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Repository\ReportRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Pagination\PagePagination;
@@ -33,8 +34,6 @@ use Pagerfanta\Pagerfanta;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
-use Doctrine\Persistence\ManagerRegistry;
 
 class ReportService
 {
