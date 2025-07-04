@@ -2363,11 +2363,11 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                     }
                 } catch (Exception $e) {
                     $this->logger->error('Error creating topic during tag import', [
-                        'topicTitle' => $currentTopicTitle,
-                        'tagTitle' => $currentTagTitle,
+                        'topicTitle'  => $currentTopicTitle,
+                        'tagTitle'    => $currentTagTitle,
                         'procedureId' => $procedureId,
-                        'exception' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString(),
+                        'exception'   => $e->getMessage(),
+                        'trace'       => $e->getTraceAsString(),
                     ]);
                     $this->getMessageBag()->add('warning', 'tag.or.topic.name.empty.error');
                     continue;
@@ -2593,8 +2593,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         // Check if tag already has the desired boilerplate (matching title AND text)
         $currentBoilerplate = $tag->getBoilerplate();
-        if (null !== $currentBoilerplate 
-            && $currentBoilerplate->getTitle() === $title 
+        if (null !== $currentBoilerplate
+            && $currentBoilerplate->getTitle() === $title
             && $currentBoilerplate->getText() === $text) {
             // Tag already has the correct boilerplate, nothing to do
             return;
@@ -2603,8 +2603,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // Look for existing boilerplate with matching title AND text in procedure
         $existingBoilerplates = $this->procedureService->getBoilerplateList($procedureId);
         $matchingBoilerplate = collect($existingBoilerplates)
-            ->filter(fn (BoilerplateInterface $boilerplate) => 
-                $boilerplate->getTitle() === $title && $boilerplate->getText() === $text)
+            ->filter(fn (BoilerplateInterface $boilerplate) => $boilerplate->getTitle() === $title && $boilerplate->getText() === $text)
             ->first();
 
         // Detach current boilerplate if tag has one

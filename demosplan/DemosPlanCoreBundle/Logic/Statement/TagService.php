@@ -143,10 +143,10 @@ class TagService extends CoreService
      * @param Tag      $tag
      * @param TagTopic $newTopic
      * @param bool     $dispatchEvent Whether to dispatch UpdateTagEvent (default: true)
-     *                                 WARNING: Setting this to false should be used with extreme caution
-     *                                 as third-party applications and addons may rely on these events
-     *                                 for proper functionality. Only disable event dispatching in very
-     *                                 specific edge cases where dual event handling needs to be avoided.
+     *                                WARNING: Setting this to false should be used with extreme caution
+     *                                as third-party applications and addons may rely on these events
+     *                                for proper functionality. Only disable event dispatching in very
+     *                                specific edge cases where dual event handling needs to be avoided.
      *
      * @return bool True if both tag and topic were successfully updated
      */
@@ -159,7 +159,7 @@ class TagService extends CoreService
         $tagUpdated = $this->tagRepository->updateObject($tag);
 
         $topicUpdated = $this->tagTopicRepository->updateObject($newTopic);
-        
+
         if ($dispatchEvent) {
             $this->eventDispatcher->dispatch(
                 new UpdateTagEvent($tag->getId()),
@@ -169,7 +169,6 @@ class TagService extends CoreService
 
         return $tagUpdated instanceof Tag && $topicUpdated instanceof TagTopic;
     }
-
 
     /**
      * Attach a BoilerplateText to a tag.
