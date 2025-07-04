@@ -580,7 +580,7 @@ export default {
   mounted () {
     this.fetchPendingAndAllOrganisations(1)
 
-    this.$root.$on('get-items', () => {
+    this.$root.$on('items:get', () => {
       this.fetchPendingAndAllOrganisations()
     })
   }

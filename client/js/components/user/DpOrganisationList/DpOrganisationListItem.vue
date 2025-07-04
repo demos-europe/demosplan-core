@@ -129,7 +129,7 @@ export default {
 
   emits: [
     'addonOptions:loaded',
-    'get-items',
+    'items:get',
     'item:selected',
     'organisation-reset'
   ],
@@ -260,7 +260,7 @@ export default {
             typeof this.organisation.attributes.registrationStatuses.find(el => el.status === 'pending') === 'undefined') ||
             (typeof Object.keys(this.organisations).find(id => id === this.organisation.id) !== 'undefined' &&
             typeof this.organisation.attributes.registrationStatuses.find(el => el.status === 'pending') !== 'undefined')) {
-            this.$root.$emit('get-items')
+            this.$root.$emit('items:get')
           }
         })
     },

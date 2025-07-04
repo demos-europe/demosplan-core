@@ -145,7 +145,7 @@ export default {
   },
 
   emits: [
-    'get-items',
+    'items:get',
     'organisation-reset',
     'organisation-update',
     'user-reset',
@@ -289,7 +289,7 @@ export default {
       const payload = this.changeTypeToPascalCase(this.itemResource)
       this.createOrganisation(payload)
         .then(() => {
-          this.$root.$emit('get-items')
+          this.$root.$emit('items:get')
         })
         .catch(err => { console.error(err) })
         .finally(() => {
