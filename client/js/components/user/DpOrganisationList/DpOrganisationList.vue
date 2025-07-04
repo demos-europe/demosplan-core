@@ -397,21 +397,7 @@ export default {
 
       Promise.all(deleteOrganisations)
         .then(() => {
-          this.fetchAllOrgas()
-        })
-    },
-
-    fetchAllOrgas () {
-      this.isLoading = true
-      this.pendingOrganisationsLoading = true
-      this.pendingOrganisationList({
-        include: ['currentSlug', 'orgasInCustomer.customer'].join()
-      }).then(() => {
-        this.getItemsByPage()
-      })
-        .then(() => {
-          this.pendingOrgs = this.pendingOrganisations || {}
-          this.pendingOrganisationsLoading = false
+          this.fetchPendingAndAllOrganisations()
         })
     },
 
@@ -495,12 +481,13 @@ export default {
         include: includeFields.join()
       })
         .then(() => {
-          this.pendingOrganisationsLoading = false
-          this.isLoading = false
-          this.noResults = Object.keys(this.items).length === 0
+          this.noResults = Object.keys(this.items || {}).length === 0
           if (this.isInitialLoad) {
             this.isInitialLoad = false
           }
+        })
+        .finally(() => {
+          this.isLoading = false
         })
     },
 
@@ -521,8 +508,33 @@ export default {
         include: includeFields.join()
       })
         .then(() => {
+          this.pendingOrgs = this.pendingOrganisations || {}
+          this.noResults = Object.keys(this.items || {}).length === 0
+        })
+        .finally(() => {
           this.pendingOrganisationsLoading = false
-          this.noResults = Object.keys(this.items).length === 0
+        })
+    },
+
+    fetchPendingAndAllOrganisations (page) {
+      page = page || this.currentPage
+      this.pendingOrganisationsLoading = true
+
+      this.pendingOrganisationList({
+        page: {
+          number: page
+        },
+        include: ['currentSlug', 'orgasInCustomer.customer'].join()
+      })
+        .then(() => {
+          this.getItemsByPage(page)
+        })
+        .then(() => {
+          this.pendingOrgs = this.pendingOrganisations || {}
+          this.noResults = Object.keys(this.items || {}).length === 0
+        })
+        .finally(() => {
+          this.pendingOrganisationsLoading = false
         })
     },
 
@@ -566,26 +578,10 @@ export default {
   },
 
   mounted () {
-    this.pendingOrganisationList({
-      include: ['currentSlug', 'orgasInCustomer.customer'].join()
-    }).then(() => {
-      this.getItemsByPage(1)
-    }).then(() => {
-      this.pendingOrgs = this.pendingOrganisations || {}
-    })
+    this.fetchPendingAndAllOrganisations(1)
 
     this.$root.$on('get-items', () => {
-      this.isLoading = true
-      this.pendingOrgs = {}
-      this.pendingOrganisationList({
-        include: ['currentSlug', 'orgasInCustomer.customer'].join()
-      }).then(() => {
-        this.getItemsByPage()
-      })
-        .then(() => {
-          this.pendingOrgs = this.pendingOrganisations
-          this.pendingOrganisationsLoading = false
-        })
+      this.fetchPendingAndAllOrganisations()
     })
   }
 }
