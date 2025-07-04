@@ -34,7 +34,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ProdLogger;
-use demosplan\DemosPlanCoreBundle\Logic\ManualListSorter;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
@@ -51,18 +50,18 @@ use demosplan\DemosPlanCoreBundle\ValueObject\User\OrgaUsersPair;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ManagerRegistry;
 use DOMDocument;
 use Exception;
 use Illuminate\Support\Collection as IlluminateCollection;
 use LSS\XML2Array;
 use Pagerfanta\Pagerfanta;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Psr\Log\LoggerInterface;
-use Doctrine\Persistence\ManagerRegistry;
 
 use function array_key_exists;
 
