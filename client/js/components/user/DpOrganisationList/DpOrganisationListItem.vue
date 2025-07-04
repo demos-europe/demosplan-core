@@ -55,7 +55,7 @@
         :organisation-id="organisation.id"
         @addon-update="updateAddonPayload"
         @addonOptions:loaded="setAdditionalFieldOptions"
-        @organisation-update="updateOrganisation" />
+        @organisation:update="updateOrganisation" />
 
       <!-- Button row -->
       <dp-button-row
@@ -131,7 +131,7 @@ export default {
     'addonOptions:loaded',
     'items:get',
     'item:selected',
-    'organisation-reset'
+    'organisation:reset'
   ],
 
   data () {
@@ -221,7 +221,7 @@ export default {
     reset () {
       this.restoreOrganisation(this.organisation.id)
         .then(() => {
-          this.$root.$emit('organisation-reset')
+          this.$root.$emit('organisation:reset')
           this.isOpen = !this.isOpen
         })
     },

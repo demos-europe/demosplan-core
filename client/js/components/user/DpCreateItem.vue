@@ -49,8 +49,8 @@
 
 <script>
 import { DpAccordion, DpButtonRow, dpValidateMixin } from '@demos-europe/demosplan-ui'
-import { defineAsyncComponent } from 'vue'
 import { mapActions, mapMutations } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'DpCreateItem',
@@ -146,10 +146,10 @@ export default {
 
   emits: [
     'items:get',
-    'organisation-reset',
-    'organisation-update',
-    'user-reset',
-    'user-update'
+    'organisation:reset',
+    'organisation:update',
+    'user:reset',
+    'user:update'
   ],
 
   data () {
@@ -169,15 +169,15 @@ export default {
             availableOrgaTypes: this.availableOrgaTypes
           },
           formName: 'newOrganisationForm',
-          resetEvent: 'organisation-reset',
-          updateEvent: 'organisation-update'
+          resetEvent: 'organisation:reset',
+          updateEvent: 'organisation:update'
         },
         user: {
           componentName: 'dp-user-form-fields',
           componentProps: {},
           formName: 'newUserForm',
-          resetEvent: 'user-reset',
-          updateEvent: 'user-update'
+          resetEvent: 'user:reset',
+          updateEvent: 'user:update'
         }
       },
       isOpen: false,
