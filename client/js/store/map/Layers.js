@@ -595,22 +595,22 @@ const LayersStore = {
     /**
      * Recursively finds the topmost parent category for a given layer
      *
-     * @param {Object} layer - Layer object to find parent for
+     * @param {Object} child - Layer/Category object to find parent for
      *
-     * @returns {string} Root category ID
+     * @returns {string} next category ID below the root category
      */
-    findMostParentCategory ({ dispatch, state }, layer) {
+    findMostParentCategory ({ dispatch, state }, child) {
       const rootId = state.apiData.data[0].id
-      const parentId = layer.attributes.categoryId || layer.attributes.parentId
+      const parentId = child.attributes.categoryId || child.attributes.parentId
 
       if (parentId === rootId) {
-        return layer.id
+        return child.id
       } else {
         const parent = state.apiData.included.find(el => el.id === parentId)
 
         // If the parent is not in the included list, it has to be the root category
         if (!parent) {
-          return layer.id
+          return child.id
         }
 
         return dispatch('findMostParentCategory', parent)
