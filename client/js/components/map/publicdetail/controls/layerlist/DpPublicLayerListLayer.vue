@@ -203,7 +203,7 @@ export default {
         return 'fa-lock'
       } else if (this.showVisibilityGroup) {
         return 'fa-link'
-      } else if (this.isVisible === false && !this.showVisibilityGroup) {
+      } else if (!this.isVisible && !this.showVisibilityGroup) {
         return 'fa-eye-slash'
       } else {
         // If(this.isVisible && false === this.showVisibilityGroup)
