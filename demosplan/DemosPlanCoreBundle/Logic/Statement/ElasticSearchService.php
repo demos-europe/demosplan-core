@@ -512,11 +512,7 @@ class ElasticSearchService extends CoreService
         $resultSet->setResult($list);
         $resultSet->setFilterSet($filterSet);
         $resultSet->setSortingSet($sortingSet);
-        $total = $elasticsearchResult->getHits()['total'] ?? 0;
-        // Handle Elasticsearch 7+ format where total is an object with 'value' field
-        if (is_array($total) && array_key_exists('value', $total)) {
-            $total = $total['value'];
-        }
+        $total = $this->extractTotalFromElasticsearchResult($elasticsearchResult);
         $resultSet->setTotal($total);
         $resultSet->setSearchFields($elasticsearchResult->getSearchFields());
         $resultSet->setSearch($search ?? '');
@@ -524,6 +520,24 @@ class ElasticSearchService extends CoreService
 
         return $resultSet->lock();
     }
+
+    /**
+     * Extract total count from Elasticsearch result, handling both legacy and modern formats.
+     */
+    private function extractTotalFromElasticsearchResult(ElasticsearchResult $elasticsearchResult): int
+    {
+        $hits = $elasticsearchResult->getHits();
+        $total = $hits['total'] ?? 0;
+
+        // Elasticsearch 7+ returns total as object with 'value' field
+        if (is_array($total) && isset($total['value'])) {
+            return (int) $total['value'];
+        }
+
+        // Legacy format or fallback
+        return (int) $total;
+    }
+
 
     /**
      * Konvertiere das Ergebnis aus Elasticsearch zu Legacy.
