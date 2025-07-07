@@ -142,10 +142,6 @@ export default {
       return hasContextualHelp ? contextualHelp.attributes.text : ''
     },
 
-    id () {
-      return this.layer.id
-    },
-
     isVisible () {
       return this.isLayerVisible(this.layer.id)
     },
@@ -242,16 +238,16 @@ export default {
 
     setOpacity (e) {
       let val = e.target.value
-      this.$store.commit('Layers/setAttributeForLayer', { id: this.id, attribute: 'opacity', value: val })
+      this.$store.commit('Layers/setAttributeForLayer', { id: this.layer.id, attribute: 'opacity', value: val })
 
       if (isNaN(val * 1)) return false
 
       val /= 100
-      this.$root.$emit('layer-opacity:change', { id: this.id, opacity: val })
+      this.$root.$emit('layer-opacity:change', { id: this.layer.id, opacity: val })
     },
 
     saveOpacity () {
-      this.$root.$emit('layer-opacity:changed', { id: this.id, opacity: this.opacity })
+      this.$root.$emit('layer-opacity:changed', { id: this.layer.id, opacity: this.opacity })
     },
 
     setAndSaveOpacity (e) {
@@ -278,7 +274,7 @@ export default {
     this.opacity = this.layer.attributes.opacity
 
     if (this.visible) {
-      this.setLayerState({ id: this.id, key: 'isVisible', value: true })
+      this.setLayerState({ id: this.layer.id, key: 'isVisible', value: true })
     }
   }
 }
