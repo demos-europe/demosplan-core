@@ -9,7 +9,7 @@
 - Export Original Statements as docx in the Statement List
 - Allow filtering of institution tags in DpAddOrganizationList
 - Allow filtering of institution tags in AdminstrationMemberList / refactor twig
-- add configurable feedback control for public participation statements
+- Add configurable feedback control for public participation statements
 
 ## v4.3.0 (2025-06-13)
 - Add Versioning of custom fields of segments
