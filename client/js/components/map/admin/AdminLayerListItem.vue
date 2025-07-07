@@ -264,7 +264,7 @@ export default {
 
   computed: {
     parentCategory () {
-      // Get parentLayer and check if it hides his children
+      // Get parentLayer and check if it hides its children
       const parentLayer = this.$store.getters['Layers/element']({
         id: this.layer.attributes.categoryId,
         type: 'GisLayerCategory'
