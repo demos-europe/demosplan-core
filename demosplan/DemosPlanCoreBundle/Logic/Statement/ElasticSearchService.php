@@ -472,7 +472,6 @@ class ElasticSearchService extends CoreService
         $search = '',
         $filters = [],
         $sort = null,
-        $resultKey = 'statements',
     ): ElasticsearchResultSet {
         $filterSet = [
             'total'   => is_countable($elasticsearchResult->getAggregations()) ? count($elasticsearchResult->getAggregations()) : 0,
