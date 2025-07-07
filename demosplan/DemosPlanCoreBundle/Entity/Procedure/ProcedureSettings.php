@@ -1126,7 +1126,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
 
     public function setPublicParticipationFeedbackEnabled(bool $enabled): ProcedureSettingsInterface
     {
-        $this->publicParticipationFeedbackEnabled = \filter_var($enabled, FILTER_VALIDATE_BOOLEAN);
+        $this->publicParticipationFeedbackEnabled = $enabled;
 
         return $this;
     }
