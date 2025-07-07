@@ -93,7 +93,6 @@ export default {
 
   data () {
     return {
-      // isVisible: true,
       unfolded: false,
       appearsAsLayer: this.group.attributes.layerWithChildrenHidden,
       contextualHelp: '',
