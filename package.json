@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "v4.3.0",
+  "version": "v4.4.0",
   "scripts": {
     "dev:blp": "cross-env ./fe build blp",
     "dev:bimschgsh": "cross-env ./fe build bimschgsh",
@@ -44,7 +44,7 @@
     "watch:robobsh": "cross-env ./fe watch robobsh",
     "watch:teilhabe": "cross-env ./fe watch teilhabe",
     "watch:wmmsh": "cross-env ./fe watch wmmsh",
-    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint -c eslintrc.js --ext .js,.vue .",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint -c eslintrc.js --ext .js,.vue",
     "lint:scss": "stylelint {demosplan/DemosPlanCoreBundle/Resources/client/scss,projects}/**/*.scss"
   },
   "dependencies": {

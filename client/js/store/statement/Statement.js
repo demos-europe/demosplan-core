@@ -188,7 +188,7 @@ function transformStatementStructure ({ el, includes, meta }) {
         }
 
         if (relationKey === 'sourceAttachment') {
-          statement.sourceAttachment = extractFileAttachments(items, includes)[0] ?? null
+          statement.sourceAttachment = extractFileAttachments(items, includes)[0] ?? ''
         }
 
         return

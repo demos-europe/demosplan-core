@@ -585,6 +585,7 @@
         data-dp-validate="recheckForm">
         <statement-modal-recheck
           @edit-input="handleEditInput"
+          :allow-anonymous-statements="allowAnonymousStatements"
           :form-fields="formFields"
           :statement="formData"
           :public-participation-publication-enabled="publicParticipationPublicationEnabled"
@@ -1587,6 +1588,10 @@ export default {
   },
 
   mounted () {
+    if (!this.allowAnonymousStatements && this.formData.r_useName !== '1') {
+      this.setPrivacyPreference({ r_useName: '1' })
+    }
+
     // Set data from map
     this.$root.$on('update-statement-form-map-data', (data = {}, toggle = true) => {
       this.setStatementData(data)
