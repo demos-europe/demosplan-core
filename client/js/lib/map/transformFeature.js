@@ -2,7 +2,6 @@ import proj4 from 'proj4'
 
 function transformFeatureCollection (featureCollection, sourceProjection, targetProjection = 'EPSG:3857') {
   const transformedFeatures = featureCollection.features.map(feature => {
-    console.log('transform Feature', feature)
     const transformedGeometry = transformGeometry(feature.geometry, sourceProjection, targetProjection)
 
     return {

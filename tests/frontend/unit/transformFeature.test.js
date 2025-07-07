@@ -11,14 +11,10 @@ import { transformFeatureCollection, transformGeometry } from '@DpJs/lib/map/tra
 
 // Mock proj4 to avoid dependency on actual projections
 jest.mock('proj4', () => {
-  const mockTransformer = {
-    forward: jest.fn((coord) => {
-      // Mock transformation: simply add 1000 to each coordinate
-      return [coord[0] + 1000, coord[1] + 1000]
-    })
-  }
-  
-  return jest.fn(() => mockTransformer)
+  return jest.fn(() => ({
+    // Mock transformation: simply add 1000 to each coordinate
+    forward: jest.fn((coord) => [coord[0] + 1000, coord[1] + 1000])
+  }))
 })
 
 describe('transformFeature', () => {
@@ -186,11 +182,11 @@ describe('transformFeature', () => {
 
       expect(result.type).toBe('FeatureCollection')
       expect(result.features).toHaveLength(2)
-      
+
       // Check first feature
       expect(result.features[0].geometry.coordinates).toEqual([1010, 1020])
       expect(result.features[0].properties.name).toBe('Feature 1')
-      
+
       // Check second feature
       expect(result.features[1].geometry.coordinates).toEqual([[1030, 1040], [1050, 1060]])
       expect(result.features[1].properties.name).toBe('Feature 2')
