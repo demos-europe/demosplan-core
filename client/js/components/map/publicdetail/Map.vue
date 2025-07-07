@@ -73,33 +73,33 @@ export default {
   props: {
     availableProjections: {
       type: Array,
-      required: true,
+      required: true
     },
 
     draftStatement: {
       type: [Object, String],
-      default: () => ({}),
+      default: () => ({})
     },
 
     //  global twig var set in robobsh/app/config/config.yml
     getFeatureInfoUrlPlanningArea: {
       type: String,
-      default: '',
+      default: ''
     },
 
     layerGroupsAlternateVisibility: {
       type: Boolean,
-      default: false,
+      default: false
     },
 
     mapDanmarkLayer: {
       type: String,
-      default: '',
+      default: ''
     },
 
     procedureDefaultInitialExtent: {
       required: true,
-      type: Array,
+      type: Array
     },
 
     procedureDefaultMaxExtent: {
@@ -1985,9 +1985,9 @@ export default {
       if (toggleExclusive === true) {
         this.toggleLayerExclusively(layerGroup)
       } else if (layer) {
-        const stateSetter = (typeof newVisibilityState !== 'undefined') ? newVisibilityState : (layer.getVisible() === false)
+        const isVisible = (typeof newVisibilityState !== 'undefined') ? newVisibilityState : (layer.getVisible() === false)
 
-        layer.setVisible(stateSetter)
+        layer.setVisible(isVisible)
       }
     },
 
