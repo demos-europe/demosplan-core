@@ -385,10 +385,10 @@
     <dp-map
         :available-projections="JSON.parse('{{ templateVars.availableProjections|json_encode|e('js', 'utf-8') }}')"
         :draft-statement= "JSON.parse('{{ draftStatement|json_encode|e('js', 'utf-8') }}')"
-        get-feature-info-url-planning-area="{{ getFeatureInfoUrlPlanningArea|default('') }}"
+        get-feature-info-url-planning-area="{{ getFeatureInfoUrlPlanningArea|default }}"
         :layer-groups-alternate-visibility="Boolean({{ procedureSettings.layerGroupsAlternateVisibility }})"
-        map-danmark-layer="{{ mapDanmarkLayer|default('') }}"
-        procedure-id="{{ procedure|default('') }}"
+        map-danmark-layer="{{ mapDanmarkLayer|default }}"
+        procedure-id="{{ procedure|default }}"
         :procedure-settings="JSON.parse('{{ procedureSettings|json_encode|e('js', 'utf-8') }}')"
         :project-map-settings="JSON.parse('{{ projectMapSettings|json_encode|e('js', 'utf-8') }}')"
         :procedure-max-extent="JSON.parse('{{ templateVars.mapOptions.procedureMaxExtent|json_encode|e('js', 'utf-8') }}')"
