@@ -397,8 +397,6 @@ export default {
       proj4.defs(this._options.projection.code, this._options.projection.transform)
       register(proj4)
 
-      console.log(`Using projection ${this._options.projection.code} with transform ${this._options.projection.transform}`)
-
       const mapProjection = new Projection({
         code: this._options.projection.code,
         units: this._options.projection.units,
