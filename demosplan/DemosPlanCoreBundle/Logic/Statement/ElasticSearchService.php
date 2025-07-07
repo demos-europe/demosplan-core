@@ -538,7 +538,6 @@ class ElasticSearchService extends CoreService
         return (int) $total;
     }
 
-
     /**
      * Konvertiere das Ergebnis aus Elasticsearch zu Legacy.
      *
