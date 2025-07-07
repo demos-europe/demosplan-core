@@ -131,6 +131,7 @@ export default {
     ...mapState('Layers', [
       'layerStates'
     ]),
+
     ...mapGetters('Layers', [
       'isLayerVisible',
       'isVisibilityGroupVisible'

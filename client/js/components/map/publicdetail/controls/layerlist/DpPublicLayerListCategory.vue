@@ -120,6 +120,7 @@ export default {
     ...mapMutations('Layers', [
       'setLayerState'
     ]),
+
     ...mapActions('Layers', ['toggleCategoryAndItsChildren']),
 
     fold () {
