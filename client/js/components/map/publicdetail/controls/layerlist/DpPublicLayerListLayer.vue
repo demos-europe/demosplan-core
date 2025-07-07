@@ -219,7 +219,7 @@ export default {
       // Toggle overlays
       this.updateLayerVisibility({
         id: this.layer.id,
-        isVisible: (typeof isVisible !== 'undefined') ? isVisible : (!this.isVisible),
+        isVisible: typeof isVisible !== 'undefined' ? isVisible : !this.isVisible,
         layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility,
         exclusively: this.layer.attributes.isBaseLayer
       })
