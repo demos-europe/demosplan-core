@@ -655,7 +655,7 @@ const LayersStore = {
     toggleBaselayer ({ dispatch, state, commit }, { id, value }) {
       // You can't toggle a base layer if it is already visible
       if (!value) {
-        state.apiData.included.forEach(potetialBaseLayer => {
+        state.apiData.included.forEach(potentialBaseLayer => {
           if (potentialBaseLayer.attributes.layerType === 'base' && potentialBaseLayer.id !== id) {
             commit('setLayerState', { id: potentialBaseLayer.id, key: 'isVisible', value: false })
           }
