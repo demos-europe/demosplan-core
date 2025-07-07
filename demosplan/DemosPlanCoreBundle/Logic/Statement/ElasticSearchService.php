@@ -465,7 +465,6 @@ class ElasticSearchService extends CoreService
      * @param string|null $search
      * @param array       $filters
      * @param array       $sort
-     * @param string      $resultKey
      */
     public function simplifyEsStructure(
         ElasticsearchResult $elasticsearchResult,
