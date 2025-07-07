@@ -203,7 +203,7 @@ export default {
         return 'fa-lock'
       } else if (this.showVisibilityGroup) {
         return 'fa-link'
-      } else if (this.isVisible === false && !this.showVisibilityGroup) {
+      } else if (!this.isVisible && !this.showVisibilityGroup) {
         return 'fa-eye-slash'
       } else {
         // If(this.isVisible && false === this.showVisibilityGroup)
@@ -219,7 +219,7 @@ export default {
       // Toggle overlays
       this.updateLayerVisibility({
         id: this.layer.id,
-        isVisible: (typeof isVisible !== 'undefined') ? isVisible : (!this.isVisible),
+        isVisible: typeof isVisible !== 'undefined' ? isVisible : !this.isVisible,
         layerGroupsAlternateVisibility: this.layerGroupsAlternateVisibility,
         exclusively: this.layer.attributes.isBaseLayer
       })

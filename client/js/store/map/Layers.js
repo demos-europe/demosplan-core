@@ -656,19 +656,19 @@ const LayersStore = {
       // You can't toggle a base layer if it is already visible
       if (!value) {
         state.apiData.included.forEach(potetialBaseLayer => {
-          if (potetialBaseLayer.attributes.layerType === 'base' && potetialBaseLayer.id !== id) {
-            commit('setLayerState', { id: potetialBaseLayer.id, key: 'isVisible', value: false })
+          if (potentialBaseLayer.attributes.layerType === 'base' && potentialBaseLayer.id !== id) {
+            commit('setLayerState', { id: potentialBaseLayer.id, key: 'isVisible', value: false })
           }
 
-          if (potetialBaseLayer.attributes.layerType === 'base' && potetialBaseLayer.id === id) {
-            commit('setLayerState', { id: potetialBaseLayer.id, key: 'isVisible', value: true })
+          if (potentialBaseLayer.attributes.layerType === 'base' && potentialBaseLayer.id === id) {
+            commit('setLayerState', { id: potentialBaseLayer.id, key: 'isVisible', value: true })
           }
         })
       }
     },
 
     /**
-     * If the layer is an overlay and the flag hasAlternateVisibility is set, we need to hide all other categories and category-members,
+     * If the layer is an overlay and the flag hasAlternateVisibility is set, we need to hide all other categories and category-members
      * that don't belong to the category of the current layer
      *
      * @param {Object} layer - layer object to toggle visibility for
@@ -702,9 +702,9 @@ const LayersStore = {
      * @returns {void}
      */
     toggleVisiblityGroup ({ dispatch, state, commit }, { visibilityGroupId, value }) {
-      state.apiData.included.forEach(potetialGroupMember => {
-        if (potetialGroupMember.attributes.visibilityGroupId === visibilityGroupId) {
-          commit('setLayerState', { id: potetialGroupMember.id, key: 'isVisible', value })
+      state.apiData.included.forEach(potentialGroupMember => {
+        if (potentialGroupMember.attributes.visibilityGroupId === visibilityGroupId) {
+          commit('setLayerState', { id: potentialGroupMember.id, key: 'isVisible', value })
         }
       })
     },
