@@ -165,6 +165,10 @@ export default {
     }
   },
 
+  emits: [
+    'closeEditMode'
+  ],
+
   data () {
     return {
       voteAdvice: Object.entries(this.adviceValues).reduce((acc, val) => [...acc, { value: val[1], name: Translator.trans(val[1]), title: val[0] }], [{ value: '', title: '', name: '-' }]).find(el => el.title === this.voteAdviceInitial),

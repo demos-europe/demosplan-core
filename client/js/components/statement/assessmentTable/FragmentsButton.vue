@@ -68,11 +68,16 @@ export default {
     }
   },
 
+  emits: [
+    'fragments:show',
+    'fragments:load'
+  ],
+
   computed: {
     ...mapGetters('Fragment', ['fragmentsByStatement']),
 
     assessmentBaseLoaded () {
-      if (hasOwnProp(this.$store.state, 'assessmentTable')) {
+      if (hasOwnProp(this.$store.state, 'AssessmentTable')) {
         return this.$store.state.AssessmentTable.assessmentBaseLoaded
       }
       return true

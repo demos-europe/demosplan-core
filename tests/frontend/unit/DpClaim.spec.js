@@ -7,16 +7,13 @@
  * All rights reserved
  */
 
-import { createLocalVue } from '@vue/test-utils'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('DpClaim', () => {
   it('should return the correct icons and text for fragments-claim-states', async () => {
-    const localVue = createLocalVue()
-
     const wrapper = shallowMountWithGlobalMocks(DpClaim, {
-      propsData: {
+      props: {
         assignedOrganisation: 'Orga des Assingnee',
         assignedName: 'Aktueller Benutzer',
         assignedId: '',
@@ -24,8 +21,7 @@ describe('DpClaim', () => {
         currentUserName: 'Aktueller Benutzer',
         lastClaimedUserId: '',
         entityType: 'fragment'
-      },
-      localVue
+      }
     })
 
     // Should show open lock if assignedId is not set - lastClaimed doesn't matter.

@@ -55,6 +55,9 @@ class InstitutionTagCategoryResourceType extends DplanResourceType
             ->setRelationshipType($this->getTypes()->getInstitutionTagResourceType())
             ->setReadableByPath();
 
+        $institutionTagCategoryConfig->creationDate
+            ->setReadableByPath();
+
         $institutionTagCategoryConfig->addPostConstructorBehavior(
             new FixedSetBehavior(
                 function (InstitutionTagCategory $institutionTagCategory): array {

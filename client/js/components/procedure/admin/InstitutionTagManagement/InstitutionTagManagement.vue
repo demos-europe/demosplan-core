@@ -13,20 +13,22 @@
     :active-id="activeTabId"
     use-url-fragment
     @change="setActiveTabId">
-    <dp-tab
-      id="institutionList"
-      :label="Translator.trans('invitable_institution.group')">
-      <slot>
-        <InstitutionList />
-      </slot>
-    </dp-tab>
-    <dp-tab
-      id="tagList"
-      :label="Translator.trans('tag.administrate')">
-      <slot>
-        <TagList @tagIsRemoved="institutionListReset" />
-      </slot>
-    </dp-tab>
+    <slot>
+      <dp-tab
+        id="institutionList"
+        :is-active="activeTabId === 'institutionList'"
+        :label="Translator.trans('invitable_institution.group')">
+        <institution-list :is-active="isInstitutionListActive" />
+      </dp-tab>
+      <dp-tab
+        id="tagList"
+        :is-active="activeTabId === 'tagList'"
+        :label="Translator.trans('tag.administrate')">
+        <tag-list
+          v-if="activeTabId === 'tagList'"
+          @tagIsRemoved="institutionListReset" />
+      </dp-tab>
+    </slot>
   </dp-tabs>
 </template>
 
@@ -56,11 +58,20 @@ export default {
     }
   },
 
+  computed: {
+    isInstitutionListActive () {
+      return this.activeTabId === 'institutionList'
+    }
+  },
+
   watch: {
-    needToReset (newValue) {
-      if (newValue === true) {
-        this.getInstitutionsByPage(1)
-      }
+    needToReset: {
+      handler (newValue) {
+        if (newValue) {
+          this.getInstitutionsByPage(1)
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

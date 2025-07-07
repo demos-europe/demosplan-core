@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -552,6 +553,23 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     }
 
     /**
+     * @return array<>|string
+     */
+    public function getOrganisationNames($asString): array|string
+    {
+        $organisations = collect($this->getOrganisations())->map(
+            function ($item) {
+                return $item->getName();
+            })->sort();
+
+        if ($asString) {
+            return $organisations->implode(', ');
+        }
+
+        return $organisations->toArray();
+    }
+
+    /**
      * @param Collection<int, Orga> $organisations
      */
     public function setOrganisations(Collection $organisations): void
@@ -627,5 +645,20 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     public function setPermission(string $permission): void
     {
         $this->permission = '' === $permission ? null : $permission;
+    }
+
+    public function getFileInfo(): FileInfo
+    {
+        $fileStringParts = explode(':', $this->getFile());
+
+        return new FileInfo(
+            $fileStringParts[1] ?? '',
+            $fileStringParts[0] ?? '',
+            (int)($fileStringParts[2] ?? ''),
+            $fileStringParts[3] ?? '',
+            'missing',
+            'missing',
+            $this->procedure
+        );
     }
 }

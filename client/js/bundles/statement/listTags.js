@@ -14,12 +14,16 @@
 import { DpContextualHelp, DpUploadFiles } from '@demos-europe/demosplan-ui'
 import AnimateById from '@DpJs/lib/shared/AnimateById'
 import { initialize } from '@DpJs/InitVue'
+import TagsList from '@DpJs/components/tags/TagsList'
 
 const components = {
   DpContextualHelp,
-  DpUploadFiles
+  DpUploadFiles,
+  TagsList
 }
 
-initialize(components).then(() => {
+const apiStores = ['Tag', 'TagTopic']
+
+initialize(components, {}, apiStores).then(() => {
   AnimateById()
 })

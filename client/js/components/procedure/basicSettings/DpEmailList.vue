@@ -12,8 +12,10 @@
     <dp-editable-list
       :entries="emails"
       :data-cy="dataCy !== '' ? `${dataCy}:emailList` : `emailList`"
+      @delete="handleDelete"
       @reset="resetForm"
       @saveEntry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
+      @show-update-form="showUpdateForm"
       :translation-keys="translationKeys"
       ref="listComponent">
       <template v-slot:list="entry">
@@ -76,6 +78,10 @@ export default {
     }
   },
 
+  emits: [
+    'saved'
+  ],
+
   data () {
     return {
       formFields: {
@@ -95,23 +101,30 @@ export default {
   },
 
   watch: {
-    initEmails (newVal) {
-      if (this.allowUpdatesFromOutside) {
-        this.emails = newVal
-      }
+    initEmails: {
+      handler (newVal) {
+        if (this.allowUpdatesFromOutside) {
+          this.emails = newVal
+        }
+      },
+      deep: true
     }
   },
 
   methods: {
-    delete (index) {
-      this.emails.splice(index, 1)
-      this.updateExtraEmailAddress(index)
-    },
-
     addElement () {
       this.emails.push({
         mail: this.formFields.mail
       })
+    },
+
+    deleteEntry (index) {
+      this.emails.splice(index, 1)
+    },
+
+    handleDelete (index) {
+      this.deleteEntry(index)
+      this.resetForm()
     },
 
     handleSubmit (index) {
@@ -121,7 +134,6 @@ export default {
           this.saveExtraEmailAddress(this.formFields.mail)
         } else {
           this.updateEmailAddress(index)
-          this.updateExtraEmailAddress(index, this.formFields.mail[index])
         }
 
         this.resetForm()
@@ -139,25 +151,14 @@ export default {
       this.$emit('saved', extraEmailAddress)
     },
 
-    updateExtraEmailAddress (index, extraEmailAddress) {
-      this.$emit('updated', (index, extraEmailAddress))
+    showUpdateForm (index) {
+      this.formFields.mail = this.emails[index].mail
+      this.itemIndex = index
     },
 
     updateEmailAddress (index) {
       this.emails[index].mail = this.formFields.mail
     }
-  },
-
-  mounted () {
-    this.$on('delete', (index) => {
-      this.delete(index)
-      this.resetForm()
-    })
-
-    this.$on('showUpdateForm', (index) => {
-      this.formFields.mail = this.emails[index].mail
-      this.itemIndex = index
-    })
   }
 }
 </script>

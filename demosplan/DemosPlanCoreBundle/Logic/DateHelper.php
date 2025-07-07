@@ -45,13 +45,10 @@ class DateHelper
      *
      * @param DateTime $date , which is to be converted
      *
-     * @return string date in the format: Y-m-dTH:i:s+0100
+     * @return string date in ISO 8601 format with the system timezone offset
      */
     public function convertDateToString(DateTime $date)
     {
-        $date = $date->format('Y-m-d H:i:s');
-        $date[10] = 'T';
-
-        return $date.'+0100';
+        return $date->format('Y-m-d\TH:i:sP');
     }
 }

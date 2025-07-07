@@ -102,17 +102,17 @@
         </div>
 
         <div
-          v-if="statement.sourceAttachment !== '' || statement.files.length > 0 || statement.polygon !== ''"
+          v-if="statement.sourceAttachment || statement.files.length > 0 || statement.polygon !== ''"
           class="u-ml u-pr text-left border--top">
           <div
-            v-if="statement.sourceAttachment !== '' || statement.files.length > 0"
+            v-if="statement.sourceAttachment || statement.files.length > 0"
             class="break-words">
             <i
               :title="Translator.trans('attachment.original')"
               aria-hidden="true"
               class="fa fa-paperclip color--grey" />
             <a
-              v-if="statement.sourceAttachment !== '' && hasPermission('feature_read_source_statement_via_api')"
+              v-if="statement.sourceAttachment && hasPermission('feature_read_source_statement_via_api')"
               :title="statement.sourceAttachment.filename"
               target="_blank"
               rel="noopener"
@@ -229,6 +229,11 @@ export default {
     }
   },
 
+  emits: [
+    'add-to-selection',
+    'remove-from-selection'
+  ],
+
   data () {
     return {
       fullTextLoaded: false
@@ -255,9 +260,11 @@ export default {
       if (hasOwnProp(this.statement, 'paragraph')) {
         const elementParagraphs = this.selectedElementParagraph()
 
-        if (elementParagraphs && this.statement.paragraphParentId) {
-          const paragraph = elementParagraphs.find((el) => el.id === this.statement.paragraphParentId)
-          elementTitle += `<br>${paragraph.title}`
+        if (elementParagraphs && this.statement.elementId) {
+          const paragraph = elementParagraphs.find((el) => el.elementId === this.statement.elementId)
+          if (paragraph?.title) {
+            elementTitle += `<br>${paragraph.title}`
+          }
         }
       }
 

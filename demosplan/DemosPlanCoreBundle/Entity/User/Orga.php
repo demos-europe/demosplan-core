@@ -719,6 +719,22 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return $this;
     }
 
+    public function getAddressExtension(): string
+    {
+        if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
+            return $this->addresses->first()->getStreet1() ?? '';
+        }
+
+        return '';
+    }
+
+    public function setAddressExtension($addressExtension): self
+    {
+        $this->setAddressValue('street1', $addressExtension);
+
+        return $this;
+    }
+
     public function getHouseNumber(): string
     {
         if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {

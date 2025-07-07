@@ -150,27 +150,23 @@
                 }) }}
 
             {% else %}
-                {{ uiComponent('form.row', {
-                    elements: [
-                        {
-                            label: { text: 'citizen.for'|trans },
-                            control: { name: 'r_group_code[]', value: 'GGUEST', checked: guestChecked|default(false) },
-                            id: 'citizenVisibility',
-                            type: 'checkbox',
-                            elementSize: 'medium'
-                        },
-                        {
-                            label: { text: 'invitable_institution.for'|trans },
-                            control: { name: 'r_group_code[]', value: 'GPSORG', checked: publicAgencyChecked|default(false) },
-                            id: 'publicAgencyVisibility',
-                            type: 'checkbox',
-                            elementSize: 'medium'
-                        }
-                    ],
-                    heading: 'visible',
-                    required: true,
-                    isFieldset: true
-                }) }}
+                <fieldset>
+                    <legend class="font-semibold mb-1">{{ 'visible'|trans }}&#42</legend>
+                    <dp-checkbox
+                        id="citizenVisibility"
+                        :label="{ text: '{{ 'citizen.for'|trans }}', bold: true }"
+                        name="r_group_code[]"
+                        :checked="Boolean({{ guestChecked|default(false)}})"
+                        value-to-send="GGUEST">
+                    </dp-checkbox>
+                    <dp-checkbox
+                        id="publicAgencyVisibility"
+                        :label="{ text: '{{ 'invitable_institution.for'|trans }}', bold: true}"
+                        name="r_group_code[]"
+                        :checked="Boolean({{ publicAgencyChecked|default(false)}})"
+                        value-to-send="GPSORG">
+                    </dp-checkbox>
+                </fieldset>
             {% endif %}
          {% endblock %}
 
@@ -321,12 +317,18 @@
 
                 <p class="lbl">{{ "pdf.document"|trans }}</p>
 
+                {% if procedure is not null %}
+                    {% set pdfPath = path("core_file_procedure", { 'procedureId': procedure, 'hash': news.pdf|getFile('hash') }) %}
+                {% else %}
+                    {% set pdfPath = path("core_file", {'hash': news.pdf|getFile('hash') }) %}
+                {% endif %}
+
                 <a
                     id="news_pdf"
                     class="o-hellip break-words u-mb-0_25"
                     target="_blank"
                     rel="noopener"
-                    href="{{ path("core_file_procedure", { 'procedureId': procedure, 'hash': news.pdf|getFile('hash') }) }}">
+                    href="{{ pdfPath }}">
                     <i class="fa fa-file-o"></i>
                     {{ news.pdftitle|default(news.pdf|getFile('name')) }}
                     {% if ( news.pdf|getFile('size')|length > 0 or news.pdf|getFile('mimeType')|length > 0 ) %}

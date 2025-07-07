@@ -386,7 +386,7 @@ class DemosPlanStatementAPIController extends APIController
     /**
      * @DplanPermissions("area_admin_assessmenttable")
      */
-    #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}/', methods: ['GET'], name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}', methods: ['GET'], name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true])]
     public function listAction(
         AssessmentHandler $assessmentHandler,
         HashedQueryService $filterSetService,
@@ -406,7 +406,7 @@ class DemosPlanStatementAPIController extends APIController
             $filterSetHash = $hashNew->getHash();
 
             $pagination = $paginationParser->parseApiPaginationProfile(
-                $this->request->query->get('page', []),
+                $this->request->query->all('page'),
                 $this->request->query->get('sort', ''),
                 25
             );

@@ -17,12 +17,13 @@
       v-text="Translator.trans('statement.recheck')" />
 
     <dp-inline-notification
-      :class="prefixClass('mt-1')"
+      :class="prefixClass('mt-1 mb-2')"
       :message="Translator.trans('statement.recheck')"
       type="warning" />
 
     <dp-inline-notification
       v-if="statementFormHintRecheck !== ''"
+      :class="prefixClass('mt-3 mb-2')"
       type="info">
       <p v-cleanhtml="statementFormHintRecheck" />
     </dp-inline-notification>
@@ -54,14 +55,15 @@
       :class="prefixClass('flow-root border--top u-pt-0_25')">
       <div :class="prefixClass('layout--flush')">
         <span :class="prefixClass('layout__item u-1-of-1')">
-          {{ Translator.trans('statement.detail.form.personal.post_publicly') }}
+          {{ showPersonalDataText }}
           <button
-            type="button"
-            data-cy="statementModalRecheck:useNameText"
             :class="prefixClass('o-link--default btn-icns u-ml float-right')"
-            @click="$emit('edit-input', 'r_useName_1')"
             :title="Translator.trans('statement.form.input.change')"
-            aria-labelledby="useNameText inputDataChange">
+            aria-labelledby="useNameText inputDataChange"
+            data-cy="statementModalRecheck:useNameText"
+            type="button"
+            @click="$emit('edit-input', 'r_useName_1')"
+          >
             <i
               :class="prefixClass('fa fa-pencil')"
               aria-hidden="true" />
@@ -101,7 +103,7 @@
         </span><!--
      --><span
           v-if="showEmail"
-          :class="prefixClass('layout__item u-1-of-4-desk-up')">
+          :class="prefixClass('layout__item u-1-of-4-desk-up break-all')">
           <em>{{ Translator.trans('email') }}: </em> {{ statement.r_email }}
         </span><!--
      --><span
@@ -240,6 +242,12 @@ export default {
   mixins: [prefixClassMixin],
 
   props: {
+    allowAnonymousStatements: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+
     formFields: {
       type: Array,
       required: false,
@@ -276,6 +284,10 @@ export default {
     }
   },
 
+  emits: [
+    'edit-input'
+  ],
+
   computed: {
     showCity () {
       return hasPermission('field_statement_meta_city') && this.statement.r_city && this.statement.r_city !== ''
@@ -287,6 +299,14 @@ export default {
 
     showHouseNumber () {
       return this.statement.r_houseNumber && this.statement.r_houseNumber !== ''
+    },
+
+    showPersonalDataText () {
+      if (this.allowAnonymousStatements) {
+        return Translator.trans('statement.detail.form.personal.post_publicly')
+      } else {
+        return Translator.trans('statement.detail.form.personal.submit')
+      }
     },
 
     showPostalCode () {

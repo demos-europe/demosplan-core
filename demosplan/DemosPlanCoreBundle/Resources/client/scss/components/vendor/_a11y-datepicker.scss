@@ -1,1 +1,35 @@
 @import '~a11y-datepicker/dist/css/themes/light.css';
+
+/* The Content Security Policy (CSP) prevents cross-site scripting attacks by blocking inline execution of scripts and style sheets.
+   Because of this, the styles need to be duplicated here. */
+
+.a1-div[data-ad-selector="datepicker-container"] {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    z-index: 1001;
+}
+
+.a1-div[data-ad-selector="group-container"] {
+    position: relative;
+}
+
+.a1-p.visuallyhidden:not(:focus, :active) {
+    position: absolute;
+
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    border: 0;
+    padding: 0;
+
+    white-space: nowrap;
+
+    clip-path: inset(100%);
+    clip: rect(0 0 0 0);
+    overflow: hidden;
+}
+
+.a1-td:empty::after {
+    content: "\00a0";
+}

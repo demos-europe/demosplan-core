@@ -74,6 +74,13 @@ const webpackDefaultPlugins = [
         to: `${config.projectRoot}/web/pdf`,
         noErrorOnMissing: true
       },
+      // Addon files, may not exist
+      {
+        from: 'addons/vendor/demos-europe/**/public/files/*',
+        to: `${config.projectRoot}/web/files/[name][ext]`,
+        force: true, // overwrite existing files
+        noErrorOnMissing: true
+      },
       {
         from: resolveDir('node_modules/@demos-europe/demosplan-ui/dist'),
         to: `${config.projectRoot}/web/js/bundles`
@@ -85,21 +92,7 @@ const webpackDefaultPlugins = [
   // Provide Vue instance to all modules (is configured in InitVue.js before initialization).
   new webpack.ProvidePlugin({
     Vue: 'vue'
-  }),
-  /*
-   * Exiting webpack after build manually is necessary because sass-loader has some issues doing it by itself.
-   * It should be evaluated from time to time, if this is still necessary.
-   * @see https://github.com/demos-europe/demosplan-core/pull/4095
-   */
-  {
-    apply: compiler => {
-      compiler.hooks.done.tap('DonePlugin', () => {
-        setTimeout(() => {
-          process.exit(0)
-        }, 500)
-      })
-    }
-  }
+  })
 ]
 
 module.exports = {

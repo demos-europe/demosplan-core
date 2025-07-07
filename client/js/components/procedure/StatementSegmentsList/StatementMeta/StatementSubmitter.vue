@@ -125,7 +125,7 @@ All rights reserved
             text: Translator.trans('postalcode')
           }"
           pattern="^[0-9]{4,5}$"
-          :size="5" />
+        />
         <dp-input
           id="statementCity"
           v-model="localStatement.attributes.initialOrganisationCity"
@@ -138,14 +138,6 @@ All rights reserved
       </div>
     </div>
 
-    <similar-statement-submitters
-      v-if="hasPermission('feature_similar_statement_submitter')"
-      class="mb-4"
-      :editable="editable"
-      :procedure-id="procedure.id"
-      :similar-statement-submitters="similarStatementSubmitters"
-      :statement-id="statement.id" />
-
     <dp-button-row
       v-if="editable && isStatementManual"
       class="mt-2 w-full"
@@ -153,6 +145,14 @@ All rights reserved
       secondary
       @primary-action="dpValidateAction('statementSubmitterData', save, false)"
       @secondary-action="reset" />
+
+    <similar-statement-submitters
+      v-if="hasPermission('feature_similar_statement_submitter')"
+      class="mb-4"
+      :editable="editable"
+      :procedure-id="procedure.id"
+      :similar-statement-submitters="similarStatementSubmitters"
+      :statement-id="statement.id" />
   </fieldset>
 </template>
 
@@ -164,6 +164,7 @@ import {
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
+import { mapState } from 'vuex'
 export default {
   name: 'StatementSubmitter',
 
@@ -199,6 +200,10 @@ export default {
     }
   },
 
+  emits: [
+    'save'
+  ],
+
   data () {
     return {
       localStatement: null
@@ -206,6 +211,10 @@ export default {
   },
 
   computed: {
+    ...mapState('Statement', {
+      statements: 'items'
+    }),
+
     isStatementManual () {
       return this.localStatement.attributes.isManual
     },
@@ -279,7 +288,27 @@ export default {
     },
 
     save () {
-      this.$emit('save', this.localStatement)
+      // Get current statement from store (includes any relationship changes from SimilarStatementSubmitter)
+      const currentStatement = this.statements[this.statement.id]
+
+      const updatedStatement = {
+        ...currentStatement,
+        attributes: {
+          ...currentStatement.attributes,
+          initialOrganisationDepartmentName: this.localStatement.attributes.initialOrganisationDepartmentName,
+          initialOrganisationName: this.localStatement.attributes.initialOrganisationName,
+          authorName: this.localStatement.attributes.authorName,
+          submitName: this.localStatement.attributes.submitName,
+          submitterEmailAddress: this.localStatement.attributes.submitterEmailAddress,
+          representationChecked: this.localStatement.attributes.representationChecked,
+          initialOrganisationStreet: this.localStatement.attributes.initialOrganisationStreet,
+          initialOrganisationHouseNumber: this.localStatement.attributes.initialOrganisationHouseNumber,
+          initialOrganisationPostalCode: this.localStatement.attributes.initialOrganisationPostalCode,
+          initialOrganisationCity: this.localStatement.attributes.initialOrganisationCity
+        }
+      }
+
+      this.$emit('save', updatedStatement)
     },
 
     setInitValues () {

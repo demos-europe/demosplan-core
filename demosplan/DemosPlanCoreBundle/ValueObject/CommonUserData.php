@@ -23,6 +23,9 @@ use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundE
  * @method string getOrganisationId()
  * @method string getFirstName()
  * @method string getLastName()
+ * @method string getPostalCode()
+ * @method string getStreet()
+ * @method string getHouseNumber()
  */
 class CommonUserData extends ValueObject
 {
@@ -53,6 +56,10 @@ class CommonUserData extends ValueObject
      */
     protected string $userId = '';
 
+    protected string $street = '';
+    protected string $houseNumber = '';
+    protected string $postalCode = '';
+
     public function __toString(): string
     {
         $customerRoleRelationString = '';
@@ -71,7 +78,10 @@ class CommonUserData extends ValueObject
             ', organisationId: '.$this->organisationId.
             ', organisationName: '.$this->organisationName.
             ', emailAddress: '.$this->emailAddress.
-            ', roles: '.$customerRoleRelationString;
+            ', roles: '.$customerRoleRelationString.
+            ', street: '.$this->street.
+            ', houseNumber: '.$this->houseNumber.
+            ', postalCode: '.$this->postalCode;
     }
 
     /**

@@ -336,39 +336,64 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
  */
 const rangeCreator = (pluginKey, rangeEditingKey) => {
   let tippy = null
+
+  const handleGlobalMouseup = (view, e) => {
+    const { state } = view
+    const { selection } = state
+    const { empty, from, to, $anchor, $head } = selection
+
+    /** If no text is selected, clean up any existing tooltip and exit early to avoid unnecessary processing */
+    if (empty) {
+      tippy?.destroy()
+      tippy = null
+
+      return
+    }
+
+    const lastClick = view.lastClick || view.input.lastClick
+    const hasClickLocationChanged = (e.clientX !== lastClick.x || e.clientY !== lastClick.y)
+
+    if (hasClickLocationChanged) {
+      const existingRanges = rangeEditingKey.getState(state)
+      const selectedPositions = new Set(range(from, to))
+      const positionsCovered = []
+
+      Object.values(existingRanges).forEach(({ from, to }) => positionsCovered.push(...range(from, to)))
+      const isFullyCovered = isSuperset(new Set(positionsCovered), selectedPositions)
+
+      tippy?.destroy()
+
+      /**
+       * Prevent showing the tooltip if the user's selection is already fully covered by the selection before.
+       * This avoids redundant actions like trying to create a new selection inside an already selected area.
+       */
+      if (isFullyCovered) {
+        tippy = null
+        return
+      }
+
+      tippy = createCreatorMenu(view, $anchor.pos, $head.pos)
+    }
+  }
   return new Plugin({
     key: pluginKey,
-    props: {
-      handleDOMEvents: {
-        mouseup (view, e) {
-          const { state } = view
-          const { selection } = state
-          const { empty, from, to, $anchor, $head } = selection
+    view (view) {
+      const globalHandler = (event) => {
+        const isClickInsideMenuBubble = event.composedPath &&
+          event.composedPath().some(el => el.classList && el.classList.contains('editor-menububble__wrapper'))
 
-          if (empty) {
-            tippy?.destroy()
-            tippy = null
-            return
-          }
+        if (isClickInsideMenuBubble) {
+          return
+        }
 
-          const lastClick = view.lastClick || view.input.lastClick
+        handleGlobalMouseup(view, event)
+      }
 
-          if (e.clientX !== lastClick.x || e.clientY !== lastClick.y) {
-            const existingRanges = rangeEditingKey.getState(state)
-            let positionsCovered = []
-            Object.values(existingRanges).forEach(({ from, to }) => positionsCovered.push(...range(from, to)))
-            const selectedPositions = new Set(range(from, to))
-            positionsCovered = new Set(positionsCovered)
-            const isFullyCovered = isSuperset(positionsCovered, selectedPositions)
+      document.addEventListener('mouseup', globalHandler)
 
-            if (isFullyCovered) {
-              tippy?.destroy()
-              tippy = null
-              return
-            }
-            tippy?.destroy()
-            tippy = createCreatorMenu(view, $anchor.pos, $head.pos)
-          }
+      return {
+        destroy () {
+          document.removeEventListener('mouseup', globalHandler)
         }
       }
     }

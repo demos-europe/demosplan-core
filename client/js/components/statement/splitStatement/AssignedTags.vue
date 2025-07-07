@@ -62,6 +62,10 @@ export default {
     }
   },
 
+  emits: [
+    'remove'
+  ],
+
   methods: {
     assignTagSizeClasses (tag, idx) {
       const classes = ['flex']

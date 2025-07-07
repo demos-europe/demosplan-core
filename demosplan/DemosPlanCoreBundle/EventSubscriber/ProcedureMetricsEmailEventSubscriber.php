@@ -29,7 +29,6 @@ use Exception;
 class ProcedureMetricsEmailEventSubscriber extends BaseEventSubscriber
 {
     private const USED_TEMPLATE = 'dm_schlussmitteilung';
-    private const RECEIVER_MAIL_ADDRESS = 'support@demos-deutschland.de';
     private const LOKALE = 'de_DE';
     private const MAIL_SCOPE = 'extern';
     private const DATE_FORMAT = 'Y-m-d H:i:s';

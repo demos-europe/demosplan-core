@@ -14,6 +14,7 @@
     </p>
     <dp-inline-notification
       v-if="singleCheckedFieldId"
+      class="mt-3 mb-2"
       :message="Translator.trans('field.selectionRequired')"
       type="warning" />
     <dp-checkbox
@@ -405,21 +406,21 @@ export default {
 
     setCheckedFields () {
       this.availableFields.forEach(field => {
-        this.$set(this.checkedFields, field.id, field.initVal || false)
+        this.checkedFields[field.id] = field.initVal || false
       })
       this.setAllChecked()
     },
 
-    toggleAll () {
+    toggleAll (val) {
       this.availableFields.forEach(field => {
-        this.$set(this.checkedFields, field.id, true)
+        this.checkedFields[field.id] = val
       })
       this.handlePreventDefaultForSingleField()
     },
 
     updateCheckedFields (checkedFields) {
       Object.keys(checkedFields).forEach(id => {
-        this.$set(this.checkedFields, id, checkedFields[id])
+        this.checkedFields[id] = checkedFields[id]
       })
       this.handlePreventDefaultForSingleField()
       this.setAllChecked()

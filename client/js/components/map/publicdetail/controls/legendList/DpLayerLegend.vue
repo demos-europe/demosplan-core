@@ -93,6 +93,10 @@ export default {
     }
   },
 
+  emits: [
+    'layer-legend:unfolded'
+  ],
+
   data () {
     return {
       unfolded: false
@@ -126,16 +130,16 @@ export default {
   },
 
   methods: {
+    fold () {
+      this.unfolded = false
+    },
+
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
       if (unfolded) {
-        this.$root.$emit('layer-legend:unfolded')
+        this.$emit('layer-legend:unfolded')
       }
     }
-  },
-
-  created () {
-    this.$root.$on('layer-list:unfolded map-tools:unfolded custom-layer:unfolded', () => { this.unfolded = false })
   }
 }
 </script>

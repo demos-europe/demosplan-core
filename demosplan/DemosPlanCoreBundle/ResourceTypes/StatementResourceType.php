@@ -69,6 +69,7 @@ use Webmozart\Assert\Assert;
  * @property-read ValueObject $phaseStatement
  * @property-read SimilarStatementSubmitterResourceType $similarStatementSubmitters
  * @property-read GenericStatementAttachmentResourceType $genericAttachments
+ * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
  */
 final class StatementResourceType extends AbstractStatementResourceType implements ReadableEsResourceTypeInterface, StatementResourceTypeInterface
 {
@@ -152,6 +153,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             [] === $allowedProcedureIds
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($allowedProcedureIds, $pathStartResourceType->procedure->id),
+            // filter out segments
+            $this->conditionFactory->propertyIsNull($pathStartResourceType->parentStatementOfSegment),
         ];
         if (!$allowOriginals) {
             // Normally the path to the relationship would suffice for a NULL check, but the ES
@@ -245,9 +248,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $this->conditionFactory->propertyIsNull(Paths::statement()->headStatement->id),
             $this->conditionFactory->propertyIsNotNull(Paths::statement()->original->id),
             // all segments must have a segment set, hence the following check is used to ensure this resource type does not return segments
-            $this->conditionFactory->isTargetEntityNotInstanceOf(
-                basename(str_replace('\\', '/', Segment::class))
-            ),
+            $this->conditionFactory->propertyIsNull($this->parentStatementOfSegment),
         );
 
         $statementConditions = $this->currentUser
@@ -348,6 +349,16 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 
                     return $fileContainers;
                 });
+
+            $configBuilder->feedback->setReadableByPath();
+            $configBuilder->sentAssessmentDate->setReadableByPath();
+            $configBuilder->sentAssessment->setReadableByPath();
+            $configBuilder->publicStatement->setReadableByPath();
+            $configBuilder->authorFeedback->setReadableByPath()->setAliasedPath(Paths::statement()->meta->authorFeedback);
+            $configBuilder->user
+                ->setRelationshipType($this->resourceTypeStore->getUserResourceType())
+                ->setReadableByPath();
+
         }
 
         if ($this->currentUser->hasPermission('area_statement_segmentation')) {
@@ -367,6 +378,10 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->status->readable(true, function (Statement $statement) {
                 return $this->statementService->getProcessingStatus($statement);
             })->filterable();
+        }
+
+        if ($this->currentUser->hasPermission('field_statement_priority')) {
+            $configBuilder->priority->setReadableByPath();
         }
 
         if ($this->currentUser->hasPermission('feature_similar_statement_submitter')) {
@@ -391,6 +406,9 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->initialOrganisationName
                 ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaName);
+            $configBuilder->initialOrganisationEmail
+                ->setReadableByPath()
+                ->aliasedPath(Paths::statement()->meta->orgaEmail);
             $configBuilder->initialOrganisationDepartmentName
                 ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->meta->orgaDepartmentName);

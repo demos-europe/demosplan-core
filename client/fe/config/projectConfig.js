@@ -23,7 +23,7 @@ function projectConfig (mode, project) {
 
   let beConfigOutput = null
   try {
-    beConfigOutput = spawnSync('php', frontendIntegratorCommand, {
+    beConfigOutput = spawnSync('/usr/bin/php', frontendIntegratorCommand, {
       env: {
         ...process.env,
         ACTIVE_PROJECT: project

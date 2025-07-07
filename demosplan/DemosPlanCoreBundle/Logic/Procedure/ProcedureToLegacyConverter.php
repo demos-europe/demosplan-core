@@ -67,6 +67,9 @@ class ProcedureToLegacyConverter extends CoreService
             $procedureArray['phaseObject'] = $this->entityHelper->toArray($procedure->getPhaseObject());
             $procedureArray['publicParticipationPhaseObject'] = $this->entityHelper->toArray($procedure->getPublicParticipationPhaseObject());
             $procedureArray['pictogram'] = $procedureArray['settings']['pictogram'];
+            $procedureArray['pictogramCopyright'] = $procedureArray['settings']['pictogramCopyright'];
+            $procedureArray['pictogramAltText'] = $procedureArray['settings']['pictogramAltText'];
+            $procedureArray['allowAnonymousStatements'] = $procedureArray['settings']['allowAnonymousStatements'];
         }
 
         $procedureArray['isMapEnabled'] = false;
@@ -137,7 +140,7 @@ class ProcedureToLegacyConverter extends CoreService
             'customer'                              => $customerToLegacy,
             'dataInputOrganisations'                => $procedure->getDataInputOrganisations(),
             'dataInputOrgaIds'                      => $dataInputOrgaIds,
-            'deleted'                               => $procedure->getDeleted(),
+            'deleted'                               => $procedure->isDeleted(),
             'deletedDate'                           => $procedure->getDeletedDate(),
             'desc'                                  => $procedure->getDesc(),
             'elements'                              => $procedure->getElements(),
@@ -187,7 +190,6 @@ class ProcedureToLegacyConverter extends CoreService
             'statementFormDefinition'               => $procedure->getStatementFormDefinition(),
             'statements'                            => $procedure->getStatements(),
             'step'                                  => $procedure->getStep(),
-            'surveys'                               => $procedure->getSurveys(),
             'topics'                                => $procedure->getTopics(),
         ];
     }

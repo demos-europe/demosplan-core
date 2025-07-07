@@ -164,6 +164,10 @@ export default {
     }
   },
 
+  emits: [
+    'save'
+  ],
+
   data () {
     return {
       localStatement: null,
@@ -176,6 +180,9 @@ export default {
   computed: {
     ...mapState('ElementsDetails', {
       elements: 'items'
+    }),
+    ...mapState('Statement', {
+      statements: 'items'
     }),
 
     documentOptions () {
@@ -198,12 +205,21 @@ export default {
     },
 
     isButtonRowDisabled () {
+      let isButtonRowDisabled = true
+
       const elementIsChanged = this.selectedElementId !== this.initiallySelectedElementId
       const paragraphIsChanged = this.selectedParagraphId !== this.initiallySelectedParagraphId
       const documentIsChanged = this.selectedDocumentId !== this.initiallySelectedDocumentId
 
-      return !elementIsChanged ||
-        (elementIsChanged && ((this.paragraphOptions.length > 0 && !paragraphIsChanged) || (this.documentOptions.length > 0 && !documentIsChanged)))
+      const isOnlyElementValid = !this.paragraphOptions.length && !this.documentOptions.length && elementIsChanged
+      const isParagraphValid = this.paragraphOptions.length > 0 && paragraphIsChanged && !!this.selectedElementId
+      const isDocumentValid = this.documentOptions.length > 0 && documentIsChanged && !!this.selectedElementId
+
+      if (isOnlyElementValid || isDocumentValid || isParagraphValid) {
+        isButtonRowDisabled = false
+      }
+
+      return isButtonRowDisabled
     },
 
     paragraphOptions () {
@@ -298,7 +314,23 @@ export default {
         }
       }
 
-      this.$emit('save', this.localStatement)
+      // Get current statement from store (includes any relationship changes from other components)
+      const currentStatement = this.statements[this.statement.id]
+
+      const updatedStatement = {
+        ...currentStatement,
+        attributes: {
+          ...currentStatement.attributes,
+          paragraphParentId: this.localStatement.attributes.paragraphParentId
+        },
+        relationships: {
+          ...currentStatement.relationships,
+          elements: this.localStatement.relationships.elements,
+          document: this.localStatement.relationships.document
+        }
+      }
+
+      this.$emit('save', updatedStatement)
     },
 
     /*

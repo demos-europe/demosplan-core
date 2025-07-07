@@ -7,5 +7,5 @@ nginx or php-fpm are included, nor does it contain any files from the applicatio
 ## Build
 You can build the container with the following command:
 ```bash
-DOCKER_BUILDKIT=1 docker build -t demosplan-base .
+DOCKER_BUILDKIT=1 docker build -t demosdeutschland/demosplan-base .
 ```

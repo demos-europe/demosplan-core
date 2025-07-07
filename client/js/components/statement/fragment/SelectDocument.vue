@@ -222,18 +222,24 @@ export default {
   },
 
   watch: {
-    elementsHasParagraph (hasParagraph) {
-      if (hasParagraph === false) {
-        this.currentParagraphTitle = ''
-        this.currentParagraphId = ''
-      }
+    elementsHasParagraph: {
+      handler (hasParagraph) {
+        if (hasParagraph === false) {
+          this.currentParagraphTitle = ''
+          this.currentParagraphId = ''
+        }
+      },
+      deep: true
     },
 
-    elementsHasFiles (hasFiles) {
-      if (hasFiles === false) {
-        this.currentFileTitle = ''
-        this.currentFileId = ''
-      }
+    elementsHasFiles: {
+      handler (hasFiles) {
+        if (hasFiles === false) {
+          this.currentFileTitle = ''
+          this.currentFileId = ''
+        }
+      },
+      deep: true
     }
   }
 }

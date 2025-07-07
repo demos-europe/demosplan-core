@@ -79,7 +79,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      *
      * @ORM\Column(type="datetime", nullable=false)
      */
-    private $creationDate;
+    protected $creationDate;
 
     /**
      * @var DateTime

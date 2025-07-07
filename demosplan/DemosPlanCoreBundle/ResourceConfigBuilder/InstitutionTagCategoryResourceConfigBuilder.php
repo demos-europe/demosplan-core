@@ -26,6 +26,7 @@ use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, InstitutionTagCategory> $name
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,InstitutionTagCategory,InstitutionTag> $tags
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,InstitutionTagCategory,CustomerInterface> $customer
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, InstitutionTagCategory> $creationDate
  *
  * @template-extends MagicResourceConfigBuilder<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,InstitutionTagCategory>
  */
