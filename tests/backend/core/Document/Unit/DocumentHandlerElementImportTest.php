@@ -287,10 +287,10 @@ class DocumentHandlerElementImportTest extends TestCase
      */
     public static function resolveImportFileNameDataProvider(): array
     {
-
-        $originalDocumentTitle= 'Original Document Name';
+        $originalDocumentTitle = 'Original Document Name';
         $originalDocumentPath = 'tmp/import/123/original-document.pdf';
         $userAdjustedDocumentTitle = 'My Custom Document Name';
+
         return [
             'user_adjusted_name_found' => [
                 'entry' => [
@@ -298,7 +298,7 @@ class DocumentHandlerElementImportTest extends TestCase
                     'path'  => $originalDocumentPath,
                 ],
                 'sessionElementImportList' => [
-                    'file_12345' => '/' . $originalDocumentPath,
+                    'file_12345' => '/'.$originalDocumentPath,
                     'file_67890' => '/tmp/import/123/other-file.pdf',
                 ],
                 'request' => [
@@ -330,7 +330,7 @@ class DocumentHandlerElementImportTest extends TestCase
                     'path'  => $originalDocumentPath,
                 ],
                 'sessionElementImportList' => [
-                    'file_12345' => '/' . $originalDocumentPath,
+                    'file_12345' => '/'.$originalDocumentPath,
                 ],
                 'request' => [
                     'file_12345' => '', // Empty user input
