@@ -287,28 +287,32 @@ class DocumentHandlerElementImportTest extends TestCase
      */
     public static function resolveImportFileNameDataProvider(): array
     {
+
+        $originalDocumentTitle= 'Original Document Name';
+        $originalDocumentPath = 'tmp/import/123/original-document.pdf';
+        $userAdjustedDocumentTitle = 'My Custom Document Name';
         return [
             'user_adjusted_name_found' => [
                 'entry' => [
-                    'title' => 'Original Document Name',
-                    'path'  => 'tmp/import/123/original-document.pdf',
+                    'title' => $originalDocumentTitle,
+                    'path'  => $originalDocumentPath,
                 ],
                 'sessionElementImportList' => [
-                    'file_12345' => '/tmp/import/123/original-document.pdf',
+                    'file_12345' => '/' . $originalDocumentPath,
                     'file_67890' => '/tmp/import/123/other-file.pdf',
                 ],
                 'request' => [
-                    'file_12345' => 'My Custom Document Name',
+                    'file_12345' => $userAdjustedDocumentTitle,
                     'file_67890' => 'Other Custom Name',
                 ],
-                'expectedResult'  => 'My Custom Document Name',
+                'expectedResult'  => $userAdjustedDocumentTitle,
                 'testDescription' => 'Should return user-adjusted name when available',
             ],
 
             'no_user_adjustment' => [
                 'entry' => [
-                    'title' => 'Original Document Name',
-                    'path'  => 'tmp/import/123/original-document.pdf',
+                    'title' => $originalDocumentTitle,
+                    'path'  => $originalDocumentPath,
                 ],
                 'sessionElementImportList' => [
                     'file_67890' => '/tmp/import/123/other-file.pdf',
@@ -316,38 +320,23 @@ class DocumentHandlerElementImportTest extends TestCase
                 'request' => [
                     'file_67890' => 'Other Custom Name',
                 ],
-                'expectedResult'  => 'Original Document Name',
+                'expectedResult'  => $originalDocumentTitle,
                 'testDescription' => 'Should return original name when no user adjustment exists',
             ],
 
             'empty_user_input' => [
                 'entry' => [
-                    'title' => 'Original Document Name',
-                    'path'  => 'tmp/import/123/original-document.pdf',
+                    'title' => $originalDocumentTitle,
+                    'path'  => $originalDocumentPath,
                 ],
                 'sessionElementImportList' => [
-                    'file_12345' => '/tmp/import/123/original-document.pdf',
+                    'file_12345' => '/' . $originalDocumentPath,
                 ],
                 'request' => [
                     'file_12345' => '', // Empty user input
                 ],
-                'expectedResult'  => 'Original Document Name',
+                'expectedResult'  => $originalDocumentTitle,
                 'testDescription' => 'Should return original name when user provides empty string',
-            ],
-
-            'path_normalization' => [
-                'entry' => [
-                    'title' => 'Original Document Name',
-                    'path'  => 'tmp/import/123/test-file.pdf', // No leading slash
-                ],
-                'sessionElementImportList' => [
-                    'file_99999' => '/tmp/import/123/test-file.pdf', // With leading slash
-                ],
-                'request' => [
-                    'file_99999' => 'Normalized Path Test',
-                ],
-                'expectedResult'  => 'Normalized Path Test',
-                'testDescription' => 'Should handle path normalization (missing leading slash)',
             ],
         ];
     }
