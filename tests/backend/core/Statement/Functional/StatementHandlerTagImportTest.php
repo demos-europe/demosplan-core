@@ -21,13 +21,34 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactor
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use demosplan\DemosPlanCoreBundle\Logic\MessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
+use Doctrine\Common\Collections\Collection;
 use Tests\Base\FunctionalTestCase;
 
 class StatementHandlerTagImportTest extends FunctionalTestCase
 {
+    // Test data constants
+    private const FIRST_TOPIC_TITLE = 'First Topic';
+    private const SECOND_TOPIC_TITLE = 'Second Topic';
+    private const EMPTY_TOPIC_TITLE = 'Empty Topic';
+    private const EXISTING_TAG_TITLE = 'Existing Tag';
+    private const CONFLICTING_TAG_TITLE_EXISTS_ELSEWHERE = 'Conflicting Tag';
+    private const TAG_WITH_BOILERPLATE_TITLE = 'Tag with Boilerplate';
+    private const EXISTING_BOILERPLATE_TITLE = 'Existing Boilerplate';
+    private const EXISTING_BOILERPLATE_TEXT = 'This is existing boilerplate content';
+    private const ANOTHER_BOILERPLATE_TITLE = 'Another Boilerplate';
+    private const ANOTHER_BOILERPLATE_TEXT = 'This is another boilerplate content';
+    private const BRAND_NEW_TAG_TITLE = 'Brand New Tag';
+    private const ANOTHER_NEW_TAG_TITLE = 'Another New Tag';
+    private const NEW_TAG_FOR_BOILERPLATE_TEST = 'New Tag for Boilerplate Test';
+    private const ANOTHER_NEW_TAG_FOR_BOILERPLATE_TEST = 'Another New Tag for Boilerplate Test';
+    private const YET_ANOTHER_NEW_TAG = 'Yet Another New Tag';
+    private const BRAND_NEW_BOILERPLATE_TITLE = 'Brand New Boilerplate';
+    private const BRAND_NEW_BOILERPLATE_TEXT = 'Brand new boilerplate content';
+
     /** @var StatementHandler */
     protected $sut;
 
@@ -57,41 +78,41 @@ class StatementHandlerTagImportTest extends FunctionalTestCase
         // Create topics within this procedure
         $this->firstTopic = TagTopicFactory::createOne([
             'procedure' => $this->testProcedure,
-            'title'     => 'First Topic',
+            'title'     => self::FIRST_TOPIC_TITLE,
         ])->_real();
 
         $this->secondTopic = TagTopicFactory::createOne([
             'procedure' => $this->testProcedure,
-            'title'     => 'Second Topic',
+            'title'     => self::SECOND_TOPIC_TITLE,
         ])->_real();
 
         $this->emptyTopic = TagTopicFactory::createOne([
             'procedure' => $this->testProcedure,
-            'title'     => 'Empty Topic',
+            'title'     => self::EMPTY_TOPIC_TITLE,
         ])->_real();
 
         // Create tags within first topic
         $this->firstTag = TagFactory::createOne([
             'topic' => $this->firstTopic,
-            'title' => 'Existing Tag',
+            'title' => self::EXISTING_TAG_TITLE,
         ])->_real();
 
         $this->secondTag = TagFactory::createOne([
             'topic' => $this->firstTopic,
-            'title' => 'Tag to Move',
+            'title' => self::CONFLICTING_TAG_TITLE_EXISTS_ELSEWHERE,
         ])->_real();
 
         // Create a third tag for boilerplate testing
         $this->tagWithBoilerplate = TagFactory::createOne([
             'topic' => $this->secondTopic,
-            'title' => 'Tag with Boilerplate',
+            'title' => self::TAG_WITH_BOILERPLATE_TITLE,
         ])->_real();
 
         // Create boilerplates in this procedure
-        $firstBoilerplateData = ['title' => 'Existing Boilerplate', 'text' => 'This is existing boilerplate content'];
+        $firstBoilerplateData = ['title' => self::EXISTING_BOILERPLATE_TITLE, 'text' => self::EXISTING_BOILERPLATE_TEXT];
         $this->existingBoilerplate = $this->procedureService->addBoilerplate($this->testProcedure->getId(), $firstBoilerplateData);
 
-        $secondBoilerplateData = ['title' => 'Another Boilerplate', 'text' => 'This is another boilerplate content'];
+        $secondBoilerplateData = ['title' => self::ANOTHER_BOILERPLATE_TITLE, 'text' => self::ANOTHER_BOILERPLATE_TEXT];
         $this->anotherBoilerplate = $this->procedureService->addBoilerplate($this->testProcedure->getId(), $secondBoilerplateData);
 
         // Attach the first boilerplate to tagWithBoilerplate
@@ -121,71 +142,163 @@ class StatementHandlerTagImportTest extends FunctionalTestCase
 
         // Verify boilerplate is properly attached
         self::assertTrue($this->tagWithBoilerplate->hasBoilerplate());
-        self::assertEquals('Existing Boilerplate', $this->tagWithBoilerplate->getBoilerplate()->getTitle());
-        self::assertEquals('This is existing boilerplate content', $this->tagWithBoilerplate->getBoilerplate()->getText());
+        self::assertEquals(self::EXISTING_BOILERPLATE_TITLE, $this->tagWithBoilerplate->getBoilerplate()->getTitle());
+        self::assertEquals(self::EXISTING_BOILERPLATE_TEXT, $this->tagWithBoilerplate->getBoilerplate()->getText());
 
         // Verify procedure has boilerplates
         $procedureBoilerplates = $this->procedureService->getBoilerplateList($this->testProcedure->getId());
         self::assertCount(2, $procedureBoilerplates);
+
+        // Ensure clean message bag state for all tests
+        $this->sut->getMessageBag()->get(); // This clears all messages
+    }
+
+
+    /**
+     * Helper method to create a new tag for testing (simulates import scenario).
+     */
+    private function createNewTagForTest(string $title, TagTopicInterface $topic): TagInterface
+    {
+        $tag = $this->tagService->createTag($title, $topic);
+        $this->getEntityManager()->flush();
+
+        // Verify tag has no boilerplate (import scenario)
+        self::assertFalse($tag->hasBoilerplate());
+
+        return $tag;
     }
 
     /**
-     * Test Case 1: Tag already exists in target topic - should return existing tag.
+     * Helper method to invoke handleTagImport with consistent parameters.
      */
-    public function testHandleTagImportReturnsExistingTagFromTargetTopic(): void
+    private function invokeHandleTagImport(string $tagTitle, TagTopicInterface $topic): ?TagInterface
     {
-        // Act - Try to import a tag that already exists in the target topic
-        $result = $this->invokeProtectedMethod(
+        return $this->invokeProtectedMethod(
             [$this->sut, 'handleTagImport'],
-            'Existing Tag',  // This tag exists in firstTopic
-            $this->firstTopic,   // Same topic where it already exists
+            $tagTitle,
+            $topic,
             $this->testProcedure->getId()
         );
-
-        // Assert - Should return the existing tag without any changes
-        self::assertEquals($this->firstTag->getId(), $result->getId());
-        self::assertEquals('Existing Tag', $result->getTitle());
-        self::assertEquals($this->firstTopic->getId(), $result->getTopic()->getId());
-
-        // Verify no changes were made to the database
-        $this->getEntityManager()->refresh($this->firstTopic);
-        self::assertCount(2, $this->firstTopic->getTags());
     }
 
     /**
-     * Test Case 2: Tag exists in different topic - should move tag to target topic.
+     * Helper method to invoke handleBoilerplateImportForTag with consistent parameters.
      */
-    public function testHandleTagImportMovesTagFromDifferentTopic(): void
+    private function invokeHandleBoilerplateImport(TagInterface $tag, string $title, string $text): void
     {
-        // Verify initial state - tag is in firstTopic, secondTopic has tagWithBoilerplate
+        $this->invokeProtectedMethod(
+            [$this->sut, 'handleBoilerplateImportForTag'],
+            $tag,
+            $title,
+            $text,
+            $this->testProcedure->getId()
+        );
+    }
+
+    /**
+     * Helper method to flush and refresh entities.
+     */
+    private function flushAndRefresh(...$entities): void
+    {
+        $this->getEntityManager()->flush();
+        foreach ($entities as $entity) {
+            if (null !== $entity) {
+                $this->getEntityManager()->refresh($entity);
+            }
+        }
+    }
+
+    /**
+     * Helper method to assert boilerplate is correctly attached to tag.
+     */
+    private function assertBoilerplateAttached(TagInterface $tag, string $expectedTitle, string $expectedText, $expectedId = null): void
+    {
+        self::assertTrue($tag->hasBoilerplate());
+        self::assertEquals($expectedTitle, $tag->getBoilerplate()->getTitle());
+        self::assertEquals($expectedText, $tag->getBoilerplate()->getText());
+
+        if (null !== $expectedId) {
+            self::assertEquals($expectedId, $tag->getBoilerplate()->getId());
+        } else {
+            self::assertNotNull($tag->getBoilerplate()->getId());
+        }
+    }
+
+    /**
+     * Helper method to assert error message exists with expected parameters.
+     */
+    private function assertErrorMessageExists(string $expectedTagTitle, string $expectedExistingTopic, string $expectedTargetTopic, int $expectedCount = 1): void
+    {
+        $errorMessages = $this->sut->getMessageBag()->getError();
+        self::assertGreaterThanOrEqual($expectedCount, $errorMessages->count());
+
+        // Build the expected translated message with interpolated parameters
+        $expectedTranslatedMessage = "Das Schlagwort \"{$expectedTagTitle}\" existiert bereits im Thema \"{$expectedExistingTopic}\" und wurde daher nicht dem Thema \"{$expectedTargetTopic}\" hinzugefügt. Bitte überprüfen bzw. verschieben Sie es manuell.";
+
+        // Look for the specific error message in all error message collections
+        foreach ($errorMessages as $errorMessageCollection) {
+            /** @var Collection $errorMessageCollection */
+            foreach ($errorMessageCollection as $errorMessage) {
+                /** @var MessageSerializable $errorMessage */
+                if ($errorMessage->getText() === $expectedTranslatedMessage) {
+                    return;
+                }
+            }
+        }
+
+        self::fail('Expected error message with specific parameters not found');
+    }
+
+    /**
+     * Test Case 1: Tag already exists in target topic - should return null (skip processing).
+     */
+    public function testHandleTagImportSkipsExistingTagInTargetTopic(): void
+    {
+        // Act - Try to import a tag that already exists in the target topic
+        $result = $this->invokeHandleTagImport(self::EXISTING_TAG_TITLE, $this->firstTopic);
+
+        // Assert - Should return null to skip processing
+        self::assertNull($result);
+
+        // Verify no changes were made to the database
+        $this->flushAndRefresh($this->firstTopic, $this->firstTag);
+        self::assertCount(2, $this->firstTopic->getTags());
+        self::assertEquals(self::EXISTING_TAG_TITLE, $this->firstTag->getTitle());
+        self::assertEquals($this->firstTopic->getId(), $this->firstTag->getTopic()->getId());
+    }
+
+    /**
+     * Test Case 2: Tag exists in different topic - should return null and add error message.
+     */
+    public function testHandleTagImportSkipsTagFromDifferentTopicAndAddsErrorMessage(): void
+    {
+        // Verify initial state
         self::assertEquals($this->firstTopic->getId(), $this->secondTag->getTopic()->getId());
         self::assertCount(2, $this->firstTopic->getTags());
         self::assertCount(1, $this->secondTopic->getTags());
 
         // Act - Import existing tag to a different topic
-        $result = $this->invokeProtectedMethod(
-            [$this->sut, 'handleTagImport'],
-            'Tag to Move',   // This tag exists in firstTopic
-            $this->secondTopic,   // Move it to secondTopic
-            $this->testProcedure->getId()
+        $result = $this->invokeHandleTagImport(self::CONFLICTING_TAG_TITLE_EXISTS_ELSEWHERE, $this->secondTopic);
+
+        // Assert - Should return null to skip processing
+        self::assertNull($result);
+
+        // Verify error message was added to message bag
+        $this->assertErrorMessageExists(
+            self::CONFLICTING_TAG_TITLE_EXISTS_ELSEWHERE,
+            self::FIRST_TOPIC_TITLE,
+            self::SECOND_TOPIC_TITLE
         );
 
-        // Assert - Should return the same tag but moved to the new topic
-        self::assertEquals($this->secondTag->getId(), $result->getId());
-        self::assertEquals('Tag to Move', $result->getTitle());
+        // Verify no changes were made to the database
+        $this->flushAndRefresh($this->firstTopic, $this->secondTopic, $this->secondTag);
 
-        // Flush to ensure the move is persisted
-        $this->getEntityManager()->flush();
-        $this->getEntityManager()->refresh($result);
-        $this->getEntityManager()->refresh($this->firstTopic);
-        $this->getEntityManager()->refresh($this->secondTopic);
-
-        // Verify the tag was actually moved
-        self::assertEquals($this->secondTopic->getId(), $result->getTopic()->getId());
-        self::assertCount(1, $this->firstTopic->getTags()); // One less in source topic
-        self::assertCount(2, $this->secondTopic->getTags()); // One more in target topic (plus tagWithBoilerplate)
-        self::assertTrue($this->secondTopic->getTags()->contains($result));
-        self::assertFalse($this->firstTopic->getTags()->contains($result));
+        // Tag should still be in original topic
+        self::assertEquals($this->firstTopic->getId(), $this->secondTag->getTopic()->getId());
+        self::assertCount(2, $this->firstTopic->getTags()); // No change
+        self::assertCount(1, $this->secondTopic->getTags()); // No change
+        self::assertTrue($this->firstTopic->getTags()->contains($this->secondTag));
+        self::assertFalse($this->secondTopic->getTags()->contains($this->secondTag));
     }
 
     /**
@@ -198,24 +311,16 @@ class StatementHandlerTagImportTest extends FunctionalTestCase
         self::assertEquals(0, $initialTagCountInEmptyTopic);
 
         // Act - Import a completely new tag
-        $result = $this->invokeProtectedMethod(
-            [$this->sut, 'handleTagImport'],
-            'Brand New Tag', // This tag doesn't exist anywhere
-            $this->emptyTopic,
-            $this->testProcedure->getId()
-        );
+        $result = $this->invokeHandleTagImport(self::BRAND_NEW_TAG_TITLE, $this->emptyTopic);
 
         // Assert - Should create a new tag
         self::assertInstanceOf(Tag::class, $result);
-        self::assertEquals('Brand New Tag', $result->getTitle());
+        self::assertEquals(self::BRAND_NEW_TAG_TITLE, $result->getTitle());
         self::assertEquals($this->emptyTopic->getId(), $result->getTopic()->getId());
         self::assertNotNull($result->getId()); // Should be persisted
 
-        // Flush and refresh to verify persistence
-        $this->getEntityManager()->flush();
-        $this->getEntityManager()->refresh($this->emptyTopic);
-
         // Verify tag was added to the topic
+        $this->flushAndRefresh($this->emptyTopic);
         self::assertCount($initialTagCountInEmptyTopic + 1, $this->emptyTopic->getTags());
         self::assertTrue($this->emptyTopic->getTags()->contains($result));
     }
@@ -226,132 +331,72 @@ class StatementHandlerTagImportTest extends FunctionalTestCase
      */
     public function testHandleTagImportComplexWorkflow(): void
     {
-        // Test 1: Return existing tag from same topic
-        $result1 = $this->invokeProtectedMethod(
-            [$this->sut, 'handleTagImport'],
-            'Existing Tag',
-            $this->firstTopic,
-            $this->testProcedure->getId()
+        // Test 1: Skip existing tag from same topic (should NOT add error message)
+        $result1 = $this->invokeHandleTagImport(self::EXISTING_TAG_TITLE, $this->firstTopic);
+        self::assertNull($result1); // Should skip processing
+
+        // Check that no error messages were added for same topic scenario
+        $errorMessagesAfterTest1 = $this->sut->getMessageBag()->getError();
+        self::assertEquals(0, $errorMessagesAfterTest1->count(), 'No error message should be added when tag exists in same topic');
+
+        // Test 2: Skip tag from different topic and add error message
+        $result2 = $this->invokeHandleTagImport(self::CONFLICTING_TAG_TITLE_EXISTS_ELSEWHERE, $this->emptyTopic);
+        self::assertNull($result2); // Should skip processing
+        $this->assertErrorMessageExists(
+            self::CONFLICTING_TAG_TITLE_EXISTS_ELSEWHERE,
+            self::FIRST_TOPIC_TITLE,
+            self::EMPTY_TOPIC_TITLE
         );
 
-        self::assertEquals($this->firstTag->getId(), $result1->getId());
-        self::assertEquals($this->firstTopic->getId(), $result1->getTopic()->getId());
-
-        // Test 2: Move tag between topics
-        $result2 = $this->invokeProtectedMethod(
-            [$this->sut, 'handleTagImport'],
-            'Tag to Move',
-            $this->emptyTopic,
-            $this->testProcedure->getId()
-        );
-
-        $this->getEntityManager()->flush();
-        $this->getEntityManager()->refresh($result2);
-        $this->getEntityManager()->refresh($this->firstTopic);
-        $this->getEntityManager()->refresh($this->emptyTopic);
-
-        self::assertEquals($this->secondTag->getId(), $result2->getId());
-        self::assertEquals($this->emptyTopic->getId(), $result2->getTopic()->getId());
-        self::assertCount(1, $this->firstTopic->getTags()); // Reduced by 1
-        self::assertCount(1, $this->emptyTopic->getTags()); // Increased by 1
+        // Verify no changes to database
+        $this->flushAndRefresh($this->firstTopic, $this->emptyTopic);
+        self::assertCount(2, $this->firstTopic->getTags()); // No change
+        self::assertCount(0, $this->emptyTopic->getTags()); // No change
 
         // Test 3: Create new tag
-        $result3 = $this->invokeProtectedMethod(
-            [$this->sut, 'handleTagImport'],
-            'Another New Tag',
-            $this->secondTopic,
-            $this->testProcedure->getId()
-        );
-
-        self::assertEquals('Another New Tag', $result3->getTitle());
+        $result3 = $this->invokeHandleTagImport(self::ANOTHER_NEW_TAG_TITLE, $this->secondTopic);
+        self::assertNotNull($result3); // Should create new tag
+        self::assertEquals(self::ANOTHER_NEW_TAG_TITLE, $result3->getTitle());
         self::assertEquals($this->secondTopic->getId(), $result3->getTopic()->getId());
 
-        $this->getEntityManager()->flush();
-        $this->getEntityManager()->refresh($this->secondTopic);
+        $this->flushAndRefresh($this->secondTopic);
         self::assertCount(2, $this->secondTopic->getTags()); // tagWithBoilerplate + new tag
     }
 
     /**
-     * Test handleBoilerplateImportForTag - Case 1: Tag already has correct boilerplate.
+     * Test handleBoilerplateImportForTag - Case 1: Tag is new and has no boilerplate, attach existing one from procedure.
      */
-    public function testHandleBoilerplateImportForTagWithCorrectBoilerplateAlreadyAttached(): void
+    public function testHandleBoilerplateImportForTagAttachesExistingBoilerplateFromProcedure(): void
     {
-        // Verify setup - tagWithBoilerplate has the existingBoilerplate attached
-        self::assertTrue($this->tagWithBoilerplate->hasBoilerplate());
-        self::assertEquals('Existing Boilerplate', $this->tagWithBoilerplate->getBoilerplate()->getTitle());
-        self::assertEquals('This is existing boilerplate content', $this->tagWithBoilerplate->getBoilerplate()->getText());
-
-        // Act - Try to import the exact same boilerplate (same title and text)
-        $this->invokeProtectedMethod(
-            [$this->sut, 'handleBoilerplateImportForTag'],
-            $this->tagWithBoilerplate,
-            'Existing Boilerplate',
-            'This is existing boilerplate content',
-            $this->testProcedure->getId()
-        );
-
-        // Assert - Should return early without changes
-        $this->getEntityManager()->refresh($this->tagWithBoilerplate);
-        self::assertTrue($this->tagWithBoilerplate->hasBoilerplate());
-        self::assertEquals('Existing Boilerplate', $this->tagWithBoilerplate->getBoilerplate()->getTitle());
-        self::assertEquals('This is existing boilerplate content', $this->tagWithBoilerplate->getBoilerplate()->getText());
-    }
-
-    /**
-     * Test handleBoilerplateImportForTag - Case 2: Existing boilerplate in procedure with matching title and text.
-     */
-    public function testHandleBoilerplateImportForTagWithExistingBoilerplateInProcedure(): void
-    {
-        // Verify setup - firstTag has no boilerplate, but anotherBoilerplate exists in procedure
-        self::assertFalse($this->firstTag->hasBoilerplate());
+        // Create a new tag (simulating import scenario where all tags are new)
+        $newTag = $this->createNewTagForTest(self::NEW_TAG_FOR_BOILERPLATE_TEST, $this->emptyTopic);
 
         // Act - Import existing boilerplate by title and text
-        $this->invokeProtectedMethod(
-            [$this->sut, 'handleBoilerplateImportForTag'],
-            $this->firstTag,
-            'Another Boilerplate',
-            'This is another boilerplate content',
-            $this->testProcedure->getId()
-        );
+        $this->invokeHandleBoilerplateImport($newTag, self::EXISTING_BOILERPLATE_TITLE, self::EXISTING_BOILERPLATE_TEXT);
 
         // Assert - Should attach the existing boilerplate
-        $this->getEntityManager()->flush();
-        $this->getEntityManager()->refresh($this->firstTag);
-
-        self::assertTrue($this->firstTag->hasBoilerplate());
-        self::assertEquals('Another Boilerplate', $this->firstTag->getBoilerplate()->getTitle());
-        self::assertEquals('This is another boilerplate content', $this->firstTag->getBoilerplate()->getText());
+        $this->flushAndRefresh($newTag);
+        $this->assertBoilerplateAttached($newTag, self::EXISTING_BOILERPLATE_TITLE, self::EXISTING_BOILERPLATE_TEXT, $this->existingBoilerplate->getId());
     }
 
     /**
-     * Test handleBoilerplateImportForTag - Case 3: Create new boilerplate when none exists.
+     * Test handleBoilerplateImportForTag - Case 2: Create new boilerplate when none exists with matching title and text.
      */
-    public function testHandleBoilerplateImportForTagCreatesNewBoilerplate(): void
+    public function testHandleBoilerplateImportForTagCreatesNewBoilerplateWhenNoneExists(): void
     {
-        // Verify setup - firstTag has no boilerplate initially
-        self::assertFalse($this->firstTag->hasBoilerplate());
+        // Create a new tag (simulating import scenario where all tags are new)
+        $newTag = $this->createNewTagForTest(self::ANOTHER_NEW_TAG_FOR_BOILERPLATE_TEST, $this->emptyTopic);
 
         // Get initial boilerplate count
         $initialBoilerplates = $this->procedureService->getBoilerplateList($this->testProcedure->getId());
         $initialCount = count($initialBoilerplates);
 
         // Act - Import a completely new boilerplate (different title and text)
-        $this->invokeProtectedMethod(
-            [$this->sut, 'handleBoilerplateImportForTag'],
-            $this->firstTag,
-            'Brand New Boilerplate',
-            'Brand new boilerplate content',
-            $this->testProcedure->getId()
-        );
+        $this->invokeHandleBoilerplateImport($newTag, self::BRAND_NEW_BOILERPLATE_TITLE, self::BRAND_NEW_BOILERPLATE_TEXT);
 
         // Assert - Should create new boilerplate and attach it
-        $this->getEntityManager()->flush();
-        $this->getEntityManager()->refresh($this->firstTag);
-
-        self::assertTrue($this->firstTag->hasBoilerplate());
-        self::assertEquals('Brand New Boilerplate', $this->firstTag->getBoilerplate()->getTitle());
-        self::assertEquals('Brand new boilerplate content', $this->firstTag->getBoilerplate()->getText());
-        self::assertNotNull($this->firstTag->getBoilerplate()->getId());
+        $this->flushAndRefresh($newTag);
+        $this->assertBoilerplateAttached($newTag, self::BRAND_NEW_BOILERPLATE_TITLE, self::BRAND_NEW_BOILERPLATE_TEXT);
 
         // Verify new boilerplate was added to procedure
         $updatedBoilerplates = $this->procedureService->getBoilerplateList($this->testProcedure->getId());
@@ -359,67 +404,18 @@ class StatementHandlerTagImportTest extends FunctionalTestCase
     }
 
     /**
-     * Test handleBoilerplateImportForTag - Case 4: Replace existing boilerplate with different one.
+     * Test handleBoilerplateImportForTag - Case 3: Attach different existing boilerplate to new tag.
      */
-    public function testHandleBoilerplateImportForTagReplacesExistingBoilerplate(): void
+    public function testHandleBoilerplateImportForTagAttachesDifferentExistingBoilerplate(): void
     {
-        // Verify setup - tagWithBoilerplate has existingBoilerplate attached
-        self::assertTrue($this->tagWithBoilerplate->hasBoilerplate());
-        $originalBoilerplateId = $this->tagWithBoilerplate->getBoilerplate()->getId();
-        self::assertEquals('Existing Boilerplate', $this->tagWithBoilerplate->getBoilerplate()->getTitle());
+        // Create a new tag (simulating import scenario where all tags are new)
+        $newTag = $this->createNewTagForTest(self::YET_ANOTHER_NEW_TAG, $this->emptyTopic);
 
-        // Act - Import different existing boilerplate
-        $this->invokeProtectedMethod(
-            [$this->sut, 'handleBoilerplateImportForTag'],
-            $this->tagWithBoilerplate,
-            'Another Boilerplate',
-            'This is another boilerplate content',
-            $this->testProcedure->getId()
-        );
+        // Act - Import different existing boilerplate by title and text
+        $this->invokeHandleBoilerplateImport($newTag, self::ANOTHER_BOILERPLATE_TITLE, self::ANOTHER_BOILERPLATE_TEXT);
 
-        // Assert - Should detach original and attach different boilerplate
-        $this->getEntityManager()->flush();
-        $this->getEntityManager()->refresh($this->tagWithBoilerplate);
-
-        self::assertTrue($this->tagWithBoilerplate->hasBoilerplate());
-        self::assertNotEquals($originalBoilerplateId, $this->tagWithBoilerplate->getBoilerplate()->getId());
-        self::assertEquals('Another Boilerplate', $this->tagWithBoilerplate->getBoilerplate()->getTitle());
-        self::assertEquals('This is another boilerplate content', $this->tagWithBoilerplate->getBoilerplate()->getText());
-    }
-
-    /**
-     * Test handleBoilerplateImportForTag - Case 5: Replace existing with new boilerplate.
-     */
-    public function testHandleBoilerplateImportForTagReplacesExistingWithNewBoilerplate(): void
-    {
-        // Verify setup - tagWithBoilerplate has existingBoilerplate attached
-        self::assertTrue($this->tagWithBoilerplate->hasBoilerplate());
-        $originalBoilerplateId = $this->tagWithBoilerplate->getBoilerplate()->getId();
-
-        // Get initial boilerplate count
-        $initialBoilerplates = $this->procedureService->getBoilerplateList($this->testProcedure->getId());
-        $initialCount = count($initialBoilerplates);
-
-        // Act - Import completely new boilerplate
-        $this->invokeProtectedMethod(
-            [$this->sut, 'handleBoilerplateImportForTag'],
-            $this->tagWithBoilerplate,
-            'Replacement Boilerplate',
-            'Replacement boilerplate content',
-            $this->testProcedure->getId()
-        );
-
-        // Assert - Should detach original and create/attach new boilerplate
-        $this->getEntityManager()->flush();
-        $this->getEntityManager()->refresh($this->tagWithBoilerplate);
-
-        self::assertTrue($this->tagWithBoilerplate->hasBoilerplate());
-        self::assertNotEquals($originalBoilerplateId, $this->tagWithBoilerplate->getBoilerplate()->getId());
-        self::assertEquals('Replacement Boilerplate', $this->tagWithBoilerplate->getBoilerplate()->getTitle());
-        self::assertEquals('Replacement boilerplate content', $this->tagWithBoilerplate->getBoilerplate()->getText());
-
-        // Verify new boilerplate was added to procedure
-        $updatedBoilerplates = $this->procedureService->getBoilerplateList($this->testProcedure->getId());
-        self::assertCount($initialCount + 1, $updatedBoilerplates);
+        // Assert - Should attach the existing boilerplate
+        $this->flushAndRefresh($newTag);
+        $this->assertBoilerplateAttached($newTag, self::ANOTHER_BOILERPLATE_TITLE, self::ANOTHER_BOILERPLATE_TEXT, $this->anotherBoilerplate->getId());
     }
 }
