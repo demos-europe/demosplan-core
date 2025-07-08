@@ -181,7 +181,7 @@ class DocumentHandler extends CoreHandler
 
         foreach ($entries as $entry) {
 
-            $fileName = $this->getUserAdjustedFileName($entry, $sessionElementImportList, $request);
+            $fileName = $this->resolveImportFileName($entry, $sessionElementImportList, $request);
 
             // Ordner werden als neue Elements abgespeichert
             if (true === $entry['isDir']) {
@@ -273,7 +273,22 @@ class DocumentHandler extends CoreHandler
         return $result;
     }
 
-    private function getUserAdjustedFileName (array $entry, array $sessionElementImportList, array $request): string {
+    /**
+     * Resolves the final filename/folder name to use during import.
+     *
+     * Checks if the user provided a custom name for this entry during the import process.
+     * If a user-adjusted name exists in the request data, it will be used instead of
+     * the original filename. All names are normalized to UTF-8 encoding.
+     *
+     * @param array $entry The file/folder entry being processed (contains 'title' and 'path')
+     * @param array $sessionElementImportList Session mapping of hashes to file paths
+     * @param array $request The request data containing user-provided custom names
+     *
+     * @return string The resolved filename - either user-adjusted or original filename
+     */
+
+
+    private function resolveImportFileName (array $entry, array $sessionElementImportList, array $request): string {
 
         $fileName = (string) $entry['title'];
         // Ensure the string is properly encoded to UTF-8
