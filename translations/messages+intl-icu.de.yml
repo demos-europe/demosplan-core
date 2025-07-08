@@ -3729,6 +3729,11 @@ statements.yours.list.description.short.gdpr_consent_may_revoke: "<a href=\"{hre
 statements.yours.list.description: "Hier können Sie alle Ihre eingereichten Stellungnahmen einsehen. Sobald ein Verfahren vom Verfahrensträger gelöscht wird, werden auch Ihre zugehörigen Stellungnahmen und personenbezogenen Daten gelöscht."
 statements.yours.list.description.short: "<a href=\"{href}\">Hier</a> können Sie alle Ihre eingereichten Stellungnahmen einsehen."
 statements: "Stellungnahmen"
+statement.similar.statement.submitter.delete: |
+    {name, select,
+            false { Möchten Sie die weitere einreichende Person wirklich löschen? }
+            other { Möchten Sie die weitere einreichende Person "{name}" wirklich löschen? }
+        }
 statement_vote.length: |
   {count, plural,
       =1 { # Person }
