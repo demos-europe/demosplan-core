@@ -875,16 +875,11 @@ export default {
         return ''
       }
 
-      const parts = []
-
-      // Add organization info
-      parts.push(...this.getOrganizationTooltipParts)
-
-      // Add submitted author info
-      parts.push(...this.getSubmittedAuthorTooltipParts)
-
-      // Add user fields
-      parts.push(...this.getUserFieldsTooltipParts)
+      const parts = [
+        ...this.getOrganizationTooltipParts, // Add organization info
+        ...this.getSubmittedAuthorTooltipParts, // Add submitted author info
+        ...this.getUserFieldsTooltipParts // Add user fields
+      ]
 
       return parts.filter(part => part).join('<br>')
     },
