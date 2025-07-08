@@ -13,54 +13,23 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Workflow;
 
 use Symfony\Component\Stopwatch\Stopwatch;
-use Symfony\Contracts\Service\Attribute\Required;
 
 class ProfilerService
 {
-    /**
-     * @var Stopwatch
-     */
-    protected $stopwatch;
+    protected Stopwatch $stopwatch;
 
-    /**
-     * @return Stopwatch
-     */
-    public function getStopwatch()
+    public function __construct()
     {
-        return $this->stopwatch;
+        $this->stopwatch = new Stopwatch(true);
     }
 
-    #[Required]
-    public function setStopwatch(Stopwatch $stopwatch)
+    public function profilerStart(string $name)
     {
-        $this->stopwatch = $stopwatch;
+       $this->stopwatch->start($name);
     }
 
-    /**
-     * Starte den Profiler, Anzeige in der Symfony Toolbar.
-     *
-     * @param string $name
-     */
-    public function profilerStart($name)
+    public function profilerStop(string $name)
     {
-        if (null === $this->stopwatch) {
-            $this->stopwatch = new Stopwatch(true);
-        }
-
-        $stopwatch = $this->getStopwatch();
-        $stopwatch->start($name);
-    }
-
-    /**
-     * Stoppt den Profiler.
-     *
-     * @param string $name
-     */
-    public function profilerStop($name)
-    {
-        if (null !== $this->stopwatch) {
-            $stopwatch = $this->getStopwatch();
-            $stopwatch->stop($name);
-        }
+            $this->stopwatch->stop($name);
     }
 }
