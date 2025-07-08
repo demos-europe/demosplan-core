@@ -2066,7 +2066,6 @@ Email:',
     }
 
     public function testGetFullIdList(): void
-
     {
         $doctrine = $this->getContainer()->get('doctrine');
         $procedureRepository = $doctrine->getManager()->getRepository(Procedure::class);
