@@ -180,22 +180,9 @@ class DocumentHandler extends CoreHandler
         $createdDocuments = [];
 
         foreach ($entries as $entry) {
-            $fileName = (string) $entry['title'];
-            // Ensure the string is properly encoded to UTF-8
-            $fileName = mb_convert_encoding($fileName, 'UTF-8', mb_detect_encoding($fileName,self::POSSIBLE_ENCODINGS, true));
-            $entryPath = '/' . ltrim($entry['path'], '/'); // Ensure leading slash
-            if (in_array($entryPath, $sessionElementImportList)) {
-                $keys = array_keys($sessionElementImportList, $entryPath);
-                if (is_array($keys)
-                    && isset($request[$keys[0]])
-                    && 0 < strlen((string) $request[$keys[0]])
-                ) {
-                    $fileName = $request[$keys[0]]; //here the name is taken from the request
-                    // Also ensure the string from request is properly encoded to UTF-8
-                    $fileName = mb_convert_encoding($fileName, 'UTF-8',
-                        mb_detect_encoding($fileName,self::POSSIBLE_ENCODINGS, true));
-                }
-            }
+
+            $fileName = $this->getUserAdjustedFileName($entry, $sessionElementImportList, $request);
+
             // Ordner werden als neue Elements abgespeichert
             if (true === $entry['isDir']) {
                 $element = ['r_title' => $fileName];
@@ -284,6 +271,29 @@ class DocumentHandler extends CoreHandler
         }
 
         return $result;
+    }
+
+    private function getUserAdjustedFileName (array $entry, array $sessionElementImportList, array $request): string {
+
+        $fileName = (string) $entry['title'];
+        // Ensure the string is properly encoded to UTF-8
+        $fileName = mb_convert_encoding($fileName, 'UTF-8', mb_detect_encoding($fileName,self::POSSIBLE_ENCODINGS, true));
+        $entryPath = '/' . ltrim($entry['path'], '/'); // Ensure leading slash
+        if (in_array($entryPath, $sessionElementImportList)) {
+            $keys = array_keys($sessionElementImportList, $entryPath);
+            if (is_array($keys)
+                && isset($request[$keys[0]])
+                && 0 < strlen((string) $request[$keys[0]])
+            ) {
+                $fileName = $request[$keys[0]]; //here the name is taken from the request
+                // Also ensure the string from request is properly encoded to UTF-8
+                $fileName = mb_convert_encoding($fileName, 'UTF-8',
+                    mb_detect_encoding($fileName,self::POSSIBLE_ENCODINGS, true));
+            }
+        }
+
+        return $fileName;
+
     }
 
     /**
