@@ -183,13 +183,14 @@ class DocumentHandler extends CoreHandler
             $fileName = (string) $entry['title'];
             // Ensure the string is properly encoded to UTF-8
             $fileName = mb_convert_encoding($fileName, 'UTF-8', mb_detect_encoding($fileName,self::POSSIBLE_ENCODINGS, true));
-            if (in_array($entry['path'], $sessionElementImportList)) {
-                $keys = array_keys($sessionElementImportList, $entry['path']);
+            $entryPath = '/' . ltrim($entry['path'], '/'); // Ensure leading slash
+            if (in_array($entryPath, $sessionElementImportList)) {
+                $keys = array_keys($sessionElementImportList, $entryPath);
                 if (is_array($keys)
                     && isset($request[$keys[0]])
                     && 0 < strlen((string) $request[$keys[0]])
                 ) {
-                    $fileName = $request[$keys[0]];
+                    $fileName = $request[$keys[0]]; //here the name is taken from the request
                     // Also ensure the string from request is properly encoded to UTF-8
                     $fileName = mb_convert_encoding($fileName, 'UTF-8',
                         mb_detect_encoding($fileName,self::POSSIBLE_ENCODINGS, true));
