@@ -10,13 +10,12 @@
 
 namespace Tests\Core\Document\Unit;
 
-use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use League\Flysystem\DirectoryAttributes;
 use League\Flysystem\DirectoryListing;
 use League\Flysystem\FileAttributes;
 use League\Flysystem\FilesystemOperator;
-use League\Flysystem\StorageAttributes;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -24,7 +23,7 @@ use ReflectionClass;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
- * Tests for the elementImportDirToArray method in DocumentHandler
+ * Tests for the elementImportDirToArray method in DocumentHandler.
  */
 class DocumentHandlerElementImportTest extends TestCase
 {
@@ -70,7 +69,7 @@ class DocumentHandlerElementImportTest extends TestCase
     }
 
     /**
-     * Creates a mock DirectoryListing that iterates over the provided items
+     * Creates a mock DirectoryListing that iterates over the provided items.
      */
     private function createMockListing(array $items): DirectoryListing
     {
@@ -78,7 +77,7 @@ class DocumentHandlerElementImportTest extends TestCase
     }
 
     /**
-     * Test that a simple file structure is correctly converted to an array
+     * Test that a simple file structure is correctly converted to an array.
      */
     public function testSimpleStructure(): void
     {
@@ -111,7 +110,7 @@ class DocumentHandlerElementImportTest extends TestCase
 
     /**
      * Test that a nested directory structure is correctly converted to an array
-     * without duplicating files at the root level
+     * without duplicating files at the root level.
      */
     public function testNestedStructure(): void
     {
@@ -125,7 +124,7 @@ class DocumentHandlerElementImportTest extends TestCase
 
         $this->defaultStorage->expects($this->exactly(3))
             ->method('listContents')
-            ->willReturnCallback(function($path, $deep) use ($baseDir, $nestedDir, $nestedDir2, $dirAttributes, $fileAttributes1) {
+            ->willReturnCallback(function ($path, $deep) use ($baseDir, $nestedDir, $nestedDir2, $dirAttributes, $fileAttributes1) {
                 if ($path === $baseDir) {
                     return $this->createMockListing([$dirAttributes, $fileAttributes1]);
                 }
@@ -140,6 +139,7 @@ class DocumentHandlerElementImportTest extends TestCase
                         new FileAttributes('tmp/import/456/Ordner 2/Anlage 13/document2.pdf'),
                     ]);
                 }
+
                 return $this->createMockListing([]);
             });
 
@@ -158,8 +158,8 @@ class DocumentHandlerElementImportTest extends TestCase
         $this->assertCount(2, $result);
 
         // Find elements by type
-        $files = array_filter($result, fn($item) => !$item['isDir']);
-        $dirs = array_filter($result, fn($item) => $item['isDir']);
+        $files = array_filter($result, fn ($item) => !$item['isDir']);
+        $dirs = array_filter($result, fn ($item) => $item['isDir']);
 
         // Check that we have one file and one directory
         $this->assertCount(1, $files);
@@ -189,7 +189,7 @@ class DocumentHandlerElementImportTest extends TestCase
     }
 
     /**
-     * Test that files are not duplicated at root level when they belong to subdirectories
+     * Test that files are not duplicated at root level when they belong to subdirectories.
      */
     public function testNoDuplicatedFiles(): void
     {
@@ -204,7 +204,7 @@ class DocumentHandlerElementImportTest extends TestCase
         // Setup directory structure
         $this->defaultStorage->expects($this->exactly(3))
             ->method('listContents')
-            ->willReturnCallback(function($path, $deep) use ($importDir, $folder1, $folder2, $dir1Attributes, $dir2Attributes) {
+            ->willReturnCallback(function ($path, $deep) use ($importDir, $folder1, $folder2, $dir1Attributes, $dir2Attributes) {
                 if ($path === $importDir) {
                     return $this->createMockListing([$dir1Attributes, $dir2Attributes]);
                 }
@@ -222,6 +222,7 @@ class DocumentHandlerElementImportTest extends TestCase
                         new FileAttributes('tmp/import/789/Ordner 2/file4.pdf'),
                     ]);
                 }
+
                 return $this->createMockListing([]);
             });
 
@@ -256,21 +257,20 @@ class DocumentHandlerElementImportTest extends TestCase
         $this->assertEquals('file4.pdf', $dir2['entries'][1]['title']);
 
         // Verify no files at root level
-        $filesAtRoot = array_filter($result, fn($item) => !$item['isDir']);
+        $filesAtRoot = array_filter($result, fn ($item) => !$item['isDir']);
         $this->assertCount(0, $filesAtRoot);
     }
 
     /**
-     * Test resolveImportFileName method with various scenarios
+     * Test resolveImportFileName method with various scenarios.
      */
     #[DataProvider('resolveImportFileNameDataProvider')]
-
     public function testResolveImportFileName(
         array $entry,
         array $sessionElementImportList,
         array $request,
         string $expectedResult,
-        string $testDescription
+        string $testDescription,
     ): void {
         // Call the method using reflection
         $reflection = new ReflectionClass(DocumentHandler::class);
@@ -283,7 +283,7 @@ class DocumentHandlerElementImportTest extends TestCase
     }
 
     /**
-     * Data provider for testResolveImportFileName
+     * Data provider for testResolveImportFileName.
      */
     public static function resolveImportFileNameDataProvider(): array
     {
@@ -291,67 +291,64 @@ class DocumentHandlerElementImportTest extends TestCase
             'user_adjusted_name_found' => [
                 'entry' => [
                     'title' => 'Original Document Name',
-                    'path' => 'tmp/import/123/original-document.pdf'
+                    'path'  => 'tmp/import/123/original-document.pdf',
                 ],
                 'sessionElementImportList' => [
                     'file_12345' => '/tmp/import/123/original-document.pdf',
-                    'file_67890' => '/tmp/import/123/other-file.pdf'
+                    'file_67890' => '/tmp/import/123/other-file.pdf',
                 ],
                 'request' => [
                     'file_12345' => 'My Custom Document Name',
-                    'file_67890' => 'Other Custom Name'
+                    'file_67890' => 'Other Custom Name',
                 ],
-                'expectedResult' => 'My Custom Document Name',
-                'testDescription' => 'Should return user-adjusted name when available'
+                'expectedResult'  => 'My Custom Document Name',
+                'testDescription' => 'Should return user-adjusted name when available',
             ],
 
             'no_user_adjustment' => [
                 'entry' => [
                     'title' => 'Original Document Name',
-                    'path' => 'tmp/import/123/original-document.pdf'
+                    'path'  => 'tmp/import/123/original-document.pdf',
                 ],
                 'sessionElementImportList' => [
-                    'file_67890' => '/tmp/import/123/other-file.pdf'
+                    'file_67890' => '/tmp/import/123/other-file.pdf',
                 ],
                 'request' => [
-                    'file_67890' => 'Other Custom Name'
+                    'file_67890' => 'Other Custom Name',
                 ],
-                'expectedResult' => 'Original Document Name',
-                'testDescription' => 'Should return original name when no user adjustment exists'
+                'expectedResult'  => 'Original Document Name',
+                'testDescription' => 'Should return original name when no user adjustment exists',
             ],
 
             'empty_user_input' => [
                 'entry' => [
                     'title' => 'Original Document Name',
-                    'path' => 'tmp/import/123/original-document.pdf'
+                    'path'  => 'tmp/import/123/original-document.pdf',
                 ],
                 'sessionElementImportList' => [
-                    'file_12345' => '/tmp/import/123/original-document.pdf'
+                    'file_12345' => '/tmp/import/123/original-document.pdf',
                 ],
                 'request' => [
-                    'file_12345' => '' // Empty user input
+                    'file_12345' => '', // Empty user input
                 ],
-                'expectedResult' => 'Original Document Name',
-                'testDescription' => 'Should return original name when user provides empty string'
+                'expectedResult'  => 'Original Document Name',
+                'testDescription' => 'Should return original name when user provides empty string',
             ],
 
             'path_normalization' => [
                 'entry' => [
                     'title' => 'Original Document Name',
-                    'path' => 'tmp/import/123/test-file.pdf' // No leading slash
+                    'path'  => 'tmp/import/123/test-file.pdf', // No leading slash
                 ],
                 'sessionElementImportList' => [
-                    'file_99999' => '/tmp/import/123/test-file.pdf' // With leading slash
+                    'file_99999' => '/tmp/import/123/test-file.pdf', // With leading slash
                 ],
                 'request' => [
-                    'file_99999' => 'Normalized Path Test'
+                    'file_99999' => 'Normalized Path Test',
                 ],
-                'expectedResult' => 'Normalized Path Test',
-                'testDescription' => 'Should handle path normalization (missing leading slash)'
+                'expectedResult'  => 'Normalized Path Test',
+                'testDescription' => 'Should handle path normalization (missing leading slash)',
             ],
         ];
     }
-
-
-
 }
