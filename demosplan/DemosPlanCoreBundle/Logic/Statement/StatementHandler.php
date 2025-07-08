@@ -2559,9 +2559,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             if (null !== $existingTagInProcedure) {
                 $existingTopic = $existingTagInProcedure->getTopic();
                 $this->getMessageBag()->add('error', 'tags.import.conflict.tag.exists.in.different.topic', [
-                    'tagTitle' => $tagTitle,
+                    'tagTitle'      => $tagTitle,
                     'existingTopic' => $existingTopic->getTitle(),
-                    'targetTopic' => $topic->getTitle(),
+                    'targetTopic'   => $topic->getTitle(),
                 ]);
 
                 return null;
