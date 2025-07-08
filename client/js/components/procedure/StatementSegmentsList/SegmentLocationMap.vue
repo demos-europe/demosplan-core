@@ -256,7 +256,7 @@ export default {
       }), {}, { data: payload })
         .then(checkResponse)
         .then(() => {
-          this.updateStore(attributes)
+          this.updateStore(attributes.polygon)
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
         .catch(() => {
@@ -308,12 +308,12 @@ export default {
       this.currentPolygons = [...this.currentPolygons, ...JSON.parse(data).features]
     },
 
-    updateStore (updatedAttributes) {
+    updateStore (polygon) {
       const storePayload = {
         ...this.segment,
         attributes: {
           ...this.segment.attributes,
-          ...updatedAttributes
+          polygon
         },
         id: this.segment.id
       }

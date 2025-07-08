@@ -5,12 +5,19 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Allow to configure procedures to accept or not anonymous statements
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
 - Migrate to Tailwind CSS v4
 
+
+## v4.5.0 (2025-06-25)
+- Export Original Statements as docx in the Statement List
+- Allow filtering of institution tags in DpAddOrganizationList
+
+## v4.4.0 (2025-06-13)
 ## v4.3.0 (2025-06-13)
 - Add Versioning of custom fields of segments
 - Update Elasticsearch to version 8
-- Allow filtering of institution tags in DpAddOrganizationList
 - Export Original Statements as csv in the Statement List
 
 ## v4.1.0 (2025-05-21)
