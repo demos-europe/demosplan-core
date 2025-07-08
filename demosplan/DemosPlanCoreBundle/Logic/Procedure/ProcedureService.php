@@ -1173,9 +1173,9 @@ class ProcedureService implements ProcedureServiceInterface
     public function getPublicList($esQuery): array
     {
         try {
-            $this->profilerService->profilerStart('ES');
+            $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
             $procedureList = $this->procedureElasticsearchRepository->searchProcedures($esQuery);
-            $this->profilerService->profilerStop('ES');
+            $this->profilerService->profilerStop(ProfilerService::ELASTICSEARCH_PROFILER);
 
             return $procedureList;
         } catch (Exception $e) {

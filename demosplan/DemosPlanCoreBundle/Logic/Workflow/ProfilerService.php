@@ -17,6 +17,7 @@ use Symfony\Component\Stopwatch\Stopwatch;
 class ProfilerService
 {
     protected Stopwatch $stopwatch;
+    public const ELASTICSEARCH_PROFILER = 'ES';
 
     public function __construct()
     {
