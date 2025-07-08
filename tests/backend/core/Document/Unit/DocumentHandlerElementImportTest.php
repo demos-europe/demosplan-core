@@ -17,6 +17,7 @@ use League\Flysystem\DirectoryListing;
 use League\Flysystem\FileAttributes;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\StorageAttributes;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -258,4 +259,99 @@ class DocumentHandlerElementImportTest extends TestCase
         $filesAtRoot = array_filter($result, fn($item) => !$item['isDir']);
         $this->assertCount(0, $filesAtRoot);
     }
+
+    /**
+     * Test resolveImportFileName method with various scenarios
+     */
+    #[DataProvider('resolveImportFileNameDataProvider')]
+
+    public function testResolveImportFileName(
+        array $entry,
+        array $sessionElementImportList,
+        array $request,
+        string $expectedResult,
+        string $testDescription
+    ): void {
+        // Call the method using reflection
+        $reflection = new ReflectionClass(DocumentHandler::class);
+        $method = $reflection->getMethod('resolveImportFileName');
+        $method->setAccessible(true);
+        $result = $method->invoke($this->documentHandler, $entry, $sessionElementImportList, $request);
+
+        // Assert expected result
+        $this->assertEquals($expectedResult, $result, $testDescription);
+    }
+
+    /**
+     * Data provider for testResolveImportFileName
+     */
+    public static function resolveImportFileNameDataProvider(): array
+    {
+        return [
+            'user_adjusted_name_found' => [
+                'entry' => [
+                    'title' => 'Original Document Name',
+                    'path' => 'tmp/import/123/original-document.pdf'
+                ],
+                'sessionElementImportList' => [
+                    'file_12345' => '/tmp/import/123/original-document.pdf',
+                    'file_67890' => '/tmp/import/123/other-file.pdf'
+                ],
+                'request' => [
+                    'file_12345' => 'My Custom Document Name',
+                    'file_67890' => 'Other Custom Name'
+                ],
+                'expectedResult' => 'My Custom Document Name',
+                'testDescription' => 'Should return user-adjusted name when available'
+            ],
+
+            'no_user_adjustment' => [
+                'entry' => [
+                    'title' => 'Original Document Name',
+                    'path' => 'tmp/import/123/original-document.pdf'
+                ],
+                'sessionElementImportList' => [
+                    'file_67890' => '/tmp/import/123/other-file.pdf'
+                ],
+                'request' => [
+                    'file_67890' => 'Other Custom Name'
+                ],
+                'expectedResult' => 'Original Document Name',
+                'testDescription' => 'Should return original name when no user adjustment exists'
+            ],
+
+            'empty_user_input' => [
+                'entry' => [
+                    'title' => 'Original Document Name',
+                    'path' => 'tmp/import/123/original-document.pdf'
+                ],
+                'sessionElementImportList' => [
+                    'file_12345' => '/tmp/import/123/original-document.pdf'
+                ],
+                'request' => [
+                    'file_12345' => '' // Empty user input
+                ],
+                'expectedResult' => 'Original Document Name',
+                'testDescription' => 'Should return original name when user provides empty string'
+            ],
+
+            'path_normalization' => [
+                'entry' => [
+                    'title' => 'Original Document Name',
+                    'path' => 'tmp/import/123/test-file.pdf' // No leading slash
+                ],
+                'sessionElementImportList' => [
+                    'file_99999' => '/tmp/import/123/test-file.pdf' // With leading slash
+                ],
+                'request' => [
+                    'file_99999' => 'Normalized Path Test'
+                ],
+                'expectedResult' => 'Normalized Path Test',
+                'testDescription' => 'Should handle path normalization (missing leading slash)'
+            ],
+        ];
+    }
+
+
+
 }
