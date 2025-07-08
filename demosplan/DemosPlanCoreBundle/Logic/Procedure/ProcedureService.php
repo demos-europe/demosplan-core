@@ -66,6 +66,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository;
@@ -119,6 +120,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 use TypeError;
 use Webmozart\Assert\Assert;
+
 
 class ProcedureService implements ProcedureServiceInterface
 {
@@ -220,6 +222,7 @@ class ProcedureService implements ProcedureServiceInterface
         private readonly string $environment,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly LoggerInterface $logger,
+        private readonly ProfilerService $profilerService,
     ) {
         $this->contentService = $contentService;
         $this->elementsService = $elementsService;
@@ -1171,9 +1174,9 @@ class ProcedureService implements ProcedureServiceInterface
     public function getPublicList($esQuery): array
     {
         try {
-            $this->profilerStart('ES');
+            $this->profilerService->profilerStart('ES');
             $procedureList = $this->procedureElasticsearchRepository->searchProcedures($esQuery);
-            $this->profilerStop('ES');
+            $this->profilerService->profilerStop('ES');
 
             return $procedureList;
         } catch (Exception $e) {
