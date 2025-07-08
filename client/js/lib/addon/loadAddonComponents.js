@@ -38,7 +38,6 @@ export default async function loadAddonComponents (hookName) {
          * While eval is generally a BAD IDEA, we really need to evaluate the code
          * we're adding dynamically to use the provided addon's script from now on.
          */
-        // eslint-disable-next-line no-eval
         eval(content)
 
         addons.push({

@@ -6,10 +6,6 @@
  *
  * All rights reserved
  */
-
-// For better readability, all props are quoted in this file.
-/* eslint-disable quote-props */
-
 process.env.NODE_ENV = 'development'
 
 module.exports = {
