@@ -17,15 +17,19 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureProposalNotFound;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureProposalRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use Exception;
 
-class ProcedureProposalService extends CoreService
+class ProcedureProposalService
 {
-    public function __construct(private ContentService $contentService, private readonly CurrentUserInterface $currentUser, private readonly ProcedureProposalRepository $procedureProposalRepository, private readonly ProcedureService $procedureService, private readonly UserRepository $userRepository)
-    {
+    public function __construct(
+        private ContentService $contentService,
+        private readonly CurrentUserInterface $currentUser,
+        private readonly ProcedureProposalRepository $procedureProposalRepository,
+        private readonly ProcedureService $procedureService,
+        private readonly UserRepository $userRepository,
+    ) {
     }
 
     /**
