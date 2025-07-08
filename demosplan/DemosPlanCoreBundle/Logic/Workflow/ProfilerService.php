@@ -25,11 +25,11 @@ class ProfilerService
 
     public function profilerStart(string $name)
     {
-       $this->stopwatch->start($name);
+        $this->stopwatch->start($name);
     }
 
     public function profilerStop(string $name)
     {
-            $this->stopwatch->stop($name);
+        $this->stopwatch->stop($name);
     }
 }
