@@ -310,25 +310,29 @@ export default {
     },
 
     deleteEntry (index) {
-      this.updateStatement({
-        id: this.statementId,
-        relationship: 'similarStatementSubmitters',
-        action: 'remove',
-        value: {
-          id: this.listEntries[index].id,
-          type: 'SimilarStatementSubmitter'
+      const name = this.listEntries[index]?.submitterName ? this.listEntries[index].submitterName : false
+
+      if (dpconfirm(Translator.trans('statement.similar.statement.submitter.delete', { name }))) {
+        this.updateStatement({
+          id: this.statementId,
+          relationship: 'similarStatementSubmitters',
+          action: 'remove',
+          value: {
+            id: this.listEntries[index].id,
+            type: 'SimilarStatementSubmitter'
+          }
+        })
+        this.setInitialStatement(this.statements[this.statementId])
+
+        this.listEntries.splice(index, 1)
+
+        if (this.isRequestFormPost === false) {
+          this.deleteSimilarStatementSubmitter()
         }
-      })
-      this.setInitialStatement(this.statements[this.statementId])
 
-      this.listEntries.splice(index, 1)
-
-      if (this.isRequestFormPost === false) {
-        this.deleteSimilarStatementSubmitter()
-      }
-
-      if (this.isRequestFormPost) {
-        this.resetFormFields()
+        if (this.isRequestFormPost) {
+          this.resetFormFields()
+        }
       }
     },
 
