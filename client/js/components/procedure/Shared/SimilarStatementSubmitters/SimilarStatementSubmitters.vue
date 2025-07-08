@@ -312,7 +312,7 @@ export default {
     deleteEntry (index) {
       const name = this.listEntries[index]?.submitterName ? this.listEntries[index].submitterName : false
 
-      if (dpconfirm(Translator.trans('statement.similar.statement.submitter.delete', { name }))) {
+      if (dpconfirm(Translator.trans('statement.similarStatementSubmitters.delete', { name }))) {
         this.updateStatement({
           id: this.statementId,
           relationship: 'similarStatementSubmitters',
