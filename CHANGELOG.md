@@ -6,9 +6,11 @@
 
 ## UNRELEASED
 - Allow to configure procedures to accept or not anonymous statements
+- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
+
+## v4.5.0 (2025-06-25)
 - Export Original Statements as docx in the Statement List
 - Allow filtering of institution tags in DpAddOrganizationList
-- Allow filtering of institution tags in AdminstrationMemberList / refactor twig
 
 ## v4.4.0 (2025-06-13)
 ## v4.3.0 (2025-06-13)
