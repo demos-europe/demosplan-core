@@ -121,7 +121,6 @@ use Throwable;
 use TypeError;
 use Webmozart\Assert\Assert;
 
-
 class ProcedureService implements ProcedureServiceInterface
 {
     /**

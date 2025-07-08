@@ -21,6 +21,7 @@ class ProfilerService
      * @var Stopwatch
      */
     protected $stopwatch;
+
     /**
      * @return Stopwatch
      */
@@ -34,6 +35,7 @@ class ProfilerService
     {
         $this->stopwatch = $stopwatch;
     }
+
     /**
      * Starte den Profiler, Anzeige in der Symfony Toolbar.
      *
