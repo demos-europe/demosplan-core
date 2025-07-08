@@ -67,6 +67,11 @@ final class UserFactory extends PersistentProxyObjectFactory
         return [
             'authCodeEmailEnabled'       => self::faker()->boolean(),
             'createdDate'                => self::faker()->dateTime(),
+            'firstname'                  => self::faker()->firstName(),
+            'lastname'                   => self::faker()->lastName(),
+            'email'                      => self::faker()->email(),
+            'login'                      => self::faker()->email(),
+            'password'                   => self::faker()->password(),
             'deleted'                    => self::faker()->boolean(),
             'modifiedDate'               => self::faker()->dateTime(),
             'providedByIdentityProvider' => self::faker()->boolean(),
@@ -91,5 +96,14 @@ final class UserFactory extends PersistentProxyObjectFactory
             // For new users, modifiedDate should equal createdDate to indicate no activity
             $user->setModifiedDate($user->getCreatedDate());
         });
+    }
+
+    public static function createOneWithCompletedProfile(array $attributes = []): User|Proxy
+    {
+        $user = self::createOne($attributes);
+        $user->setProfileCompleted(true);
+        $user->_save();
+
+        return $user;
     }
 }
