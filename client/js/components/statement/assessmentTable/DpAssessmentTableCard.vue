@@ -66,7 +66,8 @@
           <label
             :for="`checkStatement:${displayedCheckboxId}`"
             class="layout__item u-1-of-6 u-mb-0 u-pb-0_25">
-            <v-popover
+            <DpTooltip
+              :text="statementDateTooltipContent"
               placement="top"
               trigger="hover focus">
               <i
@@ -83,23 +84,7 @@
               <span class="weight--normal block">
                 {{ statementDate(statement.submitDate) }}
               </span>
-
-              <template v-slot:popover>
-                <template v-if="statement.authoredDate > 0">
-                  {{ Translator.trans('statement.date.authored') }}: {{ statementDate(statement.authoredDate) }}<br>
-                </template>
-
-                {{ Translator.trans('statement.date.submitted') }}: {{ statementDate(statement.submitDate) }}<br>
-                {{ Translator.trans('phase') }}: {{ statement.phase }}
-
-                <template v-if="statement.movedFromProcedureId !== ''">
-                  <br>
-                  {{ Translator.trans('movedFrom') }}: {{ statement.movedFromProcedureName }}
-                  <br>
-                  {{ Translator.trans('formerExternId') }}: {{ statement.formerExternId }}
-                </template>
-              </template>
-            </v-popover>
+            </DpTooltip>
           </label><!--
 
        --><div
@@ -109,7 +94,8 @@
               v-if="false === statement.isCluster"
               class="u-1-of-1 u-pb-0_25">
               <div class="o-hellip--nowrap u-1-of-1">
-                <v-popover
+                <DpTooltip
+                  :text="authorTooltipContent"
                   class="o-hellip--nowrap"
                   placement="top"
                   trigger="hover focus">
@@ -158,62 +144,10 @@
                       </template>
                     </template>
                   </template>
-
-                  <!--  Popover content  -->
-                  <template
-                    v-if="hasOwnProp(statement, 'initialOrganisationName')"
-                    v-slot:popover>
-                    <!--  see (#1)  -->
-                    <template
-                      v-if="!statement.isSubmittedByCitizen && (hasPermission('field_statement_user_organisation') === false && !statement.userOrganisation)">
-                      {{ Translator.trans('organisation') }}: {{ statement.initialOrganisationName !== '' ? statement.initialOrganisationName : Translator.trans('institution') }} <br>
-                      <!--  see (#2)  -->
-                      <template v-if="!!statement.initialOrganisationDepartmentName && statement.initialOrganisationDepartmentName !== ''">
-                        {{ Translator.trans('department') }}: {{ statement.initialOrganisationDepartmentName }}<br>
-                      </template>
-                    </template>
-
-                    <!--  see (#3)  -->
-                    <!-- if
-                     - non-anonymous institution (submitName === given name) or
-                     - non-anonymous citizen (manual statement) (submitName === given name) or
-                     - anonymized citizen/institution (submitName === 'anonymisiert')
-                     display submitName -->
-                    <template v-if="statement.submitName !== ''">
-                      {{ Translator.trans('submitted.author') }}: {{ statement.submitName }}
-                    </template>
-
-                    <!-- if non-anonymous (registered or unregistered) citizen, including manual statement -->
-                    <template v-else-if="statement.submitName === '' && !statement.anonymous && statement.authorName !== '' && statement.isSubmittedByCitizen">
-                      {{ Translator.trans('submitted.author') }}: {{ statement.authorName }}
-                    </template>
-
-                    <!-- if anonymous citizen (unregistered or manual statement) -->
-                    <template v-else-if="statement.submitName === '' && (statement.authorName === '' || statement.anonymous) && statement.isSubmittedByCitizen">
-                      {{ Translator.trans('submitted.author') }}: {{ Translator.trans('citizen.anonymous') }}
-                    </template>
-
-                    <!--  additional user fields: userState, userGroup, userOrganisation, userPosition  -->
-                    <template v-if="hasPermission('field_statement_user_state') && !!statement.userState">
-                      <br>{{ Translator.trans('state') }}: {{ statement.userState }}
-                    </template>
-
-                    <template v-if="hasPermission('field_statement_user_group') && !!statement.userGroup">
-                      <br>{{ Translator.trans('group') }}: {{ statement.userGroup }}
-                    </template>
-
-                    <template v-if="hasPermission('field_statement_user_organisation') && !!statement.userOrganisation">
-                      <br>{{ Translator.trans('organisation') }}: {{ statement.userOrganisation }}
-                    </template>
-
-                    <template v-if="hasPermission('field_statement_user_position') && !!statement.userPosition">
-                      <br>{{ Translator.trans('position') }}: {{ statement.userPosition }}
-                    </template>
-                  </template>
                   <template v-if="!hasOwnProp(statement, 'initialOrganisationName')">
                     {{ Translator.trans('notspecified') }}
                   </template>
-                </v-popover>
+                </DpTooltip>
               </div>
             </div>
             <div
@@ -688,7 +622,8 @@
           <label
             :for="statement.id + ':item_check[]'"
             class="layout__item u-1-of-6 u-mb-0 u-pb-0_25">
-            <v-popover
+            <DpTooltip
+              :text="statementDateTooltipContent"
               class="inline-block"
               placement="top">
               {{ extid }}
@@ -700,27 +635,7 @@
               <span class="weight--normal block">
                 {{ statementDate(statement.submitDate) }}
               </span>
-
-              <template v-slot:popover>
-                <span
-                  class="hidden"
-                  :class="{'inline-block': assessmentBaseLoaded}">
-                  <template v-if="statement.authoredDate > 0">
-                    <!-- remove comment when in vue to show the date -->
-                    {{ Translator.trans('statement.date.authored') }}: {{ statementDate(statement.authoredDate) }} <br>
-                  </template>
-                  {{ Translator.trans('statement.date.submitted') }}: {{ statementDate(statement.submitDate) }} <br>
-                  {{ Translator.trans('phase') }}: {{ statement.phase }}
-
-                  <template v-if="statement.movedFromProcedureId !== ''">
-                    <br>
-                    {{ Translator.trans('movedFrom') }}: {{ statement.movedFromProcedureName }}
-                    <br>
-                    {{ Translator.trans('formerExternId') }}: {{ statement.formerExternId }}
-                  </template>
-                </span>
-              </template>
-            </v-popover>
+            </DpTooltip>
           </label>
           <div
             v-if="accessibleProcedureIds.findIndex(el => el === statement.movedToProcedureId) >= 0"
@@ -744,7 +659,7 @@
 </template>
 
 <script>
-import { dpApi, DpContextualHelp, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
+import { dpApi, DpContextualHelp, formatDate, hasOwnProp, DpTooltip } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
@@ -767,7 +682,7 @@ export default {
     DpItemRow,
     EditableText,
     TableCardFlyoutMenu,
-    VPopover
+    DpTooltip
   },
 
   props: {
@@ -932,6 +847,103 @@ export default {
       return (this.statement.isCluster)
         ? Routing.generate('DemosPlan_cluster_view', { statement: this.statementId, procedureId: this.procedureId, isCluster: true })
         : Routing.generate('dm_plan_assessment_single_view', { statement: this.statementId, procedureId: this.procedureId })
+    },
+
+    statementDateTooltipContent() {
+      const parts = []
+
+      // Add authored date if available
+      if (this.statement.authoredDate > 0) {
+        parts.push(`${Translator.trans('statement.date.authored')}: ${this.statementDate(this.statement.authoredDate)}`)
+      }
+
+      // Add submitted date and phase
+      parts.push(`${Translator.trans('statement.date.submitted')}: ${this.statementDate(this.statement.submitDate)}`)
+      parts.push(`${Translator.trans('phase')}: ${this.statement.phase}`)
+
+      // Add moved procedure info if available
+      if (this.statement.movedFromProcedureId !== '') {
+        parts.push(`${Translator.trans('movedFrom')}: ${this.statement.movedFromProcedureName}`)
+        parts.push(`${Translator.trans('formerExternId')}: ${this.statement.formerExternId}`)
+      }
+
+      return parts.join('<br>')
+    },
+
+    authorTooltipContent() {
+      if (!this.hasOwnProp(this.statement, 'initialOrganisationName')) {
+        return ''
+      }
+
+      const parts = []
+
+      // Add organization info
+      parts.push(...this.getOrganizationTooltipParts)
+
+      // Add submitted author info
+      parts.push(...this.getSubmittedAuthorTooltipParts)
+
+      // Add user fields
+      parts.push(...this.getUserFieldsTooltipParts)
+
+      return parts.filter(part => part).join('<br>')
+    },
+
+    getOrganizationTooltipParts() {
+      const parts = []
+
+      if (!this.statement.isSubmittedByCitizen && !this.hasUserOrganisationAccess) {
+        const orgName = this.statement.initialOrganisationName || Translator.trans('institution')
+        parts.push(`${Translator.trans('organisation')}: ${orgName}`)
+
+        if (this.statement.initialOrganisationDepartmentName) {
+          parts.push(`${Translator.trans('department')}: ${this.statement.initialOrganisationDepartmentName}`)
+        }
+      }
+
+      return parts
+    },
+
+    getSubmittedAuthorTooltipParts() {
+      const parts = []
+
+      if (this.statement.submitName) {
+        parts.push(`${Translator.trans('submitted.author')}: ${this.statement.submitName}`)
+      } else if (this.isAnonymousCitizen) {
+        parts.push(`${Translator.trans('submitted.author')}: ${Translator.trans('citizen.anonymous')}`)
+      } else if (this.statement.isSubmittedByCitizen && this.statement.authorName) {
+        parts.push(`${Translator.trans('submitted.author')}: ${this.statement.authorName}`)
+      }
+
+      return parts
+    },
+
+    getUserFieldsTooltipParts() {
+      const parts = []
+      const userFields = [
+        { permission: 'field_statement_user_state', value: this.statement.userState, label: 'state' },
+        { permission: 'field_statement_user_group', value: this.statement.userGroup, label: 'group' },
+        { permission: 'field_statement_user_organisation', value: this.statement.userOrganisation, label: 'organisation' },
+        { permission: 'field_statement_user_position', value: this.statement.userPosition, label: 'position' }
+      ]
+
+      userFields.forEach(field => {
+        if (this.hasPermission(field.permission) && field.value) {
+          parts.push(`${Translator.trans(field.label)}: ${field.value}`)
+        }
+      })
+
+      return parts
+    },
+
+    hasUserOrganisationAccess() {
+      return this.hasPermission('field_statement_user_organisation') && this.statement.userOrganisation
+    },
+
+    isAnonymousCitizen() {
+      return this.statement.submitName === '' &&
+             (this.statement.authorName === '' || this.statement.anonymous) &&
+             this.statement.isSubmittedByCitizen
     }
 
   },
