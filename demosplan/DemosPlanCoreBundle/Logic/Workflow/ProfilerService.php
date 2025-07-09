@@ -21,7 +21,6 @@ class ProfilerService
     public const RABBITPDF_PROFILER = 'Rabbit PDF';
     public const REQUESTGEODB_PROFILER = 'Request GeoDB';
 
-
     public function __construct()
     {
         $this->stopwatch = new Stopwatch(true);
