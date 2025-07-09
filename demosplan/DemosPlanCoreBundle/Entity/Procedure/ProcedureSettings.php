@@ -112,6 +112,11 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     protected $planEnable = false;
 
     /**
+     * @ORM\Column(name="allow_anonymous_statements", type="boolean", nullable=false, options={"default":true})
+     */
+    private bool $allowAnonymousStatements = true;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="_ps_plan_text", type="text", length=65535, nullable=false)
@@ -285,6 +290,13 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      * )
      */
     private $allowedSegmentAccessProcedures;
+
+    /**
+     * Enable publication of Feedback possibility.
+     *
+     * @ORM\Column(name="_p_public_participation_feedback_enabled", type="boolean", nullable=false, options={"default":true})
+     */
+    protected bool $publicParticipationFeedbackEnabled = false;
 
     public function __construct()
     {
@@ -816,6 +828,18 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
         return $this->pictogram;
     }
 
+    public function getAllowAnonymousStatements(): bool
+    {
+        return $this->allowAnonymousStatements;
+    }
+
+    public function setAllowAnonymousStatements(bool $allowAnonymousStatements): ProcedureSettingsInterface
+    {
+        $this->allowAnonymousStatements = $allowAnonymousStatements;
+
+        return $this;
+    }
+
     public function setPictogramCopyright(string $pictogramCopyright): ProcedureSettingsInterface
     {
         $this->pictogramCopyright = $pictogramCopyright;
@@ -1096,5 +1120,17 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
             ->setDesignatedPhaseChangeUser($designatedPublicPhaseChangeUser);
 
         return $this;
+    }
+
+    public function setPublicParticipationFeedbackEnabled(bool $enabled): ProcedureSettingsInterface
+    {
+        $this->publicParticipationFeedbackEnabled = $enabled;
+
+        return $this;
+    }
+
+    public function isPublicParticipationFeedbackEnabled(): bool
+    {
+        return $this->publicParticipationFeedbackEnabled;
     }
 }

@@ -27,6 +27,7 @@ All rights reserved
           @search="handleSearch" />
 
         <client-side-tag-filter
+          v-if="hasPermission('feature_institution_tag_read')"
           :filter-categories="allFilterCategories"
           :procedure-id="procedureId"
           :raw-items="rowItems"
@@ -338,6 +339,10 @@ export default {
     }),
 
     getInstitutionTagCategories (isInitial = false) {
+      if (!hasPermission('feature_institution_tag_read')) {
+        return
+      }
+
       return this.fetchInstitutionTagCategories({
         fields: {
           InstitutionTagCategory: [
