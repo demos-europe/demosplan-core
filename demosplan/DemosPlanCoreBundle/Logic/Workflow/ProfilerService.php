@@ -20,6 +20,7 @@ class ProfilerService
     public const ELASTICSEARCH_PROFILER = 'ES';
     public const RABBITPDF_PROFILER = 'Rabbit PDF';
     public const REQUESTGEODB_PROFILER = 'Request GeoDB';
+    public const CONVERTESHITS_PROFILER = 'ConvertESHits';
 
     public function __construct()
     {
