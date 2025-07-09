@@ -15,7 +15,6 @@
       :message="Translator.trans('explanation.invitable_institution.group.tags')"
       type="info" />
 
-    <div class="mt-4">
       <dp-loading
         v-if="isLoading"
         class="mt-4" />
@@ -125,7 +124,6 @@
           <div />
         </div>
       </template>
-    </div>
 
     <dp-sliding-pagination
       v-if="totalPages > 1"
@@ -148,7 +146,7 @@ import {
   DpSlidingPagination,
   formatDate
 } from '@demos-europe/demosplan-ui'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { mapActions, mapMutations, mapState } from 'vuex'
 import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 
@@ -178,15 +176,12 @@ export default {
 
   data () {
     return {
-      appliedFilterQuery: {},
       currentlySelectedColumns: [],
-      currentlySelectedFilterCategories: [],
       editingInstitutionId: null,
       editingInstitution: null,
       editingInstitutionTags: {},
       filteredItems: null,
       initiallySelectedColumns: [],
-      initiallySelectedFilterCategories: [],
       institutionTagCategoriesCopy: {},
       isLoading: true,
       searchTerm: ''
@@ -194,10 +189,6 @@ export default {
   },
 
   computed: {
-    ...mapGetters('FilterFlyout', {
-      filterQuery: 'getFilterQuery'
-    }),
-
     ...mapState('InstitutionTag', {
       institutionTagList: 'items'
     }),
@@ -252,20 +243,9 @@ export default {
       return [institutionField, ...categoryFields, actionField]
     },
 
-    isQueryApplied () {
-      const isFilterApplied = Object.keys(this.appliedFilterQuery).length > 0
-      const isSearchApplied = this.searchTerm !== ''
-
-      return isFilterApplied || isSearchApplied
-    },
-
     institutionList () {
       return Object.values(this.invitableInstitutionList).map(tag => {
         const { id, attributes, relationships } = tag
-
-        console.log('RAW TAG from invitableInstitutionList:', tag)
-        console.log('relationships.assignedTags:', relationships.assignedTags)
-
 
         return {
           createdDate: attributes.createdDate.date,
@@ -284,8 +264,6 @@ export default {
           })
         }
       })
-      console.log('Final institutionList result:', result)
-
     },
 
     institutionTagCategoriesValues () {
@@ -293,23 +271,8 @@ export default {
         .sort((a, b) => new Date(a.attributes.creationDate) - new Date(b.attributes.creationDate))
     },
 
-    queryIds () {
-      let ids = []
-      const isFilterApplied = Object.keys(this.appliedFilterQuery).length > 0
-
-      if (isFilterApplied) {
-        ids = Object.values(this.appliedFilterQuery).map(el => el.condition.value)
-      }
-
-      return ids
-    },
-
     selectableColumns () {
       return this.categoryFieldsAvailable.map(headerField => ([headerField.field, headerField.label]))
-    },
-
-    selectedFilterCategories () {
-      return this.currentlySelectedFilterCategories
     },
 
     tagList () {
@@ -334,10 +297,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('FilterFlyout', [
-      'updateFilterQuery'
-    ]),
-
     ...mapActions('InstitutionTagCategory', {
       fetchInstitutionTagCategories: 'list'
     }),
@@ -346,12 +305,6 @@ export default {
       fetchInvitableInstitution: 'list',
       saveInvitableInstitution: 'save',
       restoreInstitutionFromInitial: 'restoreFromInitial'
-    }),
-
-    ...mapMutations('FilterFlyout', {
-      setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
-      setIsFilterFlyoutLoading: 'setIsLoading',
-      setUngroupedFilterOptions: 'setUngroupedOptions'
     }),
 
     ...mapMutations('InvitableInstitution', {
@@ -433,7 +386,7 @@ export default {
       })
     },
 
-    getInstitutionsByPage (page, categoryId = null) {
+    getInstitutionsByPage (page) {
       const args = {
         page: {
           number: page,
@@ -469,19 +422,7 @@ export default {
         ].join()
       }
 
-      if (Object.keys(this.filterQuery).length > 0) {
-        args.filter = {
-          ...args.filter,
-          ...this.filterQuery
-        }
-      }
-
       return this.fetchInvitableInstitution(args)
-        .then(() => {
-          if (categoryId) {
-            this.setIsFilterFlyoutLoading({ categoryId, isLoading: false })
-          }
-        })
         .catch(err => {
           console.error(err)
         })
@@ -513,18 +454,11 @@ export default {
 
           if (isInitial) {
             this.setInitiallySelectedColumns()
-            this.setCurrentlySelectedFilterCategories(this.initiallySelectedFilterCategories)
           }
         })
         .catch(err => {
           console.error(err)
         })
-    },
-
-    getFilterQueryFromLocalStorage () {
-      const filterQueryInStorage = localStorage.getItem('filterQuery')
-
-      return filterQueryInStorage && filterQueryInStorage !== 'undefined' ? JSON.parse(filterQueryInStorage) : {}
     },
 
     getTagById (tagId) {
@@ -570,10 +504,6 @@ export default {
 
     setCurrentlySelectedColumns (selectedColumns) {
       this.currentlySelectedColumns = selectedColumns
-    },
-
-    setCurrentlySelectedFilterCategories (selectedCategories) {
-      this.currentlySelectedFilterCategories = selectedCategories
     },
 
     setInitiallySelectedColumns () {
