@@ -1124,13 +1124,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             $sourceProcedure = $this->cloneProcedure($procedureToUpdate);
 
             $procedure = $this->procedureRepository->updateObject($procedureToUpdate);
-
-            // always update elasticsearch as changes that where made only in
-            // ProcedureSettings not automatically trigger an ES update
-            if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
-                $this->getEsProcedurePersister()->replaceOne($procedure);
-            }
-
             $destinationProcedure = $this->procedureRepository->get($procedure->getId());
             // set procedurePhase properties: permissionSet, name
             // they are not mapped do a database but the updated ones are needed within the upcoming event
@@ -1144,6 +1137,12 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 new PostProcedureUpdatedEvent($sourceProcedure, $destinationProcedure),
                 PostProcedureUpdatedEventInterface::class
             );
+
+            // always update elasticsearch as changes that where made only in
+            // ProcedureSettings not automatically trigger an ES update
+            if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
+                $this->getEsProcedurePersister()->replaceOne($destinationProcedure);
+            }
 
             // create report with the sourceProcedure including the related settings
             $this->prepareReportFromProcedureService->createReportEntry(
