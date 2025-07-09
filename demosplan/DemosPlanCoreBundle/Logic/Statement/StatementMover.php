@@ -38,11 +38,8 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 
-class StatementMover extends CoreService
+class StatementMover
 {
-    /** @var LoggerInterface */
-    protected $logger;
-
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ElementsService $elementsService,
@@ -50,16 +47,15 @@ class StatementMover extends CoreService
         private readonly PermissionsInterface $permissions,
         private readonly MessageBagInterface $messageBag,
         private readonly StatementService $statementService,
-        LoggerInterface $logger,
+        private readonly LoggerInterface $logger,
         private readonly StatementCopyAndMoveService $statementCopyAndMoveService,
         private readonly StatementHandler $statementHandler,
         private readonly EntityContentChangeService $entityContentChangeService,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         private readonly ReportService $reportService,
         private readonly StatementCopier $statementCopier,
-        private readonly StatementRepository $statementRepository
+        private readonly StatementRepository $statementRepository,
     ) {
-        $this->logger = $logger;
     }
 
     /**
