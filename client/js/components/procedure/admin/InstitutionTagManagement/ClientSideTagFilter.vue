@@ -8,12 +8,12 @@ All rights reserved
 </license>
 
 <template>
-  <div class="sm:relative flex flex-col sm:flex-row flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-0 pl-0 sm:ml-2 sm:pl-[38px]">
+  <div class="sm:relative flex flex-row flex-wrap h-fit gap-1 items-center col-span-1 sm:col-span-7 ml-0 pl-0 sm:ml-2 sm:pl-[38px]">
     <div class="sm:absolute sm:top-0 sm:left-0 mt-1">
       <dp-flyout
         align="left"
         :aria-label="Translator.trans('filters.more')"
-        class="bg-surface-medium rounded pb-1 pt-[4px]"
+        class="bg-surface-medium rounded pb-1 pt-[4px] rounded-md"
         data-cy="dpAddOrganisationList:filterCategories">
         <template v-slot:trigger>
           <span :title="Translator.trans('filters.more')">
@@ -52,7 +52,7 @@ All rights reserved
       :key="`filter_${category.label}`"
       ref="filterFlyout"
       :category="{ id: category.id, label: category.label }"
-      class="inline-block"
+      class="inline-block mt-1"
       :data-cy="`dpAddOrganisationList:${category.label}`"
       :initial-query-ids="queryIds"
       :member-of="category.memberOf"
