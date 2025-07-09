@@ -1127,7 +1127,7 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
     }
 
     /**
-     * Common post-update operations for procedures: phase loading, event dispatching, and ES reindexing
+     * Common post-update operations for procedures: phase loading, event dispatching, and ES reindexing.
      */
     private function handleProcedurePostUpdateOperations(Procedure $sourceProcedure, Procedure $updatedProcedure): Procedure
     {
@@ -1152,7 +1152,6 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
         return $updatedProcedure;
     }
-
 
     /**
      * Ruft alle Verfahren mit aktivierter öffentlicher Beteiligung ab (Liste).
