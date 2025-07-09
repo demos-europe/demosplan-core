@@ -26,72 +26,16 @@
             class="h-fit mt-1 col-span-1 sm:col-span-3"
             data-cy="institutionList:searchField"
             input-width="u-1-of-1"
+            ref="searchField"
             @reset="handleReset"
             @search="val => handleSearch(val)" />
-
-          <div class="sm:relative flex flex-col sm:flex-row flex-wrap space-x-1 space-x-reverse space-y-1 col-span-1 sm:col-span-7 ml-0 pl-0 sm:ml-2 sm:pl-[38px]">
-            <div class="sm:absolute sm:top-0 sm:left-0 mt-1">
-              <dp-flyout
-                align="left"
-                :aria-label="Translator.trans('filters.more')"
-                class="bg-surface-medium rounded pb-1 pt-[4px]"
-                data-cy="institutionList:filterCategories">
-                <template v-slot:trigger>
-                  <span :title="Translator.trans('filters.more')">
-                    <dp-icon
-                      aria-hidden="true"
-                      class="inline"
-                      icon="faders" />
-                  </span>
-                </template>
-                <!-- 'More filters' flyout -->
-                <div>
-                  <button
-                    class="btn--blank o-link--default ml-auto"
-                    data-cy="institutionList:toggleAllFilterCategories"
-                    v-text="Translator.trans('toggle_all')"
-                    @click="filterManager.toggleAllCategories" />
-                  <div v-if="!isLoading">
-                    <dp-checkbox
-                      v-for="category in allFilterCategories"
-                      :key="category.id"
-                      :id="`filterCategorySelect:${category.label}`"
-                      :checked="selectedFilterCategories.includes(category.label)"
-                      :data-cy="`institutionList:filterCategoriesSelect:${category.label}`"
-                      :disabled="filterCategoryHelpers.checkIfDisabled(appliedFilterQuery, category.id)"
-                      :label="{
-                        text: `${category.label} (${filterCategoryHelpers.getSelectedOptionsCount(appliedFilterQuery, category.id)})`
-                      }"
-                      @change="filterManager.handleChange(category.label, !selectedFilterCategories.includes(category.label))" />
-                  </div>
-                </div>
-              </dp-flyout>
-            </div>
-
-            <filter-flyout
-              v-for="category in filterCategoriesToBeDisplayed"
-              :key="`filter_${category.label}`"
-              ref="filterFlyout"
-              :category="{ id: category.id, label: category.label }"
-              class="inline-block"
-              :data-cy="`institutionListFilter:${category.label}`"
-              :initial-query-ids="queryIds"
-              :member-of="category.memberOf"
-              :operator="category.comparisonOperator"
-              :path="category.rootPath"
-              @filterApply="(filtersToBeApplied) => filterManager.applyFilter(filtersToBeApplied, category.id)"
-              @filterOptions:request="(params) => filterManager.createFilterOptions({ ...params, categoryId: category.id})" />
-          </div>
-
-          <dp-button
-            class="h-fit col-span-1 sm:col-span-2 mt-1 justify-center"
-            data-cy="institutionList:resetFilter"
-            :disabled="!isQueryApplied"
-            :text="Translator.trans('reset')"
-            variant="outline"
-            v-tooltip="Translator.trans('search.filter.reset')"
-            @click="filterManager.reset" />
         </div>
+
+        <client-side-tag-filter
+          :filter-categories="allFilterCategories"
+          :raw-items="institutionList"
+          @items-filtered="filteredItems = $event"
+          @reset="handleFilterReset" />
 
         <div class="flex justify-end mt-4">
           <dp-column-selector
@@ -110,7 +54,7 @@
           data-cy="institutionList:dataTable"
           :header-fields="headerFields"
           is-resizable
-          :items="institutionList"
+          :items="filteredItems || institutionList"
           track-by="id">
           <template v-slot:name="institution">
             <ul class="o-list max-w-12">
@@ -195,12 +139,8 @@
 
 <script>
 import {
-  DpButton,
-  DpCheckbox,
   DpColumnSelector,
   DpDataTable,
-  DpFlyout,
-  DpIcon,
   DpInlineNotification,
   DpLoading,
   DpMultiselect,
@@ -209,33 +149,21 @@ import {
   formatDate
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import { filterCategoriesStorage } from '@DpJs/lib/procedure/FilterFlyout/filterStorage'
-import { filterCategoryHelpers } from '@DpJs/lib/procedure/FilterFlyout/filterHelpers'
-import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
+import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 
 export default {
   name: 'InstitutionList',
 
-  setup () {
-    return {
-      filterCategoryHelpers
-    }
-  },
-
   components: {
-    DpButton,
-    DpCheckbox,
+    ClientSideTagFilter,
     DpColumnSelector,
     DpDataTable,
     DpMultiselect,
-    DpFlyout,
-    DpIcon,
     DpInlineNotification,
     DpLoading,
     DpSearchField,
-    DpSlidingPagination,
-    FilterFlyout
+    DpSlidingPagination
   },
 
   mixins: [tableScrollbarMixin],
@@ -256,7 +184,7 @@ export default {
       editingInstitutionId: null,
       editingInstitution: null,
       editingInstitutionTags: {},
-      filterManager: filterCategoryHelpers.createFilterManager(this),
+      filteredItems: null,
       initiallySelectedColumns: [],
       initiallySelectedFilterCategories: [],
       institutionTagCategoriesCopy: {},
@@ -285,21 +213,21 @@ export default {
     }),
 
     allFilterCategories () {
-      return this.institutionTagCategoriesValues.reduce((acc, category) => {
-        const { id, attributes } = category
-        const groupKey = `${id}_group`
+      return (Object.values(this.institutionTagCategoriesCopy) || [])
+        .filter(category => category && category.id && category.attributes)
+        .map(category => {
+          const { id, attributes } = category
+          const groupKey = `${id}_group`
 
-        acc[id] = {
-          id,
-          comparisonOperator: 'ARRAY_CONTAINS_VALUE',
-          label: attributes.name,
-          rootPath: 'assignedTags',
-          selected: false,
-          memberOf: groupKey
-        }
-
-        return acc
-      }, {})
+          return {
+            id,
+            comparisonOperator: 'ARRAY_CONTAINS_VALUE',
+            label: attributes.name,
+            rootPath: 'assignedTags',
+            selected: false,
+            memberOf: groupKey
+          }
+        })
     },
 
     categoryFieldsAvailable () {
@@ -307,10 +235,6 @@ export default {
         field: category.attributes.name,
         label: category.attributes.name
       }))
-    },
-
-    filterCategoriesToBeDisplayed () {
-      return Object.values(this.allFilterCategories).filter(filter => this.currentlySelectedFilterCategories.includes(filter.label))
     },
 
     headerFields () {
@@ -339,6 +263,10 @@ export default {
       return Object.values(this.invitableInstitutionList).map(tag => {
         const { id, attributes, relationships } = tag
 
+        console.log('RAW TAG from invitableInstitutionList:', tag)
+        console.log('relationships.assignedTags:', relationships.assignedTags)
+
+
         return {
           createdDate: attributes.createdDate.date,
           edit: this.editingInstitutionId === id,
@@ -356,6 +284,8 @@ export default {
           })
         }
       })
+      console.log('Final institutionList result:', result)
+
     },
 
     institutionTagCategoriesValues () {
@@ -583,7 +513,6 @@ export default {
 
           if (isInitial) {
             this.setInitiallySelectedColumns()
-            this.setInitiallySelectedFilterCategories()
             this.setCurrentlySelectedFilterCategories(this.initiallySelectedFilterCategories)
           }
         })
@@ -608,8 +537,8 @@ export default {
         .map(el => el.name)
     },
 
-    handleChange (filterCategoryName, isSelected) {
-      this.filterManager.handleChange(filterCategoryName, isSelected)
+    handleFilterReset () {
+      this.$refs.searchField.handleReset()
     },
 
     handleReset () {
@@ -625,10 +554,6 @@ export default {
         .then(() => {
           this.isLoading = false
         })
-    },
-
-    setAppliedFilterQuery (filter) {
-      return this.filterManager.setAppliedFilterQuery(filter)
     },
 
     separateByCommas (institutionTags) {
@@ -651,38 +576,14 @@ export default {
       this.currentlySelectedFilterCategories = selectedCategories
     },
 
-    setAppliedFilterQueryFromStorage () {
-      return this.filterManager.setAppliedFilterQueryFromStorage()
-    },
-
-    setFilterOptionsFromFilterQuery () {
-      this.filterManager.setFilterOptionsFromFilterQuery()
-    },
-
-    setFilterQueryFromStorage () {
-      return this.filterManager.setFilterQueryFromStorage()
-    },
-
     setInitiallySelectedColumns () {
       this.initiallySelectedColumns = this.institutionTagCategoriesValues
         .slice(0, 5)
         .map(category => category.attributes.name)
-    },
-
-    setInitiallySelectedFilterCategories () {
-      const selectedFilterCategoriesInStorage = filterCategoriesStorage.get()
-
-      this.initiallySelectedFilterCategories = selectedFilterCategoriesInStorage !== null ? selectedFilterCategoriesInStorage : this.initiallySelectedColumns
-    },
-
-    toggleAllSelectedFilterCategories () {
-      this.filterManager.toggleAllCategories()
     }
   },
 
   mounted () {
-    this.filterManager.setAppliedFilterQueryFromStorage()
-    this.filterManager.setFilterQueryFromStorage()
 
     const promises = [
       this.getInstitutionsByPage(1),

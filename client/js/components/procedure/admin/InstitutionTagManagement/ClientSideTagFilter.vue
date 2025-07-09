@@ -89,7 +89,6 @@ import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
  * <client-side-tag-filter
  *   :filter-categories="allFilterCategories"
  *   :raw-items="rowItems"
- *   :procedure-id="procedureId"
  *   @itemsFiltered="filteredItems = $event" />
  */
 export default {
@@ -112,12 +111,12 @@ export default {
     rawItems: {
       type: Array,
       required: true
-    },
-
-    procedureId: {
-      type: String,
-      required: true
     }
+    //
+    // procedureId: {
+    //   type: String,
+    //   required: true
+    // }
   },
 
   emits: [
@@ -236,6 +235,7 @@ export default {
         categoryId
       )
 
+      this.updateFilterQuery(filter)
       this.filterQueryStorage.set(this.appliedFilterQuery)
     },
 
@@ -251,7 +251,6 @@ export default {
      */
     createFilterOptions (params) {
       const { categoryId, isInitialWithQuery } = params
-
       const selectedFilterOptionIds = Object.keys(this.appliedFilterQuery).filter(id => !id.includes('_group'))
 
       let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0
@@ -297,15 +296,18 @@ export default {
 
       if (Object.keys(this.appliedFilterQuery).length > 0) {
         filteredItems = this.rawItems.filter(item => {
+
           return Object.values(this.appliedFilterQuery).every(filterCondition => {
             if (!filterCondition.condition) return true
 
-            const tagIds = item.assignedTags?.map(tag => tag.id) || []
+            // Support both 'assignedTags' (OrganisationTable) and 'tags' (InstitutionList) properties
+            const itemTags = item.assignedTags || item.tags || []
+            const tagIds = itemTags.map(tag => tag.id) || []
+
             return tagIds.includes(filterCondition.condition.value)
           })
         })
       }
-
       this.$emit('itemsFiltered', filteredItems)
     },
 
@@ -386,7 +388,8 @@ export default {
 
       if (Object.keys(savedFilterQuery).length > 0) {
         this.appliedFilterQuery = savedFilterQuery
-        this.updateLocalFilterQuery(savedFilterQuery)
+        this.filterQueryStorage.set(this.appliedFilterQuery)
+
       }
     },
 

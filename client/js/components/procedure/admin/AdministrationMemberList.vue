@@ -16,7 +16,6 @@ All rights reserved
     :header-fields="headerFields"
     ref="organisationTable"
     resource-type="InvitedToeb"
-    :procedure-id="procedureId"
     @selected-items="setSelectedItems">
     <template v-slot:bulkActions>
       <!-- Bulk Actions Section -->
