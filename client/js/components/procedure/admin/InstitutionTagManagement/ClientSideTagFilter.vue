@@ -112,11 +112,6 @@ export default {
       type: Array,
       required: true
     }
-    //
-    // procedureId: {
-    //   type: String,
-    //   required: true
-    // }
   },
 
   emits: [
@@ -296,7 +291,6 @@ export default {
 
       if (Object.keys(this.appliedFilterQuery).length > 0) {
         filteredItems = this.rawItems.filter(item => {
-
           return Object.values(this.appliedFilterQuery).every(filterCondition => {
             if (!filterCondition.condition) return true
 
@@ -353,10 +347,8 @@ export default {
     },
 
     getSelectedOptionsCount (appliedFilterQuery, categoryId) {
-      const result = Object.values(appliedFilterQuery)
+      return Object.values(appliedFilterQuery)
         .filter(el => el.condition?.memberOf === `${categoryId}_group`).length
-
-      return result
     },
 
     handleChange (categoryLabel, isSelected) {
@@ -379,17 +371,15 @@ export default {
      */
     loadFilterStateFromStorage () {
       const savedCategories = this.filterCategoriesStorage.get()
+      const savedFilterQuery = this.filterQueryStorage.get()
 
       if (savedCategories) {
         this.currentlySelectedFilterCategories = savedCategories
       }
 
-      const savedFilterQuery = this.filterQueryStorage.get()
-
       if (Object.keys(savedFilterQuery).length > 0) {
         this.appliedFilterQuery = savedFilterQuery
         this.filterQueryStorage.set(this.appliedFilterQuery)
-
       }
     },
 

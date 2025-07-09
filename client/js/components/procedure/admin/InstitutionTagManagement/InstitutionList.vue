@@ -15,115 +15,115 @@
       :message="Translator.trans('explanation.invitable_institution.group.tags')"
       type="info" />
 
-      <dp-loading
-        v-if="isLoading"
-        class="mt-4" />
+    <dp-loading
+      v-if="isLoading"
+      class="mt-4" />
 
-      <template v-else>
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-1">
-          <dp-search-field
-            class="h-fit mt-1 col-span-1 sm:col-span-3"
-            data-cy="institutionList:searchField"
-            input-width="u-1-of-1"
-            ref="searchField"
-            @reset="handleReset"
-            @search="val => handleSearch(val)" />
-        </div>
+    <template v-else>
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-1">
+        <dp-search-field
+          class="h-fit mt-1 col-span-1 sm:col-span-3"
+          data-cy="institutionList:searchField"
+          input-width="u-1-of-1"
+          ref="searchField"
+          @reset="handleReset"
+          @search="val => handleSearch(val)" />
+      </div>
 
-        <client-side-tag-filter
-          :filter-categories="allFilterCategories"
-          :raw-items="institutionList"
-          @items-filtered="filteredItems = $event"
-          @reset="handleFilterReset" />
+      <client-side-tag-filter
+        :filter-categories="allFilterCategories"
+        :raw-items="institutionList"
+        @items-filtered="filteredItems = $event"
+        @reset="handleFilterReset" />
 
-        <div class="flex justify-end mt-4">
-          <dp-column-selector
-            data-cy="institutionList:selectableColumns"
-            :initial-selection="initiallySelectedColumns"
-            local-storage-key="institutionList"
-            :selectable-columns="selectableColumns"
-            use-local-storage
-            @selection-changed="setCurrentlySelectedColumns" />
-        </div>
+      <div class="flex justify-end mt-4">
+        <dp-column-selector
+          data-cy="institutionList:selectableColumns"
+          :initial-selection="initiallySelectedColumns"
+          local-storage-key="institutionList"
+          :selectable-columns="selectableColumns"
+          use-local-storage
+          @selection-changed="setCurrentlySelectedColumns" />
+      </div>
 
-        <dp-data-table
-          ref="dataTable"
-          class="mt-1 overflow-x-auto scrollbar-none"
-          data-dp-validate="tagsTable"
-          data-cy="institutionList:dataTable"
-          :header-fields="headerFields"
-          is-resizable
-          :items="filteredItems || institutionList"
-          track-by="id">
-          <template v-slot:name="institution">
-            <ul class="o-list max-w-12">
-              <li>
-                {{ institution.name }}
-              </li>
-              <li class="o-list__item o-hellip--nowrap">
-                {{ date(institution.createdDate) }}
-              </li>
-            </ul>
-          </template>
-          <template
-            v-for="(category, idx) in institutionTagCategoriesCopy"
-            v-slot:[category.attributes.name]="institution">
-            <dp-multiselect
-              v-if="institution.edit"
-              :key="idx"
-              v-model="editingInstitutionTags[category.id]"
-              :data-cy="`institutionList:tags${category.attributes.name}`"
-              label="name"
-              multiple
-              :options="getCategoryTags(category.id)"
-              track-by="id" />
-            <div
-              v-else
-              :key="`tags:${idx}`"
-              v-text="separateByCommas(institution.tags.filter(tag => tag.category.id === category.id))" />
-          </template>
-          <template v-slot:action="institution">
-            <div class="float-right">
-              <template v-if="institution.edit">
-                <button
-                  :aria-label="Translator.trans('save')"
-                  class="btn--blank o-link--default mr-1"
-                  data-cy="institutionList:saveTag"
-                  @click="addTagsToInstitution(institution.id)">
-                  <dp-icon
-                    icon="check"
-                    aria-hidden="true" />
-                </button>
-                <button
-                  :aria-label="Translator.trans('abort')"
-                  class="btn--blank o-link--default"
-                  data-cy="institutionList:abortTag"
-                  @click="abortEdit()">
-                  <dp-icon
-                    icon="xmark"
-                    aria-hidden="true" />
-                </button>
-              </template>
+      <dp-data-table
+        ref="dataTable"
+        class="mt-1 overflow-x-auto scrollbar-none"
+        data-dp-validate="tagsTable"
+        data-cy="institutionList:dataTable"
+        :header-fields="headerFields"
+        is-resizable
+        :items="filteredItems || institutionList"
+        track-by="id">
+        <template v-slot:name="institution">
+          <ul class="o-list max-w-12">
+            <li>
+              {{ institution.name }}
+            </li>
+            <li class="o-list__item o-hellip--nowrap">
+              {{ date(institution.createdDate) }}
+            </li>
+          </ul>
+        </template>
+        <template
+          v-for="(category, idx) in institutionTagCategoriesCopy"
+          v-slot:[category.attributes.name]="institution">
+          <dp-multiselect
+            v-if="institution.edit"
+            :key="idx"
+            v-model="editingInstitutionTags[category.id]"
+            :data-cy="`institutionList:tags${category.attributes.name}`"
+            label="name"
+            multiple
+            :options="getCategoryTags(category.id)"
+            track-by="id" />
+          <div
+            v-else
+            :key="`tags:${idx}`"
+            v-text="separateByCommas(institution.tags.filter(tag => tag.category.id === category.id))" />
+        </template>
+        <template v-slot:action="institution">
+          <div class="float-right">
+            <template v-if="institution.edit">
               <button
-                v-else
-                :aria-label="Translator.trans('item.edit')"
-                class="btn--blank o-link--default"
-                data-cy="institutionList:editTag"
-                @click="editInstitution(institution.id)">
+                :aria-label="Translator.trans('save')"
+                class="btn--blank o-link--default mr-1"
+                data-cy="institutionList:saveTag"
+                @click="addTagsToInstitution(institution.id)">
                 <dp-icon
-                  icon="edit"
+                  icon="check"
                   aria-hidden="true" />
               </button>
-            </div>
-          </template>
-        </dp-data-table>
+              <button
+                :aria-label="Translator.trans('abort')"
+                class="btn--blank o-link--default"
+                data-cy="institutionList:abortTag"
+                @click="abortEdit()">
+                <dp-icon
+                  icon="xmark"
+                  aria-hidden="true" />
+              </button>
+            </template>
+            <button
+              v-else
+              :aria-label="Translator.trans('item.edit')"
+              class="btn--blank o-link--default"
+              data-cy="institutionList:editTag"
+              @click="editInstitution(institution.id)">
+              <dp-icon
+                icon="edit"
+                aria-hidden="true" />
+            </button>
+          </div>
+        </template>
+      </dp-data-table>
 
-        <div
-          ref="scrollBar"
-          class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden">
-          <div />
-        </div>
-      </template>
+      <div
+        ref="scrollBar"
+        class="sticky bottom-0 left-0 right-0 h-3 overflow-x-scroll overflow-y-hidden">
+        <div />
+      </div>
+    </template>
 
     <dp-sliding-pagination
       v-if="totalPages > 1"
@@ -368,7 +368,10 @@ export default {
       // Initialize editingInstitutionTags with categoryId
       this.institutionTagCategoriesValues.forEach(category => {
         if (!this.editingInstitutionTags[category.id]) {
-          this.$set(this.editingInstitutionTags, category.id, [])
+          this.editingInstitutionTags = {
+            ...this.editingInstitutionTags,
+            [category.id]: []
+          }
         }
       })
       this.editingInstitution.relationships.assignedTags.data.forEach(el => {
@@ -516,7 +519,6 @@ export default {
   },
 
   mounted () {
-
     const promises = [
       this.getInstitutionsByPage(1),
       this.getInstitutionTagCategories(true)
