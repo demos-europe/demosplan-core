@@ -1,7 +1,7 @@
 <template>
   <button
     v-show="isVisible"
-    class="bg-white rounded shadow absolute p-0.5"
+    class="bg-white rounded-sm shadow-sm absolute p-0.5"
     :aria-controls="section"
     :aria-expanded="isContentCollapsed"
     :data-cy="`sidebar:floatingContextButton:${section}`"
@@ -10,7 +10,7 @@
     @mouseleave="hide">
     <dp-icon
       :aria-label="Translator.trans('content.show/hide')"
-      class="w-4 h-4 rounded-sm text-interactive hover:text-interactive-hover active:text-interactive-active hover:bg-interactive-subtle-hover active:bg-interactive-subtle-active"
+      class="w-4 h-4 rounded-xs text-interactive hover:text-interactive-hover active:text-interactive-active hover:bg-interactive-subtle-hover active:bg-interactive-subtle-active"
       :icon="isContentCollapsed ? 'chevron-up' : 'chevron-down'"
       size="medium" />
   </button>

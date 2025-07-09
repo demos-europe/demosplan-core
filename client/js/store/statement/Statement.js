@@ -239,10 +239,10 @@ export default {
 
   mutations: {
     /**
-     * @param {Object} element
+     * @param {Object} elementId
      */
-    addElementToSelection (state, element) {
-      state.selectedElements[element.id] = element
+    addElementToSelection (state, elementId) {
+      state.selectedElements[elementId] = true
     },
 
     /**
@@ -404,9 +404,9 @@ export default {
   actions: {
     /**
      * Add an element to selectedElements and the sessionStorage
-     * @param data : {Object} contains id, editable
+     * @param id : {elementId} contains id, editable
      */
-    addToSelectionAction ({ state, commit }, data) {
+    addToSelectionAction ({ state, commit }, id) {
       performance.mark('selection-start')
       const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
 
@@ -414,12 +414,12 @@ export default {
         selectedEntries[state.procedureId] = {}
       }
 
-      selectedEntries[state.procedureId][data.id] = { ...data }
+      selectedEntries[state.procedureId][id] = true
 
       if (state.persistStatementSelection) {
         sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
       }
-      commit('addElementToSelection', data)
+      commit('addElementToSelection', id)
       performance.mark('selection-end')
       performance.measure('selection-duration', 'selection-start', 'selection-end')
       return Promise.resolve(true)
