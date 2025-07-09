@@ -10,15 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
-use Elastica\Aggregation\Missing;
-use Elastica\Aggregation\Nested;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
+use Elastica\Aggregation\Missing;
+use Elastica\Aggregation\Nested;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
@@ -103,9 +103,6 @@ class ElasticSearchService
         return $query;
     }
 
-    /**
-     * @param mixed $aggregationsMinDocumentCount
-     */
     public function setAggregationsMinDocumentCount($aggregationsMinDocumentCount): void
     {
         $this->aggregationsMinDocumentCount = $aggregationsMinDocumentCount;
@@ -132,8 +129,6 @@ class ElasticSearchService
      * @param string $labelKey
      * @param string $valueKey
      * @param string $countKey
-     *
-     * @return mixed
      */
     protected function addAggregationResultToArrayFromArray($keyInAggregation, $fromArray, $aggregation, $labelMap = [], $labelKey = 'key', $valueKey = 'key', $countKey = 'doc_count')
     {
@@ -255,7 +250,7 @@ class ElasticSearchService
         // sort by Label
         \usort(
             $bucket,
-            fn($a, $b) => \strnatcasecmp((string) $a['label'], (string) $b['label'])
+            fn ($a, $b) => \strnatcasecmp((string) $a['label'], (string) $b['label'])
         );
 
         return $bucket;
@@ -267,8 +262,6 @@ class ElasticSearchService
      * @param array  $fragmentAggregations
      * @param array  $aggregation
      * @param array  $labelMap
-     *
-     * @return mixed
      */
     public function addFragmentEsResultToArray($keyInFragmentEsResult, $keyInAggregation, $fragmentAggregations, $aggregation, $labelMap = [])
     {
@@ -408,7 +401,6 @@ class ElasticSearchService
      * @param string $key
      * @param array  $userFilters
      * @param array  $boolMustFilter
-     * @param mixed  $nullvalue
      * @param array  $rawFields
      * @param bool   $addAllAggregations - If true, will add all filters existing on $userFilters. Otherwise only those who also has a not empty value.
      *
@@ -453,8 +445,6 @@ class ElasticSearchService
     /**
      * Given a $filter (can be array or string) returns true if has no empty value and false otherwise.
      *
-     * @param mixed $filter
-     *
      * @return bool
      */
     private function hasFilterValue($filter)
@@ -487,7 +477,7 @@ class ElasticSearchService
         $search = '',
         $filters = [],
         $sort = null,
-        $resultKey = 'statements'
+        $resultKey = 'statements',
     ): ElasticsearchResultSet {
         $filterSet = [
             'total'   => is_countable($elasticsearchResult->getAggregations()) ? count($elasticsearchResult->getAggregations()) : 0,
@@ -539,8 +529,6 @@ class ElasticSearchService
      * Konvertiere das Ergebnis aus Elasticsearch zu Legacy.
      *
      * @param array $hit
-     *
-     * @return mixed
      */
     protected function convertElasticsearchHitToLegacy($hit)
     {
