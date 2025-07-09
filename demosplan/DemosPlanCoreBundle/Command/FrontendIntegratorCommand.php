@@ -16,6 +16,7 @@ use cebe\openapi\Writer;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\ApiDocumentation\OpenApiSpecGenerator;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -48,16 +49,10 @@ class FrontendIntegratorCommand extends CoreCommand
 
     private const RESOURCE_TYPES_FILE = 'client/js/generated/ResourceTypes.js';
 
-    protected static $defaultName = 'dplan:frontend:integrator';
-    protected static $defaultDescription = 'This command outputs a bunch of data needed by the FE tooling';
-
     public function __construct(
-        private readonly CurrentUserInterface $currentUser,
+        private readonly OpenApiSpecGenerator $specGenerator,
         private readonly JsApiResourceDefinitionBuilder $resourceDefinitionBuilder,
-        private readonly Manager $manager,
         ParameterBagInterface $parameterBag,
-        private readonly RouterInterface $router,
-        private readonly TranslatorInterface $translator,
         ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
@@ -65,6 +60,9 @@ class FrontendIntegratorCommand extends CoreCommand
 
     public function configure(): void
     {
+        $this->setName('dplan:frontend:integrator');
+        $this->setDescription('This command outputs a bunch of data needed by the FE tooling');
+
         $this->addOption('debug-additional-data', '', InputOption::VALUE_NONE, 'Debug additional data fetch');
     }
 
@@ -128,44 +126,6 @@ class FrontendIntegratorCommand extends CoreCommand
         }
     }
 
-    /**
-     * Build an OpenApi spec with the most permissive permissions configuration possible.
-     *
-     * A user who is logged in in any role and has all available permissions enabled
-     * should result in all (non-procedure) permission checks evaluating true.
-     *
-     * With this user, all possible ResourceTypes should be included in the spec build.
-     *
-     * @throws TypeErrorException
-     */
-    private function getOpenApiSpec(): OpenApi
-    {
-        $user = new FunctionalUser();
-        $user->setDplanroles([Role::CITIZEN]);
-
-        $this->currentUser->setUser($user);
-        $this->currentUser->getPermissions()->initPermissions($user);
-
-        $allPermissions = Yaml::parseFile(DemosPlanPath::getConfigPath(Permissions::PERMISSIONS_YML));
-        $this->currentUser->getPermissions()->enablePermissions(array_keys($allPermissions));
-
-        $schemaGenerator = $this->manager->createOpenApiDocumentBuilder();
-
-        $schemaGenerator->setGetActionConfig(
-            new \EDT\JsonApi\ApiDocumentation\GetActionConfig($this->router, $this->translator)
-        );
-        $schemaGenerator->setListActionConfig(
-            new \EDT\JsonApi\ApiDocumentation\ListActionConfig($this->router, $this->translator)
-        );
-
-        $openApiSpec = $schemaGenerator->buildDocument(new \EDT\JsonApi\ApiDocumentation\OpenApiWording($this->translator));
-
-        // just to be safe, reset permissions after getting everything we want
-        $this->currentUser->getPermissions()->initPermissions($user);
-
-        return $openApiSpec;
-    }
-
     private function saveOpenApiSpec(OpenApi $openApiSpec): void
     {
         // local file is valid, no need for flysystem
@@ -177,10 +137,12 @@ class FrontendIntegratorCommand extends CoreCommand
 
     /**
      * Update coding support files for our EDT-based {json:api}.
+     *
+     * @throws TypeErrorException
      */
     private function updateApiCodingSupport(): void
     {
-        $openApiSpec = $this->getOpenApiSpec();
+        $openApiSpec = $this->specGenerator->generate();
 
         $this->saveOpenApiSpec($openApiSpec);
         $this->resourceDefinitionBuilder->build($openApiSpec, self::RESOURCE_TYPES_FILE);
