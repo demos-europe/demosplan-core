@@ -1071,23 +1071,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
                 $this->logger->info('Procedure updated without known user');
             }
             $procedure = $this->procedureRepository->update($data['ident'], $data);
-            // set procedurePhase properties: permissionSet, name
-            // they are not mapped do a database but the updated ones are needed within the upcoming event
-            $procedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($procedure);
-            $procedure->setPublicParticipationPhaseName(
-                $this->globalConfig->getPhaseNameWithPriorityExternal(
-                    $procedure->getPublicParticipationPhase()
-                )
-            );
-            $this->eventDispatcher->dispatch(
-                new PostProcedureUpdatedEvent($sourceProcedure, $procedure),
-                PostProcedureUpdatedEventInterface::class
-            );
-            // always update elasticsearch as changes that where made only in
-            // ProcedureSettings not automatically trigger an ES update
-            if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
-                $this->getEsProcedurePersister()->replaceOne($procedure);
-            }
+
+            $procedure = $this->handleProcedurePostUpdateOperations($sourceProcedure, $procedure);
 
             if ($createReports) {
                 $destinationProcedure = $this->procedureRepository->get($data['ident']);
@@ -1125,24 +1110,8 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
 
             $procedure = $this->procedureRepository->updateObject($procedureToUpdate);
             $destinationProcedure = $this->procedureRepository->get($procedure->getId());
-            // set procedurePhase properties: permissionSet, name
-            // they are not mapped do a database but the updated ones are needed within the upcoming event
-            $destinationProcedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($destinationProcedure);
-            $destinationProcedure->setPublicParticipationPhaseName(
-                $this->globalConfig->getPhaseNameWithPriorityExternal(
-                    $destinationProcedure->getPublicParticipationPhase()
-                )
-            );
-            $this->eventDispatcher->dispatch(
-                new PostProcedureUpdatedEvent($sourceProcedure, $destinationProcedure),
-                PostProcedureUpdatedEventInterface::class
-            );
 
-            // always update elasticsearch as changes that where made only in
-            // ProcedureSettings not automatically trigger an ES update
-            if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
-                $this->getEsProcedurePersister()->replaceOne($destinationProcedure);
-            }
+            $destinationProcedure = $this->handleProcedurePostUpdateOperations($sourceProcedure, $destinationProcedure);
 
             // create report with the sourceProcedure including the related settings
             $this->prepareReportFromProcedureService->createReportEntry(
@@ -1156,6 +1125,34 @@ class ProcedureService extends CoreService implements ProcedureServiceInterface
             throw $e;
         }
     }
+
+    /**
+     * Common post-update operations for procedures: phase loading, event dispatching, and ES reindexing
+     */
+    private function handleProcedurePostUpdateOperations(Procedure $sourceProcedure, Procedure $updatedProcedure): Procedure
+    {
+        // Load phase permission sets and set phase name
+        $updatedProcedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($updatedProcedure);
+        $updatedProcedure->setPublicParticipationPhaseName(
+            $this->globalConfig->getPhaseNameWithPriorityExternal(
+                $updatedProcedure->getPublicParticipationPhase()
+            )
+        );
+
+        // Dispatch event
+        $this->eventDispatcher->dispatch(
+            new PostProcedureUpdatedEvent($sourceProcedure, $updatedProcedure),
+            PostProcedureUpdatedEventInterface::class
+        );
+
+        // Update Elasticsearch
+        if (DemosPlanKernel::ENVIRONMENT_TEST !== $this->environment) {
+            $this->getEsProcedurePersister()->replaceOne($updatedProcedure);
+        }
+
+        return $updatedProcedure;
+    }
+
 
     /**
      * Ruft alle Verfahren mit aktivierter öffentlicher Beteiligung ab (Liste).
