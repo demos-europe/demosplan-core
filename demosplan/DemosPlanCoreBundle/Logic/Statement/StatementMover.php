@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
@@ -71,7 +70,7 @@ class StatementMover
      *                                   will be deleted or kept. In case of EntityContentChanges where not
      *                                   deleted, they can be seen by owner of target procedure.
      *
-     * @return statement|false - Returns the moved Statement if successful, otherwise false
+     * @return Statement|false - Returns the moved Statement if successful, otherwise false
      *
      * @throws ConnectionException
      * @throws MessageBagException
@@ -84,7 +83,7 @@ class StatementMover
     public function moveStatementToProcedure(
         Statement $statementToMove,
         Procedure $targetProcedure,
-        bool $deleteVersionHistory = false
+        bool $deleteVersionHistory = false,
     ) {
         $doctrineConnection = $this->entityManager->getConnection();
         try {
