@@ -139,6 +139,7 @@
 import {
   DpColumnSelector,
   DpDataTable,
+  DpIcon,
   DpInlineNotification,
   DpLoading,
   DpMultiselect,
@@ -157,6 +158,7 @@ export default {
     ClientSideTagFilter,
     DpColumnSelector,
     DpDataTable,
+    DpIcon,
     DpMultiselect,
     DpInlineNotification,
     DpLoading,
