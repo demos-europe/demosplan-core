@@ -129,7 +129,7 @@
           :key="idx"
           :procedure-id="procedureId"
           :statement-id="statement.id"
-          @add-to-selection="addToSelectionAction"
+          @add-to-selection="() => addToSelectionAction({ id: statement.id})"
           @remove-from-selection="removeFromSelectionAction" />
       </tbody>
     </table>
