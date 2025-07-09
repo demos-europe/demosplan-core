@@ -55,6 +55,11 @@ RUN --mount=type=cache,target=/var/composer --mount=type=cache,target=/var/www,u
 USER root
 COPY . /srv/www
 
+# Remove app_dev.php in production mode
+RUN if [ "$BUILD_MODE" = "prod" ]; then \
+        rm -f /srv/www/projects/$PROJECT_NAME/web/app_dev.php; \
+    fi
+
 # set permissions needed during build
 RUN mkdir -p /srv/www/projects/$PROJECT_NAME/web/js && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/fonts && \
@@ -95,6 +100,8 @@ COPY projects/$PROJECT_NAME/app/config/parameters_docker.yml /opt/config/paramet
 
 RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     ln -s /opt/config/parameters.yml /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
+    touch /opt/config/.env.local && \
+    ln -s /opt/config/.env.local /srv/www/.env.local && \
     mkdir -p /srv/www/projects/$PROJECT_NAME/web/uploads/files && \
     chmod -R 775 /srv/www/projects/$PROJECT_NAME/web/uploads && \
     mkdir -p /opt/uploads && \
@@ -137,7 +144,7 @@ RUN rm -rf /srv/www/var/cache/* && \
 USER www-data
 CMD ["/usr/sbin/php-fpm8.2", "-F"]
 
-FROM nginxinc/nginx-unprivileged:alpine3.21-slim AS nginx
+FROM nginxinc/nginx-unprivileged:alpine3.22-slim AS nginx
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod

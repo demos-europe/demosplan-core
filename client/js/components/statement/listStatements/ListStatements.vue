@@ -95,7 +95,7 @@
         :should-be-selected-items="currentlySelectedItems"
         track-by="id"
         :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection.sharedStatement') }"
-        @select-all="handleSelectAll"
+        @selectAll="handleSelectAll"
         @items-toggled="handleToggleItem">
         <template v-slot:externId="{ assignee = {}, externId, id: statementId, synchronized }">
           <span
@@ -309,6 +309,7 @@ import {
   DpSelect,
   DpStickyElement,
   formatDate,
+  sessionStorageMixin,
   tableSelectAllItems
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -343,7 +344,7 @@ export default {
     cleanhtml: CleanHtml
   },
 
-  mixins: [paginationMixin, tableSelectAllItems],
+  mixins: [paginationMixin, sessionStorageMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -603,6 +604,7 @@ export default {
 
     applySort (sortValue) {
       this.selectedSort = sortValue
+      this.updateSessionStorage('selectedSort', sortValue)
       this.getItemsByPage(1)
     },
 
@@ -720,7 +722,7 @@ export default {
         'textIsTruncated',
         // Relationships:
         'assignee',
-        'genericAttachments',
+        'sourceAttachment',
         'segments'
       ]
       if (this.isSourceAndCoupledProcedure) {
@@ -751,13 +753,13 @@ export default {
         include: [
           'segments',
           'assignee',
-          'genericAttachments',
-          'genericAttachments.file'
+          'sourceAttachment',
+          'sourceAttachment.file'
         ].join(),
         fields: {
           Statement: statementFields.join(),
-          File: [
-            'hash'
+          SourceStatementAttachment: [
+            'file'
           ].join()
         }
       }).then((data) => {
@@ -775,15 +777,18 @@ export default {
      * Returns the hash of the original statement attachment
      */
     getOriginalPdfAttachmentHash (el) {
-      if (el.hasRelationship('genericAttachments')) {
-        const originalAttachment = Object.values(el.relationships.genericAttachments.list())
-          .filter(attachment => attachment.attributes.attachmentType === 'source_statement')
-        if (originalAttachment.length === 1) {
-          return originalAttachment[0].relationships.file.get().attributes.hash
-        }
+      if (!el.hasRelationship('sourceAttachment')) {
+        return null
       }
 
-      return null
+      const attachments = el.relationships.sourceAttachment.list()
+      const firstAttachment = Object.values(attachments)[0]
+
+      if (!firstAttachment?.relationships?.file) {
+        return null
+      }
+
+      return firstAttachment.relationships.file.get()?.attributes?.hash || null
     },
 
     /**
@@ -911,6 +916,14 @@ export default {
       this.$refs.customSearchStatements.toggleAllFields(false)
     },
 
+    restoreSelectedSort () {
+      const storedSort = this.getItemFromSessionStorage('selectedSort')
+
+      if (storedSort) {
+        this.selectedSort = storedSort
+      }
+    },
+
     /**
      * If the procedure is coupled get the num of total items, that are not synchronized yet and
      * therefor are selectable, and set the num of total items to it.
@@ -971,6 +984,7 @@ export default {
       }
     })
     this.initPagination()
+    this.restoreSelectedSort()
     this.getItemsByPage(this.pagination.currentPage)
   }
 }

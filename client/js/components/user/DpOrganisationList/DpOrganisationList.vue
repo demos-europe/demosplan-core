@@ -169,17 +169,18 @@ import {
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
 
-const orgaFields = {
-  OrgaStatusInCustomer: [
-    'customer',
-    'status'
-  ].join(),
+const orgaFieldsArrays = {
+  Branding: [
+    'cssvars'
+  ],
   Customer: [
     'name',
     'subdomain'
-  ].join(),
+  ],
   Orga: [
     'addressExtension',
+    'branding',
+    'canCreateProcedures',
     'ccEmail2',
     'city',
     'competence',
@@ -203,14 +204,26 @@ const orgaFields = {
     'showlist',
     'showname',
     'state',
+    'statusInCustomer',
     'street',
     'submissionType',
     'types'
-  ].join()
+  ],
+  OrgaStatusInCustomer: [
+    'customer',
+    'status'
+  ]
 }
 
 if (hasPermission('feature_manage_procedure_creation_permission')) {
-  orgaFields.Orga.push('canCreateProcedures')
+  orgaFieldsArrays.Orga.push('canCreateProcedures')
+}
+
+const orgaFields = {
+  Branding: orgaFieldsArrays.Branding.join(),
+  Customer: orgaFieldsArrays.Customer.join(),
+  Orga: orgaFieldsArrays.Orga.join(),
+  OrgaStatusInCustomer: orgaFieldsArrays.OrgaStatusInCustomer.join()
 }
 
 export default {
@@ -422,7 +435,7 @@ export default {
         sort: 'name',
         filter: filterObject,
         fields: orgaFields,
-        include: ['currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
+        include: ['branding', 'currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
       })
         .then(() => { this.isLoading = false })
     },
@@ -445,7 +458,7 @@ export default {
             }
           }
         },
-        include: ['currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
+        include: ['branding', 'currentSlug', 'statusInCustomers.customer', 'statusInCustomers'].join()
       })
         .then(() => {
           this.pendingOrganisationsLoading = false
@@ -466,7 +479,7 @@ export default {
         },
         fields: orgaFields,
         sort: 'name',
-        include: ['currentSlug', 'orgasInCustomer.customer'].join()
+        include: ['branding', 'currentSlug', 'statusInCustomers', 'statusInCustomers.customer'].join()
       })
         .then(() => {
           this.pendingOrganisationsLoading = false
