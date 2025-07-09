@@ -37,12 +37,16 @@
           :options="phaseOptions" /><!--
 
      --><div class="layout__item u-1-of-3 u-1-of-1-lap-down">
+          <dp-label
+            class="mb-0.5"
+            :for="switchDateId"
+            :text="Translator.trans('phase.autoswitch.datetime')"
+            required />
           <dp-datetime-picker
             :data-cy="`autoSwitchProcedurePhaseForm:${switchDateId}`"
             :disabled="!autoSwitchPhase"
             hidden-input
             :id="switchDateId"
-            :label="Translator.trans('phase.autoswitch.datetime')"
             :max-date="switchDateMax"
             :min-date="minSwitchDate"
             :name="switchDateId"
@@ -52,6 +56,7 @@
 
      --><div class="layout__item u-1-of-3">
           <dp-label
+            class="mb-0.5"
             for="procedurePhasePeriod"
             :text="Translator.trans('period.new')"
             required />
@@ -292,3 +297,4 @@ export default {
   }
 }
 </script>
+
