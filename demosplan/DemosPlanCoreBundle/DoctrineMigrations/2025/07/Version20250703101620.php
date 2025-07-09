@@ -32,7 +32,7 @@ class Version20250703101620 extends AbstractMigration
         $this->abortIfNotMysql();
 
         $this->addSql(<<<'SQL'
-            ALTER TABLE _procedure_settings ADD _p_public_participation_feedback_enabled TINYINT(1) DEFAULT 1 NOT NULL
+            ALTER TABLE _procedure_settings ADD _p_public_participation_feedback_enabled TINYINT(1) DEFAULT 0 NOT NULL
         SQL);
     }
 

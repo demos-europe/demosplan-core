@@ -296,7 +296,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      *
      * @ORM\Column(name="_p_public_participation_feedback_enabled", type="boolean", nullable=false, options={"default":true})
      */
-    protected bool $publicParticipationFeedbackEnabled = true;
+    protected bool $publicParticipationFeedbackEnabled = false;
 
     public function __construct()
     {
