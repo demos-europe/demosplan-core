@@ -10,7 +10,10 @@
 <template>
   <div 
     v-if="publicParticipationFeedbackEnabled"
-    :class="[statement.r_getFeedback === 'on' ? prefixClass('bg-color--grey-light-2') : '', prefixClass('c-statement__formblock')]">
+    :class="[
+      prefixClass('c-statement__formblock'),
+      { [prefixClass('bg-color--grey-light-2')]: statement.r_getFeedback === 'on' }
+    ]"
     <dp-checkbox
       id="r_getFeedback"
       aria-labelledby="statement-detail-require-information-mail"
