@@ -20,7 +20,6 @@ class ProfilerService
     public const ELASTICSEARCH_PROFILER = 'ES';
     public const RABBITPDF_PROFILER = 'Rabbit PDF';
 
-
     public function __construct()
     {
         $this->stopwatch = new Stopwatch(true);
