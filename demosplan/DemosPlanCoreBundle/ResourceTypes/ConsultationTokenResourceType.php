@@ -49,6 +49,21 @@ final class ConsultationTokenResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('area_admin_consultations');
     }
 
+    /**
+     * Condition to check if the current user is in the procedure of the original statement.
+     *
+     * @return \EDT\DqlQuerying\Contracts\ClauseFunctionInterface|\EDT\Querying\Contracts\PathsBasedInterface
+     * @throws \EDT\Querying\Contracts\PathException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException
+     */
+    public function isInCurrentProcedureCondition(): \EDT\DqlQuerying\Contracts\ClauseFunctionInterface|\EDT\Querying\Contracts\PathsBasedInterface
+    {
+        return $this->conditionFactory->propertyHasValue(
+            $this->currentProcedureService->getProcedureWithCertainty('No authorization for any procedure.')->getId(),
+            Paths::consultationToken()->originalStatement->procedure->id
+        );
+    }
+
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
@@ -62,17 +77,17 @@ final class ConsultationTokenResourceType extends DplanResourceType
         )];
     }
 
+    /**
+     * @return array|\EDT\JsonApi\PropertyConfig\Builder\AttributeConfigBuilder[]|\EDT\JsonApi\PropertyConfig\Builder\ToManyRelationshipConfigBuilder[]|\EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilder[]
+     * @throws \EDT\Querying\Contracts\PathException
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException
+     */
     protected function getProperties(): array
     {
-        // Check if the current user is allowed to update the entity.
-        $inCurrentProcedureCondition = $this->conditionFactory->propertyHasValue(
-            $this->currentProcedureService->getProcedureWithCertainty('No authorization for any procedure.')->getId(),
-            Paths::consultationToken()->originalStatement->procedure->id
-        );
-
         return [
             $this->createIdentifier()->readable()->sortable()->filterable(),
-            $this->createAttribute($this->note)->readable(true)->sortable()->filterable()->updatable([$inCurrentProcedureCondition]),
+            $this->createAttribute($this->note)->readable(true)->sortable()->filterable()->updatable(
+                [$this->isInCurrentProcedureCondition()]),
             $this->createAttribute($this->token)->readable(true)->sortable()->filterable(),
             $this->createToOneRelationship($this->statement)->readable()->sortable()->filterable(),
             $this->createAttribute($this->usedEmailAddress)->readable()->sortable()->filterable()
