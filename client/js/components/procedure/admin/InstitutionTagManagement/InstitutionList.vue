@@ -30,6 +30,7 @@
           @search="val => handleSearch(val)" />
 
         <client-side-tag-filter
+          v-if="hasPermission('feature_institution_tag_read')"
           :filter-categories="allFilterCategories"
           :raw-items="institutionList"
           @items-filtered="filteredItems = $event"
