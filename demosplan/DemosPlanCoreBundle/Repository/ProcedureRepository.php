@@ -804,6 +804,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             if (array_key_exists('allowAnonymousStatements', $data['settings'])) {
                 $procedureSettings->setAllowAnonymousStatements($data['settings']['allowAnonymousStatements']);
             }
+            if (array_key_exists('publicParticipationFeedbackEnabled', $data['settings'])) {
+                $procedureSettings->setPublicParticipationFeedbackEnabled($data['settings']['publicParticipationFeedbackEnabled']);
+            }
             if (array_key_exists('pictogramCopyright', $data['settings'])) {
                 $procedureSettings->setPictogramCopyright($data['settings']['pictogramCopyright']);
             }

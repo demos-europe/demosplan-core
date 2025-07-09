@@ -8,7 +8,12 @@
 </license>
 
 <template>
-  <div :class="[statement.r_getFeedback === 'on' ? prefixClass('bg-color--grey-light-2') : '', prefixClass('c-statement__formblock')]">
+  <div 
+    v-if="publicParticipationFeedbackEnabled"
+    :class="[
+      prefixClass('c-statement__formblock'),
+      { [prefixClass('bg-color--grey-light-2')]: statement.r_getFeedback === 'on' }
+    ]"
     <dp-checkbox
       id="r_getFeedback"
       aria-labelledby="statement-detail-require-information-mail"
@@ -74,6 +79,14 @@ export default {
     DpCheckbox
   },
 
-  mixins: [formGroupMixin]
+  mixins: [formGroupMixin],
+
+  props: {
+    publicParticipationFeedbackEnabled: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
+  }
 }
 </script>
