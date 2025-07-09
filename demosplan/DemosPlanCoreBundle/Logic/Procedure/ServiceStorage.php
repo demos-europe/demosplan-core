@@ -635,11 +635,20 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             if (array_key_exists('r_deletePictogram', $data)) {
                 $procedure['settings']['pictogram'] = '';
             }
+
             if (array_key_exists('r_pictogramCopyright', $data)) {
                 $procedure['settings']['pictogramCopyright'] = $data['r_pictogramCopyright'];
             }
             if (array_key_exists('r_pictogramAltText', $data)) {
                 $procedure['settings']['pictogramAltText'] = $data['r_pictogramAltText'];
+            }
+        }
+
+        if ($this->permissions->hasPermission('field_submit_anonymous_statements')) {
+            if (array_key_exists('allowAnonymousStatements', $data)) {
+                $procedure['settings']['allowAnonymousStatements'] = true;
+            } else {
+                $procedure['settings']['allowAnonymousStatements'] = false;
             }
         }
 
@@ -668,7 +677,6 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
             $path = $this->fileService->ensureLocalFile($pictogramFileInfo->getAbsolutePath());
             $imageInfo = getimagesize($path);
-
         } catch (Exception $e) {
             throw new InvalidArgumentException($e->getMessage());
         }

@@ -313,7 +313,7 @@ const LayersStore = {
      */
     setVisibilityGroups (state) {
       const elementsWithVisibilityGroups = state.apiData.included.filter(elem => {
-        return (typeof elem.attributes.visibilityGroupId !== 'undefined' && elem.attributes.visibilityGroupId !== '')
+        return !!elem.attributes.visibilityGroupId
       })
 
       elementsWithVisibilityGroups.forEach((element) => {
@@ -380,6 +380,7 @@ const LayersStore = {
           GisLayer: [
             'canUserToggleVisibility',
             'categoryId',
+            'contextualHelp',
             'hasDefaultVisibility',
             'isBaseLayer',
             'isBplan',
@@ -747,7 +748,8 @@ const LayersStore = {
      * @returns {number} Number of elements in the group
      */
     visibilityGroupSize: state => visibilityGroupId => {
-      if (visibilityGroupId === '' || typeof state.apiData.included === 'undefined') return 0
+      if (!visibilityGroupId || typeof state.apiData.included === 'undefined') return 0
+
       return state.apiData.included.filter(current => {
         return current.attributes.visibilityGroupId === visibilityGroupId
       }).length

@@ -668,6 +668,7 @@ class DemosPlanProcedureController extends BaseController
                 'r_publicParticipationEndDate',
                 'r_publicParticipationPhase',
                 'r_publicParticipationPublicationEnabled',
+                'allowAnonymousStatements',
                 'r_publicParticipationStartDate',
                 'r_sendMailsToCounties',
                 'r_shortUrl',
@@ -2360,12 +2361,12 @@ class DemosPlanProcedureController extends BaseController
         if ($requestPost->has('boilerplateDeleteChecked')) {
             // Delete checked Boilerplates
             if ($requestPost->has('boilerplate_delete')) {
-                $this->handleDeleteBoilerplates($procedureHandler, $requestPost->get('boilerplate_delete'));
+                $this->handleDeleteBoilerplates($procedureHandler, $requestPost->all('boilerplate_delete'));
             }
 
             // Delete checked BoilerplateGroups
             if ($requestPost->has('boilerplateGroupIdsTo_delete')) {
-                $this->handleDeleteBoilerplateGroups($requestPost->get('boilerplateGroupIdsTo_delete'));
+                $this->handleDeleteBoilerplateGroups($requestPost->all('boilerplateGroupIdsTo_delete'));
             }
 
             if (false ===

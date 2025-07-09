@@ -67,7 +67,7 @@
       </header>
 
       <dp-inline-notification
-        :class="prefixClass('mt-3 mb-2')"
+        :class="prefixClass('mb-2')"
         dismissible
         dismissible-key="statementModalCloseExplanation"
         :message="Translator.trans('explanation.statement.autosave')"
@@ -79,7 +79,7 @@
         data-dp-validate="statementForm">
         <dp-inline-notification
           v-if="loggedIn === false"
-          :class="prefixClass('mt-3')"
+          :class="prefixClass('mb-2')"
           type="info">
           <p
             v-if="statementFormHintStatement"
@@ -90,7 +90,7 @@
 
         <dp-inline-notification
           v-if="dpValidate.statementForm === false"
-          :class="prefixClass('mt-3 mb-2')"
+          :class="prefixClass('mb-2')"
           id="statementFormErrors"
           aria-labelledby="statementFormErrorsContent"
           tabindex="0">
@@ -472,61 +472,92 @@
             v-cleanhtml="createErrorMessage('submitterForm')" />
         </div>
 
+        <!-- Show radio buttons if anonymous statements are allowed -->
         <fieldset
-          aria-required="true"
+          v-if="allowAnonymousStatements"
+          id="personalInfoFieldset"
           :aria-hidden="step === 2"
           :class="prefixClass('mt-5')"
-          id="personalInfoFieldset"
+          aria-required="true"
           role="radiogroup"
-          required>
+          required
+        >
           <div
-            aria-live="polite"
-            aria-relevant="all"
             :class="[
               formData.r_useName === '1' ? prefixClass('bg-color--grey-light-2') : '',
               prefixClass('c-statement__formblock')
             ]"
-            aria-labelledby="statement-detail-post-publicly">
+            aria-labelledby="statement-detail-post-publicly"
+            aria-live="polite"
+            aria-relevant="all"
+          >
             <dp-radio
+              id="r_useName_1"
               :checked="formData.r_useName === '1'"
               :class="prefixClass('mb-1')"
-              data-cy="submitPublicly"
-              id="r_useName_1"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_publicly')
               }"
+              data-cy="submitPublicly"
               name="r_useName"
               value="1"
-              @change="val => setPrivacyPreference({r_useName: '1'})" />
+              @change="val => setPrivacyPreference({r_useName: '1'})"
+            />
+
             <div
               v-show="formData.r_useName === '1'"
               :class="prefixClass('layout mb-3 ml-2')">
               <component
                 v-for="formDefinition in personalDataFormDefinitions"
-                :is="formDefinition.component"
-                :draft-statement-id="draftStatementId"
-                :required="formDefinition.required"
-                :form-options="formOptions"
                 :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
-                :key="formDefinition.key" />
+                :draft-statement-id="draftStatementId"
+                :form-options="formOptions"
+                :is="formDefinition.component"
+                :key="formDefinition.key"
+                :required="formDefinition.required"
+              />
             </div>
           </div>
+
           <div
             :class="[
               formData.r_useName === '0' ? prefixClass('bg-color--grey-light-2') : '',
               prefixClass('c-statement__formblock')
             ]">
             <dp-radio
-              aria-labelledby="statement-detail-post-anonymously"
-              :checked="formData.r_useName === '0'"
-              data-cy="submitAnonymously"
               id="r_useName_0"
+              :checked="formData.r_useName === '0'"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_anonymously')
               }"
+              aria-labelledby="statement-detail-post-anonymously"
+              data-cy="submitAnonymously"
               name="r_useName"
               value="0"
-              @change="val => setPrivacyPreference({r_useName: '0'})" />
+              @change="val => setPrivacyPreference({r_useName: '0'})"
+            />
+          </div>
+        </fieldset>
+
+        <!-- Show the form directly if anonymous statements are not allowed -->
+        <fieldset
+          v-else
+          id="personalInfoFieldset"
+          :aria-hidden="step === 2"
+          :class="prefixClass('mt-4')"
+          aria-required="true"
+        >
+          <legend class="sr-only">{{ Translator.trans('personal.data') }}</legend>
+          <div :class="prefixClass('layout mb-3')">
+            <component
+              v-for="formDefinition in personalDataFormDefinitions"
+              :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
+              :draft-statement-id="draftStatementId"
+              :form-options="formOptions"
+              :is="formDefinition.component"
+              :key="formDefinition.key"
+              :required="formDefinition.required"
+            />
           </div>
         </fieldset>
 
@@ -554,6 +585,7 @@
         data-dp-validate="recheckForm">
         <statement-modal-recheck
           @edit-input="handleEditInput"
+          :allow-anonymous-statements="allowAnonymousStatements"
           :form-fields="formFields"
           :statement="formData"
           :public-participation-publication-enabled="publicParticipationPublicationEnabled"
@@ -762,6 +794,12 @@ export default {
   mixins: [dpValidateMixin, prefixClassMixin],
 
   props: {
+    allowAnonymousStatements: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+
     counties: {
       type: Array,
       required: false,
@@ -1550,6 +1588,10 @@ export default {
   },
 
   mounted () {
+    if (!this.allowAnonymousStatements && this.formData.r_useName !== '1') {
+      this.setPrivacyPreference({ r_useName: '1' })
+    }
+
     // Set data from map
     this.$root.$on('update-statement-form-map-data', (data = {}, toggle = true) => {
       this.setStatementData(data)

@@ -2883,6 +2883,7 @@ public.index.filter.gfk.location.results: |
     }
 public.index.heading: "{projectName}: Plattform zur öffentlichen Mitwirkung bei räumlichen Planungen und Genehmigungsverfahren"
 public.or.invitable_institution: "Öffentlichkeit/Institutionen"
+public.participation.anonymous.statements: "Anonyme Einreichung von Stellungnahmen erlauben"
 public.participation.contact: "Ansprechperson"
 public.participation.contribute: "Mitreden"
 public.participation.faq_link_project: "Hier finden Sie Antworten."
@@ -3399,6 +3400,7 @@ statement.detail.form.personal.post_anonymously: "Ich möchte anonym Stellung ne
 statement.detail.form.personal.post_publicly: "Ich möchte namentlich Stellung nehmen."
 statement.detail.form.personal.publish: "Ich möchte, dass meine Stellungnahme (nach Freigabe durch die Verwaltung) <em>bei {projectName} einsehbar</em> ist."
 statement.detail.form.personal.require_information_mail: "Ich möchte informiert werden, wenn die Auswertung der Stellungnahme online verfügbar ist."
+statement.detail.form.personal.submit: "Ich möchte die Stellungnahme mit diesen persönlichen Daten einreichen:"
 statement.detail.form.statement_text: "Bitte verfassen Sie Ihre Stellungnahme"
 statement.dialog.close: "Stellungnahme-Formular minimieren"
 statement.do.fragment: "Stellungnahme aufteilen"
@@ -4189,6 +4191,7 @@ warning.login.welcomepage.failed: "Der Login war nicht erfolgreich. Die Vollstä
 warning.new.entry.not.possible: "Ein neuer Beitrag ist in dieser Phase nicht möglich."
 warning.no.selected.procedures: "Es wurden keine Verfahren ausgewählt."
 warning.orgadata.missing: "Die Daten Ihrer Organisation wurden noch nicht vollständig hinterlegt. Zunächst muss sich die Institutions-Koordination oder die/der Fachplaner-Admin Ihrer Organisation anmelden und diese vervollständigen. Danach können Sie demosplan nutzen."
+warning.organisation.no_available_roles: "Es sind keine Rollen verfügbar, um die Berechtigung zum Erstellen von Prozeduren zu aktivieren."
 warning.other.active.releases: "Es gibt noch andere Releases in der Phase \"Bepunktung\" oder \"Sitzung vor Ort\"."
 warning.paragraph.ordering.level.mismatch: "Die Reihenfolge der Kapitel kann nur innerhalb einer Ebene verändert werden. Um ein Kapitel einer anderen Überschrift zuzuordnen gehen Sie bitte in die Detailansicht eines Kapitels."
 warning.password.repeat.not.equal: "Die neuen Passwörter stimmen nicht überein."

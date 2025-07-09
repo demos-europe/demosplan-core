@@ -17,11 +17,11 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-class Version20250217163902 extends AbstractMigration
+class Version20250623114024 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs DPLAN-15001: Add index on _files._f_hash';
+        return 'refs DPLAN-15078: Add flag to allow anonymous statements in a procedure.';
     }
 
     /**
@@ -30,11 +30,9 @@ class Version20250217163902 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-
-        $table = $schema->getTable('_files');
-        if (!$table->hasIndex('IDX_8C0DACC5DCE34FD9')) {
-            $table->addIndex(['_f_hash'], 'IDX_8C0DACC5DCE34FD9');
-        }
+        $this->addSql(<<<'SQL'
+            ALTER TABLE _procedure_settings ADD allow_anonymous_statements TINYINT(1) DEFAULT 1 NOT NULL
+        SQL);
     }
 
     /**
@@ -44,10 +42,9 @@ class Version20250217163902 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $table = $schema->getTable('_files');
-        if ($table->hasIndex('IDX_8C0DACC5DCE34FD9')) {
-            $table->dropIndex('IDX_8C0DACC5DCE34FD9');
-        }
+        $this->addSql(<<<'SQL'
+            ALTER TABLE _procedure_settings DROP allow_anonymous_statements
+        SQL);
     }
 
     /**

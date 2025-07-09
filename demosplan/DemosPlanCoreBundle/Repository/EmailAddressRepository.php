@@ -29,7 +29,16 @@ class EmailAddressRepository extends CoreRepository implements EmailAddressRepos
         $foundEmailAddressEntities = $this->findBy(['fullAddress' => $inputEmailAddressStrings]);
         $foundEmailAddressStrings = array_map(static fn (EmailAddress $emailAddress) => $emailAddress->getFullAddress(), $foundEmailAddressEntities);
 
-        $newEmailAddressStrings = array_diff($inputEmailAddressStrings, $foundEmailAddressStrings);
+        // Case-insensitive email address comparison
+        $lowercaseFoundEmails = array_map('strtolower', $foundEmailAddressStrings);
+        $newEmailAddressStrings = [];
+
+        foreach ($inputEmailAddressStrings as $emailString) {
+            if (!in_array(strtolower($emailString), $lowercaseFoundEmails, true)) {
+                $newEmailAddressStrings[] = $emailString;
+            }
+        }
+
         $newEmailAddressEntities = array_map(static function (string $emailAddressString) {
             $emailAddressEntity = new EmailAddress();
             $emailAddressEntity->setFullAddress($emailAddressString);
@@ -97,10 +106,15 @@ class EmailAddressRepository extends CoreRepository implements EmailAddressRepos
      */
     protected function sortByGivenArray(array $sortedStrings, array $unsortedEntities): array
     {
-        $sortedEmailAddresses = array_fill_keys($sortedStrings, null);
-        foreach ($unsortedEntities as $emailAddressEntity) {
-            $fullAddress = $emailAddressEntity->getFullAddress();
-            $sortedEmailAddresses[$fullAddress] = $emailAddressEntity;
+        $sortedEmailAddresses = [];
+        foreach ($sortedStrings as $sortedEmailAddressString) {
+            foreach ($unsortedEntities as $unsortedEmailAddressEntity) {
+                $fullAddress = $unsortedEmailAddressEntity->getFullAddress();
+                if (0 === strcasecmp($sortedEmailAddressString, $fullAddress)) {
+                    $sortedEmailAddresses[$sortedEmailAddressString] = $unsortedEmailAddressEntity;
+                    break;
+                }
+            }
         }
 
         return $sortedEmailAddresses;
