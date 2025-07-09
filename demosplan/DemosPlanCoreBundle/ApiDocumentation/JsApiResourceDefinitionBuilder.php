@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Logic\ApiDocumentation;
+namespace demosplan\DemosPlanCoreBundle\ApiDocumentation;
 
 use cebe\openapi\spec\OpenApi;
 use cebe\openapi\spec\Reference;
