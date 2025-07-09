@@ -174,7 +174,6 @@ class DocumentHandler extends CoreHandler
         return $fileName;
     }
 
-
     /**
      * Speichere die Elemente, die via Importer importiert werden.
      *
@@ -218,7 +217,7 @@ class DocumentHandler extends CoreHandler
         foreach ($entries as $entry) {
             $fileName = (string) $entry['title'];
             // Ensure the string is properly encoded to UTF-8
-            $fileName = mb_convert_encoding($fileName, 'UTF-8', mb_detect_encoding($fileName,self::POSSIBLE_ENCODINGS, true));
+            $fileName = mb_convert_encoding($fileName, 'UTF-8', mb_detect_encoding($fileName, self::POSSIBLE_ENCODINGS, true));
             $entryPath = '/'.ltrim($entry['path'], '/');
             if (in_array($entryPath, $sessionElementImportList)) {
                 $keys = array_keys($sessionElementImportList, $entryPath);
@@ -229,7 +228,7 @@ class DocumentHandler extends CoreHandler
                     $fileName = $request[$keys[0]];
                     // Also ensure the string from request is properly encoded to UTF-8
                     $fileName = mb_convert_encoding($fileName, 'UTF-8',
-                        mb_detect_encoding($fileName,self::POSSIBLE_ENCODINGS, true));
+                        mb_detect_encoding($fileName, self::POSSIBLE_ENCODINGS, true));
                 }
             }
             // Ordner werden als neue Elements abgespeichert
