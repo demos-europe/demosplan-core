@@ -91,7 +91,7 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
         return new RedirectResponse($this->urlGenerator->generate('DemosPlan_user_login_alternative'));
     }
 
-    public function start(Request $request, AuthenticationException $authException = null): Response
+    public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         return new RedirectResponse($this->urlGenerator->generate('DemosPlan_user_login_alternative'));
     }

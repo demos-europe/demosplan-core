@@ -4,6 +4,7 @@
             <input
                 name="procedure_selected[]"
                 type="checkbox"
+                data-checkable-item=""
                 data-cy="ListMasters"
                 value="{% if procedure.ident is defined %}{{ procedure.ident }}{% else %}{{ "notspecified"|trans }}{% endif %}">
         {% endif %}

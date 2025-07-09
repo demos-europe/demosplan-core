@@ -163,7 +163,9 @@ export default {
     resetMapSettings () {
       const previousState = this.customerItems[this.currentCustomerId].attributes
       const properties = ['mapAttribution', 'baseLayerLayers', 'baserLayerUrl']
-      properties.forEach(prop => this[prop] = previousState[prop])
+      properties.forEach(prop => {
+        this[prop] = previousState[prop]
+      })
     },
 
     saveMapSettings () {

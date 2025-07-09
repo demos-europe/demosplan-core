@@ -8,46 +8,44 @@
 </license>
 
 <template>
-  <portal to="vueModals">
-    <dp-modal
-      ref="assignModal"
-      @modal:toggled="handleClose"
-      content-classes="u-1-of-2">
-      <!-- modal header -->
-      <template v-slot:header>
-        {{ Translator.trans('assignment.entity.assign.to.other', { entity: Translator.trans(entityType) }) }}
-      </template>
+  <dp-modal
+    ref="assignModal"
+    @modal:toggled="handleClose"
+    content-classes="u-1-of-2">
+    <!-- modal header -->
+    <template v-slot:header>
+      {{ Translator.trans('assignment.entity.assign.to.other', { entity: Translator.trans(entityType) }) }}
+    </template>
 
-      <!--the height of the div below (220px) is needed because the multiselect dropdown will cause the modal to have a scroll when opened (see: https://github.com/shentao/vue-multiselect/issues/723). Once this github issue is solved and dropdown will overlay modal content, the height class and button top margin can be removed.
-      ATTENTION! To be able to reduce the dropdown's size, I had to change styling in _multiselect.scss (overflow and max-height props in dropdown__content). It may cause the comeback of T11129 bug -->
+    <!--the height of the div below (220px) is needed because the multiselect dropdown will cause the modal to have a scroll when opened (see: https://github.com/shentao/vue-multiselect/issues/723). Once this github issue is solved and dropdown will overlay modal content, the height class and button top margin can be removed.
+    ATTENTION! To be able to reduce the dropdown's size, I had to change styling in _multiselect.scss (overflow and max-height props in dropdown__content). It may cause the comeback of T11129 bug -->
 
-      <!-- modal content -->
-      <div class="h-11">
-        <h3>{{ Translator.trans('user.choose') }}:</h3>
-        <div>
-          <dp-multiselect
-            :id="`r_${entityId}`"
-            v-model="selected"
-            :allow-empty="false"
-            class="u-n-ml-0_25"
-            :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
-            :name="`r_${entityId}`"
-            :options="[{ id: '', name: '-'}, ...users]"
-            :max-height="150"
-            track-by="id">
-            <template v-slot:option="{ props }">
-              {{ props.option.name }} {{ props.option.id === currentUserId ? ` (Sie)` : '' }}
-            </template>
-          </dp-multiselect>
-        </div>
-        <dp-button
-          class="u-mt float-right"
-          :busy="loading"
-          :text="Translator.trans('assignment.generic.assign.to.chosen', { entity: Translator.trans(entityType) })"
-          @click="assignEntity" />
+    <!-- modal content -->
+    <div class="h-11">
+      <h3>{{ Translator.trans('user.choose') }}:</h3>
+      <div>
+        <dp-multiselect
+          :id="`r_${entityId}`"
+          v-model="selected"
+          :allow-empty="false"
+          class="u-n-ml-0_25"
+          :custom-label="option => `${option.name} ${option.id === currentUserId ? '(Sie)' : ''}`"
+          :name="`r_${entityId}`"
+          :options="[{ id: '', name: '-'}, ...users]"
+          :max-height="150"
+          track-by="id">
+          <template v-slot:option="{ props }">
+            {{ props.option.name }} {{ props.option.id === currentUserId ? ` (Sie)` : '' }}
+          </template>
+        </dp-multiselect>
       </div>
-    </dp-modal>
-  </portal>
+      <dp-button
+        class="u-mt float-right"
+        :busy="loading"
+        :text="Translator.trans('assignment.generic.assign.to.chosen', { entity: Translator.trans(entityType) })"
+        @click="assignEntity" />
+    </div>
+  </dp-modal>
 </template>
 
 <script>

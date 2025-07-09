@@ -35,6 +35,7 @@
     </p>
     <dp-inline-notification
       v-if="!areScalesSuitable"
+      class="mt-3 mb-2"
       :message="Translator.trans('map.scales.select.error')"
       type="error" />
   </div>
@@ -65,6 +66,12 @@ export default {
     }
   },
 
+  emits: [
+    'change',
+    'suitableScalesChange',
+    'update'
+  ],
+
   data () {
     return {
       areScalesSuitable: false,
@@ -73,8 +80,11 @@ export default {
   },
 
   watch: {
-    selectedScales (newVal) {
-      this.scales = newVal
+    selectedScales: {
+      handler (newVal) {
+        this.scales = newVal
+      },
+      deep: true
     }
   },
 

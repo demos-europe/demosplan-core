@@ -214,19 +214,26 @@ export default {
   },
 
   watch: {
-    currentView (newVal) {
-      if (newVal === 'DpDetailView') {
-        this.zoomToMarker(this.currentProcedureId)
-      }
-      if (newVal === 'DpList') {
-        this.setZoom()
-      }
+    currentView: {
+      handler (newVal) {
+        if (newVal === 'DpDetailView') {
+          this.zoomToMarker(this.currentProcedureId)
+        }
+        if (newVal === 'DpList') {
+          this.setZoom()
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
+
     },
 
-    shouldMapZoomBeSet (newVal) {
-      if (newVal === true) {
-        this.$nextTick(() => this.setZoom())
-      }
+    shouldMapZoomBeSet: {
+      handler (newVal) {
+        if (newVal) {
+          this.$nextTick(() => this.setZoom())
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 

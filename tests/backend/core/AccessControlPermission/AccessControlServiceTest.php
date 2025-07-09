@@ -29,7 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use Tests\Base\UnitTestCase;
-use Zenstruck\Foundry\Proxy;
+use Zenstruck\Foundry\Persistence\Proxy;
 
 class AccessControlServiceTest extends UnitTestCase
 {
@@ -65,29 +65,29 @@ class AccessControlServiceTest extends UnitTestCase
 
         $this->testOrgaType = OrgaTypeFactory::createOne();
         $this->testOrgaType->setName(OrgaTypeInterface::PLANNING_AGENCY);
-        $this->testOrgaType->save();
+        $this->testOrgaType->_save();
 
         $this->testOrga = OrgaFactory::createOne();
         $this->testCustomer = CustomerFactory::createOne();
         $this->testCustomer->setSubdomain('bb');
-        $this->testCustomer->save();
+        $this->testCustomer->_save();
 
         $this->testOrgaStatusInCustomer = OrgaStatusInCustomerFactory::createOne();
 
         $this->testOrgaStatusInCustomer->setOrga($this->testOrga->object());
-        $this->testOrgaStatusInCustomer->save();
+        $this->testOrgaStatusInCustomer->_save();
 
         $this->testOrgaStatusInCustomer->setCustomer($this->testCustomer->object());
-        $this->testOrgaStatusInCustomer->save();
+        $this->testOrgaStatusInCustomer->_save();
 
         $this->testOrgaStatusInCustomer->setOrgaType($this->testOrgaType->object());
-        $this->testOrgaStatusInCustomer->save();
+        $this->testOrgaStatusInCustomer->_save();
 
         $this->testOrgaStatusInCustomer->setStatus(OrgaStatusInCustomerInterface::STATUS_ACCEPTED);
-        $this->testOrgaStatusInCustomer->save();
+        $this->testOrgaStatusInCustomer->_save();
 
         $this->testOrga->addStatusInCustomer($this->testOrgaStatusInCustomer->object());
-        $this->testOrga->save();
+        $this->testOrga->_save();
     }
 
     public function testCreatePermission(): void
@@ -96,7 +96,7 @@ class AccessControlServiceTest extends UnitTestCase
         $permissionToCheck = 'my_permission';
 
         // Act
-        $accessControlPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $this->testRole);
+        $accessControlPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->_real(), $this->testCustomer->_real(), $this->testRole);
 
         // Assert
         self::assertInstanceOf(AccessControl::class, $accessControlPermission);
@@ -164,10 +164,10 @@ class AccessControlServiceTest extends UnitTestCase
         $permissionToCheck = AccessControlService::CREATE_PROCEDURES_PERMISSION;
         $roleCodes = [RoleInterface::PRIVATE_PLANNING_AGENCY];
         $this->testOrgaType->setName(OrgaTypeInterface::PUBLIC_AGENCY);
-        $this->testOrgaType->save();
+        $this->testOrgaType->_save();
 
         $this->testOrgaStatusInCustomer->setOrgaType($this->testOrgaType->object());
-        $this->testOrgaStatusInCustomer->save();
+        $this->testOrgaStatusInCustomer->_save();
 
         // Act
         $hasPermission = $this->sut->permissionExist($permissionToCheck, $this->testOrga->object(), $this->testCustomer->object(), $roleCodes);

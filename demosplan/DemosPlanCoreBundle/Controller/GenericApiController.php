@@ -23,14 +23,18 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use EDT\JsonApi\RequestHandling\RequestConstraintFactory;
 use EDT\JsonApi\Requests\CreationRequest;
 use EDT\JsonApi\Requests\DeletionRequest;
 use EDT\JsonApi\Requests\GetRequest;
 use EDT\JsonApi\Requests\RequestException;
 use EDT\JsonApi\Requests\UpdateRequest;
 use EDT\Wrapping\Contracts\TypeRetrievalAccessException;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Webmozart\Assert\Assert;
 
 /**
@@ -68,7 +72,7 @@ class GenericApiController extends APIController
     )]
     public function listAction(
         SearchCapableListRequest $listRequest,
-        string $resourceType
+        string $resourceType,
     ): APIResponse {
         // fetch resource type instance
         $type = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);
@@ -111,10 +115,23 @@ class GenericApiController extends APIController
         methods: ['PATCH']
     )]
     public function updateAction(
-        UpdateRequest $updateRequest,
+        EventDispatcherInterface $eventDispatcher,
+        Request $request,
+        ValidatorInterface $validator,
+        RequestConstraintFactory $requestConstraintFactory,
         string $resourceType,
-        string $resourceId
+        string $resourceId,
     ): Response {
+        // Dependency Injection of UpdateRequest does not work in tests,
+        // content of the Request is not passed to the UpdateRequest
+        $updateRequest = new UpdateRequest(
+            $eventDispatcher,
+            $request,
+            $validator,
+            $requestConstraintFactory,
+            512
+        );
+
         // fetch resource type instance
         $type = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);
 
@@ -204,7 +221,7 @@ class GenericApiController extends APIController
     public function deleteAction(
         DeletionRequest $deletionRequest,
         string $resourceType,
-        string $resourceId
+        string $resourceId,
     ): Response {
         // fetch resource type instance
         $type = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);
@@ -248,7 +265,7 @@ class GenericApiController extends APIController
     public function getAction(
         GetRequest $getRequest,
         string $resourceType,
-        string $resourceId
+        string $resourceId,
     ): Response {
         // fetch resource type instance
         $type = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);

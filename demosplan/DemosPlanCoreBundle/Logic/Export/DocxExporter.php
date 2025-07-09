@@ -33,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
@@ -97,11 +96,6 @@ class DocxExporter
      * @var FileService
      */
     protected $fileService;
-
-    /**
-     * @var ServiceImporter
-     */
-    protected $serviceImport;
 
     /**
      * @var Environment
@@ -959,6 +953,9 @@ class DocxExporter
         }
         try {
             $text = self::replaceTags($text);
+            // remove STX (start of text) EOT (end of text) special chars
+            $text = str_replace([chr(2), chr(3)], '', $text);
+
             Html::addHtml($cell, $text, false);
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not parse HTML in Export', [$e, $text, $e->getTraceAsString()]);

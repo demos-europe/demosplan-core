@@ -152,6 +152,10 @@ export default {
     }
   },
 
+  emits: [
+    'selected-cluster'
+  ],
+
   data () {
     return {
       selected: this.initSelectedCluster !== '' ? this.initClusterList.find(cluster => cluster.id === this.initSelectedCluster) : this.emptyCluster,
@@ -254,7 +258,7 @@ export default {
       this.updatingClaimState = false
       data.organisation = data.orgaName
       delete data.orgaName
-      Vue.set(this.selected, 'assignee', data)
+      this.selected.assignee = data
     }
   }
 }

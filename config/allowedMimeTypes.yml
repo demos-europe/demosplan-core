@@ -18,6 +18,7 @@ parameters:
     - image/webp
     - image/x-png
     - text/plain
+    - text/csv
 # text/html für den Paragraph HTML-Importer
     - text/html
     - application/vnd.openxmlformats-officedocument.wordprocessingml.document

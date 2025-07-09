@@ -91,7 +91,7 @@
       type="button"
       class="btn--blank o-link--default u-mr-0_5"
       data-cy="selectedItemsStatements:export"
-      @click.prevent="$root.$emit('exportModal:toggle', 'docx')">
+      @click.prevent="$emit('exportModal:toggle', 'docx')">
       <i
         aria-hidden="true"
         class="fa fa-share-square u-mr-0_125" />
@@ -136,6 +136,12 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'exportModal:toggle',
+    'update-assessment-table',
+    'update-pagination-assessment-table'
+  ],
 
   data () {
     return {
@@ -196,8 +202,11 @@ export default {
   },
 
   watch: {
-    selectedElements () {
-      this.fetchRelatedFragments()
+    selectedElements: {
+      handler () {
+        this.fetchRelatedFragments()
+      },
+      deep: true
     }
   },
 

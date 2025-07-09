@@ -24,7 +24,7 @@
         :current-user-id="currentUserId"
         :current-user-name="currentUserName"
         @consolidateStatements="$root.$emit('consolidateStatements')"
-      />
+        @exportModal:toggle="tab => $emit('exportModal:toggle', tab)" />
 
       <dp-button
         class="float-right"
@@ -71,6 +71,11 @@ export default {
       default: ''
     }
   },
+
+  emits: [
+    'consolidateStatements',
+    'exportModal:toggle'
+  ],
 
   data () {
     return {

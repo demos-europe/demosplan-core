@@ -11,7 +11,6 @@ services:
     Cocur\Slugify\Slugify: ~
 
     demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable\StatementBulkEditTransformer:
-        lazy: true
         tags:
             - name: dplan.json_api_transformer
 
@@ -112,6 +111,10 @@ services:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\FileResourceType
         public: true
 
+    DemosEurope\DemosplanAddon\Contracts\ResourceType\TagResourceTypeInterface:
+        class: demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType
+        public: true
+
     DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedureResourceTypeInterface:
         class: demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType
         public: true
@@ -171,8 +174,12 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface:
         class: demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent
 
+    DemosEurope\DemosplanAddon\Contracts\Services\MapProjectionConverterInterface: '@demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter'
+
     DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService
+
+    DemosEurope\DemosplanAddon\Permission\AccessControl\AccessControlRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository'
 
     DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\User\UserService'
@@ -232,6 +239,13 @@ services:
                 template: '@DemosPlanCore/data_collector/geo_json_info.html.twig'
                 id: 'app.geo_json_data_collector'
                 priority: -101
+
+    demosplan\DemosPlanCoreBundle\DataCollector\AddonInfoDataCollector:
+        tags:
+            -   name: data_collector
+                template: '@DemosPlanCore/data_collector/addon_info.html.twig'
+                id: 'app.addon_info_collector'
+                priority: -99
 
     demosplan\DemosPlanCoreBundle\DataCollector\UserInfoDataCollector:
         tags:
@@ -423,6 +437,11 @@ services:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
             $entityManager: '@doctrine.orm.entity_manager'
 
+    # RequestId processor for logs
+    demosplan\DemosPlanCoreBundle\Monolog\Processor\RequestIdProcessor:
+        tags:
+            - { name: monolog.processor, priority: 100 }
+
     Doctrine\ORM\EntityManager:
         arguments:
             $config: '@doctrine.orm.default_configuration'
@@ -550,13 +569,11 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer: ~
 
     demosplan\DemosPlanCoreBundle\Transformers\FaqCategoryTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
@@ -580,7 +597,6 @@ services:
             - { name: "dplan.drafts.info.transformer" }
 
     demosplan\DemosPlanCoreBundle\Transformers\SlugDraftTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
@@ -688,8 +704,6 @@ services:
         calls:
             - [ 'setClient', [ '@old_sound_rabbit_mq.demos_plan_import_rpc' ]]
 
-    demosplan\DemosPlanCoreBundle\Tools\VirusCheckInterface: '@demosplan\DemosPlanCoreBundle\Tools\VirusCheckRabbitmq'
-
     demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
@@ -700,7 +714,6 @@ services:
     ########## Transformers
 
     demosplan\DemosPlanCoreBundle\Transformers\Document\DocumentDashboardTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
@@ -756,7 +769,6 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Transformers\Map\MapOptionsTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
@@ -846,13 +858,11 @@ services:
             $rendererName: '%pdf_renderer_name%'
 
     demosplan\DemosPlanCoreBundle\Transformers\Procedure\AssessmentTableFilterTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\Procedure\ProcedureArrayTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
@@ -893,7 +903,6 @@ services:
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
         lazy: true
         calls:
-            - [ 'setTagImportService', [ '@intriro_csv.importer.tags' ] ]
             - [ 'setElasticsearchIndexManager', ['@fos_elastica.index_manager'] ]
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler:
@@ -965,19 +974,16 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Transformers\EntityContentChangeComparisonTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\HistoryTimeTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             - name: dplan.json_api_transformer
@@ -1087,7 +1093,6 @@ services:
 
     # Segment Service
     demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService: ~
-    demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter: ~
     demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter: ~
 
     # Drafts Info Handler
@@ -1113,61 +1118,19 @@ services:
         autoconfigure: false
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterItemTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterGroupTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
 
     demosplan\DemosPlanCoreBundle\Transformers\Filters\AggregationFilterTypeTransformer:
-        lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer
         tags:
             -   name: dplan.json_api_transformer
-
-    # Survey Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyHandler:
-        $surveyStatuses: '%survey.statuses%'
-
-    # Survey New Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyNewHandler:
-        $defaultStatus: '%survey.status.default%'
-
-    # Survey Update Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyUpdateHandler:
-        $schemaFilePath: '%survey.schema_path_update%'
-
-    # Survey Create Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyCreateHandler:
-        $schemaFilePath: '%survey.schema_path_create%'
-
-    # Survey Show Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyShowHandler: ~
-
-    # Survey Service
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyService: ~
-
-    # Survey Validator
-    demosplan\DemosPlanCoreBundle\Validator\SurveyValidator: ~
-
-    # SurveyVote Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteHandler:
-        $permissions: '@DemosEurope\DemosplanAddon\Contracts\PermissionsInterface'
-
-    # SurveyVote Create Handler
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteCreateHandler: ~
-
-    # SurveyVote Service
-    demosplan\DemosPlanCoreBundle\Logic\Survey\SurveyVoteService: ~
-
-    # SurveyVote Validator
-    demosplan\DemosPlanCoreBundle\Validator\SurveyVoteValidator:
-        $schemaFilePath: '%surveyvote.schema_path_create%'
 
     demosplan\DemosPlanCoreBundle\Logic\User\UserService:
         lazy: true
@@ -1181,6 +1144,8 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreService
+
+    DemosEurope\DemosplanAddon\Contracts\Services\OrgaServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\OrgaService'
 
     demosplan\DemosPlanCoreBundle\Logic\User\OrgaService:
         lazy: true
@@ -1207,6 +1172,24 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\User\UserHasher:
         lazy: true
 
+    # User Activity Infrastructure
+    demosplan\DemosPlanCoreBundle\Logic\User\LastLoginActivityChecker:
+        arguments:
+            $dayThreshold: '%user_activity_last_login_threshold_days%'
+        tags:
+            - { name: user_activity_checker }
+
+    demosplan\DemosPlanCoreBundle\Logic\User\ClaimedStatementsActivityChecker:
+        arguments:
+            $dayThreshold: '%user_activity_claimed_statements_threshold_days%'
+        tags:
+            - { name: user_activity_checker }
+
+    demosplan\DemosPlanCoreBundle\Authorization\Voter\UserActivityVoter:
+        arguments:
+            $activityCheckers: !tagged_iterator 'user_activity_checker'
+        tags:
+            - { name: security.voter }
 
     demosplan\DemosPlanCoreBundle\Logic\User\RoleService:
         lazy: true
@@ -1376,6 +1359,8 @@ services:
             $resourceTypes: !tagged dplan.resourceType
 
     Intervention\Image\ImageManager: ~
+
+    Nelmio\SecurityBundle\EventListener\ContentSecurityPolicyListener: '@nelmio_security.csp_listener'
 
     Pagerfanta\View\ViewFactory: '@white_october_pagerfanta.view_factory'
 

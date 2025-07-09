@@ -67,7 +67,7 @@ class StatementFactory extends FactoryBase
         OrgaService $orgaService,
         PermissionsInterface $permissions,
         ProcedureService $procedureService,
-        private readonly UserService $userService
+        private readonly UserService $userService,
     ) {
         $this->orgaService = $orgaService;
         $this->procedureService = $procedureService;
@@ -146,8 +146,8 @@ class StatementFactory extends FactoryBase
         if ($this->procedure instanceof Procedure) {
             $procedure = $this->procedure;
         } else {
-            $procedures = collect($this->procedureService->getProcedureFullList('', false));
-            /* @var $procedure Procedure */
+            $procedures = collect($this->procedureService->getProcedureFullList(null, '', false));
+            /* @var Procedure $procedure */
             $procedure = $procedures->random();
         }
 
@@ -195,8 +195,6 @@ class StatementFactory extends FactoryBase
      *   d) Anonymous public users => "Bürger"
      *
      * @param array $baseData
-     *
-     * @return mixed
      *
      * @throws InvalidUserDataException on invalid user value
      */
@@ -286,8 +284,6 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @param string $userLogin
-     *
      * @throws DataProviderException
      */
     protected function fetchUser(?string $userLogin): void
@@ -306,8 +302,6 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @param string $orgaId
-     *
      * @throws DataProviderException
      */
     protected function fetchOrga(?string $orgaId): void
@@ -320,8 +314,6 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @param string $procedureId
-     *
      * @throws DataProviderException
      */
     protected function fetchProcedure(?string $procedureId): void

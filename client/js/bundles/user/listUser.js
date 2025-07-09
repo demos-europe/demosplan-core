@@ -26,10 +26,10 @@ const components = {
   DpUserListExtended
 }
 const apiStores = [
+  'AdministratableUser',
   'Department',
   'Orga',
-  'Role',
-  'AdministratableUser'
+  'Role'
 ]
 
 initialize(components, stores, apiStores)

@@ -65,6 +65,10 @@ export default {
     }
   },
 
+  emits: [
+    'items-filtered'
+  ],
+
   data () {
     return {
       selectedDocument: 'all',

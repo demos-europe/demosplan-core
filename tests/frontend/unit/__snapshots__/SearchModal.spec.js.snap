@@ -1,100 +1,60 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`SearchModal renders the correct markup for activated field_statement_municipality 1`] = `
-"<div class="flex"><label class="relative u-m-0"><button data-cy="searchAssessmentWordButton" class="btn-icns fa fa-search c-at__controls-input-button"></button>
-    <dp-input-stub autocomplete="" datacounter="" datacy="searchAssessmentWordField" datadpvalidateerror="" datadpvalidateerrorfieldname="" datadpvalidateif="" datadpvalidateshouldequal="" hasicon="true" id="searchterm" label="[object Object]" name="search_word2" pattern="" placeholder="searchterm" preventdefaultonenter="true" type="text" value="" width="w-12" aria-label="search.assessment.table"></dp-input-stub>
-  </label> <button type="button" data-cy="searchAdvanced" class="btn--blank o-link--default inline-block u-m-0 u-p-0 u-ml-0_5">
-    search.advanced
-  </button>
-  <portal-stub name="2" order="0" slotprops="[object Object]" tag="DIV" to="vueModals">
-    <dp-modal-stub arialabel="" contentbodyclasses="" contentclasses="u-4-of-8-wide u-2-of-3-desk-down" contentheaderclasses="" modalid="">
-      <h2>search.advanced</h2> <label class="layout__item u-pl-0 u-mb-0_25 u-mt-0_75 relative">
-        <dp-input-stub autocomplete="" datacounter="" datacy="searchModal:searchAssessmentTableAdvanced" datadpvalidateerror="" datadpvalidateerrorfieldname="" datadpvalidateif="" datadpvalidateshouldequal="" id="searchterm2" label="[object Object]" name="search_word" pattern="" placeholder="searchterm" preventdefaultonenter="true" type="text" value="" width="u-1-of-1" aria-label="search.assessment.table"></dp-input-stub>
-      </label>
-      <p class="lbl__hint u-pt-0 u-mt-0 u-pb-0_5">
-        assessmenttable.searchfield.characters
-      </p>
-      <div class="space-stack-s">
-        <dp-details-stub datacy="element" summary="search.options"><span>search.options.description</span></dp-details-stub>
-        <dp-details-stub datacy="element" summary="search.special.characters"><span>search.special.characters.description</span></dp-details-stub>
-      </div>
-      <h3 class="u-mt-0_25">
-        search.in
-      </h3>
-      <div class="max-h-12 w-full align-top overflow-auto u-mb">
-        <div class="layout--flush">
-          <dp-checkbox-stub datacy="searchModal:statementText" datadpvalidateerrorfieldname="" id="statementText" label="[object Object]" name="search_fields[]" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy="searchModal:authorName" datadpvalidateerrorfieldname="" id="authorName" label="[object Object]" name="search_fields[]" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy="searchModal:statementId" datadpvalidateerrorfieldname="" id="statementId" label="[object Object]" name="search_fields[]" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy="searchModal:internId" datadpvalidateerrorfieldname="" id="internId" label="[object Object]" name="search_fields[]" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy="searchModal:municipalitiesNames" datadpvalidateerrorfieldname="" id="municipalitiesNames" label="[object Object]" name="search_fields[]" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy="searchModal:consideration" datadpvalidateerrorfieldname="" id="consideration" label="[object Object]" name="search_fields[]" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
-          <!---->
-          <!---->
-          <!---->
-          <!---->
-          <!---->
-          <!---->
-          <!---->
-          <!----> <input type="hidden" name="search_fields[]" value="tagNames" checked="checked" aria-hidden="true" class="hidden">
-          <!---->
-        </div>
-      </div>
-      <div class="text-right"><button type="button" data-cy="searchModal:submitSearchAdvanced" class="btn btn--primary u-mr">
-          apply
-        </button><button data-cy="searchModal:resetSearchAdvanced" class="btn btn--secondary">
-          reset
-        </button></div>
-    </dp-modal-stub>
-  </portal-stub>
+"<div class="flex">
+  <!-- Search Field --><label class="relative u-m-0"><button class="btn-icns fa fa-search c-at__controls-input-button" data-cy="searchAssessmentWordButton"></button>
+    <dp-input-stub id="searchterm" autocomplete="" datacounter="" datacy="searchAssessmentWordField" datadpvalidateerror="" datadpvalidateerrorfieldname="" datadpvalidateif="" datadpvalidateshouldequal="" hasicon="true" label="[object Object]" name="search_word2" pattern="" placeholder="searchterm" preventdefaultonenter="true" rounded="full" type="text" width="w-12" modelvalue="" aria-label="search.assessment.table" value=""></dp-input-stub>
+  </label><!-- Advanced Search button to open modal --><button type="button" data-cy="searchAdvanced" class="btn--blank o-link--default inline-block u-m-0 u-p-0 u-ml-0_5">search.advanced</button><!-- Modal content -->
+  <dp-modal-stub arialabel="" contentbodyclasses="" contentclasses="u-4-of-8-wide u-2-of-3-desk-down" contentheaderclasses="" modalid=""></dp-modal-stub>
 </div>"
 `;
 
 exports[`SearchModal renders the correct markup with deactivated feature_statements_tag and feature_statement_fragments_tag 1`] = `
-"<div class="flex"><label class="relative u-m-0"><button data-cy="searchAssessmentWordButton" class="btn-icns fa fa-search c-at__controls-input-button"></button>
-    <dp-input-stub autocomplete="" datacounter="" datacy="searchAssessmentWordField" datadpvalidateerror="" datadpvalidateerrorfieldname="" datadpvalidateif="" datadpvalidateshouldequal="" hasicon="true" id="searchterm" label="[object Object]" name="search_word2" pattern="" placeholder="searchterm" preventdefaultonenter="true" type="text" value="" width="w-12" aria-label="search.assessment.table"></dp-input-stub>
-  </label> <button type="button" data-cy="searchAdvanced" class="btn--blank o-link--default inline-block u-m-0 u-p-0 u-ml-0_5">
-    search.advanced
-  </button>
-  <portal-stub name="1" order="0" slotprops="[object Object]" tag="DIV" to="vueModals">
-    <dp-modal-stub arialabel="" contentbodyclasses="" contentclasses="u-4-of-8-wide u-2-of-3-desk-down" contentheaderclasses="" modalid="">
-      <h2>search.advanced</h2> <label class="layout__item u-pl-0 u-mb-0_25 u-mt-0_75 relative">
-        <dp-input-stub autocomplete="" datacounter="" datacy="searchModal:searchAssessmentTableAdvanced" datadpvalidateerror="" datadpvalidateerrorfieldname="" datadpvalidateif="" datadpvalidateshouldequal="" id="searchterm2" label="[object Object]" name="search_word" pattern="" placeholder="searchterm" preventdefaultonenter="true" type="text" value="" width="u-1-of-1" aria-label="search.assessment.table"></dp-input-stub>
-      </label>
-      <p class="lbl__hint u-pt-0 u-mt-0 u-pb-0_5">
-        assessmenttable.searchfield.characters
-      </p>
-      <div class="space-stack-s">
-        <dp-details-stub datacy="element" summary="search.options"><span>search.options.description</span></dp-details-stub>
-        <dp-details-stub datacy="element" summary="search.special.characters"><span>search.special.characters.description</span></dp-details-stub>
+"<div class="flex">
+  <!-- Search Field --><label class="relative u-m-0"><button class="btn-icns fa fa-search c-at__controls-input-button" data-cy="searchAssessmentWordButton"></button>
+    <dp-input-stub id="searchterm" autocomplete="" datacounter="" datacy="searchAssessmentWordField" datadpvalidateerror="" datadpvalidateerrorfieldname="" datadpvalidateif="" datadpvalidateshouldequal="" hasicon="true" label="[object Object]" name="search_word2" pattern="" placeholder="searchterm" preventdefaultonenter="true" rounded="full" type="text" width="w-12" modelvalue="" aria-label="search.assessment.table" value=""></dp-input-stub>
+  </label><!-- Advanced Search button to open modal --><button type="button" data-cy="searchAdvanced" class="btn--blank o-link--default inline-block u-m-0 u-p-0 u-ml-0_5">search.advanced</button><!-- Modal content -->
+  <dp-modal-stub arialabel="" contentbodyclasses="" contentclasses="u-4-of-8-wide u-2-of-3-desk-down" contentheaderclasses="" modalid="">
+    <h2>search.advanced</h2><!-- Search Field --><label class="layout__item u-pl-0 u-mb-0_25 u-mt-0_75 relative">
+      <dp-input-stub id="searchterm2" autocomplete="" datacounter="" datacy="searchModal:searchAssessmentTableAdvanced" datadpvalidateerror="" datadpvalidateerrorfieldname="" datadpvalidateif="" datadpvalidateshouldequal="" hasicon="false" label="[object Object]" name="search_word" pattern="" placeholder="searchterm" preventdefaultonenter="true" rounded="full" type="text" width="w-full" modelvalue="" aria-label="search.assessment.table" value=""></dp-input-stub>
+    </label><!-- search hint -->
+    <p class="lbl__hint u-pt-0 u-mt-0 u-pb-0_5">assessmenttable.searchfield.characters</p><!-- Search options and special characters -->
+    <div class="space-stack-s">
+      <dp-details-stub datacy="element" summary="search.options"><span>search.options.description</span></dp-details-stub>
+      <dp-details-stub datacy="element" summary="search.special.characters"><span>search.special.characters.description</span></dp-details-stub>
+    </div><!-- Checkboxes -->
+    <h3 class="u-mt-0_25">search.in</h3>
+    <div class="max-h-12 w-full align-top overflow-auto u-mb">
+      <div class="layout--flush">
+        <dp-checkbox-stub id="statementText" checked="false" datacy="searchModal:statementText" datadpvalidateerrorfieldname="" disabled="false" label="[object Object]" name="search_fields[]" required="false" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
+        <dp-checkbox-stub id="authorName" checked="false" datacy="searchModal:authorName" datadpvalidateerrorfieldname="" disabled="false" label="[object Object]" name="search_fields[]" required="false" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
+        <dp-checkbox-stub id="statementId" checked="false" datacy="searchModal:statementId" datadpvalidateerrorfieldname="" disabled="false" label="[object Object]" name="search_fields[]" required="false" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
+        <dp-checkbox-stub id="internId" checked="false" datacy="searchModal:internId" datadpvalidateerrorfieldname="" disabled="false" label="[object Object]" name="search_fields[]" required="false" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
+        <dp-checkbox-stub id="consideration" checked="false" datacy="searchModal:consideration" datadpvalidateerrorfieldname="" disabled="false" label="[object Object]" name="search_fields[]" required="false" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub><!-- department is added as hidden field when organisation is selected -->
+        <!--v-if-->
+        <!-- last name is added as hidden field if submitter is selected -->
+        <!--v-if-->
+        <!-- sachbearbeiter is added as hidden field if submitter is selected -->
+        <!--v-if-->
+        <!-- group name is added as hidden field if submitter is selected - this is probably the author of the head statement (so the main STN in cluster) -->
+        <!--v-if-->
+        <!-- paragraph is added as hidden field if document is selected -->
+        <!--v-if-->
+        <!-- element title is added as hidden field if document is selected -->
+        <!--v-if-->
+        <!-- public/external id of group is added as hidden field if statement id is selected -->
+        <!--v-if-->
+        <!-- counties is added as hidden field if municipalities is selected -->
+        <!--v-if-->
+        <!-- tags is added as hidden field if topics is selected --><input class="hidden" type="hidden" name="search_fields[]" checked="" aria-hidden="true" value="tagNames"><!-- fragment consideration is added as hidden field if consideration is selected -->
+        <!--v-if-->
       </div>
-      <h3 class="u-mt-0_25">
-        search.in
-      </h3>
-      <div class="max-h-12 w-full align-top overflow-auto u-mb">
-        <div class="layout--flush">
-          <dp-checkbox-stub datacy="searchModal:statementText" datadpvalidateerrorfieldname="" id="statementText" label="[object Object]" name="search_fields[]" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy="searchModal:authorName" datadpvalidateerrorfieldname="" id="authorName" label="[object Object]" name="search_fields[]" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy="searchModal:statementId" datadpvalidateerrorfieldname="" id="statementId" label="[object Object]" name="search_fields[]" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy="searchModal:internId" datadpvalidateerrorfieldname="" id="internId" label="[object Object]" name="search_fields[]" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
-          <dp-checkbox-stub datacy="searchModal:consideration" datadpvalidateerrorfieldname="" id="consideration" label="[object Object]" name="search_fields[]" valuetosend="1" class="layout__item u-1-of-2"></dp-checkbox-stub>
-          <!---->
-          <!---->
-          <!---->
-          <!---->
-          <!---->
-          <!---->
-          <!---->
-          <!----> <input type="hidden" name="search_fields[]" value="tagNames" checked="checked" aria-hidden="true" class="hidden">
-          <!---->
-        </div>
-      </div>
-      <div class="text-right"><button type="button" data-cy="searchModal:submitSearchAdvanced" class="btn btn--primary u-mr">
-          apply
-        </button><button data-cy="searchModal:resetSearchAdvanced" class="btn btn--secondary">
-          reset
-        </button></div>
-    </dp-modal-stub>
-  </portal-stub>
+    </div><!-- Button row -->
+    <div class="text-right"><button class="btn btn--primary u-mr" type="button" data-cy="searchModal:submitSearchAdvanced">apply</button>
+      <!--
+
+     --><button class="btn btn--secondary" data-cy="searchModal:resetSearchAdvanced">reset</button>
+    </div>
+  </dp-modal-stub>
 </div>"
 `;

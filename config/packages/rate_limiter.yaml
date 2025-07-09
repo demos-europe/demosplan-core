@@ -19,5 +19,5 @@ framework:
         # the bearer token is reset at every page reload
         jwt_token:
             policy: 'fixed_window'
-            limit: 10
+            limit: 100
             interval: '30 days'

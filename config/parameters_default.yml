@@ -43,6 +43,10 @@ parameters:
     # who are granted access (true)
     procedure_user_restricted_access: false
 
+    # User activity checking thresholds (in days)
+    user_activity_last_login_threshold_days: 180
+    user_activity_claimed_statements_threshold_days: 180
+
     # Route and parameters for the public index page
     #
     # - Using the controller forward notation here will result in an internal forward
@@ -61,9 +65,14 @@ parameters:
     # Der Link muss mit abschließendem Slash angegeben werden.
     gateway_redirect_url: ""
 
+    # https://symfony.com/doc/6.4/http_client.html
     proxy_dsn: ""
-    # Array of trusted proxies. See https://symfony.com/doc/3.4/deployment/proxies.html
-    proxy_trusted: []
+    proxy_no_proxy: ""
+    # Comma separated string of trusted proxies. See https://symfony.com/doc/6.4/deployment/proxies.html
+    # This value is used to fill symfony's trusted_proxies parameter
+    proxy_trusted: ''
+    # Cafile for http_client if needed e.g. to support self signed certificates for proxies
+    cafile: ~
 
     # Das HTTP-Schema kann explizit angegeben werden, wenn es nicht dynamisch generiert werden soll
     # wie bspw. hinter einem LoadBalancer. Nur das Schema ist anzugeben z.B. 'http'
@@ -165,11 +174,19 @@ parameters:
     # route to tex2pdf service without trailing slash
     tex2pdf_url: ""
 
-    # virus scan service url without trailing slash
+    # enable virus scan
+    avscan_enable: true
+    # virus scan service url without trailing slash, used in VirusCheckHttp
     avscan_url: ""
+    # Implementation to use for virus scan. Currently VirusCheckHttp, VirusCheckRabbitmq or VirusCheckSocket
+    avscan_implementation: 'VirusCheckHttp'
+    # Variables to use for remote scan with VirusCheckSocket
+    avscan_host: "%env(string:AVSCAN_HOST)%"
+    avscan_port: "%env(int:AVSCAN_PORT)%"
+    avscan_timeout: "%env(int:AVSCAN_TIMEOUT)%"
 
     #RabbitMQ setting like amqp://:@localhost:5672/%2f
-    rabbitmq_dsn: "%env(string:RABBITMQ_DSN)%"
+    rabbitmq_dsn: "%env(default:rabbitmq_dsn:string:RABBITMQ_DSN)%"
     rabbitmq_routing_disabled: false
 
     # Route to docxImporter without trailing slash
@@ -184,6 +201,8 @@ parameters:
     email_test_from: "testMailSender@localhost.de"
     email_test_to: "testMailReceiver@localhost.de"
     email_system: "systememail@localhost.de"
+    procedure_metrics_receiver_default: ""
+    procedure_metrics_receiver: "%env(default:procedure_metrics_receiver_default:string:PROCEDURE_METRICS_MAIL)%"
     email_bounce_check: false
     # #refactor: path and file could be used as one
     email_bouncefile_path: ""
@@ -222,8 +241,12 @@ parameters:
 
     fileservice_filepath: "../../files"
 
-    elasticsearch_urls:
-        -   url: "http://localhost:9200"
+    elasticsearch_urls: ["http://localhost:9200"]
+    # elasticsearch client config, used to configure ssl
+    # https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/doc/cookbook/elastica-http-client-configuration.md#setting-ssl-options
+    elasticsearch_client_config: ~
+    elasticsearch_user: ""
+    elasticsearch_pass: ""
 
     # #refactor: deprecated, project_prefix used, could be deleted
     advancedsearchservice_index_name_prefix: "dplan"
@@ -236,6 +259,11 @@ parameters:
     # Number of workers to use during populate in command dplan:elasticsearch:populate
     # Set at least to num cpu cores / 2 to gain a massive speedup
     elasticsearch_populate_workers: 1
+
+    # Piktogram file restrictions for enabled feature_procedure_pictogram_resolution_restriction
+    pictogram_max_file_size: 5000000
+    pictogram_min_width: 500
+    pictogram_min_height: 300
 
     # Karten
 
@@ -335,9 +363,6 @@ parameters:
     # Sollen zusätzliche Informationen von Geoservern geholt werden?
     use_fetch_additional_geodata: false
 
-    # enable virus scan
-    avscan_enable: true
-
     # should file table entries be checked regularly whether they are referenced in some other entities
     # and be fully deleted if no reference is found?
     delete_removed_files: true
@@ -363,6 +388,7 @@ parameters:
     demosplan_csp_script_src:
         - 'self'
         - 'unsafe-eval' # vue.js needs it if templates are not precompiled
+        - 'strict-dynamic' # Trust scripts added by a trusted script
     demosplan_csp_style_src:
         - 'unsafe-inline'
         - 'self'
@@ -455,19 +481,6 @@ parameters:
     public_css_class_prefix: ""
 
     # #refactor: used only once, could be constants
-    survey.statuses:
-        - configuration
-        - participation
-        - evaluation
-        - completed
-    survey.status.default: 'configuration'
-
-    # #refactor: used only once, could be constants
-    survey.schema_path_create: "%kernel.project_dir%/config/Survey/survey-schema-create.json"
-    survey.schema_path_update: "%kernel.project_dir%/config/Survey/survey-schema-update.json"
-    surveyvote.schema_path_create: "%kernel.project_dir%/config/Survey/surveyvote-schema-create.json"
-
-    # #refactor: used only once, could be constants
     file.formats.doc: [doc, docx]
     file.formats.pdf: [pdf]
     file.formats.xls: [xls, xlsx]
@@ -485,8 +498,9 @@ parameters:
     # Allows to define links, that will be presented in a special section on the main page.
     # Note that the data will be used in the frontend directly, i.e. no measures against potentially harmful
     # scripts is taken if such thing is used here.
-    # It can be used as follows:
+    # It can be used as two dimensional array as follows:
     # external_links:
     #     Name of some website: https://link-to-the-website.net
+    #       restricted: true/false (flag to indicate that the link should be restricted by the permission "feature_list_restricted_external_links")
     #     Some other website: https://link-to-some-other-website.net
     external_links: []

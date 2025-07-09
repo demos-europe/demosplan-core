@@ -26,6 +26,11 @@
     },
     {
         "license": "MIT",
+        "package": "composer/composer",
+        "website": "https://github.com/composer/composer"
+    },
+    {
+        "license": "MIT",
         "package": "composer/package-versions-deprecated",
         "website": "https://github.com/composer/package-versions-deprecated"
     },
@@ -93,11 +98,6 @@
         "license": "MIT",
         "package": "endroid/qr-code-bundle",
         "website": "https://github.com/endroid/qr-code-bundle"
-    },
-    {
-        "license": "MIT",
-        "package": "enqueue/elastica-bundle",
-        "website": "https://github.com/php-enqueue/enqueue-elastica-bundle"
     },
     {
         "license": "MIT",
@@ -175,11 +175,6 @@
         "website": "https://github.com/Intervention/image"
     },
     {
-        "license": "MIT",
-        "package": "intriro/csv-bundle",
-        "website": "https://github.com/intriro/csv-bundle"
-    },
-    {
         "license": "BSD-3-Clause",
         "package": "jfcherng/php-diff",
         "website": "https://github.com/jfcherng/php-diff"
@@ -208,6 +203,11 @@
         "license": "MIT",
         "package": "knpuniversity/oauth2-client-bundle",
         "website": "https://github.com/knpuniversity/oauth2-client-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "league/csv",
+        "website": "https://github.com/thephpleague/csv"
     },
     {
         "license": "MIT",
@@ -272,7 +272,7 @@
     {
         "license": "MIT",
         "package": "nesbot/carbon",
-        "website": "https://github.com/briannesbitt/Carbon"
+        "website": "https://github.com/CarbonPHP/carbon"
     },
     {
         "license": "Apache-2.0",
@@ -353,6 +353,11 @@
         "license": "MIT",
         "package": "rollerworks/password-strength-bundle",
         "website": "https://github.com/rollerworks/PasswordStrengthBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "ruflin/elastica",
+        "website": "https://github.com/ruflin/Elastica"
     },
     {
         "license": "MIT",

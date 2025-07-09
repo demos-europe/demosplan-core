@@ -54,6 +54,10 @@ export default {
     }
   },
 
+  emits: [
+    'status-changed'
+  ],
+
   computed: {
     tooltipText () {
       return this.switchDate !== ''

@@ -14,16 +14,22 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Event\CreateReportEntryEvent;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\SingleDocumentReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
 use ReflectionException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+
 
 class SingleDocumentService extends CoreService implements SingleDocumentServiceInterface
 {
@@ -37,7 +43,10 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
         private readonly EntityHelper $entityHelper,
         FileService $fileService,
         private readonly SingleDocumentRepository $singleDocumentRepository,
-        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository
+        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
+        private readonly SingleDocumentReportEntryFactory $reportEntryFactory,
+        private readonly ReportService $reportService,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
         $this->fileService = $fileService;
     }
@@ -99,8 +108,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
 
         $i = 1;
         foreach ($documents as $document) {
-            $this->singleDocumentRepository
-                ->update($document, ['order' => $i++]);
+            $this->singleDocumentRepository->update($document, ['order' => $i++]);
         }
 
         return true;
@@ -195,8 +203,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
      */
     public function getSingleDocument($ident, bool $legacy = true)
     {
-        $result = $this->singleDocumentRepository
-            ->get($ident);
+        $result = $this->singleDocumentRepository->get($ident);
 
         if (null !== $result && $legacy) {
             $result = $this->entityHelper->toArray($result);
@@ -227,20 +234,21 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
      *
      * @param array $data
      *
-     * @return array
-     *
      * @throws ReflectionException
      */
-    public function addSingleDocument($data)
+    public function addSingleDocument($data): array
     {
-        $result = $this->singleDocumentRepository->add($data);
+        $singleDocument = $this->singleDocumentRepository->add($data);
 
-        $result = $this->entityHelper->toArray($result);
-        $result = $this->convertDateTime($result);
+        $reportEntryEvent = new CreateReportEntryEvent($singleDocument, ReportEntry::CATEGORY_ADD);
+        $this->eventDispatcher->dispatch($reportEntryEvent);
+
+        $singleDocument = $this->entityHelper->toArray($singleDocument);
+        $singleDocument = $this->convertDateTime($singleDocument);
         // Legacy structure
-        $result['statement_enabled'] = $result['statementEnabled'];
+        $singleDocument['statement_enabled'] = $singleDocument['statementEnabled'];
 
-        return $result;
+        return $singleDocument;
     }
 
     /**
@@ -256,12 +264,14 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
                 $idents = [$idents];
             }
             $success = true;
-            $repos = $this->singleDocumentRepository;
-
             foreach ($idents as $documentId) {
                 try {
-                    // lösche die Entity
-                    $repos->delete($documentId);
+                    $documentToDelete = $this->getSingleDocument($documentId, false);
+
+                    $reportEntryEvent = new CreateReportEntryEvent($documentToDelete, ReportEntry::CATEGORY_DELETE);
+                    $this->eventDispatcher->dispatch($reportEntryEvent);
+
+                    $this->singleDocumentRepository->delete($documentId);
                 } catch (Exception $e) {
                     $this->logger->error('Fehler beim Löschen eines SingleDocuments: ', [$e]);
                     $success = false;
@@ -277,25 +287,24 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     }
 
     /**
-     * Update eines Dokumentes.
-     *
-     * @param array $data
-     *
-     * @return array
-     *
+     * @throws ORMException
+     * @throws OptimisticLockException
      * @throws ReflectionException
+     * @throws \DemosEurope\DemosplanAddon\Exception\JsonException
      */
-    public function updateSingleDocument($data)
+    public function updateSingleDocument($data): array
     {
-        $result = $this->singleDocumentRepository
-            ->update($data['ident'], $data);
+        $updatedDocument = $this->singleDocumentRepository->update($data['ident'], $data);
 
-        $result = $this->entityHelper->toArray($result);
-        $result = $this->convertDateTime($result);
+        $reportEntryEvent = new CreateReportEntryEvent($updatedDocument, ReportEntry::CATEGORY_UPDATE);
+        $this->eventDispatcher->dispatch($reportEntryEvent);
+
+        $updatedDocument = $this->entityHelper->toArray($updatedDocument);
+        $updatedDocument = $this->convertDateTime($updatedDocument);
         // Legacy structure
-        $result['statement_enabled'] = $result['statementEnabled'];
+        $updatedDocument['statement_enabled'] = $updatedDocument['statementEnabled'];
 
-        return $result;
+        return $updatedDocument;
     }
 
     /**
@@ -357,27 +366,9 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
     public function convertSingleDocumentTitle($title)
     {
         $documentParts = \explode(':', $title);
+
         // set somehow misleading title 'title.pdf' to avoid missing docType in Windows
         return $documentParts[0] ?? 'title.pdf';
-    }
-
-    /**
-     * Given a SingleDocument object, returns its File Info.
-     * If there is no file info in the SingleDocument object, returns an associative array keeping its keys
-     * ['name','hash', 'size', 'mimeType'] but with empty values.
-     */
-    public function getSingleDocumentInfo(SingleDocument $singleDocument): array
-    {
-        $fileInfo = ['name' => '', 'hash' => '', 'size' => '', 'mimeType' => ''];
-        $documentStringParts = \explode(':', (string) $singleDocument->getDocument());
-        if (count($documentStringParts) >= 4) {
-            $fileInfo['name'] = $documentStringParts[0];
-            $fileInfo['hash'] = $documentStringParts[1];
-            $fileInfo['size'] = $documentStringParts[2];
-            $fileInfo['mimeType'] = $documentStringParts[3];
-        }
-
-        return $fileInfo;
     }
 
     /**

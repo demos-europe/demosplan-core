@@ -4,8 +4,10 @@
       ref="editableList"
       :entries="contacts"
       :translation-keys="translationKeys"
+      @delete="deleteEntry"
       @reset="resetForm"
-      @saveEntry="id => dpValidateAction('contactData', () => createOrUpdateContact(id), false)">
+      @saveEntry="id => dpValidateAction('contactData', () => createOrUpdateContact(id), false)"
+      @show-update-form="showUpdateForm">
       <template v-slot:list="contact">
         <h3
           class="break-words"
@@ -35,11 +37,11 @@
             v-model="customerContact.title"
             class="u-mb-0_75"
             data-cy="contactTitle"
-            :pattern="titlesInUsePattern"
             :data-dp-validate-error="Translator.trans(customerContact.title === '' ? 'error.name.required' : 'error.name.unique')"
             :label="{
               text: Translator.trans('contact.name')
             }"
+            :pattern="titlesInUsePattern"
             required
             type="text" />
           <dp-input
@@ -67,8 +69,8 @@
             type="email" />
           <dp-editor
             id="supportText"
-            class="u-mb-0_75"
             v-model="customerContact.text"
+            class="u-mb-0_75"
             hidden-input="supportText"
             :toolbar-items="{
               fullscreenButton: true,
@@ -188,6 +190,13 @@ export default {
       this.resetForm()
     },
 
+    deleteEntry (id) {
+      this.deleteContact(id).then(() => {
+        this.getContacts()
+        dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
+      })
+    },
+
     getContacts () {
       this.fetchContacts({
         fields: {
@@ -207,6 +216,14 @@ export default {
       this.updating = false
     },
 
+    showUpdateForm (index) {
+      this.updateForm(index)
+
+      this.$nextTick(() => {
+        document.getElementById('contactForm').scrollIntoView()
+      })
+    },
+
     updateForm (id) {
       const currentData = this.contacts[id].attributes
 
@@ -223,19 +240,6 @@ export default {
   },
 
   mounted () {
-    this.$on('showUpdateForm', (index) => {
-      this.updateForm(index)
-      this.$nextTick(() => {
-        document.getElementById('contactForm').scrollIntoView()
-      })
-    })
-
-    this.$on('delete', (id) => {
-      this.deleteContact(id).then(() => {
-        dplan.notify.notify('confirm', Translator.trans('contact.deleted'))
-      })
-    })
-
     this.getContacts()
   }
 }

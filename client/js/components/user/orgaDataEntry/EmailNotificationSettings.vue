@@ -118,7 +118,7 @@ export default {
 
   computed: {
     hasNotificationSectionPermission () {
-      return this.willReceiveNewStatementNotification && hasPermission('feature_notification_statement_new') ||
+      return (this.willReceiveNewStatementNotification && hasPermission('feature_notification_statement_new')) ||
         (this.user.isPublicAgency && hasPermission('feature_notification_ending_phase'))
     }
   }

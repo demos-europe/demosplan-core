@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\CountyResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerContactResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerLoginSupportContactResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomFieldResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\DepartmentResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\EmailAddressResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\EmailResourceType;
@@ -43,6 +44,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\GlobalNewsResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HashedQueryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HeadStatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionLocationContactResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitableInstitutionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
@@ -86,8 +88,6 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementReportEntryResourceType
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementVoteResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\SurveyVoteResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagTopicResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\UserFilterSetResourceType;
@@ -162,6 +162,7 @@ class ResourceTypeStore
 
     protected InstitutionLocationContactResourceType $institutionLocationContactResourceType;
 
+    protected InstitutionTagCategoryResourceType $institutionTagCategoryResourceType;
     protected InstitutionTagResourceType $institutionTagResourceType;
 
     protected InvitableInstitutionResourceType $invitableInstitutionResourceType;
@@ -248,10 +249,6 @@ class ResourceTypeStore
 
     protected StatementVoteResourceType $statementVoteResourceType;
 
-    protected SurveyResourceType $surveyResourceType;
-
-    protected SurveyVoteResourceType $surveyVoteResourceType;
-
     protected TagResourceType $tagResourceType;
 
     protected TagTopicResourceType $tagTopicResourceType;
@@ -261,6 +258,8 @@ class ResourceTypeStore
     protected UserResourceType $userResourceType;
 
     protected UserRoleInCustomerResourceType $userRoleInCustomerResourceType;
+
+    protected CustomFieldResourceType $customFieldResourceType;
 
     public function __construct(
         AdminProcedureResourceType $adminProcedureResourceType,
@@ -294,6 +293,7 @@ class ResourceTypeStore
         HashedQueryResourceType $hashedQueryResourceType,
         HeadStatementResourceType $headStatementResourceType,
         InstitutionLocationContactResourceType $institutionLocationContactResourceType,
+        InstitutionTagCategoryResourceType $institutionTagCategoryResourceType,
         InstitutionTagResourceType $institutionTagResourceType,
         InvitableInstitutionResourceType $invitableInstitutionResourceType,
         InvitablePublicAgencyResourceType $invitablePublicAgencyResourceType,
@@ -337,13 +337,12 @@ class ResourceTypeStore
         StatementResourceType $statementResourceType,
         StatementSegmentResourceType $statementSegmentResourceType,
         StatementVoteResourceType $statementVoteResourceType,
-        SurveyResourceType $surveyResourceType,
-        SurveyVoteResourceType $surveyVoteResourceType,
         TagResourceType $tagResourceType,
         TagTopicResourceType $tagTopicResourceType,
         UserFilterSetResourceType $userFilterSetResourceType,
         UserResourceType $userResourceType,
         UserRoleInCustomerResourceType $userRoleInCustomerResourceType,
+        CustomFieldResourceType $customFieldResourceType,
     ) {
         $this->adminProcedureResourceType = $adminProcedureResourceType;
         $this->administratableUserResourceType = $administratableUserResourceType;
@@ -376,6 +375,7 @@ class ResourceTypeStore
         $this->hashedQueryResourceType = $hashedQueryResourceType;
         $this->headStatementResourceType = $headStatementResourceType;
         $this->institutionLocationContactResourceType = $institutionLocationContactResourceType;
+        $this->institutionTagCategoryResourceType = $institutionTagCategoryResourceType;
         $this->institutionTagResourceType = $institutionTagResourceType;
         $this->invitableInstitutionResourceType = $invitableInstitutionResourceType;
         $this->invitablePublicAgencyResourceType = $invitablePublicAgencyResourceType;
@@ -419,13 +419,12 @@ class ResourceTypeStore
         $this->statementResourceType = $statementResourceType;
         $this->statementSegmentResourceType = $statementSegmentResourceType;
         $this->statementVoteResourceType = $statementVoteResourceType;
-        $this->surveyResourceType = $surveyResourceType;
-        $this->surveyVoteResourceType = $surveyVoteResourceType;
         $this->tagResourceType = $tagResourceType;
         $this->tagTopicResourceType = $tagTopicResourceType;
         $this->userFilterSetResourceType = $userFilterSetResourceType;
         $this->userResourceType = $userResourceType;
         $this->userRoleInCustomerResourceType = $userRoleInCustomerResourceType;
+        $this->customFieldResourceType = $customFieldResourceType;
     }
 
     public function getAdminProcedureResourceType(): AdminProcedureResourceType
@@ -581,6 +580,11 @@ class ResourceTypeStore
     public function getInstitutionLocationContactResourceType(): InstitutionLocationContactResourceType
     {
         return $this->institutionLocationContactResourceType;
+    }
+
+    public function getInstitutionTagCategoryResourceType(): InstitutionTagCategoryResourceType
+    {
+        return $this->institutionTagCategoryResourceType;
     }
 
     public function getInstitutionTagResourceType(): InstitutionTagResourceType
@@ -798,16 +802,6 @@ class ResourceTypeStore
         return $this->statementVoteResourceType;
     }
 
-    public function getSurveyResourceType(): SurveyResourceType
-    {
-        return $this->surveyResourceType;
-    }
-
-    public function getSurveyVoteResourceType(): SurveyVoteResourceType
-    {
-        return $this->surveyVoteResourceType;
-    }
-
     public function getTagResourceType(): TagResourceType
     {
         return $this->tagResourceType;
@@ -831,5 +825,10 @@ class ResourceTypeStore
     public function getUserRoleInCustomerResourceType(): UserRoleInCustomerResourceType
     {
         return $this->userRoleInCustomerResourceType;
+    }
+
+    public function getCustomFieldResourceType(): CustomFieldResourceType
+    {
+        return $this->customFieldResourceType;
     }
 }

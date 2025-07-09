@@ -157,15 +157,8 @@
             }
         }
 
-        &.separated {
-            &::before {
-                content: ' / ';
-
-            }
-
-            &:first-child::before {
-                content: '';
-            }
+        &.separated:not(:first-of-type)::before {
+            content: ' | ';
         }
     }
 

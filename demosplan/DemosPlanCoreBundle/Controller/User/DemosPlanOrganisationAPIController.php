@@ -10,7 +10,11 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\TopLevel;
@@ -39,19 +43,40 @@ use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
+use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\RequestHandling\PaginatorFactory;
+use EDT\JsonApi\Validation\FieldsValidator;
+use EDT\Wrapping\TypeProviders\PrefilledTypeProvider;
+use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 use League\Fractal\Resource\Collection;
 use Pagerfanta\Adapter\ArrayAdapter;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use UnexpectedValueException;
+use Webmozart\Assert\Assert;
 
 class DemosPlanOrganisationAPIController extends APIController
 {
     use CanTransformRequestVariablesTrait;
+
+    public function __construct(ApiLoggerInterface $apiLogger,
+        PrefilledTypeProvider $resourceTypeProvider,
+        FieldsValidator $fieldsValidator,
+        private readonly TranslatorInterface $translator,
+        LoggerInterface $logger,
+        GlobalConfigInterface $globalConfig,
+        MessageBagInterface $messageBag,
+        SchemaPathProcessor $schemaPathProcessor,
+        MessageFormatter $messageFormatter,
+        private readonly RoleHandler $roleHandler,
+    ) {
+        parent::__construct($apiLogger, $resourceTypeProvider, $fieldsValidator, $translator, $logger, $globalConfig, $messageBag, $schemaPathProcessor, $messageFormatter);
+    }
 
     /**
      * Get organisation by ID.
@@ -93,7 +118,7 @@ class DemosPlanOrganisationAPIController extends APIController
      *
      * @return APIResponse
      */
-    #[Route(path: '/api/1.0/organisation/', name: 'dplan_api_organisation_list', options: ['expose' => true], methods: ['GET'])]
+    #[Route(path: '/api/1.0/organisation', name: 'dplan_api_organisation_list', options: ['expose' => true], methods: ['GET'])]
     public function listAction(
         CustomerHandler $customerHandler,
         OrgaResourceType $orgaResourceType,
@@ -101,38 +126,45 @@ class DemosPlanOrganisationAPIController extends APIController
         PaginatorFactory $paginatorFactory,
         PermissionsInterface $permissions,
         Request $request,
+        CurrentUserService $currentUser,
         JsonApiPaginationParser $paginationParser,
     ) {
         try {
-            if ($permissions->hasPermission('area_organisations_view_of_customer')
-                || $permissions->hasPermission('area_manage_orgas_all')
-            ) {
-                $currentCustomer = $customerHandler->getCurrentCustomer();
-                $orgaList = $orgaService->getOrgasInCustomer($currentCustomer);
-                $filter = $request->query->has('filter') ? $request->query->get('filter') : [];
-                $filterRegisterStatus = $filter['registerStatus'] ?? '';
-                $orgaSubdomain = $currentCustomer->getSubdomain();
-                if (OrgaStatusInCustomer::STATUS_PENDING === $filterRegisterStatus) {
-                    $orgaList = $this->getPendingOrgas($orgaList, $orgaSubdomain);
-                } else {
-                    // consider a rejected or accepted orga (considering their status for different orga types and subdomains)
-                    $orgaList = $this->getRegisteredOrgas($orgaList, $orgaSubdomain);
-                }
-                $filterNameContains = $this->getFilterOrgaNameContains($filter);
-                if ('' !== $filterNameContains) {
-                    $orgaList = array_filter(
-                        $orgaList,
-                        static fn (Orga $orga) => false !== stripos($orga->getName(), (string) $filterNameContains)
-                    );
-                }
-            } else {
+            if (false === $permissions->hasPermissions(
+                ['area_organisations_view_of_customer', 'area_manage_orgas_all'],
+                'OR'
+            )) {
                 // The orgalist is required. If it's not loaded, there's no point in having this route.
                 throw new AccessDeniedException('User has no access rights to get $orgalist.');
             }
 
+            $currentCustomer = $customerHandler->getCurrentCustomer();
+            $currentUserOrga = $currentUser->getUser()->getOrga();
+            Assert::notNull($currentUserOrga);
+
+            $orgaList = $permissions->hasPermission('feature_organisation_own_users_list') ?
+                [$currentUserOrga] : $orgaService->getOrgasInCustomer($currentCustomer);
+
+            $filter = $request->query->has('filter') ? $request->query->get('filter') : [];
+            $filterRegisterStatus = $filter['registerStatus'] ?? '';
+            $orgaSubdomain = $currentCustomer->getSubdomain();
+            if (OrgaStatusInCustomerInterface::STATUS_PENDING === $filterRegisterStatus) {
+                $orgaList = $this->getPendingOrgas($orgaList, $orgaSubdomain);
+            } else {
+                // consider a rejected or accepted orga (considering their status for different orga types and subdomains)
+                $orgaList = $this->getRegisteredOrgas($orgaList, $orgaSubdomain);
+            }
+            $filterNameContains = $this->getFilterOrgaNameContains($filter);
+            if ('' !== $filterNameContains) {
+                $orgaList = array_filter(
+                    $orgaList,
+                    static fn (Orga $orga) => false !== stripos($orga->getName(), (string) $filterNameContains)
+                );
+            }
+
             // pagination
             $pagination = $paginationParser->parseApiPaginationProfile(
-                $this->request->query->get('page', []),
+                $this->request->query->all('page'),
                 $this->request->query->get('sort', ''),
                 $this->request->query->get('size', '10')
             );
@@ -285,6 +317,29 @@ class DemosPlanOrganisationAPIController extends APIController
         }
     }
 
+    private function getAvailableOrgaRoles(Orga $preUpdateOrga): array
+    {
+        // get all orga status in customers
+        $orgaStatusInCustomers = $preUpdateOrga->getStatusInCustomers();
+
+        // filter out only orga with accepted status in customer
+        $availableOrgaRoles = [];
+
+        foreach ($orgaStatusInCustomers as $orgaStatusInCustomer) {
+            if (OrgaStatusInCustomer::STATUS_ACCEPTED === $orgaStatusInCustomer->getStatus()) {
+                if (OrgaType::PLANNING_AGENCY === $orgaStatusInCustomer->getOrgaType()->getName()) {
+                    $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
+                }
+
+                if (OrgaType::MUNICIPALITY === $orgaStatusInCustomer->getOrgaType()->getName()) {
+                    $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PLANNING_AGENCY_ADMIN);
+                }
+            }
+        }
+
+        return $availableOrgaRoles;
+    }
+
     /**
      * Creates a new Organisation.
      *
@@ -294,13 +349,12 @@ class DemosPlanOrganisationAPIController extends APIController
      *
      * @throws MessageBagException
      */
-    #[Route(path: '/api/1.0/organisation/', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
+    #[Route(path: '/api/1.0/organisation', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
     public function createOrgaAction(Request $request,
         UserHandler $userHandler,
         CustomerHandler $customerHandler,
         PermissionsInterface $permissions,
         AccessControlService $accessControlPermission,
-        RoleHandler $roleHandler,
         EventDispatcherInterface $eventDispatcher)
     {
         try {
@@ -324,16 +378,23 @@ class DemosPlanOrganisationAPIController extends APIController
                 throw new InvalidArgumentException('Can\'t create orga since mandatory fields are missing.');
             }
 
+            $availableOrgaRoles = $this->getAvailableOrgaRoles($newOrga);
+
+            if (array_key_exists('canCreateProcedures', $orgaDataArray) && empty($availableOrgaRoles)) {
+                $this->messageBag->add('warning', $this->translator->trans('warning.organisation.no_available_roles'));
+                $this->logger->warning('No available roles for procedure creation permission for orga with id: ', [
+                    'orgaId' => $newOrga->getId(),
+                ]);
+            }
+
             // Add new permission in case it is present in the request
             $canCreateProcedures = null;
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission')
-                && array_key_exists('canCreateProcedures', $orgaDataArray)) {
-                $role = $roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
-
+                && array_key_exists('canCreateProcedures', $orgaDataArray) && !empty($availableOrgaRoles)) {
                 try {
                     if (true === $orgaDataArray['canCreateProcedures']) {
                         $canCreateProcedures = true;
-                        $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $role);
+                        $accessControlPermission->createPermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $newOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
                     }
                 } catch (NullPointerException $e) {
                     $this->logger->warning('Role was not found in Customer. Permission is not created', [
@@ -374,7 +435,6 @@ class DemosPlanOrganisationAPIController extends APIController
         Request $request,
         UserHandler $userHandler,
         AccessControlService $accessControlPermission,
-        RoleHandler $roleHandler,
         EventDispatcherInterface $eventDispatcher,
         string $id)
     {
@@ -403,17 +463,24 @@ class DemosPlanOrganisationAPIController extends APIController
                 $userHandler->setCanUpdateShowList(true);
             }
 
+            $availableOrgaRoles = $this->getAvailableOrgaRoles($preUpdateOrga);
+
+            if (array_key_exists('canCreateProcedures', $orgaDataArray['attributes']) && empty($availableOrgaRoles)) {
+                $this->messageBag->add('warning', $this->translator->trans('warning.organisation.no_available_roles'));
+                $this->logger->warning('No available roles for procedure creation permission for orga with id: ', [
+                    'orgaId' => $orgaId,
+                ]);
+            }
+
             $canCreateProcedures = null;
             if ($permissions->hasPermission('feature_manage_procedure_creation_permission') && is_array($orgaDataArray['attributes'])
-                && array_key_exists('canCreateProcedures', $orgaDataArray['attributes'])) {
-                $role = $roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
-
+                && array_key_exists('canCreateProcedures', $orgaDataArray['attributes']) && !empty($availableOrgaRoles)) {
                 try {
                     if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
-                        $accessControlPermission->createPermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                        $accessControlPermission->createPermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
                         $canCreateProcedures = true;
                     } else {
-                        $accessControlPermission->removePermission(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $role);
+                        $accessControlPermission->removePermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
                         $canCreateProcedures = false;
                     }
                 } catch (NullPointerException $e) {

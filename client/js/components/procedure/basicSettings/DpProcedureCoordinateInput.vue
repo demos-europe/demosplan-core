@@ -60,6 +60,10 @@ export default {
     }
   },
 
+  emits: [
+    'input'
+  ],
+
   data () {
     return {
       latitudeValue: '', // 568400.97
@@ -76,8 +80,11 @@ export default {
   },
 
   watch: {
-    coordinate (coordinates) {
-      this.updateCoordinates(coordinates)
+    coordinate: {
+      handler (coordinates) {
+        this.updateCoordinates(coordinates)
+      },
+      deep: true
     }
   },
 
