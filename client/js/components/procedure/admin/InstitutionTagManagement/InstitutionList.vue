@@ -28,13 +28,13 @@
           ref="searchField"
           @reset="handleReset"
           @search="val => handleSearch(val)" />
-      </div>
 
-      <client-side-tag-filter
-        :filter-categories="allFilterCategories"
-        :raw-items="institutionList"
-        @items-filtered="filteredItems = $event"
-        @reset="handleFilterReset" />
+        <client-side-tag-filter
+          :filter-categories="allFilterCategories"
+          :raw-items="institutionList"
+          @items-filtered="filteredItems = $event"
+          @reset="handleFilterReset" />
+      </div>
 
       <div class="flex justify-end mt-4">
         <dp-column-selector
