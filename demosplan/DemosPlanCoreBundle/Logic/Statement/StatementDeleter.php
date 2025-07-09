@@ -123,7 +123,7 @@ class StatementDeleter
         Statement $statement,
         bool $ignoreAssignment = false,
         bool $ignoreOriginal = false,
-        bool $canTransaction = true
+        bool $canTransaction = true,
     ): bool {
         /** @var Connection $doctrineConnection */
         $doctrineConnection = $this->doctrine->getConnection();
