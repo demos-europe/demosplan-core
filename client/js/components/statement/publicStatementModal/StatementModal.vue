@@ -580,7 +580,15 @@
           :key="formDefinition.key"
           :draft-statement-id="draftStatementId"
           :required="formDefinition.required" />
-        <div :class="prefixClass('text-right mt-3')">
+        <div :class="prefixClass('flex justify-end gap-2 mt-3')">
+          <button
+            :class="prefixClass('btn btn--secondary md:hidden')"
+            type="button"
+            @click="goToPreviousStep"
+          >
+            {{ Translator.trans('go.back.to.statement') }}
+          </button>
+
           <button
             type="button"
             data-cy="submitterForm"
@@ -646,7 +654,14 @@
           required
           @change="val => setStatementData({r_gdpr_consent: val ? 'on' : 'off'})" />
 
-        <div :class="prefixClass('text-right')">
+        <div :class="prefixClass('flex justify-end gap-2')">
+          <button
+            type="button"
+            :class="prefixClass('btn btn--secondary md:hidden')"
+            @click.prevent="goToPreviousStep">
+            {{ Translator.trans('go.back.to.personal.data') }}
+          </button>
+
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
