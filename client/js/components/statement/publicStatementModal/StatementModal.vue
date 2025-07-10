@@ -428,7 +428,7 @@
         <!-- for not logged in users -->
         <div
           v-else
-          :class="prefixClass('text-right sm:text-center md:text-right mb-2')">
+          :class="prefixClass('flex flex-col sm:flex-row justify-end gap-2 mt-4')">
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
@@ -436,7 +436,7 @@
           <button
             type="reset"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap')"
+            :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
             data-cy="statementModal:discardStatement"
             @click.prevent="() => reset()">
             {{ Translator.trans('discard.statement') }}
@@ -445,7 +445,7 @@
             type="submit"
             data-cy="statementFormSubmit"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')"
+            :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
             form-name="statementForm"
             @click="validateStatementStep">
             {{ Translator.trans('continue.personal_data') }}
