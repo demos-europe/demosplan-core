@@ -58,7 +58,7 @@
         </div>
 
         <!-- Mobile-->
-        <div :class="prefixClass('md:hidden text-start')">
+        <div :class="prefixClass('md:hidden')">
           <div :class="prefixClass('mb-0.5 text-muted')">
             Schritt {{ step + 1 }} von {{ stepsData.length }}
           </div>
@@ -660,7 +660,6 @@
             :class="prefixClass('btn btn--secondary md:hidden')"
             data-cy="statementModal:backToPersonalData"
             type="button"
-            :class="prefixClass('btn btn--secondary md:hidden')"
             @click.prevent="goToPreviousStep">
             {{ Translator.trans('go.back.to.personal.data') }}
           </button>
