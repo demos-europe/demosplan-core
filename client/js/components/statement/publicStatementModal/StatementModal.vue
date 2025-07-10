@@ -1190,6 +1190,12 @@ export default {
         })
     },
 
+    goToPreviousStep () {
+      if (this.step > 0) {
+        this.step -= 1
+      }
+    },
+
     /*
      * When clicking the little ✎ icon in the "recheck" step, users are sent to the
      * respective multistep step, and afterwards the element they want to edit is focused.
