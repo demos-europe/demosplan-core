@@ -794,6 +794,7 @@ export default {
     DpLoading,
     DpModal,
     DpMultistepNav,
+    DpProgressBar,
     DpRadio,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
