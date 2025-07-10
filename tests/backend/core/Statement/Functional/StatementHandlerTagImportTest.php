@@ -153,7 +153,6 @@ class StatementHandlerTagImportTest extends FunctionalTestCase
         $this->sut->getMessageBag()->get(); // This clears all messages
     }
 
-
     /**
      * Helper method to create a new tag for testing (simulates import scenario).
      */
