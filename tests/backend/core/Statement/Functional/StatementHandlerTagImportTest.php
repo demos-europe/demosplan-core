@@ -169,15 +169,35 @@ class StatementHandlerTagImportTest extends FunctionalTestCase
     }
 
     /**
-     * Helper method to invoke handleTagImport with consistent parameters.
+     * Helper method to invoke findExistingTagInTopic with consistent parameters.
      */
-    private function invokeHandleTagImport(string $tagTitle, TagTopicInterface $topic): ?TagInterface
+    private function invokeFindExistingTagInTopic(string $tagTitle, TagTopicInterface $topic): ?TagInterface
     {
         return $this->invokeProtectedMethod(
-            [$this->sut, 'handleTagImport'],
+            [$this->sut, 'findExistingTagInTopic'],
+            $tagTitle,
+            $topic
+        );
+    }
+
+    /**
+     * Helper method to invoke handleTagImportWithBoilerplate with consistent parameters.
+     */
+    private function invokeHandleTagImportWithBoilerplate(
+        string $tagTitle, 
+        TagTopicInterface $topic, 
+        bool $useBoilerplate = false,
+        string $boilerplateTitle = '',
+        string $boilerplateText = ''
+    ): ?TagInterface {
+        return $this->invokeProtectedMethod(
+            [$this->sut, 'handleTagImportWithBoilerplate'],
             $tagTitle,
             $topic,
-            $this->testProcedure->getId()
+            $this->testProcedure->getId(),
+            $useBoilerplate,
+            $boilerplateTitle,
+            $boilerplateText
         );
     }
 
@@ -250,15 +270,17 @@ class StatementHandlerTagImportTest extends FunctionalTestCase
     }
 
     /**
-     * Test Case 1: Tag already exists in target topic - should return null (skip processing).
+     * Test Case 1: Tag already exists in target topic - should return existing tag.
      */
-    public function testHandleTagImportSkipsExistingTagInTargetTopic(): void
+    public function testFindExistingTagInTopicReturnsExistingTag(): void
     {
-        // Act - Try to import a tag that already exists in the target topic
-        $result = $this->invokeHandleTagImport(self::EXISTING_TAG_TITLE, $this->firstTopic);
+        // Act - Check if a tag already exists in the target topic
+        $result = $this->invokeFindExistingTagInTopic(self::EXISTING_TAG_TITLE, $this->firstTopic);
 
-        // Assert - Should return null to skip processing
-        self::assertNull($result);
+        // Assert - Should return existing tag
+        self::assertNotNull($result);
+        self::assertEquals(self::EXISTING_TAG_TITLE, $result->getTitle());
+        self::assertEquals($this->firstTopic->getId(), $result->getTopic()->getId());
 
         // Verify no changes were made to the database
         $this->flushAndRefresh($this->firstTopic, $this->firstTag);
@@ -268,17 +290,29 @@ class StatementHandlerTagImportTest extends FunctionalTestCase
     }
 
     /**
+     * Test Case 1b: Tag doesn't exist in target topic - should return null.
+     */
+    public function testFindExistingTagInTopicReturnsNullForNonExistingTag(): void
+    {
+        // Act - Check if a tag that doesn't exist in the target topic
+        $result = $this->invokeFindExistingTagInTopic(self::BRAND_NEW_TAG_TITLE, $this->firstTopic);
+
+        // Assert - Should return null
+        self::assertNull($result);
+    }
+
+    /**
      * Test Case 2: Tag exists in different topic - should return null and add error message.
      */
-    public function testHandleTagImportSkipsTagFromDifferentTopicAndAddsErrorMessage(): void
+    public function testHandleTagImportWithBoilerplateSkipsTagFromDifferentTopicAndAddsErrorMessage(): void
     {
         // Verify initial state
         self::assertEquals($this->firstTopic->getId(), $this->secondTag->getTopic()->getId());
         self::assertCount(2, $this->firstTopic->getTags());
         self::assertCount(1, $this->secondTopic->getTags());
 
-        // Act - Import existing tag to a different topic
-        $result = $this->invokeHandleTagImport(self::CONFLICTING_TAG_TITLE_EXISTS_ELSEWHERE, $this->secondTopic);
+        // Act - Import existing tag to a different topic using the actual import method
+        $result = $this->invokeHandleTagImportWithBoilerplate(self::CONFLICTING_TAG_TITLE_EXISTS_ELSEWHERE, $this->secondTopic);
 
         // Assert - Should return null to skip processing
         self::assertNull($result);
@@ -304,14 +338,18 @@ class StatementHandlerTagImportTest extends FunctionalTestCase
     /**
      * Test Case 3: Tag doesn't exist anywhere - should create new tag.
      */
-    public function testHandleTagImportCreatesNewTag(): void
+    public function testHandleTagImportWithBoilerplateCreatesNewTag(): void
     {
         // Verify initial state
         $initialTagCountInEmptyTopic = $this->emptyTopic->getTags()->count();
         self::assertEquals(0, $initialTagCountInEmptyTopic);
 
-        // Act - Import a completely new tag
-        $result = $this->invokeHandleTagImport(self::BRAND_NEW_TAG_TITLE, $this->emptyTopic);
+        // Act - First check if tag exists in topic (should return null)
+        $existingTag = $this->invokeFindExistingTagInTopic(self::BRAND_NEW_TAG_TITLE, $this->emptyTopic);
+        self::assertNull($existingTag);
+
+        // Then import the tag since it doesn't exist using the actual import method
+        $result = $this->invokeHandleTagImportWithBoilerplate(self::BRAND_NEW_TAG_TITLE, $this->emptyTopic);
 
         // Assert - Should create a new tag
         self::assertInstanceOf(Tag::class, $result);
@@ -331,16 +369,17 @@ class StatementHandlerTagImportTest extends FunctionalTestCase
      */
     public function testHandleTagImportComplexWorkflow(): void
     {
-        // Test 1: Skip existing tag from same topic (should NOT add error message)
-        $result1 = $this->invokeHandleTagImport(self::EXISTING_TAG_TITLE, $this->firstTopic);
-        self::assertNull($result1); // Should skip processing
+        // Test 1: Find existing tag from same topic (should NOT add error message)
+        $result1 = $this->invokeFindExistingTagInTopic(self::EXISTING_TAG_TITLE, $this->firstTopic);
+        self::assertNotNull($result1); // Should return existing tag
+        self::assertEquals(self::EXISTING_TAG_TITLE, $result1->getTitle());
 
         // Check that no error messages were added for same topic scenario
         $errorMessagesAfterTest1 = $this->sut->getMessageBag()->getError();
         self::assertEquals(0, $errorMessagesAfterTest1->count(), 'No error message should be added when tag exists in same topic');
 
         // Test 2: Skip tag from different topic and add error message
-        $result2 = $this->invokeHandleTagImport(self::CONFLICTING_TAG_TITLE_EXISTS_ELSEWHERE, $this->emptyTopic);
+        $result2 = $this->invokeHandleTagImportWithBoilerplate(self::CONFLICTING_TAG_TITLE_EXISTS_ELSEWHERE, $this->emptyTopic);
         self::assertNull($result2); // Should skip processing
         $this->assertErrorMessageExists(
             self::CONFLICTING_TAG_TITLE_EXISTS_ELSEWHERE,
@@ -354,13 +393,48 @@ class StatementHandlerTagImportTest extends FunctionalTestCase
         self::assertCount(0, $this->emptyTopic->getTags()); // No change
 
         // Test 3: Create new tag
-        $result3 = $this->invokeHandleTagImport(self::ANOTHER_NEW_TAG_TITLE, $this->secondTopic);
+        $result3 = $this->invokeHandleTagImportWithBoilerplate(self::ANOTHER_NEW_TAG_TITLE, $this->secondTopic);
         self::assertNotNull($result3); // Should create new tag
         self::assertEquals(self::ANOTHER_NEW_TAG_TITLE, $result3->getTitle());
         self::assertEquals($this->secondTopic->getId(), $result3->getTopic()->getId());
 
         $this->flushAndRefresh($this->secondTopic);
         self::assertCount(2, $this->secondTopic->getTags()); // tagWithBoilerplate + new tag
+    }
+
+    /**
+     * Test Case 4: Create new tag with boilerplate - should create tag and attach boilerplate.
+     */
+    public function testHandleTagImportWithBoilerplateCreatesTagWithBoilerplate(): void
+    {
+        // Verify initial state
+        $initialTagCountInEmptyTopic = $this->emptyTopic->getTags()->count();
+        self::assertEquals(0, $initialTagCountInEmptyTopic);
+
+        // Act - Create new tag with boilerplate using the integrated method
+        $result = $this->invokeHandleTagImportWithBoilerplate(
+            self::BRAND_NEW_TAG_TITLE, 
+            $this->emptyTopic,
+            true, // useBoilerplate
+            self::EXISTING_BOILERPLATE_TITLE,
+            self::EXISTING_BOILERPLATE_TEXT
+        );
+
+        // Assert - Should create a new tag with boilerplate
+        self::assertInstanceOf(Tag::class, $result);
+        self::assertEquals(self::BRAND_NEW_TAG_TITLE, $result->getTitle());
+        self::assertEquals($this->emptyTopic->getId(), $result->getTopic()->getId());
+        self::assertNotNull($result->getId()); // Should be persisted
+
+        // Verify boilerplate was attached
+        self::assertTrue($result->hasBoilerplate());
+        self::assertEquals(self::EXISTING_BOILERPLATE_TITLE, $result->getBoilerplate()->getTitle());
+        self::assertEquals(self::EXISTING_BOILERPLATE_TEXT, $result->getBoilerplate()->getText());
+
+        // Verify tag was added to the topic
+        $this->flushAndRefresh($this->emptyTopic);
+        self::assertCount($initialTagCountInEmptyTopic + 1, $this->emptyTopic->getTags());
+        self::assertTrue($this->emptyTopic->getTags()->contains($result));
     }
 
     /**
