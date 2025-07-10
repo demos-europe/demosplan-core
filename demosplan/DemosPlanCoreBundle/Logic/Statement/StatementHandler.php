@@ -2549,7 +2549,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         );
 
         if (!$existingTags->isEmpty()) {
-            /** @var Collection<TagInterface> $existingTags */
+            /* @var Collection<TagInterface> $existingTags */
             return $existingTags->first();
         }
 
@@ -2559,12 +2559,12 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     /**
      * Creates a new tag and optionally attaches a boilerplate to it.
      *
-     * @param string   $tagTitle      The title of the tag to create
-     * @param TagTopic $topic         The target topic for the tag
-     * @param string   $procedureId   The procedure ID for boilerplate lookup
-     * @param bool     $useBoilerplate Whether to attach boilerplate
+     * @param string   $tagTitle         The title of the tag to create
+     * @param TagTopic $topic            The target topic for the tag
+     * @param string   $procedureId      The procedure ID for boilerplate lookup
+     * @param bool     $useBoilerplate   Whether to attach boilerplate
      * @param string   $boilerplateTitle The title of the boilerplate (if useBoilerplate is true)
-     * @param string   $boilerplateText The text of the boilerplate (if useBoilerplate is true)
+     * @param string   $boilerplateText  The text of the boilerplate (if useBoilerplate is true)
      *
      * @return Tag The newly created tag
      *
@@ -2576,7 +2576,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         string $procedureId,
         bool $useBoilerplate = false,
         string $boilerplateTitle = '',
-        string $boilerplateText = ''
+        string $boilerplateText = '',
     ): Tag {
         // Create the tag
         $tag = $this->tagService->createTag($tagTitle, $topic);
@@ -2610,7 +2610,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         string $procedureId,
         bool $useBoilerplate = false,
         string $boilerplateTitle = '',
-        string $boilerplateText = ''
+        string $boilerplateText = '',
     ): ?Tag {
         // Check if tag title exists elsewhere in this procedure
         if (!$this->tagRepository->isTagTitleFree($procedureId, $tagTitle)) {

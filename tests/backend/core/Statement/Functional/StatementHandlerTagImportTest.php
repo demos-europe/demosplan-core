@@ -183,11 +183,11 @@ class StatementHandlerTagImportTest extends FunctionalTestCase
      * Helper method to invoke handleTagImportWithBoilerplate with consistent parameters.
      */
     private function invokeHandleTagImportWithBoilerplate(
-        string $tagTitle, 
-        TagTopicInterface $topic, 
+        string $tagTitle,
+        TagTopicInterface $topic,
         bool $useBoilerplate = false,
         string $boilerplateTitle = '',
-        string $boilerplateText = ''
+        string $boilerplateText = '',
     ): ?TagInterface {
         return $this->invokeProtectedMethod(
             [$this->sut, 'handleTagImportWithBoilerplate'],
@@ -412,7 +412,7 @@ class StatementHandlerTagImportTest extends FunctionalTestCase
 
         // Act - Create new tag with boilerplate using the integrated method
         $result = $this->invokeHandleTagImportWithBoilerplate(
-            self::BRAND_NEW_TAG_TITLE, 
+            self::BRAND_NEW_TAG_TITLE,
             $this->emptyTopic,
             true, // useBoilerplate
             self::EXISTING_BOILERPLATE_TITLE,
