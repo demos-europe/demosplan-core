@@ -47,23 +47,36 @@
         v-if="loggedIn === false && showHeader"
         role="banner"
         :class="prefixClass('c-statement__header u-mb-0_5')">
-        <dp-multistep-nav
-          :active-step="step"
-          :class="prefixClass('pb-0')"
-          :steps="[{
-            label: Translator.trans('statement.yours'),
-            icon: commentingIcon,
-            title: Translator.trans('statement.modal.step.write')
-          }, {
-            label: Translator.trans('personal.data'),
-            icon: 'fa-user',
-            title: Translator.trans('statement.modal.step.personal.data')
-          }, {
-            label: Translator.trans('recheck'),
-            icon: 'fa-check',
-            title: Translator.trans('statement.modal.step.recheck')
-          }]"
-          @change-step="val => step = val" />
+
+        <!-- Desktop -->
+        <div :class="prefixClass('hidden md:block')">
+          <dp-multistep-nav
+            :active-step="step"
+            :class="prefixClass('pb-0')"
+            :steps="stepsData"
+            @change-step="val => step = val" />
+        </div>
+
+        <!-- Mobile-->
+        <div :class="prefixClass('md:hidden text-start')">
+          <div :class="prefixClass('mb-0.5 text-muted')">
+            Schritt {{ step + 1 }} von {{ stepsData.length }}
+          </div>
+
+          <div :class="prefixClass('mb-2 flex items-center justify-start')">
+            <i
+              v-if="stepsData[step].icon"
+              :class="['fa', stepsData[step].icon, prefixClass('mt-0.5 mr-1')]"
+              aria-hidden="true" />
+            <h4 :class="prefixClass('m-0 font-bold')">
+              {{  stepsData[step].label }}
+            </h4>
+          </div>
+
+          <dp-progress-bar
+            :percentage="Math.round(((step + 1) / stepsData.length) * 100)"
+          />
+        </div>
       </header>
 
       <dp-inline-notification
@@ -718,6 +731,7 @@ import {
   DpLoading,
   DpModal,
   DpMultistepNav,
+  DpProgressBar,
   DpRadio,
   DpUploadFiles,
   dpValidateMixin,
