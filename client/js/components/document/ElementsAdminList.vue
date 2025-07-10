@@ -201,6 +201,7 @@ export default {
             // Still perform cleanup even if some deletions failed
             this.buildTree()
             this.resetSelection()
+            lscache.remove(`${dplan.procedureId}:selectedElements`)
 
             dplan.notify.notify('error', Translator.trans('error.entries.marked.deleted'))
           })
