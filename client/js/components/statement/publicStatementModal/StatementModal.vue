@@ -49,7 +49,9 @@
         :class="prefixClass('c-statement__header u-mb-0_5')">
 
         <!-- Desktop -->
-        <div :class="prefixClass('hidden md:block')">
+        <div
+          class="tablet-desktop-nav"
+        >
           <dp-multistep-nav
             :active-step="step"
             :class="prefixClass('pb-0')"
@@ -58,7 +60,7 @@
         </div>
 
         <!-- Mobile-->
-        <div :class="prefixClass('md:hidden')">
+        <div class="mobile-nav">
           <div :class="prefixClass('mb-0.5 text-muted')">
             Schritt {{ step + 1 }} von {{ stepsData.length }}
           </div>
