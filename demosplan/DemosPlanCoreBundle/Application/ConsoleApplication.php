@@ -21,13 +21,13 @@ class ConsoleApplication extends Application
     {
         parent::__construct($kernel);
 
-        /** @var DemosPlanKernel $kernel */
+        /* @var DemosPlanKernel $kernel */
         $this->setName('demosplan.'.$kernel->getActiveProject().' on Symfony');
     }
 
     public function doRun(
         InputInterface $input,
-        OutputInterface $output
+        OutputInterface $output,
     ): int {
         $this->addProjectFolderConsoleDeprecationNotice($output);
 
