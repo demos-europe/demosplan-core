@@ -19,6 +19,7 @@
     <!-- Original statement view (statement entity only) -->
     <a
       v-if="entity === 'statement' && statementOriginalId"
+      class="block leading-[2] whitespace-nowrap"
       :href="Routing.generate('dplan_assessmenttable_view_original_table', { procedureId: procedureId, fragment: `itemdisplay_${$parent.statement.originalId}` })"
       rel="noopener">
       {{ Translator.trans('statement.original') }}
@@ -27,6 +28,7 @@
     <!-- Statement detail view (statement entity only) -->
     <a
       v-if="entity === 'statement'"
+      class="block leading-[2] whitespace-nowrap"
       data-cy="detailView"
       :href="statementDetailPath"
       rel="noopener">
@@ -36,7 +38,7 @@
     <!-- Version history view -->
     <button
       type="button"
-      class="btn--blank o-link--default"
+      class="btn--blank o-link--default leading-[2] whitespace-nowrap"
       v-if="hasPermission('feature_statement_content_changes_view')"
       @click.prevent="showVersionHistory"
       data-cy="versionHistory">
@@ -54,7 +56,7 @@
     <button
       v-if="entity === 'statement' && hasPermission('feature_statement_assignment')"
       type="button"
-      class="btn--blank o-link--default"
+      class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
       @click.prevent="toggleAssignEntityModal('statement', $parent.statement.assignee.id)">
       {{ Translator.trans('assignment.generic.assign.to.other') }}
     </button>
@@ -63,7 +65,7 @@
     <a
       v-if="entity === 'statement' && hasPermission('feature_statements_fragment_add')"
       :aria-disabled="editable === false"
-      class="btn--blank o-link--default"
+      class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
       :class="{'is-disabled': editable === false}"
       data-cy="createFragments"
       :href="editable ? Routing.generate('DemosPlan_statement_fragment',{ statementId: entityId, procedure: procedureId }) : false"
@@ -76,7 +78,7 @@
     <button
       v-if="entity === 'statement' && hasPermission('feature_statement_copy_to_procedure')"
       type="button"
-      class="btn--blank o-link--default"
+      class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
       :disabled="editable === false"
       @click.prevent="$emit('statement:copy', entityId)">
       {{ Translator.trans('copy.to.procedure') }}
@@ -86,7 +88,7 @@
     <button
       v-if="entity === 'statement' && hasPermission('feature_statement_move_to_procedure') && isCluster === false"
       type="button"
-      class="btn--blank o-link--default"
+      class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
       :disabled="editable === false"
       @click.prevent="$emit('statement:move', entityId)">
       {{ Translator.trans('move.to.procedure') }}
@@ -95,7 +97,7 @@
     <!-- Delete fragment (fragment entity only) -->
     <button
       type="button"
-      class="btn--blank o-link--default"
+      class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
       v-if="entity === 'fragment'"
       :disabled="fragmentAssigneeId !== currentUserId"
       :title="fragmentAssigneeId === currentUserId ? false : Translator.trans('locked.title')"
@@ -107,7 +109,7 @@
     <button
       v-if="entity === 'fragment' && hasPermission('feature_statement_assignment')"
       type="button"
-      class="btn--blank o-link--default"
+      class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
       @click.prevent="toggleAssignEntityModal('fragment', fragmentAssigneeId)">
       {{ Translator.trans('assignment.generic.assign.to.other', { entity: Translator.trans('fragment') }) }}
     </button>

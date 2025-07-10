@@ -32,9 +32,7 @@
             v-if="segmentationStatus === 'inUserSegmentation'"
             class="float-right u-pt-0_25 u-m-0">
             <li class="inline-block">
-              <dp-flyout
-                ref="metadataFlyout"
-                :has-menu="false">
+              <dp-flyout ref="metadataFlyout">
                 <template v-slot:trigger>
                   <span>
                     {{ Translator.trans('statement.information', { id: statementExternId }) }}
