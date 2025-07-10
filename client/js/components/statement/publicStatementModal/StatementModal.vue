@@ -1043,6 +1043,22 @@ export default {
       return this.feedbackFormFields.map(el => {
         return { ...el, ...this.availableFormComponents[el.name] }
       })
+    },
+
+    stepsData () {
+      return [{
+        label: Translator.trans('statement.yours'),
+        icon: this.commentingIcon,
+        title: Translator.trans('statement.modal.step.write')
+      }, {
+        label: Translator.trans('personal.data'),
+        icon: 'fa-user',
+        title: Translator.trans('statement.modal.step.personal.data')
+      }, {
+        label: Translator.trans('recheck'),
+        icon: 'fa-check',
+        title: Translator.trans('statement.modal.step.recheck')
+      }]
     }
   },
 
