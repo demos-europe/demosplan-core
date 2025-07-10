@@ -169,11 +169,12 @@ export default {
     handleToggle (isEnabled) {
       if (isEnabled !== this.isFaqEnabled) {
         const faqCopy = {
-          ...this.faqItem,
           attributes: {
             ...this.faqItem.attributes,
             enabled: isEnabled
-          }
+          },
+          id: this.faqItem.id,
+          type: this.faqItem.type
         }
 
         this.updateFaq({ ...faqCopy, id: faqCopy.id })
