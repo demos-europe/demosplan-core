@@ -1801,7 +1801,7 @@ class DemosPlanProcedureController extends BaseController
         // Öffentliche Stellungnahmen
         $publicLimit = $request->get('r_limit', 10);
         $publicPage = $request->get('page', 1);
-        $statementService->setPaginatorLimits([10]);
+        $statementService->setPaginatorLimits([10, 25, 50]);
         $statements = $statementService->getStatementsByProcedureId(
             $procedureId,
             $filters,
