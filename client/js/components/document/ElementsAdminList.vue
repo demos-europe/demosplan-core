@@ -181,18 +181,29 @@ export default {
      */
     bulkDelete () {
       if (dpconfirm(Translator.trans('check.entries.marked.delete'))) {
-        this.selectedElements.forEach(el => {
-          this.deleteElement(el)
-            .then(() => {
-              this.buildTree()
-              this.resetSelection()
+        // Parent deletion cascades to children, so only delete parents if both selected
+        const elementsToDelete = this.filterTopLevelParents(this.selectedElements)
+        const deletePromises = elementsToDelete.map(el => this.deleteElement(el))
 
-              // Clear cache from previously selected items.
-              lscache.remove(`${dplan.procedureId}:selectedElements`)
+        Promise.all(deletePromises)
+          .then(() => {
+            this.buildTree()
+            this.resetSelection()
 
-              dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
-            })
-        })
+            // Clear cache from previously selected items.
+            lscache.remove(`${dplan.procedureId}:selectedElements`)
+
+            dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
+          })
+          .catch(error => {
+            console.error('Error during bulk deletion:', error)
+
+            // Still perform cleanup even if some deletions failed
+            this.buildTree()
+            this.resetSelection()
+
+            dplan.notify.notify('error', Translator.trans('error.entries.marked.deleted'))
+          })
       }
     },
 
@@ -217,6 +228,26 @@ export default {
 
         return null
       }, null)
+    },
+
+    /**
+     * Filter out child elements when their parents are also selected
+     * to avoid faulty API calls when deleting (parent deletion cascades to children)
+     * @param selectedIds
+     */
+    filterTopLevelParents (selectedIds) {
+      // Use Set for O(1) lookup performance
+      const selectedSet = new Set(selectedIds)
+
+      return selectedIds.filter(elementId => {
+        const element = this.elements[elementId]
+
+        if (!element?.attributes?.parentId) {
+          return true
+        }
+
+        return !selectedSet.has(element.attributes.parentId)
+      })
     },
 
     /**
