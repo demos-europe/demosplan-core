@@ -10,15 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use Elastica\Aggregation\Missing;
-use Elastica\Aggregation\Nested;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
+use Elastica\Aggregation\Missing;
+use Elastica\Aggregation\Nested;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
@@ -29,7 +29,7 @@ use Exception;
 
 use function array_key_exists;
 
-class ElasticSearchService extends CoreService
+class ElasticSearchService
 {
     final public const EXISTING_FIELD_FILTER = '*';
     final public const KEINE_ZUORDNUNG = 'keinezuordnung';
@@ -42,8 +42,13 @@ class ElasticSearchService extends CoreService
      */
     protected $aggregationsMinDocumentCount = 1;
 
-    public function __construct(private readonly EditorService $editorService, private readonly ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer, private readonly PermissionsInterface $permissions, private readonly UserService $userService)
-    {
+    public function __construct(
+        private readonly EditorService $editorService,
+        private readonly ElasticsearchFilterArrayTransformer $elasticsearchFilterArrayTransformer,
+        private readonly PermissionsInterface $permissions,
+        private readonly UserService $userService,
+        private readonly ProfilerService $profilerService,
+    ) {
     }
 
     /**
@@ -98,9 +103,6 @@ class ElasticSearchService extends CoreService
         return $query;
     }
 
-    /**
-     * @param mixed $aggregationsMinDocumentCount
-     */
     public function setAggregationsMinDocumentCount($aggregationsMinDocumentCount): void
     {
         $this->aggregationsMinDocumentCount = $aggregationsMinDocumentCount;
@@ -127,8 +129,6 @@ class ElasticSearchService extends CoreService
      * @param string $labelKey
      * @param string $valueKey
      * @param string $countKey
-     *
-     * @return mixed
      */
     protected function addAggregationResultToArrayFromArray($keyInAggregation, $fromArray, $aggregation, $labelMap = [], $labelKey = 'key', $valueKey = 'key', $countKey = 'doc_count')
     {
@@ -250,7 +250,7 @@ class ElasticSearchService extends CoreService
         // sort by Label
         \usort(
             $bucket,
-            fn($a, $b) => \strnatcasecmp((string) $a['label'], (string) $b['label'])
+            fn ($a, $b) => \strnatcasecmp((string) $a['label'], (string) $b['label'])
         );
 
         return $bucket;
@@ -262,8 +262,6 @@ class ElasticSearchService extends CoreService
      * @param array  $fragmentAggregations
      * @param array  $aggregation
      * @param array  $labelMap
-     *
-     * @return mixed
      */
     public function addFragmentEsResultToArray($keyInFragmentEsResult, $keyInAggregation, $fragmentAggregations, $aggregation, $labelMap = [])
     {
@@ -403,7 +401,6 @@ class ElasticSearchService extends CoreService
      * @param string $key
      * @param array  $userFilters
      * @param array  $boolMustFilter
-     * @param mixed  $nullvalue
      * @param array  $rawFields
      * @param bool   $addAllAggregations - If true, will add all filters existing on $userFilters. Otherwise only those who also has a not empty value.
      *
@@ -448,8 +445,6 @@ class ElasticSearchService extends CoreService
     /**
      * Given a $filter (can be array or string) returns true if has no empty value and false otherwise.
      *
-     * @param mixed $filter
-     *
      * @return bool
      */
     private function hasFilterValue($filter)
@@ -482,7 +477,7 @@ class ElasticSearchService extends CoreService
         $search = '',
         $filters = [],
         $sort = null,
-        $resultKey = 'statements'
+        $resultKey = 'statements',
     ): ElasticsearchResultSet {
         $filterSet = [
             'total'   => is_countable($elasticsearchResult->getAggregations()) ? count($elasticsearchResult->getAggregations()) : 0,
@@ -512,11 +507,11 @@ class ElasticSearchService extends CoreService
             ];
         }
         $list = [];
-        $this->profilerStart('ConvertESHits');
+        $this->profilerService->profilerStart(ProfilerService::CONVERTESHITS_PROFILER);
         foreach ($elasticsearchResult->getHits()['hits'] as $hit) {
             $list[] = $this->convertElasticsearchHitToLegacy($hit);
         }
-        $this->profilerStop('ConvertESHits');
+        $this->profilerService->profilerStop(ProfilerService::CONVERTESHITS_PROFILER);
 
         $resultSet = new ElasticsearchResultSet();
         $resultSet->setResult($list);
@@ -534,8 +529,6 @@ class ElasticSearchService extends CoreService
      * Konvertiere das Ergebnis aus Elasticsearch zu Legacy.
      *
      * @param array $hit
-     *
-     * @return mixed
      */
     protected function convertElasticsearchHitToLegacy($hit)
     {
