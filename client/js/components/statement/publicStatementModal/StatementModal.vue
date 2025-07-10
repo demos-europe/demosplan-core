@@ -583,6 +583,7 @@
         <div :class="prefixClass('flex justify-end gap-2 mt-3')">
           <button
             :class="prefixClass('btn btn--secondary md:hidden')"
+            data-cy="statementModal:backToStatement"
             type="button"
             @click="goToPreviousStep"
           >
@@ -656,6 +657,8 @@
 
         <div :class="prefixClass('flex justify-end gap-2')">
           <button
+            :class="prefixClass('btn btn--secondary md:hidden')"
+            data-cy="statementModal:backToPersonalData"
             type="button"
             :class="prefixClass('btn btn--secondary md:hidden')"
             @click.prevent="goToPreviousStep">
