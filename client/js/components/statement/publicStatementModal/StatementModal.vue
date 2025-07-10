@@ -580,9 +580,9 @@
           :key="formDefinition.key"
           :draft-statement-id="draftStatementId"
           :required="formDefinition.required" />
-        <div :class="prefixClass('flex justify-end gap-2 mt-3')">
+        <div :class="prefixClass('flex flex-col sm:flex-row justify-end gap-2 mt-4')">
           <button
-            :class="prefixClass('btn btn--secondary md:hidden')"
+            :class="[prefixClass('btn btn--secondary sm:w-1/2 md:w-auto'), 'mobile-nav']"
             data-cy="statementModal:backToStatement"
             type="button"
             @click="goToPreviousStep"
@@ -593,7 +593,7 @@
           <button
             type="button"
             data-cy="submitterForm"
-            :class="prefixClass('btn btn--primary')"
+            :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
             form-name="submitterForm"
             @click="dpValidateAction('submitterForm', validatePersonalDataStep, true)">
             {{ Translator.trans('continue.submission') }}
@@ -655,9 +655,9 @@
           required
           @change="val => setStatementData({r_gdpr_consent: val ? 'on' : 'off'})" />
 
-        <div :class="prefixClass('flex justify-end gap-2')">
+        <div :class="prefixClass('flex flex-col sm:flex-row justify-end gap-2 mt-4')">
           <button
-            :class="prefixClass('btn btn--secondary md:hidden')"
+            :class="[prefixClass('btn btn--secondary sm:w-1/2 md:w-auto'), 'mobile-nav']"
             data-cy="statementModal:backToPersonalData"
             type="button"
             @click.prevent="goToPreviousStep">
@@ -672,7 +672,7 @@
             type="button"
             data-cy="sendStatementNow"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--primary')"
+            :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
             @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))">
             {{ Translator.trans('statement.submit.now') }}
           </button>
