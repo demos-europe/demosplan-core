@@ -75,10 +75,8 @@
 
           <!-- Reset padding styles from _progress-bar.scss for this case -->
           <dp-progress-bar
-            :class="prefixClass('p-0 pb-3')"
+            :class="prefixClass('p-0 pb-3 border-0')"
             :percentage="Math.round(((step + 1) / stepsData.length) * 100)"
-            alternative-color
-            hide-border
             hide-percentage
           />
         </div>
