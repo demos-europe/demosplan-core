@@ -73,7 +73,7 @@ class OdtImporter
             if ($child->nodeType === XML_ELEMENT_NODE) {
                 switch ($child->nodeName) {
                     case 'text:p':
-                        $html .= '<p>' . $this->processNodes($child) . '</p>';
+                        $html .= $this->processParagraph($child);
                         break;
                     case 'text:h':
                         $html .= $this->processHeading($child);
@@ -95,7 +95,10 @@ class OdtImporter
                         break;
                     case 'text:list-item':
                         $content = $this->processNodes($child);
-                        // Remove paragraph wrappers from list items to match expected format
+                        // Remove paragraph wrappers from list items but preserve other block elements
+                        // Handle case where list item starts with a paragraph followed by other elements
+                        $content = preg_replace('/^<p>(.*?)<\/p>(.*)$/s', '$1$2', trim($content));
+                        // Also handle case where entire content is just a single paragraph
                         $content = preg_replace('/^<p>(.*)<\/p>$/s', '$1', trim($content));
                         $html .= '<li>' . $content . '</li>';
                         break;
@@ -110,6 +113,12 @@ class OdtImporter
                         break;
                     case 'draw:image':
                         $html .= $this->processImage($child);
+                        break;
+                    case 'draw:frame':
+                        $html .= $this->processFrame($child);
+                        break;
+                    case 'text:s':
+                        $html .= ' '; // Space element
                         break;
                     default:
                         $html .= $this->processNodes($child);
@@ -323,6 +332,10 @@ class OdtImporter
 
         // Remove paragraph wrappers from footnote body but preserve other formatting
         $cleanBody = preg_replace('/^<p>(.*)<\/p>$/s', '$1', trim($body));
+        // Strip HTML tags from footnote content for title attribute (title should be plain text)
+        $cleanBody = strip_tags($cleanBody);
+        // Trim leading and trailing whitespace from the cleaned body for title attribute
+        $cleanBody = trim($cleanBody);
         return '<sup title="' . htmlspecialchars($cleanBody) . '">' . $citation . '</sup>';
     }
 
@@ -330,14 +343,198 @@ class OdtImporter
     {
         $xlinkHref = $node->getAttribute('xlink:href');
         if ($xlinkHref) {
-            $imagePath = dirname($this->odtFilePath) . '/tmp/' . $xlinkHref;
-            if (file_exists($imagePath)) {
-                $imageData = base64_encode(file_get_contents($imagePath));
-                $imageType = pathinfo($imagePath, PATHINFO_EXTENSION);
-                return '<img src="data:image/' . $imageType . ';base64,' . $imageData . '" />';
+            // Try to get image directly from ZIP archive first
+            $imageData = $this->getImageDataFromZip($xlinkHref);
+            
+            // Fallback to file system if ZIP method fails
+            if ($imageData === null) {
+                $imagePath = dirname($this->odtFilePath) . '/tmp/' . $xlinkHref;
+                if (file_exists($imagePath)) {
+                    $imageData = file_get_contents($imagePath);
+                }
+            }
+            
+            if ($imageData !== null && $imageData !== false) {
+                $base64Data = base64_encode($imageData);
+                $imageType = pathinfo($xlinkHref, PATHINFO_EXTENSION);
+                
+                // Extract width and height attributes from parent draw:frame or draw:image
+                $attributes = '';
+                $width = $this->getImageDimension($node, 'svg:width');
+                $height = $this->getImageDimension($node, 'svg:height');
+                
+                if ($width) {
+                    $attributes .= ' width="' . $width . '"';
+                }
+                if ($height) {
+                    $attributes .= ' height="' . $height . '"';
+                }
+                
+                return '<img src="data:image/' . $imageType . ';base64,' . $base64Data . '"' . $attributes . ' />';
             }
         }
         return '';
+    }
+
+    /**
+     * Get image dimension from the draw:frame parent node or the image node itself.
+     */
+    private function getImageDimension(\DOMNode $node, string $attributeName): ?string
+    {
+        // Check the image node itself first
+        $dimension = $node->getAttribute($attributeName);
+        if ($dimension) {
+            return $this->convertOdtDimensionToPixels($dimension);
+        }
+        
+        // Check parent draw:frame node
+        $parent = $node->parentNode;
+        if ($parent && $parent->nodeName === 'draw:frame') {
+            $dimension = $parent->getAttribute($attributeName);
+            if ($dimension) {
+                return $this->convertOdtDimensionToPixels($dimension);
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Convert ODT dimension units to pixels for HTML.
+     */
+    private function convertOdtDimensionToPixels(string $dimension): string
+    {
+        // Remove units and convert to approximate pixel values
+        // ODT typically uses cm, in, pt, etc.
+        if (preg_match('/^(\d+(?:\.\d+)?)(.*)$/', $dimension, $matches)) {
+            $value = (float) $matches[1];
+            $unit = $matches[2];
+            
+            switch ($unit) {
+                case 'cm':
+                    // 1 cm ≈ 37.8 pixels (96 DPI)
+                    return (string) round($value * 37.8);
+                case 'in':
+                    // 1 inch = 96 pixels (96 DPI)
+                    return (string) round($value * 96);
+                case 'pt':
+                    // 1 point = 1.33 pixels (96 DPI)
+                    return (string) round($value * 1.33);
+                case 'mm':
+                    // 1 mm ≈ 3.78 pixels (96 DPI)
+                    return (string) round($value * 3.78);
+                case 'px':
+                    // Already in pixels
+                    return (string) round($value);
+                default:
+                    // Assume pixels if unknown unit
+                    return (string) round($value);
+            }
+        }
+        
+        // If no numeric value found, return as-is (might be a percentage or other CSS value)
+        return $dimension;
+    }
+
+    /**
+     * Get image data directly from the ZIP archive.
+     */
+    private function getImageDataFromZip(string $xlinkHref): ?string
+    {
+        $zip = $this->zipArchive ?? new ZipArchive();
+        if ($zip->open($this->odtFilePath) === true) {
+            $imageData = $zip->getFromName($xlinkHref);
+            $zip->close();
+            return $imageData !== false ? $imageData : null;
+        }
+        return null;
+    }
+
+    /**
+     * Process a paragraph node, handling caption detection.
+     */
+    private function processParagraph(\DOMNode $node): string
+    {
+        // Check if this paragraph is a caption
+        if ($this->isCaption($node)) {
+            // Caption paragraphs are handled by processFrame, skip standalone ones
+            return '';
+        }
+
+        $content = $this->processNodes($node);
+        
+        // Check if this paragraph contains an image frame
+        if ($this->containsImageFrame($node)) {
+            // Look ahead for a caption paragraph
+            $caption = $this->findFollowingCaption($node);
+            if ($caption) {
+                // Wrap image and caption in a figure element
+                return '<figure>' . $content . '<figcaption>' . $this->processNodes($caption) . '</figcaption></figure>';
+            }
+        }
+        
+        return '<p>' . $content . '</p>';
+    }
+
+    /**
+     * Process a draw:frame node that contains images.
+     */
+    private function processFrame(\DOMNode $node): string
+    {
+        // Process the frame's children (typically draw:image)
+        $content = $this->processNodes($node);
+        
+        // The frame itself doesn't add HTML structure, just processes its content
+        return $content;
+    }
+
+    /**
+     * Check if a paragraph is a caption based on its style.
+     */
+    private function isCaption(\DOMNode $node): bool
+    {
+        $styleName = $node->getAttribute('text:style-name');
+        
+        // Common caption style names in ODT files
+        $captionStyles = ['caption', 'Caption', 'Figure', 'Illustration', 'Abbildung'];
+        
+        foreach ($captionStyles as $style) {
+            if (stripos($styleName, $style) !== false) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Check if a paragraph contains an image frame.
+     */
+    private function containsImageFrame(\DOMNode $node): bool
+    {
+        $xpath = new \DOMXPath($node->ownerDocument);
+        $frames = $xpath->query('.//draw:frame[draw:image]', $node);
+        return $frames->length > 0;
+    }
+
+    /**
+     * Find the caption paragraph that follows an image paragraph.
+     */
+    private function findFollowingCaption(\DOMNode $imageNode): ?\DOMNode
+    {
+        $nextSibling = $imageNode->nextSibling;
+        
+        // Skip text nodes (whitespace) to find the next element
+        while ($nextSibling && $nextSibling->nodeType !== XML_ELEMENT_NODE) {
+            $nextSibling = $nextSibling->nextSibling;
+        }
+        
+        // Check if the next element is a caption paragraph
+        if ($nextSibling && $nextSibling->nodeName === 'text:p' && $this->isCaption($nextSibling)) {
+            return $nextSibling;
+        }
+        
+        return null;
     }
 
     /**

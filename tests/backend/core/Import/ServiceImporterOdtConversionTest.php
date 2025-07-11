@@ -172,13 +172,13 @@ class ServiceImporterOdtConversionTest extends TestCase
             '<td rowspan="3" >Rowspan3</td>',
             '<h2>Überschrift2</h2>',
             '<ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul>',
-            '<strong>Abbildung </strong><strong>1</strong><strong> Ich bin die Superblume</strong>',
+            '<figure>',
             '<h2>Überschrift3</h2>',
-            '<sup title="Mit Fußnote auf <strong>neuer</strong> Seite">3</sup>',
+            '<sup title="Mit Fußnote auf neuer Seite">3</sup>',
             '<ul><li>Eins</li><li>Zwei</li></ul>',
             '<h1>Nummerierte Überschrift</h1>', // ODT has outline-level="1"
-            '<ol><li>Nummerierten Liste 1</li><li>Nummer 2</li>',
-            '<sup title="Und Endnote">I</sup>',
+            '<ol><li>Nummerierten Liste 1</li><li>Nummer 2<ul><li>Nummer 2.1</li><li>Nummer 2.2</li></ul></li><li>Nummer 3</li></ol>',
+            '<sup title="Und Endnote">i</sup>',
             '<ul><li>Jetzt</li><li><strong>F</strong><strong>ett</strong></li>',
             'Mit einem Absatz am Ende.'
         ];
@@ -200,6 +200,92 @@ class ServiceImporterOdtConversionTest extends TestCase
         echo "\n=== ACTUAL HTML OUTPUT FROM ODT IMPORTER ===\n";
         echo $actualHtml;
         echo "\n=== END ACTUAL HTML OUTPUT ===\n";
+    }
+
+    public function testOdtImporterIncludesImagesAsBase64Data(): void
+    {
+        // Test that images in ODT files are converted to base64 data URLs
+        $odtFilePath = __DIR__ . '/res/SimpleDoc.odt';
+        $this->assertFileExists($odtFilePath, 'SimpleDoc.odt test file should exist');
+
+        $odtImporter = new OdtImporter();
+        $actualHtml = $odtImporter->convert($odtFilePath);
+
+        // Check for base64 image data in output
+        $this->assertMatchesRegularExpression(
+            '/<img[^>]*src="data:image\/[^;]+;base64,[A-Za-z0-9+\/=]+"[^>]*\/?>/',
+            $actualHtml,
+            'Should contain base64-encoded image data URL'
+        );
+
+        // Check for width and height attributes
+        $this->assertMatchesRegularExpression(
+            '/<img[^>]*width="[^"]*"[^>]*\/?>/',
+            $actualHtml,
+            'Image should have width attribute'
+        );
+        
+        $this->assertMatchesRegularExpression(
+            '/<img[^>]*height="[^"]*"[^>]*\/?>/',
+            $actualHtml,
+            'Image should have height attribute'
+        );
+
+        // Verify the data URL format specifically
+        preg_match('/<img[^>]*src="(data:image\/[^"]+)"/', $actualHtml, $matches);
+        if (!empty($matches[1])) {
+            $dataUrl = $matches[1];
+            
+            // Verify it's a proper data URL with base64 encoding
+            $this->assertStringStartsWith('data:image/', $dataUrl);
+            $this->assertStringContainsString(';base64,', $dataUrl);
+            
+            // Extract and validate base64 data
+            $parts = explode(';base64,', $dataUrl);
+            $this->assertCount(2, $parts, 'Data URL should have proper base64 format');
+            
+            $base64Data = $parts[1];
+            $this->assertNotEmpty($base64Data, 'Base64 data should not be empty');
+            $this->assertTrue(base64_decode($base64Data, true) !== false, 'Base64 data should be valid');
+            
+            // Verify the base64 data is substantial (not just empty/placeholder)
+            $decodedData = base64_decode($base64Data);
+            $this->assertGreaterThan(100, strlen($decodedData), 'Image data should be substantial (>100 bytes)');
+        } else {
+            $this->fail('No image data URL found in HTML output');
+        }
+    }
+
+    public function testOdtImporterHandlesImageCaptionsGenerically(): void
+    {
+        // Test that images with captions are wrapped in figure elements
+        $odtFilePath = __DIR__ . '/res/SimpleDoc.odt';
+        $this->assertFileExists($odtFilePath, 'SimpleDoc.odt test file should exist');
+
+        $odtImporter = new OdtImporter();
+        $actualHtml = $odtImporter->convert($odtFilePath);
+
+        // Check for figure wrapper around image with caption
+        $this->assertMatchesRegularExpression(
+            '/<figure>.*?<img[^>]*src="data:image\/[^;]+;base64,[^"]*"[^>]*\/>.*?<figcaption>.*?<\/figcaption>.*?<\/figure>/s',
+            $actualHtml,
+            'Image with caption should be wrapped in figure element'
+        );
+
+        // Verify caption content is present
+        $this->assertMatchesRegularExpression(
+            '/<figcaption>.*?Abbildung.*?Ich bin die Superblume.*?<\/figcaption>/s',
+            $actualHtml,
+            'Caption should contain expected text content'
+        );
+
+        // Verify images without captions are NOT wrapped in figure elements
+        // (The second image in SimpleDoc.odt doesn't have a caption)
+        $imageMatches = preg_match_all('/<img[^>]*src="data:image\/[^;]+;base64,[^"]*"[^>]*\/?>/', $actualHtml);
+        $figureMatches = preg_match_all('/<figure>/', $actualHtml);
+        
+        // We should have more images than figures (images without captions)
+        $this->assertGreaterThan($figureMatches, $imageMatches, 'Should have images without figure wrappers');
     }
 
     public function testConvertHtmlToParagraphStructureWithExpectedOdtOutput(): void
@@ -252,7 +338,7 @@ class ServiceImporterOdtConversionTest extends TestCase
 <tr>
 <td>2.1</td><td>2.2</td></tr>
 </table>
-<p></p><p>Sodann ein Bild</p><p><img src="/app_dev.php/file/fc48c66c-560f-4aff-96a4-45b524cbb1ae/db18df1d-b0b4-4955-890e-f71b01860d91" width="337" height="252"></p><p><strong>Abbildung </strong><strong>1</strong><strong> Ich bin die Superblume</strong></p>
+<p></p><p>Sodann ein Bild</p><p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" width="337" height="252" /></p><p><strong>Abbildung </strong><strong>1</strong><strong> Ich bin die Superblume</strong></p>
             <h2>Überschrift3</h2>
             <p>Zweiter Absatz<sup title="Mit Fußnote auf <strong>neuer</strong> Seite">3</sup> mit Liste ohne Absatz dahinter</p><ul><li>Eins</li><li>Zwei</li></ul><p></p>
             <h1>Nummerierte Überschrift</h1>
@@ -354,7 +440,7 @@ class ServiceImporterOdtConversionTest extends TestCase
 <tr>
 <td>2.1</td><td>2.2</td></tr>
 </table>
-<p></p><p>Sodann ein Bild</p><p><img src=\'/app_dev.php/file/fc48c66c-560f-4aff-96a4-45b524cbb1ae/fcf9ee47-13fa-43c2-8cd6-9731ab1212fc\' width=\'337\' height=\'252\'></p><p><strong>Abbildung </strong><strong>1</strong><strong> Ich bin die Superblume</strong></p>
+<p></p><p>Sodann ein Bild</p><p><img src=\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\' width=\'337\' height=\'252\' /></p><p><strong>Abbildung </strong><strong>1</strong><strong> Ich bin die Superblume</strong></p>
             <h2>Überschrift3</h2>
             <p>Zweiter Absatz<sup title=\'Mit Fußnote auf <strong>neuer</strong> Seite\'>3</sup> mit Liste ohne Absatz dahinter</p><ul><li>Eins</li><li>Zwei</li></ul><p></p>
             <h1>Nummerierte Überschrift</h1>
@@ -425,6 +511,12 @@ class ServiceImporterOdtConversionTest extends TestCase
         $this->assertStringContainsString('Sodann ein Bild', $paragraphs[1]['text']);
         // The image paragraph content is there even if img tag processing varies
         $this->assertStringContainsString('Abbildung', $paragraphs[1]['text']);
+        // Verify that images are included as base64 data URLs in the paragraph content
+        $this->assertMatchesRegularExpression(
+            '/<img[^>]*src="data:image\/[^;]+;base64,[A-Za-z0-9+\/=]+"[^>]*\/?>/',
+            $paragraphs[1]['text'],
+            'Image in paragraph should be base64-encoded data URL'
+        );
 
         $this->assertEquals('Überschrift3', $paragraphs[2]['title']);
         $this->assertEquals(2, $paragraphs[2]['nestingLevel']); // Updated to match actual ODT outline-level="2"
