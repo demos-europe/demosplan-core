@@ -71,6 +71,7 @@ class ServiceImporter implements ServiceImporterInterface
 
     public function __construct(
         private readonly DocxImporterInterface $docxImporter,
+        private readonly OdtImporter $odtImporter,
         FileService $fileService,
         private readonly FilesystemOperator $defaultStorage,
         GlobalConfigInterface $globalConfig,
@@ -93,8 +94,9 @@ class ServiceImporter implements ServiceImporterInterface
     {
         // This should probably be in a configuration section
         $allowedMimetypes = [
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/zip',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
+            'application/vnd.oasis.opendocument.text', // ODT
+            'application/zip', // Can be ODT or DOCX
             'application/msword',
             'application/octet-stream',
         ];
@@ -308,12 +310,23 @@ class ServiceImporter implements ServiceImporterInterface
             $fs->dumpFile($temporaryPath, $this->defaultStorage->read($fileInfo->getAbsolutePath()));
             $file = new File($temporaryPath);
             $this->checkFileIsValidToImport($fileInfo);
-            $importResult = $this->importDocxWithRabbitMQ(
-                $file,
-                $elementId,
-                $procedureId,
-                'paragraph'
-            );
+            
+            // Detect file type and use appropriate importer
+            if ($this->isOdtFile($fileInfo, $file)) {
+                $importResult = $this->importOdtFile(
+                    $file,
+                    $elementId,
+                    $procedureId,
+                    'paragraph'
+                );
+            } else {
+                $importResult = $this->importDocxWithRabbitMQ(
+                    $file,
+                    $elementId,
+                    $procedureId,
+                    'paragraph'
+                );
+            }
             // cleanup temporary file
             $fs->remove($temporaryPath);
             $this->createParagraphsFromImportResult($importResult, $procedureId);
@@ -346,6 +359,36 @@ class ServiceImporter implements ServiceImporterInterface
             throw $e;
         }
     }
+
+    /**
+     * Detect if file is ODT based on file extension and content.
+     */
+    private function isOdtFile(FileInfo $fileInfo, File $file): bool
+    {
+        $contentType = $fileInfo->getContentType();
+        $fileName = $fileInfo->getFileName();
+        
+        // Check file extension
+        if (str_ends_with(strtolower($fileName), '.odt')) {
+            return true;
+        }
+        
+        // Check MIME type
+        if ($contentType === 'application/vnd.oasis.opendocument.text') {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Import ODT file and convert to paragraph structure.
+     */
+    public function importOdtFile(File $file, string $elementId, string $procedure, string $category): array
+    {
+        return $this->odtImporter->importOdt($file, $elementId, $procedure, $category);
+    }
+
 
     /**
      * @return Logger
