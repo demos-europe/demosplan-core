@@ -28,6 +28,7 @@
             query: searchString
           })
         }"
+        search-button
         @search-changed="updateSuggestions"
         @searched="search => setValueAndSubmitForm({ target: { value: search } }, 'search')"
         @selected="search => setValueAndSubmitForm({ target: { value: search.value } }, 'search')" />
@@ -48,10 +49,11 @@
           @enter="form.search = currentAutocompleteSearch; submitForm();" />
       </template>
 
+      <!-- Search button, if dp-autocomplete is used only displayed on lap-up screens -->
       <button
         type="button"
         data-cy="searchProcedureMapForm:procedureSearchSubmit"
-        :class="prefixClass('c-proceduresearch__search-btn btn btn--primary weight--bold')"
+        :class="[dplan.settings.useOpenGeoDb ? prefixClass('hidden md:block') : '', prefixClass('c-proceduresearch__search-btn btn btn--primary weight--bold')]"
         @click.prevent="form.search = currentAutocompleteSearch; submitForm();">
         {{ Translator.trans('searching') }}
       </button>
