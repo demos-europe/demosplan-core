@@ -595,7 +595,7 @@
           :options="paperCopyCountOptions"
           :show-placeholder="false"
           data-cy="orgaFormField:organisationCopiesPaper"
-          @select="emitOrganisationUpdate"/>
+          @select="emitOrganisationUpdate" />
       </div>
 
       <label v-if="hasPermission('field_organisation_paper_copy_spec') && canEdit('paperCopySpec')">
@@ -876,7 +876,7 @@ export default {
   emits: [
     'addon-update',
     'addonOptions:loaded',
-    'organisation-update'
+    'organisation:update'
   ],
 
   data () {
@@ -953,7 +953,7 @@ export default {
      * @return {Array <{value: number, label: string}>} for 0-10
      */
     paperCopyCountOptions () {
-      return Array.from({length: 11}, (_, i) => ({ value: i, label: String(i) }));
+      return Array.from({ length: 11 }, (_, i) => ({ value: i, label: String(i) }))
     },
 
     registrationStatuses () {
@@ -979,7 +979,7 @@ export default {
     emitOrganisationUpdate () {
       // NextTick is needed because the selects do not update the local user before the emitUserUpdate method is invoked
       Vue.nextTick(() => {
-        this.$emit('organisation-update', this.localOrganisation)
+        this.$emit('organisation:update', this.localOrganisation)
       })
     },
 
@@ -1041,7 +1041,7 @@ export default {
   },
 
   mounted () {
-    this.$root.$on('organisation-reset', () => {
+    this.$root.$on('organisation:reset', () => {
       this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
     })
     if (this.registrationStatuses.length === 0) {
