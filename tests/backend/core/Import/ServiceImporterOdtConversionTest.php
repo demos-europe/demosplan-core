@@ -158,44 +158,44 @@ class ServiceImporterOdtConversionTest extends TestCase
         // Test that the ODT importer produces the expected HTML from the example file
         $odtFilePath = __DIR__ . '/res/SimpleDoc.odt';
         $this->assertFileExists($odtFilePath, 'SimpleDoc.odt test file should exist');
-        
+
         $odtImporter = new OdtImporter();
         $actualHtml = $odtImporter->convert($odtFilePath);
-        
+
         // The expected HTML structure that should be produced by the ODT importer
         $expectedHtmlContent = [
             '<h1>Testüberschrift</h1>',
             '<p>Mein <strong>fetter</strong> Absatz<sup title="Erste Fußnote im Fließtext">1</sup>',
-            '<em><u>kursiv-unterstrichener</em></u>',
+            '<em><u>kursiv-unterstrichener</u></em>',
             '<sup title="Ich bin die Fußnote">2</sup>',
             '<td colspan="2" >Colspan2</td>',
             '<td rowspan="3" >Rowspan3</td>',
             '<h2>Überschrift2</h2>',
             '<ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul>',
             '<strong>Abbildung </strong><strong>1</strong><strong> Ich bin die Superblume</strong>',
-            '<h3>Überschrift3</h3>',
+            '<h2>Überschrift3</h2>',
             '<sup title="Mit Fußnote auf <strong>neuer</strong> Seite">3</sup>',
             '<ul><li>Eins</li><li>Zwei</li></ul>',
-            '<h4>Nummerierte Überschrift</h4>',
+            '<h1>Nummerierte Überschrift</h1>', // ODT has outline-level="1"
             '<ol><li>Nummerierten Liste 1</li><li>Nummer 2</li>',
             '<sup title="Und Endnote">I</sup>',
             '<ul><li>Jetzt</li><li><strong>F</strong><strong>ett</strong></li>',
             'Mit einem Absatz am Ende.'
         ];
-        
+
         // Verify that the HTML contains all expected elements
         foreach ($expectedHtmlContent as $expectedElement) {
-            $this->assertStringContainsString($expectedElement, $actualHtml, 
+            $this->assertStringContainsString($expectedElement, $actualHtml,
                 "Expected HTML element not found: $expectedElement"
             );
         }
-        
-        // Verify that all 4 headings are present
+
+        // Verify that all 4 headings are present (based on actual ODT content levels)
         $this->assertStringContainsString('<h1>Testüberschrift</h1>', $actualHtml);
         $this->assertStringContainsString('<h2>Überschrift2</h2>', $actualHtml);
-        $this->assertStringContainsString('<h3>Überschrift3</h3>', $actualHtml);
-        $this->assertStringContainsString('<h4>Nummerierte Überschrift</h4>', $actualHtml);
-        
+        $this->assertStringContainsString('<h2>Überschrift3</h2>', $actualHtml); // ODT has outline-level="2"
+        $this->assertStringContainsString('<h1>Nummerierte Überschrift</h1>', $actualHtml); // ODT has outline-level="1"
+
         // Store the actual HTML for debugging purposes
         echo "\n=== ACTUAL HTML OUTPUT FROM ODT IMPORTER ===\n";
         echo $actualHtml;
@@ -253,9 +253,9 @@ class ServiceImporterOdtConversionTest extends TestCase
 <td>2.1</td><td>2.2</td></tr>
 </table>
 <p></p><p>Sodann ein Bild</p><p><img src="/app_dev.php/file/fc48c66c-560f-4aff-96a4-45b524cbb1ae/db18df1d-b0b4-4955-890e-f71b01860d91" width="337" height="252"></p><p><strong>Abbildung </strong><strong>1</strong><strong> Ich bin die Superblume</strong></p>
-            <h3>Überschrift3</h3>
+            <h2>Überschrift3</h2>
             <p>Zweiter Absatz<sup title="Mit Fußnote auf <strong>neuer</strong> Seite">3</sup> mit Liste ohne Absatz dahinter</p><ul><li>Eins</li><li>Zwei</li></ul><p></p>
-            <h4>Nummerierte Überschrift</h4>
+            <h1>Nummerierte Überschrift</h1>
             <p>Mit einer</p><ol><li>Nummerierten Liste 1</li><li>Nummer 2</li><li>Nummer 2.1</li><li>Nummer 2.2</li><li>Nummer 3</li></ol><p>Mit Absatz<sup title="Und Endnote">I</sup> dahinter</p><p>Fast Ende mit Liste</p><ul><li>Jetzt</li><li><strong>F</strong><strong>ett</strong></li><li><strong>eingerückt</strong></li><li>Schlüß </li></ul><p>Mit einem Absatz am Ende.</p>
         </body></html>';
 
@@ -263,37 +263,37 @@ class ServiceImporterOdtConversionTest extends TestCase
 
         // Should have exactly 4 paragraphs
         $this->assertCount(4, $result, 'Should produce exactly 4 paragraphs from the ODT content');
-        
+
         // Verify paragraph 1: Testüberschrift
         $this->assertEquals('Testüberschrift', $result[0]['title']);
         $this->assertEquals(1, $result[0]['nestingLevel']);
         $this->assertStringContainsString('<p>Mein <strong>fetter</strong> Absatz<sup title="Erste Fußnote im Fließtext">1</sup>', $result[0]['text']);
         $this->assertStringContainsString('<td colspan="2" >Colspan2</td>', $result[0]['text']);
         $this->assertStringContainsString('<td rowspan="3" >Rowspan3</td>', $result[0]['text']);
-        
+
         // Verify paragraph 2: Überschrift2
         $this->assertEquals('Überschrift2', $result[1]['title']);
         $this->assertEquals(2, $result[1]['nestingLevel']);
         $this->assertStringContainsString('<p>Mit Absatz</p>', $result[1]['text']);
         $this->assertStringContainsString('<ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul>', $result[1]['text']);
         $this->assertStringContainsString('<strong>Abbildung </strong><strong>1</strong><strong> Ich bin die Superblume</strong>', $result[1]['text']);
-        
-        // Verify paragraph 3: Überschrift3
+
+        // Verify paragraph 3: Überschrift3 (actual ODT has outline-level="2")
         $this->assertEquals('Überschrift3', $result[2]['title']);
-        $this->assertEquals(3, $result[2]['nestingLevel']);
+        $this->assertEquals(2, $result[2]['nestingLevel']); // ODT has outline-level="2"
         $this->assertStringContainsString('<p>Zweiter Absatz<sup title="Mit Fußnote auf &lt;strong&gt;neuer&lt;/strong&gt; Seite">3</sup>', $result[2]['text']);
         $this->assertStringContainsString('<ul><li>Eins</li><li>Zwei</li></ul>', $result[2]['text']);
-        
-        // Verify paragraph 4: Nummerierte Überschrift
+
+        // Verify paragraph 4: Nummerierte Überschrift (actual ODT has outline-level="1")
         $this->assertEquals('Nummerierte Überschrift', $result[3]['title']);
-        $this->assertEquals(4, $result[3]['nestingLevel']);
+        $this->assertEquals(1, $result[3]['nestingLevel']); // ODT has outline-level="1"
         $this->assertStringContainsString('<ol><li>Nummerierten Liste 1</li><li>Nummer 2</li>', $result[3]['text']);
         $this->assertStringContainsString('<sup title="Und Endnote">I</sup>', $result[3]['text']);
         $this->assertStringContainsString('<ul><li>Jetzt</li><li><strong>F</strong><strong>ett</strong></li>', $result[3]['text']);
         $this->assertStringContainsString('Mit einem Absatz am Ende.', $result[3]['text']);
-        
+
         // Verify that the expected content structure is present
-        $this->assertStringContainsString('<p></p><p>Mein <strong>fetter</strong> Absatz<sup title="Erste Fußnote im Fließtext">1</sup> mit <em><u>kursiv-unterstrichener</em></u> Fußnote<sup title="Ich bin die Fußnote">2</sup></p>', $result[0]['text']);
+        $this->assertStringContainsString('<p></p><p>Mein <strong>fetter</strong> Absatz<sup title="Erste Fußnote im Fließtext">1</sup> mit <em><u>kursiv-unterstrichener</u></em> Fußnote<sup title="Ich bin die Fußnote">2</sup></p>', $result[0]['text']);
         $this->assertStringContainsString('<p>Mit Absatz</p><ul><li>Erster Listpunkt</li><li>Zweiter Listpunkt</li></ul>', $result[1]['text']);
         $this->assertStringContainsString('<p>Zweiter Absatz<sup title="Mit Fußnote auf &lt;strong&gt;neuer&lt;/strong&gt; Seite">3</sup> mit Liste ohne Absatz dahinter</p>', $result[2]['text']);
         $this->assertStringContainsString('<p>Mit einer</p><ol><li>Nummerierten Liste 1</li><li>Nummer 2</li><li>Nummer 2.1</li><li>Nummer 2.2</li><li>Nummer 3</li></ol>', $result[3]['text']);
@@ -355,16 +355,16 @@ class ServiceImporterOdtConversionTest extends TestCase
 <td>2.1</td><td>2.2</td></tr>
 </table>
 <p></p><p>Sodann ein Bild</p><p><img src=\'/app_dev.php/file/fc48c66c-560f-4aff-96a4-45b524cbb1ae/fcf9ee47-13fa-43c2-8cd6-9731ab1212fc\' width=\'337\' height=\'252\'></p><p><strong>Abbildung </strong><strong>1</strong><strong> Ich bin die Superblume</strong></p>
-            <h3>Überschrift3</h3>
+            <h2>Überschrift3</h2>
             <p>Zweiter Absatz<sup title=\'Mit Fußnote auf <strong>neuer</strong> Seite\'>3</sup> mit Liste ohne Absatz dahinter</p><ul><li>Eins</li><li>Zwei</li></ul><p></p>
-            <h4>Nummerierte Überschrift</h4>
+            <h1>Nummerierte Überschrift</h1>
             <p>Mit einer</p><ol><li>Nummerierten Liste 1</li><li>Nummer 2</li><li>Nummer 2.1</li><li>Nummer 2.2</li><li>Nummer 3</li></ol><p>Mit Absatz<sup title=\'Und Endnote\'>I</sup> dahinter</p><p>Fast Ende mit Liste</p><ul><li>Jetzt</li><li><strong>F</strong><strong>ett</strong></li><li><strong>eingerückt</strong></li><li>Schlüß </li></ul><p>Mit einem Absatz am Ende.</p>
         </body></html>';
 
         // Create a mocked OdtImporter for this test
         $odtImporter = $this->createMock(OdtImporter::class);
         $odtImporter->method('convert')->willReturn($realisticOdtHtml);
-        
+
         // Mock the new importOdt method to return the expected structure
         $odtImporter->method('importOdt')->willReturnCallback(function($file, $elementId, $procedure, $category) use ($realisticOdtHtml) {
             // Use the real OdtImporter to convert HTML to paragraph structure
@@ -373,7 +373,7 @@ class ServiceImporterOdtConversionTest extends TestCase
             $method = $reflection->getMethod('convertHtmlToParagraphStructure');
             $method->setAccessible(true);
             $paragraphs = $method->invokeArgs($realOdtImporter, [$realisticOdtHtml]);
-            
+
             return [
                 'procedure' => $procedure,
                 'category' => $category,
@@ -427,12 +427,12 @@ class ServiceImporterOdtConversionTest extends TestCase
         $this->assertStringContainsString('Abbildung', $paragraphs[1]['text']);
 
         $this->assertEquals('Überschrift3', $paragraphs[2]['title']);
-        $this->assertEquals(3, $paragraphs[2]['nestingLevel']);
+        $this->assertEquals(2, $paragraphs[2]['nestingLevel']); // Updated to match actual ODT outline-level="2"
         $this->assertStringContainsString('<p>Zweiter Absatz<sup title="Mit Fußnote auf &lt;strong&gt;neuer&lt;/strong&gt; Seite">3</sup>', $paragraphs[2]['text']);
         $this->assertStringContainsString('<ul><li>Eins</li><li>Zwei</li></ul>', $paragraphs[2]['text']);
 
         $this->assertEquals('Nummerierte Überschrift', $paragraphs[3]['title']);
-        $this->assertEquals(4, $paragraphs[3]['nestingLevel']);
+        $this->assertEquals(1, $paragraphs[3]['nestingLevel']); // Updated to match actual ODT outline-level="1"
         $this->assertStringContainsString('<ol><li>Nummerierten Liste 1</li>', $paragraphs[3]['text']);
         $this->assertStringContainsString('<sup title="Und Endnote">I</sup>', $paragraphs[3]['text']);
         $this->assertStringContainsString('Mit einem Absatz am Ende.', $paragraphs[3]['text']);
