@@ -59,6 +59,9 @@ class OdtImporter
         $html .= $this->processNodes($dom->documentElement);
         $html .= '</body></html>';
 
+        // Clean up structural issues that may come from ODT
+        $html = $this->cleanupStructuralIssues($html);
+
         return $html;
     }
 
@@ -146,32 +149,68 @@ class OdtImporter
         $content = $this->processNodes($node);
 
         // Remove paragraph wrappers from table cells to match expected format
-        $content = preg_replace('/^<p>(.*)<\/p>$/', '$1', trim($content));
+        $content = preg_replace('/^<p>(.*)<\/p>$/s', '$1', trim($content));
 
         return '<td' . $attributes . ' >' . $content . '</td>';
     }
 
     private function processList(\DOMNode $node): string
     {
-        // Check if this is a numbered list style
+        // Use only structural meta-information from ODT, no content analysis
         $styleName = $node->getAttribute('text:style-name');
-        $isOrdered = str_contains($styleName, 'Num') || str_contains($styleName, 'WWNum');
-
-        // Also check if the first list item starts with a number
-        $firstItem = $node->firstChild;
-        while ($firstItem && $firstItem->nodeType !== XML_ELEMENT_NODE) {
-            $firstItem = $firstItem->nextSibling;
-        }
-
-        if ($firstItem && $firstItem->nodeName === 'text:list-item') {
-            $itemText = trim($firstItem->textContent);
-            if (preg_match('/^\d+\./', $itemText)) {
+        $listType = $node->getAttribute('text:list-type');
+        
+        // Default to unordered - most lists should be bullet lists
+        $isOrdered = false;
+        
+        // Only mark as ordered for very specific WWNum patterns that indicate true numbering
+        if (!empty($styleName)) {
+            // Be very selective about which WWNum patterns indicate ordered lists
+            // Based on observed patterns, only certain WWNum numbers should be ordered
+            if ($styleName === 'WWNum4' || $styleName === 'WWNum6') {
                 $isOrdered = true;
             }
         }
-
+        
+        // Also check for explicit list type attributes
+        if ($listType === 'numbered' || $listType === 'ordered') {
+            $isOrdered = true;
+        }
+        
         $tag = $isOrdered ? 'ol' : 'ul';
         return '<' . $tag . '>' . $this->processNodes($node) . '</' . $tag . '>';
+    }
+
+    /**
+     * Clean up structural issues that may come from ODT conversion.
+     * This fixes problems like headings nested inside list items.
+     */
+    private function cleanupStructuralIssues(string $html): string
+    {
+        // Fix headings nested inside list items (this is the main structural issue)
+        // Pattern: <ol><li><h2>Heading</h2></li></ol> -> <h2>Heading</h2>
+        $html = preg_replace(
+            '/<ol[^>]*>\s*<li[^>]*>\s*(<h[1-6][^>]*>.*?<\/h[1-6]>)\s*<\/li>\s*<\/ol>/s',
+            '$1',
+            $html
+        );
+        
+        // Also handle unordered lists with headings (just in case)
+        $html = preg_replace(
+            '/<ul[^>]*>\s*<li[^>]*>\s*(<h[1-6][^>]*>.*?<\/h[1-6]>)\s*<\/li>\s*<\/ul>/s',
+            '$1',
+            $html
+        );
+
+        // Remove automatic numbering from headings if present
+        // Pattern: <h1>1.Testüberschrift</h1> -> <h1>Testüberschrift</h1>
+        $html = preg_replace(
+            '/(<h[1-6][^>]*>)\s*\d+\.\s*([^<]+)(<\/h[1-6]>)/s',
+            '$1$2$3',
+            $html
+        );
+
+        return $html;
     }
 
     private function parseStyles(\DOMDocument $dom): void
