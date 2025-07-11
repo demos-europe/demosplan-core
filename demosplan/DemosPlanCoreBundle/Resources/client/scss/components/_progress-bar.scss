@@ -16,18 +16,9 @@
     border-radius: $inuit-base-spacing-unit--tiny;
     border: 1px solid $dp-color-neutral-light-2;
 
-    &--no-border {
-        border: none;
-    }
-
     &__line {
         height: 10px;
-        background: $color-confirm;
-
-        // Alternative color for blue progress bar
-        &--blue {
-            background: $dp-color-blue-dark-2;
-        }
+        background: $dp-color-blue-dark-1;
 
         &.is-animated,
         &.is-animated::before {
