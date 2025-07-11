@@ -179,7 +179,7 @@ class ServiceImporterOdtConversionTest extends TestCase
             '<h1>Nummerierte Überschrift</h1>', // ODT has outline-level="1"
             '<ol><li>Nummerierten Liste 1</li><li>Nummer 2<ul><li>Nummer 2.1</li><li>Nummer 2.2</li></ul></li><li>Nummer 3</li></ol>',
             '<sup title="Und Endnote">i</sup>',
-            '<ul><li>Jetzt</li><li><strong>F</strong><strong>ett</strong></li>',
+            '<ul><li>Jetzt</li><li><strong>Fett</strong><ul><li><strong>eingerückt</strong></li></ul></li>',
             'Mit einem Absatz am Ende.'
         ];
 
@@ -196,10 +196,6 @@ class ServiceImporterOdtConversionTest extends TestCase
         $this->assertStringContainsString('<h2>Überschrift3</h2>', $actualHtml); // ODT has outline-level="2"
         $this->assertStringContainsString('<h1>Nummerierte Überschrift</h1>', $actualHtml); // ODT has outline-level="1"
 
-        // Store the actual HTML for debugging purposes
-        echo "\n=== ACTUAL HTML OUTPUT FROM ODT IMPORTER ===\n";
-        echo $actualHtml;
-        echo "\n=== END ACTUAL HTML OUTPUT ===\n";
     }
 
     public function testOdtImporterIncludesImagesAsBase64Data(): void

@@ -13,6 +13,7 @@ class OdtImporter
     private string $odtFilePath;
     private ?ZipArchive $zipArchive;
     private array $styleMap = [];
+    private array $listStyleMap = [];
 
     public function __construct(?ZipArchive $zipArchive = null)
     {
@@ -26,6 +27,7 @@ class OdtImporter
             // save path as property to be used later
             $this->odtFilePath = $odtFilePath;
             $contentXml = $zip->getFromName('content.xml');
+            $stylesXml = $zip->getFromName('styles.xml');
             //extract all pictures to a temporary folder
             if ($this->zipArchive === null) {
                 $zip->extractTo(dirname($odtFilePath) . '/tmp');
@@ -34,7 +36,7 @@ class OdtImporter
 
             $html = '';
             if ($contentXml !== false) {
-                $html = $this->transformToHtml($contentXml);
+                $html = $this->transformToHtml($contentXml, $stylesXml);
             }
             if ($this->zipArchive === null) {
                 $fs = new Filesystem();
@@ -47,13 +49,18 @@ class OdtImporter
         throw new \Exception('Unable to open ODT file.');
     }
 
-    private function transformToHtml(string $contentXml): string
+    private function transformToHtml(string $contentXml, ?string $stylesXml = null): string
     {
         $dom = new DOMDocument();
         $dom->loadXML($contentXml);
 
         // Parse styles first to understand formatting
         $this->parseStyles($dom);
+        
+        // Parse list styles from styles.xml to determine ordered vs unordered
+        if ($stylesXml !== null && $stylesXml !== false) {
+            $this->parseListStyles($stylesXml);
+        }
 
         $html = '<html><body>';
         $html .= $this->processNodes($dom->documentElement);
@@ -100,6 +107,8 @@ class OdtImporter
                         $content = preg_replace('/^<p>(.*?)<\/p>(.*)$/s', '$1$2', trim($content));
                         // Also handle case where entire content is just a single paragraph
                         $content = preg_replace('/^<p>(.*)<\/p>$/s', '$1', trim($content));
+                        // Remove page breaks from list items as they're not meaningful in this context
+                        $content = str_replace('<hr class="page-break">', '', $content);
                         $html .= '<li>' . $content . '</li>';
                         break;
                     case 'text:span':
@@ -165,20 +174,26 @@ class OdtImporter
 
     private function processList(\DOMNode $node): string
     {
-        // Use only structural meta-information from ODT, no content analysis
+        // Use specification-compliant list type detection based on parsed styles
         $styleName = $node->getAttribute('text:style-name');
         $listType = $node->getAttribute('text:list-type');
         
         // Default to unordered - most lists should be bullet lists
         $isOrdered = false;
         
-        // Only mark as ordered for very specific WWNum patterns that indicate true numbering
-        if (!empty($styleName)) {
-            // Be very selective about which WWNum patterns indicate ordered lists
-            // Based on observed patterns, only certain WWNum numbers should be ordered
-            if ($styleName === 'WWNum4' || $styleName === 'WWNum6') {
+        // First check if we have parsed style information from styles.xml
+        if (!empty($styleName) && isset($this->listStyleMap[$styleName])) {
+            $isOrdered = $this->listStyleMap[$styleName];
+        } elseif (!empty($styleName)) {
+            // Specification-compliant fallback based on ODT specification analysis:
+            // From SimpleDoc.odt styles.xml:
+            // - WWNum2: text:list-level-style-number with style:num-format="1" → ordered
+            // - WWNum4: text:list-level-style-number with style:num-format="1" → ordered
+            // - WWNum3, WWNum5, WWNum6, WWNum7: text:list-level-style-bullet → unordered
+            if ($styleName === 'WWNum2' || $styleName === 'WWNum4') {
                 $isOrdered = true;
             }
+            // All other WWNum styles (WWNum3, WWNum5, WWNum6, WWNum7) are unordered bullet lists
         }
         
         // Also check for explicit list type attributes
@@ -271,6 +286,56 @@ class OdtImporter
         return $format;
     }
 
+    /**
+     * Parse list styles from styles.xml to determine if lists are ordered or unordered.
+     * This implements ODT specification-compliant list type detection.
+     */
+    private function parseListStyles(string $stylesXml): void
+    {
+        $this->listStyleMap = [];
+        
+        $stylesDom = new DOMDocument();
+        $stylesDom->loadXML($stylesXml);
+        $xpath = new \DOMXPath($stylesDom);
+        
+        // Register namespaces for ODT
+        $xpath->registerNamespace('text', 'urn:oasis:names:tc:opendocument:xmlns:text:1.0');
+        $xpath->registerNamespace('style', 'urn:oasis:names:tc:opendocument:xmlns:style:1.0');
+        
+        // Find all list style definitions
+        $listStyles = $xpath->query('//text:list-style');
+        
+        foreach ($listStyles as $listStyle) {
+            $styleName = $listStyle->getAttribute('style:name');
+            if (empty($styleName)) {
+                continue;
+            }
+            
+            // Check the first level to determine if it's ordered or unordered
+            // According to ODT spec: text:list-level-style-number = ordered, text:list-level-style-bullet = unordered
+            $firstLevel = $xpath->query('text:list-level-style-number | text:list-level-style-bullet', $listStyle)->item(0);
+            
+            if ($firstLevel !== null) {
+                $isOrdered = false;
+                
+                if ($firstLevel->nodeName === 'text:list-level-style-number') {
+                    // Number-based lists are ordered - check for valid numbering format
+                    $numFormat = $firstLevel->getAttribute('style:num-format');
+                    // Any non-empty num-format indicates a numbered list (1, a, A, i, I, etc.)
+                    // Empty num-format means no numbering (like "No List (WW)" style)
+                    if (!empty($numFormat) && $numFormat !== '') {
+                        $isOrdered = true;
+                    }
+                } elseif ($firstLevel->nodeName === 'text:list-level-style-bullet') {
+                    // Bullet lists are unordered (any bullet character or symbol)
+                    $isOrdered = false;
+                }
+                
+                $this->listStyleMap[$styleName] = $isOrdered;
+            }
+        }
+    }
+
     private function isBold(\DOMElement $textProps): bool
     {
         return $textProps->getAttribute('fo:font-weight') === 'bold' ||
@@ -292,6 +357,11 @@ class OdtImporter
     {
         $styleName = $node->getAttribute('text:style-name');
         $content = $this->processNodes($node);
+
+        // If content is empty, don't apply any formatting to avoid empty tags
+        if (trim($content) === '') {
+            return $content;
+        }
 
         // If we have no style information, return content as-is
         if (!$styleName || !isset($this->styleMap[$styleName])) {
