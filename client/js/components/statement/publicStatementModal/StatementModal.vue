@@ -45,13 +45,11 @@
 
       <header
         v-if="loggedIn === false && showHeader"
+        :class="prefixClass('c-statement__header u-mb-0_5')"
         role="banner"
-        :class="prefixClass('c-statement__header u-mb-0_5')">
-
+      >
         <!-- Desktop -->
-        <div
-          class="tablet-desktop-nav"
-        >
+        <div class="tablet-desktop-nav">
           <dp-multistep-nav
             :active-step="step"
             :class="prefixClass('pb-0')"
@@ -598,11 +596,12 @@
           </button>
 
           <button
-            type="button"
-            data-cy="submitterForm"
             :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
+            data-cy="submitterForm"
             form-name="submitterForm"
-            @click="dpValidateAction('submitterForm', validatePersonalDataStep, true)">
+            type="button"
+            @click="dpValidateAction('submitterForm', validatePersonalDataStep, true)"
+          >
             {{ Translator.trans('continue.submission') }}
           </button>
         </div>
@@ -676,11 +675,12 @@
             :class="prefixClass('align-text-bottom inline-block')"
             hide-label />
           <button
-            type="button"
-            data-cy="sendStatementNow"
-            :disabled="isLoading"
             :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
-            @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))">
+            :disabled="isLoading"
+            data-cy="sendStatementNow"
+            type="button"
+            @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))"
+          >
             {{ Translator.trans('statement.submit.now') }}
           </button>
         </div>
