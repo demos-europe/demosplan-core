@@ -45,11 +45,11 @@
 
       <header
         v-if="loggedIn === false && showHeader"
-        :class="prefixClass('c-statement__header u-mb-0_5')"
+        :class="prefixClass('c-statement__header mb-2')"
         role="banner"
       >
         <!-- Desktop -->
-        <div class="tablet-desktop-nav">
+        <div :class="prefixClass('tablet-desktop-nav')">
           <dp-multistep-nav
             :active-step="step"
             :class="prefixClass('pb-0')"
@@ -57,9 +57,9 @@
             @change-step="val => step = val" />
         </div>
 
-        <!-- Mobile-->
-        <div class="mobile-nav">
-          <div :class="prefixClass('mb-0_5 text-muted')">
+        <!-- Mobile -->
+        <div :class="prefixClass('mobile-nav')">
+          <div :class="prefixClass('mb-0.5 text-muted')">
             Schritt {{ step + 1 }} von {{ stepsData.length }}
           </div>
 
