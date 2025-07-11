@@ -62,7 +62,9 @@
     <dp-progress-bar
       v-if="errors.length > 1"
       :label="Translator.trans('done.capital') + ':'"
-      :percentage="completedPercent" />
+      :percentage="completedPercent"
+      showPercentage
+    />
 
     <a
       :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId })"
