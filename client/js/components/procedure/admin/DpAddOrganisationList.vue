@@ -12,7 +12,6 @@
     :header-fields="headerFields"
     ref="organisationTable"
     resource-type="InvitableToeb"
-    :procedure-id="procedureId"
     @selected-items="setSelectedItems" />
 
   <div class="mt-2 pt-2 flex">
@@ -61,7 +60,6 @@ export default {
   data () {
     return {
       selectedItems: [],
-      searchTerm: '',
       headerFields: [
         {
           field: 'legalName',
