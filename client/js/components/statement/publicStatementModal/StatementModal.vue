@@ -61,22 +61,27 @@
 
         <!-- Mobile-->
         <div class="mobile-nav">
-          <div :class="prefixClass('mb-0.5 text-muted')">
+          <div :class="prefixClass('mb-0_5 text-muted')">
             Schritt {{ step + 1 }} von {{ stepsData.length }}
           </div>
 
-          <div :class="prefixClass('mb-2 flex items-center justify-start')">
+          <div :class="prefixClass('mb-3 flex items-center justify-start gap-1')">
             <i
               v-if="stepsData[step].icon"
-              :class="['fa', stepsData[step].icon, prefixClass('mt-0.5 mr-1')]"
+              :class="['fa', stepsData[step].icon, prefixClass('mt-0.5')]"
               aria-hidden="true" />
-            <h4 :class="prefixClass('m-0 font-bold')">
+            <h4 :class="prefixClass('m-0 font-semibold')">
               {{  stepsData[step].label }}
             </h4>
           </div>
 
+          <!-- Reset padding styles from _progress-bar.scss for this case -->
           <dp-progress-bar
+            :class="prefixClass('p-0 pb-3')"
             :percentage="Math.round(((step + 1) / stepsData.length) * 100)"
+            alternative-color
+            hide-border
+            hide-percentage
           />
         </div>
       </header>
