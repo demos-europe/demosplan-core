@@ -66,14 +66,13 @@
           <div :class="prefixClass('mb-3 flex items-center justify-start gap-1')">
             <i
               v-if="stepsData[step].icon"
-              :class="['fa', stepsData[step].icon, prefixClass('mt-[2px]')]"
+              :class="[prefixClass('fa'), prefixClass(stepsData[step].icon), prefixClass('mt-[2px]')]"
               aria-hidden="true" />
             <h3 :class="prefixClass('m-0 text-lg font-medium')">
               {{  stepsData[step].label }}
             </h3>
           </div>
 
-          <!-- Reset padding styles from _progress-bar.scss for this case -->
           <dp-progress-bar
             :class="prefixClass('p-0 pb-3 border-0')"
             :percentage="Math.round(((step + 1) / stepsData.length) * 100)"
