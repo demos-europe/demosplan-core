@@ -7,7 +7,7 @@
     {% set isDefaultSubmissionProcess = currentUser.orga.submissionType|default(defaultSubmissionType) == defaultSubmissionType %}
     <nav
         aria-label="{{ 'procedure.statements.mine'|trans }}"
-        class="{{ 'c-pageheader__flyout c-flyout block sm:inline-block sm:ml-2 ml-0 mt-1 sm:mt-0'|prefixClass }}"
+        class="{{ 'c-pageheader__flyout c-flyout block sm:inline-block mt-1 sm:mt-0'|prefixClass }}"
         data-actionmenu
         data-cy="flyOutActionMenu">
 
