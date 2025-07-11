@@ -17,7 +17,8 @@
       :label="{
         text: Translator.trans('procedure.public.phase.autoswitch')
       }"
-      :name="checkboxId" />
+      :name="checkboxId"
+    />
 
     <transition
       name="slide-fade"
@@ -26,7 +27,6 @@
         v-if="!hasPermission('feature_auto_switch_to_procedure_end_phase') || (hasPermission('feature_auto_switch_to_procedure_end_phase') && !isParticipationPhaseSelected)"
         class="layout u-mt-0_25 u-pl">
         <dp-select
-          class="layout__item u-1-of-3 u-1-of-1-lap-down"
           v-model="selectedPhase"
           :data-cy="`selectedPhase:${checkboxId}`"
           :disabled="!autoSwitchPhase"
@@ -34,42 +34,53 @@
             text: Translator.trans('procedure.phase.autoswitch.targetphase')
           }"
           :name="phaseSelectId"
-          :options="phaseOptions" /><!--
+          :options="phaseOptions"
+          class="layout__item u-1-of-3 u-1-of-1-lap-down"
+        /><!--
 
      --><div class="layout__item u-1-of-3 u-1-of-1-lap-down">
+          <dp-label
+            :for="switchDateId"
+            :text="Translator.trans('phase.autoswitch.datetime')"
+            class="mb-0.5"
+            required
+          />
           <dp-datetime-picker
+            :id="switchDateId"
+            v-model="switchDate"
             :data-cy="`autoSwitchProcedurePhaseForm:${switchDateId}`"
             :disabled="!autoSwitchPhase"
             hidden-input
-            :id="switchDateId"
-            :label="Translator.trans('phase.autoswitch.datetime')"
             :max-date="switchDateMax"
             :min-date="minSwitchDate"
             :name="switchDateId"
             required
-            v-model="switchDate" />
+          />
         </div><!--
 
      --><div class="layout__item u-1-of-3">
           <dp-label
-            for="procedurePhasePeriod"
             :text="Translator.trans('period.new')"
-            required />
+            class="mb-0.5"
+            for="procedurePhasePeriod"
+            required
+          />
           <dp-date-range-picker
             id="procedurePhasePeriod"
+            :data-cy="dataCyPhasePeriod"
             :end-disabled="!autoSwitchPhase"
             :end-id="endDateId"
             :end-name="endDateId"
             :end-value="endDate"
-            enforce-plausible-dates
             :min-date="startDate"
-            required
-            :data-cy="dataCyPhasePeriod"
-            start-disabled
             :start-id="startDateId"
             :start-name="startDateId"
             :start-value="startDate"
-            @input:end-date="handleInputEndDate" />
+            enforce-plausible-dates
+            required
+            start-disabled
+            @input:end-date="handleInputEndDate"
+          />
         </div>
 
         <transition
@@ -77,17 +88,19 @@
           mode="out-in">
           <dp-inline-notification
             v-if="showAutoSwitchToAnalysisHint"
-            class="mt-3 mb-0"
             :message="Translator.trans('period.autoswitch.hint', { phase: Translator.trans(isInternal ? 'procedure.phases.internal.analysis' : 'procedure.phases.external.evaluating')})"
-            type="warning" />
+            class="mt-3 mb-0"
+            type="warning"
+          />
         </transition>
       </div>
 
       <dp-inline-notification
         v-else-if="hasPermission('feature_auto_switch_to_procedure_end_phase') && isParticipationPhaseSelected"
-        class="mt-3 mb-0"
         :message="Translator.trans('period.autoswitch.hint', { phase: Translator.trans(isInternal ? 'procedure.phases.internal.analysis' : 'procedure.phases.external.evaluating')})"
-        type="warning" />
+        class="mt-3 mb-0"
+        type="warning"
+      />
     </transition>
   </div>
 </template>
@@ -292,3 +305,4 @@ export default {
   }
 }
 </script>
+
