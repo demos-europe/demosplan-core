@@ -589,7 +589,7 @@
           :required="formDefinition.required" />
         <div :class="prefixClass('flex flex-col sm:flex-row justify-end gap-2 mt-4')">
           <button
-            :class="[prefixClass('btn btn--secondary sm:w-1/2 md:w-auto'), 'mobile-nav']"
+            :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
             data-cy="statementModal:backToStatement"
             type="button"
             @click="goToPreviousStep"
@@ -664,7 +664,7 @@
 
         <div :class="prefixClass('flex flex-col sm:flex-row justify-end gap-2 mt-4')">
           <button
-            :class="[prefixClass('btn btn--secondary sm:w-1/2 md:w-auto'), 'mobile-nav']"
+            :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
             data-cy="statementModal:backToPersonalData"
             type="button"
             @click.prevent="goToPreviousStep">
