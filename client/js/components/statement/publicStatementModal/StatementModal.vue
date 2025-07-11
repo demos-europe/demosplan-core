@@ -66,11 +66,11 @@
           <div :class="prefixClass('mb-3 flex items-center justify-start gap-1')">
             <i
               v-if="stepsData[step].icon"
-              :class="['fa', stepsData[step].icon, prefixClass('mt-0.5')]"
+              :class="['fa', stepsData[step].icon, prefixClass('mt-[2px]')]"
               aria-hidden="true" />
-            <h4 :class="prefixClass('m-0 font-semibold')">
+            <h3 :class="prefixClass('m-0 text-lg font-medium')">
               {{  stepsData[step].label }}
-            </h4>
+            </h3>
           </div>
 
           <!-- Reset padding styles from _progress-bar.scss for this case -->
