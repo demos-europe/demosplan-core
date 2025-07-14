@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional\Command;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
@@ -20,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Command\Permission\DisablePermissionForCustome
 use demosplan\DemosPlanCoreBundle\Command\Permission\EnablePermissionForCustomerOrgaRoleCommand;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaStatusInCustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaTypeFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -31,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleService;
+use InvalidArgumentException;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
@@ -64,7 +63,7 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
 
         $this->testCustomer = CustomerFactory::createOne();
         $this->testOrga = OrgaFactory::createOne();
-        
+
         // Relationship setup removed to avoid EntityManager context issues affecting basic tests
     }
 
@@ -201,7 +200,7 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $command = $application->find(DisablePermissionForCustomerOrgaRoleCommand::getDefaultName());
         $commandTester = new CommandTester($command);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Organization with ID "invalid-org-id" not found');
 
         $commandTester->execute([

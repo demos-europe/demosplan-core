@@ -66,7 +66,7 @@ final class UserAccessControlFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'user' => UserFactory::new(),
+            'user'         => UserFactory::new(),
             'organisation' => function (array $attributes) {
                 return $attributes['user']->getOrganisation();
             },
@@ -102,7 +102,7 @@ final class UserAccessControlFactory extends PersistentProxyObjectFactory
     public function forUser($user): self
     {
         return $this->with([
-            'user' => $user,
+            'user'         => $user,
             'organisation' => function (array $attributes) use ($user) {
                 return $user->getOrganisation();
             },

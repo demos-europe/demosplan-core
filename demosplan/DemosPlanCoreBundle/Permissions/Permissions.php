@@ -179,7 +179,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 }
             } catch (Exception $e) {
                 // Log error but don't break permission loading
-                $this->logger->warning('Error loading user-specific permissions: ' . $e->getMessage());
+                $this->logger->warning('Error loading user-specific permissions: '.$e->getMessage());
             }
         }
     }

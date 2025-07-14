@@ -37,8 +37,8 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
     private User|Proxy|null $testUser2;
     private Orga|Proxy|null $testOrga;
     private Customer|Proxy|null $testCustomer;
-    private Role|null $testRole;
-    private RoleHandler|null $roleHandler;
+    private ?Role $testRole;
+    private ?RoleHandler $roleHandler;
 
     protected function setUp(): void
     {
@@ -89,8 +89,8 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
         // Assert
         self::assertCount(2, $permissions);
         self::assertContainsOnlyInstancesOf(UserAccessControl::class, $permissions);
-        
-        $permissionNames = array_map(fn($p) => $p->getPermission(), $permissions);
+
+        $permissionNames = array_map(fn ($p) => $p->getPermission(), $permissions);
         self::assertContains($permission1, $permissionNames);
         self::assertContains($permission2, $permissionNames);
     }
@@ -225,7 +225,7 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
             'feature_procedure_planning_area_match',
             'area_admin_assessmenttable',
             'area_admin_procedures',
-            'area_admin_statement_list'
+            'area_admin_statement_list',
         ];
 
         foreach ($permissions as $permission) {
@@ -235,7 +235,7 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
             $userAccessControl->setCustomer($this->testCustomer->object());
             $userAccessControl->setRole($this->testRole);
             $userAccessControl->setPermission($permission);
-            
+
             $this->getEntityManager()->persist($userAccessControl);
         }
 
@@ -243,14 +243,14 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
 
         // Act - Measure query performance
         $startTime = microtime(true);
-        
+
         $result = $this->sut->getPermissionsByUserAndRoles(
             $this->testUser->object(),
             $this->testOrga->object(),
             $this->testCustomer->object(),
             [$this->testRole]
         );
-        
+
         $executionTime = microtime(true) - $startTime;
 
         // Assert - Performance should be reasonable (less than 10ms)

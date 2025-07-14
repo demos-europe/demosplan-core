@@ -25,10 +25,7 @@ class UserAccessControlRepository extends CoreRepository
      * Get permissions by user and roles with organization and customer filtering.
      * Roles can be passed as either role names (strings) or Role entities.
      *
-     * @param UserInterface     $user
-     * @param OrgaInterface     $orga
-     * @param CustomerInterface $customer
-     * @param array             $roles Array of role names (strings) or Role entities
+     * @param array $roles Array of role names (strings) or Role entities
      *
      * @return UserAccessControl[]
      */
@@ -36,7 +33,7 @@ class UserAccessControlRepository extends CoreRepository
         UserInterface $user,
         OrgaInterface $orga,
         CustomerInterface $customer,
-        array $roles
+        array $roles,
     ): array {
         // If roles are strings (role names), convert them to Role entities
         if (!empty($roles) && is_string($roles[0])) {
@@ -66,8 +63,6 @@ class UserAccessControlRepository extends CoreRepository
     /**
      * Find all permissions for a specific user.
      *
-     * @param UserInterface $user
-     *
      * @return UserAccessControl[]
      */
     public function findByUser(UserInterface $user): array
@@ -77,28 +72,20 @@ class UserAccessControlRepository extends CoreRepository
 
     /**
      * Check if a specific permission exists for a user.
-     *
-     * @param UserInterface     $user
-     * @param OrgaInterface     $orga
-     * @param CustomerInterface $customer
-     * @param RoleInterface     $role
-     * @param string            $permission
-     *
-     * @return bool
      */
     public function permissionExists(
         UserInterface $user,
         OrgaInterface $orga,
         CustomerInterface $customer,
         RoleInterface $role,
-        string $permission
+        string $permission,
     ): bool {
         return null !== $this->findOneBy([
-            'user' => $user,
+            'user'         => $user,
             'organisation' => $orga,
-            'customer' => $customer,
-            'role' => $role,
-            'permission' => $permission,
+            'customer'     => $customer,
+            'role'         => $role,
+            'permission'   => $permission,
         ]);
     }
 }

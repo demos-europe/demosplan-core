@@ -32,7 +32,7 @@ class DisablePermissionForCustomerOrgaRoleCommand extends PermissionForCustomerO
         CustomerService $customerService,
         RoleService $roleService,
         private readonly AccessControlService $accessControlPermissionService,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $customerService, $roleService, $name);
     }

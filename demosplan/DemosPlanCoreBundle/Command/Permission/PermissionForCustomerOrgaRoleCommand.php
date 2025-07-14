@@ -71,7 +71,7 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
         ParameterBagInterface $parameterBag,
         protected readonly CustomerService $customerService,
         protected readonly RoleService $roleService,
-        ?string $name = null
+        ?string $name = null,
     ) {
         parent::__construct($parameterBag, $name);
     }

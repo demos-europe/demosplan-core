@@ -14,7 +14,6 @@ namespace Tests\Core\Entity;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Permission\UserAccessControlFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\UserAccessControl;
@@ -24,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Exception;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
@@ -37,8 +37,8 @@ class UserAccessControlTest extends FunctionalTestCase
     private User|Proxy|null $testUser;
     private Orga|Proxy|null $testOrga;
     private Customer|Proxy|null $testCustomer;
-    private Role|null $testRole;
-    private RoleHandler|null $roleHandler;
+    private ?Role $testRole;
+    private ?RoleHandler $roleHandler;
 
     protected function setUp(): void
     {
@@ -102,7 +102,7 @@ class UserAccessControlTest extends FunctionalTestCase
 
         // Act & Assert
         $this->expectException(UniqueConstraintViolationException::class);
-        
+
         $this->getEntityManager()->persist($userAccessControl2);
         $this->getEntityManager()->flush();
     }
@@ -161,8 +161,8 @@ class UserAccessControlTest extends FunctionalTestCase
         $userAccessControl = new UserAccessControl();
 
         // Act & Assert - Test required fields
-        $this->expectException(\Exception::class);
-        
+        $this->expectException(Exception::class);
+
         // Try to persist without required fields
         $this->getEntityManager()->persist($userAccessControl);
         $this->getEntityManager()->flush();
@@ -173,11 +173,11 @@ class UserAccessControlTest extends FunctionalTestCase
         // This test will validate business logic once service layer is implemented
         // For now, we're testing the entity can store different organizations
         // The validation will be enforced at the service layer
-        
+
         // Arrange
         $differentOrga = OrgaFactory::createOne();
         $permission = 'feature_statement_bulk_edit';
-        
+
         $userAccessControl = new UserAccessControl();
         $userAccessControl->setUser($this->testUser->object());
         $userAccessControl->setOrganisation($differentOrga->object()); // Different org

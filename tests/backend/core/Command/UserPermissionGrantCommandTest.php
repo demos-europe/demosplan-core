@@ -78,14 +78,14 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $permission,
         ]);
 
         // Assert
         $output = $this->commandTester->getDisplay();
-        if ($exitCode !== Command::SUCCESS) {
-            $this->fail("Command failed with exit code $exitCode. Output: " . $output);
+        if (Command::SUCCESS !== $exitCode) {
+            $this->fail("Command failed with exit code $exitCode. Output: ".$output);
         }
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertStringContainsString('Permission granted successfully!', $output);
@@ -110,15 +110,15 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $permission,
-            '--role' => $roleCode,
+            '--role'     => $roleCode,
         ]);
 
         // Assert
         $output = $this->commandTester->getDisplay();
-        if ($exitCode !== Command::SUCCESS) {
-            $this->fail("Command failed with exit code $exitCode. Output: " . $output);
+        if (Command::SUCCESS !== $exitCode) {
+            $this->fail("Command failed with exit code $exitCode. Output: ".$output);
         }
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertStringContainsString('Permission granted successfully!', $output);
@@ -139,14 +139,14 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $invalidUserId,
+            'user-id'    => $invalidUserId,
             'permission' => $permission,
         ]);
 
         // Assert
         self::assertSame(Command::FAILURE, $exitCode);
         $output = $this->commandTester->getDisplay();
-        self::assertStringContainsString('User with ID "' . $invalidUserId . '" not found', $output);
+        self::assertStringContainsString('User with ID "'.$invalidUserId.'" not found', $output);
     }
 
     public function testGrantPermissionFailsWithEmptyUserId(): void
@@ -156,7 +156,7 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => '',
+            'user-id'    => '',
             'permission' => $permission,
         ]);
 
@@ -175,15 +175,15 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $permission,
-            '--role' => $invalidRoleCode,
+            '--role'     => $invalidRoleCode,
         ]);
 
         // Assert
         self::assertSame(Command::FAILURE, $exitCode);
         $output = $this->commandTester->getDisplay();
-        self::assertStringContainsString('Role with code "' . $invalidRoleCode . '" not found', $output);
+        self::assertStringContainsString('Role with code "'.$invalidRoleCode.'" not found', $output);
     }
 
     public function testGrantPermissionFailsWhenUserDoesNotHaveSpecifiedRole(): void
@@ -198,15 +198,15 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $permission,
-            '--role' => $differentRoleCode,
+            '--role'     => $differentRoleCode,
         ]);
 
         // Assert
         self::assertSame(Command::FAILURE, $exitCode);
         $output = $this->commandTester->getDisplay();
-        self::assertStringContainsString('does not have role "' . $differentRoleCode . '"', $output);
+        self::assertStringContainsString('does not have role "'.$differentRoleCode.'"', $output);
     }
 
     public function testGrantPermissionFailsWithInvalidPermissionName(): void
@@ -217,7 +217,7 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $invalidPermission,
         ]);
 
@@ -235,7 +235,7 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $invalidPermission,
         ]);
 
@@ -253,13 +253,13 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
 
         // Create permission first time
         $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $permission,
         ]);
 
         // Act - Try to grant same permission again
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $permission,
         ]);
 
@@ -283,7 +283,7 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $guestUser->getId(),
+            'user-id'    => $guestUser->getId(),
             'permission' => $permission,
         ]);
 

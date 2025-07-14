@@ -31,7 +31,7 @@ class UserPermissionListCommand extends CoreCommand
     public function __construct(
         private readonly UserAccessControlService $userAccessControlService,
         private readonly UserRepository $userRepository,
-        ParameterBagInterface $parameterBag
+        ParameterBagInterface $parameterBag,
     ) {
         parent::__construct($parameterBag);
     }
@@ -55,7 +55,7 @@ class UserPermissionListCommand extends CoreCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        
+
         $userId = $input->getArgument('user-id');
         $format = $input->getOption('format');
 
@@ -63,6 +63,7 @@ class UserPermissionListCommand extends CoreCommand
             // Validate output format
             if (!in_array($format, ['table', 'json'])) {
                 $io->error('Invalid format. Use "table" or "json".');
+
                 return Command::FAILURE;
             }
 
@@ -82,12 +83,13 @@ class UserPermissionListCommand extends CoreCommand
             }
 
             return Command::SUCCESS;
-
         } catch (InvalidArgumentException $e) {
-            $io->error('Validation Error: ' . $e->getMessage());
+            $io->error('Validation Error: '.$e->getMessage());
+
             return Command::FAILURE;
         } catch (Exception $e) {
-            $io->error('Unexpected error: ' . $e->getMessage());
+            $io->error('Unexpected error: '.$e->getMessage());
+
             return Command::FAILURE;
         }
     }
@@ -96,12 +98,14 @@ class UserPermissionListCommand extends CoreCommand
     {
         if (empty(trim($userId))) {
             $io->error('User ID cannot be empty');
+
             return null;
         }
 
         $user = $this->userRepository->find($userId);
         if (null === $user) {
             $io->error(sprintf('User with ID "%s" not found', $userId));
+
             return null;
         }
 
@@ -114,14 +118,15 @@ class UserPermissionListCommand extends CoreCommand
 
         if (empty($userPermissions)) {
             $io->note('No user-specific permissions found for this user.');
+
             return;
         }
 
         $io->definitionList(
             ['User ID' => $user->getId()],
-            ['User Login' => $user->getLogin()],
-            ['Organization' => $user->getOrga()?->getName() ?? 'N/A'],
-            ['Customer' => $user->getCurrentCustomer()?->getName() ?? 'N/A'],
+            ['User Login'        => $user->getLogin()],
+            ['Organization'      => $user->getOrga()?->getName() ?? 'N/A'],
+            ['Customer'          => $user->getCurrentCustomer()?->getName() ?? 'N/A'],
             ['Total Permissions' => count($userPermissions)]
         );
 
@@ -144,19 +149,19 @@ class UserPermissionListCommand extends CoreCommand
     {
         $data = [
             'user' => [
-                'id' => $user->getId(),
-                'login' => $user->getLogin(),
+                'id'           => $user->getId(),
+                'login'        => $user->getLogin(),
                 'organization' => $user->getOrga()?->getName(),
-                'customer' => $user->getCurrentCustomer()?->getName(),
+                'customer'     => $user->getCurrentCustomer()?->getName(),
             ],
             'permissions' => [],
         ];
 
         foreach ($userPermissions as $permission) {
             $data['permissions'][] = [
-                'permission' => $permission->getPermission(),
-                'role' => $permission->getRole()->getCode(),
-                'granted_date' => $permission->getCreationDate()->format('c'),
+                'permission'    => $permission->getPermission(),
+                'role'          => $permission->getRole()->getCode(),
+                'granted_date'  => $permission->getCreationDate()->format('c'),
                 'modified_date' => $permission->getModificationDate()->format('c'),
             ];
         }

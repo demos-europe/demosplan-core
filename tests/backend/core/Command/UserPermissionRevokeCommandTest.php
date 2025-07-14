@@ -91,7 +91,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $permission,
         ]);
 
@@ -125,15 +125,15 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $permission,
-            '--role' => $roleCode,
+            '--role'     => $roleCode,
         ]);
 
         // Assert
         $output = $this->commandTester->getDisplay();
-        if ($exitCode !== Command::SUCCESS) {
-            $this->fail("Command failed with exit code $exitCode. Output: " . $output);
+        if (Command::SUCCESS !== $exitCode) {
+            $this->fail("Command failed with exit code $exitCode. Output: ".$output);
         }
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertStringContainsString('Permission revoked successfully!', $output);
@@ -154,14 +154,14 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $invalidUserId,
+            'user-id'    => $invalidUserId,
             'permission' => $permission,
         ]);
 
         // Assert
         self::assertSame(Command::FAILURE, $exitCode);
         $output = $this->commandTester->getDisplay();
-        self::assertStringContainsString('User with ID "' . $invalidUserId . '" not found', $output);
+        self::assertStringContainsString('User with ID "'.$invalidUserId.'" not found', $output);
     }
 
     public function testRevokePermissionFailsWithEmptyUserId(): void
@@ -171,7 +171,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => '',
+            'user-id'    => '',
             'permission' => $permission,
         ]);
 
@@ -190,15 +190,15 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $permission,
-            '--role' => $invalidRoleCode,
+            '--role'     => $invalidRoleCode,
         ]);
 
         // Assert
         self::assertSame(Command::FAILURE, $exitCode);
         $output = $this->commandTester->getDisplay();
-        self::assertStringContainsString('Role with code "' . $invalidRoleCode . '" not found', $output);
+        self::assertStringContainsString('Role with code "'.$invalidRoleCode.'" not found', $output);
     }
 
     public function testRevokePermissionWarnsWhenPermissionDoesNotExist(): void
@@ -209,7 +209,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
 
         // Act (try to revoke permission that doesn't exist)
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $permission,
         ]);
 
@@ -227,7 +227,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $invalidPermission,
         ]);
 
@@ -245,7 +245,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $invalidPermission,
         ]);
 
@@ -267,14 +267,14 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'    => $userId,
             'permission' => $permission,
-            '--role' => $differentRoleCode,
+            '--role'     => $differentRoleCode,
         ]);
 
         // Assert
         self::assertSame(Command::FAILURE, $exitCode);
         $output = $this->commandTester->getDisplay();
-        self::assertStringContainsString('does not have role "' . $differentRoleCode . '"', $output);
+        self::assertStringContainsString('does not have role "'.$differentRoleCode.'"', $output);
     }
 }

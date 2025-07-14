@@ -24,22 +24,17 @@ class UserAccessControlService extends CoreService
 {
     public function __construct(
         private readonly UserAccessControlRepository $userAccessControlRepository,
-        private readonly EntityManagerInterface $entityManager
-    ) {}
+        private readonly EntityManagerInterface $entityManager,
+    ) {
+    }
 
     /**
      * Create a user-specific permission.
-     *
-     * @param UserInterface      $user
-     * @param string             $permission
-     * @param RoleInterface|null $role
-     *
-     * @return UserAccessControl
      */
     public function createUserPermission(
         UserInterface $user,
         string $permission,
-        ?RoleInterface $role = null
+        ?RoleInterface $role = null,
     ): UserAccessControl {
         $this->validateUserPermissionRequest($user, $permission, $role);
 
@@ -62,11 +57,11 @@ class UserAccessControlService extends CoreService
         if ($this->userPermissionExists($user, $permission, $role)) {
             // Return existing permission instead of creating duplicate
             return $this->userAccessControlRepository->findOneBy([
-                'user' => $user,
+                'user'         => $user,
                 'organisation' => $orga,
-                'customer' => $customer,
-                'role' => $role,
-                'permission' => $permission,
+                'customer'     => $customer,
+                'role'         => $role,
+                'permission'   => $permission,
             ]);
         }
 
@@ -92,20 +87,13 @@ class UserAccessControlService extends CoreService
         return $userPermission;
     }
 
-
     /**
      * Remove a user-specific permission.
-     *
-     * @param UserInterface      $user
-     * @param string             $permission
-     * @param RoleInterface|null $role
-     *
-     * @return bool
      */
     public function removeUserPermission(
         UserInterface $user,
         string $permission,
-        ?RoleInterface $role = null
+        ?RoleInterface $role = null,
     ): bool {
         $orga = $user->getOrga();
         $customer = $user->getCurrentCustomer();
@@ -123,11 +111,11 @@ class UserAccessControlService extends CoreService
         }
 
         $userPermission = $this->userAccessControlRepository->findOneBy([
-            'user' => $user,
+            'user'         => $user,
             'organisation' => $orga,
-            'customer' => $customer,
-            'role' => $role,
-            'permission' => $permission,
+            'customer'     => $customer,
+            'role'         => $role,
+            'permission'   => $permission,
         ]);
 
         if ($userPermission) {
@@ -142,8 +130,6 @@ class UserAccessControlService extends CoreService
 
     /**
      * Get all permissions for a user.
-     *
-     * @param UserInterface $user
      *
      * @return UserAccessControl[]
      */
@@ -167,17 +153,11 @@ class UserAccessControlService extends CoreService
 
     /**
      * Check if a user has a specific permission.
-     *
-     * @param UserInterface      $user
-     * @param string             $permission
-     * @param RoleInterface|null $role
-     *
-     * @return bool
      */
     public function userPermissionExists(
         UserInterface $user,
         string $permission,
-        ?RoleInterface $role = null
+        ?RoleInterface $role = null,
     ): bool {
         $orga = $user->getOrga();
         $customer = $user->getCurrentCustomer();
@@ -206,16 +186,12 @@ class UserAccessControlService extends CoreService
     /**
      * Validate a user permission request.
      *
-     * @param UserInterface      $user
-     * @param string             $permission
-     * @param RoleInterface|null $role
-     *
      * @throws InvalidArgumentException
      */
     private function validateUserPermissionRequest(
         UserInterface $user,
         string $permission,
-        ?RoleInterface $role
+        ?RoleInterface $role,
     ): void {
         // Validate user has required relationships
         if (null === $user->getOrga()) {
@@ -228,7 +204,7 @@ class UserAccessControlService extends CoreService
 
         // Validate that role belongs to user if specified (compare by code, not object identity)
         if ($role) {
-            $userRoleCodes = $user->getDplanRoles()->map(fn($r) => $r->getCode())->toArray();
+            $userRoleCodes = $user->getDplanRoles()->map(fn ($r) => $r->getCode())->toArray();
             if (!in_array($role->getCode(), $userRoleCodes, true)) {
                 throw new InvalidArgumentException('User does not have the specified role');
             }

@@ -34,7 +34,7 @@ class UserPermissionGrantCommand extends CoreCommand
         private readonly UserAccessControlService $userAccessControlService,
         private readonly UserRepository $userRepository,
         private readonly RoleHandler $roleHandler,
-        ParameterBagInterface $parameterBag
+        ParameterBagInterface $parameterBag,
     ) {
         parent::__construct($parameterBag);
     }
@@ -58,7 +58,7 @@ class UserPermissionGrantCommand extends CoreCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        
+
         $userId = $input->getArgument('user-id');
         $permission = $input->getArgument('permission');
         $roleCode = $input->getOption('role');
@@ -91,6 +91,7 @@ class UserPermissionGrantCommand extends CoreCommand
                     $permission,
                     $role->getCode()
                 ));
+
                 return Command::SUCCESS;
             }
 
@@ -98,24 +99,25 @@ class UserPermissionGrantCommand extends CoreCommand
             $userPermission = $this->userAccessControlService->createUserPermission($user, $permission, $role);
 
             $io->success('Permission granted successfully!');
-            
+
             $io->definitionList(
                 ['User ID' => $user->getId()],
-                ['User Login' => $user->getLogin()],
+                ['User Login'   => $user->getLogin()],
                 ['Organization' => $user->getOrga()?->getName() ?? 'N/A'],
-                ['Customer' => $user->getCurrentCustomer()?->getName() ?? 'N/A'],
-                ['Role' => $role->getCode()],
-                ['Permission' => $permission],
-                ['Granted at' => $userPermission->getCreationDate()->format('Y-m-d H:i:s')]
+                ['Customer'     => $user->getCurrentCustomer()?->getName() ?? 'N/A'],
+                ['Role'         => $role->getCode()],
+                ['Permission'   => $permission],
+                ['Granted at'   => $userPermission->getCreationDate()->format('Y-m-d H:i:s')]
             );
 
             return Command::SUCCESS;
-
         } catch (InvalidArgumentException $e) {
-            $io->error('Validation Error: ' . $e->getMessage());
+            $io->error('Validation Error: '.$e->getMessage());
+
             return Command::FAILURE;
         } catch (Exception $e) {
-            $io->error('Unexpected error: ' . $e->getMessage());
+            $io->error('Unexpected error: '.$e->getMessage());
+
             return Command::FAILURE;
         }
     }
@@ -124,28 +126,33 @@ class UserPermissionGrantCommand extends CoreCommand
     {
         if (empty(trim($userId))) {
             $io->error('User ID cannot be empty');
+
             return null;
         }
 
         $user = $this->userRepository->find($userId);
         if (null === $user) {
             $io->error(sprintf('User with ID "%s" not found', $userId));
+
             return null;
         }
 
         // Validate user has proper organization setup
         if (null === $user->getOrga()) {
             $io->error(sprintf('User "%s" does not have an organization assigned', $user->getLogin()));
+
             return null;
         }
 
         if (null === $user->getCurrentCustomer()) {
             $io->error(sprintf('User "%s" does not have a current customer assigned', $user->getLogin()));
+
             return null;
         }
 
         if ($user->getDplanRoles()->isEmpty()) {
             $io->error(sprintf('User "%s" does not have any roles assigned', $user->getLogin()));
+
             return null;
         }
 
@@ -159,8 +166,10 @@ class UserPermissionGrantCommand extends CoreCommand
             $role = $user->getDplanRoles()->first();
             if (false === $role) {
                 $io->error('User has no roles assigned');
+
                 return null;
             }
+
             return $role;
         }
 
@@ -168,13 +177,14 @@ class UserPermissionGrantCommand extends CoreCommand
         $roles = $this->roleHandler->getUserRolesByCodes([$roleCode]);
         if (empty($roles)) {
             $io->error(sprintf('Role with code "%s" not found', $roleCode));
+
             return null;
         }
 
         $role = $roles[0];
 
         // Verify user has this role (compare by code, not object identity)
-        $userRoleCodes = $user->getDplanRoles()->map(fn(Role $r) => $r->getCode())->toArray();
+        $userRoleCodes = $user->getDplanRoles()->map(fn (Role $r) => $r->getCode())->toArray();
         if (!in_array($roleCode, $userRoleCodes, true)) {
             $io->error(sprintf(
                 'User "%s" does not have role "%s". Available roles: %s',
@@ -182,6 +192,7 @@ class UserPermissionGrantCommand extends CoreCommand
                 $roleCode,
                 implode(', ', $userRoleCodes)
             ));
+
             return null;
         }
 
@@ -192,12 +203,14 @@ class UserPermissionGrantCommand extends CoreCommand
     {
         if (empty(trim($permission))) {
             $io->error('Permission name cannot be empty');
+
             return false;
         }
 
         // Basic validation for permission name format
         if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $permission)) {
             $io->error('Permission name must start with a letter and contain only letters, numbers, and underscores');
+
             return false;
         }
 

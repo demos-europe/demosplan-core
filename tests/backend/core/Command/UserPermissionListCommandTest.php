@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Command;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use demosplan\DemosPlanCoreBundle\Command\UserPermissionListCommand;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
@@ -78,7 +77,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         // Assert
         self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
-        self::assertStringContainsString('User-Specific Permissions for "' . $this->testUser->getLogin() . '"', $output);
+        self::assertStringContainsString('User-Specific Permissions for "'.$this->testUser->getLogin().'"', $output);
         self::assertStringContainsString('No user-specific permissions found', $output);
     }
 
@@ -109,7 +108,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         // Assert
         self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
-        self::assertStringContainsString('User-Specific Permissions for "' . $this->testUser->getLogin() . '"', $output);
+        self::assertStringContainsString('User-Specific Permissions for "'.$this->testUser->getLogin().'"', $output);
         self::assertStringContainsString('Total Permissions', $output);
         self::assertStringContainsString('2', $output); // Should show 2 permissions
         self::assertStringContainsString($permission1, $output);
@@ -138,7 +137,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'  => $userId,
             '--format' => 'json',
         ]);
 
@@ -173,7 +172,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'  => $userId,
             '--format' => 'json',
         ]);
 
@@ -204,7 +203,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         // Assert
         self::assertSame(Command::FAILURE, $exitCode);
         $output = $this->commandTester->getDisplay();
-        self::assertStringContainsString('User with ID "' . $invalidUserId . '" not found', $output);
+        self::assertStringContainsString('User with ID "'.$invalidUserId.'" not found', $output);
     }
 
     public function testListPermissionsFailsWithEmptyUserId(): void
@@ -227,7 +226,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userId,
+            'user-id'  => $userId,
             '--format' => 'xml', // Invalid format
         ]);
 
