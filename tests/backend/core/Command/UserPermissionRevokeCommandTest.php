@@ -29,6 +29,8 @@ use Tests\Base\FunctionalTestCase;
 
 class UserPermissionRevokeCommandTest extends FunctionalTestCase
 {
+    private const ROLE_OPTION = '--role';
+    
     protected $sut;
     private ?CommandTester $commandTester = null;
     private ?User $testUser = null;
@@ -127,7 +129,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
         $exitCode = $this->commandTester->execute([
             'user-id'    => $userId,
             'permission' => $permission,
-            '--role'     => $roleCode,
+            self::ROLE_OPTION => $roleCode,
         ]);
 
         // Assert
@@ -192,7 +194,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
         $exitCode = $this->commandTester->execute([
             'user-id'    => $userId,
             'permission' => $permission,
-            '--role'     => $invalidRoleCode,
+            self::ROLE_OPTION => $invalidRoleCode,
         ]);
 
         // Assert
@@ -269,7 +271,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
         $exitCode = $this->commandTester->execute([
             'user-id'    => $userId,
             'permission' => $permission,
-            '--role'     => $differentRoleCode,
+            self::ROLE_OPTION => $differentRoleCode,
         ]);
 
         // Assert
