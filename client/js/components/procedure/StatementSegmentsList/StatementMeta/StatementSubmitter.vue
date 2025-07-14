@@ -163,15 +163,17 @@ All rights reserved
       primary
       secondary
       @primary-action="dpValidateAction('statementSubmitterData', save, false)"
-      @secondary-action="reset" />
+      @secondary-action="reset"
+    />
 
     <similar-statement-submitters
       v-if="hasPermission('feature_similar_statement_submitter')"
-      class="mb-4"
       :editable="editable"
       :procedure-id="procedure.id"
       :similar-statement-submitters="similarStatementSubmitters"
-      :statement-id="statement.id" />
+      :statement-id="statement.id"
+      class="mb-4"
+    />
   </fieldset>
 </template>
 
@@ -288,6 +290,7 @@ export default {
   methods: {
     getDisplayValue (value) {
       const isDisabled = !this.editable || !this.isStatementManual
+
       return (isDisabled && (!value || value.trim() === '')) ? '---' : value
     },
 
@@ -297,6 +300,7 @@ export default {
       }
 
       const value = this.localStatement.attributes[this.statementSubmitterField]
+
       return this.getDisplayValue(value)
     },
 
