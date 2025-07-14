@@ -27,7 +27,7 @@ class UserPermissionRevokeCommand extends UserPermissionBaseCommand
             ->setName('dplan:user:permission:revoke')
             ->setDescription('Revoke a specific permission from a user')
             ->setHelp('This command allows you to revoke a user-specific permission from a user.');
-            
+
         $this->addCommonArguments();
     }
 
@@ -96,5 +96,4 @@ class UserPermissionRevokeCommand extends UserPermissionBaseCommand
             return Command::FAILURE;
         }
     }
-
 }

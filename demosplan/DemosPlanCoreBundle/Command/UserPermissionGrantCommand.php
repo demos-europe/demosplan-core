@@ -27,7 +27,7 @@ class UserPermissionGrantCommand extends UserPermissionBaseCommand
             ->setName('dplan:user:permission:grant')
             ->setDescription('Grant a specific permission to a user')
             ->setHelp('This command allows you to grant a specific permission to a user beyond their role-based permissions.');
-            
+
         $this->addCommonArguments();
     }
 
@@ -90,5 +90,4 @@ class UserPermissionGrantCommand extends UserPermissionBaseCommand
             return Command::FAILURE;
         }
     }
-
 }
