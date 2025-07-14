@@ -477,8 +477,8 @@ export default {
       return dpApi.get(Routing.generate('dp_api_documents_dashboard_get', { procedureId: this.procedureId, include: 'procedureMapInfo' }))
         .then(response => {
           // Get id of the "Elements" item that is the map
-          if (hasOwnProp(response.data, 'relationships')) {
-            this.mapIdent = response.data.relationships.procedureMapInfo.data.id
+          if (hasOwnProp(response.data.data, 'relationships')) {
+            this.mapIdent = response.data.data.relationships.procedureMapInfo.data.id
           }
 
           // Get "Status" (a.k.a. procedure setting, if map is enabled)
@@ -486,13 +486,13 @@ export default {
           this.isMapEnabled = (typeof elem !== 'undefined') ? elem.attributes.enabled : false
 
           // Planstand equals a date (with no further functionality attached)
-          this.planstatus = response.data.attributes.planText
+          this.planstatus = response.data.data.attributes.planText
 
-          this.gislayers = response.data.attributes.hasGisLayers
+          this.gislayers = response.data.data.attributes.hasGisLayers
 
           if (hasPermission('feature_procedure_planning_area_match')) {
-            this.planningArea = response.data.attributes.planningArea
-            this.planningAreaOptions = response.data.attributes.availablePlanningAreas
+            this.planningArea = response.data.data.attributes.planningArea
+            this.planningAreaOptions = response.data.data.attributes.availablePlanningAreas
           }
         })
         .catch(e => true)
