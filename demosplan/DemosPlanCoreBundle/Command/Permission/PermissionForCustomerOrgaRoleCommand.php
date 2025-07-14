@@ -139,10 +139,10 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
             return constant($constantFullName);
         }
 
-        throw new InvalidArgumentException('Permission does not exit');
+        throw new InvalidArgumentException('Permission does not exist');
     }
 
-    abstract protected function doExecuteAction(string $permissionChoice, CustomerInterface $customerChoice, RoleInterface $roleChoice, mixed $dryRun, ?string $orgaId = null): array;
+    abstract protected function doExecuteAction(string $permissionChoice, CustomerInterface $customerChoice, RoleInterface $roleChoice, bool $dryRun, ?string $orgaId = null): array;
 
     abstract protected function getActionName(): string;
 }

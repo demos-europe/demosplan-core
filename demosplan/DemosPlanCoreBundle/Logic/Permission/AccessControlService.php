@@ -200,13 +200,7 @@ class AccessControlService extends CoreService
 
     public function enablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false, ?string $orgaId = null): array
     {
-        // If specific organization ID is provided, only process that organization
-        if (null !== $orgaId) {
-            $organizationsToProcess = $this->getOrganizationsToProcess($customer, $orgaId);
-        } else {
-            // Original behavior: enable permission for all orga on the given customer and role
-            $organizationsToProcess = $this->orgaService->getOrgasInCustomer($customer);
-        }
+        $organizationsToProcess = $this->getOrganizationsForProcessing($customer, $orgaId);
         
         $updatedOrgas = [];
 
@@ -264,13 +258,7 @@ class AccessControlService extends CoreService
 
     public function disablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false, ?string $orgaId = null): array
     {
-        // If specific organization ID is provided, only process that organization
-        if (null !== $orgaId) {
-            $organizationsToProcess = $this->getOrganizationsToProcess($customer, $orgaId);
-        } else {
-            // Original behavior: process all organizations in customer
-            $organizationsToProcess = $this->orgaService->getOrgasInCustomer($customer);
-        }
+        $organizationsToProcess = $this->getOrganizationsForProcessing($customer, $orgaId);
         
         $updatedOrgas = [];
 
@@ -290,6 +278,20 @@ class AccessControlService extends CoreService
         }
 
         return $updatedOrgas;
+    }
+
+    /**
+     * Get organizations for processing based on optional organization ID.
+     * 
+     * @param CustomerInterface $customer The customer to get organizations from
+     * @param string|null $orgaId Optional organization ID to restrict to a specific organization
+     * @return OrgaInterface[] Array of organizations to process
+     */
+    private function getOrganizationsForProcessing(CustomerInterface $customer, ?string $orgaId): array
+    {
+        return $orgaId !== null 
+            ? $this->getOrganizationsToProcess($customer, $orgaId)
+            : $this->orgaService->getOrgasInCustomer($customer);
     }
 
     /**

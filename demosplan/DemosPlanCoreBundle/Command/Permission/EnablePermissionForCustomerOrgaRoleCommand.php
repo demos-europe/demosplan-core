@@ -37,7 +37,7 @@ class EnablePermissionForCustomerOrgaRoleCommand extends PermissionForCustomerOr
         parent::__construct($parameterBag, $customerService, $roleService, $name);
     }
 
-    protected function doExecuteAction(string $permissionChoice, CustomerInterface $customerChoice, RoleInterface $roleChoice, mixed $dryRun, ?string $orgaId = null): array
+    protected function doExecuteAction(string $permissionChoice, CustomerInterface $customerChoice, RoleInterface $roleChoice, bool $dryRun, ?string $orgaId = null): array
     {
         return $this->accessControlPermissionService->enablePermissionCustomerOrgaRole(
             $permissionChoice,
