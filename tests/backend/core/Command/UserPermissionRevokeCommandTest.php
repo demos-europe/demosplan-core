@@ -34,7 +34,7 @@ use Zenstruck\Foundry\Persistence\Proxy;
 
 class UserPermissionRevokeCommandTest extends FunctionalTestCase
 {
-    private UserPermissionRevokeCommand $sut;
+    protected $sut;
     private CommandTester $commandTester;
     private User|Proxy|null $testUser;
     private Orga|Proxy|null $testOrga;
@@ -277,7 +277,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
         // Arrange
         $permission = 'area_admin_procedures';
         $userId = $this->testUser->object()->getId();
-        
+
         // Get a different role that the user doesn't have
         $differentRoles = $this->roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY]);
         $differentRoleCode = $differentRoles[0]->getCode();

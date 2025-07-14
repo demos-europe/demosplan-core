@@ -32,7 +32,7 @@ use Zenstruck\Foundry\Persistence\Proxy;
 
 class UserPermissionListCommandTest extends FunctionalTestCase
 {
-    private UserPermissionListCommand $sut;
+    protected $sut;
     private CommandTester $commandTester;
     private User|Proxy|null $testUser;
     private Orga|Proxy|null $testOrga;
@@ -136,7 +136,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         self::assertStringContainsString($permission1, $output);
         self::assertStringContainsString($permission2, $output);
         self::assertStringContainsString($this->testRole->getCode(), $output);
-        
+
         // Should contain table headers
         self::assertStringContainsString('Permission', $output);
         self::assertStringContainsString('Role', $output);
@@ -166,19 +166,19 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         // Assert
         self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
-        
+
         // Verify it's valid JSON
         $jsonData = json_decode($output, true);
         self::assertNotNull($jsonData, 'Output should be valid JSON');
-        
+
         // Verify JSON structure
         self::assertArrayHasKey('user', $jsonData);
         self::assertArrayHasKey('permissions', $jsonData);
-        
+
         // Verify user data
         self::assertSame($this->testUser->object()->getId(), $jsonData['user']['id']);
         self::assertSame($this->testUser->object()->getLogin(), $jsonData['user']['login']);
-        
+
         // Verify permissions data
         self::assertCount(1, $jsonData['permissions']);
         self::assertSame($permission, $jsonData['permissions'][0]['permission']);
@@ -201,11 +201,11 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         // Assert
         self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
-        
+
         // Verify it's valid JSON
         $jsonData = json_decode($output, true);
         self::assertNotNull($jsonData, 'Output should be valid JSON');
-        
+
         // Verify JSON structure with empty permissions
         self::assertArrayHasKey('user', $jsonData);
         self::assertArrayHasKey('permissions', $jsonData);
@@ -271,7 +271,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         // Assert
         self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
-        
+
         // Should contain table format indicators, not JSON
         self::assertStringContainsString('User-Specific Permissions for', $output);
         self::assertStringNotContainsString('{', $output); // No JSON braces
@@ -291,7 +291,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         // Assert
         self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
-        
+
         // Verify user information is displayed
         self::assertStringContainsString($this->testUser->object()->getLogin(), $output);
         self::assertStringContainsString($this->testUser->object()->getId(), $output);
