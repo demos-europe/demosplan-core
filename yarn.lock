@@ -3616,6 +3616,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/estree@npm:^1.0.8":
+  version: 1.0.8
+  resolution: "@types/estree@npm:1.0.8"
+  checksum: 10c0/39d34d1afaa338ab9763f37ad6066e3f349444f9052b9676a7cc0252ef9485a41c6d81c9c4e0d26e9077993354edf25efc853f3224dd4b447175ef62bdcc86a5
+  languageName: node
+  linkType: hard
+
 "@types/geojson@npm:*":
   version: 7946.0.16
   resolution: "@types/geojson@npm:7946.0.16"
@@ -4477,6 +4484,15 @@ __metadata:
     acorn: "npm:^8.1.0"
     acorn-walk: "npm:^8.0.2"
   checksum: 10c0/7437f58e92d99292dbebd0e79531af27d706c9f272f31c675d793da6c82d897e75302a8744af13c7f7978a8399840f14a353b60cf21014647f71012982456d2b
+  languageName: node
+  linkType: hard
+
+"acorn-import-phases@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "acorn-import-phases@npm:1.0.3"
+  peerDependencies:
+    acorn: ^8.14.0
+  checksum: 10c0/43cc13a63f13105756e53cdc057f0a60dcbf38f8be739258ba85ed9f126920936a0720a4232a45569d391e82da85135af23dd431e8882a226380db289632f7b2
   languageName: node
   linkType: hard
 
@@ -6738,7 +6754,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.18.1":
+"enhanced-resolve@npm:^5.17.2, enhanced-resolve@npm:^5.18.1":
   version: 5.18.2
   resolution: "enhanced-resolve@npm:5.18.2"
   dependencies:
@@ -12790,7 +12806,7 @@ __metadata:
     vue2-leaflet-markercluster: "npm:^3.1.0"
     vuedraggable: "npm:^2.24.3"
     vuex: "npm:^4.0.2"
-    webpack: "npm:^5.96.1"
+    webpack: "npm:^5.100.1"
     webpack-bundle-analyzer: "npm:^4.10.2"
     webpack-hot-middleware: "npm:^2.26.1"
     webpack-manifest-plugin: "npm:^5.0.0"
@@ -13155,6 +13171,18 @@ __metadata:
     ajv-formats: "npm:^2.1.1"
     ajv-keywords: "npm:^5.1.0"
   checksum: 10c0/c23f0fa73ef71a01d4a2bb7af4c91e0d356ec640e071aa2d06ea5e67f042962bb7ac7c29a60a295bb0125878801bc3209197a2b8a833dd25bd38e37c3ed21427
+  languageName: node
+  linkType: hard
+
+"schema-utils@npm:^4.3.2":
+  version: 4.3.2
+  resolution: "schema-utils@npm:4.3.2"
+  dependencies:
+    "@types/json-schema": "npm:^7.0.9"
+    ajv: "npm:^8.9.0"
+    ajv-formats: "npm:^2.1.1"
+    ajv-keywords: "npm:^5.1.0"
+  checksum: 10c0/981632f9bf59f35b15a9bcdac671dd183f4946fe4b055ae71a301e66a9797b95e5dd450de581eb6cca56fb6583ce8f24d67b2d9f8e1b2936612209697f6c277e
   languageName: node
   linkType: hard
 
@@ -14837,6 +14865,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"webpack-sources@npm:^3.3.3":
+  version: 3.3.3
+  resolution: "webpack-sources@npm:3.3.3"
+  checksum: 10c0/ab732f6933b513ba4d505130418995ddef6df988421fccf3289e53583c6a39e205c4a0739cee98950964552d3006604912679c736031337fb4a9d78d8576ed40
+  languageName: node
+  linkType: hard
+
 "webpack@npm:>=5.95.0":
   version: 5.99.5
   resolution: "webpack@npm:5.99.5"
@@ -14873,19 +14908,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:^5.96.1":
-  version: 5.98.0
-  resolution: "webpack@npm:5.98.0"
+"webpack@npm:^5.100.1":
+  version: 5.100.1
+  resolution: "webpack@npm:5.100.1"
   dependencies:
     "@types/eslint-scope": "npm:^3.7.7"
-    "@types/estree": "npm:^1.0.6"
+    "@types/estree": "npm:^1.0.8"
+    "@types/json-schema": "npm:^7.0.15"
     "@webassemblyjs/ast": "npm:^1.14.1"
     "@webassemblyjs/wasm-edit": "npm:^1.14.1"
     "@webassemblyjs/wasm-parser": "npm:^1.14.1"
-    acorn: "npm:^8.14.0"
+    acorn: "npm:^8.15.0"
+    acorn-import-phases: "npm:^1.0.3"
     browserslist: "npm:^4.24.0"
     chrome-trace-event: "npm:^1.0.2"
-    enhanced-resolve: "npm:^5.17.1"
+    enhanced-resolve: "npm:^5.17.2"
     es-module-lexer: "npm:^1.2.1"
     eslint-scope: "npm:5.1.1"
     events: "npm:^3.2.0"
@@ -14895,17 +14932,17 @@ __metadata:
     loader-runner: "npm:^4.2.0"
     mime-types: "npm:^2.1.27"
     neo-async: "npm:^2.6.2"
-    schema-utils: "npm:^4.3.0"
+    schema-utils: "npm:^4.3.2"
     tapable: "npm:^2.1.1"
     terser-webpack-plugin: "npm:^5.3.11"
     watchpack: "npm:^2.4.1"
-    webpack-sources: "npm:^3.2.3"
+    webpack-sources: "npm:^3.3.3"
   peerDependenciesMeta:
     webpack-cli:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 10c0/bee4fa77f444802f0beafb2ff30eb5454a606163ad7d3cc9a5dcc9d24033c62407bed04601b25dea49ea3969b352c1b530a86c753246f42560a4a084eefb094e
+  checksum: 10c0/6dd8e286a5e361650c543dc6c4922b82276b0ed57ae545014bf4f6486d857d1c388dc8ec798f1dc3b77a765936357286910879fab65e6ff53e4cba1cc13db538
   languageName: node
   linkType: hard
 
