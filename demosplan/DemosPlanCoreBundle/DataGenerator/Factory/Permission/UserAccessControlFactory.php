@@ -103,10 +103,10 @@ final class UserAccessControlFactory extends PersistentProxyObjectFactory
     {
         return $this->with([
             'user'         => $user,
-            'organisation' => function (array $attributes) use ($user) {
+            'organisation' => function () use ($user) {
                 return $user->getOrganisation();
             },
-            'customer' => function (array $attributes) use ($user) {
+            'customer' => function () use ($user) {
                 return $user->getOrganisation()->getCustomer();
             },
         ]);
