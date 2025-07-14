@@ -144,14 +144,6 @@ class UserAccessControlServiceTest extends FunctionalTestCase
         // Arrange
         $permission = 'feature_statement_bulk_edit';
 
-        // Create a user permission with explicit organization/customer that don't match
-        $userAccessControl = new UserAccessControl();
-        $userAccessControl->setUser($this->testUser->object());
-        $userAccessControl->setOrganisation($this->differentOrga->object());
-        $userAccessControl->setCustomer($this->testCustomer->object());
-        $userAccessControl->setRole($this->testRole);
-        $userAccessControl->setPermission($permission);
-
         // Act & Assert - Service should validate relationships (this will be implemented in service)
         $result = $this->sut->createUserPermission(
             $this->testUser->object(),
