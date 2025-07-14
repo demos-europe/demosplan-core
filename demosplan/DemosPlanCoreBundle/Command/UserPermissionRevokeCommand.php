@@ -59,33 +59,7 @@ class UserPermissionRevokeCommand extends UserPermissionBaseCommand
                 return Command::FAILURE;
             }
 
-            // Check if permission exists
-            if (!$this->userAccessControlService->userPermissionExists($user, $permission, $role)) {
-                $io->warning(sprintf(
-                    'User "%s" does not have permission "%s" for role "%s"',
-                    $user->getLogin(),
-                    $permission,
-                    $role->getCode()
-                ));
-
-                return Command::SUCCESS;
-            }
-
-            // Revoke the permission
-            $removed = $this->userAccessControlService->removeUserPermission($user, $permission, $role);
-
-            if ($removed) {
-                $io->success('Permission revoked successfully!');
-
-                $this->displayUserInfo($user, $role, $permission, $io);
-                $io->definitionList(['Revoked at' => date('Y-m-d H:i:s')]);
-            } else {
-                $io->error('Failed to revoke permission. The permission may not exist.');
-
-                return Command::FAILURE;
-            }
-
-            return Command::SUCCESS;
+            return $this->revokePermission($user, $role, $permission, $io);
         } catch (InvalidArgumentException $e) {
             $io->error(self::ERROR_VALIDATION.$e->getMessage());
 
@@ -95,5 +69,36 @@ class UserPermissionRevokeCommand extends UserPermissionBaseCommand
 
             return Command::FAILURE;
         }
+    }
+
+    private function revokePermission($user, $role, string $permission, SymfonyStyle $io): int
+    {
+        // Check if permission exists
+        if (!$this->userAccessControlService->userPermissionExists($user, $permission, $role)) {
+            $io->warning(sprintf(
+                'User "%s" does not have permission "%s" for role "%s"',
+                $user->getLogin(),
+                $permission,
+                $role->getCode()
+            ));
+
+            return Command::SUCCESS;
+        }
+
+        // Revoke the permission
+        $removed = $this->userAccessControlService->removeUserPermission($user, $permission, $role);
+
+        if (!$removed) {
+            $io->error('Failed to revoke permission. The permission may not exist.');
+
+            return Command::FAILURE;
+        }
+
+        $io->success('Permission revoked successfully!');
+
+        $this->displayUserInfo($user, $role, $permission, $io);
+        $io->definitionList(['Revoked at' => date('Y-m-d H:i:s')]);
+
+        return Command::SUCCESS;
     }
 }

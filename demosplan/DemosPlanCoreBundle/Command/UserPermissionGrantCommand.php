@@ -59,27 +59,7 @@ class UserPermissionGrantCommand extends UserPermissionBaseCommand
                 return Command::FAILURE;
             }
 
-            // Check if permission already exists
-            if ($this->userAccessControlService->userPermissionExists($user, $permission, $role)) {
-                $io->warning(sprintf(
-                    'User "%s" already has permission "%s" for role "%s"',
-                    $user->getLogin(),
-                    $permission,
-                    $role->getCode()
-                ));
-
-                return Command::SUCCESS;
-            }
-
-            // Grant the permission
-            $userPermission = $this->userAccessControlService->createUserPermission($user, $permission, $role);
-
-            $io->success('Permission granted successfully!');
-
-            $this->displayUserInfo($user, $role, $permission, $io);
-            $io->definitionList(['Granted at' => $userPermission->getCreationDate()->format('Y-m-d H:i:s')]);
-
-            return Command::SUCCESS;
+            return $this->grantPermission($user, $role, $permission, $io);
         } catch (InvalidArgumentException $e) {
             $io->error(self::ERROR_VALIDATION.$e->getMessage());
 
@@ -89,5 +69,30 @@ class UserPermissionGrantCommand extends UserPermissionBaseCommand
 
             return Command::FAILURE;
         }
+    }
+
+    private function grantPermission($user, $role, string $permission, SymfonyStyle $io): int
+    {
+        // Check if permission already exists
+        if ($this->userAccessControlService->userPermissionExists($user, $permission, $role)) {
+            $io->warning(sprintf(
+                'User "%s" already has permission "%s" for role "%s"',
+                $user->getLogin(),
+                $permission,
+                $role->getCode()
+            ));
+
+            return Command::SUCCESS;
+        }
+
+        // Grant the permission
+        $userPermission = $this->userAccessControlService->createUserPermission($user, $permission, $role);
+
+        $io->success('Permission granted successfully!');
+
+        $this->displayUserInfo($user, $role, $permission, $io);
+        $io->definitionList(['Granted at' => $userPermission->getCreationDate()->format('Y-m-d H:i:s')]);
+
+        return Command::SUCCESS;
     }
 }
