@@ -34,7 +34,10 @@ class TransformMessageBagService
         $this->env = $kernel->getEnvironment();
         try {
             // in some cases like console commands, the request stack is not available
-            $this->flashBag = $requestStack->getSession()->getFlashBag();
+            $sessionBag = $requestStack->getSession()->getBag('flashes');
+            if ($sessionBag instanceof FlashBagInterface) {
+                $this->flashBag = $sessionBag;
+            }
         } catch (Throwable) {
             $this->flashBag = new FlashBag();
         }

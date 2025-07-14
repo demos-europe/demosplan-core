@@ -934,7 +934,11 @@ class AssessmentTableServiceOutput
             }
 
             // collect names of users under orga+department
-            $departments->get($key)->push($clusteredStatement['uName']);
+            /** @var Collection|null $department */
+            $department = $departments->get($key);
+            if ($department instanceof Collection) {
+                $department->push($clusteredStatement['uName']);
+            }
         }
 
         return $departments;

@@ -552,7 +552,11 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
             if (false == $topicsWithTags->has($topicName)) {
                 $topicsWithTags->put($topicName, collect([$tagName]));
             } else {
-                $topicsWithTags->get($topicName)->push($tagName);
+                /** @var SupportCollection|null $collection */
+                $collection = $topicsWithTags->get($topicName);
+                if ($collection instanceof SupportCollection) {
+                    $collection->push($tagName);
+                }
             }
         }
 
@@ -619,8 +623,15 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
             if (false === $topics->has($topicId)) {
                 $topics->put($topicId, collect(['id' => $topicId, 'title' => $topicName, 'tags' => collect()]));
             }
-            $tags2 = $topics->get($topicId)->get('tags');
-            $tags2->put($tag->getId(), ['id' => $tag->getId(), 'title' => $tag->getTitle()]);
+            /** @var SupportCollection|null $topicData */
+            $topicData = $topics->get($topicId);
+            if ($topicData instanceof SupportCollection) {
+                /** @var SupportCollection|null $tags2 */
+                $tags2 = $topicData->get('tags');
+                if ($tags2 instanceof SupportCollection) {
+                    $tags2->put($tag->getId(), ['id' => $tag->getId(), 'title' => $tag->getTitle()]);
+                }
+            }
         }
 
         return $topics;

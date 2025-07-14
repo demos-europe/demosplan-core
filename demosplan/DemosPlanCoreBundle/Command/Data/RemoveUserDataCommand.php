@@ -37,6 +37,7 @@ use demosplan\DemosPlanCoreBundle\Faker\Provider\ApproximateLengthText;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Faker\Factory;
@@ -478,6 +479,7 @@ class RemoveUserDataCommand extends CoreCommand
         $this->checkForAlreadyProcessedUsers();
 
         $reportEntryUsers = [];
+        /** @var EntityManagerInterface $em */
         $em = $this->doctrine->getManagerForClass(ReportEntry::class);
 
         /** @var ReportEntry[] $allReports */
@@ -489,7 +491,7 @@ class RemoveUserDataCommand extends CoreCommand
                 $user = $this->userService->getSingleUser($report->getUserId());
                 $reportEntryUsers[$report->getUserId()] = null === $user ? '' : $user->getName();
             }
-            $em->getConnection()->executeUpdate(
+            $em->getConnection()->executeStatement(
                 'UPDATE _report_entries re SET
                 re._u_name = :name,
                 re._re_message = :message,
@@ -512,6 +514,7 @@ class RemoveUserDataCommand extends CoreCommand
     protected function removeUserDataFromStatementMetas(): void
     {
         $this->checkForAlreadyProcessedUsers();
+        /** @var EntityManagerInterface $em */
         $em = $this->doctrine->getManagerForClass(StatementMeta::class);
 
         /** @var StatementMeta[] $allStatementMetas */
@@ -617,6 +620,7 @@ class RemoveUserDataCommand extends CoreCommand
     {
         $this->checkForAlreadyProcessedUsers();
 
+        /** @var EntityManagerInterface $em */
         $em = $this->doctrine->getManagerForClass(StatementVote::class);
         /** @var StatementVote[] $allStatementVotes */
         $allStatementVotes = $this->initializeRemovingDataForEntity(StatementVote::class, true);
