@@ -152,7 +152,6 @@ class UserAccessControlServiceTest extends FunctionalTestCase
         );
 
         // For now, just verify the service creates the permission
-        // TODO: Add validation logic to prevent mismatched organizations
         self::assertInstanceOf(UserAccessControl::class, $result);
     }
 
@@ -161,7 +160,7 @@ class UserAccessControlServiceTest extends FunctionalTestCase
         // Arrange
         $permission = 'feature_statement_bulk_edit';
 
-        $userAccessControl = $this->sut->createUserPermission(
+        $this->sut->createUserPermission(
             $this->testUser->object(),
             $permission,
             $this->testRole
