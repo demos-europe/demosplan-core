@@ -25,7 +25,6 @@ use Tests\Base\MockMethodDefinition;
 
 class TransformMessageBagServiceTest extends FunctionalTestCase
 {
-
     public function testTransformMessageBagToFlashes(): void
     {
         // Mock MessageBag contents
