@@ -16,8 +16,8 @@ export default async function loadAddonComponents (hookName) {
   }
 
   return await dpRpc('addons.assets.load', params)
-    .then(response => {
-      const result = response[0].result
+    .then(({ data }) => {
+      const result = data[0].result
       const addons = []
 
       for (const key of Object.keys(result)) {

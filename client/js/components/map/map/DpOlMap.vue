@@ -359,7 +359,7 @@ export default {
         method: 'GET',
         url: Routing.generate(this.mapOptionsRoute, { procedureId: this.procedureId })
       })
-        .then(response => response.data.attributes)
+        .then(response => response.data.data.attributes)
     },
 
     panToCoordinate (coordinate) {

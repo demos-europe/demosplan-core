@@ -635,7 +635,6 @@ export default {
 
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
           .then(response => {
-            // @TODO handle in checkResponse
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
 
             return response
@@ -949,14 +948,15 @@ export default {
 
     triggerStatementDeletion (id) {
       if (window.confirm(Translator.trans('check.statement.delete'))) {
-        // TODO Pass this through vuex-json-api
+        this.$store.api.successCallbacks[0] = response => checkResponse(response, {
+          200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
+          204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') }
+        })
+
         this.deleteStatement(id)
-          .then(response => checkResponse(response, {
-            200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
-            204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') }
-          }))
           .then(() => {
             this.getItemsByPage(this.pagination.currentPage)
+            this.$store.api.successCallbacks[0] = checkResponse
           })
       }
     },

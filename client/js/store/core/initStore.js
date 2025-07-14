@@ -8,7 +8,7 @@
  */
 
 import { api1_0Routes, generateApi2_0Routes } from './VuexApiRoutes'
-import { handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { initJsonApiPlugin, prepareModuleHashMap, Route, StaticRoute, StaticRouter } from '@efrane/vuex-json-api'
 import { createStore } from 'vuex'
 import notify from './Notify'
@@ -89,10 +89,10 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
               'X-CSRF-Token': dplan.csrfToken
             },
             successCallbacks: [
-              handleResponse
+              checkResponse
             ],
             errorCallbacks: [
-              handleResponse
+              checkResponse
             ]
           }),
           store => {
