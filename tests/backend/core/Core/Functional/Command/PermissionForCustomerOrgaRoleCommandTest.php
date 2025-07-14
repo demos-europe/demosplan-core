@@ -116,9 +116,9 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
     protected function assertStringsInCommandOutput(CommandTester $commandTester, bool $dryRun, string $expectedMessage): void
     {
         $commandTester->execute([
-            'customerIds' => $this->testCustomer->object()->getId(),
-            'roleIds'     => $this->testRole->getId(),
-            'permission'  => 'CREATE_PROCEDURES_PERMISSION',
+            'customerIds'        => $this->testCustomer->object()->getId(),
+            'roleIds'            => $this->testRole->getId(),
+            'permission'         => 'CREATE_PROCEDURES_PERMISSION',
             self::DRY_RUN_OPTION => $dryRun,
         ]);
 
@@ -131,10 +131,10 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
     protected function assertStringsInCommandOutputWithOrga(CommandTester $commandTester, bool $dryRun, string $expectedMessage, string $orgaId): void
     {
         $commandTester->execute([
-            'customerIds' => $this->testCustomer->object()->getId(),
-            'roleIds'     => $this->testRole->getId(),
-            'permission'  => 'CREATE_PROCEDURES_PERMISSION',
-            'orgaId'      => $orgaId,
+            'customerIds'        => $this->testCustomer->object()->getId(),
+            'roleIds'            => $this->testRole->getId(),
+            'permission'         => 'CREATE_PROCEDURES_PERMISSION',
+            'orgaId'             => $orgaId,
             self::DRY_RUN_OPTION => $dryRun,
         ]);
 
@@ -147,9 +147,9 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
     protected function assertStringArraysInCommandOutput(CommandTester $commandTester, bool $dryRun, string $expectedMessage): void
     {
         $commandTester->execute([
-            'customerIds' => sprintf('%s,%s', $this->testCustomer->object()->getId(), $this->testCustomer->object()->getId()),
-            'roleIds'     => sprintf('%s,%s', $this->testRole->getId(), $this->testRole->getId()),
-            'permission'  => 'CREATE_PROCEDURES_PERMISSION',
+            'customerIds'        => sprintf('%s,%s', $this->testCustomer->object()->getId(), $this->testCustomer->object()->getId()),
+            'roleIds'            => sprintf('%s,%s', $this->testRole->getId(), $this->testRole->getId()),
+            'permission'         => 'CREATE_PROCEDURES_PERMISSION',
             self::DRY_RUN_OPTION => $dryRun,
         ]);
 
@@ -208,10 +208,10 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
         $this->expectExceptionMessage('Organization with ID "invalid-org-id" not found');
 
         $commandTester->execute([
-            'customerIds' => $this->testCustomer->object()->getId(),
-            'roleIds'     => $this->testRole->getId(),
-            'permission'  => 'CREATE_PROCEDURES_PERMISSION',
-            'orgaId'      => 'invalid-org-id',
+            'customerIds'        => $this->testCustomer->object()->getId(),
+            'roleIds'            => $this->testRole->getId(),
+            'permission'         => 'CREATE_PROCEDURES_PERMISSION',
+            'orgaId'             => 'invalid-org-id',
             self::DRY_RUN_OPTION => true,
         ]);
     }

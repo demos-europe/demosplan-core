@@ -139,7 +139,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id'  => $userId,
+            'user-id'           => $userId,
             self::FORMAT_OPTION => 'json',
         ]);
 
@@ -174,7 +174,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id'  => $userId,
+            'user-id'           => $userId,
             self::FORMAT_OPTION => 'json',
         ]);
 
@@ -228,7 +228,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id'  => $userId,
+            'user-id'           => $userId,
             self::FORMAT_OPTION => 'xml', // Invalid format
         ]);
 

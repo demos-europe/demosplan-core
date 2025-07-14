@@ -33,7 +33,7 @@ abstract class UserPermissionBaseCommand extends CoreCommand
     protected const ARG_PERMISSION = 'permission';
     protected const OPT_ROLE = 'role';
     protected const OPT_ROLE_SHORT = 'r';
-    
+
     // Error messages
     protected const ERROR_USER_ID_EMPTY = 'User ID cannot be empty';
     protected const ERROR_USER_NOT_FOUND = 'User with ID "%s" not found';
@@ -45,7 +45,7 @@ abstract class UserPermissionBaseCommand extends CoreCommand
     protected const ERROR_USER_ROLE_MISMATCH = 'User "%s" does not have role "%s". Available roles: %s';
     protected const ERROR_PERMISSION_EMPTY = 'Permission name cannot be empty';
     protected const ERROR_PERMISSION_FORMAT = 'Permission name must start with a letter and contain only letters, numbers, and underscores';
-    
+
     // Labels
     protected const LABEL_USER_ID = 'User ID';
     protected const LABEL_USER_LOGIN = 'User Login';
@@ -54,10 +54,11 @@ abstract class UserPermissionBaseCommand extends CoreCommand
     protected const LABEL_ROLE = 'Role';
     protected const LABEL_PERMISSION = 'Permission';
     protected const LABEL_NOT_AVAILABLE = 'N/A';
-    
+
     // Exception messages
     protected const ERROR_VALIDATION = 'Validation Error: ';
     protected const ERROR_UNEXPECTED = 'Unexpected error: ';
+
     public function __construct(
         protected UserAccessControlService $userAccessControlService,
         protected UserRepository $userRepository,

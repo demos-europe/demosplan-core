@@ -112,8 +112,8 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id'    => $userId,
-            'permission' => $permission,
+            'user-id'         => $userId,
+            'permission'      => $permission,
             self::ROLE_OPTION => $roleCode,
         ]);
 
@@ -177,8 +177,8 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id'    => $userId,
-            'permission' => $permission,
+            'user-id'         => $userId,
+            'permission'      => $permission,
             self::ROLE_OPTION => $invalidRoleCode,
         ]);
 
@@ -200,8 +200,8 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id'    => $userId,
-            'permission' => $permission,
+            'user-id'         => $userId,
+            'permission'      => $permission,
             self::ROLE_OPTION => $differentRoleCode,
         ]);
 
