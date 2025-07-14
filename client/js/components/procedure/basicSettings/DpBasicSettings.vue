@@ -9,7 +9,6 @@
 
 <script>
 import {
-
   dpApi,
   DpButton,
   DpContextualHelp,

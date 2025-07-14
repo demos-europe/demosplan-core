@@ -271,7 +271,18 @@ export default {
         }
       }
 
-      return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload, { messages: { 200: Translator.trans('segment.claim.success'), 400: Translator.trans('segment.claim.fail') } })
+      return dpApi.patch(
+        Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }),
+        {},
+        payload,
+        {
+          messages: {
+            200: Translator.trans('segment.claim.success'),
+            204: Translator.trans('segment.claim.success'),
+            400: Translator.trans('segment.claim.fail')
+          }
+        }
+      )
         .then(() => {
           this.claimLoading = null
         })

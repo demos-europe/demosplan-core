@@ -210,13 +210,13 @@ export default {
         include: 'annotatedStatementPdfPages'
       }
       const documentResponse = await dpApi.get(url, params)
-      this.document = documentResponse.data.find(el => el.type === 'AnnotatedStatementPdf')
+      this.document = documentResponse.data.data.find(el => el.type === 'AnnotatedStatementPdf')
       this.formValues = {
         ...this.formValues,
         quickSave: this.document.attributes.quickSave,
         text: this.document.attributes.quickSave ?? this.document.attributes.text
       }
-      this.pages = documentResponse.included.filter(el => el.type === 'AnnotatedStatementPdfPage')
+      this.pages = documentResponse.data.included.filter(el => el.type === 'AnnotatedStatementPdfPage')
       this.isLoading = false
     },
 
