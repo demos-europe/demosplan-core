@@ -32,8 +32,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Validator\Constraints as Assert;
 use Illuminate\Support\Collection as SupportCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * StatementFragment - Represents a fragment of a statement.
