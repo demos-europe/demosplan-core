@@ -229,11 +229,11 @@ class AccessControlService extends CoreService
     {
         $orgaTypesInCustomer = $orgaInCustomer->getTypes($customer->getSubdomain(), true);
         $canAddPermission = $this->canAddPermissionToOrgaType($permissionToEnable, $role, $orgaTypesInCustomer);
-        
+
         if ($canAddPermission && !$dryRun) {
             $this->createPermission($permissionToEnable, $orgaInCustomer, $customer, $role);
         }
-        
+
         return $canAddPermission ? $orgaInCustomer : null;
     }
 
@@ -243,12 +243,12 @@ class AccessControlService extends CoreService
             if ($this->shouldSkipPermissionForOrgaType($permissionToEnable, $role, $orgaTypeInCustomer)) {
                 continue;
             }
-            
+
             if ($this->isRoleAllowedForOrgaType($role, $orgaTypeInCustomer)) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -319,34 +319,34 @@ class AccessControlService extends CoreService
         if (null === $orgaId) {
             return $this->orgaService->getOrgasInCustomer($customer);
         }
-        
+
         $specificOrga = $this->validateAndGetOrganization($orgaId);
         $matchingOrga = $this->findMatchingOrgaInCustomer($specificOrga, $customer);
-        
+
         return [$matchingOrga];
     }
 
     private function validateAndGetOrganization(string $orgaId): OrgaInterface
     {
         $specificOrga = $this->orgaService->getOrga($orgaId);
-        
+
         if (null === $specificOrga) {
             throw new InvalidArgumentException(sprintf('Organization with ID "%s" not found', $orgaId));
         }
-        
+
         return $specificOrga;
     }
 
     private function findMatchingOrgaInCustomer(OrgaInterface $specificOrga, CustomerInterface $customer): OrgaInterface
     {
         $orgasInCustomer = $this->orgaService->getOrgasInCustomer($customer);
-        
+
         foreach ($orgasInCustomer as $orgaInCustomer) {
             if ($orgaInCustomer->getId() === $specificOrga->getId()) {
                 return $orgaInCustomer;
             }
         }
-        
+
         throw new InvalidArgumentException(sprintf('Organization "%s" does not belong to customer "%s"', $specificOrga->getId(), $customer->getId()));
     }
 }
