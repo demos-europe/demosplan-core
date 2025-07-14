@@ -37,6 +37,8 @@ class TransformMessageBagService
             $sessionBag = $requestStack->getSession()->getBag('flashes');
             if ($sessionBag instanceof FlashBagInterface) {
                 $this->flashBag = $sessionBag;
+            } else {
+                $this->flashBag = new FlashBag();
             }
         } catch (Throwable) {
             $this->flashBag = new FlashBag();
