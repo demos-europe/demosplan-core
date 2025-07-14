@@ -15,11 +15,24 @@ function toggleFlyout (e) {
   const flyoutLink = e.currentTarget
   const flyoutBox = flyoutLink.parentElement
 
-  if (flyoutBox.classList.contains('is-expanded')) {
+  // Check the state BEFORE closing all flyouts
+  const isCurrentlyExpanded = flyoutBox.classList.contains('is-expanded')
+
+  if (isCurrentlyExpanded) {
+    // Close this specific flyout
     flyoutBox.classList.remove('is-expanded')
+    flyoutLink.classList.remove('is-current')
     document.querySelector('body').classList.remove('has-open-flyout')
-    window.location.href = flyoutLink.getAttribute('href')
+
+    // Only redirect if there's a valid href and it's not a button
+    const href = flyoutLink.getAttribute('href')
+    if (href && href !== '#' && href !== window.location.href) {
+      window.location.href = href
+    }
   } else {
+    // Close any other open flyouts first, then open this one
+    closeAllFlyouts()
+
     flyoutBox.classList.add('is-expanded')
     flyoutLink.classList.add('is-current')
     document.querySelector('body').classList.add('has-open-flyout')
@@ -27,23 +40,42 @@ function toggleFlyout (e) {
 }
 
 function closeFlyout (e) {
-  const el = e.currentTarget
+  const clickTarget = e.target
+  const body = document.querySelector('body')
 
-  if (el.classList.contains('has-open-flyout')) {
-    el.classList.remove('has-open-flyout')
-    const flyout = document.querySelector('[data-touch-flyout]')
-    const flyoutBox = flyout.parentElement
-    flyoutBox.classList.remove('is-expanded')
-    flyout.classList.remove('is-current')
+  // Don't close if clicked on a flyout trigger or inside flyout content
+  if (clickTarget.closest('[data-touch-flyout]') || clickTarget.closest('.c-flyout__content')) {
+    return
+  }
+
+  // Only close if body has the open flyout class
+  if (body.classList.contains('has-open-flyout')) {
+    closeAllFlyouts()
   }
 }
 
-function initUserbox () {
-  const flyout = document.querySelector('[data-touch-flyout]')
+function closeAllFlyouts () {
+  const flyouts = document.querySelectorAll('[data-touch-flyout]')
+  flyouts.forEach(flyout => {
+    const flyoutBox = flyout.parentElement
+    flyoutBox.classList.remove('is-expanded')
+    flyout.classList.remove('is-current')
+  })
+  document.querySelector('body').classList.remove('has-open-flyout')
+}
 
-  if (flyout) {
-    flyout.addEventListener('touchstart', toggleFlyout)
-    document.querySelector('body').addEventListener('touchstart', closeFlyout)
+function initUserbox () {
+  const flyouts = document.querySelectorAll('[data-touch-flyout]')
+
+  if (flyouts.length > 0) {
+    flyouts.forEach(flyout => {
+      flyout.addEventListener('touchstart', toggleFlyout, { passive: false })
+      // Also add click handler as fallback for some touch devices
+      flyout.addEventListener('click', toggleFlyout)
+    })
+
+    // Use click instead of touchstart for body to prevent race condition
+    document.querySelector('body').addEventListener('click', closeFlyout)
   }
 }
 
