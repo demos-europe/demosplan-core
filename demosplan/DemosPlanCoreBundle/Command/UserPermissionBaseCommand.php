@@ -96,42 +96,62 @@ abstract class UserPermissionBaseCommand extends CoreCommand
             return null;
         }
 
-        // Validate user has proper organization setup
-        if (null === $user->getOrga()) {
-            $io->error(sprintf(self::ERROR_USER_NO_ORGANIZATION, $user->getLogin()));
-
-            return null;
-        }
-
-        if (null === $user->getCurrentCustomer()) {
-            $io->error(sprintf(self::ERROR_USER_NO_CUSTOMER, $user->getLogin()));
-
-            return null;
-        }
-
-        if ($user->getDplanRoles()->isEmpty()) {
-            $io->error(sprintf(self::ERROR_USER_NO_ROLES, $user->getLogin()));
-
+        $validationResult = $this->validateUserConfiguration($user, $io);
+        if (!$validationResult) {
             return null;
         }
 
         return $user;
     }
 
+    private function validateUserConfiguration(UserInterface $user, SymfonyStyle $io): bool
+    {
+        // Validate user has proper organization setup
+        if (null === $user->getOrga()) {
+            $io->error(sprintf(self::ERROR_USER_NO_ORGANIZATION, $user->getLogin()));
+
+            return false;
+        }
+
+        if (null === $user->getCurrentCustomer()) {
+            $io->error(sprintf(self::ERROR_USER_NO_CUSTOMER, $user->getLogin()));
+
+            return false;
+        }
+
+        if ($user->getDplanRoles()->isEmpty()) {
+            $io->error(sprintf(self::ERROR_USER_NO_ROLES, $user->getLogin()));
+
+            return false;
+        }
+
+        return true;
+    }
+
     protected function validateAndGetRole(UserInterface $user, ?string $roleCode, SymfonyStyle $io): ?RoleInterface
     {
         if (null === $roleCode) {
-            // Use user's first role
-            $role = $user->getDplanRoles()->first();
-            if (false === $role) {
-                $io->error(self::ERROR_USER_NO_ROLES_GENERIC);
-
-                return null;
-            }
-
-            return $role;
+            return $this->getDefaultUserRole($user, $io);
         }
 
+        return $this->getSpecificUserRole($user, $roleCode, $io);
+    }
+
+    private function getDefaultUserRole(UserInterface $user, SymfonyStyle $io): ?RoleInterface
+    {
+        // Use user's first role
+        $role = $user->getDplanRoles()->first();
+        if (false === $role) {
+            $io->error(self::ERROR_USER_NO_ROLES_GENERIC);
+
+            return null;
+        }
+
+        return $role;
+    }
+
+    private function getSpecificUserRole(UserInterface $user, string $roleCode, SymfonyStyle $io): ?RoleInterface
+    {
         // Find the specific role
         $roles = $this->roleHandler->getUserRolesByCodes([$roleCode]);
         if (empty($roles)) {
