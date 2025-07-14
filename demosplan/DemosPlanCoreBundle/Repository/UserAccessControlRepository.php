@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\UserAccessControl;
+use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 
 class UserAccessControlRepository extends CoreRepository
 {
@@ -40,7 +41,7 @@ class UserAccessControlRepository extends CoreRepository
         // If roles are strings (role names), convert them to Role entities
         if (!empty($roles) && is_string($roles[0])) {
             $roleEntities = $this->getEntityManager()
-                ->getRepository('demosplan\DemosPlanCoreBundle\Entity\User\Role')
+                ->getRepository(Role::class)
                 ->createQueryBuilder('r')
                 ->where('r.code IN (:roleCodes)')
                 ->setParameter('roleCodes', $roles)
@@ -48,7 +49,7 @@ class UserAccessControlRepository extends CoreRepository
                 ->getResult();
             $roles = $roleEntities;
         }
-        
+
         return $this->createQueryBuilder('uac')
             ->where('uac.user = :user')
             ->andWhere('uac.organisation = :orga')
