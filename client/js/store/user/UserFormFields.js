@@ -29,15 +29,15 @@ const UserFormFields = {
     fetchOrgaSuggestions ({ commit }) {
       if (hasPermission('area_organisations') || hasPermission('feature_organisation_user_list')) {
         const url = Routing.generate('dplan_api_organisation_list') + '?' + qs.stringify({ page: { number: 1, size: 500 } }) + '&' + qs.stringify({ include: 'departments' })
-        dpApi.get(url).then((response) => {
+        dpApi.get(url).then(response => {
           const organisations = []
           const inclDepartments = {}
 
-          response.data.included.forEach(dep => {
+          response.included.forEach(dep => {
             if (dep.type === 'Department') inclDepartments[dep.id] = { id: dep.id, type: dep.type, ...dep.attributes }
           })
 
-          response.data.data.forEach(org => {
+          response.data.forEach(org => {
             const newOrg = { ...org.attributes, id: org.id, type: org.type }
 
             if (org.relationships && org.relationships.departments) {

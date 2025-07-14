@@ -35,7 +35,7 @@ const LocationStore = {
       })
         .then(response => {
           const locations = []
-          const suggestions = response.data.data.suggestions
+          const suggestions = response.data.suggestions
           let i = 0; const l = suggestions.length
 
           for (; i < l; i++) {

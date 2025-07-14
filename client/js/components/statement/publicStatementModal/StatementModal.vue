@@ -709,7 +709,7 @@
 
 <script>
 import {
-  checkResponse,
+
   CleanHtml,
   dpApi,
   DpCheckbox,
@@ -1120,7 +1120,6 @@ export default {
         method: 'GET',
         url: Routing.generate('DemosPlan_statement_get_ajax', { procedureId: this.procedureId, draftStatementId: this.draftStatementId })
       })
-        .then(checkResponse)
         .then(data => {
           this.hasPlanningDocuments = data.hasPlanningDocuments || this.initHasPlanningDocuments
 

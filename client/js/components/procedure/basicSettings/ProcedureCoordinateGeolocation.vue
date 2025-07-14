@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { checkResponse, DpInput, DpLoading, dpRpc } from '@demos-europe/demosplan-ui'
+import { DpInput, DpLoading, dpRpc } from '@demos-europe/demosplan-ui'
 
 const LookupStatus = {
   NONE: 0,
@@ -141,7 +141,6 @@ export default {
         latitude: this.latitude,
         longitude: this.longitude
       })
-        .then(checkResponse)
         .then(response => {
           this.lookupStatus = LookupStatus.DONE
 

@@ -281,7 +281,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpMultiselect,
@@ -560,7 +559,6 @@ export default {
       }
 
       dpRpc('segment.bulk.edit', params)
-        .then(checkResponse)
         .then((response) => {
           const rpcResult = this.getRpcResult(response)
 
@@ -592,7 +590,7 @@ export default {
       const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
       return dpApi.get(url, { include: 'department' })
         .then(response => {
-          this.assignableUsers = response.data.data.map(assignableUser => {
+          this.assignableUsers = response.data.map(assignableUser => {
             return {
               name: assignableUser.attributes.firstname + ' ' + assignableUser.attributes.lastname,
               id: assignableUser.id
@@ -637,7 +635,7 @@ export default {
       })
       return dpApi.get(url)
         .then(response => {
-          this.places = response.data.data.map(place => {
+          this.places = response.data.map(place => {
             return {
               id: place.id,
               name: place.attributes.name

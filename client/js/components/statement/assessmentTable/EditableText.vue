@@ -360,30 +360,35 @@ export default {
 
         // Check if it is the first update
         if (this.isInitialUpdate) {
-          this.uneditedFullText = response.data.data.original
+          this.uneditedFullText = response.data.original
           this.isInitialUpdate = false
         } else {
           this.uneditedFullText = this.fullText
         }
 
         // As far as i get it, this should always be the same if the update succeeds ?!?
-        if (hasOwnProp(response.data.data, 'original')) {
-          this.fullText = response.data.data.original
+        if (hasOwnProp(response.data, 'original')) {
+          this.fullText = response.data.original
         }
 
-        if (fullUpdate && hasOwnProp(response.data.data, 'shortened')) {
-          this.shortText = response.data.data.shortened
+        if (fullUpdate && hasOwnProp(response.data, 'shortened')) {
+          this.shortText = response.data.shortened
         }
 
-        if (hasOwnProp(response.data.data, 'shortened')) {
+        if (hasOwnProp(response.data, 'shortened')) {
           this.isShortened = this.fullText.length > this.shortText.length
         }
 
-        this.loading = false
-      }, () => {
-        dplan.notify.error(Translator.trans('error.api.generic'))
-        this.loading = false
-      }).then(callback)
+        console.log('EditableText: update')
+      })
+        .then(() => {
+          console.log('EditableText: update  callbacks')
+          return callback
+        })
+        .finally(() => {
+          console.log('EditableText: update finally')
+          this.loading = false
+        })
     }
   },
 

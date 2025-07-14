@@ -502,19 +502,19 @@ export default {
         include: ['annotatedStatementPdf'].join()
       }
       const pageResponse = await dpApi.get(url, params)
-      if (hasOwnProp(pageResponse, 'data') && hasOwnProp(pageResponse.data, 'data') && pageResponse.data.data.length) {
-        const pageAttrs = pageResponse.data.data[0].attributes
+      if (hasOwnProp(pageResponse, 'data') && hasOwnProp(pageResponse, 'data') && pageResponse.data.length) {
+        const pageAttrs = pageResponse.data[0].attributes
         this.geoJson = pageAttrs.geoJson
         this.geoJson.features.forEach(feature => {
           feature.id = uuid()
         })
-        this.pageId = pageResponse.data.data[0].id
+        this.pageId = pageResponse.data[0].id
         this.pageDimension = [pageAttrs.width, pageAttrs.height]
         this.imageUrl = pageAttrs.url
-        this.unconfirmedPagesCount = pageResponse.data.meta.pagination.total_pages
+        this.unconfirmedPagesCount = pageResponse.meta.pagination.total_pages
 
         // Get info about how many pages are in the document
-        const documentInclude = pageResponse.data.included.find(el => el.type === 'AnnotatedStatementPdf' && el.id === this.documentId)
+        const documentInclude = pageResponse.included.find(el => el.type === 'AnnotatedStatementPdf' && el.id === this.documentId)
         this.allDocumentPages = documentInclude.relationships.annotatedStatementPdfPages.data
 
         // Step 2: update documentId in url and get next documentId only initially or if we just got a first page of a new document

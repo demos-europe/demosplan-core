@@ -107,7 +107,7 @@
 </template>
 
 <script>
-import { checkResponse, DpButton, DpEditor, DpMultiselect, makeFormPost } from '@demos-europe/demosplan-ui'
+import { DpButton, DpEditor, DpMultiselect, makeFormPost } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpFragmentEdit',
@@ -219,7 +219,6 @@ export default {
         dataForRequest[el.name] = el.value
       })
       return makeFormPost(dataForRequest, Routing.generate('DemosPlan_statement_fragment_edit_reviewer_ajax', { fragmentId: this.fragmentId }))
-        .then(checkResponse)
         .then(response => {
           /*
            *  If fragment has been reassigned to planners by clicking 'fragment.update.complete.button',

@@ -8,10 +8,10 @@
  */
 
 import { api1_0Routes, generateApi2_0Routes } from './VuexApiRoutes'
-import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { initJsonApiPlugin, prepareModuleHashMap, Route, StaticRoute, StaticRouter } from '@efrane/vuex-json-api'
-import notify from './Notify'
 import { createStore } from 'vuex'
+import notify from './Notify'
 
 function registerPresetModules (store, presetStoreModules) {
   if (Object.keys(presetStoreModules).length > 0) {
@@ -31,6 +31,26 @@ function registerPresetModules (store, presetStoreModules) {
     }
   }
   return store
+}
+
+const handleResponse = async payload => {
+  // If the response body is empty, contentType will be null
+  const contentType = payload.headers.get('Content-Type')
+
+  if (contentType && contentType.includes('json')) {
+    const response = await payload.json()
+
+    const meta = response.data?.meta
+      ? response.data.meta
+      : response.meta || null
+    if (meta?.messages) {
+      handleResponseMessages(meta)
+    }
+
+    return Promise.resolve(response)
+  }
+
+  return Promise.resolve(payload)
 }
 
 function initStore (storeModules, apiStoreModules, presetStoreModules) {
@@ -69,51 +89,13 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
               'X-CSRF-Token': dplan.csrfToken
             },
             successCallbacks: [
-              async (success) => {
-                // If the response body is empty, contentType will be null
-                const contentType = success.headers.get('Content-Type')
-
-                if (contentType && contentType.includes('json')) {
-                  const response = await success.json()
-
-                  const meta = response.data?.meta
-                    ? response.data.meta
-                    : response.meta || null
-                  if (meta?.messages) {
-                    handleResponseMessages(meta)
-                  }
-
-                  return Promise.resolve(response)
-                }
-
-                return Promise.resolve(success)
-              }
+              handleResponse
             ],
             errorCallbacks: [
-              async (error) => {
-                // If the response body is empty, contentType will be null
-                const contentType = error.headers.get('Content-Type')
-
-                if (contentType && contentType.includes('json')) {
-                  const response = await error.json()
-
-                  const meta = response.data?.meta
-                    ? response.data.meta
-                    : response.meta || null
-
-                  if (meta?.messages) {
-                    handleResponseMessages(meta)
-                  }
-
-                  return Promise.reject(response)
-                }
-
-                return Promise.reject(error)
-              }
+              handleResponse
             ]
           }),
           store => {
-            store.api.checkResponse = checkResponse
             store.api.newStaticRoute = (route) => {
               return new StaticRoute(route)
             }

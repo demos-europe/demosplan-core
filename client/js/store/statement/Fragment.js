@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
 
 export default {
   namespaced: true,
@@ -225,7 +225,6 @@ export default {
       params.append('delete', 'delete')
 
       return dpApi.post(url, params)
-        .then(checkResponse)
         .then(response => {
           if (response.code === 200 && response.success === true) {
             commit('deleteFragment', { statementId, fragmentId })
@@ -250,8 +249,10 @@ export default {
       }
 
       return dpApi.get(url)
-        .then(checkResponse)
-        .then((response) => commit('loadFragmentsToStore', { fragments: response.data, statementId: data.statementId }))
+        .then(response => {
+          console.log(response)
+          return commit('loadFragmentsToStore', { fragments: response.data, statementId: data.statementId })
+        })
     },
 
     /**
@@ -310,7 +311,6 @@ export default {
           Accept: 'application/vnd.api+json'
         }
       })
-        .then(this.api.checkResponse)
         .then(response => {
           let updateObject = {}
           if (assigneeId === '' || assigneeId == null) {
@@ -420,11 +420,11 @@ export default {
           Accept: 'application/vnd.api+json'
         }
       })
-        .then(this.api.checkResponse)
         .then(response => {
+          console.log('updateFragmentAction', response)
           const dataToUpdate = {}
-          const responseAttributes = response.data.attributes
-          const responseRelationships = response.data.relationships
+          const responseAttributes = response.data.data.attributes
+          const responseRelationships = response.data.data.relationships
 
           // If we update element/paragraph/document we have only id in data and we want to update title too so we set it as data field to get the value from response in the loop below
           if (hasOwnProp(data, 'elementId')) {
@@ -515,7 +515,7 @@ export default {
           }
 
           //  Keep id to find fragment in mutation
-          dataToUpdate.fragmentId = response.data.id
+          dataToUpdate.fragmentId = response.data.data.id
           dataToUpdate.statementId = responseRelationships.statement.data.id
 
           //  Update store

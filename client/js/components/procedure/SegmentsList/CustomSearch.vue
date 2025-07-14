@@ -77,7 +77,6 @@
 
 <script>
 import {
-  checkResponse,
   DpCheckbox,
   DpDetails,
   DpFlyout,
@@ -204,8 +203,7 @@ export default {
      */
     setFields () {
       dpRpc('elasticsearchFieldDefinition.provide', this.elasticsearchFieldDefinition)
-        .then(checkResponse)
-        .then((response) => {
+        .then(response => {
           const fields = response[0].result
           // The response has to be transformed as the rpc sends the ids as keys.
           this.fields = Object.keys(fields).map((field) => {

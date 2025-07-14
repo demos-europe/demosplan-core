@@ -264,7 +264,7 @@
 <script>
 import {
   formatDate as _formatDate,
-  checkResponse,
+
   CleanHtml,
   dpApi,
   DpBulkEditHeader,
@@ -534,7 +534,7 @@ export default {
     fetchFullTextById (originalStatementId) {
       return this.fetchOriginalStatementById(originalStatementId)
         .then(response => {
-          const { fullText } = response.data.data.attributes
+          const { fullText } = response.data.attributes
           this.toggleIsFullTextDisplayed(originalStatementId, true, fullText)
         })
     },
@@ -550,7 +550,6 @@ export default {
           }
         }
       })
-        .then(response => checkResponse(response))
         .then(response => {
           this.allOriginalStatementIds = (hasOwnProp(response, 0) && response[0].result) ? response[0].result : []
           this.allItemsCount = this.allOriginalStatementIds.length

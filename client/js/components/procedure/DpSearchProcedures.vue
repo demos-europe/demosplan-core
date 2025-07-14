@@ -161,7 +161,7 @@ export default {
         }
         dpApi.get(url, params)
           .then(response => {
-            this.results = response.data.data
+            this.results = response.data
             if (this.results.length === 0) {
               this.noResults = true
             }

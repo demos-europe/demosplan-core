@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { checkResponse, dpApi, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpLoading } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 import DpVersionHistoryDay from './DpVersionHistoryDay'
 
@@ -143,14 +143,11 @@ export default {
         method: 'GET',
         url: Routing.generate(route, params)
       })
-        .then(response => checkResponse(response))
-        .then(response => response)
         .then(response => {
           this.days = response.data
           this.times = response.included
           this.isLoading = false
         })
-        .catch(error => checkResponse(error.response))
     },
 
     updateVersionHistory (entityId, entityType) {

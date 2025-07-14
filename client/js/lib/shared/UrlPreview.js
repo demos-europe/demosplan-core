@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
+import { dpApi } from '@demos-europe/demosplan-ui'
 import { v4 as uuid } from 'uuid'
 
 /**
@@ -36,13 +36,12 @@ export default function UrlPreview () {
         .then((response) => {
           if (orgaPreview) {
             const shortUrl = orgaPreview.getAttribute('data-shorturl')
-            orgaPreview.textContent = shortUrl + response.data.data.attributes.slugifiedValue
+            orgaPreview.textContent = shortUrl + response.data.attributes.slugifiedValue
           } else if (shortUrlPreview) {
             const shortUrl = shortUrlPreview.getAttribute('data-shorturl')
-            shortUrlPreview.textContent = shortUrl + response.data.data.attributes.slugifiedValue
+            shortUrlPreview.textContent = shortUrl + response.data.attributes.slugifiedValue
           }
         })
-        .catch(error => checkResponse(error.response))
     })
   }
 }

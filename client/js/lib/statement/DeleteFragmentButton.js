@@ -32,7 +32,12 @@ export default function DeleteFragmentButton () {
         dpApi({
           method: 'POST',
           url: elem.getAttribute('data-post-delete'),
-          data: formData
+          data: formData,
+          options: {
+            messages: {
+              200: Translator.trans('confirm.fragment.deleted')
+            }
+          }
         })
           .then((data) => {
             if (data.data.code === 200 && data.data.success === true) {

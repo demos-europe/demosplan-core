@@ -1202,6 +1202,7 @@ export default {
 
         return updatedField
       }).then(updatedField => {
+        console.log('entityTextSaved: updated Fied')
         this.$root.$emit('entityTextSaved:' + this.statementId, { entityId: this.statementId, field: updatedField }) // Used in EditableText.vue to update short and full texts
       })
     },

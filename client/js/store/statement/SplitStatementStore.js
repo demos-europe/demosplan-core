@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
 import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
 
@@ -364,8 +364,8 @@ const SplitStatementStore = {
           ].join()
         }
       }))
-        .then((response) => {
-          commit('setProperty', { prop: 'statement', val: response.data.data })
+        .then(response => {
+          commit('setProperty', { prop: 'statement', val: response.data })
         })
     },
 
@@ -454,7 +454,6 @@ const SplitStatementStore = {
       dataToSend.attributes.statementText = state.statementText
 
       return dpApi.post(Routing.generate('dplan_drafts_list_confirm', { statementId: state.statementId, procedureId: state.procedureId }), {}, { data: dataToSend })
-        .then(checkResponse)
         .then((response) => {
           if (response.data.nextStatementId !== '') {
             const form = document.createElement('form')

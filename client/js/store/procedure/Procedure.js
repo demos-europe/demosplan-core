@@ -62,7 +62,7 @@ const ProcedureStore = {
       }).then(response => {
         commit('reset')
         nextTick(() => {
-          const procedures = response.data.data.map(el => {
+          const procedures = response.data.map(el => {
             return {
               ...el.attributes,
               id: el.id
@@ -74,7 +74,7 @@ const ProcedureStore = {
         commit('setProperty', { prop: 'currentView', val: 'DpList' })
         commit('setProperty', { prop: 'shouldMapZoomBeSet', val: true })
 
-        return response.data.data
+        return response.data
       })
     },
 

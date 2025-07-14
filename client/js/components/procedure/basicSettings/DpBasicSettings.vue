@@ -9,7 +9,7 @@
 
 <script>
 import {
-  checkResponse,
+
   dpApi,
   DpButton,
   DpContextualHelp,
@@ -222,7 +222,6 @@ export default {
       })
 
       return addonRequest
-        .then(checkResponse)
         .catch(error => {
           /** The 'is-invalid' class would be added to the addon field in case of an error */
           const input = document.getElementById('addonAdditionalField')

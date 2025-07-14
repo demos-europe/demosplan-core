@@ -635,10 +635,7 @@ export default {
 
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
           .then(response => {
-            checkResponse(response)
-            return response
-          })
-          .then(response => {
+            // @TODO handle in checkResponse
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
 
             return response
@@ -682,7 +679,6 @@ export default {
         }
       }
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
-        .then(checkResponse)
         .catch((err) => {
           this.restoreStatementAction(statementId)
           console.error(err)
@@ -872,7 +868,7 @@ export default {
       return dpApi.get(Routing.generate('api_resource_get', { resourceType: 'Statement', resourceId: statementId }), { fields: { Statement: ['fullText'].join() } })
         .then((response) => {
           const oldStatement = Object.values(this.statementsObject).find(el => el.id === statementId)
-          const fullText = response.data.data.attributes.fullText
+          const fullText = response.data.attributes.fullText
           const updatedStatement = { ...oldStatement, attributes: { ...oldStatement.attributes, fullText, isFulltextDisplayed: true } }
           this.setStatement({ ...updatedStatement, id: statementId })
         })
@@ -884,8 +880,7 @@ export default {
 
         dplan.notify.notify('warning', Translator.trans('procedure.share_statements.info.duration'))
         dpRpc('statement.procedure.sync', params)
-          .then(checkResponse)
-          .then((response) => {
+          .then(response => {
             /*
              * Error messages are displayed with "checkResponse", but we need to check for error here to, because
              * we also get 200 status with an error
@@ -954,6 +949,7 @@ export default {
 
     triggerStatementDeletion (id) {
       if (window.confirm(Translator.trans('check.statement.delete'))) {
+        // TODO Pass this through vuex-json-api
         this.deleteStatement(id)
           .then(response => checkResponse(response, {
             200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },

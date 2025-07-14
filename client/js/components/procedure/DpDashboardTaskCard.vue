@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { checkResponse, CleanHtml, dpApi, DpButton, DpCard } from '@demos-europe/demosplan-ui'
+import { CleanHtml, dpApi, DpButton, DpCard } from '@demos-europe/demosplan-ui'
 export default {
   name: 'DpDashboardTaskCard',
 
@@ -74,7 +74,7 @@ export default {
     // Get count of segments assigned to the current user
     const segmentUrl = Routing.generate('api_resource_list', { resourceType: 'StatementSegment' })
     dpApi.get(segmentUrl, { filter: filterQuery }).then(response => {
-      this.assignedSegmentCount = response.data.data.length
+      this.assignedSegmentCount = response.data.length
     })
 
     /*
@@ -99,7 +99,6 @@ export default {
         // Get the actual filter hash
         const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash })
         dpApi.patch(url, {}, filterData)
-          .then(response => checkResponse(response))
           .then(response => {
             if (response) {
               this.userHash = response

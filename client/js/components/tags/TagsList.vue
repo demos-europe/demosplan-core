@@ -74,7 +74,7 @@
 
 <script>
 import {
-  checkResponse,
+
   DpLoading,
   dpRpc,
   DpTreeList
@@ -224,7 +224,6 @@ export default {
 
     deleteItem (item) {
       dpRpc('bulk.delete.tags.and.topics', { ids: [item] })
-        .then(checkResponse)
         .then(() => {
           this.loadTagsAndTopics()
         })
