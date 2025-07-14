@@ -62,13 +62,11 @@ class UserPermissionGrantCommand extends UserPermissionBaseCommand
             return $this->grantPermission($user, $role, $permission, $io);
         } catch (InvalidArgumentException $e) {
             $io->error(self::ERROR_VALIDATION.$e->getMessage());
-
-            return Command::FAILURE;
         } catch (Exception $e) {
             $io->error(self::ERROR_UNEXPECTED.$e->getMessage());
-
-            return Command::FAILURE;
         }
+
+        return Command::FAILURE;
     }
 
     private function grantPermission($user, $role, string $permission, SymfonyStyle $io): int
