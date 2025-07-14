@@ -116,7 +116,7 @@ class RemoveUserDataCommand extends CoreCommand
         StatementService $statementService,
         DraftStatementService $draftStatementService,
         ManagerRegistry $doctrine,
-        string $name = null
+        ?string $name = null,
     ) {
         $this->userService = $userService;
         $this->statementService = $statementService;
@@ -138,7 +138,7 @@ class RemoveUserDataCommand extends CoreCommand
         $this->map('Fehlanzeige', 'Fehlanzeige');
 
         $this->currentGwId = $this->faker->numberBetween(1, 99999);
-        $this->mockTexts[50] = $this->faker->textCloseToLength(50);
+        $this->mockTexts[50] = $this->faker->text(50);
 
         parent::__construct($parameterBag, $name);
     }
@@ -1083,7 +1083,7 @@ class RemoveUserDataCommand extends CoreCommand
         $roundedLength = (int) round($length, -2);
 
         if (!array_key_exists($roundedLength, $this->mockTexts)) {
-            $this->mockTexts[$roundedLength] = $this->faker->textCloseToLength($length < 10 ? 10 : $length);
+            $this->mockTexts[$roundedLength] = $this->faker->text($length < 10 ? 10 : $length);
         }
 
         return $this->mockTexts[$roundedLength];
