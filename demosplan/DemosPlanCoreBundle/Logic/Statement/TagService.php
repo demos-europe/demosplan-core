@@ -137,11 +137,13 @@ class TagService extends CoreService
     }
 
     /**
-     * Moves a spezific Tag to a specific Topic.
+     * Moves a specific Tag to a specific Topic.
      * Because a Tag can have one Topic only, it is necessary to remove this Tag from the current Topic (if exists).
      *
      * @param Tag      $tag
      * @param TagTopic $newTopic
+     *
+     * @return bool True if both tag and topic were successfully updated
      */
     public function moveTagToTopic($tag, $newTopic): bool
     {
@@ -152,6 +154,7 @@ class TagService extends CoreService
         $tagUpdated = $this->tagRepository->updateObject($tag);
 
         $topicUpdated = $this->tagTopicRepository->updateObject($newTopic);
+
         $this->eventDispatcher->dispatch(
             new UpdateTagEvent($tag->getId()),
             UpdateTagEventInterface::class
