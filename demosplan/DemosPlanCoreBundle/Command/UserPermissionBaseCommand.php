@@ -28,6 +28,36 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  */
 abstract class UserPermissionBaseCommand extends CoreCommand
 {
+    // Argument/Option names
+    protected const ARG_USER_ID = 'user-id';
+    protected const ARG_PERMISSION = 'permission';
+    protected const OPT_ROLE = 'role';
+    protected const OPT_ROLE_SHORT = 'r';
+    
+    // Error messages
+    protected const ERROR_USER_ID_EMPTY = 'User ID cannot be empty';
+    protected const ERROR_USER_NOT_FOUND = 'User with ID "%s" not found';
+    protected const ERROR_USER_NO_ORGANIZATION = 'User "%s" does not have an organization assigned';
+    protected const ERROR_USER_NO_CUSTOMER = 'User "%s" does not have a current customer assigned';
+    protected const ERROR_USER_NO_ROLES = 'User "%s" does not have any roles assigned';
+    protected const ERROR_USER_NO_ROLES_GENERIC = 'User has no roles assigned';
+    protected const ERROR_ROLE_NOT_FOUND = 'Role with code "%s" not found';
+    protected const ERROR_USER_ROLE_MISMATCH = 'User "%s" does not have role "%s". Available roles: %s';
+    protected const ERROR_PERMISSION_EMPTY = 'Permission name cannot be empty';
+    protected const ERROR_PERMISSION_FORMAT = 'Permission name must start with a letter and contain only letters, numbers, and underscores';
+    
+    // Labels
+    protected const LABEL_USER_ID = 'User ID';
+    protected const LABEL_USER_LOGIN = 'User Login';
+    protected const LABEL_ORGANIZATION = 'Organization';
+    protected const LABEL_CUSTOMER = 'Customer';
+    protected const LABEL_ROLE = 'Role';
+    protected const LABEL_PERMISSION = 'Permission';
+    protected const LABEL_NOT_AVAILABLE = 'N/A';
+    
+    // Exception messages
+    protected const ERROR_VALIDATION = 'Validation Error: ';
+    protected const ERROR_UNEXPECTED = 'Unexpected error: ';
     public function __construct(
         protected UserAccessControlService $userAccessControlService,
         protected UserRepository $userRepository,
@@ -40,11 +70,11 @@ abstract class UserPermissionBaseCommand extends CoreCommand
     protected function addCommonArguments(): void
     {
         $this
-            ->addArgument('user-id', InputArgument::REQUIRED, 'User ID (UUID)')
-            ->addArgument('permission', InputArgument::REQUIRED, 'Permission name (e.g., area_admin_procedures)')
+            ->addArgument(self::ARG_USER_ID, InputArgument::REQUIRED, 'User ID (UUID)')
+            ->addArgument(self::ARG_PERMISSION, InputArgument::REQUIRED, 'Permission name (e.g., area_admin_procedures)')
             ->addOption(
-                'role',
-                'r',
+                self::OPT_ROLE,
+                self::OPT_ROLE_SHORT,
                 InputOption::VALUE_OPTIONAL,
                 'Specific role code (e.g., RMOPSA). If not provided, uses user\'s first role.'
             );
@@ -53,33 +83,33 @@ abstract class UserPermissionBaseCommand extends CoreCommand
     protected function validateAndGetUser(string $userId, SymfonyStyle $io): ?UserInterface
     {
         if (empty(trim($userId))) {
-            $io->error('User ID cannot be empty');
+            $io->error(self::ERROR_USER_ID_EMPTY);
 
             return null;
         }
 
         $user = $this->userRepository->find($userId);
         if (null === $user) {
-            $io->error(sprintf('User with ID "%s" not found', $userId));
+            $io->error(sprintf(self::ERROR_USER_NOT_FOUND, $userId));
 
             return null;
         }
 
         // Validate user has proper organization setup
         if (null === $user->getOrga()) {
-            $io->error(sprintf('User "%s" does not have an organization assigned', $user->getLogin()));
+            $io->error(sprintf(self::ERROR_USER_NO_ORGANIZATION, $user->getLogin()));
 
             return null;
         }
 
         if (null === $user->getCurrentCustomer()) {
-            $io->error(sprintf('User "%s" does not have a current customer assigned', $user->getLogin()));
+            $io->error(sprintf(self::ERROR_USER_NO_CUSTOMER, $user->getLogin()));
 
             return null;
         }
 
         if ($user->getDplanRoles()->isEmpty()) {
-            $io->error(sprintf('User "%s" does not have any roles assigned', $user->getLogin()));
+            $io->error(sprintf(self::ERROR_USER_NO_ROLES, $user->getLogin()));
 
             return null;
         }
@@ -93,7 +123,7 @@ abstract class UserPermissionBaseCommand extends CoreCommand
             // Use user's first role
             $role = $user->getDplanRoles()->first();
             if (false === $role) {
-                $io->error('User has no roles assigned');
+                $io->error(self::ERROR_USER_NO_ROLES_GENERIC);
 
                 return null;
             }
@@ -104,7 +134,7 @@ abstract class UserPermissionBaseCommand extends CoreCommand
         // Find the specific role
         $roles = $this->roleHandler->getUserRolesByCodes([$roleCode]);
         if (empty($roles)) {
-            $io->error(sprintf('Role with code "%s" not found', $roleCode));
+            $io->error(sprintf(self::ERROR_ROLE_NOT_FOUND, $roleCode));
 
             return null;
         }
@@ -115,7 +145,7 @@ abstract class UserPermissionBaseCommand extends CoreCommand
         $userRoleCodes = $user->getDplanRoles()->map(fn (Role $r) => $r->getCode())->toArray();
         if (!in_array($roleCode, $userRoleCodes, true)) {
             $io->error(sprintf(
-                'User "%s" does not have role "%s". Available roles: %s',
+                self::ERROR_USER_ROLE_MISMATCH,
                 $user->getLogin(),
                 $roleCode,
                 implode(', ', $userRoleCodes)
@@ -130,14 +160,14 @@ abstract class UserPermissionBaseCommand extends CoreCommand
     protected function validatePermissionName(string $permission, SymfonyStyle $io): bool
     {
         if (empty(trim($permission))) {
-            $io->error('Permission name cannot be empty');
+            $io->error(self::ERROR_PERMISSION_EMPTY);
 
             return false;
         }
 
         // Basic validation for permission name format
         if (!preg_match('/^[a-zA-Z]\w*$/', $permission)) {
-            $io->error('Permission name must start with a letter and contain only letters, numbers, and underscores');
+            $io->error(self::ERROR_PERMISSION_FORMAT);
 
             return false;
         }
@@ -148,12 +178,12 @@ abstract class UserPermissionBaseCommand extends CoreCommand
     protected function displayUserInfo(UserInterface $user, RoleInterface $role, string $permission, SymfonyStyle $io): void
     {
         $io->definitionList(
-            ['User ID' => $user->getId()],
-            ['User Login'   => $user->getLogin()],
-            ['Organization' => $user->getOrga()?->getName() ?? 'N/A'],
-            ['Customer'     => $user->getCurrentCustomer()?->getName() ?? 'N/A'],
-            ['Role'         => $role->getCode()],
-            ['Permission'   => $permission]
+            [self::LABEL_USER_ID => $user->getId()],
+            [self::LABEL_USER_LOGIN   => $user->getLogin()],
+            [self::LABEL_ORGANIZATION => $user->getOrga()?->getName() ?? self::LABEL_NOT_AVAILABLE],
+            [self::LABEL_CUSTOMER     => $user->getCurrentCustomer()?->getName() ?? self::LABEL_NOT_AVAILABLE],
+            [self::LABEL_ROLE         => $role->getCode()],
+            [self::LABEL_PERMISSION   => $permission]
         );
     }
 

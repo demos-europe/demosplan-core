@@ -26,6 +26,8 @@ use Tests\Base\FunctionalTestCase;
 
 class UserPermissionListCommandTest extends FunctionalTestCase
 {
+    private const FORMAT_OPTION = '--format';
+
     protected $sut;
     private ?CommandTester $commandTester = null;
     private ?User $testUser = null;
@@ -138,7 +140,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         // Act
         $exitCode = $this->commandTester->execute([
             'user-id'  => $userId,
-            '--format' => 'json',
+            self::FORMAT_OPTION => 'json',
         ]);
 
         // Assert
@@ -173,7 +175,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         // Act
         $exitCode = $this->commandTester->execute([
             'user-id'  => $userId,
-            '--format' => 'json',
+            self::FORMAT_OPTION => 'json',
         ]);
 
         // Assert
@@ -227,7 +229,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         // Act
         $exitCode = $this->commandTester->execute([
             'user-id'  => $userId,
-            '--format' => 'xml', // Invalid format
+            self::FORMAT_OPTION => 'xml', // Invalid format
         ]);
 
         // Assert

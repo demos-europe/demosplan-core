@@ -37,6 +37,10 @@ use Zenstruck\Foundry\Proxy;
 
 class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
 {
+    private const DRY_RUN_OPTION = '--dry-run';
+    private const CUSTOMER_PREFIX = 'Customer ';
+    private const ROLE_PREFIX = 'Role ';
+
     protected CustomerService|Proxy|null $customerService;
     protected OrgaService|Proxy|null $orgaService;
     protected RoleService|Proxy|null $roleService;
@@ -115,13 +119,13 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
             'customerIds' => $this->testCustomer->object()->getId(),
             'roleIds'     => $this->testRole->getId(),
             'permission'  => 'CREATE_PROCEDURES_PERMISSION',
-            '--dry-run'   => $dryRun,
+            self::DRY_RUN_OPTION => $dryRun,
         ]);
 
         $output = $commandTester->getDisplay();
         $this->assertStringContainsString($expectedMessage, $output);
-        $this->assertStringContainsString('Customer '.$this->testCustomer->object()->getId().' '.$this->testCustomer->object()->getName(), $output);
-        $this->assertStringContainsString('Role '.$this->testRole->getId().' '.$this->testRole->getName(), $output);
+        $this->assertStringContainsString(self::CUSTOMER_PREFIX.$this->testCustomer->object()->getId().' '.$this->testCustomer->object()->getName(), $output);
+        $this->assertStringContainsString(self::ROLE_PREFIX.$this->testRole->getId().' '.$this->testRole->getName(), $output);
     }
 
     protected function assertStringsInCommandOutputWithOrga(CommandTester $commandTester, bool $dryRun, string $expectedMessage, string $orgaId): void
@@ -131,13 +135,13 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
             'roleIds'     => $this->testRole->getId(),
             'permission'  => 'CREATE_PROCEDURES_PERMISSION',
             'orgaId'      => $orgaId,
-            '--dry-run'   => $dryRun,
+            self::DRY_RUN_OPTION => $dryRun,
         ]);
 
         $output = $commandTester->getDisplay();
         $this->assertStringContainsString($expectedMessage, $output);
-        $this->assertStringContainsString('Customer '.$this->testCustomer->object()->getId().' '.$this->testCustomer->object()->getName(), $output);
-        $this->assertStringContainsString('Role '.$this->testRole->getId().' '.$this->testRole->getName(), $output);
+        $this->assertStringContainsString(self::CUSTOMER_PREFIX.$this->testCustomer->object()->getId().' '.$this->testCustomer->object()->getName(), $output);
+        $this->assertStringContainsString(self::ROLE_PREFIX.$this->testRole->getId().' '.$this->testRole->getName(), $output);
     }
 
     protected function assertStringArraysInCommandOutput(CommandTester $commandTester, bool $dryRun, string $expectedMessage): void
@@ -146,13 +150,13 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
             'customerIds' => sprintf('%s,%s', $this->testCustomer->object()->getId(), $this->testCustomer->object()->getId()),
             'roleIds'     => sprintf('%s,%s', $this->testRole->getId(), $this->testRole->getId()),
             'permission'  => 'CREATE_PROCEDURES_PERMISSION',
-            '--dry-run'   => $dryRun,
+            self::DRY_RUN_OPTION => $dryRun,
         ]);
 
         $output = $commandTester->getDisplay();
         $this->assertStringContainsString($expectedMessage, $output);
-        $this->assertStringContainsString('Customer '.$this->testCustomer->object()->getId().' '.$this->testCustomer->object()->getName(), $output);
-        $this->assertStringContainsString('Role '.$this->testRole->getId().' '.$this->testRole->getName(), $output);
+        $this->assertStringContainsString(self::CUSTOMER_PREFIX.$this->testCustomer->object()->getId().' '.$this->testCustomer->object()->getName(), $output);
+        $this->assertStringContainsString(self::ROLE_PREFIX.$this->testRole->getId().' '.$this->testRole->getName(), $output);
     }
 
     public function testCommandExists(): void
@@ -208,7 +212,7 @@ class PermissionForCustomerOrgaRoleCommandTest extends FunctionalTestCase
             'roleIds'     => $this->testRole->getId(),
             'permission'  => 'CREATE_PROCEDURES_PERMISSION',
             'orgaId'      => 'invalid-org-id',
-            '--dry-run'   => true,
+            self::DRY_RUN_OPTION => true,
         ]);
     }
 }

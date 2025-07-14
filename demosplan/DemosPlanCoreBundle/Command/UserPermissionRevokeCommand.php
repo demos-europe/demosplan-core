@@ -35,9 +35,9 @@ class UserPermissionRevokeCommand extends UserPermissionBaseCommand
     {
         $io = new SymfonyStyle($input, $output);
 
-        $userId = $input->getArgument('user-id');
-        $permission = $input->getArgument('permission');
-        $roleCode = $input->getOption('role');
+        $userId = $input->getArgument(self::ARG_USER_ID);
+        $permission = $input->getArgument(self::ARG_PERMISSION);
+        $roleCode = $input->getOption(self::OPT_ROLE);
 
         $io->title('Revoke User-Specific Permission');
 
@@ -87,11 +87,11 @@ class UserPermissionRevokeCommand extends UserPermissionBaseCommand
 
             return Command::SUCCESS;
         } catch (InvalidArgumentException $e) {
-            $io->error('Validation Error: '.$e->getMessage());
+            $io->error(self::ERROR_VALIDATION.$e->getMessage());
 
             return Command::FAILURE;
         } catch (Exception $e) {
-            $io->error('Unexpected error: '.$e->getMessage());
+            $io->error(self::ERROR_UNEXPECTED.$e->getMessage());
 
             return Command::FAILURE;
         }
