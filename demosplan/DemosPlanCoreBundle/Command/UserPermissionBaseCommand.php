@@ -136,7 +136,7 @@ abstract class UserPermissionBaseCommand extends CoreCommand
         }
 
         // Basic validation for permission name format
-        if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $permission)) {
+        if (!preg_match('/^[a-zA-Z]\w*$/', $permission)) {
             $io->error('Permission name must start with a letter and contain only letters, numbers, and underscores');
 
             return false;
