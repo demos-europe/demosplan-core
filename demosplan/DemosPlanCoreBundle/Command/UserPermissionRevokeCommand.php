@@ -178,13 +178,14 @@ class UserPermissionRevokeCommand extends CoreCommand
 
         $role = $roles[0];
 
-        // Verify user has this role
-        if (!$user->getDplanRoles()->contains($role)) {
+        // Verify user has this role (compare by code, not object identity)
+        $userRoleCodes = $user->getDplanRoles()->map(fn(Role $r) => $r->getCode())->toArray();
+        if (!in_array($roleCode, $userRoleCodes, true)) {
             $io->error(sprintf(
                 'User "%s" does not have role "%s". Available roles: %s',
                 $user->getLogin(),
                 $roleCode,
-                implode(', ', $user->getDplanRoles()->map(fn(Role $r) => $r->getCode())->toArray())
+                implode(', ', $userRoleCodes)
             ));
             return null;
         }

@@ -147,4 +147,14 @@ class UserAccessControl extends CoreEntity implements UuidEntityInterface
     {
         $this->customer = $customer;
     }
+
+    public function getCreationDate(): DateTime
+    {
+        return $this->creationDate;
+    }
+
+    public function getModificationDate(): DateTime
+    {
+        return $this->modificationDate;
+    }
 }

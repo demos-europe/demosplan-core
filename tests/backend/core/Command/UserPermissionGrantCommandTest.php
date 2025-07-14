@@ -15,13 +15,8 @@ namespace Tests\Core\Command;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use demosplan\DemosPlanCoreBundle\Command\UserPermissionGrantCommand;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\UserAccessControl;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService;
@@ -31,21 +26,21 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
-use Zenstruck\Foundry\Persistence\Proxy;
 
 class UserPermissionGrantCommandTest extends FunctionalTestCase
 {
     protected $sut;
-    private CommandTester $commandTester;
-    private User|Proxy|null $testUser;
-    private Orga|Proxy|null $testOrga;
-    private Customer|Proxy|null $testCustomer;
-    private Role|null $testRole;
-    private RoleHandler|null $roleHandler;
+    private ?CommandTester $commandTester = null;
+    private ?User $testUser = null;
+    private ?Role $testRole = null;
+    private ?RoleHandler $roleHandler = null;
 
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Use fixture user instead of creating new ones to avoid cascade persistence issues
+        $this->testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_FP_ONLY);
 
         $this->roleHandler = $this->getContainer()->get(RoleHandler::class);
         $userAccessControlService = $this->getContainer()->get(UserAccessControlService::class);
@@ -62,33 +57,8 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
 
         $this->commandTester = $this->createCommandTester();
 
-        // Set up test data - use a simpler approach
-        $roles = $this->roleHandler->getUserRolesByCodes([RoleInterface::PUBLIC_AGENCY_WORKER]);
-        $this->testRole = $roles[0];
-
-        // Create entities step by step to avoid cascading issues
-        $this->testCustomer = CustomerFactory::createOne();
-        $this->testOrga = OrgaFactory::createOne();
-        $this->testUser = UserFactory::createOne();
-        
-        // Clear entity manager and refresh entities
-        $this->getEntityManager()->clear();
-        $this->testCustomer = $this->testCustomer->_refresh();
-        $this->testOrga = $this->testOrga->_refresh();
-        $this->testUser = $this->testUser->_refresh();
-        
-        // Set up minimal relationships
-        $this->testUser->_real()->setOrga($this->testOrga->_real());
-        $this->testUser->_real()->setCurrentCustomer($this->testCustomer->_real());
-        
-        // Persist without role first
-        $this->getEntityManager()->persist($this->testUser->_real());
-        $this->getEntityManager()->flush();
-        
-        // Then add role
-        $this->testUser->_real()->addDplanRole($this->testRole);
-        $this->getEntityManager()->persist($this->testUser->_real());
-        $this->getEntityManager()->flush();
+        // Use the test user's actual role instead of assuming a specific role
+        $this->testRole = $this->testUser->getDplanRoles()->first();
     }
 
     private function createCommandTester(): CommandTester
@@ -104,7 +74,7 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
     {
         // Arrange
         $permission = 'area_admin_procedures';
-        $userId = $this->testUser->_real()->getId();
+        $userId = $this->testUser->getId();
 
         // Act
         $exitCode = $this->commandTester->execute([
@@ -113,17 +83,20 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
         ]);
 
         // Assert
-        self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
+        if ($exitCode !== Command::SUCCESS) {
+            $this->fail("Command failed with exit code $exitCode. Output: " . $output);
+        }
+        self::assertSame(Command::SUCCESS, $exitCode);
         self::assertStringContainsString('Permission granted successfully!', $output);
-        self::assertStringContainsString($this->testUser->_real()->getLogin(), $output);
+        self::assertStringContainsString($this->testUser->getLogin(), $output);
         self::assertStringContainsString($permission, $output);
         self::assertStringContainsString($this->testRole->getCode(), $output);
 
         // Verify permission was actually created in database
         $userPermissions = $this->getEntityManager()
             ->getRepository(UserAccessControl::class)
-            ->findBy(['user' => $this->testUser->_real(), 'permission' => $permission]);
+            ->findBy(['user' => $this->testUser, 'permission' => $permission]);
         self::assertCount(1, $userPermissions);
         self::assertSame($permission, $userPermissions[0]->getPermission());
     }
@@ -132,7 +105,7 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
     {
         // Arrange
         $permission = 'area_admin_procedures';
-        $userId = $this->testUser->_real()->getId();
+        $userId = $this->testUser->getId();
         $roleCode = $this->testRole->getCode();
 
         // Act
@@ -143,15 +116,18 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
         ]);
 
         // Assert
-        self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
+        if ($exitCode !== Command::SUCCESS) {
+            $this->fail("Command failed with exit code $exitCode. Output: " . $output);
+        }
+        self::assertSame(Command::SUCCESS, $exitCode);
         self::assertStringContainsString('Permission granted successfully!', $output);
         self::assertStringContainsString($roleCode, $output);
 
         // Verify permission was created with correct role
         $userPermissions = $this->getEntityManager()
             ->getRepository(UserAccessControl::class)
-            ->findBy(['user' => $this->testUser->_real(), 'permission' => $permission, 'role' => $this->testRole]);
+            ->findBy(['user' => $this->testUser, 'permission' => $permission, 'role' => $this->testRole]);
         self::assertCount(1, $userPermissions);
     }
 
@@ -194,7 +170,7 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
     {
         // Arrange
         $permission = 'area_admin_procedures';
-        $userId = $this->testUser->_real()->getId();
+        $userId = $this->testUser->getId();
         $invalidRoleCode = 'INVALID_ROLE';
 
         // Act
@@ -214,10 +190,10 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
     {
         // Arrange
         $permission = 'area_admin_procedures';
-        $userId = $this->testUser->_real()->getId();
+        $userId = $this->testUser->getId();
 
-        // Get a different role that the user doesn't have
-        $differentRoles = $this->roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY]);
+        // Get a different role that the user doesn't have (use PUBLIC_AGENCY_WORKER since FP_ONLY user has PLANNING_AGENCY roles)
+        $differentRoles = $this->roleHandler->getUserRolesByCodes([RoleInterface::PUBLIC_AGENCY_WORKER]);
         $differentRoleCode = $differentRoles[0]->getCode();
 
         // Act
@@ -237,7 +213,7 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
     {
         // Arrange
         $invalidPermission = ''; // Empty permission
-        $userId = $this->testUser->_real()->getId();
+        $userId = $this->testUser->getId();
 
         // Act
         $exitCode = $this->commandTester->execute([
@@ -255,7 +231,7 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
     {
         // Arrange
         $invalidPermission = '123_invalid_permission'; // Starts with number
-        $userId = $this->testUser->_real()->getId();
+        $userId = $this->testUser->getId();
 
         // Act
         $exitCode = $this->commandTester->execute([
@@ -273,7 +249,7 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
     {
         // Arrange
         $permission = 'area_admin_procedures';
-        $userId = $this->testUser->_real()->getId();
+        $userId = $this->testUser->getId();
 
         // Create permission first time
         $this->commandTester->execute([
@@ -295,23 +271,19 @@ class UserPermissionGrantCommandTest extends FunctionalTestCase
         // Verify only one permission exists in database
         $userPermissions = $this->getEntityManager()
             ->getRepository(UserAccessControl::class)
-            ->findBy(['user' => $this->testUser->_real(), 'permission' => $permission]);
+            ->findBy(['user' => $this->testUser, 'permission' => $permission]);
         self::assertCount(1, $userPermissions, 'Should not create duplicate permissions');
     }
 
     public function testGrantPermissionFailsWhenUserHasNoOrganization(): void
     {
-        // Arrange
-        $userWithoutOrga = UserFactory::createOne();
-        $userWithoutOrga->_real()->addDplanRole($this->testRole);
-        $this->getEntityManager()->persist($userWithoutOrga->_real());
-        $this->getEntityManager()->flush();
-
+        // Arrange - Use guest user that typically has no organization
+        $guestUser = $this->fixtures->getReference(LoadUserData::TEST_USER_GUEST);
         $permission = 'area_admin_procedures';
 
         // Act
         $exitCode = $this->commandTester->execute([
-            'user-id' => $userWithoutOrga->_real()->getId(),
+            'user-id' => $guestUser->getId(),
             'permission' => $permission,
         ]);
 

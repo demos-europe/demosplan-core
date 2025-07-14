@@ -13,13 +13,9 @@ declare(strict_types=1);
 namespace Tests\Core\Command;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use demosplan\DemosPlanCoreBundle\Command\UserPermissionListCommand;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService;
@@ -28,23 +24,22 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
-use Zenstruck\Foundry\Persistence\Proxy;
 
 class UserPermissionListCommandTest extends FunctionalTestCase
 {
     protected $sut;
-    private CommandTester $commandTester;
-    private User|Proxy|null $testUser;
-    private Orga|Proxy|null $testOrga;
-    private Customer|Proxy|null $testCustomer;
-    private Role|null $testRole;
-    private UserAccessControlService $userAccessControlService;
+    private ?CommandTester $commandTester = null;
+    private ?User $testUser = null;
+    private ?Role $testRole = null;
+    private ?UserAccessControlService $userAccessControlService = null;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $roleHandler = $this->getContainer()->get(\demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler::class);
+        // Use fixture user instead of creating new ones to avoid cascade persistence issues
+        $this->testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_FP_ONLY);
+
         $this->userAccessControlService = $this->getContainer()->get(UserAccessControlService::class);
         $userRepository = $this->getContainer()->get(UserRepository::class);
         $parameterBag = $this->getContainer()->get(ParameterBagInterface::class);
@@ -55,41 +50,25 @@ class UserPermissionListCommandTest extends FunctionalTestCase
             $parameterBag
         );
 
-        $this->commandTester = new CommandTester($this->sut);
+        $this->commandTester = $this->createCommandTester();
 
-        // Set up test data
-        $roles = $roleHandler->getUserRolesByCodes([RoleInterface::PUBLIC_AGENCY_WORKER]);
-        $this->testRole = $roles[0];
+        // Use the test user's actual role
+        $this->testRole = $this->testUser->getDplanRoles()->first();
+    }
 
-        $this->testCustomer = CustomerFactory::createOne();
-        $this->testOrga = OrgaFactory::createOne();
-        $this->testUser = UserFactory::createOne();
+    private function createCommandTester(): CommandTester
+    {
+        $kernel = self::bootKernel();
+        $application = new ConsoleApplication($kernel, false);
+        $application->add($this->sut);
 
-        // Set up bidirectional relationships
-        $this->testUser->object()->setOrga($this->testOrga->object());
-        $this->testOrga->object()->addUser($this->testUser->object());
-        $this->testUser->object()->addDplanRole($this->testRole);
-
-        // Create OrgaType and establish customer relationship
-        $orgaType = new OrgaType();
-        $orgaType->setName(OrgaType::MUNICIPALITY);
-        $orgaType->setLabel('Test Municipality Label');
-        $this->getEntityManager()->persist($orgaType);
-        $this->getEntityManager()->flush();
-
-        $this->testOrga->object()->addCustomerAndOrgaType($this->testCustomer->object(), $orgaType);
-        $this->testUser->object()->setCurrentCustomer($this->testCustomer->object());
-
-        // Persist changes
-        $this->getEntityManager()->persist($this->testUser->object());
-        $this->getEntityManager()->persist($this->testOrga->object());
-        $this->getEntityManager()->flush();
+        return new CommandTester($this->sut);
     }
 
     public function testListPermissionsInTableFormatWithNoPermissions(): void
     {
         // Arrange
-        $userId = $this->testUser->object()->getId();
+        $userId = $this->testUser->getId();
 
         // Act
         $exitCode = $this->commandTester->execute([
@@ -99,25 +78,25 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         // Assert
         self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
-        self::assertStringContainsString('User-Specific Permissions for "' . $this->testUser->object()->getLogin() . '"', $output);
+        self::assertStringContainsString('User-Specific Permissions for "' . $this->testUser->getLogin() . '"', $output);
         self::assertStringContainsString('No user-specific permissions found', $output);
     }
 
     public function testListPermissionsInTableFormatWithPermissions(): void
     {
         // Arrange
-        $userId = $this->testUser->object()->getId();
+        $userId = $this->testUser->getId();
         $permission1 = 'area_admin_procedures';
         $permission2 = 'feature_statement_bulk_edit';
 
         // Grant some permissions first
         $this->userAccessControlService->createUserPermission(
-            $this->testUser->object(),
+            $this->testUser,
             $permission1,
             $this->testRole
         );
         $this->userAccessControlService->createUserPermission(
-            $this->testUser->object(),
+            $this->testUser,
             $permission2,
             $this->testRole
         );
@@ -130,7 +109,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         // Assert
         self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
-        self::assertStringContainsString('User-Specific Permissions for "' . $this->testUser->object()->getLogin() . '"', $output);
+        self::assertStringContainsString('User-Specific Permissions for "' . $this->testUser->getLogin() . '"', $output);
         self::assertStringContainsString('Total Permissions', $output);
         self::assertStringContainsString('2', $output); // Should show 2 permissions
         self::assertStringContainsString($permission1, $output);
@@ -147,12 +126,12 @@ class UserPermissionListCommandTest extends FunctionalTestCase
     public function testListPermissionsInJsonFormat(): void
     {
         // Arrange
-        $userId = $this->testUser->object()->getId();
+        $userId = $this->testUser->getId();
         $permission = 'area_admin_procedures';
 
         // Grant a permission first
         $this->userAccessControlService->createUserPermission(
-            $this->testUser->object(),
+            $this->testUser,
             $permission,
             $this->testRole
         );
@@ -176,8 +155,8 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         self::assertArrayHasKey('permissions', $jsonData);
 
         // Verify user data
-        self::assertSame($this->testUser->object()->getId(), $jsonData['user']['id']);
-        self::assertSame($this->testUser->object()->getLogin(), $jsonData['user']['login']);
+        self::assertSame($this->testUser->getId(), $jsonData['user']['id']);
+        self::assertSame($this->testUser->getLogin(), $jsonData['user']['login']);
 
         // Verify permissions data
         self::assertCount(1, $jsonData['permissions']);
@@ -190,7 +169,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
     public function testListPermissionsInJsonFormatWithNoPermissions(): void
     {
         // Arrange
-        $userId = $this->testUser->object()->getId();
+        $userId = $this->testUser->getId();
 
         // Act
         $exitCode = $this->commandTester->execute([
@@ -244,7 +223,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
     public function testListPermissionsFailsWithInvalidFormat(): void
     {
         // Arrange
-        $userId = $this->testUser->object()->getId();
+        $userId = $this->testUser->getId();
 
         // Act
         $exitCode = $this->commandTester->execute([
@@ -261,7 +240,7 @@ class UserPermissionListCommandTest extends FunctionalTestCase
     public function testListPermissionsDefaultsToTableFormat(): void
     {
         // Arrange
-        $userId = $this->testUser->object()->getId();
+        $userId = $this->testUser->getId();
 
         // Act (don't specify format, should default to table)
         $exitCode = $this->commandTester->execute([
@@ -281,7 +260,15 @@ class UserPermissionListCommandTest extends FunctionalTestCase
     public function testListPermissionsDisplaysUserInfoCorrectly(): void
     {
         // Arrange
-        $userId = $this->testUser->object()->getId();
+        $userId = $this->testUser->getId();
+        $permission = 'area_admin_procedures';
+
+        // Grant a permission so user info section is displayed
+        $this->userAccessControlService->createUserPermission(
+            $this->testUser,
+            $permission,
+            $this->testRole
+        );
 
         // Act
         $exitCode = $this->commandTester->execute([
@@ -292,10 +279,10 @@ class UserPermissionListCommandTest extends FunctionalTestCase
         self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
 
-        // Verify user information is displayed
-        self::assertStringContainsString($this->testUser->object()->getLogin(), $output);
-        self::assertStringContainsString($this->testUser->object()->getId(), $output);
-        self::assertStringContainsString($this->testOrga->object()->getName(), $output);
-        self::assertStringContainsString($this->testCustomer->object()->getName(), $output);
+        // Verify user information is displayed (only shown when permissions exist)
+        self::assertStringContainsString($this->testUser->getLogin(), $output);
+        self::assertStringContainsString($this->testUser->getId(), $output);
+        self::assertStringContainsString($this->testUser->getOrga()->getName(), $output);
+        self::assertStringContainsString($this->testUser->getCurrentCustomer()->getName(), $output);
     }
 }

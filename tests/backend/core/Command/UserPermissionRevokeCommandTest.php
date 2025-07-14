@@ -13,14 +13,10 @@ declare(strict_types=1);
 namespace Tests\Core\Command;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use demosplan\DemosPlanCoreBundle\Command\UserPermissionRevokeCommand;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\UserAccessControl;
-use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService;
@@ -30,22 +26,22 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Tests\Base\FunctionalTestCase;
-use Zenstruck\Foundry\Persistence\Proxy;
 
 class UserPermissionRevokeCommandTest extends FunctionalTestCase
 {
     protected $sut;
-    private CommandTester $commandTester;
-    private User|Proxy|null $testUser;
-    private Orga|Proxy|null $testOrga;
-    private Customer|Proxy|null $testCustomer;
-    private Role|null $testRole;
-    private RoleHandler|null $roleHandler;
-    private UserAccessControlService $userAccessControlService;
+    private ?CommandTester $commandTester = null;
+    private ?User $testUser = null;
+    private ?Role $testRole = null;
+    private ?RoleHandler $roleHandler = null;
+    private ?UserAccessControlService $userAccessControlService = null;
 
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Use fixture user instead of creating new ones to avoid cascade persistence issues
+        $this->testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_FP_ONLY);
 
         $this->roleHandler = $this->getContainer()->get(RoleHandler::class);
         $this->userAccessControlService = $this->getContainer()->get(UserAccessControlService::class);
@@ -59,46 +55,30 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
             $parameterBag
         );
 
-        $this->commandTester = new CommandTester($this->sut);
+        $this->commandTester = $this->createCommandTester();
 
-        // Set up test data
-        $roles = $this->roleHandler->getUserRolesByCodes([RoleInterface::PUBLIC_AGENCY_WORKER]);
-        $this->testRole = $roles[0];
+        // Use the test user's actual role
+        $this->testRole = $this->testUser->getDplanRoles()->first();
+    }
 
-        $this->testCustomer = CustomerFactory::createOne();
-        $this->testOrga = OrgaFactory::createOne();
-        $this->testUser = UserFactory::createOne();
+    private function createCommandTester(): CommandTester
+    {
+        $kernel = self::bootKernel();
+        $application = new ConsoleApplication($kernel, false);
+        $application->add($this->sut);
 
-        // Set up bidirectional relationships
-        $this->testUser->object()->setOrga($this->testOrga->object());
-        $this->testOrga->object()->addUser($this->testUser->object());
-        $this->testUser->object()->addDplanRole($this->testRole);
-
-        // Create OrgaType and establish customer relationship
-        $orgaType = new OrgaType();
-        $orgaType->setName(OrgaType::MUNICIPALITY);
-        $orgaType->setLabel('Test Municipality Label');
-        $this->getEntityManager()->persist($orgaType);
-        $this->getEntityManager()->flush();
-
-        $this->testOrga->object()->addCustomerAndOrgaType($this->testCustomer->object(), $orgaType);
-        $this->testUser->object()->setCurrentCustomer($this->testCustomer->object());
-
-        // Persist changes
-        $this->getEntityManager()->persist($this->testUser->object());
-        $this->getEntityManager()->persist($this->testOrga->object());
-        $this->getEntityManager()->flush();
+        return new CommandTester($this->sut);
     }
 
     public function testRevokePermissionSuccessfully(): void
     {
         // Arrange
         $permission = 'area_admin_procedures';
-        $userId = $this->testUser->object()->getId();
+        $userId = $this->testUser->getId();
 
         // First grant the permission
         $this->userAccessControlService->createUserPermission(
-            $this->testUser->object(),
+            $this->testUser,
             $permission,
             $this->testRole
         );
@@ -106,7 +86,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
         // Verify permission exists
         $initialPermissions = $this->getEntityManager()
             ->getRepository(UserAccessControl::class)
-            ->findBy(['user' => $this->testUser->object(), 'permission' => $permission]);
+            ->findBy(['user' => $this->testUser, 'permission' => $permission]);
         self::assertCount(1, $initialPermissions);
 
         // Act
@@ -119,13 +99,13 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
         self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
         self::assertStringContainsString('Permission revoked successfully!', $output);
-        self::assertStringContainsString($this->testUser->object()->getLogin(), $output);
+        self::assertStringContainsString($this->testUser->getLogin(), $output);
         self::assertStringContainsString($permission, $output);
 
         // Verify permission was actually removed from database
         $remainingPermissions = $this->getEntityManager()
             ->getRepository(UserAccessControl::class)
-            ->findBy(['user' => $this->testUser->object(), 'permission' => $permission]);
+            ->findBy(['user' => $this->testUser, 'permission' => $permission]);
         self::assertCount(0, $remainingPermissions);
     }
 
@@ -133,12 +113,12 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
     {
         // Arrange
         $permission = 'area_admin_procedures';
-        $userId = $this->testUser->object()->getId();
+        $userId = $this->testUser->getId();
         $roleCode = $this->testRole->getCode();
 
         // First grant the permission
         $this->userAccessControlService->createUserPermission(
-            $this->testUser->object(),
+            $this->testUser,
             $permission,
             $this->testRole
         );
@@ -151,15 +131,18 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
         ]);
 
         // Assert
-        self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
+        if ($exitCode !== Command::SUCCESS) {
+            $this->fail("Command failed with exit code $exitCode. Output: " . $output);
+        }
+        self::assertSame(Command::SUCCESS, $exitCode);
         self::assertStringContainsString('Permission revoked successfully!', $output);
         self::assertStringContainsString($roleCode, $output);
 
         // Verify permission was removed for the correct role
         $remainingPermissions = $this->getEntityManager()
             ->getRepository(UserAccessControl::class)
-            ->findBy(['user' => $this->testUser->object(), 'permission' => $permission, 'role' => $this->testRole]);
+            ->findBy(['user' => $this->testUser, 'permission' => $permission, 'role' => $this->testRole]);
         self::assertCount(0, $remainingPermissions);
     }
 
@@ -202,7 +185,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
     {
         // Arrange
         $permission = 'area_admin_procedures';
-        $userId = $this->testUser->object()->getId();
+        $userId = $this->testUser->getId();
         $invalidRoleCode = 'INVALID_ROLE';
 
         // Act
@@ -222,7 +205,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
     {
         // Arrange
         $permission = 'area_admin_procedures';
-        $userId = $this->testUser->object()->getId();
+        $userId = $this->testUser->getId();
 
         // Act (try to revoke permission that doesn't exist)
         $exitCode = $this->commandTester->execute([
@@ -240,7 +223,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
     {
         // Arrange
         $invalidPermission = ''; // Empty permission
-        $userId = $this->testUser->object()->getId();
+        $userId = $this->testUser->getId();
 
         // Act
         $exitCode = $this->commandTester->execute([
@@ -258,7 +241,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
     {
         // Arrange
         $invalidPermission = '123_invalid_permission'; // Starts with number
-        $userId = $this->testUser->object()->getId();
+        $userId = $this->testUser->getId();
 
         // Act
         $exitCode = $this->commandTester->execute([
@@ -276,7 +259,7 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
     {
         // Arrange
         $permission = 'area_admin_procedures';
-        $userId = $this->testUser->object()->getId();
+        $userId = $this->testUser->getId();
 
         // Get a different role that the user doesn't have
         $differentRoles = $this->roleHandler->getUserRolesByCodes([RoleInterface::PRIVATE_PLANNING_AGENCY]);
