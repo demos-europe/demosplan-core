@@ -228,32 +228,41 @@ class AccessControlService extends CoreService
     private function addPermissionBasedOnOrgaType(string $permissionToEnable, RoleInterface $role, OrgaInterface $orgaInCustomer, CustomerInterface $customer, bool $dryRun): ?OrgaInterface
     {
         $orgaTypesInCustomer = $orgaInCustomer->getTypes($customer->getSubdomain(), true);
-        foreach ($orgaTypesInCustomer as $orgaTypeInCustomer) {
-            // If permission is 'CREATE_PROCEDURES_PERMISSION' and orga type is 'PLANNING_AGENCY' and role is not 'PRIVATE_PLANNING_AGENCY', skip it
-            if (self::CREATE_PROCEDURES_PERMISSION === $permissionToEnable
-                && OrgaTypeInterface::PLANNING_AGENCY === $orgaTypeInCustomer
-                && RoleInterface::PRIVATE_PLANNING_AGENCY !== $role->getCode()) {
-                continue;
-            }
-
-            // check whether role to grant the permission is allowed in the given orga type
-            // to avoid e.g. granting planner permission to institution orga
-            if (array_key_exists($orgaTypeInCustomer, OrgaTypeInterface::ORGATYPE_ROLE)
-                && !in_array($role->getCode(), OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeInCustomer], true)) {
-                continue;
-            }
-
-            // Do not store permission if it is dryrun
-            if (false === $dryRun) {
-                $this->createPermission($permissionToEnable, $orgaInCustomer, $customer, $role);
-            }
-
-            // Return orga where permission was stored
-            return $orgaInCustomer;
+        $canAddPermission = $this->canAddPermissionToOrgaType($permissionToEnable, $role, $orgaTypesInCustomer);
+        
+        if ($canAddPermission && !$dryRun) {
+            $this->createPermission($permissionToEnable, $orgaInCustomer, $customer, $role);
         }
+        
+        return $canAddPermission ? $orgaInCustomer : null;
+    }
 
-        // Return null if no orga is impacted
-        return null;
+    private function canAddPermissionToOrgaType(string $permissionToEnable, RoleInterface $role, array $orgaTypesInCustomer): bool
+    {
+        foreach ($orgaTypesInCustomer as $orgaTypeInCustomer) {
+            if ($this->shouldSkipPermissionForOrgaType($permissionToEnable, $role, $orgaTypeInCustomer)) {
+                continue;
+            }
+            
+            if ($this->isRoleAllowedForOrgaType($role, $orgaTypeInCustomer)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    private function shouldSkipPermissionForOrgaType(string $permissionToEnable, RoleInterface $role, string $orgaTypeInCustomer): bool
+    {
+        return self::CREATE_PROCEDURES_PERMISSION === $permissionToEnable
+            && OrgaTypeInterface::PLANNING_AGENCY === $orgaTypeInCustomer
+            && RoleInterface::PRIVATE_PLANNING_AGENCY !== $role->getCode();
+    }
+
+    private function isRoleAllowedForOrgaType(RoleInterface $role, string $orgaTypeInCustomer): bool
+    {
+        return !array_key_exists($orgaTypeInCustomer, OrgaTypeInterface::ORGATYPE_ROLE)
+            || in_array($role->getCode(), OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeInCustomer], true);
     }
 
     public function disablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false, ?string $orgaId = null): array
@@ -307,31 +316,37 @@ class AccessControlService extends CoreService
      */
     private function getOrganizationsToProcess(CustomerInterface $customer, ?string $orgaId = null): array
     {
-        // If specific organization ID is provided, validate and return only that organization
-        if (null !== $orgaId) {
-            $specificOrga = $this->orgaService->getOrga($orgaId);
-            if (null === $specificOrga) {
-                throw new InvalidArgumentException(sprintf('Organization with ID "%s" not found', $orgaId));
-            }
-
-            // Verify the organization belongs to the customer and get the properly managed entity
-            $orgasInCustomer = $this->orgaService->getOrgasInCustomer($customer);
-            $matchingOrga = null;
-            foreach ($orgasInCustomer as $orgaInCustomer) {
-                if ($orgaInCustomer->getId() === $specificOrga->getId()) {
-                    $matchingOrga = $orgaInCustomer;
-                    break;
-                }
-            }
-
-            if (null === $matchingOrga) {
-                throw new InvalidArgumentException(sprintf('Organization "%s" does not belong to customer "%s"', $orgaId, $customer->getId()));
-            }
-
-            return [$matchingOrga];
+        if (null === $orgaId) {
+            return $this->orgaService->getOrgasInCustomer($customer);
         }
+        
+        $specificOrga = $this->validateAndGetOrganization($orgaId);
+        $matchingOrga = $this->findMatchingOrgaInCustomer($specificOrga, $customer);
+        
+        return [$matchingOrga];
+    }
 
-        // Return all organizations in the customer
-        return $this->orgaService->getOrgasInCustomer($customer);
+    private function validateAndGetOrganization(string $orgaId): OrgaInterface
+    {
+        $specificOrga = $this->orgaService->getOrga($orgaId);
+        
+        if (null === $specificOrga) {
+            throw new InvalidArgumentException(sprintf('Organization with ID "%s" not found', $orgaId));
+        }
+        
+        return $specificOrga;
+    }
+
+    private function findMatchingOrgaInCustomer(OrgaInterface $specificOrga, CustomerInterface $customer): OrgaInterface
+    {
+        $orgasInCustomer = $this->orgaService->getOrgasInCustomer($customer);
+        
+        foreach ($orgasInCustomer as $orgaInCustomer) {
+            if ($orgaInCustomer->getId() === $specificOrga->getId()) {
+                return $orgaInCustomer;
+            }
+        }
+        
+        throw new InvalidArgumentException(sprintf('Organization "%s" does not belong to customer "%s"', $specificOrga->getId(), $customer->getId()));
     }
 }
