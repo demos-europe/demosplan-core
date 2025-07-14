@@ -53,6 +53,12 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
             'The name of the permission to be adjusted.'
         );
 
+        $this->addArgument(
+            'orgaId',
+            InputArgument::OPTIONAL,
+            'Optional organization ID to restrict changes to a specific organization. If not provided, affects all organizations in the customer.'
+        );
+
         $this->addOption(
             'dry-run',
             '',
@@ -90,6 +96,7 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
         $customerIdsString = $input->getArgument('customerIds');
         $roleIdsString = $input->getArgument('roleIds');
         $permissionName = $input->getArgument('permission');
+        $orgaId = $input->getArgument('orgaId');
         $dryRun = $input->getOption('dry-run');
 
         $roleIds = explode(',', $roleIdsString);
@@ -105,7 +112,7 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
                     throw new RoleNotFoundException('Role not found');
                 }
 
-                $updatedOrgas = $this->doExecuteAction($permissionChoice, $customerChoice, $roleChoice, $dryRun);
+                $updatedOrgas = $this->doExecuteAction($permissionChoice, $customerChoice, $roleChoice, $dryRun, $orgaId ? trim($orgaId) : null);
 
                 $this->displayUpdatedOrgas($output, $updatedOrgas);
 
@@ -135,7 +142,7 @@ abstract class PermissionForCustomerOrgaRoleCommand extends CoreCommand
         throw new InvalidArgumentException('Permission does not exit');
     }
 
-    abstract protected function doExecuteAction(string $permissionChoice, CustomerInterface $customerChoice, RoleInterface $roleChoice, mixed $dryRun): array;
+    abstract protected function doExecuteAction(string $permissionChoice, CustomerInterface $customerChoice, RoleInterface $roleChoice, mixed $dryRun, ?string $orgaId = null): array;
 
     abstract protected function getActionName(): string;
 }

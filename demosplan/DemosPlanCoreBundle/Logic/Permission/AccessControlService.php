@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use InvalidArgumentException;
 
 /**
  * This file is part of the package demosplan.
@@ -197,25 +198,30 @@ class AccessControlService extends CoreService
         $this->removePermission(self::CREATE_PROCEDURES_PERMISSION, $orga, $customer, $role);
     }
 
-    public function enablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false): array
+    public function enablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false, ?string $orgaId = null): array
     {
-        // enable permission for all orga on the given customer and role
-
-        $orgasInCustomer = $this->orgaService->getOrgasInCustomer($customer);
+        // If specific organization ID is provided, only process that organization
+        if (null !== $orgaId) {
+            $organizationsToProcess = $this->getOrganizationsToProcess($customer, $orgaId);
+        } else {
+            // Original behavior: enable permission for all orga on the given customer and role
+            $organizationsToProcess = $this->orgaService->getOrgasInCustomer($customer);
+        }
+        
         $updatedOrgas = [];
 
-        foreach ($orgasInCustomer as $orgaInCustomer) {
-            // If permisison is already stored, skip it
-            if (true === $this->permissionExist($permissionToEnable, $orgaInCustomer, $customer, [$role->getCode()])) {
+        foreach ($organizationsToProcess as $orgaToProcess) {
+            // If permission is already stored, skip it
+            if (true === $this->permissionExist($permissionToEnable, $orgaToProcess, $customer, [$role->getCode()])) {
                 continue;
             }
 
             // do not store permission for default citizen organisation
-            if ($orgaInCustomer->isDefaultCitizenOrganisation()) {
+            if ($orgaToProcess->isDefaultCitizenOrganisation()) {
                 continue;
             }
 
-            $updatedOrga = $this->addPermissionBasedOnOrgaType($permissionToEnable, $role, $orgaInCustomer, $customer, $dryRun);
+            $updatedOrga = $this->addPermissionBasedOnOrgaType($permissionToEnable, $role, $orgaToProcess, $customer, $dryRun);
 
             if (null !== $updatedOrga) {
                 $updatedOrgas[] = $updatedOrga;
@@ -256,26 +262,71 @@ class AccessControlService extends CoreService
         return null;
     }
 
-    public function disablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false): array
+    public function disablePermissionCustomerOrgaRole(string $permissionToEnable, CustomerInterface $customer, RoleInterface $role, bool $dryRun = false, ?string $orgaId = null): array
     {
-        $orgasInCustomer = $this->orgaService->getOrgasInCustomer($customer);
+        // If specific organization ID is provided, only process that organization
+        if (null !== $orgaId) {
+            $organizationsToProcess = $this->getOrganizationsToProcess($customer, $orgaId);
+        } else {
+            // Original behavior: process all organizations in customer
+            $organizationsToProcess = $this->orgaService->getOrgasInCustomer($customer);
+        }
+        
         $updatedOrgas = [];
 
-        foreach ($orgasInCustomer as $orgaInCustomer) {
-            // If permisison is already stored, skip it
-            if (false === $this->permissionExist($permissionToEnable, $orgaInCustomer, $customer, [$role->getCode()])) {
+        foreach ($organizationsToProcess as $orgaToProcess) {
+            // If permission is not stored, skip it
+            if (false === $this->permissionExist($permissionToEnable, $orgaToProcess, $customer, [$role->getCode()])) {
                 continue;
             }
 
             // Do not remove permission if it is dryrun
             if (false === $dryRun) {
-                $this->removePermission($permissionToEnable, $orgaInCustomer, $customer, $role);
+                $this->removePermission($permissionToEnable, $orgaToProcess, $customer, $role);
             }
 
             // Save the impacted orga in the array
-            $updatedOrgas[] = $orgaInCustomer;
+            $updatedOrgas[] = $orgaToProcess;
         }
 
         return $updatedOrgas;
+    }
+
+    /**
+     * Get the list of organizations to process based on the provided orgaId parameter.
+     * 
+     * @param CustomerInterface $customer The customer to get organizations from
+     * @param string|null $orgaId Optional organization ID to restrict to a specific organization
+     * @return OrgaInterface[] Array of organizations to process
+     * @throws InvalidArgumentException If orgaId is provided but organization is not found or doesn't belong to customer
+     */
+    private function getOrganizationsToProcess(CustomerInterface $customer, ?string $orgaId = null): array
+    {
+        // If specific organization ID is provided, validate and return only that organization
+        if (null !== $orgaId) {
+            $specificOrga = $this->orgaService->getOrga($orgaId);
+            if (null === $specificOrga) {
+                throw new InvalidArgumentException(sprintf('Organization with ID "%s" not found', $orgaId));
+            }
+
+            // Verify the organization belongs to the customer and get the properly managed entity
+            $orgasInCustomer = $this->orgaService->getOrgasInCustomer($customer);
+            $matchingOrga = null;
+            foreach ($orgasInCustomer as $orgaInCustomer) {
+                if ($orgaInCustomer->getId() === $specificOrga->getId()) {
+                    $matchingOrga = $orgaInCustomer;
+                    break;
+                }
+            }
+
+            if (null === $matchingOrga) {
+                throw new InvalidArgumentException(sprintf('Organization "%s" does not belong to customer "%s"', $orgaId, $customer->getId()));
+            }
+
+            return [$matchingOrga];
+        }
+
+        // Return all organizations in the customer
+        return $this->orgaService->getOrgasInCustomer($customer);
     }
 }
