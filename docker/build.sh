@@ -42,14 +42,24 @@ cp -r $folder/* $context
 cp -r $folder/.dockerignore $context
 # use --progress=plain to see all build output
 DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname --build-arg BUILD_MODE=$build_mode --secret id=envlocal,src=../.env.local -t $imagename:$version -f $folder/Dockerfile --target fpm $context
+
+# Build nginx image with / if project contains "diplan", otherwise with -
+if [[ $projectname == *"diplan"* ]]
+then
 DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname --build-arg BUILD_MODE=$build_mode -t $imagename/nginx:$version -f $folder/Dockerfile --target nginx $context
-# / is not always allowed in image names
+else
 DOCKER_BUILDKIT=1 docker build --build-arg PROJECT_NAME=$projectname --build-arg BUILD_MODE=$build_mode -t $imagename-nginx:$version -f $folder/Dockerfile --target nginx $context
+fi
 
 rm -rf $context
 
 if [[ $5 == "push" ]]
 then
 docker push $imagename:$version
+if [[ $projectname == *"diplan"* ]]
+then
 docker push $imagename/nginx:$version
+else
+docker push $imagename-nginx:$version
+fi
 fi
