@@ -286,7 +286,7 @@ export default {
       dpApi.post(Routing.generate('api_resource_create', { resourceType: 'SimilarStatementSubmitter' }), {}, { data: payload })
         .then(response => {
           // Assign backend generated id to local item
-          const similarStatementSubmitterId = this.listEntries[index].id = response.data.id
+          const similarStatementSubmitterId = this.listEntries[index].id = response.data.data.id
 
           // Update local state - statement
           this.updateStatement({

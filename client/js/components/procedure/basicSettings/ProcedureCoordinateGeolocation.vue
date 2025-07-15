@@ -141,18 +141,17 @@ export default {
         latitude: this.latitude,
         longitude: this.longitude
       })
-        .then(response => {
-          this.lookupStatus = LookupStatus.DONE
-
-          if (response.error) {
+        .then(({ data }) => {
+          if (data.error) {
             return
           }
 
-          this.ars = response[0].result.ars
-          this.locationName = response[0].result.locationName
-          this.locationPostalCode = response[0].result.locationPostalCode
-          this.municipalCode = response[0].result.municipalCode
-        }).catch(() => {
+          this.ars = data[0].result.ars
+          this.locationName = data[0].result.locationName
+          this.locationPostalCode = data[0].result.locationPostalCode
+          this.municipalCode = data[0].result.municipalCode
+        })
+        .finally(() => {
           this.lookupStatus = LookupStatus.DONE
         })
     }

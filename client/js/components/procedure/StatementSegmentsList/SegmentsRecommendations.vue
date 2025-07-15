@@ -186,7 +186,13 @@ export default {
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statementId }),
         {},
-        payload
+        payload,
+        {
+          messages: {
+            200: Translator.trans('confirm.statement.assignment.assigned'),
+            204: Translator.trans('confirm.statement.assignment.assigned')
+          }
+        }
       )
         .catch((err) => {
           // Restore statement in store in case request failed

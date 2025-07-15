@@ -253,12 +253,12 @@ export default {
         }),
         data: payload
       })
-        .then(response => {
-          const assignee = response.included.find(elem => elem.id === response.data.relationships.assignee.data.id)
-          const orgaName = response.included.find(elem => elem.type === 'Claim').attributes.orgaName
+        .then(({ data }) => {
+          const assignee = data.included.find(elem => elem.id === data.data.relationships.assignee.data.id)
+          const orgaName = data.included.find(elem => elem.type === 'Claim').attributes.orgaName
 
           // Commit mutation for each element
-          response.data.relationships.statements.data.forEach(statement => this.$store.commit('Statement/updateStatement', {
+          data.data.relationships.statements.data.forEach(statement => this.$store.commit('Statement/updateStatement', {
             id: statement.id,
             assignee: {
               id: assignee.id,

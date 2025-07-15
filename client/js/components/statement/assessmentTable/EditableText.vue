@@ -360,7 +360,7 @@ export default {
 
         // Check if it is the first update
         if (this.isInitialUpdate) {
-          this.uneditedFullText = response.data.original
+          this.uneditedFullText = response.data.data.original
           this.isInitialUpdate = false
         } else {
           this.uneditedFullText = this.fullText
