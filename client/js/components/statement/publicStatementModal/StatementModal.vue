@@ -63,12 +63,12 @@
             Schritt {{ step + 1 }} von {{ stepsData.length }}
           </div>
 
-          <div :class="prefixClass('mb-3 flex items-center justify-start gap-1')">
+          <div :class="prefixClass('mb-3 flex items-center gap-2')">
             <i
               v-if="stepsData[step].icon"
-              :class="[prefixClass('fa'), prefixClass(stepsData[step].icon), prefixClass('mt-[2px]')]"
+              :class="[prefixClass('fa'), prefixClass(stepsData[step].icon), prefixClass('text-lg leading-none mt-[2px]')]"
               aria-hidden="true" />
-            <h3 :class="prefixClass('m-0 text-lg font-medium')">
+            <h3 :class="prefixClass('m-0 text-lg leading-none font-medium')">
               {{  stepsData[step].label }}
             </h3>
           </div>
@@ -129,17 +129,18 @@
             }"
             value="0" />
           <dp-radio
-            :disabled="canNotBeNegativeReport"
-            name="r_isNegativeReport"
             id="negative_report_true"
-            data-cy="statementModal:indicationerror"
             :checked="formData.r_isNegativeReport === '1'"
-            @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
+            data-cy="statementModal:indicationerror"
+            :disabled="canNotBeNegativeReport"
             :label="{
               hint: Translator.trans('link.title.indicationerror'),
               text: Translator.trans('indicationerror')
             }"
-            value="1" />
+            name="r_isNegativeReport"
+            value="1"
+            @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
+          />
         </div>
 
         <div :class="prefixClass('c-statement__text')">
@@ -148,11 +149,9 @@
             for="statementText"
             :required="formData.r_isNegativeReport !== '1'" />
           <dp-editor
+            id="statementText"
             :class="prefixClass('u-mb')"
             :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
-            hidden-input="r_text"
-            id="statementText"
-            ref="statementEditor"
             :readonly="formData.r_isNegativeReport === '1'"
             :required="formData.r_isNegativeReport !== '1'"
             :toolbar-items="{
@@ -160,6 +159,8 @@
               strikethrough: true
             }"
             :value="formData.r_text || ''"
+            hidden-input="r_text"
+            ref="statementEditor"
             @input="val => setStatementData({r_text: val})" />
         </div>
         <div
@@ -582,7 +583,7 @@
           :key="formDefinition.key"
           :draft-statement-id="draftStatementId"
           :required="formDefinition.required" />
-        <div :class="prefixClass('flex flex-col sm:flex-row justify-end gap-2 mt-4')">
+        <div :class="prefixClass('flex flex-col sm:flex-row justify-between gap-2 mt-6')">
           <button
             :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
             data-cy="statementModal:backToStatement"
@@ -658,7 +659,7 @@
           required
           @change="val => setStatementData({r_gdpr_consent: val ? 'on' : 'off'})" />
 
-        <div :class="prefixClass('flex flex-col sm:flex-row justify-end gap-2 mt-4')">
+        <div :class="prefixClass('flex flex-col sm:flex-row justify-between gap-2 mt-6')">
           <button
             :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
             data-cy="statementModal:backToPersonalData"
