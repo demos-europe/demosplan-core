@@ -534,7 +534,7 @@ export default {
     fetchFullTextById (originalStatementId) {
       return this.fetchOriginalStatementById(originalStatementId)
         .then(response => {
-          const { fullText } = response.data.attributes
+          const { fullText } = response.data.data.attributes
           this.toggleIsFullTextDisplayed(originalStatementId, true, fullText)
         })
     },

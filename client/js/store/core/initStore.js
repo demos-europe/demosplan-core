@@ -33,7 +33,7 @@ function registerPresetModules (store, presetStoreModules) {
   return store
 }
 
-const handleResponse = async response => {
+const handleResponse = async (response, messages = {}) => {
   // If the response body is empty, contentType will be null
   const contentType = response.headers.get('Content-Type')
   let payload = null
@@ -44,7 +44,7 @@ const handleResponse = async response => {
     payload = await response
   }
 
-  return checkResponse({ data: payload, status: '200', ok: 'ok', url: payload.url })
+  return checkResponse({ data: payload, status: '200', ok: 'ok', url: payload.url }, messages)
 }
 
 function initStore (storeModules, apiStoreModules, presetStoreModules) {

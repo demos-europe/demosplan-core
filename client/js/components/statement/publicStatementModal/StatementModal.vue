@@ -1120,7 +1120,7 @@ export default {
         method: 'GET',
         url: Routing.generate('DemosPlan_statement_get_ajax', { procedureId: this.procedureId, draftStatementId: this.draftStatementId })
       })
-        .then(data => {
+        .then(({ data }) => {
           this.hasPlanningDocuments = data.hasPlanningDocuments || this.initHasPlanningDocuments
 
           if (draftExists === false) {

@@ -156,7 +156,7 @@ export default {
 
       this.createTagAction({ tag: this.tag, topicId })
         .then(response => {
-          const newTag = response.data
+          const newTag = response.data.data
 
           newTag.relationships = {
             topic: {

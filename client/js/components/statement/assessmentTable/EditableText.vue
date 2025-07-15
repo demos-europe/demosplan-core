@@ -356,37 +356,34 @@ export default {
         params,
         { serialize: true }
       ).then(response => {
+        const responseData = response.data.data
         this.fullTextLoaded = true
 
         // Check if it is the first update
         if (this.isInitialUpdate) {
-          this.uneditedFullText = response.data.data.original
+          this.uneditedFullText = responseData.original
           this.isInitialUpdate = false
         } else {
           this.uneditedFullText = this.fullText
         }
 
         // As far as i get it, this should always be the same if the update succeeds ?!?
-        if (hasOwnProp(response.data, 'original')) {
-          this.fullText = response.data.original
+        if (hasOwnProp(responseData, 'original')) {
+          this.fullText = responseData.original
         }
 
         if (fullUpdate && hasOwnProp(response.data, 'shortened')) {
-          this.shortText = response.data.shortened
+          this.shortText = responseData.shortened
         }
 
-        if (hasOwnProp(response.data, 'shortened')) {
+        if (hasOwnProp(responseData, 'shortened')) {
           this.isShortened = this.fullText.length > this.shortText.length
         }
-
-        console.log('EditableText: update')
       })
         .then(() => {
-          console.log('EditableText: update  callbacks')
           return callback
         })
         .finally(() => {
-          console.log('EditableText: update finally')
           this.loading = false
         })
     }

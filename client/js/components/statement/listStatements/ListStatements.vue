@@ -865,9 +865,9 @@ export default {
 
     getStatementsFullText (statementId) {
       return dpApi.get(Routing.generate('api_resource_get', { resourceType: 'Statement', resourceId: statementId }), { fields: { Statement: ['fullText'].join() } })
-        .then((response) => {
+        .then(response => {
           const oldStatement = Object.values(this.statementsObject).find(el => el.id === statementId)
-          const fullText = response.data.attributes.fullText
+          const fullText = response.data.data.attributes.fullText
           const updatedStatement = { ...oldStatement, attributes: { ...oldStatement.attributes, fullText, isFulltextDisplayed: true } }
           this.setStatement({ ...updatedStatement, id: statementId })
         })
@@ -884,7 +884,7 @@ export default {
              * Error messages are displayed with "checkResponse", but we need to check for error here to, because
              * we also get 200 status with an error
              */
-            if (!response[0].error) {
+            if (!response.data[0].error) {
               this.getItemsByPage(this.currentPage)
               this.resetSelection()
             }
@@ -950,23 +950,10 @@ export default {
       console.log(`Deleting statement with id ${id}`)
       if (window.confirm(Translator.trans('check.statement.delete'))) {
         // Override the default success callback to display a custom message
-        this.$store.api.successCallbacks[0] = async (success) => {
-          let response = null
-          // If the response body is empty, contentType will be null
-          const contentType = success.headers.get('Content-Type')
-
-          if (contentType && contentType.includes('json')) {
-            response = await success.json()
-          } else {
-            response = await success
-          }
-
-          return checkResponse({ data: response.data ?? response, status: response.status, ok: response.ok, url: response.url },
-            {
-              200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
-              204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') }
-            })
-        }
+        this.$store.api.successCallbacks[0] = async (success) => this.$store.api.handleResponse(success, {
+          200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
+          204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') }
+        })
 
         this.deleteStatement(id)
           .then(() => {

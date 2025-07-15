@@ -174,8 +174,8 @@ export default {
       }
 
       dpApi.get(url)
-        .then(responseData => {
-          this.items = responseData.data
+        .then(({ data }) => {
+          this.items = data.data
           this.items.pop()
         })
         .catch(() => {
