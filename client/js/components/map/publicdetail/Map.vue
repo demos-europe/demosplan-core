@@ -167,7 +167,8 @@ export default {
       projectionUnits: 'm',
       scope: {},
       statementActionFields: {},
-      selectedValue: ''
+      selectedValue: '',
+      queryArea: null
     }
   },
 
@@ -467,39 +468,6 @@ export default {
       let visible = true
       let layer
       let baseLayer
-
-      if (PROJECT && PROJECT === 'robobsh') {
-        // @TODO find out why url gets prefixed with current page's url
-        const tmpDanmarkURL = this.mapDanmarkLayer.slice(this.mapDanmarkLayer.lastIndexOf('https'))
-        const danmarkSource = new TileWMS({
-          url: tmpDanmarkURL,
-          params: {
-            LAYERS: 'dtk_skaermkort_graa',
-            FORMAT: 'image/png',
-            login: 'dataport_wms_dk',
-            password: 'dataport_wms_dk',
-            client: 'arcGIS',
-            servicename: 'topo_skaermkort',
-            transparent: 'TRUE'
-          },
-          projection: this.mapprojection,
-          tileGrid: new TileGrid({
-            origin: getTopLeft(this.mapProjectionExtent),
-            resolutions: this.resolutions
-          })
-        })
-
-        // Add custom Baselayer for danmark
-        this.baseLayers.push(new TileLayer({
-          name: 'customBaselayerDanmark',
-          preload: 10,
-          visible: true,
-          source: danmarkSource,
-          doNotToggleLayer: true
-        }))
-
-        this.bindLoadingEvents(danmarkSource)
-      }
 
       for (; i < l; i++) {
         layer = layers[i]
@@ -857,7 +825,6 @@ export default {
         })
       }
 
-      let queryArea
       //  Add 'queryArea' behavior
       if (PROJECT && PROJECT === 'robobsh' && dplan.procedureStatementPriorityArea) {
         /*
@@ -887,7 +854,7 @@ export default {
           })
         })
 
-        queryArea = evt => {
+        this.queryArea = evt => {
           const viewResolution = (this.mapview.getResolution())
           const coordinate = evt.coordinate
 
@@ -934,10 +901,66 @@ export default {
                         text: popUpContent
                       }, coordinate)
                     } else {
-                      this.showPopup('contentPopup', {
-                        title: Translator.trans('error.generic'),
-                        text: popUpContent
-                      }, coordinate)
+                      // Query priority area after successful planning area validation
+                      dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), {
+                        params: remappedUrl,
+                        infotype: 'vorranggebietId'
+                      }).then(response => {
+                        const parsedData = JSON.parse(response.data)
+                        if (parsedData.code === 100 && parsedData.success && parsedData.body !== null) {
+                          // Silently store priority area data for statement form submission
+                          this.statementActionFields = {
+                            r_location: 'point',
+                            r_location_priority_area_key: parsedData.body.key,
+                            r_location_priority_area_type: parsedData.body.type,
+                            r_location_point: '',
+                            r_location_geometry: '',
+                            location_is_set: 'priority_area'
+                          }
+                          window.statementActionState = 'locationPriorityAreaAdded'
+                        }
+
+                        // Show priority area popup with action button if priority area found
+                        if (parsedData.body !== null) {
+                          const priorityAreaContent = {
+                            title: Translator.trans('potential.areas'),
+                            text: `${Translator.trans('potential.areas')} ${parsedData.body.key} (${parsedData.body.type})`
+                          }
+                          this.resetPopup()
+                          this.showPopup('contentPopup', priorityAreaContent, coordinate)
+                        } else {
+                          // If no priority area found, show regular getFeatureInfo
+                          const $popup = $(this.popupoverlay.getElement())
+                          const viewResolution = this.mapview.getResolution()
+                          const remappedCriteriaUrl = getFeatureinfoSource.getSource().getFeatureInfoUrl(
+                            coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: 'text/html' }
+                          ).split('?')[1]
+
+                          if (remappedCriteriaUrl) {
+                            this.resetPopup()
+                            $popup.addClass(this.prefixClass('c-map__popup--scrollable c-map__popup--large c-map__popup--hide-action'))
+                            this.showPopup('criteriaPopup', '', coordinate)
+                            $popup.find('#popupContent h3').addClass(this.prefixClass('is-progress'))
+
+                            dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), {
+                              params: remappedCriteriaUrl
+                            }).then(criteriaResponse => {
+                              const criteriaData = JSON.parse(criteriaResponse.data)
+                              if (criteriaData.code === 100 && criteriaData.success) {
+                                if (criteriaData.body !== null) {
+                                  let popupContent = criteriaData.body
+                                  if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s\t\n\r↵]*<\/table>/mg) !== null) {
+                                    popupContent = Translator.trans('map.getfeatureinfo.none')
+                                  }
+                                  this.showPopup('criteriaPopup', popupContent, coordinate)
+                                } else {
+                                  this.showPopup('criteriaPopup', Translator.trans('map.getfeatureinfo.none'), coordinate)
+                                }
+                              }
+                            }).catch(e => console.error(e))
+                          }
+                        }
+                      }).catch(e => console.error(e))
                     }
                   })
                   .catch(e => {
@@ -954,12 +977,12 @@ export default {
         //  Add 'queryArea' button behavior
         $('#queryAreaButton').on('click touchstart', () => {
           this.handleButtonInteraction('queryarea', '#queryAreaButton', () => {
-            this.mapSingleClickListener = this.map.on('singleclick', queryArea)
+            this.mapSingleClickListener = this.map.on('singleclick', this.queryArea)
           })
         })
 
         //  Bind 'queryArea' behavior to click on map when initially loading
-        this.mapSingleClickListener = this.map.on('singleclick', queryArea)
+        this.mapSingleClickListener = this.map.on('singleclick', this.queryArea)
       }
 
       /*
@@ -1561,8 +1584,8 @@ export default {
       } else {
         this.activeclickcontrol = ''
 
-        if (PROJECT && PROJECT === 'robobsh' && dplan.procedureStatementPriorityArea) {
-          this.mapSingleClickListener = this.map.on('singleclick', queryArea)
+        if (PROJECT && PROJECT === 'robobsh' && dplan.procedureStatementPriorityArea && this.queryArea) {
+          this.mapSingleClickListener = this.map.on('singleclick', this.queryArea)
         }
       }
       this.$root.$emit('changeActive')
@@ -1889,6 +1912,16 @@ export default {
 
       if (templateId === 'markLocationPopup') {
         $popup.find('#popupAction').html(window.dplan.statement.showMapButtonState(templateId)).show()
+      }
+
+      if (templateId === 'contentPopup' && window.statementActionState === 'locationPriorityAreaAdded') {
+        // Ensure popup action button is visible and has correct content
+        const actionButton = $popup.find('#popupAction')
+        if (actionButton.length > 0) {
+          actionButton.html(Translator.trans('statement.new')).show()
+        }
+        // Also remove the hide-action class if present
+        $popup.removeClass(this.prefixClass('c-map__popup--hide-action'))
       }
 
       olPopup.setPosition(undefined)
