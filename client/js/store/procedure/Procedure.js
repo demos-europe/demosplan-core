@@ -62,7 +62,7 @@ const ProcedureStore = {
       }).then(response => {
         commit('reset')
         nextTick(() => {
-          const procedures = response.data.map(el => {
+          const procedures = response.data.data.map(el => {
             return {
               ...el.attributes,
               id: el.id

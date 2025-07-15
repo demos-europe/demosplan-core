@@ -189,8 +189,14 @@ export default {
         payload,
         {
           messages: {
-            200: Translator.trans('confirm.statement.assignment.assigned'),
-            204: Translator.trans('confirm.statement.assignment.assigned')
+            200: {
+              text: Translator.trans('confirm.statement.assignment.assigned'),
+              type: 'confirm'
+            },
+            204: {
+              text: Translator.trans('confirm.statement.assignment.assigned'),
+              type: 'confirm'
+            }
           }
         }
       )

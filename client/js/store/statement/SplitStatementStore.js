@@ -365,7 +365,7 @@ const SplitStatementStore = {
         }
       }))
         .then(response => {
-          commit('setProperty', { prop: 'statement', val: response.data })
+          commit('setProperty', { prop: 'statement', val: response.data.data })
         })
     },
 

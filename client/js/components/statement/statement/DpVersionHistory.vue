@@ -143,9 +143,9 @@ export default {
         method: 'GET',
         url: Routing.generate(route, params)
       })
-        .then(response => {
-          this.days = response.data
-          this.times = response.included
+        .then(({ data }) => {
+          this.days = data.data
+          this.times = data.included
           this.isLoading = false
         })
     },

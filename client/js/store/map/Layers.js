@@ -408,7 +408,7 @@ const LayersStore = {
           }
         }
       }))
-        .then(data => {
+        .then(({ data }) => {
           commit('updateApiData', data)
           commit('saveOriginalState', data)
           commit('setVisibilityGroups')

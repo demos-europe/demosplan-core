@@ -459,8 +459,8 @@ export default {
     },
 
     setOrganisationWithDepartments (response) {
-      const userOrga = { ...response.data.attributes, id: response.data.id, type: response.data.type }
-      const relationships = response.data.relationships
+      const userOrga = { ...response.data.data.attributes, id: response.data.data.id, type: response.data.data.type }
+      const relationships = response.data.data.relationships
       const departments = response.included
       userOrga.departments = this.setOrganisationDepartments(departments)
 

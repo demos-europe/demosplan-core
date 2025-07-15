@@ -35,23 +35,27 @@ export default function DeleteFragmentButton () {
           data: formData,
           options: {
             messages: {
-              200: Translator.trans('confirm.fragment.deleted'),
-              204: Translator.trans('confirm.fragment.deleted')
+              200: {
+                text: Translator.trans('confirm.fragment.deleted'),
+                type: 'confirm'
+              },
+              204: {
+                text: Translator.trans('confirm.fragment.deleted'),
+                type: 'confirm'
+              },
+              400: {
+                text: Translator.trans('error.delete'),
+                type: 'error'
+              }
             }
           }
         })
-          .then((data) => {
+          .then(({ data }) => {
             if (data.data.code === 200 && data.data.success === true) {
-              dplan.notify.notify('confirm', Translator.trans('confirm.fragment.deleted'))
               // Remove Item from DOM
               const target = document.querySelector('[data-post-delete-target="' + elem.getAttribute('data-target-id') + '"]')
               target.parentNode.removeChild(target)
-            } else {
-              dplan.notify.notify('error', Translator.trans('error.delete'))
             }
-          })
-          .catch(() => {
-            dplan.notify.notify('error', Translator.trans('error.delete'))
           })
       }
     }))

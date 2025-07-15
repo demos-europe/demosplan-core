@@ -277,9 +277,18 @@ export default {
         payload,
         {
           messages: {
-            200: Translator.trans('segment.claim.success'),
-            204: Translator.trans('segment.claim.success'),
-            400: Translator.trans('segment.claim.fail')
+            200: {
+              text: Translator.trans('segment.claim.success'),
+              type: 'confirm'
+            },
+            204: {
+              text: Translator.trans('segment.claim.success'),
+              type: 'confirm'
+            },
+            400: {
+              text: Translator.trans('segment.claim.fail'),
+              type: 'error'
+            }
           }
         }
       )

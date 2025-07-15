@@ -256,7 +256,7 @@ const Filter = {
         method: 'GET',
         url: Routing.generate(route, { procedureId: state.procedureId })
       })
-        .then(data => {
+        .then(({ data }) => {
           commit('updateFilterList', data.data)
         })
         .catch(error => {
@@ -320,7 +320,7 @@ const Filter = {
         }
       }
       return dpApi.get(url, params)
-        .then(data => commit('updateUserFilterSets', data))
+        .then(({ data }) => commit('updateUserFilterSets', data))
         .catch((err) => {
           console.error(Translator.trans('filter.saveFilterSet.load.error'), err)
         })

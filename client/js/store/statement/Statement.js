@@ -438,7 +438,6 @@ export default {
           targetProcedureId: data.procedureId
         })
       })
-        .then(response => response)
     },
 
     /**
@@ -464,7 +463,7 @@ export default {
           data.relationships.statements.data.forEach(stn => dispatch('removeStatementAction', stn.id))
 
           // Transform newCluster from BE from JSON:API structure into our old structure
-          const transformedStatement = transformStatementStructure({ el: response.data, includes: response.included, meta: response.meta })
+          const transformedStatement = transformStatementStructure({ el: response.data.data, includes: response.data.included, meta: response.data.meta })
 
           // Add new cluster to store with addStatement mutation
           commit('addStatement', transformedStatement)
@@ -680,7 +679,6 @@ export default {
           deleteVersionHistory: data.deleteVersionHistory
         }
       })
-        .then(response => response)
     },
 
     /**
