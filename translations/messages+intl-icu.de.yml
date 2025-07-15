@@ -2907,6 +2907,7 @@ public.participation.panel.institution.description_1: "Institutionen benötigen 
 public.participation.panel.institution.description_2: "<a class=\"{css}\" href=\"{url}\">Jetzt registrieren.</a>"
 public.participation.participate: "Stellung nehmen"
 public.participation.publication: "Veröffentlichung von Stellungnahmen von Bürger*innen in diesem Verfahren erlauben"
+public.participation.feedback: 'Die Checkbox "Ich möchte informiert werden, wenn die Auswertung der Stellungnahme online verfügbar ist" für die Bürger*innen hinzufügen.'
 public.participation.receive_notifications: "Expert*innen prüfen Ihre Stellungnahme. Lassen Sie sich über das Ergebnis informieren!"
 public.participation.relation: "Ortsbezug"
 public.participation.relation.map: "Ortsbezug in der Karte"
