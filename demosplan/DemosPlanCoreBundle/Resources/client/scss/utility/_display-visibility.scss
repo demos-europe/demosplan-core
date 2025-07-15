@@ -140,21 +140,3 @@
     }
 }
 
-// Custom breakpoint for StatementModal.vue navigation (710px)
-.mobile-nav {
-    display: block;
-}
-
-.tablet-desktop-nav {
-    display: none;
-}
-
-@media screen and (min-width: 710px) {
-    .mobile-nav {
-        display: none;
-    }
-
-    .tablet-desktop-nav {
-        display: block;
-    }
-}
