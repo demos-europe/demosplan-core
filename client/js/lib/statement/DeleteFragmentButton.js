@@ -35,7 +35,8 @@ export default function DeleteFragmentButton () {
           data: formData,
           options: {
             messages: {
-              200: Translator.trans('confirm.fragment.deleted')
+              200: Translator.trans('confirm.fragment.deleted'),
+              204: Translator.trans('confirm.fragment.deleted')
             }
           }
         })

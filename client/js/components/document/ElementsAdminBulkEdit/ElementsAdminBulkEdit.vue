@@ -173,9 +173,11 @@ export default {
       }
 
       dpRpc('planning.document.category.bulk.edit', params)
-        .then((response) => {
-          this.actions.setEnabled.success = (hasOwnProp(response, 'data') && hasOwnProp(response.data[0], 'result'))
-          this.actions.setEnabled.elementsCount = (hasOwnProp(response, 0) && response[0]?.result)
+        .then(response => {
+          const result = response.data?.[0]?.result
+
+          this.actions.setEnabled.success = !!result
+          this.actions.setEnabled.elementsCount = result
         })
         .catch(() => {
           this.actions.setEnabled.success = false

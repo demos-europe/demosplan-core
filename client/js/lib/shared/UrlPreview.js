@@ -33,13 +33,13 @@ export default function UrlPreview () {
       const orgaPreview = document.getElementById(organisationId + ':urlPreview')
 
       return dpApi.post(Routing.generate('dp_api_slug_draft_create'), {}, payload)
-        .then((response) => {
+        .then(response => {
           if (orgaPreview) {
             const shortUrl = orgaPreview.getAttribute('data-shorturl')
-            orgaPreview.textContent = shortUrl + response.data.attributes.slugifiedValue
+            orgaPreview.textContent = shortUrl + response.data.data.attributes.slugifiedValue
           } else if (shortUrlPreview) {
             const shortUrl = shortUrlPreview.getAttribute('data-shorturl')
-            shortUrlPreview.textContent = shortUrl + response.data.attributes.slugifiedValue
+            shortUrlPreview.textContent = shortUrl + response.data.data.attributes.slugifiedValue
           }
         })
     })

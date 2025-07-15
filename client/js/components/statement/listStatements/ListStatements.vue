@@ -947,16 +947,32 @@ export default {
     },
 
     triggerStatementDeletion (id) {
+      console.log(`Deleting statement with id ${id}`)
       if (window.confirm(Translator.trans('check.statement.delete'))) {
-        this.$store.api.successCallbacks[0] = response => checkResponse(response, {
-          200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
-          204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') }
-        })
+        // Override the default success callback to display a custom message
+        this.$store.api.successCallbacks[0] = async (success) => {
+          let response = null
+          // If the response body is empty, contentType will be null
+          const contentType = success.headers.get('Content-Type')
+
+          if (contentType && contentType.includes('json')) {
+            response = await success.json()
+          } else {
+            response = await success
+          }
+
+          return checkResponse({ data: response.data ?? response, status: response.status, ok: response.ok, url: response.url },
+            {
+              200: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') },
+              204: { type: 'confirm', text: Translator.trans('confirm.statement.deleted') }
+            })
+        }
 
         this.deleteStatement(id)
           .then(() => {
             this.getItemsByPage(this.pagination.currentPage)
-            this.$store.api.successCallbacks[0] = checkResponse
+            // Reset the custom success callback to the default one
+            this.$store.api.successCallbacks[0] = this.$store.api.handleResponse
           })
       }
     },
