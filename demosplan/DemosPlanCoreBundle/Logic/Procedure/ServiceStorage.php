@@ -485,6 +485,14 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $procedure['publicParticipationPublicationEnabled'] = false;
         }
 
+        if ($this->permissions->hasPermission('feature_feedback_on_statement_controllable')) {
+            if (array_key_exists('r_publicParticipationFeedbackEnabled', $data)) {
+                $procedure['settings']['publicParticipationFeedbackEnabled'] = true;
+            } else {
+                $procedure['settings']['publicParticipationFeedbackEnabled'] = false;
+            }
+        }
+
         // liegt das Enddatum vor dem Startdatum?
         if (isset($procedure['endDate']) && strtotime((string) $procedure['endDate']) < strtotime((string) $procedure['startDate'])) {
             $mandatoryErrors[] = [
