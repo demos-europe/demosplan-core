@@ -19,7 +19,6 @@ function toggleFlyout (e) {
   const isCurrentlyExpanded = flyoutBox.classList.contains('is-expanded')
 
   if (isCurrentlyExpanded) {
-    // Close this specific flyout
     flyoutBox.classList.remove('is-expanded')
     flyoutLink.classList.remove('is-current')
     document.querySelector('body').classList.remove('has-open-flyout')
@@ -43,12 +42,10 @@ function closeFlyout (e) {
   const clickTarget = e.target
   const body = document.querySelector('body')
 
-  // Don't close if clicked on a flyout trigger or inside flyout content
   if (clickTarget.closest('[data-touch-flyout]') || clickTarget.closest('.c-flyout__content')) {
     return
   }
 
-  // Only close if body has the open flyout class
   if (body.classList.contains('has-open-flyout')) {
     closeAllFlyouts()
   }
