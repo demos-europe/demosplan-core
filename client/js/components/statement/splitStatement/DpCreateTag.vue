@@ -155,7 +155,7 @@ export default {
       const tagPayload = this.prepareTagPayload()
 
       this.createTagAction({ tag: this.tag, topicId })
-        .then(response => {
+        .then((response) => {
           const newTag = response.data.data
 
           newTag.relationships = {

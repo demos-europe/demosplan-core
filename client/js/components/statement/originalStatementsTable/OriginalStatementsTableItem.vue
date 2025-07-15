@@ -329,7 +329,7 @@ export default {
           this.updateStatement({
             id: this.statementId,
             shortText: this.statement.text,
-            text: response.data.original
+            text: response.data.data.original
           })
         })
         .then(callback)

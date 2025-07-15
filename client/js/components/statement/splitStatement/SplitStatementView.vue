@@ -517,8 +517,8 @@ export default {
           ].join()
         },
         sort: 'sortIndex'
-      })).then(response => {
-        const availablePlaces = response.data.map(place => {
+      })).then((response) => {
+        const availablePlaces = response.data.data.map(place => {
           return {
             name: place.attributes.name,
             id: place.id,

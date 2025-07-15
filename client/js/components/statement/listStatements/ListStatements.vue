@@ -633,15 +633,14 @@ export default {
         }
 
         return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
-          .then(response => {
+          .then(() => {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned'))
-
-            return response
           })
           .catch((err) => {
             console.error(err)
             // Restore statement in store in case request failed
             this.restoreStatementAction(statementId)
+
             return err
           })
           .finally(() => {
@@ -946,7 +945,6 @@ export default {
     },
 
     triggerStatementDeletion (id) {
-      console.log(`Deleting statement with id ${id}`)
       if (window.confirm(Translator.trans('check.statement.delete'))) {
         // Override the default success callback to display a custom message
         this.$store.api.successCallbacks[0] = async (success) => this.$store.api.handleResponse(success, {
