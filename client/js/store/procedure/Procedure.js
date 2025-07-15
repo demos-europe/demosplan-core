@@ -74,7 +74,7 @@ const ProcedureStore = {
         commit('setProperty', { prop: 'currentView', val: 'DpList' })
         commit('setProperty', { prop: 'shouldMapZoomBeSet', val: true })
 
-        return response.data
+        return response.data.data
       })
     },
 

@@ -461,7 +461,7 @@ export default {
     setOrganisationWithDepartments (response) {
       const userOrga = { ...response.data.data.attributes, id: response.data.data.id, type: response.data.data.type }
       const relationships = response.data.data.relationships
-      const departments = response.included
+      const departments = response.data.included
       userOrga.departments = this.setOrganisationDepartments(departments)
 
       this.setCurrentUserOrganisation(userOrga, relationships)

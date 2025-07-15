@@ -29,7 +29,7 @@ const UserFormFields = {
     fetchOrgaSuggestions ({ commit }) {
       if (hasPermission('area_organisations') || hasPermission('feature_organisation_user_list')) {
         const url = Routing.generate('dplan_api_organisation_list') + '?' + qs.stringify({ page: { number: 1, size: 500 } }) + '&' + qs.stringify({ include: 'departments' })
-        dpApi.get(url).then(response => {
+        dpApi.get(url).then((response) => {
           const organisations = []
           const inclDepartments = {}
 
