@@ -19,6 +19,7 @@ function toggleFlyout (e) {
   const isCurrentlyExpanded = flyoutBox.classList.contains('is-expanded')
 
   if (isCurrentlyExpanded) {
+    // Close this specific flyout
     flyoutBox.classList.remove('is-expanded')
     flyoutLink.classList.remove('is-current')
     document.querySelector('body').classList.remove('has-open-flyout')
@@ -47,6 +48,7 @@ function closeFlyout (e) {
     return
   }
 
+  // Only close if body has the open flyout class
   if (body.classList.contains('has-open-flyout')) {
     closeAllFlyouts()
   }
