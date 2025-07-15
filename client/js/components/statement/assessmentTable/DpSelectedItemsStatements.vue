@@ -102,7 +102,6 @@
 
 <script>
 import {
-
   dpApi,
   DpLoading,
   dpRpc,
@@ -291,8 +290,8 @@ export default {
 
       if (params.statementIds.length > 0) {
         dpRpc('statements.bulk.copy', params)
-          .then((response) => {
-            if (response[0].error) {
+          .then(({ data }) => {
+            if (data[0].error) {
               dplan.notify.notify('error', Translator.trans('error.copy'))
               return
             }

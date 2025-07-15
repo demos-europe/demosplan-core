@@ -219,19 +219,19 @@ export default {
         dataForRequest[el.name] = el.value
       })
       return makeFormPost(dataForRequest, Routing.generate('DemosPlan_statement_fragment_edit_reviewer_ajax', { fragmentId: this.fragmentId }))
-        .then(response => {
+        .then(({ data }) => {
           /*
            *  If fragment has been reassigned to planners by clicking 'fragment.update.complete.button',
            *  remove respective item from DOM
            */
           if (button === 'notifyButton') {
-            this.$root.$emit('fragment-reassigned', response.data)
+            this.$root.$emit('fragment-reassigned', data.data)
           } else {
-            this.$root.$emit('fragment-saved', response.data)
+            this.$root.$emit('fragment-saved', data.data)
 
             //  Set this to new data
-            this.considerationAdvice = response.data.considerationAdvice
-            this.voteAdvice = response.data.voteAdvice || { name: '-', title: '', value: '' }
+            this.considerationAdvice = data.data.considerationAdvice
+            this.voteAdvice = data.data.voteAdvice || { name: '-', title: '', value: '' }
           }
         })
         .catch(err => {

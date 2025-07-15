@@ -204,8 +204,7 @@ export default {
     setFields () {
       dpRpc('elasticsearchFieldDefinition.provide', this.elasticsearchFieldDefinition)
         .then(response => {
-          const fields = response[0].result
-          console.log('elasticsearchFieldDefinition.provide', fields)
+          const fields = response.data[0].result
           // The response has to be transformed as the rpc sends the ids as keys.
           this.fields = Object.keys(fields).map((field) => {
             return {

@@ -560,7 +560,7 @@ export default {
 
       dpRpc('segment.bulk.edit', params)
         .then((response) => {
-          const rpcResult = this.getRpcResult(response)
+          const rpcResult = this.getRpcResult(response.data)
 
           for (const property in this.actions) {
             if (property === 'customFields') {
@@ -635,7 +635,7 @@ export default {
       })
       return dpApi.get(url)
         .then(response => {
-          this.places = response.data.map(place => {
+          this.places = response.data.data.map(place => {
             return {
               id: place.id,
               name: place.attributes.name

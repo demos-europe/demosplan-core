@@ -704,7 +704,7 @@ export default {
 
           // Update short and full texts in EditableText.vue
           if (field === 'text' || field === 'consideration' || field === 'considerationAdvice') {
-            this.$root.$emit('entityTextSaved:' + this.fragmentId, { entityId: this.fragmentId, field: field })
+            this.$root.$emit('entityTextSaved:' + this.fragmentId, { entityId: this.fragmentId, field })
           }
 
           //  Unset loading state of saved field

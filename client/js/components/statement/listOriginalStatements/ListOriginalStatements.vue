@@ -264,7 +264,6 @@
 <script>
 import {
   formatDate as _formatDate,
-
   CleanHtml,
   dpApi,
   DpBulkEditHeader,

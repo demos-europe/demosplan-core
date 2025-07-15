@@ -210,7 +210,6 @@
 
 <script>
 import {
-
   dpApi,
   DpButton,
   DpMultiselect,
