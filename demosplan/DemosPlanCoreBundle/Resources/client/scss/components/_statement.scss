@@ -169,24 +169,24 @@
                 padding-bottom: 12px !important;
             }
         }
-    }
-}
 
-// Custom breakpoint for StatementModal.vue navigation (710px)
-.mobile-nav {
-    display: block;
-}
+        // Custom breakpoint for StatementModal.vue navigation (710px)
+        &__formnav {
+            &.mobile {
+                display: block;
 
-.tablet-desktop-nav {
-    display: none;
-}
+                @media screen and (min-width: 710px) {
+                    display: none;
+                }
+            }
 
-@media screen and (min-width: 710px) {
-    .mobile-nav {
-        display: none;
-    }
+            &.tablet-desktop {
+                display: none;
 
-    .tablet-desktop-nav {
-        display: block;
+                @media screen and (min-width: 710px) {
+                    display: block;
+                }
+            }
+        }
     }
 }

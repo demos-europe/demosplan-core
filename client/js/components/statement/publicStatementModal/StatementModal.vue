@@ -49,7 +49,7 @@
         role="banner"
       >
         <!-- Desktop -->
-        <div :class="prefixClass('tablet-desktop-nav')">
+        <div :class="prefixClass('c-statement__formnav tablet-desktop')">
           <dp-multistep-nav
             :active-step="step"
             :class="prefixClass('pb-0')"
@@ -58,7 +58,7 @@
         </div>
 
         <!-- Mobile -->
-        <div :class="prefixClass('mobile-nav')">
+        <div :class="prefixClass('c-statement__formnav mobile')">
           <div :class="prefixClass('mb-0.5 text-muted')">
             Schritt {{ step + 1 }} von {{ stepsData.length }}
           </div>
