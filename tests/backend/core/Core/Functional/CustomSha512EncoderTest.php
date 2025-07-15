@@ -25,7 +25,7 @@ class CustomSha512EncoderTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->sut = self::$container->get(CustomSha512Encoder::class);
+        $this->sut = self::getContainer()->get(CustomSha512Encoder::class);
     }
 
     public function testNeedsRehash()

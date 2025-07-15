@@ -102,8 +102,6 @@ class GdprConsentRepository extends CoreRepository implements ObjectInterface
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

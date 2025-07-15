@@ -65,7 +65,7 @@ class StatementFormDefinitionRepository extends FluentRepository implements Obje
     public function updateObject($statementFormDefinition): StatementFormDefinition
     {
         $this->getEntityManager()->persist($statementFormDefinition);
-        $this->getEntityManager()->flush($statementFormDefinition);
+        $this->getEntityManager()->flush();
 
         return $statementFormDefinition;
     }

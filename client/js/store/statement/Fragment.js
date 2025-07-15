@@ -8,11 +8,11 @@
  */
 
 import { checkResponse, dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { del, set } from 'vue'
 
 export default {
   namespaced: true,
-  name: 'fragment',
+
+  name: 'Fragment',
 
   state: {
     /**
@@ -61,7 +61,7 @@ export default {
      * @param {Object} fragment
      */
     addFragmentToSelection (state, fragment) {
-      set(state.selectedFragments, [fragment.id], fragment)
+      state.selectedFragments[fragment.id] = fragment
     },
 
     /**
@@ -88,10 +88,10 @@ export default {
 
       const fragments = { ...state.fragments }
       fragments[ids.statementId] = statementObj
-      set(state, 'fragments', fragments)
+      state.fragments = fragments
 
       if (hasOwnProp(state.selectedFragments, ids.fragmentId)) {
-        del(state.selectedFragments, ids.fragmentId)
+        delete state.selectedFragments[ids.fragmentId]
         state.selectedFragments = { ...state.selectedFragments }
       }
 
@@ -117,7 +117,7 @@ export default {
           }
         }
       }
-      set(state.fragments, statementId, fragments)
+      state.fragments[statementId] = fragments
     },
 
     /**
@@ -125,7 +125,7 @@ export default {
      * @param {String} fragmentId
      */
     removeFragmentFromSelection (state, fragmentId) {
-      del(state.selectedFragments, fragmentId)
+      delete state.selectedFragments[fragmentId]
     },
 
     /**
@@ -133,7 +133,7 @@ export default {
      * @param {Array} initFragments
      */
     setInitFragments (state, initFragments) {
-      set(state, 'initFragments', initFragments)
+      state.initFragments = initFragments
     },
 
     /**
@@ -163,7 +163,7 @@ export default {
 
       // If fragment to update is selected and assignee or editableState is changed, we have to set it also in session storage
       if (hasOwnProp(data, 'assignee') && hasOwnProp(state.selectedFragments, data.fragmentId)) {
-        set(state.selectedFragments[data.fragmentId], 'assignee', data.assignee)
+        state.selectedFragments[data.fragmentId].assignee = data.assignee
         state.selectedFragments = { ...state.selectedFragments }
 
         const selectedEntries = JSON.parse(sessionStorage.getItem('selectedFragments')) || {}
@@ -214,9 +214,9 @@ export default {
       const url = Routing.generate(
         'DemosPlan_statement_fragment_delete_ajax',
         {
-          procedureId: procedureId,
-          statementId: statementId,
-          fragmentId: fragmentId
+          procedureId,
+          statementId,
+          fragmentId
         }
       )
 
@@ -301,7 +301,7 @@ export default {
           data: {
             type: 'user',
             id: assigneeId,
-            ignoreLastClaimed: ignoreLastClaimed,
+            ignoreLastClaimed,
             ...((ignoreLastClaimed === false && typeof lastClaimed !== 'undefined') && { relationships: { lastClaimed: { data: { id: lastClaimed, type: 'user' } } } })
           }
         },
@@ -481,11 +481,11 @@ export default {
 
           // If the reviewer has been set, update fragment assignment
           if (hasOwnProp(data, 'departmentId')) {
-            if (hasOwnProp(data, 'lastClaimed') && hasOwnProp(responseRelationships, 'lastClaimedUser')) {
+            if (hasOwnProp(data, 'lastClaimed') && responseRelationships.lastClaimedUser?.data) {
               dataToUpdate.lastClaimedUserId = responseRelationships.lastClaimedUser.data.id
             }
 
-            dataToUpdate.departmentId = hasOwnProp(responseRelationships, 'department') ? responseRelationships.department.data.id : ''
+            dataToUpdate.departmentId = responseRelationships.department?.data ? responseRelationships.department.data.id : ''
 
             if (dataToUpdate.departmentId) { // If departmentId is in response and is not null
               // we reset the assignee with the values from BE

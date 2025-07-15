@@ -38,7 +38,7 @@
             :blueprint-options="JSON.parse('{{ copyMasterOptions|json_encode|e('js', 'utf-8') }}')"
             master-blueprint-id="{{ masterBlueprintId }}"
         {% endif %}
-        :csrf-token="{{ csrf_token('csrf')|json_encode }}"
+        csrf-token="{{ csrf_token('csrf')|json_encode }}"
         :procedure-types="JSON.parse('{{ procedureTypes|json_encode|e('js', 'utf-8') }}')"
         token="{{ form._token.vars.value }}"
         :token-length="{{ constant('demosplan\\DemosPlanCoreBundle\\Entity\\Procedure\\ProcedureCoupleToken::TOKEN_LENGTH') }}">

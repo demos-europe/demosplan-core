@@ -53,6 +53,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use DOMDocument;
 use Exception;
+use Illuminate\Support\Collection as IlluminateCollection;
 use LSS\XML2Array;
 use Pagerfanta\Pagerfanta;
 use RuntimeException;
@@ -60,7 +61,6 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection as IlluminateCollection;
 
 use function array_key_exists;
 
@@ -122,7 +122,7 @@ class UserService extends CoreService implements UserServiceInterface
         private readonly TranslatorInterface $translator,
         private readonly UserPasswordHasherInterface $userPasswordHasher,
         private readonly UserRepository $userRepository,
-        private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository
+        private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository,
     ) {
         $this->addressService = $addressService;
         $this->contentService = $serviceContent;
@@ -166,6 +166,13 @@ class UserService extends CoreService implements UserServiceInterface
                 // the user object is intentionally not logged as a whole to avoid sensitive data in the log files
                 $this->logger->log('error', 'Currently only users in customer master role group are allowed to have no orga', ['userId' => $user->getId(), 'subdomain' => $subdomain]);
                 throw new NullPointerException('The orga of a user that is not in the role group of customer master users is null. This is probably an invalid database state.');
+            }
+
+            // orga should not be soft deleted
+            if ($orga->isDeleted()) {
+                $this->getLogger()->info('User Orga is soft deleted', ['orgaId' => $orga->getId()]);
+
+                return null;
             }
 
             // user needs to have a role in current customer
@@ -1007,7 +1014,7 @@ class UserService extends CoreService implements UserServiceInterface
     /**
      * Change the login and the email of a user.
      *
-     * @return user|bool - User in case of successfully set Email, otherwise false
+     * @return User|bool - User in case of successfully set Email, otherwise false
      *
      * @throws Exception
      */

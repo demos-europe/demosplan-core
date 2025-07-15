@@ -77,7 +77,7 @@ class DemosPlanStatementAPIController extends APIController
         GlobalConfigInterface $globalConfig,
         MessageBagInterface $messageBag,
         MessageFormatter $messageFormatter,
-        SchemaPathProcessor $schemaPathProcessor
+        SchemaPathProcessor $schemaPathProcessor,
     ) {
         parent::__construct(
             $apiLogger,
@@ -386,7 +386,7 @@ class DemosPlanStatementAPIController extends APIController
     /**
      * @DplanPermissions("area_admin_assessmenttable")
      */
-    #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}/', methods: ['GET'], name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}', methods: ['GET'], name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true])]
     public function listAction(
         AssessmentHandler $assessmentHandler,
         HashedQueryService $filterSetService,
@@ -398,7 +398,7 @@ class DemosPlanStatementAPIController extends APIController
         StatementService $statementService,
         UserService $userService,
         string $filterSetHash,
-        string $procedureId
+        string $procedureId,
     ): APIResponse {
         try {
             // @improve T14024
@@ -406,7 +406,7 @@ class DemosPlanStatementAPIController extends APIController
             $filterSetHash = $hashNew->getHash();
 
             $pagination = $paginationParser->parseApiPaginationProfile(
-                $this->request->query->get('page', []),
+                $this->request->query->all('page'),
                 $this->request->query->get('sort', ''),
                 25
             );
@@ -455,7 +455,7 @@ class DemosPlanStatementAPIController extends APIController
             }
 
             $collection = new Collection($paginator, $statementResourceType->getTransformer(), $statementResourceType::getName());
-            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator);
+            $paginatorAdapter = $paginatorFactory->createPaginatorAdapter($paginator, $request);
             $collection->setPaginator($paginatorAdapter);
             $collection->setMeta($meta);
 

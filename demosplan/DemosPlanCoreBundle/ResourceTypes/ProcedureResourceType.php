@@ -33,16 +33,16 @@ use EDT\PathBuilding\End;
  * @property-read End                                 $deleted
  * @property-read End                                 $agencyMainEmailAddress
  * @property-read OrgaResourceType                    $owningOrganisation
- * @property-read OrgaResourceType                    $invitedOrganisations
+ * @property-read InvitedPublicAgencyResourceType     $invitedOrganisations
  * @property-read OrgaResourceType                    $orga                         Do not expose! Alias usage only.
- * @property-read OrgaResourceType                    $organisation                 Do not expose! Alias usage only.
+ * @property-read InvitedPublicAgencyResourceType     $organisation                 Do not expose! Alias usage only.
  * @property-read ProcedureTypeResourceType           $procedureType
  * @property-read ProcedureUiDefinitionResourceType   $procedureUiDefinition
  * @property-read StatementFormDefinitionResourceType $statementFormDefinition
  * @property-read UserResourceType                    $authorizedUsers
  * @property-read OrgaResourceType                    $planningOffices
  * @property-read End                                 $coordinate
- * @property-read ProcedureSettingsResourceType       $settings
+ * @property-read ProcedureMapSettingResourceType     $mapSetting
  * @property-read End                                 $externalDesc
  * @property-read End                                 $externalDescription
  * @property-read End                                 $externalName
@@ -62,6 +62,8 @@ use EDT\PathBuilding\End;
  * @property-read End                                 $externalPhasePermissionset
  * @property-read End                                 $internalPhasePermissionset
  * @property-read CustomerResourceType                $customer
+ * @property-read PlanningDocumentCategoryDetailsResourceType                $availableElements
+ * @property-read PlanningDocumentCategoryDetailsResourceType                $elements
  */
 final class ProcedureResourceType extends DplanResourceType implements ProcedureResourceTypeInterface
 {
@@ -69,7 +71,7 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         private readonly PhasePermissionsetLoader $phasePermissionsetLoader,
         private readonly DraftStatementService $draftStatementService,
         private readonly ProcedureAccessEvaluator $accessEvaluator,
-        private readonly ProcedureExtension $procedureExtension
+        private readonly ProcedureExtension $procedureExtension,
     ) {
     }
 
@@ -166,19 +168,35 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         $external = $this->currentUser->getUser()->isPublicUser();
 
         $owningOrganisation = $this->createToOneRelationship($this->owningOrganisation)->aliasedPath($this->orga);
-        $invitedOrganisations = $this->createToManyRelationship($this->invitedOrganisations)->aliasedPath($this->organisation);
+
         $properties = [
             $this->createIdentifier()->readable()->sortable()->filterable(),
-            $this->createAttribute($this->name)->readable(true, fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
-                ? $procedure->getName()
-                : null)->sortable()->filterable(),
+            $this->createAttribute($this->name)
+                ->readable(
+                    true,
+                    fn (Procedure $procedure): ?string => !$external || $this->accessEvaluator->isOwningProcedure($this->currentUser->getUser(), $procedure)
+                    ? $procedure->getName() : null
+                )
+                ->sortable()
+                ->filterable(),
             $owningOrganisation,
-            $invitedOrganisations,
         ];
+
+        $properties[] = $this->createToManyRelationship($this->availableElements)->readable()->sortable()->filterable()->aliasedPath($this->elements);
+
+        if ($this->currentUser->hasAllPermissions(
+            'area_admin_invitable_institution',
+            'area_main_procedures',
+        )) {
+            $properties[] = $this->createToManyRelationship($this->invitedOrganisations)
+                ->readable()
+                ->sortable()
+                ->filterable()
+                ->aliasedPath($this->organisation);
+        }
 
         if ($this->hasAdminPermissions()) {
             $owningOrganisation->readable()->sortable()->filterable();
-            $invitedOrganisations->readable()->sortable()->filterable();
             $properties[] = $this->createAttribute($this->agencyMainEmailAddress)->readable(true)->sortable()->filterable();
         }
 
@@ -187,11 +205,18 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
             $properties[] = $this->createToOneRelationship($this->procedureUiDefinition)->readable()->sortable()->filterable();
             $properties[] = $this->createToOneRelationship($this->statementFormDefinition)->readable()->sortable()->filterable();
         }
+        if ($this->currentUser->hasAnyPermissions('area_public_participation', 'area_admin_map')) {
+            $properties[] = $this->createAttribute($this->coordinate)->readable()->aliasedPath(Paths::procedure()->settings->coordinate);
+            $properties[] = $this->createToOneRelationship($this->mapSetting)->aliasedPath(Paths::procedure()->settings)->readable();
+        }
 
         if ($this->currentUser->hasPermission('area_public_participation')) {
-            $properties[] = $this->createAttribute($this->coordinate)->readable()->aliasedPath($this->settings->coordinate);
             $properties[] = $this->createAttribute($this->externalDescription)->readable()->aliasedPath($this->externalDesc);
             $properties[] = $this->createAttribute($this->statementSubmitted)->readable(false, function (Procedure $procedure): int {
+                // guests can not have any draft statements
+                if ($this->currentUser->getUser()->isGuestOnly()) {
+                    return 0;
+                }
                 $userFilter = new StatementListUserFilter();
                 $userFilter->setSubmitted(true)->setReleased(true);
                 $statementResult = $this->draftStatementService->getDraftStatementList(

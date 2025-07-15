@@ -7,13 +7,13 @@
  * All rights reserved
  */
 
-import { nextTick, set } from 'vue'
 import { dpApi } from '@demos-europe/demosplan-ui'
+import { nextTick } from 'vue'
 
 const ProcedureStore = {
-
   namespaced: true,
-  name: 'procedure',
+
+  name: 'Procedure',
 
   state: {
     currentProcedureId: '',
@@ -36,7 +36,7 @@ const ProcedureStore = {
     },
 
     setProperty (state, data) {
-      set(state, data.prop, data.val)
+      state[data.prop] = data.val
     }
   },
 

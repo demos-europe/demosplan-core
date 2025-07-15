@@ -14,7 +14,7 @@
       v-if="hasActiveFilters || searchTerm !== ''"
       class="u-mt-0_5 u-pb-0 border--bottom">
       <legend
-        class="hide-visually"
+        class="sr-only"
         v-text="Translator.trans('filter.searchterm.active')" />
 
       <div
@@ -52,6 +52,7 @@
       </div>
       <dp-inline-notification
         v-if="hasActiveFilters && hasChangedStatements"
+        class="mt-3 mb-2"
         :message="Translator.trans('filter.settings_not_current')"
         type="warning" />
     </fieldset>
@@ -61,7 +62,7 @@
       ref="header">
       <search-and-sorting
         :search-term="searchTerm"
-        :has-changed-statements="hasChangedStatements" />
+        @exportModal:toggle="tab => $emit('exportModal:toggle', tab)" />
 
       <div class="flex items-center space-inline-m">
         <!-- mark all -->
@@ -74,7 +75,7 @@
             v-model="allItemsOnPageSelected"
             data-cy="ToggleAllCheckboxes"
             :disabled="areFragmentsSelected"
-            :title="areFragmentsSelected ? Translator.trans('unselect.entity.first', {entity: Translator.trans('statements')}) : false">
+            :title="areFragmentsSelected ? Translator.trans('unselect.entity.first', {entity: Translator.trans('statements')}) : null">
           {{ Translator.trans('visible.entries') }}
         </label>
 
@@ -87,7 +88,7 @@
             type="button"
             aria-haspopup="true"
             aria-expanded="false"
-            @click.prevent="$root.$emit('exportModal:toggle', exportModalOptions.tab)">
+            @click.prevent="$emit('exportModal:toggle', exportModalOptions.tab)">
             <i
               class="fa fa-share-square u-mr-0_125"
               aria-hidden="true" />
@@ -100,6 +101,7 @@
               <button
                 :disabled="selectedElementsLength > 0 || hasPermission('feature_statements_fragment_add') && Object.keys(selectedFragments).length > 0"
                 class="c-actionmenu__trigger"
+                data-cy="exportModal:open"
                 aria-haspopup="true"
                 aria-expanded="false"
                 type="button">
@@ -117,10 +119,11 @@
                   v-for="option in Object.values(filteredAssessmentExportOptions)"
                   :key="Object.keys(option)[0]"
                   class="c-actionmenu__menuitem"
+                  :data-cy="`statementsExport:${Object.values(option)[0].buttonLabel}`"
                   data-actionmenu-menuitem
                   role="menuitem"
                   tabindex="-1"
-                  @click.prevent="$root.$emit('exportModal:toggle', Object.keys(option)[0])">
+                  @click.prevent="$emit('exportModal:toggle', Object.keys(option)[0])">
                   {{ Translator.trans(Object.values(option)[0].buttonLabel) }}
                 </button>
               </div>
@@ -184,7 +187,7 @@
               role="menuitem"
               tabindex="-1"
               data-actionmenu-menuitem
-              :data-actionmenu-current="currentTableView === 'statement'"
+              :data-actionmenu-current="currentTableView === 'statement' ? true : null"
               :class="{'pointer-events-none': !assessmentBaseLoaded }"
               @click.prevent="setProperty({ prop: 'currentTableView', val: 'statement' })">
               {{ Translator.trans(hasPermission('area_statements_fragment') ? 'statements' : 'display.list.expanded') }}
@@ -197,7 +200,7 @@
                 role="menuitem"
                 tabindex="-1"
                 data-actionmenu-menuitem
-                :data-actionmenu-current="currentTableView === 'fragments'"
+                :data-actionmenu-current="currentTableView === 'fragments' ? true : null"
                 :class="{'pointer-events-none': !assessmentBaseLoaded }"
                 @click.prevent="setProperty({ prop: 'currentTableView', val: 'fragments' })">
                 {{ Translator.trans('fragments') }}
@@ -208,7 +211,7 @@
                 role="menuitem"
                 tabindex="-1"
                 data-actionmenu-menuitem
-                :data-actionmenu-current="currentTableView === 'collapsed'"
+                :data-actionmenu-current="currentTableView === 'collapsed' ? true : null"
                 :class="{'pointer-events-none': !assessmentBaseLoaded }"
                 @click.prevent="setProperty({ prop: 'currentTableView', val: 'collapsed' })">
                 {{ Translator.trans('display.list') }}
@@ -221,7 +224,7 @@
                 role="menuitem"
                 tabindex="-1"
                 data-actionmenu-menuitem
-                :data-actionmenu-current="currentTableView === 'collapsed'"
+                :data-actionmenu-current="currentTableView === 'collapsed' ? true : null"
                 :class="{'pointer-events-none': !assessmentBaseLoaded }"
                 @click.prevent="setProperty({ prop: 'currentTableView', val: 'collapsed' })">
                 {{ Translator.trans('display.list.collapsed') }}
@@ -321,6 +324,11 @@ export default {
     }
   },
 
+  emits: [
+    'exportModal:toggle',
+    'handle-sort-change'
+  ],
+
   data () {
     return {
       viewModes: [
@@ -332,16 +340,16 @@ export default {
   },
 
   computed: {
-    ...mapGetters('fragment', [
+    ...mapGetters('Fragment', [
       'selectedFragments'
     ]),
 
-    ...mapGetters('statement', [
+    ...mapGetters('Statement', [
       'selectedElementsLength',
       'statements'
     ]),
 
-    ...mapState('assessmentTable', [
+    ...mapState('AssessmentTable', [
       'assessmentBaseLoaded',
       'currentTableView',
       'filterSet',
@@ -349,7 +357,7 @@ export default {
       'sort'
     ]),
 
-    ...mapState('statement', [
+    ...mapState('Statement', [
       'selectedElements'
     ]),
 
@@ -386,7 +394,7 @@ export default {
 
     filteredAssessmentExportOptions () {
       return Object.entries(this.assessmentExportOptions)
-        .filter(([val, key]) => val !== false)
+        .filter(([key, val]) => val !== false)
         .map(([key, val]) => ({ [key]: val }))
     },
 
@@ -416,11 +424,11 @@ export default {
   },
 
   methods: {
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'setSelectionAction'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setProperty'
     ]),
 
@@ -430,7 +438,7 @@ export default {
 
     toggleAllCheckboxes (status) {
       const statements = JSON.parse(JSON.stringify(this.statements))
-      const payload = { status: status, statements: statements }
+      const payload = { status, statements }
 
       if (status === true) {
         for (const statementId in statements) {

@@ -112,7 +112,7 @@
         <div v-text="Translator.trans('public')" />
       </template>
 
-      <template v-slot:name="{id, name, externalName, creationDate}">
+      <template v-slot:name="{ creationDate, externalName, id, name }">
         <a
           data-cy="procedurePath"
           :data-cy-procedure-id="id"
@@ -123,7 +123,7 @@
           <strong v-text="`(${Translator.trans('public.participation.name')}: ${externalName})`" />
         </div>
         <div>
-          <strong v-text="'vom ' + creationDate" />
+          <strong v-text="`${Translator.trans('from.date')} ${creationDate}`" />
         </div>
       </template>
 
@@ -136,7 +136,7 @@
           class="text-center" />
       </template>
 
-      <template v-slot:internalPhase="{internalPhase, internalStartDate, internalEndDate}">
+      <template v-slot:internalPhase="{ internalPhase, internalStartDate, internalEndDate }">
         <div
           class="float-left u-m-0">
           <span v-text="internalPhase" />
@@ -144,7 +144,7 @@
         </div>
       </template>
 
-      <template v-slot:externalPhase="{externalPhase, externalStartDate, externalEndDate}">
+      <template v-slot:externalPhase="{ externalPhase, externalStartDate, externalEndDate }">
         <span v-text="externalPhase" />
         <div v-text="externalStartDate + ' - ' + externalEndDate" />
       </template>
@@ -301,7 +301,7 @@ export default {
           }
         },
         include: 'procedure',
-        sort: sort
+        sort
       }
 
       dpApi.get(url, params)
@@ -321,6 +321,11 @@ export default {
             originalStatementsCount: el.attributes.originalStatementsCount,
             statementsCount: el.attributes.statementsCount
           }))
+        })
+        .catch(e => {
+          console.error(e)
+        })
+        .finally(() => {
           this.isLoading = false
         })
     },

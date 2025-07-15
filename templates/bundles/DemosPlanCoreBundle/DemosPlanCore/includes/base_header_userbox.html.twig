@@ -118,6 +118,7 @@
                     {% if hasPermission("area_manage_orgadata") %}
                         <a
                             class="c-flyout__item flow-root"
+                            data-cy="userBox:orgaName"
                             href="{{ path("DemosPlan_orga_edit_view", {'orgaId': currentUser.organisationId }) }}"
                             data-actionmenu-menuitem>
                             <i class="fa fa-building-o float-left u-mt-0_125" aria-hidden="true"></i>
@@ -157,6 +158,7 @@
                 {# edit own profile #}
                 <a
                     class="c-flyout__item flow-root"
+                    data-cy="userBox:userProfile"
                     href="{{ path("DemosPlan_user_portal") }}"
                     data-actionmenu-menuitem>
                     <i class="fa fa-cog float-left u-mt-0_125" aria-hidden="true"></i>
@@ -185,6 +187,7 @@
                 %}
                     <a
                         class="c-flyout__item flow-root"
+                        data-cy="userBox:administer"
                         href="{{ path('core_home_loggedin') }}"
                         data-actionmenu-menuitem>
                         <i class="fa fa-wrench float-left u-mt-0_125" aria-hidden="true"></i>

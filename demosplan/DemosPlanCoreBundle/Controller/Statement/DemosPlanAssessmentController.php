@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
-use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
@@ -192,28 +191,7 @@ class DemosPlanAssessmentController extends BaseController
                 if (null !== $headStatement) {
                     $statementHandler->addStatementToCluster($headStatement, $newStatement->getChildren()[0], true, true);
                 }
-                $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId);
-                $routeName = $currentUser->getUser()->hasRole(Role::PROCEDURE_DATA_INPUT) ?
-                    'DemosPlan_statement_orga_list' : 'dplan_assessmenttable_view_table';
-                $routeParameters = 'DemosPlan_statement_orga_list' === $routeName ?
-                    [
-                        'procedureId' => $procedureId,
-                    ] :
-                    [
-                        'procedureId' => $procedureId,
-                        'filterHash'  => $filterSet->getHash(),
-                        '_fragment'   => $request->query->get('fragment', ''),
-                    ];
                 if ($newStatement instanceof Statement) {
-                    $this->getMessageBag()->addObject(LinkMessageSerializable::createLinkMessage(
-                        'confirm',
-                        'confirm.statement.new',
-                        ['externId' => $newStatement->getExternId()],
-                        $routeName,
-                        $routeParameters,
-                        $newStatement->getExternId()
-                    ));
-
                     return $this->redirectToRoute(
                         'DemosPlan_statement_new_submitted',
                         ['procedureId' => $procedureId]

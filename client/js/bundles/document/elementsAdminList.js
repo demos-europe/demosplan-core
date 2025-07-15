@@ -24,6 +24,6 @@ const components = {
   DpUploadFiles
 }
 
-const apiStores = ['elements']
+const apiStores = ['Elements']
 
 initialize(components, {}, apiStores)

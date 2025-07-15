@@ -72,8 +72,12 @@ export default {
     }
   },
 
+  emits: [
+    'open-create-form'
+  ],
+
   computed: {
-    ...mapGetters('splitstatement', {
+    ...mapGetters('SplitStatement', {
       availableTags: 'availableTags',
       currentSegment: 'editingSegment',
       tagById: 'tagById',
@@ -82,7 +86,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('splitstatement', [
+    ...mapActions('SplitStatement', [
       'updateCurrentTags'
     ]),
 

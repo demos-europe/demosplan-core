@@ -15,6 +15,7 @@ namespace Tests\Base;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\EventListener\SetHttpTestPermissionsListener;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -41,10 +42,10 @@ abstract class AbstractApiTest extends FunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-
+        static::ensureKernelShutdown();
+        // the createClient() method cannot be used when kernel is booted
+        $this->client = static::createClient();
         $serverParameters = $this->getServerParameters();
-
-        $this->client = $this->getContainer()->get('test.client');
         $this->client->setServerParameters($serverParameters);
 
         $this->router = $this->getContainer()->get(RouterInterface::class);
@@ -89,6 +90,15 @@ abstract class AbstractApiTest extends FunctionalTestCase
         }
 
         return $headers;
+    }
+
+    /**
+     * Override method to enable permissions via HTTP server param that
+     * evaluated in {@see SetHttpTestPermissionsListener}.
+     */
+    protected function enablePermissions(array $permissionsToEnable): void
+    {
+        $this->client->setServerParameter(SetHttpTestPermissionsListener::X_DPLAN_TEST_PERMISSIONS, implode(',', $permissionsToEnable));
     }
 
     abstract protected function getServerParameters(): array;

@@ -28,7 +28,7 @@
 <template>
   <li
     :id="'itemdisplay_' + statement.id"
-    data-cy="statementCard"
+    :data-cy="dataCy"
     class="c-at-item"
     v-cloak>
     <!--  item header  -->
@@ -210,14 +210,14 @@
                       <br>{{ Translator.trans('position') }}: {{ statement.userPosition }}
                     </template>
                   </template>
-                  <template v-else>
+                  <template v-if="!hasOwnProp(statement, 'initialOrganisationName')">
                     {{ Translator.trans('notspecified') }}
                   </template>
                 </v-popover>
               </div>
             </div>
             <div
-              v-else-if="true === statement.isCluster && statement.clusterName !== ''"
+              v-if="statement.isCluster && statement.clusterName !== ''"
               class="u-1-of-1 u-pb-0_25">
               <div class="o-hellip--nowrap u-1-of-1">
                 {{ Translator.trans('statement.cluster.name') }}: {{ statement.clusterName }}
@@ -302,8 +302,8 @@
 
         <!--  statement tab  -->
         <div
-          class="bg-color-light flow-root"
-          v-show="tab === 'statement'">
+          v-show="tab === 'statement'"
+          class="bg-color-light">
           <!--  status / priorities  -->
           <dp-item-row
             v-if="hasPermission('field_statement_status') || hasPermission('field_statement_priority')"
@@ -500,11 +500,11 @@
                 --><dd class="layout__item u-5-of-6">
                   <ul class="u-mb-0">
                     <li
-                      v-for="FragmentElement in statement.fragmentsElements"
-                      :key="FragmentElement.id">
-                      {{ FragmentElement.elementTitle }}
-                      <template v-if="hasOwnProp(FragmentElement,'paragraphTitle') && FragmentElement.paragraphTitle !== null">
-                        - {{ FragmentElement.paragraphTitle }}
+                      v-for="fragmentElement in statement.fragmentsElements"
+                      :key="fragmentElement.id">
+                      {{ fragmentElement.elementTitle }}
+                      <template v-if="hasOwnProp(fragmentElement,'paragraphTitle') && fragmentElement.paragraphTitle !== null">
+                        - {{ fragmentElement.paragraphTitle }}
                       </template>
                     </li>
                   </ul>
@@ -539,79 +539,75 @@
             title="statement.text"
             class="u-pb-0 u-pt-0"
             is-fullscreen-row
-            :border-bottom="(statement.files.length > 0)">
-            <template>
-              <dp-claim
-                v-if="hasPermission('feature_statement_assignment')"
-                class="c-at-item__row-icon inline-block fullscreen-claim"
-                :assigned-id="(statement.assignee.id || '')"
-                :assigned-name="(statement.assignee.name || '')"
-                :assigned-organisation="(statement.assignee.orgaName || '')"
-                :current-user-id="currentUserId"
-                :current-user-name="currentUserName"
-                entity-type="statement"
-                :is-loading="updatingClaimState"
-                @click="updateClaim" />
-              <dl class="flex">
-                <!--
-                    Statement text
-                    With tiptap we can set obscure as prop always when the obscure button should be visible in the field,
-                    because the permission check (featureObscureText) takes place in tiptap
-                    -->
-                <editable-text
-                  class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right"
-                  title="statement"
-                  :procedure-id="procedureId"
-                  :initial-text="initText"
-                  :entity-id="statement.id"
-                  :editor-id="statement.id + '_statementText'"
-                  :initial-is-shortened="statement.textIsTruncated || false"
-                  full-text-fetch-route="dm_plan_assessment_get_statement_ajax"
-                  field-key="text"
-                  :editable="isClaimed"
-                  edit-label="statement.edit"
-                  mark
-                  :obscure="hasPermission('feature_obscure_text')"
-                  strikethrough
-                  height-limit-element-label="statement"
-                  @field:save="data => saveStatement(data, 'attribute', 'text')"
-                  ref="text" />
-                <!--
-                  Recommendation text
-               -->
-                <editable-text
-                  class="u-pb-0_25 u-pl-0_5 u-pt-0_25 u-1-of-2"
-                  title="recommendation"
-                  :procedure-id="procedureId"
-                  :initial-text="recommendationText"
-                  :entity-id="statement.id"
-                  :editor-id="statement.id + '_recommendation'"
-                  :initial-is-shortened="statement.recommendationIsTruncated || false"
-                  full-text-fetch-route="dm_plan_assessment_get_recommendation_ajax"
-                  field-key="recommendation"
-                  link-button
-                  :editable="isClaimed"
-                  edit-label="recommendation.of.statement.edit"
-                  height-limit-element-label="fragment"
-                  @field:save="data => saveStatement(data, 'attribute', 'recommendation')"
-                  ref="recommendation"
-                  :boiler-plate="hasPermission('area_admin_boilerplates')">
-                  <template
-                    v-slot:hint
-                    v-if="recommendationPubliclyVisible">
-                    {{ Translator.trans('recommendation.publicly.visible.short') }}
-                    <i
-                      v-tooltip="Translator.trans('recommendation.publicly.visible')"
-                      tabindex="0"
-                      class="fa fa-question-circle float-right u-pt-0_125"
-                      aria-hidden="true" />
-                  </template>
-                </editable-text>
-              </dl>
-            </template>
+            :border-bottom="(statement.genericAttachments.length > 0)">
+            <dp-claim
+              v-if="hasPermission('feature_statement_assignment')"
+              class="c-at-item__row-icon inline-block fullscreen-claim"
+              :assigned-id="(statement.assignee.id || '')"
+              :assigned-name="(statement.assignee.name || '')"
+              :assigned-organisation="(statement.assignee.orgaName || '')"
+              :current-user-id="currentUserId"
+              :current-user-name="currentUserName"
+              entity-type="statement"
+              :is-loading="updatingClaimState"
+              @click="updateClaim" />
+            <dl class="flex">
+              <!--
+                  Statement text
+                  With tiptap we can set obscure as prop always when the obscure button should be visible in the field,
+                  because the permission check (featureObscureText) takes place in tiptap
+                  -->
+              <editable-text
+                class="u-pb-0_5 u-pr-0_5 u-pt-0_25 u-1-of-2 border--right"
+                title="statement"
+                :procedure-id="procedureId"
+                :initial-text="initText"
+                :entity-id="statement.id"
+                :editor-id="statement.id + '_statementText'"
+                :initial-is-shortened="statement.textIsTruncated || false"
+                full-text-fetch-route="dm_plan_assessment_get_statement_ajax"
+                field-key="text"
+                :editable="isClaimed"
+                edit-label="statement.edit"
+                mark
+                :obscure="hasPermission('feature_obscure_text')"
+                strikethrough
+                height-limit-element-label="statement"
+                @field:save="data => saveStatement(data, 'attribute', 'text')"
+                ref="text" />
+              <!--
+                Recommendation text
+             -->
+              <editable-text
+                class="u-pb-0_25 u-pl-0_5 u-pt-0_25 u-1-of-2"
+                title="recommendation"
+                :procedure-id="procedureId"
+                :initial-text="recommendationText"
+                :entity-id="statement.id"
+                :editor-id="statement.id + '_recommendation'"
+                :initial-is-shortened="statement.recommendationIsTruncated || false"
+                full-text-fetch-route="dm_plan_assessment_get_recommendation_ajax"
+                field-key="recommendation"
+                link-button
+                :editable="isClaimed"
+                edit-label="recommendation.of.statement.edit"
+                height-limit-element-label="fragment"
+                @field:save="data => saveStatement(data, 'attribute', 'recommendation')"
+                ref="recommendation"
+                :boiler-plate="hasPermission('area_admin_boilerplates')">
+                <template
+                  v-slot:hint
+                  v-if="recommendationPubliclyVisible">
+                  {{ Translator.trans('recommendation.publicly.visible.short') }}
+                  <dp-contextual-help
+                    class="float-right u-mt-0_125"
+                    :text="Translator.trans('recommendation.publicly.visible')" />
+                </template>
+              </editable-text>
+            </dl>
           </dp-item-row><!--
          --><div
-              v-if="statement.files.length > 0 || statement.sourceAttachment !== '' && hasOwnProp(statement.sourceAttachment, 'filename')"
+              v-if="statement.genericAttachments.length > 0 || statement.sourceAttachment !== '' && statement.sourceAttachment?.filename"
               class="layout--flush u-pv-0_25 u-ph-0_5">
               <div
                 class="layout__item c-at-item__row-icon color--grey"
@@ -623,7 +619,7 @@
 
            --><div class="layout--flush layout__item c-at-item__row break-words">
                 <a
-                  v-if="hasOwnProp(statement.sourceAttachment, 'filename') && hasPermission('feature_read_source_statement_via_api')"
+                  v-if="statement.sourceAttachment?.filename && hasPermission('feature_read_source_statement_via_api')"
                   class="u-pr-0_5 o-hellip border--right u-mr-0_5"
                   :href="Routing.generate('core_file_procedure', { hash: statement.sourceAttachment.hash, procedureId: procedureId })"
                   rel="noopener"
@@ -633,7 +629,7 @@
                 </a>
                 <!-- Attached files -->
                 <a
-                  v-for="file in statement.files"
+                  v-for="file in statement.genericAttachments"
                   :key="file.hash"
                   class="u-pr-0_5 o-hellip"
                   :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
@@ -649,7 +645,7 @@
         <!-- Fragments Tab -->
         <div
           v-if="hasPermission('area_statements_fragment')"
-          class="bg-color-light flow-root"
+          class="bg-color-light"
           v-show="tab==='fragments'">
           <div class="layout--flush u-p-0_5 u-pt-0_25 border--top u-nojs-show--block">
             <div class="layout__item c-at-item__row-icon color--grey" /><!--
@@ -748,7 +744,7 @@
 </template>
 
 <script>
-import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
+import { dpApi, DpContextualHelp, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim'
@@ -762,6 +758,7 @@ export default {
   name: 'DpAssessmentTableCard',
 
   components: {
+    DpContextualHelp,
     DpClaim,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
@@ -777,6 +774,12 @@ export default {
     csrfToken: {
       type: String,
       required: true
+    },
+
+    dataCy: {
+      type: String,
+      required: false,
+      default: 'statementCard'
     },
 
     isSelected: {
@@ -799,11 +802,17 @@ export default {
     }
   },
 
+  emits: [
+    'statement:addToSelection',
+    'statement:updated',
+    'statement:removeFromSelection'
+  ],
+
   data () {
     return {
       // We have to use $store.state... notation because at that moment the maps for state/getters are not yet initialized
-      expanded: this.$store.state.assessmentTable.currentTableView === 'statement' || this.$store.state.assessmentTable.currentTableView === 'fragments',
-      tab: this.$store.state.assessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
+      expanded: this.$store.state.AssessmentTable.currentTableView === 'statement' || this.$store.state.AssessmentTable.currentTableView === 'fragments',
+      tab: this.$store.state.AssessmentTable.currentTableView === 'fragments' ? 'fragments' : 'statement',
       updatingClaimState: false,
       fragmentsLoading: false,
       placeholderStatementId: null
@@ -812,8 +821,8 @@ export default {
 
   computed: {
     // Get the Statement from the Store (if not Present there use initial data)
-    ...mapState('statement', { statement (state) { return state.statements[this.statementId] } }),
-    ...mapGetters('assessmentTable', [
+    ...mapState('Statement', { statement (state) { return state.statements[this.statementId] } }),
+    ...mapGetters('AssessmentTable', [
       'adviceValues',
       'assessmentBase',
       'assessmentBaseLoaded',
@@ -828,10 +837,10 @@ export default {
       'status',
       'tags'
     ]),
-    ...mapGetters('fragment', ['selectedFragments', 'fragmentsByStatement']),
-    ...mapState('statement', ['selectedElements', 'statements', 'isFiltered']),
+    ...mapGetters('Fragment', ['selectedFragments', 'fragmentsByStatement']),
+    ...mapState('Statement', ['selectedElements', 'statements', 'isFiltered']),
 
-    ...mapState('assessmentTable',
+    ...mapState('AssessmentTable',
       [
         'accessibleProcedureIds',
         'currentUserId',
@@ -928,26 +937,26 @@ export default {
   },
 
   methods: {
-    ...mapActions('fragment', [
+    ...mapActions('Fragment', [
       'removeFragmentFromSelectionAction',
       'loadFragments',
       'setSelectedFragmentsAction',
       'resetSelection'
     ]),
 
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'updateStatementAction',
       'addToSelectionAction',
       'removeFromSelectionAction',
       'setAssigneeAction'
     ]),
 
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setModalProperty',
       'setProperty'
     ]),
 
-    ...mapMutations('statement', [
+    ...mapMutations('Statement', [
       'addStatement',
       'updateStatement',
       'replaceStatement'
@@ -971,7 +980,7 @@ export default {
 
     handleMoveToProcedure ({ movedToProcedureId, statementId, movedStatementId, placeholderStatementId, movedToAccessibleProcedure, movedToProcedureName }) {
       if (statementId === this.statementId) {
-        this.updateStatement({ id: statementId, movedToProcedureId: movedToProcedureId, movedToProcedureName: movedToProcedureName, movedStatementId: movedStatementId })
+        this.updateStatement({ id: statementId, movedToProcedureId, movedToProcedureName, movedStatementId })
         this.placeholderStatementId = placeholderStatementId
         if (JSON.parse(sessionStorage.getItem('selectedElements')) !== null) {
           this.removeFromSelectionAction(this.statementId)
@@ -1070,7 +1079,7 @@ export default {
                   data: data[fieldName].map(el => {
                     return {
                       id: el,
-                      type: type
+                      type
                     }
                   })
                 }
@@ -1085,7 +1094,7 @@ export default {
                 [fieldName]: {
                   data: {
                     id: data[fieldName],
-                    type: type
+                    type
                   }
                 }
               }
@@ -1288,7 +1297,7 @@ export default {
 
     // Update card view if table view has been change (per Ansicht Button)
     this.$store.subscribe(mutation => {
-      if (mutation.type === 'assessmentTable/setProperty' && mutation.payload.prop === 'currentTableView') {
+      if (mutation.type === 'AssessmentTable/setProperty' && mutation.payload.prop === 'currentTableView') {
         this.toggleView(mutation.payload.val)
       }
     })

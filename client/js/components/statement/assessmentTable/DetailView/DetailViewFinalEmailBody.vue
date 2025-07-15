@@ -9,9 +9,12 @@
 
 <template>
   <dp-editor
+    v-model="text"
+    :data-cy="dataCy"
     hidden-input="r_send_body"
+    :readonly="!editable"
     :toolbar-items="toolbarItems"
-    v-model="text">
+    @input="$emit('emailBody:input', $event)">
     <template v-slot:modal="modalProps">
       <dp-boiler-plate-modal
         v-if="hasPermission('area_admin_boilerplates')"
@@ -34,6 +37,7 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 
@@ -42,15 +46,27 @@ export default {
 
   components: {
     DpBoilerPlateModal,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    })
   },
 
   mixins: [prefixClassMixin],
 
   props: {
+    dataCy: {
+      type: String,
+      required: false,
+      default: 'statementDetailFinalEmailBody'
+    },
+
+    editable: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
+
     initText: {
       type: String,
       required: true
@@ -62,6 +78,10 @@ export default {
     }
   },
 
+  emits: [
+    'emailBody:input'
+  ],
+
   data () {
     return {
       text: this.initText,
@@ -72,11 +92,21 @@ export default {
     }
   },
 
+  watch: {
+    initText (newVal) {
+      this.text = newVal
+    }
+  },
+
   methods: {
     openBoilerPlate () {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
       }
+    },
+
+    resetText () {
+      this.text = this.initText
     }
   }
 }

@@ -15,9 +15,9 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
-use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\ClusterStatementCopyNotImplementedException;
 use demosplan\DemosPlanCoreBundle\Exception\CopyException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
@@ -29,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
-use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
@@ -105,7 +104,7 @@ class DemosPlanAssessmentTableController extends BaseController
         StatementService $statementService,
         string $procedureId,
         $filterHash,
-        bool $original
+        bool $original,
     ): ?Response {
         // @improve T14122
 
@@ -113,27 +112,31 @@ class DemosPlanAssessmentTableController extends BaseController
         $rParams = $assessmentHandler->getFormValues($request->request->all());
 
         // handle the filterHash thing → always returns FilterSet Entity, except → see next comment
-        $filterSet = $filterSetService->findHashedQueryWithHash($filterHash);
+        $findHash = $filterSetService->findHashedQueryWithHash($filterHash);
+        if ($filterHash) {
+            $storedQuery = $findHash->getStoredQuery();
+            if (
+                $rParams['search'] === $storedQuery->getSearchWord()
+            ) {
+                $filterSet = $findHash;
+            } else {
+                /*
+                * If rParams contain filters, those win against the hash in url.
+                * Doing this via redirect to same action.
+                */
+                $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, null, $original);
+                $this->setHashforEmptyFilters($request, $assessmentHandler, $procedureId, $filterSet);
+            }
+        } else {
+            /*
+            * If rParams contain filters, those win against the hash in url.
+            * Doing this via redirect to same action.
+            */
+            $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, null, $original);
+            $this->setHashforEmptyFilters($request, $assessmentHandler, $procedureId, $filterSet);
+        }
 
         $type = self::HASH_TYPE_ASSESSMENT;
-
-        /*
-         * If rParams contain filters, those win against the hash in url.
-         * Doing this via redirect to same action.
-         */
-        if (null === $filterSet) {
-            $request = $this->updateFilterSetParametersInRequest($request, $assessmentHandler);
-            $filterSet = $assessmentHandler->handleFilterHash($request, $procedureId, null, $original);
-
-            return $this->redirectToRoute(
-                'dplan_assessmenttable_view_table',
-                [
-                    'procedureId' => $procedureId,
-                    'filterHash'  => $filterSet->getHash(),
-                    '_fragment'   => $request->query->get('fragment', ''),
-                ]
-            );
-        }
 
         // Get the AssessmentQueryValueObject → holds all we need
         /** @var AssessmentTableQuery $assessmentTableQuery */
@@ -191,7 +194,6 @@ class DemosPlanAssessmentTableController extends BaseController
         // Put viewMode and filterHash in templateVars
         /** @var AssessmentTableViewMode|null $viewMode */
         $viewMode = $original ? null : $assessmentTableQuery->getViewMode();
-
         $rParams = $statementService->integrateFilterSetIntoArray(
             $filterSet,
             $rParams,
@@ -278,6 +280,20 @@ class DemosPlanAssessmentTableController extends BaseController
         );
     }
 
+    private function setHashforEmptyFilters(Request $request, AssessmentHandler $assessmentHandler, string $procedureId, HashedQuery $filterSet)
+    {
+        $request = $this->updateFilterSetParametersInRequest($request, $assessmentHandler);
+
+        return $this->redirectToRoute(
+            'dplan_assessmenttable_view_table',
+            [
+                'procedureId' => $procedureId,
+                'filterHash'  => $filterSet->getHash(),
+                '_fragment'   => $request->query->get('fragment', ''),
+            ]
+        );
+    }
+
     /**
      * Original Statements list.
      *
@@ -308,7 +324,7 @@ class DemosPlanAssessmentTableController extends BaseController
         TranslatorInterface $translator,
         string $procedureId,
         $filterHash,
-        bool $original
+        bool $original,
     ): ?Response {
         // @improve T14122
 
@@ -580,18 +596,16 @@ class DemosPlanAssessmentTableController extends BaseController
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
         CurrentUserInterface $currentUser,
-        EventDispatcherPostInterface $eventDispatcherPost,
         FileService $fileService,
         FileUploadService $fileUploadService,
         MapService $mapService,
         Request $request,
-        ServiceOutput $serviceOutput,
         StatementService $statementService,
         TranslatorInterface $translator,
         $procedureId,
         $statement,
         $title,
-        $isCluster = false
+        $isCluster = false,
     ) {
         $fParams = [];
         $statementId = $statement;
@@ -1039,7 +1053,7 @@ class DemosPlanAssessmentTableController extends BaseController
         TranslatorInterface $translator,
         CurrentProcedureService $currentProcedureService,
         StatementService $statementService,
-        CurrentUserInterface $currentUser
+        CurrentUserInterface $currentUser,
     ): array {
         $serviceVersion = $statementService->getVersionFields($statement);
 
@@ -1115,7 +1129,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         // Ersetze die Phase, in der die SN eingegangen ist
         $templateVars['table']['statement']['phase'] =
-            $statementService->getInternalOrExternalPhaseName($statementAsArray);
+            $statementService->getProcedurePhaseNameFromArray($statementAsArray);
 
         // hole Infos zu den Mitzeichnern
         foreach ($templateVars['table']['statement']['votes'] as $key => $vote) {

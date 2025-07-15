@@ -39,6 +39,7 @@
             class="inline-block break-words"
             style="width: 95%">
           <dp-edit-field
+            class="c-styled-html"
             :editable="isAssigneeEditable(segment)"
             label=""
             :label-grid-cols="0"
@@ -49,15 +50,16 @@
             @toggleEditing="() => addToEditing(segment.id)"
             @save="() => saveSegment(segment.id)">
             <template v-slot:display>
-              <div
-                class="u-mr"
-                v-cleanhtml="segment.attributes.text" />
+              <text-content-renderer
+                class="pr-3"
+                :text="segment.attributes.text" />
             </template>
             <template v-slot:edit>
               <dp-editor
                 class="u-mr u-pt-0_25"
-                :toolbar-items="{ linkButton: true }"
+                :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
                 :value="segment.attributes.text"
+                @transformObscureTag="transformObscureTag"
                 @input="(val) => updateSegmentText(segment.id, val)" />
             </template>
           </dp-edit-field>
@@ -67,12 +69,13 @@
 
     <!-- if statement has no segments, display statement -->
     <template v-else-if="statement">
-      <template v-if="editable && !segmentDraftList">
+      <template v-if="editable && !hasDraftSegments">
         <dp-editor
           hidden-input="statementText"
           required
-          :toolbar-items="{ linkButton: true }"
+          :toolbar-items="{ linkButton: true}"
           :value="statement.attributes.fullText || ''"
+          @transformObscureTag="transformObscureTag"
           @input="updateStatementText" />
         <dp-button-row
           class="u-mv"
@@ -86,7 +89,8 @@
         v-else
         class="border space-inset-s">
         <dp-inline-notification
-          class="mt-1"
+          v-if="hasDraftSegments"
+          class="mt mb-2"
           :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
           type="warning" />
         <p class="weight--bold">
@@ -109,9 +113,11 @@ import {
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
 import { scrollTo } from 'vue-scrollto'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 
 export default {
   name: 'StatementSegmentsEdit',
@@ -121,11 +127,12 @@ export default {
     DpClaim,
     DpEditField,
     DpLoading,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    },
-    DpInlineNotification
+    }),
+    DpInlineNotification,
+    TextContentRenderer
   },
 
   directives: {
@@ -146,7 +153,7 @@ export default {
       default: false
     },
 
-    segmentDraftList: {
+    hasDraftSegments: {
       type: Object,
       required: false,
       default: () => {}
@@ -158,21 +165,27 @@ export default {
     }
   },
 
+  emits: [
+    'save-statement',
+    'statement-text-updated'
+  ],
+
   data () {
     return {
       claimLoading: null,
       editingSegmentIds: [],
       hoveredSegment: null,
-      isLoading: false
+      isLoading: false,
+      obscuredText: ''
     }
   },
 
   computed: {
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
-    ...mapState('statement', {
+    ...mapState('Statement', {
       statements: 'items'
     }),
 
@@ -216,23 +229,23 @@ export default {
   },
 
   methods: {
-    ...mapMutations('statementSegment', {
+    ...mapMutations('StatementSegment', {
       updateSegment: 'update',
       setSegment: 'setItem'
     }),
 
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       updateSegmentAction: 'update',
       restoreSegmentAction: 'restoreFromInitial',
       saveSegmentAction: 'save',
       listSegments: 'list'
     }),
 
-    ...mapActions('statement', {
+    ...mapActions('Statement', {
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapMutations('statement', {
+    ...mapMutations('Statement', {
       setStatement: 'setItem'
     }),
 
@@ -280,7 +293,7 @@ export default {
 
     reset (segmentId) {
       // Restore initial text value
-      const initText = this.$store.state.statementSegment.initial[segmentId].attributes.text
+      const initText = this.$store.state.StatementSegment.initial[segmentId].attributes.text
       this.updateSegmentText(segmentId, initText)
       if (this.$refs[`editField_${segmentId}`][0]) {
         this.$refs[`editField_${segmentId}`][0].loading = false
@@ -295,6 +308,12 @@ export default {
     },
 
     saveSegment (segmentId) {
+      // Use the transformed text if available
+      const textToSave = this.obscuredText || this.segments[segmentId].attributes.text
+
+      // Update the segment text with the transformed text
+      this.updateSegmentText(segmentId, textToSave)
+
       this.saveSegmentAction(segmentId)
         .catch(() => {
           this.restoreSegmentAction(segmentId)
@@ -366,27 +385,65 @@ export default {
     },
 
     updateSegmentText (segmentId, val) {
-      const updated = { ...this.segments[segmentId], ...{ attributes: { ...this.segments[segmentId].attributes, ...{ text: val } } } }
+      const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
+      const updated = {
+        ...this.segments[segmentId],
+        attributes: {
+          ...this.segments[segmentId].attributes,
+          text: fullText
+        }
+      }
       this.setSegment({ ...updated, id: segmentId })
     },
 
     updateStatementText (val) {
+      const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
+
       this.$emit('statement-text-updated')
-      const updated = { ...this.statement, ...{ attributes: { ...this.statement.attributes, ...{ fullText: val } } } }
+
+      const updated = {
+        ...this.statement,
+        attributes: {
+          ...this.statement.attributes,
+          fullText
+        }
+      }
       this.setStatement({ ...updated, id: this.statement.id })
+    },
+
+    transformObscureTag (val) {
+      this.obscuredText = val
     }
   },
 
   mounted () {
     if (Object.keys(this.segments).length === 0 && hasPermission('area_statement_segmentation')) {
       this.isLoading = true
+
+      const statementSegmentFields = [
+        'tags',
+        'text',
+        'assignee',
+        'place',
+        'comments',
+        'externId',
+        'internId',
+        'orderInProcedure',
+        'polygon',
+        'recommendation'
+      ]
+
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
+      }
+
       this.listSegments({
         include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
         sort: 'orderInProcedure',
         fields: {
           Place: ['name', 'sortIndex'].join(),
           SegmentComment: ['creationDate', 'place', 'submitter', 'text'].join(),
-          StatementSegment: ['assignee', 'comments', 'externId', 'recommendation', 'text'].join(),
+          StatementSegment: statementSegmentFields.join(),
           User: ['lastname', 'firstname', 'orga'].join(),
           Orga: ['name'].join()
         },
@@ -411,7 +468,7 @@ export default {
     }
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.editingSegmentIds.length > 0 && hasPermission('area_statement_segmentation')) {
       this.editingSegmentIds.forEach(segment => this.reset(segment.id))
     }

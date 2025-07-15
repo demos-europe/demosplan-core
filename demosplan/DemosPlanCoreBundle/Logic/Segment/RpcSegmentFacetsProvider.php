@@ -55,6 +55,7 @@ class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
                 $this->validateRpcRequest($rpcRequest);
                 $facetKey = $rpcRequest->params->path;
                 $filterAsArray = Json::decodeToArray(Json::encode($rpcRequest->params->filter));
+                $filterAsArray = $this->filterParser->validateFilter($filterAsArray);
                 $conditions = $this->filterParser->parseFilter($filterAsArray);
                 $searchPhrase = $rpcRequest->params->searchPhrase;
                 $searchPhrase = null === $searchPhrase || empty($searchPhrase)

@@ -9,7 +9,8 @@
 
 export default {
   namespaced: true,
-  name: 'notify',
+
+  name: 'Notify',
 
   state: {
     messages: [],

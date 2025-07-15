@@ -16,7 +16,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\MapLayer;
 use GdImage;
 use Point;
 use stdClass;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class PolygonIntoMapLayerMerger
 {

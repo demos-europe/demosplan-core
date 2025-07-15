@@ -152,6 +152,10 @@ export default {
     }
   },
 
+  emits: [
+    'selected-cluster'
+  ],
+
   data () {
     return {
       selected: this.initSelectedCluster !== '' ? this.initClusterList.find(cluster => cluster.id === this.initSelectedCluster) : this.emptyCluster,
@@ -174,7 +178,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('statement', ['setAssigneeAction']),
+    ...mapActions('Statement', ['setAssigneeAction']),
 
     /**
      * Force-close multiselect dropdown on selection - because of the bug the menu stays opened
@@ -254,7 +258,7 @@ export default {
       this.updatingClaimState = false
       data.organisation = data.orgaName
       delete data.orgaName
-      Vue.set(this.selected, 'assignee', data)
+      this.selected.assignee = data
     }
   }
 }

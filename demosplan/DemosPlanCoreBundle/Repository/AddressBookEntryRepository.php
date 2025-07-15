@@ -61,8 +61,6 @@ class AddressBookEntryRepository extends CoreRepository implements ObjectInterfa
      *
      * @param CoreEntity $entity
      *
-     * @return CoreEntity
-     *
      * @throws Exception
      */
     public function updateObject($entity): never

@@ -12,39 +12,40 @@
     <div :class="prefixClass('c-proceduresearch__search-wrapper layout__item flex')">
       <dp-autocomplete
         v-if="dplan.settings.useOpenGeoDb"
-        data-cy="searchProcedureMapForm:procedureSearch"
-        name="search"
         id="procedure_search"
-        :class="prefixClass('c-proceduresearch__search-field')"
         ref="autocomplete"
         v-model="currentAutocompleteSearch"
+        :class="prefixClass('c-proceduresearch__search-field')"
+        data-cy="searchProcedureMapForm:procedureSearch"
+        height="34px"
+        label="value"
+        name="search"
+        :options="autocompleteOptions"
+        :placeholder="Translator.trans('procedure.public.search.placeholder')"
         :route-generator="(searchString) => {
           return Routing.generate('DemosPlan_procedure_public_suggest_procedure_location_json', {
             maxResults: 12,
             query: searchString
           })
         }"
-        :height="'34px'"
-        :options="autocompleteOptions"
-        :placeholder="Translator.trans('procedure.public.search.placeholder')"
         @search-changed="updateSuggestions"
-        @selected="search => setValueAndSubmitForm({ target: { value: search.value } }, 'search')"
         @searched="search => setValueAndSubmitForm({ target: { value: search } }, 'search')"
-        label="value" />
+        @selected="search => setValueAndSubmitForm({ target: { value: search.value } }, 'search')" />
 
       <template v-else>
-        <label
-          for="procedure_search_simple"
-          class="hide-visually"
-          v-html="Translator.trans('procedure.public.search.placeholder')" />
         <dp-input
-          :class="prefixClass('c-proceduresearch__search-field')"
           id="procedure_search_simple"
+          v-model="currentAutocompleteSearch"
+          :class="prefixClass('c-proceduresearch__search-field')"
+          data-cy="searchProcedureMapForm:procedureSearch"
+          :label="{
+            hide: true,
+            text: Translator.trans('procedure.public.search.placeholder')
+          }"
           name="search"
-          width="auto"
-          @enter="form.search = currentAutocompleteSearch; submitForm();"
           :placeholder="Translator.trans('procedure.public.search.placeholder')"
-          v-model="currentAutocompleteSearch" />
+          width="auto"
+          @enter="form.search = currentAutocompleteSearch; submitForm();" />
       </template>
 
       <button
@@ -74,8 +75,9 @@
     <div :class="prefixClass('layout__item u-1-of-1-palm hide-lap-up-ib')">
       <button
         type="button"
-        @click.prevent="showFilter = !showFilter"
-        :class="prefixClass('btn btn--primary weight--bold block u-1-of-1')">
+        :class="prefixClass('btn btn--primary weight--bold block u-1-of-1')"
+        data-cy="searchProcedureMapForm:toggleFilter"
+        @click.prevent="showFilter = !showFilter">
         Filter
       </button>
     </div>
@@ -97,9 +99,9 @@
             @change="setValueAndSubmitForm($event, 'sort')"
             :value="form.sort">
             <option
-              :key="'sort_' + option.value"
               v-for="option in sortOptions"
-              :selected="option.selected"
+              :key="'sort_' + option.value"
+              :selected="option.selected ? true : null"
               :value="option.value">
               {{ option.title }}
             </option>
@@ -109,65 +111,64 @@
 
       <!-- Filter: Municipal code -->
       <label
-        for="municipalCode"
+        v-if="hasPermission('feature_procedures_show_municipal_filter')"
         :class="prefixClass('c-proceduresearch__filter-label layout__item u-1-of-1 u-mb-0_25')"
-        v-if="hasPermission('feature_procedures_show_municipal_filter')">
+        for="municipalCode">
         Kreis
       </label><!--
    --><div
-        :class="prefixClass('layout__item u-1-of-1 u-mb')"
-        v-if="hasPermission('feature_procedures_show_municipal_filter')">
+        v-if="hasPermission('feature_procedures_show_municipal_filter')"
+        :class="prefixClass('layout__item u-1-of-1 u-mb')">
         <select
           id="municipalCode"
-          name="municipalCode"
           :class="prefixClass('o-form__control-select')"
+          data-cy="searchProcedureMapForm:municipalCode"
+          name="municipalCode"
           @change="setValueAndSubmitForm($event, 'municipalCode')">
-          <template v-for="municipalityGroups in municipalities">
+          <template
+            v-for="municipalityGroup in municipalities"
+            :key="`group_${municipalityGroup.label}`">
             <optgroup
-              :key="'group_' + municipalityGroups.label"
-              v-if="hasOwnProp(municipalityGroups,'options')"
-              :label="municipalityGroups.label">
+              v-if="hasOwnProp(municipalityGroup,'options')"
+              :label="municipalityGroup.label">
               <option
-                v-for="county in municipalityGroups.options"
-                :key="'group_opt_' + county.value"
-                :selected="county.value === form.municipalCode"
+                v-for="(county, idx) in municipalityGroup.options"
+                :key="`county:${idx}`"
+                :selected="county.value === form.municipalCode ? true : null"
                 :value="county.value">
                 {{ county.title }}
               </option>
             </optgroup>
             <option
               v-else
-              :key="'opt_' + municipalityGroups.value"
-              :value="municipalityGroups.value">
-              {{ municipalityGroups.label }}
+              :key="`opt_${municipalityGroup.value}`"
+              :value="municipalityGroup.value">
+              {{ municipalityGroup.label }}
             </option>
           </template>
         </select>
       </div>
 
       <!-- All other filters -->
-      <template v-for="(filter, idx) in filters">
+      <template
+        v-for="(filter, idx) in filters"
+        :key="'label_' + idx">
         <label
-          :key="'label_' + idx"
           :for="filter.name"
           :class="prefixClass('c-proceduresearch__filter-label layout__item u-mb-0_25 u-1-of-1')">
           {{ filter.title }}
-          <i
+          <dp-contextual-help
             v-if="filter.contextHelp !== ''"
-            tabindex="0"
-            class="fa fa-question-circle u-ml-0_25"
-            :aria-label="Translator.trans('contextual.help')"
-            v-tooltip="{ content: filter.contextHelp }" />
+            class="u-ml-0_25"
+            :text="filter.contextHelp" />
         </label><!--
-     --><div
-          :key="'select_' + filter.name"
-          :class="prefixClass('layout__item u-1-of-1 u-mb')">
+     --><div :class="prefixClass('layout__item u-1-of-1 u-mb')">
           <select
-            :ref="'filter_' + idx"
             :id="filter.name"
-            :name="filter.name"
-            :data-cy="'searchProcedureMapForm:' + filter.name"
+            :ref="'filter_' + idx"
             :class="prefixClass('o-form__control-select')"
+            :data-cy="'searchProcedureMapForm:' + filter.name"
+            :name="filter.name"
             @change="setValueAndSubmitForm($event, filter.name)">
             <option value="">
               {{ Translator.trans('all') }}
@@ -197,15 +198,16 @@
         <h2
           v-if="isSearch"
           id="searchResultHeading"
-          role="status"
-          :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')">
+          aria-live="assertive"
+          :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')"
+          role="status">
           Die Suche nach <span :class="prefixClass('c-proceduresearch__term weight--bold')">{{ currentSearch }}</span> hatte {{ resultCount }} Ergebnis
         </h2>
         <h2
           v-else-if="isNoSearchAndNoResult"
           id="noSearchResultHeading"
-          role="status"
-          :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')">
+          :class="prefixClass('layout__item font-size-h2 u-pr u-mb c-proceduresearch__result')"
+          role="status">
           {{ Translator.trans('search.results.none') }}.
         </h2>
         <template v-else-if="isDefaultFilter && resultCount === Translator.trans('none.neutral')">
@@ -215,6 +217,7 @@
           <button
             type="button"
             :class="prefixClass('btn btn--primary u-ml u-mb')"
+            data-cy="searchProcedureMapForm:showAllProcedures"
             @click.prevent="showAllProcedures">
             {{ Translator.trans('procedures.all.show') }}
           </button>
@@ -226,6 +229,7 @@
 <script>
 import {
   DpAutocomplete,
+  DpContextualHelp,
   DpInput,
   DpLoading,
   hasOwnProp,
@@ -239,6 +243,7 @@ export default {
 
   components: {
     DpAutocomplete,
+    DpContextualHelp,
     DpInput,
     DpLoading
   },
@@ -336,6 +341,19 @@ export default {
   },
 
   methods: {
+    fitToBounds () {
+      setTimeout(() => {
+        if (window.markersLayer.getLayers().length > 0) {
+          const bounds = window.markersLayer.getBounds().pad(0.2)
+          window.map.fitBounds(bounds)
+
+          if (window.map.getZoom() > 16) {
+            window.map.setZoom(12)
+          }
+        }
+      }, 200)
+    },
+
     hasOwnProp (obj, prop) {
       return hasOwnProp(obj, prop)
     },
@@ -396,6 +414,10 @@ export default {
     },
 
     setValueAndSubmitForm (e, key) {
+      if (key === 'search') {
+        this.currentAutocompleteSearch = e.target.value
+      }
+
       this.form[key] = e.target.value
       this.submitForm()
     },
@@ -428,8 +450,7 @@ export default {
     },
 
     updateMapFeatures (mapVars) {
-      // {# Wenn keine Karte da ist, versuche auch nicht, Kartenaktionen durchzuführen #}
-
+      // If there is no map, don't try to interact with it
       if (typeof map === 'undefined') {
         return
       }
@@ -484,19 +505,7 @@ export default {
         window.markersLayer.addLayer(marker)
       }
 
-      if (window.markersLayer.getLayers().length > 0) {
-        /*
-         * {
-         *   # Here, the
-         *   fitBounds
-         *   #
-         * }
-         */
-        window.map.fitBounds(window.markersLayer.getBounds().pad(0.2))
-        if (window.map.getZoom() > 16) {
-          window.map.setZoom(12)
-        }
-      }
+      this.fitToBounds()
     },
 
     updateSuggestions ({ data }) {

@@ -48,10 +48,10 @@
                                 > {{ 'indicationerror'|trans }}
                             </label>
 
-                            <span
-                                class="{{ 'o-tooltip o-tooltip--question-circle u-ml-0_5'|prefixClass }}"
-                                v-tooltip="'{{ 'link.title.indicationerror'|trans }}'">
-                            </span>
+                            {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
+                                helpText: 'link.title.indicationerror'|trans,
+                                cssClasses:'u-ml-0_5'
+                            } %}
 
                         </div>
                     {% else %}
@@ -93,7 +93,7 @@
                             {% endif %}
                             aria-labelledby="explanation-statement-privacy"
                             data-cy="privacyCheck"
-                            style="margin-right: 5px; margin-bottom: 4px;">
+                            style="margin-right: 5px; margin-bottom: 4px;"> {# inline style? really? #}
                         <span id="explanation-statement-privacy" aria-hidden="true">{{ "explanation.statement.privacy"|trans }}<span aria-hidden="true">*</span></span>
                     </label>
                 {% endif %}

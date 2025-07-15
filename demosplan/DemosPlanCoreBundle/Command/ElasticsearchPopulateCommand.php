@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use RuntimeException;
@@ -18,8 +19,9 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Process;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 /**
  * Populate elasticsearch index with multiple Workers.
@@ -45,6 +47,17 @@ class ElasticsearchPopulateCommand extends CoreCommand
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
+        $io = new SymfonyStyle($input, $output);
+        // output a message that this commmand does not work without enqueue bundle, which does not yet support elasticsearch 8
+        // and advise to use the fos:elastica:populate command instead
+        if (!class_exists('Enqueue\Symfony\ConsumptionExtension')) {
+            $io->writeln(
+                '<error>This command does not work without the enqueue bundle. Please use the fos:elastica:populate and fos:elastica:populate command instead.</error>'
+            );
+
+            return Command::FAILURE;
+        }
+
         $projectPath = DemosPlanPath::getProjectPath();
 
         $this->elasticsearchIndexingPoolSize = $this->parameterBag->get('elasticsearch_populate_workers');
@@ -151,7 +164,9 @@ class ElasticsearchPopulateCommand extends CoreCommand
         if (null === $this->getApplication()) {
             throw new RuntimeException('Cannot run this command without an application');
         }
+        /** @var DemosPlanKernel $kernel */
+        $kernel = $this->getApplication()->getKernel();
 
-        return DemosPlanPath::getRootPath('bin/'.$this->getApplication()->getKernel()->getActiveProject());
+        return DemosPlanPath::getRootPath('bin/'.$kernel->getActiveProject());
     }
 }

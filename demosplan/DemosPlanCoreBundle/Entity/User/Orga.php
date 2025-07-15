@@ -34,9 +34,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Illuminate\Support\Collection as IlluminateCollection;
 use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
-use Tightenco\Collect\Support\Collection as TightencoCollection;
 
 /**
  * @ORM\Table(
@@ -191,12 +191,12 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     /**
      * @var Collection<int, AddressInterface>
      *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Address", cascade={"all"})
+     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Address", cascade={"persist"})
      *
      * @ORM\JoinTable(
      *     name="_orga_addresses_doctrine",
-     *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="RESTRICT")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="_a_id", referencedColumnName="_a_id", onDelete="RESTRICT")}
+     *     joinColumns={@ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="cascade")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="_a_id", referencedColumnName="_a_id", onDelete="cascade")}
      * )
      */
     #[Assert\All([new Assert\Type(type: 'demosplan\DemosPlanCoreBundle\Entity\User\Address')])]
@@ -350,16 +350,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      * )
      */
     protected $assignedTags;
-    /**
-     * @var Collection<int,InstitutionTag>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag", mappedBy="owningOrganisation")
-     *
-     * @ORM\JoinColumn(referencedColumnName="id")
-     *
-     * @ORM\OrderBy({"label" = "ASC"})
-     */
-    protected $ownInstitutionTags;
 
     public function __construct()
     {
@@ -374,7 +364,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         $this->users = new ArrayCollection();
         $this->administratableProcedures = new ArrayCollection();
         $this->assignedTags = new ArrayCollection();
-        $this->ownInstitutionTags = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -730,6 +719,22 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return $this;
     }
 
+    public function getAddressExtension(): string
+    {
+        if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
+            return $this->addresses->first()->getStreet1() ?? '';
+        }
+
+        return '';
+    }
+
+    public function setAddressExtension($addressExtension): self
+    {
+        $this->setAddressValue('street1', $addressExtension);
+
+        return $this;
+    }
+
     public function getHouseNumber(): string
     {
         if ($this->addresses instanceof Collection && false !== $this->addresses->first()) {
@@ -898,7 +903,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return $this;
     }
 
-    public function getNotifications()
+    public function getNotifications(): array
     {
         if ($this->notifications instanceof Collection) {
             return $this->notifications->toArray();
@@ -925,14 +930,14 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     }
 
     /**
-     * @return ArrayCollection|TightencoCollection
+     * @return ArrayCollection|IlluminateCollection
      */
     public function getAllUsers()
     {
         return $this->users;
     }
 
-    public function getUsers(): TightencoCollection
+    public function getUsers(): IlluminateCollection
     {
         /** @var User[] $allUser */
         $allUser = $this->users;
@@ -981,7 +986,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return $this;
     }
 
-    public function getDepartments(): TightencoCollection
+    public function getDepartments(): IlluminateCollection
     {
         $nonDeletedDepartments = $this->departments->filter(
             static fn (Department $department) => !$department->isDeleted()
@@ -1023,7 +1028,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return $this;
     }
 
-    public function getProcedures()
+    public function getProcedures(): ArrayCollection|Collection
     {
         return $this->procedures;
     }
@@ -1049,7 +1054,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
 
     // @improve T12377
     /**
-     * @return TightencoCollection[User]
+     * @return IlluminateCollection[User]
      */
     public function getAllUsersOfDepartments()
     {
@@ -1067,7 +1072,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return $users->unique();
     }
 
-    public function getAddressBookEntries()
+    public function getAddressBookEntries(): Collection
     {
         return $this->addressBookEntries;
     }
@@ -1153,7 +1158,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     public function addCustomerAndOrgaType(
         CustomerInterface $customer,
         OrgaTypeInterface $orgaType,
-        string $status = OrgaStatusInCustomer::STATUS_ACCEPTED
+        string $status = OrgaStatusInCustomer::STATUS_ACCEPTED,
     ): self {
         // create new
         $relation = new OrgaStatusInCustomer();
@@ -1260,7 +1265,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         return false;
     }
 
-    public function getMainCustomer()
+    public function getMainCustomer(): ?CustomerInterface
     {
         /** @var OrgaStatusInCustomer $customerOrgaTypes */
         foreach ($this->getStatusInCustomers() as $customerOrgaTypes) {
@@ -1362,26 +1367,6 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         if ($this->assignedTags->contains($tag)) {
             $this->assignedTags->removeElement($tag);
             $tag->getTaggedInstitutions()->removeElement($this);
-        }
-    }
-
-    public function addOwnInstitutionTag(InstitutionTagInterface $tag): void
-    {
-        $this->ownInstitutionTags->add($tag);
-    }
-
-    /**
-     * @return Collection<int, InstitutionTag>
-     */
-    public function getOwnInstitutionTags(): Collection
-    {
-        return $this->ownInstitutionTags;
-    }
-
-    public function removeOwnInstitutionTag(InstitutionTagInterface $tag): void
-    {
-        if ($this->ownInstitutionTags->contains($tag)) {
-            $this->ownInstitutionTags->removeElement($tag);
         }
     }
 }

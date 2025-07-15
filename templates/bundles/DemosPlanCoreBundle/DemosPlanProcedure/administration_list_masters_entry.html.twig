@@ -4,6 +4,7 @@
             <input
                 name="procedure_selected[]"
                 type="checkbox"
+                data-checkable-item=""
                 data-cy="ListMasters"
                 value="{% if procedure.ident is defined %}{{ procedure.ident }}{% else %}{{ "notspecified"|trans }}{% endif %}">
         {% endif %}
@@ -16,11 +17,11 @@
         </a>
         {% if procedure.isCustomerMasterBlueprint is defined and procedure.isCustomerMasterBlueprint == true %}
             <span class="float-right u-mr u-mt-0_5">
+                {{  'master.of.customer'|trans }}
                 {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                    helpText: 'explanation.customer.masterblueprint'|trans,
-                    cssClasses:'o-tooltip--exclamation-circle'
+                    helpText: 'explanation.customer.masterblueprint'|trans
                 } %}
-                {{  'master.of.customer'|trans }}</span>
+            </span>
         {% endif %}
         <br>
         {{ "from.date"|trans }} {% if procedure.createdDate is defined %}{{ procedure.createdDate|default()|dplanDate }}{% else %}{{ "notspecified"|trans }}{% endif %}

@@ -24,7 +24,7 @@
     </a>
     <button
       class="btn--blank o-link--default u-mr-0_5"
-      @click.prevent="$root.$emit('exportModal:toggle', 'docx')">
+      @click.prevent="$emit('exportModal:toggle', 'docx')">
       <i
         aria-hidden="true"
         class="fa fa-share-square u-mr-0_125" />
@@ -68,8 +68,8 @@ export default {
   },
 
   computed: {
-    ...mapGetters('fragment', ['selectedFragments']),
-    ...mapState('statement', ['statements']),
+    ...mapGetters('Fragment', ['selectedFragments']),
+    ...mapState('Statement', ['statements']),
 
     editable () {
       return hasPermission('feature_statement_assignment') ? Object.values(this.selectedFragments).every(fragment => fragment.assignee.id === this.currentUserId) : true
@@ -77,7 +77,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('statement', ['updateStatement'])
+    ...mapMutations('Statement', ['updateStatement'])
   }
 }
 </script>

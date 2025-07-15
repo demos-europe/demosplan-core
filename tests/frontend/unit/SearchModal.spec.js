@@ -6,7 +6,7 @@
  *
  * All rights reserved
  */
-
+import { beforeEach, describe, expect, it, jest } from '@jest/globals'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
@@ -23,21 +23,13 @@ describe('SearchModal', () => {
 
     store = new Vuex.Store({
       modules: {
-        filter: {
+        Filter: {
           namespaced: true,
           state: {},
           mutations
         }
       }
     })
-  })
-
-  it('should be an object', () => {
-    expect(typeof SearchModal).toBe('object')
-  })
-
-  it('should be named search-modal', () => {
-    expect(SearchModal.name).toBe('SearchModal')
   })
 
   it('renders the correct markup with deactivated feature_statements_tag and feature_statement_fragments_tag', () => {
@@ -48,7 +40,12 @@ describe('SearchModal', () => {
 
     const wrapper = shallowMountWithGlobalMocks(
       SearchModal,
-      { store }
+      {
+        store,
+        global: {
+          renderStubDefaultSlot: true
+        }
+      }
     )
 
     expect(wrapper.html()).toMatchSnapshot()

@@ -75,7 +75,7 @@ use Elastica\Query\MatchAll;
 use Elastica\Query\Terms;
 use Elastica\ResultSet;
 use Exception;
-use Pagerfanta\Adapter\ElasticaAdapter;
+use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -139,7 +139,7 @@ class StatementFragmentService extends CoreService
         private readonly StatementService $statementService,
         TranslatorInterface $translator,
         private readonly UserRepository $userRepository,
-        UserService $userService
+        UserService $userService,
     ) {
         $this->assignService = $assignService;
         $this->elementService = $elementService;
@@ -862,10 +862,10 @@ class StatementFragmentService extends CoreService
 
             if ($user instanceof User) {
                 $fragment->setModifiedByUser(
-                    $em->getReference(User::class, $user->getId())
+                    $em->find(User::class, $user->getId())
                 );
                 $fragment->setModifiedByDepartment(
-                    $em->getReference(Department::class, $user->getDepartmentId())
+                    $em->find(Department::class, $user->getDepartmentId())
                 );
 
                 if (null === $user->getDepartmentId()) {
@@ -920,7 +920,7 @@ class StatementFragmentService extends CoreService
         if (array_key_exists('paragraphId', $fragmentArray)
             && 0 < \strlen((string) $fragmentArray['paragraphId'])
             && $fragmentArray['paragraphId'] != $currentFragment->getParagraphId()) {
-            $paragraphVersion = $em->getReference(
+            $paragraphVersion = $em->find(
                 Paragraph::class,
                 $fragmentArray['paragraphId']);
             $fragmentArray['paragraph'] = $this->paragraphService->createParagraphVersion($paragraphVersion);
@@ -1129,7 +1129,7 @@ class StatementFragmentService extends CoreService
         $limit = 0,
         $page = 1,
         $searchFields = [],
-        $addAllAggregations = true
+        $addAllAggregations = true,
     ): ElasticsearchResult {
         $elasticsearchResultStatement = new ElasticsearchResult();
         $boolQuery = new BoolQuery();
@@ -1141,17 +1141,17 @@ class StatementFragmentService extends CoreService
             // if a Searchterm is set use it
             if (is_string($search) && 0 < \strlen($search)) {
                 $availableSearchfields = [
-                    'fragment_text'           => 'text.text',
+                    'fragment_text'           => 'text',
                     'municipalityNames'       => 'municipalityNames.raw',
                     'displayId'               => 'displayId',
                     'statement.externId'      => 'statement.externId',
                     'priorityAreaKeys'        => 'priorityAreaKeys',
                     'countyNames'             => 'countyNames.raw',
-                    'tagNames'                => 'tagNames.text',
-                    'consideration'           => 'consideration.text',
-                    'fragments_consideration' => 'consideration.text',
-                    'elementTitle'            => 'elementTitle.text',
-                    'paragraphTitle'          => 'paragraphTitle.text',
+                    'tagNames'                => 'tagNames',
+                    'consideration'           => 'consideration',
+                    'fragments_consideration' => 'consideration',
+                    'elementTitle'            => 'elementTitle',
+                    'paragraphTitle'          => 'paragraphTitle',
                 ];
                 $usedSearchfields = [];
                 if ([] === $searchFields) {
@@ -1397,7 +1397,7 @@ class StatementFragmentService extends CoreService
                 $limit = 25;
             }
 
-            $paginator->setMaxPerPage($limit);
+            $paginator->setMaxPerPage((int) $limit);
             // try to paginate Result, check for validity
             try {
                 $paginator->setCurrentPage($page);
@@ -1700,7 +1700,7 @@ class StatementFragmentService extends CoreService
             // state we need to throw away the cached statement fragments first. This could lead to problems
             // if any previous StatementFragment instances are used with doctrine afterwards during this HTTP
             // request, even implicitly, eg. when persisting a Statement referencing StatementFragments.
-            $this->doctrine->getManager()->clear(StatementFragment::class);
+            $this->doctrine->getManager()->clear();
             $statementFragments = $this->statementFragmentRepository->findBy(
                 ['id' => $statementFragmentIds, 'procedure' => $procedureId]
             );
@@ -1740,7 +1740,7 @@ class StatementFragmentService extends CoreService
      */
     public function updateClaimingForStatementFragmentFromStatementFragmentUpdate(
         StatementFragment $statementFragment,
-        StatementFragmentUpdate $statementFragmentUpdate
+        StatementFragmentUpdate $statementFragmentUpdate,
     ) {
         if (in_array('assigneeId', $statementFragmentUpdate->getPropertiesSet(), true)) {
             $newAssigneeId = $statementFragmentUpdate->getAssigneeId();

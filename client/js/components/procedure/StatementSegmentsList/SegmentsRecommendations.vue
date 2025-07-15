@@ -48,8 +48,8 @@
         <statement-segment
           v-for="segment in segments"
           :key="'segment_' + segment.id"
-          :segment="segment"
           ref="segment"
+          :segment="segment"
           :statement-id="statementId"
           :current-user-id="currentUser.id"
           :current-user-first-name="currentUser.firstname"
@@ -97,7 +97,7 @@ export default {
   },
 
   computed: {
-    ...mapState('statementSegment', {
+    ...mapState('StatementSegment', {
       segments: 'items'
     }),
 
@@ -106,21 +106,29 @@ export default {
     },
 
     statement () {
-      return this.$store.state.statement.items[this.statementId] || null
+      return this.$store.state.Statement.items[this.statementId] || null
     }
   },
 
   methods: {
-    ...mapMutations('statement', {
-      setStatement: 'setItem'
+    ...mapActions('AssignableUser', {
+      fetchAssignableUsers: 'list'
     }),
 
-    ...mapActions('statement', {
+    ...mapActions('Place', {
+      fetchPlaces: 'list'
+    }),
+
+    ...mapActions('Statement', {
       restoreStatementAction: 'restoreFromInitial'
     }),
 
-    ...mapActions('statementSegment', {
+    ...mapActions('StatementSegment', {
       listSegments: 'list'
+    }),
+
+    ...mapMutations('Statement', {
+      setStatement: 'setItem'
     }),
 
     /**
@@ -188,9 +196,50 @@ export default {
         })
     },
 
-    fetchSegments () {
+    async fetchSegments () {
+      const statementSegmentFields = [
+        'tags',
+        'text',
+        'assignee',
+        'place',
+        'comments',
+        'externId',
+        'internId',
+        'orderInProcedure',
+        'polygon',
+        'recommendation'
+      ]
+
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
+      }
+
       this.isLoading = true
-      this.listSegments({
+
+      await this.fetchPlaces({
+        fields: {
+          Place: [
+            'description',
+            'name',
+            'solved',
+            'sortIndex'
+          ].join()
+        },
+        sort: 'sortIndex'
+      })
+
+      await this.fetchAssignableUsers({
+        fields: {
+          AssignableUser: [
+            'firstname',
+            'lastname'
+          ].join()
+        },
+        include: 'department',
+        sort: 'lastname'
+      })
+
+      await this.listSegments({
         include: [
           'assignee',
           'comments',
@@ -200,18 +249,7 @@ export default {
           'tags'
         ].join(),
         fields: {
-          StatementSegment: [
-            'tags',
-            'text',
-            'assignee',
-            'place',
-            'comments',
-            'externId',
-            'internId',
-            'orderInProcedure',
-            'polygon',
-            'recommendation'
-          ].join(),
+          StatementSegment: statementSegmentFields.join(),
           SegmentComment: [
             'creationDate',
             'text',
@@ -235,20 +273,22 @@ export default {
           }
         }
       })
-        .then(() => {
-          this.isLoading = false
-          this.$nextTick(() => {
-            const queryParams = new URLSearchParams(window.location.search)
-            const segmentId = queryParams.get('segment') || ''
-            if (segmentId) {
-              scrollTo('#segment_' + segmentId, { offset: -110 })
-              const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
-              if (segmentComponent) {
-                segmentComponent.isCollapsed = false
-              }
-            }
-          })
-        })
+
+      this.isLoading = false
+
+      this.$nextTick(() => {
+        const queryParams = new URLSearchParams(window.location.search)
+        const segmentId = queryParams.get('segment') || ''
+
+        if (segmentId) {
+          scrollTo('#segment_' + segmentId, { offset: -110 })
+          const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
+
+          if (segmentComponent) {
+            segmentComponent.isCollapsed = false
+          }
+        }
+      })
     },
 
     goToSplitStatementView () {
@@ -257,8 +297,11 @@ export default {
 
     toggleAll () {
       this.isAllCollapsed = this.isAllCollapsed === false
+
       this.$refs.segment.forEach(segment => {
-        segment.isCollapsed = this.isAllCollapsed
+        if (segment) {
+          segment.isCollapsed = this.isAllCollapsed
+        }
       })
     }
   },

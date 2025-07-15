@@ -13,6 +13,7 @@
         <div class="flow-root">
             <button
                 class="btn-icns"
+                data-cy="adminContextualHelpList:deleteMarkedItems"
                 name="delete"
                 data-form-actions-confirm="{{ "check.items.marked.delete" |trans }}"
             >
@@ -30,7 +31,8 @@
 
         <table
             aria-describedby="title"
-            class="c-table">
+            class="c-table"
+            data-cy="adminContextualHelpList">
             <colgroup>
                 <col>
             </colgroup>
@@ -46,7 +48,7 @@
                                 data-cy="selectAll"
                                 aria-label="{{ "markall"|trans }}"
                                 data-form-actions-check-all>
-                            <span class="hide-visually">
+                            <span class="sr-only">
                                 {{ "markall"|trans }}
                             </span>
                         </label>
@@ -67,7 +69,7 @@
                 {% endif %}
 
                 {% for contextualHelp in templateVars.contextualHelpList %}
-                        <tr>
+                        <tr data-cy="adminContextualHelpList:item:{{ loop.index }}">
                             <td>
                                 <input
                                     type="checkbox"
@@ -79,7 +81,7 @@
                             <td>
                                 <a
                                     href="{{ path('dplan_contextual_help_edit',{'contextualHelpId': contextualHelp.ident|default()}) }}"
-                                    data-cy="contextualHelpItem">
+                                    data-cy="contextualHelpItem:{{ loop.index }}">
                                     {{  contextualHelp.key|default }}
                                 </a>
                             </td>

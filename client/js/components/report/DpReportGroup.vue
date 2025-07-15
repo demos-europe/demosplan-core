@@ -32,7 +32,9 @@
       </dp-data-table>
 
       <div class="layout u-mv-0_5">
-        <div class="layout__item u-1-of-2">
+        <div
+          v-if="totalPages > 1"
+          class="layout__item u-1-of-2">
           <dp-sliding-pagination
             :current="currentPage"
             :total="totalPages"
@@ -106,6 +108,10 @@ export default {
       type: Boolean
     }
   },
+
+  emits: [
+    'page-change'
+  ],
 
   data () {
     return {

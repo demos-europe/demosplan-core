@@ -18,7 +18,7 @@ import NewProcedure from '@DpJs/store/procedure/NewProcedure'
 
 const components = { DpNewProcedure }
 const stores = {
-  NewProcedure: NewProcedure
+  NewProcedure
 }
 
 initialize(components, stores)

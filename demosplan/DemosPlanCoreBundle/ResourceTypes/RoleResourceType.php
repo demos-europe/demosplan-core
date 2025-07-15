@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathException;
 
 /**
  * @template-extends DplanResourceType<Role>
@@ -54,17 +55,19 @@ final class RoleResourceType extends DplanResourceType
 
     public function isListAllowed(): bool
     {
-        return false;
+        return $this->currentUser->hasPermission('feature_user_list_extended');
     }
 
+    /**
+     * @throws PathException
+     */
     protected function getAccessConditions(): array
     {
         $projectRoleCodes = $this->globalConfig->getRolesAllowed();
 
-        return [$this->conditionFactory->propertyHasAnyOfValues(
-            $projectRoleCodes,
-            $this->code
-        )];
+        return [[] === $projectRoleCodes
+            ? $this->conditionFactory->false()
+            : $this->conditionFactory->propertyHasAnyOfValues($projectRoleCodes, $this->code)];
     }
 
     protected function getProperties(): array

@@ -12,112 +12,130 @@
     <dp-input
       id="r_name"
       v-model="name"
-      class="u-mb-0_5"
-      data-cy="newMapLayerName"
       :label="{
         text: Translator.trans('name')
       }"
+      class="u-mb-0_5"
+      data-cy="newMapLayerName"
       name="r_name"
-      required />
+      required
+    />
 
     <dp-input
       id="r_url"
       v-model="url"
-      class="u-mb-0_5"
-      data-cy="newMapLayerURL"
       :label="{
         text: Translator.trans('url')
       }"
+      class="u-mb-0_5"
+      data-cy="newMapLayerURL"
       name="r_url"
       required
       @blur="getLayerCapabilities"
-      @enter="getLayerCapabilities" />
+      @enter="getLayerCapabilities"
+    />
 
     <dp-select
       v-model="serviceType"
-      class="u-mb-0_5"
       :label="{
         text: Translator.trans('type')
       }"
-      name="r_serviceType"
       :options="serviceTypeOptions"
-      required
-      @select="setServiceInUrl" />
-    <input
-      type="hidden"
+      class="u-mb-0_5"
+      data-cy="layerSettings:serviceType"
       name="r_serviceType"
-      v-model="serviceType">
+      required
+      @select="setServiceInUrl"
+    />
+
+    <input
+      v-model="serviceType"
+      name="r_serviceType"
+      type="hidden">
 
     <dp-checkbox
       v-if="hasPermission('feature_xplan_defaultlayers') && showXplanDefaultLayer"
       id="r_xplanDefaultlayers"
-      class="u-mb-0_5"
       :label="{
         text: Translator.trans('explanation.gislayer.xplan.default')
       }"
+      :title="Translator.trans('explanation.gislayer.default.defined') + ': ' + xplanDefaultLayer"
+      class="u-mb-0_5"
       name="r_xplanDefaultlayers"
       style="display: none;"
-      :title="Translator.trans('explanation.gislayer.default.defined') + ': ' + xplanDefaultLayer"
-      value="1" />
+      value="1"
+    />
 
     <dp-label
       :text="Translator.trans('layers')"
       for="r_layers"
-      required />
-    <dp-multiselect
-      @input="filterMatrixSetByLayers"
       required
-      track-by="label"
-      label="label"
-      multiple
+    />
+
+    <dp-multiselect
       id="r_layers"
       v-model="layers"
-      data-cy="newMapLayerLayers"
       :options="layersOptions"
-      class="u-mb-0_5" />
+      class="u-mb-0_5"
+      data-cy="newMapLayerLayers"
+      label="label"
+      track-by="label"
+      multiple
+      required
+      selection-controls
+      @input="filterMatrixSetByLayers"
+      @selectAll="selectAllLayers"
+      @deselectAll="deselectAllLayers"
+    />
 
     <input
-      type="hidden"
       :value="layersInputValue"
-      name="r_layers">
+      name="r_layers"
+      type="hidden">
+
     <dp-select
       v-if="hasPermission('feature_map_wmts') && serviceType === 'wmts'"
       id="r_tileMatrixSet"
       v-model="matrixSet"
-      class="u-mb-0_5"
       :disabled="disabledMatrixSelect"
       :label="{
         text: Translator.trans('map.tilematrixset')
       }"
-      name="r_tileMatrixSet"
       :options="matrixSetOptions"
-      required
-      @select="filterProjectionsByMatrixSet" />
-    <input
-      type="hidden"
+      class="u-mb-0_5"
+      data-cy="layerSettings:matrixSet"
       name="r_tileMatrixSet"
-      v-model="matrixSet">
+      required
+      @select="filterProjectionsByMatrixSet"
+    />
+
+    <input
+      v-model="matrixSet"
+      name="r_tileMatrixSet"
+      type="hidden">
 
     <dp-select
       id="r_layerProjection"
       v-model="projection"
-      class="u-mb-0_5"
       :disabled="disabledProjectionSelect"
       :label="{
         text: Translator.trans('projection')
       }"
-      name="r_layerProjection"
       :options="projectionOptions"
-      required />
-    <input
-      type="hidden"
+      class="u-mb-0_5"
       name="r_layerProjection"
-      v-model="projection">
+      required
+    />
 
     <input
-      type="hidden"
+      v-model="projection"
+      name="r_layerProjection"
+      type="hidden">
+
+    <input
+      v-model="version"
       name="r_layerVersion"
-      v-model="version">
+      type="hidden">
   </div>
 </template>
 
@@ -278,6 +296,8 @@ export default {
       // Show available layers in layers dropdown
       if (Array.isArray(this.currentCapabilities.Capability.Layer.Layer)) {
         this.addLayerToOptions(this.currentCapabilities.Capability.Layer.Layer, 'Name')
+      } else if (this.currentCapabilities.Capability.Layer.Name) {
+        this.layersOptions.push({ value: this.currentCapabilities.Capability.Layer, label: this.currentCapabilities.Capability.Layer.Name })
       } else {
         this.layersOptions = []
       }
@@ -478,6 +498,14 @@ export default {
         // Otherwise reset selection to empty
         this.layers = []
       }
+    },
+
+    selectAllLayers () {
+      this.layers = [...this.layersOptions]
+    },
+
+    deselectAllLayers () {
+      this.layers = []
     },
 
     setServiceInUrl () {

@@ -110,7 +110,10 @@
                         type="submit">
                         {{ "save"|trans }}
                     </button>
-                    <a class="btn btn--secondary" href="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
+                    <a
+                        class="btn btn--secondary"
+                        data-cy="abortBoilerplate"
+                        href="{{ path('DemosPlan_procedure_boilerplate_list', {'procedure': procedure}) }}">
                         {{ "abort"|trans }}
                     </a>
                 </div>

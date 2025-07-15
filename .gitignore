@@ -1,8 +1,11 @@
 .idea/
 */vendor
+addonDev
 addonZip
 addonZips
 addons
+CLAUDE.md
+claude-mds
 node_modules
 yarn-error.log
 docker-compose.yml
@@ -19,11 +22,13 @@ phpstan.neon
 !.editorconfig
 !.env
 !.env.test
+!.yarnrc.yml
 .ssh/
 .lnav
 !.github
 logs
 /docker-compose.override.yml
+plans
 
 # Core project
 /projects/core/app/cache/*
@@ -33,6 +38,8 @@ logs
 /projects/core/web/img
 /projects/core/web/js
 /projects/core/web/video
+/projects/core/web/files
+!/var/.gitkeep
 
 ###> symfony/framework-bundle ###
 /.env.local

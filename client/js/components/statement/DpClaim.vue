@@ -44,7 +44,7 @@ the FB is ready with editing of fragments.
   <button
     class="flex items-center space-inline-xs btn--blank o-link--default"
     :class="{'cursor-pointer' : false === isLoading}"
-    :data-assigned="isAssignedToMe /* needed for checking checked elements*/"
+    :data-assigned="isAssignedToMe ? 'true' : 'false'"
     @click.prevent.stop="updateAssignment"
     data-cy="claimIcon"
     :aria-label="status.text"
@@ -125,6 +125,10 @@ export default {
     }
   },
 
+  emits: [
+    'click'
+  ],
+
   computed: {
     isAssigned () {
       return typeof this.assignedId === 'string' && this.assignedId.length > 0
@@ -202,7 +206,7 @@ export default {
           delegator: this.currentUserName
         }
       )
-      return { text: status, icon: icon }
+      return { text: status, icon }
     }
   },
 
@@ -216,13 +220,13 @@ export default {
       if (this.assignedId !== this.currentUserId && this.assignedId !== '') {
         let transkey
         switch (this.entityType) {
-          case 'statement':
+          case 'Statement':
             transkey = 'warning.statement.needLock.generic'
             break
-          case 'fragment':
+          case 'Fragment':
             transkey = 'warning.fragment.needLock.generic'
             break
-          case 'segment':
+          case 'Segment':
             transkey = 'warning.segment.needLock.generic'
             break
         }

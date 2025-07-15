@@ -10,8 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
-use Lexik\Bundle\JWTAuthenticationBundle\Security\Guard\JWTTokenAuthenticator;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\Authenticator\JWTAuthenticator;
 
-class ApiAuthenticator extends JWTTokenAuthenticator
+class ApiAuthenticator extends JWTAuthenticator
 {
 }

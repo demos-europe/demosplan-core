@@ -31,6 +31,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -214,6 +215,10 @@ abstract class BaseController extends AbstractController
                 $code = 400;
                 $message = 'Invalid request';
                 break;
+            case $e instanceof TooManyRequestsHttpException:
+                $code = $e->getStatusCode();
+                $message = $e->getMessage();
+                break;
         }
 
         $response = [
@@ -274,7 +279,7 @@ abstract class BaseController extends AbstractController
      *
      * @throws Exception
      */
-    public function renderTemplate($view, array $parameters = [], Response $response = null): Response
+    public function renderTemplate($view, array $parameters = [], ?Response $response = null): Response
     {
         $this->viewRenderer->processRequestStatus();
         $parameters = $this->viewRenderer->processRequestParameters($view, $parameters, $response);

@@ -66,6 +66,8 @@ use Elastica\Query\BoolQuery;
 use Elastica\Query\MatchQuery;
 use Elastica\Query\Terms;
 use Exception;
+use Illuminate\Support\Collection as IlluminateCollection;
+use League\Flysystem\FilesystemOperator;
 use ReflectionException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -124,6 +126,7 @@ class DraftStatementService extends CoreService
         private readonly EntityHelper $entityHelper,
         Environment $twig,
         FileService $fileService,
+        private readonly FilesystemOperator $defaultStorage,
         private readonly ManualListSorter $manualListSorter,
         MapService $serviceMap,
         private readonly MessageBagInterface $messageBag,
@@ -140,7 +143,7 @@ class DraftStatementService extends CoreService
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         StatementService $statementService,
         StatementValidator $statementValidator,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->currentUser = $currentUser;
         $this->elementsService = $elementsService;
@@ -173,7 +176,11 @@ class DraftStatementService extends CoreService
             throw new AccessDeniedException('No user given');
         }
         try {
-            // die eigenen Freigaben müssen abweichend vom Standardverfahren aus der Datenbank gezogen werden
+            /*
+             * Special fetching strategy for DraftStatements is needed:
+             * 'own' in combination with getReleased to indicate
+             * the DraftStatement belongs to the users organisation and has been created by the given user.
+             */
             if ('own' === $scope && true === $filters->getReleased()
                 && (null === $filters->getSubmitted() || false === $filters->getSubmitted())) {
                 return $this->getDraftStatementReleasedOwnList($procedureId, $filters, $search, $sort, $user, $manualSortScope);
@@ -193,11 +200,20 @@ class DraftStatementService extends CoreService
             } else {
                 $conditions[] = $this->conditionFactory->propertyHasValue($userOrganisationGatewayName, ['organisation', 'gatewayName']);
             }
-
-            if ('own' === $scope || 'ownCitizen' === $scope) {
+            if ('ownCitizen' === $scope) {
+                // In case of ownCitizen, previous ('own'-)logic can be executed:
                 $conditions[] = $this->conditionFactory->propertyHasValue($user->getId(), ['user']);
                 // add filter to be seen by elasticsearch
-                $filters->setSomeOnesUserId($user->getIdent());
+                $filters->setSomeOnesUserId($user->getId());
+            }
+            if ('own' === $scope) {
+                // own means own organisation in this context.
+                // filter out all private DraftStatements of own organisation if they are not authored by currentUser
+                $conditions[] = $this->conditionFactory->anyConditionApplies(
+                    $this->conditionFactory->propertyHasValue(false, ['authorOnly']),
+                    $this->conditionFactory->propertyHasValue($user->getId(), ['user']),
+                );
+                $filters->setSomeOnesUserId($user->getId());
             }
 
             if (null !== $filters->getReleased()) {
@@ -239,7 +255,7 @@ class DraftStatementService extends CoreService
             }
 
             // get Elasticsearch aggregations aka Userfilters
-            $aggregation = $this->getElasticsearchDraftStatementAggregation($filters, $procedureId, $user, $search);
+            $aggregation = $this->getElasticsearchDraftStatementAggregation($filters, $procedureId, $user, $search, $scope);
 
             return $this->toLegacyResult($list, $procedureId, $search, $filters->toArray(), $sort, $manualSortScope, $aggregation);
         } catch (Exception $e) {
@@ -599,7 +615,7 @@ class DraftStatementService extends CoreService
         $user,
         ?NotificationReceiver $notificationReceiver = null,
         bool $gdprConsentReceived = false,
-        bool $convertToLegacy = true
+        bool $convertToLegacy = true,
     ): array {
         if (!is_array($draftStatementIds)) {
             $draftStatementIds = [$draftStatementIds];
@@ -628,7 +644,7 @@ class DraftStatementService extends CoreService
         $user,
         ?NotificationReceiver $notificationReceiver = null,
         bool $gdprConsentReceived = false,
-        bool $convertToLegacy = true
+        bool $convertToLegacy = true,
     ): array {
         $submittedStatements = [];
 
@@ -729,7 +745,7 @@ class DraftStatementService extends CoreService
     public function addDraftStatement($data)
     {
         // validate visibility of related paragraph in case of related paragraph is set
-        if (array_key_exists('paragraphId', $data) && !is_null($data['paragraphId'])) {
+        if (array_key_exists('paragraphId', $data) && !is_null($data['paragraphId']) && '' !== $data['paragraphId']) {
             $paragraph = $this->paragraphService->getParaDocumentObject($data['paragraphId']);
             if (!is_null($paragraph) && 1 != $paragraph->getVisible()) {
                 $this->getLogger()->error('On addDraftStatement(): selected paragraph '.$paragraph->getId().' is not released!');
@@ -878,16 +894,13 @@ class DraftStatementService extends CoreService
 
         $filenameSuffix .= '.pdf';
 
-        $selectedStatementsToExport = isset($itemsToExport)
-            ? explode(',', $itemsToExport)
-            : null;
-
-        $filteredStatementList = collect($draftStatementList)->filter(fn ($statement) => null === $selectedStatementsToExport || in_array($this->entityHelper->extractId($statement), $selectedStatementsToExport))->map(function (array $statement) use ($procedureId) {
-            $statement['documentlist'] = $this->paragraphService->getParaDocumentObjectList($procedureId, $statement['elementId']);
-            $statement = $this->checkMapScreenshotFile($statement, $procedureId);
-
-            return $statement;
-        })->all();
+        $selectedStatementsToExport = $this->parseItemsToExport($itemsToExport);
+        $filteredStatementList = $this->filterDraftStatementsBySelectedIds(
+            $draftStatementList,
+            $selectedStatementsToExport
+        );
+        $filteredStatementList = $this->addContentToStatementsArrayForPdfProcess($filteredStatementList, $procedureId);
+        $filteredStatementList = $filteredStatementList->all();
 
         $firstOrganisationId = $filteredStatementList[0]['oId'] ?? '';
 
@@ -979,20 +992,25 @@ class DraftStatementService extends CoreService
 
     protected function checkMapScreenshotFile(array $statementArray, string $procedureId): array
     {
-        // hat das Statement einen Screenshot aber kein Polygon?
+        // Does the statement have a polygon but no screenshot?
         if (0 < strlen((string) $statementArray['polygon']) && 0 === strlen($statementArray['mapFile'] ?? '')) {
-            $this->getLogger()->info('DraftStatement hat ein Polygon, aber keinen Screenshot. Erzeuge ihn');
+            $this->getLogger()->info('DraftStatement has a polygon but no screenshot. Creating one');
             $statementArray['mapFile'] = $this->getServiceMap()->createMapScreenshot($procedureId, $statementArray['ident']);
         }
-        // hat das Statement ein Screenshot?
+        // Does the statement have a screenshot?
         if (0 < strlen($statementArray['mapFile'] ?? '')) {
-            $this->getLogger()->info('DraftStatement hat einen Screenshot.');
-            $fileInfo = $this->fileService->getFileInfoFromFileString($statementArray['mapFile']);
-            // Wenn der Screenshot da sein müsste, es aber nicht ist, versuche ihn neu zu generieren
-            if (!is_file($fileInfo->getAbsolutePath())) {
-                $this->getLogger()->info('Screenshot konnte nicht gefunden werden');
+            $this->getLogger()->info('DraftStatement has a screenshot.');
+            $fileInfo = null;
+            try {
+                $fileInfo = $this->fileService->getFileInfoFromFileString($statementArray['mapFile']);
+            } catch (Exception $e) {
+                $this->getLogger()->warning('Screenshot could not be found', [$e]);
+            }
+            // If the screenshot should be there but isn't, try to regenerate it
+            if (null === $fileInfo || !$this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+                $this->getLogger()->info('Screenshot could not be found');
                 if (0 < strlen((string) $statementArray['polygon'])) {
-                    $this->getLogger()->info('Erzeuge Screenshot neu');
+                    $this->getLogger()->info('Regenerating screenshot');
                     $statementArray['mapFile'] = $this->getServiceMap()->createMapScreenshot($procedureId, $statementArray['ident']);
                 }
             }
@@ -1043,12 +1061,12 @@ class DraftStatementService extends CoreService
     {
         $index = count($pictures);
 
-        if (is_file($file->getAbsolutePath())) {
-            $this->getLogger()->info('Bild auf der Platte gefunden');
-            $fileContent = file_get_contents($file->getAbsolutePath());
+        if ($this->defaultStorage->fileExists($file->getAbsolutePath())) {
+            $this->getLogger()->debug('Picture found: ', [$file->getAbsolutePath()]);
+            $fileContent = $this->defaultStorage->read($file->getAbsolutePath());
             $pictures['picture'.$index] = $file->getHash().'###'.$file->getFileName().'###'.base64_encode($fileContent);
         } else {
-            $this->getLogger()->error('Bild nicht gefunden');
+            $this->getLogger()->error('Picture not found: ', [$file->getAbsolutePath()]);
         }
 
         return $pictures;
@@ -1241,7 +1259,7 @@ class DraftStatementService extends CoreService
             // check whether existing paragraph equals given paragraphId
             if (is_null($entity) || $data['paragraphId'] != $entity->getParagraphId()) {
                 $data['paragraph'] = $this->createParagraphVersion(
-                    $em->getReference(
+                    $em->find(
                         Paragraph::class,
                         $data['paragraphId']
                     )
@@ -1261,7 +1279,7 @@ class DraftStatementService extends CoreService
             // check whether existing document equals given documentId
             if (is_null($entity) || $data['documentId'] != $entity->getDocumentId()) {
                 $data['document'] = $this->createSingleDocumentVersion(
-                    $em->getReference(
+                    $em->find(
                         SingleDocument::class,
                         $data['documentId']
                     )
@@ -1371,7 +1389,7 @@ class DraftStatementService extends CoreService
         $search,
         $sort,
         $user,
-        $manualSortScope = null
+        $manualSortScope = null,
     ): DraftStatementResult {
         try {
             $results = $this->draftStatementVersionRepository->getOwnReleasedList(
@@ -1476,7 +1494,7 @@ class DraftStatementService extends CoreService
      *
      * @return array
      */
-    protected function getElasticsearchDraftStatementAggregation(StatementListUserFilter $userFilters, $procedureId, $user, $search = '')
+    protected function getElasticsearchDraftStatementAggregation(StatementListUserFilter $userFilters, $procedureId, $user, $search = '', string $scope = '')
     {
         $aggregation = [];
         $boolQuery = new BoolQuery();
@@ -1509,6 +1527,18 @@ class DraftStatementService extends CoreService
                 }
             }
 
+            if ('own' === $scope) {
+                // 'own' means own organisation in this context
+                // filters private drafts from orga if not owned by user
+                $shouldBool = new BoolQuery();
+                $shouldBool->addShould(new Terms('authorOnly', [false]));
+                $shouldBool->addShould(new Terms('uId', [$userFilters->getSomeOnesUserId()]));
+                $boolMustFilter[] = $shouldBool;
+            } elseif (null !== $userFilters->getSomeOnesUserId()) {
+                $uId = [$userFilters->getSomeOnesUserId()];
+                $boolMustFilter[] = new Terms('uId', $uId);
+            }
+
             // Filters set by users.
             if (null !== $userFilters->getReleased()) {
                 $released = [$userFilters->getReleased()];
@@ -1517,10 +1547,6 @@ class DraftStatementService extends CoreService
             if (null !== $userFilters->getSubmitted()) {
                 $submitted = [$userFilters->getSubmitted()];
                 $boolMustFilter[] = new Terms('submitted', $submitted);
-            }
-            if (null !== $userFilters->getSomeOnesUserId()) {
-                $uId = [$userFilters->getSomeOnesUserId()];
-                $boolMustFilter[] = new Terms('uId', $uId);
             }
             if (null !== $userFilters->getElement()) {
                 $element = [$userFilters->getElement()];
@@ -2060,6 +2086,57 @@ class DraftStatementService extends CoreService
                 'user'      => $this->currentUser->getUser()->getId(),
                 'procedure' => $procedureId,
             ]
+        );
+    }
+
+    /**
+     * Parses itemsToExport parameter into Collection of statement IDs.
+     * Returns null if no items specified (indicates all statements should be exported).
+     *
+     * @param string|array|null $itemsToExport Comma-separated string or array of statement IDs
+     */
+    public function parseItemsToExport($itemsToExport): ?IlluminateCollection
+    {
+        if (is_string($itemsToExport)) {
+            return collect(explode(',', $itemsToExport));
+        }
+        if (is_array($itemsToExport) && !empty($itemsToExport)) {
+            return collect($itemsToExport);
+        }
+
+        return null;
+    }
+
+    /**
+     * Filters statements by selected IDs. Returns all statements if no selection provided.
+     */
+    public function filterDraftStatementsBySelectedIds(
+        array $draftStatementList,
+        ?IlluminateCollection $selectedStatementsToExport,
+    ): IlluminateCollection {
+        if (null === $selectedStatementsToExport) {
+            return collect($draftStatementList);
+        }
+
+        return collect($draftStatementList)->filter(
+            fn (array $statementArray) => $selectedStatementsToExport->contains(
+                $this->entityHelper->extractId($statementArray)
+            )
+        );
+    }
+
+    /**
+     * Enriches statement arrays with documentlist and map screenshots for PDF processing.
+     */
+    public function addContentToStatementsArrayForPdfProcess(IlluminateCollection $filteredStatementList, string $procedureId): IlluminateCollection
+    {
+        return $filteredStatementList->map(
+            function (array $statementArray) use ($procedureId) {
+                $statementArray['documentlist'] = $this->paragraphService
+                    ->getParaDocumentObjectList($procedureId, $statementArray['elementId']);
+
+                return $this->checkMapScreenshotFile($statementArray, $procedureId);
+            }
         );
     }
 }

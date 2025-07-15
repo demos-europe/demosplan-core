@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Category;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\DeprecatedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
@@ -31,7 +32,7 @@ use Exception;
  */
 class ContentRepository extends CoreRepository implements ArrayInterface
 {
-    public function getNewsListByRoles(array $roles): array
+    public function getNewsListByRoles(array $roles, Customer $customer): array
     {
         $em = $this->getEntityManager();
         $query = $em->createQueryBuilder()
@@ -44,9 +45,11 @@ class ContentRepository extends CoreRepository implements ArrayInterface
             ->andWhere('globalContent.deleted = :deleted')
             ->andWhere('globalContent.enabled = :enabled')
             ->andWhere('globalContent.type = :type')
+            ->andWhere('globalContent.customer = :customer')
             ->setParameter('deleted', false)
             ->setParameter('enabled', true)
             ->setParameter('type', 'news')
+            ->setParameter('customer', $customer)
             ->getQuery();
 
         return $query->getResult();
@@ -96,6 +99,7 @@ class ContentRepository extends CoreRepository implements ArrayInterface
 
             $type = null;
             $manualSortScope = null;
+            $customer = null;
 
             if (array_key_exists('manualSortScope', $data)) {
                 $manualSortScope = $data['manualSortScope'];
@@ -105,15 +109,19 @@ class ContentRepository extends CoreRepository implements ArrayInterface
                 $type = $data['type'];
             }
 
-            if (!is_null($manualSortScope) && !is_null($type)) {
+            if (array_key_exists('customer', $data)) {
+                $customer = $data['customer'];
+            }
+
+            if (!is_null($manualSortScope) && !is_null($type) && !is_null($customer)) {
                 /** @var ManualListSortRepository $manualListSortRepos */
                 $manualListSortRepos = $em->getRepository(ManualListSort::class);
-                $manualListSort = $manualListSortRepos->getManualListSort('global', $manualSortScope, 'content:'.$type);
+                $manualListSort = $manualListSortRepos->getManualListSort('global', $manualSortScope, 'content:'.$type, $customer);
                 if (!is_null($manualListSort)) {
                     $identList = $manualListSort->getIdents();
                     $identList = $content->getIdent().','.$identList;
 
-                    $manualListSortRepos->addList('global', $manualSortScope, 'content:'.$type, $identList);
+                    $manualListSortRepos->addList('global', $manualSortScope, 'content:'.$type, $identList, $customer);
                 }
             }
 
@@ -195,6 +203,7 @@ class ContentRepository extends CoreRepository implements ArrayInterface
                 'pictitle',
                 'pdf',
                 'pdftitle',
+                'customer',
             ]
         );
 

@@ -56,6 +56,10 @@ const webpackDefaultPlugins = [
         from: resolveDir('demosplan/DemosPlanCoreBundle/Resources/public/fonts'),
         to: `${config.projectRoot}/web/fonts`
       },
+      {
+        from: resolveDir('demosplan/DemosPlanCoreBundle/Resources/public/files'),
+        to: `${config.projectRoot}/web/files`
+      },
       // Project specific videos, images, fonts and pdfs, may not exist
       {
         from: `${config.projectRoot}/app/Resources/DemosPlanCoreBundle/public/video`,
@@ -80,6 +84,13 @@ const webpackDefaultPlugins = [
       {
         from: `${config.projectRoot}/app/Resources/DemosPlanCoreBundle/public/pdf`,
         to: `${config.projectRoot}/web/pdf`,
+        noErrorOnMissing: true
+      },
+      // Addon files, may not exist
+      {
+        from: 'addons/vendor/demos-europe/**/public/files/*',
+        to: `${config.projectRoot}/web/files/[name][ext]`,
+        force: true, // overwrite existing files
         noErrorOnMissing: true
       },
       {

@@ -31,7 +31,7 @@ class NullablePropertyAccessor extends PropertyAccessor
      *
      * @return mixed|null
      */
-    public function getValue($objectOrArray, $propertyPath)
+    public function getValue($objectOrArray, $propertyPath): mixed
     {
         try {
             return parent::getValue($objectOrArray, $propertyPath);

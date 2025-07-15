@@ -53,7 +53,7 @@ class JsonApiActionService
         private readonly JsonApiEsService $jsonApiEsService,
         private readonly JsonApiPaginationParser $paginationParser,
         private readonly DrupalFilterParser $filterParser,
-        private readonly JsonApiSortingParser $sortingParser
+        private readonly JsonApiSortingParser $sortingParser,
     ) {
         $this->eventDispatcher = $eventDispatcher;
     }
@@ -69,7 +69,7 @@ class JsonApiActionService
         JsonApiResourceTypeInterface $type,
         array $conditions,
         array $sortMethods = [],
-        APIPagination $pagination = null
+        ?APIPagination $pagination = null,
     ): ApiListResultInterface {
         if (null === $pagination) {
             $filteredEntities = $type->getEntities($conditions, $sortMethods);
@@ -97,7 +97,7 @@ class JsonApiActionService
         array $sortMethods = [],
         array $filterAsArray = [],
         bool $requireEntities = true,
-        APIPagination $pagination = null
+        ?APIPagination $pagination = null,
     ): ApiListResult {
         // we do not need to apply any sorting here, because it needs to be applied later
         $entityIdentifiers = $type->listEntityIdentifiers($conditions, []);
@@ -111,7 +111,7 @@ class JsonApiActionService
      */
     public function getObjectsByQueryParams(
         ParameterBag $query,
-        ResourceTypeInterface $type
+        ResourceTypeInterface $type,
     ): ApiListResult {
         $filters = $this->getFilters($query);
         $sortMethods = $this->getSorting($query);
@@ -123,9 +123,9 @@ class JsonApiActionService
         ResourceTypeInterface $type,
         array $filters,
         array $sortMethods,
-        ParameterBag $query
+        ParameterBag $query,
     ): ApiListResultInterface {
-        $searchParams = SearchParams::createOptional($query->get(JsonApiEsServiceInterface::SEARCH, []));
+        $searchParams = SearchParams::createOptional($query->all(JsonApiEsServiceInterface::SEARCH));
         $pagination = $this->getPagination($query);
 
         if (null === $searchParams) {
@@ -159,7 +159,8 @@ class JsonApiActionService
             return [];
         }
 
-        $filterParam = $query->get(UrlParameter::FILTER);
+        $filterParam = $query->all(UrlParameter::FILTER);
+        $filterParam = $this->filterParser->validateFilter($filterParam);
         $conditions = $this->filterParser->parseFilter($filterParam);
         $query->remove(UrlParameter::FILTER);
 

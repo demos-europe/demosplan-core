@@ -117,7 +117,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('fragment', ['fragmentsByStatement']),
+    ...mapGetters('Fragment', ['fragmentsByStatement']),
 
     statementFragmentsFromStore () {
       return this.fragmentsByStatement(this.statementId) || {}

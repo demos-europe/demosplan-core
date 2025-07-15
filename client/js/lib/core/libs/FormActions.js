@@ -47,7 +47,7 @@
 function addFormHiddenField (form, fieldname, value) {
   //  Append new hidden field reflecting current form action
   const input = document.createElement('input')
-  setAttributes(input, { type: 'hidden', name: fieldname, value: value, 'data-form-actions-added': '1' })
+  setAttributes(input, { type: 'hidden', name: fieldname, value, 'data-form-actions-added': '1' })
 
   form.appendChild(input)
 }

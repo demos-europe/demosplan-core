@@ -109,6 +109,7 @@ RESOURCE_INFO
 
 RESOURCE_MAP_HEADER;
 
+        // local file is valid, no need for flysystem
         file_put_contents(
             DemosPlanPath::getRootPath(
                 $filename

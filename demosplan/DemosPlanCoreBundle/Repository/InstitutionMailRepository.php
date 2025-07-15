@@ -27,8 +27,6 @@ class InstitutionMailRepository extends CoreRepository implements ImmutableArray
      * Get Entity by Id.
      *
      * @param string $entityId
-     *
-     * @return CoreEntity
      */
     public function get($entityId): never
     {

@@ -139,6 +139,8 @@ Therefor we want to hide it from the User #}
         </div>
     {% endif %}
 
+    {{ include('@DemosPlanCore/DemosPlanUser/portal_profile_2fa.html.twig') }}
+
     {% if hasPermission('feature_profile_editable') %}
         <div class="{{ 'text-right space-inline-s'|prefixClass }}">
             <input class="{{ 'btn btn--primary'|prefixClass }}" type="submit" value="{{ "save"|trans }}">

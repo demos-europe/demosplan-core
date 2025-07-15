@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
-use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
@@ -30,7 +29,7 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
     /**
      * Hole Infos zum File.
      */
-    public function getFileInfo(string $hash): ?File
+    public function getFile(string $hash, ?string $procedureId = null): ?File
     {
         // Der übergebene Hash ist der Ident der Datenbank
         // Die Spalte Hash bezeichnet den Namen, unter dem die Datei auf dem
@@ -38,14 +37,30 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
 
         /** @var File|null $result */
         $result = $this->findOneBy(['ident' => $hash, 'deleted' => false]);
-
+        if (null !== $result) {
+            return $result;
+        }
         // As ident and hash are historically really strangely used mistakes happened
         // be kind and try to find via hash when nothing was found by ident
-        if (null === $result) {
-            $result = $this->findOneBy(['hash' => $hash, 'deleted' => false]);
+
+        // T36732 In case the same physical file is used for multiple procedures
+        // There will be a fileInfo entity for every reference to a physical file.
+        // They share the same hash - but not necessarily the procedure
+        // - so the findOneBy method for the kindly supported hash is insufficient here.
+        $fileInfos = $this->findBy(['hash' => $hash, 'deleted' => false, 'procedure' => $procedureId]);
+        $fileInfosCount = count($fileInfos);
+        // easy - has to be this one
+        if (0 < $fileInfosCount) {
+            return reset($fileInfos);
+        }
+        $fileInfos = $this->findBy(['hash' => $hash, 'deleted' => false, 'procedure' => null]);
+        $fileInfosCount = count($fileInfos);
+        // tried our best to return the correct fileInfo - but if not successful until here - just return a matching hash
+        if (0 === $fileInfosCount) {
+            return $this->findOneBy(['hash' => $hash, 'deleted' => false]);
         }
 
-        return $result;
+        return reset($fileInfos);
     }
 
     /**
@@ -95,7 +110,7 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
      *
      * @param string $entityId
      *
-     * @return CoreEntity|null
+     * @return File|null
      */
     public function get($entityId)
     {

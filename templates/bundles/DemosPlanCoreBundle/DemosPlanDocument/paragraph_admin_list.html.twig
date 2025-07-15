@@ -55,7 +55,16 @@
 
             <fieldset class="u-pb-0 u-mb-0_75">
                 <legend class="u-mb-0_5">{{ "plandocument.import.docx"|trans }}</legend>
-                <p class="lbl__hint">{{ 'plandocument.import.hint'|trans }}</p>
+                <p class="lbl__hint">
+                    {{ 'plandocument.import.hint'|trans }}
+                    <a
+                        href="{{ asset('files/Begründung_Muster.docx') }}"
+                        download="Begründung_Muster.docx"
+                        data-cy="uploadFile:plandocumentExample">
+                        <i class="fa fa-download" aria-hidden="true"></i>
+                        {{ 'example.file'| trans }}
+                    </a>
+                </p>
 
                 {{  fileupload(
                         "r_upload",

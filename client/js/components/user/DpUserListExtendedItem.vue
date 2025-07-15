@@ -110,11 +110,6 @@ export default {
   },
 
   props: {
-    allDepartments: {
-      type: Array,
-      required: true
-    },
-
     allOrganisations: {
       type: Array,
       required: true
@@ -137,6 +132,15 @@ export default {
     }
   },
 
+  emits: [
+    'card:toggle',
+    'change',
+    'delete',
+    'item:selected',
+    'reset',
+    'save-success'
+  ],
+
   data () {
     return {
       currentDepartment: {},
@@ -149,7 +153,7 @@ export default {
   },
 
   computed: {
-    ...mapState('department', {
+    ...mapState('Department', {
       departmentsList: 'items'
     }),
 
@@ -164,7 +168,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('user', {
+    ...mapActions('AdministratableUser', {
       saveUserAction: 'save'
     }),
 
@@ -235,8 +239,8 @@ export default {
     },
 
     getDepartmentName () {
-      const department = this.allDepartments.find(el => el.id === this.user?.relationships?.department.data?.id)
-      return department.attributes?.name
+      const department = Object.values(this.departmentsList).find(el => el.id === this.user?.relationships?.department.data?.id)
+      return department?.attributes?.name ?? ''
     },
 
     getOrgaName () {
@@ -268,7 +272,7 @@ export default {
         this.resetCurrentDepartment()
       }
 
-      const url = Routing.generate('api_resource_update', { resourceType: 'User', resourceId: this.user.id })
+      const url = Routing.generate('api_resource_update', { resourceType: 'AdministratableUser', resourceId: this.user.id })
       const payload = {
         data: {
           id: this.user.id,
@@ -286,7 +290,7 @@ export default {
               }
             }
           },
-          type: 'User'
+          type: 'AdministratableUser'
         }
       }
 

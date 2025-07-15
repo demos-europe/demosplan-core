@@ -66,7 +66,7 @@ class DemosPlanAssessmentExportController extends BaseController
         FileResponseGeneratorStrategy $responseGenerator,
         PermissionsInterface $permissions,
         string $procedureId,
-        bool $original = false
+        bool $original = false,
     ): ?Response {
         $exportFormat = $request->request->get('r_export_format');
         // in case that only docx in elements view mode should be exportable override the view mode
@@ -106,6 +106,12 @@ class DemosPlanAssessmentExportController extends BaseController
         $parameters['anonymous'] = array_key_exists('anonymous', $exportChoice)
             ? $exportChoice['anonymous']
             : true;
+        $parameters['newPagePerStn'] = array_key_exists('newPagePerStn', $exportChoice)
+            ? $exportChoice['newPagePerStn']
+            : false;
+        $parameters['numberStatements'] = array_key_exists('numberStatements', $exportChoice)
+            ? $exportChoice['numberStatements']
+            : false;
         $parameters['exportType'] = array_key_exists('exportType', $exportChoice)
             ? $exportChoice['exportType']
             : 'statementsOnly';

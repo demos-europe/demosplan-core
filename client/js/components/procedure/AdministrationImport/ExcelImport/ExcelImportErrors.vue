@@ -10,6 +10,7 @@
 <template>
   <div>
     <dp-inline-notification
+      class="mt-3 mb-2"
       :message="Translator.trans('excel.import.error', { count: errors.length, entities: Translator.trans(context) })"
       type="error" />
 
@@ -143,13 +144,14 @@ export default {
     },
 
     toggle (id) {
-      this.$set(this.checkedItems, id, !this.checkedItems[id])
+      this.checkedItems[id] = !this.checkedItems[id]
     }
   },
 
   mounted () {
     this.errors.forEach(error => {
-      this.$set(this.checkedItems, error.id, false)
+      this.checkedItems[error.id] = false
+
       if (!this.worksheets.includes(error.currentWorksheet)) {
         this.worksheets.push(error.currentWorksheet)
       }

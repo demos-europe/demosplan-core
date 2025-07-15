@@ -222,8 +222,6 @@ class CountyRepository extends FluentRepository implements ArrayInterface, Objec
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

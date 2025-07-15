@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
@@ -180,17 +181,19 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
      * Add an entry to the DB if the related procedure are exsisting
      * and the given array has the keys 'title' and 'text'.
      *
-     * @param array $data - holds the content of the boilerplate, which is about to post
+     * @param array              $data       - holds the content of the boilerplate, which is about to post
+     * @param array<int, string> $categories - holds a list of BoilerplateCategory titles
      *
      * @return Boilerplate
      *
      * @throws Exception
      */
-    public function add(array $data)
+    public function add(array $data, array $categories = [])
     {
         if (!$data['procedure'] instanceof Procedure) {
             $data['procedure'] = $this->getEntityManager()->getReference(Procedure::class, $data['procedure']);
         }
+        $procedure = $data['procedure'];
 
         if (!array_key_exists('title', $data) || !array_key_exists('text', $data)) {
             throw new InvalidArgumentException('Title and Text needed for creating Boilerplate');
@@ -200,25 +203,46 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
 
         $boilerplate->setText($data['text']);
         $boilerplate->setTitle($data['title']);
-        $boilerplate->setProcedure($data['procedure']);
+        $boilerplate->setProcedure($procedure);
 
-        $categories = [];
-        if (array_key_exists('categories', $data)) {
-            $em = $this->getEntityManager();
-            foreach ($data['categories'] as $category) {
-                $categories[] = $em->getReference(BoilerplateCategory::class, $category);
-            }
-            $boilerplate->setCategories($categories);
-        }
-
-        foreach ($categories as $category) {
-            $this->getEntityManager()->persist($category);
+        $boilerplateCategories = $this->getOrCreateRelevantCategories($categories, $procedure);
+        if (0 < count($boilerplateCategories)) {
+            $boilerplate->setCategories($boilerplateCategories);
         }
 
         $this->getEntityManager()->persist($boilerplate);
         $this->getEntityManager()->flush();
 
         return $boilerplate;
+    }
+
+    /**
+     * fetches the boilerplateCategories for a specific procedure by given titles
+     * or otherwise creates new boilerplateCategory(ies) for that procedure with the given title(s).
+     *
+     * @param array<int, string> $categories - holds a list of BoilerplateCategory titles
+     *
+     * @throws Exception
+     */
+    private function getOrCreateRelevantCategories(array $categories, ProcedureInterface $procedure): array
+    {
+        $boilerplateCategoryRepository = $this->getEntityManager()->getRepository(BoilerplateCategory::class);
+        $resultingCategories = [];
+        foreach ($categories as $category) {
+            $boilerplateCategory = $boilerplateCategoryRepository->getByTitle($category, $procedure);
+            if (null !== $boilerplateCategory) {
+                $resultingCategories[] = $boilerplateCategory;
+            } else {
+                $boilerplateCategory = new BoilerplateCategory();
+                $boilerplateCategory->setProcedure($procedure);
+                $boilerplateCategory->setTitle($category);
+                $boilerplateCategory->setDescription('');
+                $boilerplateCategoryRepository->addObject($boilerplateCategory);
+                $resultingCategories[] = $boilerplateCategory;
+            }
+        }
+
+        return $resultingCategories;
     }
 
     /**
@@ -380,8 +404,6 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
 
     /**
      * @param CoreEntity $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

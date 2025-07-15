@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -30,9 +31,10 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
 {
     public function __construct(
         EntityManagerInterface $entityManager,
+        private readonly AccessControlService $accessControlPermissionService,
         private readonly OrgaService $orgaService,
         private readonly UserHandler $userHandler,
-        private readonly UserService $userService
+        private readonly UserService $userService,
     ) {
         parent::__construct($entityManager);
     }
@@ -44,7 +46,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         $manager->persist($customer);
 
         // Load OrgaTyes
-        $this->createOrgaType($manager, OrgaType::PUBLIC_AGENCY, 'Firmenkunde');
+        $this->createOrgaType($manager, OrgaType::PUBLIC_AGENCY, 'Institution');
         $this->createOrgaType($manager, OrgaType::PLANNING_AGENCY, 'Planungsbüro');
         $this->createOrgaType($manager, OrgaType::HEARING_AUTHORITY_AGENCY, 'Anhörungsbehörde');
         $this->createOrgaType($manager, OrgaType::DEFAULT, 'Sonstige');
@@ -55,6 +57,12 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
 
         // Citizen pseudo user suboptimal, but isso
         $this->createAnonymousCitizenUser($manager, $orgaTypeOlauth, $customer);
+
+        $this->accessControlPermissionService->enablePermissionCustomerOrgaRole(
+            AccessControlService::CREATE_PROCEDURES_PERMISSION,
+            $customer,
+            $this->getReference('role_RMOPSA')
+        );
     }
 
     public function getDependencies()
@@ -77,7 +85,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
 
         // Create Orga
         $orga = new Orga();
-        $orga->setName('DEMOS E-Partizipation GmbH');
+        $orga->setName('DEMOS plan GmbH');
         $slug = new Slug('demos');
         $orga->addSlug($slug);
         $orga->setCurrentSlug($slug);
@@ -125,7 +133,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
     public function createAnonymousCitizenUser(
         ObjectManager $manager,
         OrgaType $orgaTypeOlauth,
-        Customer $customer
+        Customer $customer,
     ): void {
         // Create Department
         $department = new Department();

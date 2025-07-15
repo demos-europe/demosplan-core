@@ -14,7 +14,7 @@
       :items="headerItems"
       class="u-pt"
       @reset-search="resetSearch"
-      @select-all="val => dpToggleAll(val, users)"
+      @selectAll="val => dpToggleAll(val, users)"
       @search="val => handleSearch(val)"
       search-placeholder="search.users"
       searchable
@@ -49,7 +49,6 @@
       <dp-user-list-extended-item
         v-for="(user, id) in users"
         :key="user.id"
-        :all-departments="departments"
         :all-organisations="organisations"
         :user="user"
         @delete="deleteSingelUser(user.id)"
@@ -77,6 +76,7 @@ import {
   dpSelectAllMixin
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpTableCardListHeader from '@DpJs/components/user/DpTableCardList/DpTableCardListHeader'
 import DpUserListExtendedItem from './DpUserListExtendedItem'
 
@@ -86,10 +86,10 @@ export default {
   components: {
     DpButton,
     DpLoading,
-    DpSlidingPagination: async () => {
+    DpSlidingPagination: defineAsyncComponent(async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
       return DpSlidingPagination
-    },
+    }),
     DpTableCardListHeader,
     DpUserListExtendedItem
   },
@@ -108,16 +108,15 @@ export default {
       ],
       isFiltered: false,
       isLoading: true,
-      organisations: [],
-      departments: []
+      organisations: []
     }
   },
 
   computed: {
-    ...mapState('role', {
+    ...mapState('Role', {
       roles: 'items'
     }),
-    ...mapState('user', {
+    ...mapState('AdministratableUser', {
       users: 'items',
       currentPage: 'currentPage',
       totalPages: 'totalPages'
@@ -134,13 +133,13 @@ export default {
   },
 
   methods: {
-    ...mapActions('department', {
+    ...mapActions('Department', {
       departmentList: 'list'
     }),
-    ...mapActions('role', {
+    ...mapActions('Role', {
       roleList: 'list'
     }),
-    ...mapActions('user', {
+    ...mapActions('AdministratableUser', {
       userList: 'list',
       deleteUser: 'delete'
     }),
@@ -176,10 +175,9 @@ export default {
     fetchOrganisations () {
       const url = Routing.generate('api_resource_list', { resourceType: 'Orga' })
       return dpApi.get(url, {
-        include: ['departments', 'orga', 'masterToeb'].join(),
+        include: ['departments', 'masterToeb'].join(),
         fields: {
-          Orga: ['departments', 'masterToeb', 'name'].join(),
-          MasterToeb: ['id'].join()
+          Orga: ['departments', 'masterToeb', 'name'].join()
         }
       })
         .then((response) => {
@@ -188,25 +186,11 @@ export default {
         .catch(e => console.error(e))
     },
 
-    fetchDepartments () {
-      const url = Routing.generate('api_resource_list', { resourceType: 'Department' })
-      return dpApi.get(url, {
-        include: 'departments',
-        fields: {
-          Department: ['name'].join()
-        }
-      })
-        .then((response) => {
-          this.departments = response?.data?.data ?? {}
-        })
-        .catch(e => console.error(e))
-    },
-
     /**
      * Fetch users and their relationships
      */
     fetchResources () {
-      const reqs = [this.departmentList(), this.fetchOrganisations(), this.fetchDepartments(), this.roleList()]
+      const reqs = [this.departmentList(), this.fetchOrganisations(), this.roleList()]
       Promise.all(reqs)
         .then(() => {
           this.getUsersByPage()
@@ -252,7 +236,7 @@ export default {
 
       this.userList({
         page: {
-          number: page
+          number: page ?? 1
         },
         filter: (this.filterValue !== '') ? filter : {},
         include: ['roles', 'orga', 'department'].join()

@@ -66,7 +66,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('statement', [
+    ...mapGetters('Statement', [
       'getSelectionStateById',
       'statementsInOrder'
     ]),
@@ -97,7 +97,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('statement', [
+    ...mapActions('Statement', [
       'addToSelectionAction',
       'removeFromSelectionAction'
     ])

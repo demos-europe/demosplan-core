@@ -13,7 +13,7 @@
       :class="prefixClass('c-map__autocomplete')"
       v-if="hasPermission('feature_map_search_location')"
       :options="autocompleteOptions"
-      :value="selectedValue"
+      :model-value="selectedValue"
       :route-generator="(searchString) => {
         return Routing.generate('DemosPlan_procedure_public_suggest_procedure_location_json', {
           filterByExtent: JSON.stringify(maxExtent),
@@ -127,6 +127,14 @@ export default {
     }
   },
 
+  emits: [
+    'changeActive',
+    'fullscreen-toggle',
+    'layer:toggleLayer',
+    'layer:toggleVisibiltyGroup',
+    'update-statement-form-map-data'
+  ],
+
   data () {
     return {
       activeclickcontrol: null,
@@ -197,7 +205,7 @@ export default {
     },
 
     layers () {
-      return this.$store.getters['layers/gisLayerList']()
+      return this.$store.getters['Layers/gisLayerList']()
     },
 
     mapx () {
@@ -247,10 +255,10 @@ export default {
         const source = visiblility ? this.createLayerSource(layer) : null
 
         return new TileLayer({
-          name: name,
+          name,
           title: layer.attributes.name || '',
           visible: visiblility,
-          source: source,
+          source,
           opacity: 1,
           preload: 0
         })
@@ -312,7 +320,7 @@ export default {
 
       for (let i = 0; i < mapCustomZoomReset.length; i++) {
         mapCustomZoomReset[i].addEventListener('click', () => {
-          this.map.getView().fit(this.initialExtent, { duration: duration })
+          this.map.getView().fit(this.initialExtent, { duration })
         })
       }
 
@@ -394,7 +402,7 @@ export default {
 
     addTerritoryLayer () {
       //  If there is no territory wms layer defined but a "hand-drawn" territory, craft a vector layer from it
-      if (!this.hasTerritoryWMS && this.procedureSettings.territory.length > 0 && this.procedureSettings.territory !== '{}') {
+      if (!this.hasTerritoryWMS && this.hasTerritory()) {
         //  Read GeoJson features
         const features = new GeoJSON().readFeatures(this.procedureSettings.territory)
 
@@ -402,7 +410,7 @@ export default {
           name: 'territory',
           source: new VectorSource({
             projection: this.mapprojection,
-            features: features
+            features
           }),
           style: new Style({
             stroke: new Stroke({
@@ -424,16 +432,6 @@ export default {
           activated: true
         })
       }
-    },
-
-    addXMLPartToString (xml, needle, string) {
-      const stringToAdd = this.getXMLPart(xml, needle)
-
-      if (stringToAdd.length > 0) {
-        // Yes, it results in crappy markup <ul><h4>... but there may be more than one h4 within the list...
-        string = string + '<ul>' + stringToAdd + '</ul>'
-      }
-      return string
     },
 
     baseLayerVisibility (baseLayer) {
@@ -570,13 +568,13 @@ export default {
       const source = visibility ? this.createLayerSource(layer) : null
 
       return new TileLayer({
-        name: name,
+        name,
         title: layer.attributes.name || '',
-        visible: visible,
-        source: source,
+        visible,
+        source,
         serviceType: layer.attributes.serviceType,
-        opacity: opacity,
-        preload: preload,
+        opacity,
+        preload,
         isPrint: layer.attributes.isPrint,
         isEnabled: layer.attributes.isEnabled,
         treeOrder: layer.attributes.treeOrder,
@@ -701,7 +699,7 @@ export default {
       const mapLegends = $(this.prefixClass('.js__mapLayerLegends'))
 
       //  Initially hide all legends
-      mapLegends.find('[data-layername]').addClass(this.prefixClass('hide-visually'))
+      mapLegends.find('[data-layername]').addClass(this.prefixClass('sr-only'))
 
       //  Loop layers
       this.map.getLayers().forEach((layer, idx, a) => {
@@ -717,7 +715,7 @@ export default {
 
             //  Show appropriate legend if layer is visible
             if (sublayer.getVisible()) {
-              mapLegends.find('[data-layername="' + sublayer.get('title') + '"]').removeClass(this.prefixClass('hide-visually'))
+              mapLegends.find('[data-layername="' + sublayer.get('title') + '"]').removeClass(this.prefixClass('sr-only'))
             }
           })
         }
@@ -811,9 +809,6 @@ export default {
 
         // Use prerendered html by default
         let infoFormat = 'text/html'
-        if (PROJECT && PROJECT === 'robobsh') {
-          infoFormat = 'text/xml'
-        }
 
         const remappedUrl = getFeatureinfoSource.getSource().getFeatureInfoUrl(
           coordinate, viewResolution, this.mapprojection, { INFO_FORMAT: infoFormat }
@@ -840,22 +835,7 @@ export default {
               if (parsedData.code === 100 && parsedData.success) {
                 if (parsedData.body !== null) {
                   let popupContent = ''
-
-                  //  In Robob, do not show full response body
-                  if (PROJECT && PROJECT === 'robobsh') {
-                    let i = 0
-                    let xmlNeedle
-                    const xmlResponse = $.parseXML(response.data.body)
-                    const xmlNeedles = ['abw_klarte', 'ht_klartex', 'wt_klartex']
-
-                    //  Filter relevant content from xml response
-                    for (; i < xmlNeedles.length; i++) {
-                      xmlNeedle = xmlNeedles[i]
-                      popupContent = this.addXMLPartToString(xmlResponse, xmlNeedle, popupContent)
-                    }
-                  } else {
-                    popupContent = parsedData.body
-                  }
+                  popupContent = parsedData.body
 
                   if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s\t\n\r↵]*<\/table>/mg) !== null) {
                     popupContent = Translator.trans('map.getfeatureinfo.none')
@@ -943,38 +923,37 @@ export default {
                   url: this.getFeatureInfoUrlPlanningArea
                 })
                   .then(responsePr => {
-                    // If we can't check the procedure we want to get the featureInfos anyway
-                    if (responsePr.data.code === 100 && responsePr.data.success && responsePr.data.body !== null && responsePr.data.body !== '') {
-                      /* Check if coordinates are in the area of the current procedure, but only if planningarea is not set to 'all' */
-                      if (responsePr.data.body.id !== this.procedureId && this.procedureSettings.planningArea !== 'all' && hasPermission('feature_map_new_statement')) {
-                        /*
-                         * Roll back to this one when we can handle procedure versions
-                         * let popUpContent = Translator.trans('procedure.move.to.participate', {name: responsePr.body.name}) +
-                         *     '<a class="btn btn--primary float-right u-mt-0_5 u-mb-0" href="' + Routing.generate('DemosPlan_procedure_public_detail', {'procedure': responsePr.body.id}) + '">' +
-                         *     Translator.trans('procedure.goto') +
-                         *     '</a>';
-                         */
-                        const popUpContent = Translator.trans('procedure.move.to.list') +
-                        '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
-                        Translator.trans('procedures.all.show') +
-                        '</a>'
-                        this.showPopup('contentPopup', {
-                          title: Translator.trans('procedure.not.in.scope'),
-                          text: popUpContent
-                        }, coordinate)
-                      } else {
-                        this.getFeatureInfoAndShowPriorityAreaPopup(remappedUrl, coordinate)
-                      }
+                    /*
+                     * If we can't check the procedure we want to get the featureInfos anyway and
+                     * if coordinates are in the area of the current procedure, but only if planningarea is not set to 'all'
+                     */
+                    if (responsePr.data.code === 100 &&
+                      responsePr.data.success &&
+                      responsePr.data.body?.id !== this.procedureId &&
+                      this.procedureSettings.planningArea !== 'all' &&
+                      hasPermission('feature_map_new_statement')) {
+                      const popUpContent = Translator.trans('procedure.move.to.list') +
+                      '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
+                      Translator.trans('procedures.all.show') +
+                      '</a>'
+
+                      this.showPopup('contentPopup', {
+                        title: Translator.trans('procedure.not.in.scope'),
+                        text: popUpContent
+                      }, coordinate)
                     } else {
-                      this.getFeatureInfoAndShowPriorityAreaPopup(remappedUrl, coordinate)
+                      this.showPopup('contentPopup', {
+                        title: Translator.trans('error.generic'),
+                        text: popUpContent
+                      }, coordinate)
                     }
                   })
-                  .catch(() => this.getFeatureInfoAndShowPriorityAreaPopup(remappedUrl, coordinate))
+                  .catch(e => {
+                    console.error(e)
+                  })
                   .then(() => {
                     $('#queryAreaButton').removeClass(this.prefixClass('is-progress'))
                   })
-              } else {
-                this.getFeatureInfoAndShowPriorityAreaPopup(remappedUrl, coordinate)
               }
             }
           }
@@ -1145,8 +1124,8 @@ export default {
                   y: isWmts ? tileCoord[2] : 0
                 },
                 projection: layerProjection,
-                url: url,
-                tileSize: tileSize,
+                url,
+                tileSize,
                 tileExtent: tileGrid.getTileCoordExtent(tileCoord)
               })
             })
@@ -1156,7 +1135,7 @@ export default {
               layerTitle: printLayer.getProperties().title,
               layerMapOrder: printLayer.getProperties().mapOrder,
               isBaseLayer: printLayer.getProperties().isBaseLayer,
-              layerProjection: layerProjection,
+              layerProjection,
               tiles: tilesInfo
             })
           })
@@ -1370,19 +1349,19 @@ export default {
           }
 
           source = new TileWMS({
-            url: url,
+            url,
             params: {
               LAYERS: layers || '',
               FORMAT: 'image/png'
             },
-            projection: projection
+            projection
           })
         } else {
           const options = optionsFromCapabilities(currentCapabilities, {
             layer: layers[0] || '',
             matrixSet: tileMatrixSet
           })
-          source = new WMTS({ ...options, layers: layers })
+          source = new WMTS({ ...options, layers })
         }
 
         const customLayer = new TileLayer({
@@ -1390,7 +1369,7 @@ export default {
           title: name,
           name: layerId,
           type: 'overlay',
-          source: source
+          source
         })
 
         this.map.addLayer(customLayer)
@@ -1430,8 +1409,8 @@ export default {
     //  Function to generate draw interaction
     drawInteraction (source, type) {
       return new Draw({
-        source: source,
-        type: type,
+        source,
+        type,
         style: this.drawStyle()
       })
     },
@@ -1502,34 +1481,6 @@ export default {
       return output
     },
 
-    getFeatureInfoAndShowPriorityAreaPopup (url, coordinate) {
-      return dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), {
-        params: url,
-        infotype: 'vorranggebietId'
-      }).then(response => {
-        if (response.data.code === 100 && response.data.success) {
-          if (response.data.body !== null) {
-            //  Store response data which is used to generate statement for submission
-            this.statementActionFields = {
-              r_location: 'point',
-              r_location_priority_area_key: response.data.body.key,
-              r_location_priority_area_type: response.data.body.type,
-              r_location_point: '',
-              r_location_geometry: '',
-              location_is_set: 'priority_area'
-            }
-            //  Assign state to global var which doStatementAction() has access to
-            window.statementActionState = 'locationPriorityAreaAdded'
-            this.showPopup('priorityAreaPopup', response.data.body, coordinate)
-          } else {
-            // Silently discard result/error as user does not even know that a getFeatureInfo request was fired
-          }
-        } else {
-          // Silently discard result/error as user does not even know that a getFeatureInfo request was fired
-        }
-      })
-    },
-
     getLayersOfType (type) {
       const allLayers = this.layers
       const l = allLayers.length
@@ -1550,20 +1501,25 @@ export default {
       const layerArray = Array.isArray(layer.attributes.layers) ? layer.attributes.layers : layer.attributes.layers.split(',')
       const url = this.addGetCapabilityParamToUrl(layer.attributes.url)
 
-      return $.ajax({
-        dataType: 'xml',
-        url: url || '',
-        async: false,
-        success: response => {
-          const result = this.parser.read(response)
-          const options = optionsFromCapabilities(result, {
-            layer: layerArray[0] || '',
-            matrixSet: layer.attributes.tileMatrixSet
-          })
+      let xml
 
-          return new WMTS({ ...options, layers: layerArray })
-        }
+      const xhr = new XMLHttpRequest()
+      xhr.open('GET', url, false)
+      xhr.send(null)
+
+      if (xhr.status === 200) {
+        xml = xhr.responseXML
+      } else {
+        throw new Error(`Error fetching WMTS source: ${xhr.statusText}`)
+      }
+
+      const result = this.parser.read(xml)
+      const options = optionsFromCapabilities(result, {
+        layer: layerArray[0] || '',
+        matrixSet: layer.attributes.tileMatrixSet
       })
+
+      return new WMTS({ ...options, layers: layerArray })
     },
 
     getWMSSource (layer) {
@@ -1586,7 +1542,7 @@ export default {
       })
 
       return new TileWMS({
-        url: url,
+        url,
         params: {
           LAYERS: layer.attributes.layers || '',
           FORMAT: 'image/png',
@@ -1598,24 +1554,6 @@ export default {
           resolutions: this.resolutions
         })
       })
-    },
-
-    getXMLPart (xml, needle) {
-      const $xml = $(xml)
-
-      //  This is Chrome, Opera and Safari syntax:  http://stackoverflow.com/a/20705737/6234391
-      let $xmlFromNeedle = $xml.find(needle)
-
-      //  If no valid element, we try firefox / ie syntax...
-      if ($xmlFromNeedle.length === 0) {
-        $xmlFromNeedle = $xml.find('app\\:' + needle)
-      }
-
-      let string = ''
-      if ($xmlFromNeedle.length > 0) {
-        string = $xmlFromNeedle.text()
-      }
-      return string
     },
 
     handleButtonInteraction (active, element, callback) {
@@ -1636,6 +1574,10 @@ export default {
         }
       }
       this.$root.$emit('changeActive')
+    },
+
+    hasTerritory () {
+      return this.procedureSettings.territory?.features?.length > 0
     },
 
     removeOtherInteractions (reset) {
@@ -1722,7 +1664,7 @@ export default {
           }
           view.animate({
             zoom: newZoom,
-            duration: duration,
+            duration,
             easing: easeOut
           })
         } else {
@@ -1756,12 +1698,12 @@ export default {
       controls.push(new Attribution({
         collapsed: false,
         collapsible: false,
-        label: label,
+        label,
         tipLabel: label
       }))
 
       this.map = new Map({
-        controls: controls,
+        controls,
         interactions: defaultInteractions().extend([
           new DragZoom()
         ]),
@@ -1918,7 +1860,7 @@ export default {
       this.mapview = new View({
         center: [this.mapx, this.mapy],
         projection: this.mapprojection,
-        resolutions: resolutions,
+        resolutions,
         extent: this.maxExtent,
         minResolution: resolutions[(resolutions.length - 1)],
         maxResolution: resolutions[0],
@@ -1935,15 +1877,7 @@ export default {
       $(this.prefixClass('.c-actionbox__title--button')).removeClass(this.prefixClass('is-progress'))
 
       if (typeof content === 'object' && typeof contentElement === 'object') {
-        if (templateId === 'priorityAreaPopup') {
-          const heading = window.dplan.statement.labels[templateId].headings[content.type]
-          contentElement.innerHTML = contentSource.innerHTML.replace(/___content___/g, heading)
-            .replace(/___id___/g, content.key)
-          // Specialcase priorityArea with key 'Sonderregel' should not have an html view
-          if (content.key === 'Sonderregel') {
-            $('#popupContent').find('a').first().removeClass(this.prefixClass('block')).hide()
-          }
-        } else if (templateId === 'miscPopup') {
+        if (templateId === 'miscPopup') {
           contentElement.innerHTML = contentSource.innerHTML.replace(/___title___/g, content.title)
         } else if (templateId === 'contentPopup') {
           contentElement.innerHTML = contentSource.innerHTML.replace(/___title___/g, content.title)
@@ -1961,7 +1895,7 @@ export default {
         $popup.addClass(this.prefixClass('c-map__popup--small'))
       }
 
-      if (templateId === 'priorityAreaPopup' || templateId === 'markLocationPopup') {
+      if (templateId === 'markLocationPopup') {
         $popup.find('#popupAction').html(window.dplan.statement.showMapButtonState(templateId)).show()
       }
 
@@ -2024,18 +1958,18 @@ export default {
       // If item is in a visibility group, also toggle other items in that group
       if (element.id === 'territorySwitcher' && hasOwnProp(this.scope, 'id')) {
         const layerId = this.scope.id.replace(/-/g, '')
-        if (hasOwnProp(this.scope, 'attributes') && this.scope.attributes.visibilityGroupId !== '') {
-          this.$root.$emit('layer:toggleVisibiltyGroup', { visibilityGroupId: this.scope.attributes.visibilityGroupId, layerId: layerId, isVisible: newState })
+        if (this.scope.attributes?.visibilityGroupId) {
+          this.$root.$emit('layer:toggleVisibiltyGroup', { visibilityGroupId: this.scope.attributes.visibilityGroupId, layerId, isVisible: newState })
         } else {
-          this.$root.$emit('layer:toggleLayer', { layerId: layerId, isVisible: newState })
+          this.$root.$emit('layer:toggleLayer', { layerId, isVisible: newState })
         }
       }
       if (element.id === 'bplanSwitcher' && hasOwnProp(this.bPlan, 'id')) {
         const layerId = this.bPlan.id.replace(/-/g, '')
-        if (hasOwnProp(this.bPlan, 'attributes') && this.bPlan.attributes.visibilityGroupId !== '') {
-          this.$root.$emit('layer:toggleVisibiltyGroup', { visibilityGroupId: this.bPlan.attributes.visibilityGroupId, layerId: layerId, isVisible: newState })
+        if (this.bPlan.attributes?.visibilityGroupId ) {
+          this.$root.$emit('layer:toggleVisibiltyGroup', { visibilityGroupId: this.bPlan.attributes.visibilityGroupId, layerId, isVisible: newState })
         } else {
-          this.$root.$emit('layer:toggleLayer', { layerId: layerId, isVisible: newState })
+          this.$root.$emit('layer:toggleLayer', { layerId, isVisible: newState })
         }
       }
     },
@@ -2072,7 +2006,7 @@ export default {
   },
 
   mounted () {
-    this.$store.dispatch('layers/get', this.procedureId).then(() => {
+    this.$store.dispatch('Layers/get', this.procedureId).then(() => {
       this.baseLayers = []
       this.overlayLayers = []
       this.progress = new Progress(document.getElementById('mapProgress'))
@@ -2089,7 +2023,7 @@ export default {
       this.addLayersToMap()
       this.doAllTheOtherExcitingStuff()
       this.addCustomZoomControls()
-      this.$store.commit('layers/setIsMapLoaded')
+      this.$store.commit('Layers/setIsMapLoaded')
 
       if (JSON.stringify(this.procedureInitialExtent) === JSON.stringify(this.procedureDefaultInitialExtent) && this.procedureSettings.coordinate !== '') {
         this.panToCoordinate(JSON.parse('[' + this.procedureSettings.coordinate + ']'))

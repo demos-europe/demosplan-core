@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Twig\TwigFilter;
@@ -57,6 +58,8 @@ class LatexExtension extends ExtensionBase
         '</ol>'                                => '\end{enumerate}',
         '<li>'                                 => '\item ',
         '</li>'                                => '',
+        '<dp-obscure>'                         => '\censor{',
+        '</dp-obscure>'                        => '}',
         '´'                                    => '\textquoteright ',
         '`'                                    => '\textquoteleft ',
         '&'                                    => '\&',
@@ -80,8 +83,12 @@ class LatexExtension extends ExtensionBase
         '</ins>'                               => '',
     ];
 
-    public function __construct(ContainerInterface $container, FileService $serviceFile, private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        ContainerInterface $container,
+        FileService $serviceFile,
+        private readonly FilesystemOperator $defaultStorage,
+        private readonly LoggerInterface $logger,
+    ) {
         parent::__construct($container);
         $this->fileService = $serviceFile;
     }
@@ -97,7 +104,7 @@ class LatexExtension extends ExtensionBase
             new TwigFilter(
                 'latex', function (
                     $string,
-                    $listwidth = 7
+                    $listwidth = 7,
                 ) {
                     return $this->latexFilter($string, $listwidth);
                 }
@@ -197,7 +204,7 @@ class LatexExtension extends ExtensionBase
             // Alle anderen Tags beseitigen
             $text = strip_tags(
                 $text,
-                '<p><table><tr><td><tcs2><tcs><tcs3><tcs4><tcs5><tcs6><th><br><ol><strike><u><s><del><i><ol><ul><li><b><strong><em><span><ins><mark>'
+                '<p><table><tr><td><tcs2><tcs><tcs3><tcs4><tcs5><tcs6><th><br><ol><strike><u><s><del><i><ol><ul><li><b><strong><em><span><ins><mark><dp-obscure>'
             );
 
             // remove <ins> title attribute
@@ -454,7 +461,7 @@ class LatexExtension extends ExtensionBase
             // build placeholderstring
             $currentImageTex = 'IMAGEPLACEHOLDER-';
 
-            preg_match('|src=[\\\'"](\/app_dev\.php)?\/file\/([\w-]*)[\\\'"]|', (string) $imageMatch, $src);
+            preg_match('|src=[\\\'"](\/app_dev\.php)?\/file\/([\w-]*[\/\w-]*)[\\\'"]|', (string) $imageMatch, $src);
             $currentImageTex .= $src[2] ?? '';
 
             // only add width and height if both are provided
@@ -530,7 +537,13 @@ class LatexExtension extends ExtensionBase
             // Wenn du ein oder mehrere Bilder gefunden hast gehe sie durch
             foreach ($imageMatches[1] as $matchKey => $match) {
                 $parts = explode('\&', $match);
-                $fileHash = $parts[0];
+                // if contains / explode
+                if (str_contains($parts[0], '/')) {
+                    $parts = explode('/', $parts[0]);
+                    $fileHash = $parts[1];
+                } else {
+                    $fileHash = $parts[0];
+                }
                 // Bestimme die Größe des Bildes
                 if (isset($parts[1]) && isset($parts[2])) {
                     $widthParts = explode('=', $parts[1]);
@@ -553,11 +566,11 @@ class LatexExtension extends ExtensionBase
 \\
 ';
                 // Ersetze die \ durch \\ im Regex
-                $pregReplacePatternFileinfo = '/'.str_replace(
+                $pregReplacePatternFileinfo = '|'.str_replace(
                     '\\',
                     '\\\\',
                     $imageMatches[0][$matchKey]
-                ).'IMAGEPLACEHOLDEREND/';
+                ).'IMAGEPLACEHOLDEREND|';
                 // Füge das Latexmarkup ein
                 $text = preg_replace(
                     $pregReplacePatternFileinfo,
@@ -621,8 +634,8 @@ class LatexExtension extends ExtensionBase
     {
         try {
             $fileInfo = $this->fileService->getFileInfo($hash);
-            if (is_file($fileInfo->getAbsolutePath())) {
-                $sizeArray = getimagesize($fileInfo->getAbsolutePath());
+            if ($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+                $sizeArray = getimagesizefromstring($this->defaultStorage->read($fileInfo->getAbsolutePath()));
 
                 return $this->getLatexSizeCommand($sizeArray[0], $sizeArray[1]);
             }

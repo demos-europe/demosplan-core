@@ -46,9 +46,10 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
         ManagerRegistry $registry,
         PermissionsInterface $permissions,
         Reindexer $reindexer,
-        SortMethodFactory $sortMethodFactory
+        SortMethodFactory $sortMethodFactory,
+        string $entityClass = Elements::class,
     ) {
-        parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, Elements::class);
+        parent::__construct($dqlConditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
 
         $this->permissions = $permissions;
     }
@@ -194,11 +195,9 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
      *
      * @param string $id
      *
-     * @return Elements|mixed
-     *
      * @throws Exception
      */
-    public function update($id, array $data)
+    public function update($id, array $data): Elements
     {
         try {
             $em = $this->getEntityManager();
@@ -341,8 +340,6 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
      * Add Entityobject to database.
      *
      * @param Elements $entity
-     *
-     * @return Elements
      */
     public function addObject($entity): never
     {
@@ -351,8 +348,6 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
 
     /**
      * @param Elements $entity
-     *
-     * @return bool
      */
     public function deleteObject($entity): never
     {

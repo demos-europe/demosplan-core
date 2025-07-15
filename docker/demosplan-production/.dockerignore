@@ -1,0 +1,9 @@
+**/.git
+**/.github
+config/config_dev_container.yml
+# config/config_dev_container_services.yml needs to be included
+/var/cache
+/var/log
+/projects/**/cache
+/projects/**/log
+/client/js/generated

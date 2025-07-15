@@ -101,11 +101,8 @@
 
         //  make the link cover its whole parent (which is .o-list__item and has to be set position: relative)
         &__item-link {
-            bottom: 0;
-            left: 0;
-            right: 0;
+            inset: 0;
             position: absolute;
-            top: 0;
 
             text-indent: -10000px; // hide seo/accessibility contents of link
         }

@@ -16,143 +16,137 @@
       <dp-contextual-help :text="Translator.trans('statement.similarStatementSubmitters.hint')" />
     </div>
     <dp-editable-list
+      ref="listComponent"
+      class="o-list"
       :entries="listEntries"
       :has-permission-to-edit="editable"
       :translation-keys="translationKeys"
+      @delete="deleteEntry"
       @reset="resetFormFields"
       @saveEntry="index => dpValidateAction('similarStatementSubmitterForm', () => handleSaveEntry(index), false)"
-      ref="listComponent">
+      @show-update-form="setFormFields">
       <template v-slot:list="{ entry, index }">
-        <ul class="o-list o-list--csv inline">
-          <template v-if="isRequestFormPost">
-            <input
-              type="hidden"
-              :name="'r_similarStatementSubmitters[' + index + '][fullName]'"
-              :value="entry.submitterName">
+        <template v-if="isRequestFormPost">
+          <input
+            type="hidden"
+            :name="'r_similarStatementSubmitters[' + index + '][fullName]'"
+            :value="entry.submitterName">
 
-            <input
-              type="hidden"
-              :name="'r_similarStatementSubmitters[' + index + '][city]'"
-              :value="entry.submitterCity">
+          <input
+            type="hidden"
+            :name="'r_similarStatementSubmitters[' + index + '][city]'"
+            :value="entry.submitterCity">
 
-            <input
-              type="hidden"
-              :name="'r_similarStatementSubmitters[' + index + '][streetName]'"
-              :value="entry.submitterAddress">
+          <input
+            type="hidden"
+            :name="'r_similarStatementSubmitters[' + index + '][streetName]'"
+            :value="entry.submitterAddress">
 
-            <input
-              type="hidden"
-              :name="'r_similarStatementSubmitters[' + index + '][streetNumber]'"
-              :value="entry.submitterHouseNumber">
+          <input
+            type="hidden"
+            :name="'r_similarStatementSubmitters[' + index + '][streetNumber]'"
+            :value="entry.submitterHouseNumber">
 
-            <input
-              type="hidden"
-              :name="'r_similarStatementSubmitters[' + index + '][postalCode]'"
-              :value="entry.submitterPostalCode">
+          <input
+            type="hidden"
+            :name="'r_similarStatementSubmitters[' + index + '][postalCode]'"
+            :value="entry.submitterPostalCode">
 
-            <input
-              type="hidden"
-              :name="'r_similarStatementSubmitters[' + index + '][emailAddress]'"
-              :value="entry.submitterEmailAddress">
-          </template>
+          <input
+            type="hidden"
+            :name="'r_similarStatementSubmitters[' + index + '][emailAddress]'"
+            :value="entry.submitterEmailAddress">
+        </template>
 
-          <li
-            v-if="entry.submitterName"
-            class="o-list__item"
-            v-text="entry.submitterName" />
-          <li
-            v-if="entry.submitterEmailAddress"
-            class="o-list__item"
-            v-text="entry.submitterEmailAddress" />
-          <li
-            v-if="entry.submitterAddress"
-            class="o-list__item"
-            v-text="entry.submitterAddress" />
-          <li
-            v-if="entry.submitterHouseNumber"
-            class="o-list__item"
-            v-text="entry.submitterHouseNumber" />
-          <li
-            v-if="entry.submitterPostalCode"
-            class="o-list__item"
-            v-text="entry.submitterPostalCode" />
-          <li
-            v-if="entry.submitterCity"
-            class="o-list__item"
-            v-text="entry.submitterCity" />
-        </ul>
+        <span
+          v-if="entry.submitterName"
+          class="o-list__item separated"
+          v-text="entry.submitterName" />
+        <span
+          v-if="entry.submitterEmailAddress"
+          class="o-list__item separated"
+          v-text="entry.submitterEmailAddress" />
+        <span
+          v-if="entry.submitterAddress"
+          class="o-list__item separated"
+          v-text="entry.submitterAddress" />
+        <span
+          v-if="entry.submitterHouseNumber"
+          class="o-list__item separated"
+          v-text="entry.submitterHouseNumber" />
+        <span
+          v-if="entry.submitterPostalCode"
+          class="o-list__item separated"
+          v-text="entry.submitterPostalCode" />
+        <span
+          v-if="entry.submitterCity"
+          class="o-list__item separated"
+          v-text="entry.submitterCity" />
       </template>
 
       <template v-slot:form>
         <div
-          data-dp-validate="similarStatementSubmitterForm"
-          class="space-stack-s space-inset-s border">
-          <div :class="fieldsFullWidth ? 'space-stack-s' : 'layout'">
-            <div
-              :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
-              class="space-stack-s">
-              <dp-input
-                id="statementSubmitterName"
-                data-cy="similarStatementSubmitters:name"
-                v-model="formFields.submitterName"
-                :label="{
-                  text: Translator.trans('name')
-                }"
-                required />
-              <dp-input
-                id="statementSubmitterEmail"
-                data-cy="similarStatementSubmitters:email"
-                v-model="formFields.submitterEmailAddress"
-                :label="{
-                  text: Translator.trans('email')
-                }"
-                type="email" />
-            </div><!--
+          class="grid grid-cols-1 gap-x-4"
+          :class="fieldsFullWidth ? '' : 'md:grid-cols-2'"
+          data-dp-validate="similarStatementSubmitterForm">
+          <dp-input
+            id="statementSubmitterName"
+            v-model="formFields.submitterName"
+            class="mb-2"
+            data-cy="voterUsername"
+            :label="{
+              text: Translator.trans('name')
+            }"
+            required />
+          <dp-input
+            id="statementSubmitterEmail"
+            v-model="formFields.submitterEmailAddress"
+            class="mb-2"
+            data-cy="voterEmail"
+            :label="{
+              text: Translator.trans('email')
+            }"
+            type="email" />
 
-         --><div
-              :class="{ 'layout__item u-1-of-2': !fieldsFullWidth }"
-              class="space-stack-s">
-              <div class="o-form__group">
-                <dp-input
-                  id="statementSubmitterAddress"
-                  data-cy="similarStatementSubmitters:street"
-                  v-model="formFields.submitterAddress"
-                  class="o-form__group-item"
-                  :label="{
-                    text: Translator.trans('street')
-                  }" />
-                <dp-input
-                  id="statementSubmitterHouseNumber"
-                  data-cy="similarStatementSubmitters:streetNumberShort"
-                  v-model="formFields.submitterHouseNumber"
-                  class="o-form__group-item shrink"
-                  :label="{
-                    text: Translator.trans('street.number.short')
-                  }"
-                  :size="3" />
-              </div>
+          <div class="o-form__group mb-2">
+            <dp-input
+              id="statementSubmitterAddress"
+              v-model="formFields.submitterAddress"
+              class="o-form__group-item"
+              data-cy="voterStreet"
+              :label="{
+                text: Translator.trans('street')
+              }" />
+            <dp-input
+              id="statementSubmitterHouseNumber"
+              v-model="formFields.submitterHouseNumber"
+              class="o-form__group-item shrink"
+              data-cy="voterHousenumber"
+              :label="{
+                text: Translator.trans('street.number.short')
+              }"
+              :size="3" />
+          </div>
 
-              <div class="o-form__group">
-                <dp-input
-                  id="statementSubmitterPostalCode"
-                  data-cy="similarStatementSubmitters:postalCode"
-                  v-model="formFields.submitterPostalCode"
-                  class="o-form__group-item shrink"
-                  :label="{
-                    text: Translator.trans('postalcode')
-                  }"
-                  pattern="^[0-9]{4,5}$"
-                  :size="5" />
-                <dp-input
-                  id="statementSubmitterCity"
-                  data-cy="similarStatementSubmitters:city"
-                  v-model="formFields.submitterCity"
-                  class="o-form__group-item"
-                  :label="{
-                    text: Translator.trans('city')
-                  }" />
-              </div>
-            </div>
+          <div class="o-form__group mb-2">
+            <dp-input
+              id="statementSubmitterPostalCode"
+              v-model="formFields.submitterPostalCode"
+              class="o-form__group-item shrink"
+              data-cy="voterPostalCode"
+              :label="{
+                text: Translator.trans('postalcode')
+              }"
+              pattern="^[0-9]{4,5}$"
+              :size="5" />
+            <dp-input
+              id="statementSubmitterCity"
+              v-model="formFields.submitterCity"
+              class="o-form__group-item"
+              data-cy="voterCity"
+              :label="{
+                text: Translator.trans('city')
+              }" />
           </div>
         </div>
       </template>
@@ -169,7 +163,7 @@ import {
   DpInput,
   dpValidateMixin
 } from '@demos-europe/demosplan-ui'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 
 export default {
   name: 'SimilarStatementSubmitters',
@@ -236,6 +230,10 @@ export default {
   },
 
   computed: {
+    ...mapState('Statement', {
+      statements: 'items'
+    }),
+
     /**
      * The "add" button text of EditableList is too long when inside the narrow context.
      * This is why a shorter button text is rendered there.
@@ -246,7 +244,7 @@ export default {
         new: Translator.trans('add'),
         add: Translator.trans(this.fieldsFullWidth ? 'add' : 'statement.similarStatementSubmitters.add'),
         abort: Translator.trans('abort'),
-        update: Translator.trans('save'),
+        update: Translator.trans('edit'),
         noEntries: Translator.trans('none'),
         delete: Translator.trans('delete')
       }
@@ -254,11 +252,12 @@ export default {
   },
 
   methods: {
-    ...mapMutations('statement', {
-      updateStatement: 'update'
+    ...mapMutations('Statement', {
+      updateStatement: 'update',
+      setInitialStatement: 'setItem'
     }),
 
-    ...mapMutations('similarStatementSubmitter', {
+    ...mapMutations('SimilarStatementSubmitter', {
       setSimilarStatementSubmitter: 'setItem'
     }),
 
@@ -300,6 +299,7 @@ export default {
               type: 'SimilarStatementSubmitter'
             }
           })
+          this.setInitialStatement(this.statements[this.statementId])
 
           // Update local state - similarStatementSubmitter
           this.setSimilarStatementSubmitter({
@@ -309,18 +309,36 @@ export default {
         })
     },
 
+    deleteEntry (index) {
+      this.updateStatement({
+        id: this.statementId,
+        relationship: 'similarStatementSubmitters',
+        action: 'remove',
+        value: {
+          id: this.listEntries[index].id,
+          type: 'SimilarStatementSubmitter'
+        }
+      })
+      this.setInitialStatement(this.statements[this.statementId])
+
+      this.listEntries.splice(index, 1)
+
+      if (this.isRequestFormPost === false) {
+        this.deleteSimilarStatementSubmitter()
+      }
+
+      if (this.isRequestFormPost) {
+        this.resetFormFields()
+      }
+    },
+
     deleteSimilarStatementSubmitter () {
       const payload = {
         type: 'Statement',
         id: this.statementId,
         relationships: {
           similarStatementSubmitters: {
-            data: this.listEntries.map((entry) => {
-              return {
-                type: 'SimilarStatementSubmitter',
-                id: entry.id
-              }
-            })
+            data: this.listEntries.map(entry => ({ type: 'SimilarStatementSubmitter', id: entry.id }))
           }
         }
       }
@@ -383,6 +401,7 @@ export default {
       if (this.similarStatementSubmitters) {
         this.listEntries = this.similarStatementSubmitters.map(el => {
           const { city, emailAddress, fullName, postalCode, streetName, streetNumber } = el.attributes
+
           return {
             id: el.id,
             submitterAddress: streetName,
@@ -400,6 +419,10 @@ export default {
       for (const [key] of Object.entries(this.formFields)) {
         this.formFields[key] = null
       }
+    },
+
+    setFormFields (index) {
+      this.formFields = this.listEntries[index]
     },
 
     toggleFormVisibility (visibility) {
@@ -428,36 +451,6 @@ export default {
 
   mounted () {
     this.loadInitialListEntries()
-
-    this.$on('delete', (index) => {
-      this.updateStatement({
-        id: this.statementId,
-        relationship: 'similarStatementSubmitters',
-        action: 'remove',
-        value: {
-          id: this.listEntries[index].id,
-          type: 'SimilarStatementSubmitter'
-        }
-      })
-
-      this.listEntries.splice(index, 1)
-
-      if (this.isRequestFormPost === false) {
-        this.deleteSimilarStatementSubmitter()
-      }
-      if (this.isRequestFormPost) {
-        this.resetFormFields()
-      }
-    })
-
-    this.$on('showUpdateForm', (index) => {
-      this.formFields.submitterCity = this.listEntries[index].submitterCity
-      this.formFields.submitterName = this.listEntries[index].submitterName
-      this.formFields.submitterAddress = this.listEntries[index].submitterAddress
-      this.formFields.submitterHouseNumber = this.listEntries[index].submitterHouseNumber
-      this.formFields.submitterPostalCode = this.listEntries[index].submitterPostalCode
-      this.formFields.submitterEmailAddress = this.listEntries[index].submitterEmailAddress
-    })
   }
 }
 </script>

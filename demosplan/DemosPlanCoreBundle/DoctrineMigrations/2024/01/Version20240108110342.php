@@ -82,9 +82,9 @@ class Version20240108110342 extends AbstractMigration
                 $this->addSql(
                     'UPDATE _procedure SET customer = :customerId
                         WHERE _o_id = :orgaId
-                        AND (customer IS NULL OR customer = "")
+                        AND (customer IS NULL OR customer = :emptyString)
                         AND master_template = 0',
-                    ['customerId' => $customer['id'], 'orgaId' => $kommuneId]
+                    ['customerId' => $customer['id'], 'orgaId' => $kommuneId, 'emptyString' => '']
                 );
             }
         }
@@ -100,10 +100,10 @@ class Version20240108110342 extends AbstractMigration
             $kommunesQueryResult = $this->connection->fetchAllAssociative(
                 'SELECT rcoot._o_id as id FROM relation_customer_orga_orga_type rcoot, _orga_type ot
                         WHERE rcoot._ot_id = ot._ot_id
-                        AND (ot._ot_name = "OLAUTH" OR ot._ot_name = "OHAUTH")
+                        AND (ot._ot_name = :olauth OR ot._ot_name = :ohauth)
                         AND rcoot._c_id = :customerId
                         AND rcoot.status = :status',
-                ['customerId' => $customer['id'], 'status' => $status]
+                ['customerId' => $customer['id'], 'status' => $status, 'olauth' => 'OLAUTH', 'ohauth' => 'OHAUTH']
             );
             $kommunes = [];
             foreach ($kommunesQueryResult as $kommune) {

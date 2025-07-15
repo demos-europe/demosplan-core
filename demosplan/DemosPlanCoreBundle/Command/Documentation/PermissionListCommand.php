@@ -26,7 +26,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 class PermissionListCommand extends CoreCommand
 {

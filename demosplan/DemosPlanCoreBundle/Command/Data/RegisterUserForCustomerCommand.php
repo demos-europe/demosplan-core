@@ -46,7 +46,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
         ParameterBagInterface $parameterBag,
         private readonly RoleRepository $roleRepository,
         private readonly UserRepository $userRepository,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
         $this->helper = new QuestionHelper();
@@ -61,7 +61,7 @@ class RegisterUserForCustomerCommand extends CoreCommand
             return Command::FAILURE;
         }
         $customer = $this->helpers->askCustomer($input, $output);
-        $roles = $this->helpers->askRoles($input, $output);
+        $roles = $this->helpers->askRoles($input, $output, $this->parameterBag->get('roles_allowed'));
 
         try {
             // add user to customer

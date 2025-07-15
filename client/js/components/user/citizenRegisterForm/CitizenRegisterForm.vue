@@ -10,12 +10,12 @@
 <template>
   <div>
     <p
-      :class="isSaml ? prefixClass('u-3-of-4-desk-up u-mb-2') : prefixClass('c-login-register__col c-login-register__col-full')"
+      :class="isIdp ? prefixClass('u-3-of-4-desk-up u-mb-2') : prefixClass('c-login-register__col c-login-register__col-full')"
       v-html="Translator.trans('register.info.citizen')" />
 
-    <!-- To test the functionality of this component you need to set the variable $useSaml in demosplan/DemosPlanCoreBundle/Controller/User/DemosPlanUserController.php:496 to true-->
-    <div :class="prefixClass(`${isSaml ? 'is-separated' : ''} c-login-register u-mt-desk-up u-mb-2-desk-up`)">
-      <div :class="prefixClass(`${isSaml ? 'c-login-register__col-left' : 'c-login-register__col-full'} c-login-register__col`)">
+    <!-- To test the functionality of this component you need to set the variable $useIdp in demosplan/DemosPlanCoreBundle/Controller/User/DemosPlanUserController.php:496 to true-->
+    <div :class="prefixClass(`${isIdp ? 'is-separated' : ''} c-login-register u-mt-desk-up u-mb-2-desk-up`)">
+      <div :class="prefixClass(`${isIdp ? 'c-login-register__col-left' : 'c-login-register__col-full'} c-login-register__col`)">
         <form
           :action="Routing.generate('DemosPlan_citizen_register')"
           data-dp-validate
@@ -83,16 +83,16 @@
 
       <div
         :class="prefixClass('c-login-register__col c-login-register__col-right')"
-        v-if="isSaml">
+        v-if="isIdp">
         <h2
           :class="prefixClass('font-size-large u-mb u-mt-lap-down')"
           v-text="Translator.trans('login.other_account')" />
         <p
           :class="prefixClass('u-mb-0_125')"
-          v-html="Translator.trans('register.saml.citizen.description', { projectName: dplan.projectName })" />
+          v-html="Translator.trans('register.idp.citizen.description', { projectName: dplan.projectName })" />
         <dp-button
-          :href="samlLoginPath"
-          :text="Translator.trans('login.saml.action')"
+          :href="idpLoginPath"
+          :text="Translator.trans('login.idp.action')"
           variant="outline" />
 
         <div
@@ -103,7 +103,7 @@
     </div>
 
     <p
-      :class="isSaml ? '' : prefixClass('c-login-register__col c-login-register__col-full')"
+      :class="isIdp ? '' : prefixClass('c-login-register__col c-login-register__col-full')"
       v-html="Translator.trans('register.navigation.alternative_text', { login: Routing.generate('DemosPlan_user_login_alternative'), registrationType: Translator.trans('organisation'), registrationLink: Routing.generate('DemosPlan_orga_register_form') })" />
   </div>
 </template>
@@ -124,13 +124,13 @@ export default {
   mixins: [prefixClassMixin],
 
   props: {
-    isSaml: {
+    isIdp: {
       type: Boolean,
       required: true,
       default: false
     },
 
-    samlLoginPath: {
+    idpLoginPath: {
       type: String,
       required: true,
       default: ''

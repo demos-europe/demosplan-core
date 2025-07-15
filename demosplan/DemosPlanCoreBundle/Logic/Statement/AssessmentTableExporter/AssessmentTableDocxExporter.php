@@ -48,6 +48,7 @@ class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
                 $outputResult,
                 $parameters['template'],
                 $parameters['anonymous'],
+                $parameters['numberStatements'],
                 $parameters['exportType'],
                 $viewOrientation,
                 $parameters,
@@ -57,7 +58,7 @@ class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
 
             $fileName = sprintf(
                 $this->translator->trans('considerationtable').'-%s.docx',
-                Carbon::now()->format('d-m-Y-H:i')
+                Carbon::now('Europe/Berlin')->format('d-m-Y-H:i')
             );
 
             $file = [

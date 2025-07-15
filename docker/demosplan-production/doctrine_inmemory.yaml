@@ -1,0 +1,28 @@
+# this is a minimal configuration for doctrine to work with sqlite in memory
+# that is only used during docker build to be able to build the prod assets
+doctrine:
+    dbal:
+        default_connection: dplan
+        connections:
+            dplan:
+                driver: 'pdo_sqlite'
+                url: 'sqlite:///:memory:'
+            dplan_install:
+                driver:   "%database_driver%"
+    orm:
+        auto_generate_proxy_classes: true
+        default_entity_manager: default
+        entity_managers:
+            default:
+                naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+                connection: dplan
+                auto_mapping: true
+                metadata_cache_driver:
+                    type: pool
+                    pool: doctrine.cache_pool
+                query_cache_driver:
+                    type: pool
+                    pool: doctrine.cache_pool
+            install:
+                naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+                connection: dplan_install

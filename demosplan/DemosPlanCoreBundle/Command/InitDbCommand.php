@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Command;
 
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use DomainException;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use PDOException;
@@ -32,7 +33,7 @@ class InitDbCommand extends CoreCommand
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly SessionHandlerInterface $sessionHandler,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($parameterBag, $name);
     }
@@ -83,12 +84,16 @@ class InitDbCommand extends CoreCommand
 
         $fixtureGroup = $input->getOption('with-fixtures');
         $fixtureSuccess = true;
+        $projectMigrationsSuccess = true;
         if (null !== $fixtureGroup) {
             $application = $this->getApplication();
             $input = new StringInput('doctrine:fixtures:load -n --group '.$fixtureGroup);
             $fixtureSuccess = $application->run($input, $output);
+            // set project migrations as migrated
+            $input = new StringInput('doctrine:migrations:version --add --all --configuration '.DemosPlanPath::getProjectPath('app/config/project_migrations.yml'));
+            $projectMigrationsSuccess = $application->run($input, $output);
         }
 
-        return ($schemaSuccess && $sessionsTableSuccess && $fixtureSuccess) ? Command::SUCCESS : Command::FAILURE;
+        return ($schemaSuccess && $sessionsTableSuccess && $fixtureSuccess && $projectMigrationsSuccess) ? Command::SUCCESS : Command::FAILURE;
     }
 }

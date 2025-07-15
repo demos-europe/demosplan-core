@@ -310,7 +310,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     public function proceduresMasterListAction(
         PermissionsInterface $permissions,
         ProcedureListService $procedureListService,
-        Request $request
+        Request $request,
     ): Response {
         $templateVars = [];
         $title = 'procedure.master.admin';
@@ -351,7 +351,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         ContentService $contentService,
         ProcedureExtension $procedureExtension,
         ProcedureHandler $procedureHandler,
-        Request $request
+        Request $request,
     ) {
         try {
             $requestPost = $request->request->all();
@@ -466,7 +466,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     public function searchProcedureJsonAction(
         Request $request,
         CurrentProcedureService $currentProcedureService,
-        LocationService $locationService
+        LocationService $locationService,
     ) {
         $this->profilerStart('Proj4ProfilerInit');
         $proj4 = new Proj4php();
@@ -617,10 +617,9 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                 $this->getMessageBag()->add('error', 'error.procedure.deleted.noselection');
             } else {
                 $this->procedureService->deleteProcedure($selectedProcedures);
-                $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
             }
         } catch (Exception) {
-            $this->getMessageBag()->add('error', 'error.procedure.deleted');
+            $this->getMessageBag()->add('error', 'error.procedure.onDelete');
         }
     }
 
@@ -641,7 +640,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         User $user,
         Request $request,
         ProcedureListService $procedureListService,
-        CurrentUserInterface $currentUser
+        CurrentUserInterface $currentUser,
     ): array {
         // Füge die letzten aktuellen Mitteilungen hinzu
         $templateVars['list']['newslist'] = [];

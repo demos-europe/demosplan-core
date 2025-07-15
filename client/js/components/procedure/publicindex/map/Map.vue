@@ -11,6 +11,7 @@
   <l-map
     class="c-publicindex__map isolate"
     ref="map"
+    :aria-label="Translator.trans('map')"
     :zoom="initialZoom"
     :center="initialLocation"
     :min-zoom="7"
@@ -144,13 +145,13 @@ export default {
   },
 
   computed: {
-    ...mapGetters('procedure', [
+    ...mapGetters('Procedure', [
       'currentProcedureId',
       'currentView',
       'shouldMapZoomBeSet'
     ]),
 
-    ...mapState('procedure', {
+    ...mapState('Procedure', {
       proceduresFromStore: 'procedures'
     }),
 
@@ -213,24 +214,31 @@ export default {
   },
 
   watch: {
-    currentView (newVal) {
-      if (newVal === 'DpDetailView') {
-        this.zoomToMarker(this.currentProcedureId)
-      }
-      if (newVal === 'DpList') {
-        this.setZoom()
-      }
+    currentView: {
+      handler (newVal) {
+        if (newVal === 'DpDetailView') {
+          this.zoomToMarker(this.currentProcedureId)
+        }
+        if (newVal === 'DpList') {
+          this.setZoom()
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
+
     },
 
-    shouldMapZoomBeSet (newVal) {
-      if (newVal === true) {
-        this.$nextTick(() => this.setZoom())
-      }
+    shouldMapZoomBeSet: {
+      handler (newVal) {
+        if (newVal) {
+          this.$nextTick(() => this.setZoom())
+        }
+      },
+      deep: false // Set default for migrating purpose. To know this occurrence is checked
     }
   },
 
   methods: {
-    ...mapActions('procedure', [
+    ...mapActions('Procedure', [
       'showDetailView'
     ]),
 

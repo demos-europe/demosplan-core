@@ -25,16 +25,15 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTilePosition;
 use Exception;
 use Faker\Provider\Uuid;
 use geoPHP\geoPHP;
+use Illuminate\Support\Collection;
 use Intervention\Image\ImageManager;
 use Psr\Log\InvalidArgumentException;
-use Psr\Log\LoggerInterface;
-use Tightenco\Collect\Support\Collection;
 
 class GeoJsonToFeaturesConverter
 {
     final public const DEFAULT_TILE_SIZE = 256;
 
-    public function __construct(private readonly ImageManager $imageManager, private readonly LoggerInterface $logger, private readonly MapProjectionConverter $mapProjectionConverter, private readonly UrlFileReader $urlFileReader, private readonly WktToGeoJsonConverter $wktToGeoJsonConverter)
+    public function __construct(private readonly ImageManager $imageManager, private readonly MapProjectionConverter $mapProjectionConverter, private readonly UrlFileReader $urlFileReader, private readonly WktToGeoJsonConverter $wktToGeoJsonConverter)
     {
     }
 
@@ -88,6 +87,8 @@ class GeoJsonToFeaturesConverter
     {
         $result = new Collection();
         foreach ($feature->properties->metadata->printLayers ?? [] as $printLayer) {
+            // uses local file, no need for flysystem, files are removed after conversion
+            // in PrintLayerToMapLayerConverter::convert
             $imagesDirectoryPath = DemosPlanPath::getTemporaryPath(
                 md5((string) $printLayer->layerTitle).'-'.Uuid::uuid().'/'
             );

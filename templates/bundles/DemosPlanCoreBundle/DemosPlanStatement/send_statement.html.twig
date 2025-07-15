@@ -22,7 +22,14 @@
                     elements: [
                         {
                             label: { text: 'statement.send.email.label'|trans },
-                            control: { name: 'sendasemail_recipient',  placeholder: 'email.address'|trans, value: '', attributes: ['data-dp-validate-error=error.mandatoryfields.send_email'] },
+                            control: {
+                                name: 'sendasemail_recipient',
+                                placeholder: 'email.address'|trans,
+                                value: '',
+                                attributes: {
+                                    'data-dp-validate-error': 'error.mandatoryfields.send_email'|trans
+                                }
+                            },
                             id: 'sendasemail_recipient',
                             type: 'email',
                             required: 'true'

@@ -14,6 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -26,6 +28,7 @@ class LogoutSubscriber implements EventSubscriberInterface
     private array $allowedCookieNames = [PreviousRouteCookie::NAME];
 
     public function __construct(
+        private readonly CustomerService $customerService,
         private readonly LoggerInterface $logger,
         private readonly ParameterBagInterface $parameterBag,
         private readonly PermissionsInterface $permissions,
@@ -47,18 +50,23 @@ class LogoutSubscriber implements EventSubscriberInterface
             $response = $this->redirectToRoute('core_home');
         }
 
-        // let SAML handle logout when defined. It does no harm when user is logged in locally.
-        // Needs to be http://localhost/ as it needs to be some kind of url, and it is defined
-        // like this in the parameters_default.yml
-        if ('http://localhost/' !== $this->parameterBag->get('saml_idp_slo_url')) {
-            $this->logger->info('Redirecting to SAML for logout', [$this->parameterBag->get('saml_idp_slo_url')]);
-            $response = $this->redirectToRoute('saml_logout');
-        }
-
         // let oauth identity provider handle logout when defined
         if ('' !== $this->parameterBag->get('oauth_keycloak_logout_route')) {
-            $this->logger->info('Redirecting to Keycloak for logout', [$this->parameterBag->get('oauth_keycloak_logout_route')]);
-            $response = $this->redirect($this->parameterBag->get('oauth_keycloak_logout_route'));
+            $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
+            $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
+            // add subdomain for redirect
+            try {
+                $currentCustomer = $this->customerService->getCurrentCustomer();
+                $logoutRoute = str_replace(
+                    'post_logout_redirect_uri=https://',
+                    'post_logout_redirect_uri=https://'.$currentCustomer->getSubdomain().'.',
+                    $logoutRoute
+                );
+                $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
+            } catch (Exception $e) {
+                $this->logger->error('Could not get current customer', [$e->getMessage()]);
+            }
+            $response = $this->redirect($logoutRoute);
         }
 
         if ($this->permissions->hasPermission('feature_has_logout_landing_page')) {

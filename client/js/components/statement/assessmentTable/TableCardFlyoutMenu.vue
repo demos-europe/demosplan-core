@@ -197,9 +197,17 @@ export default {
     }
   },
 
+  emits: [
+    'fragment-delete',
+    'show-slidebar',
+    'statement:copy',
+    'statement:move',
+    'version:history'
+  ],
+
   data () {
     return {
-      procedureId: this.$store.state.statement.procedureId
+      procedureId: this.$store.state.Statement.procedureId
     }
   },
 
@@ -210,7 +218,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setModalProperty'
     ]),
 

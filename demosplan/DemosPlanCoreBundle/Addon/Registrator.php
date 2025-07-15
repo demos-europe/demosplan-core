@@ -21,8 +21,8 @@ use Symfony\Component\Yaml\Yaml;
 
 final class Registrator
 {
-    public const ADDON_DIRECTORY = '/addons/';
-    public const ADDON_CACHE_DIRECTORY = '/addons/cache/';
+    public const ADDON_DIRECTORY = 'addons/';
+    public const ADDON_CACHE_DIRECTORY = 'addons/cache/';
 
     private const ADDON_YAML_INLINE_DEPTH = 100;
 
@@ -84,6 +84,7 @@ final class Registrator
         $content = "# This file is auto-generated and should not be edited manually unless you know what you're doing.\n";
         $content .= Yaml::dump($yamlContent, self::ADDON_YAML_INLINE_DEPTH);
 
+        // local file is valid, no need for flysystem
         file_put_contents(
             DemosPlanPath::getRootPath(AddonManifestCollection::ADDONS_YAML),
             $content

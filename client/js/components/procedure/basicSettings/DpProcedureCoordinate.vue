@@ -27,20 +27,20 @@
         v-slot:controls
         v-if="editable">
         <dp-procedure-coordinate-input
+          v-if="hasPermission('feature_procedure_coordinate_alternative_input')"
           :class="prefixClass('u-mb-0_5')"
           :coordinate="coordinate"
-          v-if="hasPermission('feature_procedure_coordinate_alternative_input')"
           @input="updateFeatures" />
 
         <procedure-coordinate-geolocation
+          v-if="hasPermission('feature_procedures_located_by_maintenance_service')"
           :coordinate="coordinate"
-          :location="procedureLocation"
-          v-if="hasPermission('feature_procedures_located_by_maintenance_service')" />
+          :location="procedureLocation" />
 
         <div :class="prefixClass('inline-block')">
           <dp-ol-map-draw-point
             :class="prefixClass('u-mb-0_5')"
-            target="procedureCoordinateDrawer"
+            target="layer:procedureCoordinateDrawer"
             :active="isDrawingActive"
             @tool:setPoint="checkProcedureValidation"
             @tool:activated="setDrawingActive" />
@@ -51,13 +51,11 @@
         </div>
       </template>
 
-      <template>
-        <dp-ol-map-layer-vector
-          :features="featuresFromCoordinate"
-          ref="procedureCoordinateDrawer"
-          name="procedureCoordinateDrawer"
-          @layer:features:changed="updateProcedureCoordinate" />
-      </template>
+      <dp-ol-map-layer-vector
+        :features="featuresFromCoordinate"
+        ref="procedureCoordinateDrawer"
+        name="procedureCoordinateDrawer"
+        @layer:features:changed="updateProcedureCoordinate" />
     </dp-ol-map>
 
     <!-- If adding a location to procedures is enforced, the corresponding validation is added here via `data-dp-validate`.
@@ -65,11 +63,11 @@
          other form elements (that do not share the vue context) also need to be validated. -->
     <template v-if="hasPermission('feature_procedure_require_location')">
       <input
-        type="hidden"
-        name="r_coordinate"
+        :data-dp-validate-error-fieldname="Translator.trans('public.participation.relation.map')"
         v-model="currentProcedureCoordinate"
+        name="r_coordinate"
         required
-        data-dp-validate-if="#r_publicParticipationPhase!==configuration,#r_phase!==configuration">
+        type="hidden">
       <span :class="prefixClass('validation-hint')">
         {{ Translator.trans('statement.map.draw.no_drawing_warning') }}
       </span>
@@ -77,10 +75,10 @@
 
     <!-- No validation without `feature_procedure_require_location` -->
     <input
-      type="hidden"
-      name="r_coordinate"
+      v-else
       v-model="currentProcedureCoordinate"
-      v-else>
+      name="r_coordinate"
+      type="hidden">
   </div>
 </template>
 
@@ -210,9 +208,12 @@ export default {
     },
 
     setProcedureCoordinateValidState () {
-      this.requiredMapIsValid = this.currentProcedureCoordinate !== '' && hasPermission('feature_procedure_require_location')
-      if (this.requiredMapIsValid === false) {
-        dplan.notify.error(Translator.trans('public.participation.relation.map.missing'))
+      this.requiredMapIsValid = true
+      const publicParticipationPhaseElement = document.getElementsByName('r_publicParticipationPhase')[0]
+      const phaseElement = document.getElementsByName('r_phase')[0]
+
+      if (publicParticipationPhaseElement.value !== 'configuration' || phaseElement.value !== 'configuration') {
+        this.requiredMapIsValid = this.currentProcedureCoordinate !== '' && hasPermission('feature_procedure_require_location')
       }
     },
 

@@ -10,12 +10,18 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\ManualListSort;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use demosplan\DemosPlanCoreBundle\Logic\News\ProcedureNewsService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\Persistence\ManagerRegistry;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use EDT\Querying\Utilities\Reindexer;
 use Exception;
 
 /**
@@ -23,6 +29,18 @@ use Exception;
  */
 class NewsRepository extends CoreRepository implements ArrayInterface
 {
+    public function __construct(
+        DqlConditionFactory $conditionFactory,
+        ManagerRegistry $registry,
+        Reindexer $reindexer,
+        SortMethodFactory $sortMethodFactory,
+        private readonly ProcedureNewsService $procedureNewsService,
+        private readonly RoleRepository $roleRepository,
+        string $entityClass)
+    {
+        parent::__construct($conditionFactory, $registry, $reindexer, $sortMethodFactory, $entityClass);
+    }
+
     /**
      * Get a news entry from DB by id.
      *
@@ -51,9 +69,18 @@ class NewsRepository extends CoreRepository implements ArrayInterface
         }
     }
 
+    private function getProcedureNewsAsArrayOfRoles(array $procedureRolesArray): array
+    {
+        $roles = [];
+        foreach ($procedureRolesArray as $role) {
+            $roles[] = $this->roleRepository->get($role['id']);
+        }
+
+        return $roles;
+    }
+
     /**
-     * Copy the non-generated values of all news of a specific procedure.
-     * Set the generated values to null, for regeneration.
+     * Copy the values of all news of a specific procedure except dates.
      *
      * @param string $sourceProcedureId
      * @param string $newProcedureId
@@ -63,20 +90,43 @@ class NewsRepository extends CoreRepository implements ArrayInterface
     public function copy($sourceProcedureId, $newProcedureId)
     {
         try {
-            /** @var News[] $news */
-            $news = $this->findBy(['pId' => $sourceProcedureId]);
+            $sourceProcedureNews = $this->procedureNewsService->getProcedureNewsAdminList(
+                $sourceProcedureId,
+                'procedure:'.$sourceProcedureId
+            );
 
-            if (0 < sizeof($news)) {
-                foreach ($news as $singleNews) {
-                    $newNews = clone $singleNews;
-                    $newNews->setIdent(null);
-                    $newNews->setPId($newProcedureId);
-                    $newNews->setCreateDate(null);
-                    $newNews->setDeleteDate(null);
-                    $newNews->setModifyDate(null);
+            $date = Carbon::now();
 
-                    $this->getEntityManager()->persist($newNews);
-                }
+            foreach ($sourceProcedureNews['result'] as $procedureNews) {
+                $date->subSecond();
+
+                $news = new News();
+                $news->setIdent(null);
+                $news->setpId($newProcedureId);
+                $news->setTitle($procedureNews['title']);
+                $news->setPdf($procedureNews['pdf']);
+                $news->setPicture($procedureNews['picture']);
+                $news->setText($procedureNews['text']);
+                $news->setPictitle($procedureNews['pictitle']);
+                $news->setDescription($procedureNews['description']);
+                $news->setEnabled($procedureNews['enabled']);
+                $news->setDeleted($procedureNews['deleted']);
+                $news->setPdftitle($procedureNews['pdftitle']);
+
+                // Roles has to be an array of Roles
+                $roles = $this->getProcedureNewsAsArrayOfRoles($procedureNews['roles']);
+                $news->setRoles($roles);
+
+                $this->getEntityManager()->persist($news);
+
+                // Please do not change the order of the setters here.
+                // In order to preserve the order of the source procedure news, created date has to be adjusted.
+                // The new created procedure has no Manual List Sort yet and the new news will be sorted by created date later (see 'getProcedureNewsAdminList'
+                // in 'ProcedureNewsService'), that's why created date has to be adjusted in a way that the first source procedure news will be persisted with the
+                // latest date
+                $news->setCreateDate($date);
+
+                $this->getEntityManager()->persist($news);
                 $this->getEntityManager()->flush();
             }
         } catch (Exception $e) {

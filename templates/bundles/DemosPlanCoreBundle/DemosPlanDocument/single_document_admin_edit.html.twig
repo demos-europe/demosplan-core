@@ -126,7 +126,10 @@
                 type="submit"
                 data-cy="saveSinglePlanDocument"
                 value="{{ "save"|trans }}">
-            <a class="btn btn--secondary" href="{{ path('DemosPlan_element_administration', {'procedure':procedure}) }}">
+            <a
+                class="btn btn--secondary"
+                data-cy="abort"
+                href="{{ path('DemosPlan_element_administration', {'procedure':procedure}) }}">
                 {{ "abort"|trans }}
             </a>
         </div>

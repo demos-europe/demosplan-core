@@ -18,7 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Tightenco\Collect\Support\Collection;
+use Illuminate\Support\Collection;
 
 use function collect;
 

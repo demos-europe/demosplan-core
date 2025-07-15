@@ -14,7 +14,7 @@
 
     <plugins>
         <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin">
-            <containerXml>/tmp/{{ project_folder }}/cache/dev/demosplan_DemosPlanCoreBundle_Application_DemosPlanKernelDevDebugContainer.xml</containerXml>
+            <containerXml>/tmp/dplan/{{ project_folder }}/cache/dev/demosplan_DemosPlanCoreBundle_Application_DemosPlanKernelDevDebugContainer.xml</containerXml>
         </pluginClass>
         <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>
     </plugins>

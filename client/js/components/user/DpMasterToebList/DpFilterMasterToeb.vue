@@ -9,7 +9,7 @@
 
 <template>
   <fieldset class="u-pb-0 inline">
-    <legend class="hide-visually">
+    <legend class="sr-only">
       {{ Translator.trans('filter') }}
     </legend>
     <select
@@ -64,6 +64,10 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'items-filtered'
+  ],
 
   data () {
     return {

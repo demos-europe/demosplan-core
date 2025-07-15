@@ -24,6 +24,7 @@ when@prod:
             release: '%demosplan.project_name%@%project_version%'
             traces_sample_rate: "%sentry_traces_sample_rate%"
         register_error_listener: false # Disables the ErrorListener to avoid duplicate entries
+        register_error_handler: false
         # this hooks into critical paths of the framework (and vendors) to perform
         # automatic instrumentation (there might be some performance penalty)
         # https://docs.sentry.io/platforms/php/guides/symfony/performance/instrumentation/automatic-instrumentation/
@@ -33,7 +34,6 @@ when@prod:
 #        If you are using Monolog, you also need this additional configuration to log the errors correctly:
 #        https://docs.sentry.io/platforms/php/guides/symfony/#monolog-integration
 #        register_error_listener: false
-#        register_error_handler: false
 
     monolog:
         handlers:

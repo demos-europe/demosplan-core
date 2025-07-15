@@ -11,12 +11,8 @@
 
 //  utility classes affecting text
 //
-//  .fontstyle--[normal|italic]
 //  .line-height--1_6
-//  .text-decoration-[none|underline]
-//  .[text|align]--[left|center|right|justify]{--[palm|desktop]}
 //  .weight--[normal|bold]
-//  .whitespace--[normal|nowrap]
 //  .line-clamp-3
 
 //  line height
@@ -49,32 +45,6 @@
         line-height: 2 !important;
     }
 }
-
-//  alignment
-$text-directions: (
-    'left',
-    'center',
-    'right',
-    'justify'
-);
-
-@each $direction in $text-directions {
-
-    // Loop over breakpoints defined in _settings.responsive.scss
-    @each $breakpoint in $breakpoints {
-
-        // Get the name of the breakpoint.
-        $alias: list.nth($breakpoint, 1);
-
-        @include media-query($alias) {
-
-            .text-#{$direction}-#{$alias} {
-                text-align: #{$direction} !important;
-            }
-        }
-    }
-}
-
 
 //  font-weight
 .weight,

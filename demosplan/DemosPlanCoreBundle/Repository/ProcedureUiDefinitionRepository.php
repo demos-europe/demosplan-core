@@ -65,7 +65,7 @@ class ProcedureUiDefinitionRepository extends FluentRepository implements Object
     public function updateObject($procedureUiDefinition): ProcedureUiDefinition
     {
         $this->getEntityManager()->persist($procedureUiDefinition);
-        $this->getEntityManager()->flush($procedureUiDefinition);
+        $this->getEntityManager()->flush();
 
         return $procedureUiDefinition;
     }

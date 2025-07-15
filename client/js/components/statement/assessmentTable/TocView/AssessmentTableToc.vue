@@ -51,18 +51,22 @@ export default {
     }
   },
 
+  emits: [
+    'update-assessment-table'
+  ],
+
   computed: {
-    ...mapGetters('assessmentTable', [
+    ...mapGetters('AssessmentTable', [
       'isRefreshButtonVisible'
     ]),
 
-    ...mapGetters('statement', [
+    ...mapGetters('Statement', [
       'getToc'
     ])
   },
 
   methods: {
-    ...mapMutations('assessmentTable', [
+    ...mapMutations('AssessmentTable', [
       'setRefreshButtonVisibility'
     ]),
 

@@ -32,7 +32,7 @@ class AssessmentHandlerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(AssessmentHandler::class);
+        $this->sut = self::getContainer()->get(AssessmentHandler::class);
         $this->loginTestUser();
     }
 
@@ -84,16 +84,18 @@ class AssessmentHandlerTest extends FunctionalTestCase
         ];
 
         $condensedExport = [
-            'template'   => 'condensed',
-            'anonymous'  => true,
-            'exportType' => 'statementsOnly',
-            'sortType'   => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
+            'template'         => 'condensed',
+            'anonymous'        => true,
+            'numberStatements' => true,
+            'exportType'       => 'statementsOnly',
+            'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
         $landscapeExport = [
-            'template'   => 'landscape',
-            'anonymous'  => true,
-            'exportType' => 'statementsOnly',
-            'sortType'   => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
+            'template'         => 'landscape',
+            'anonymous'        => true,
+            'numberStatements' => true,
+            'exportType'       => 'statementsOnly',
+            'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
 
         $exportChoices = [$condensedExport, $landscapeExport];

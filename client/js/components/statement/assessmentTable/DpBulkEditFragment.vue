@@ -224,6 +224,7 @@
 <script>
 import { checkResponse, dpApi, DpButton, DpMultiselect, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { v4 as uuid } from 'uuid'
@@ -236,10 +237,10 @@ export default {
     DpButton,
     TextContentRenderer,
     DpMultiselect,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
-    }
+    })
   },
 
   mixins: [prefixClassMixin],
@@ -298,7 +299,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('fragment', ['selectedFragments']),
+    ...mapGetters('Fragment', ['selectedFragments']),
 
     // Array with keys (names) of all checked options
     checkedOptions () {
@@ -424,8 +425,8 @@ export default {
         })
     },
 
-    ...mapActions('fragment', ['setSelectedFragmentsAction']),
-    ...mapMutations('fragment', ['setProcedureId'])
+    ...mapActions('Fragment', ['setSelectedFragmentsAction']),
+    ...mapMutations('Fragment', ['setProcedureId'])
   },
 
   created () {

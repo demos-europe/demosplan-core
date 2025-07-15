@@ -19,7 +19,7 @@
       v-tooltip="text"
     />
     <span
-      class="hide-visually"
+      class="sr-only"
       v-text="text" />
   </div>
 </template>

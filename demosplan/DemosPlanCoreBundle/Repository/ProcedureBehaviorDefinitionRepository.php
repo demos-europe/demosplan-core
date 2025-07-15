@@ -65,7 +65,7 @@ class ProcedureBehaviorDefinitionRepository extends FluentRepository implements 
     public function updateObject($procedureBehaviorDefinition): ProcedureBehaviorDefinition
     {
         $this->getEntityManager()->persist($procedureBehaviorDefinition);
-        $this->getEntityManager()->flush($procedureBehaviorDefinition);
+        $this->getEntityManager()->flush();
 
         return $procedureBehaviorDefinition;
     }

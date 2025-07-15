@@ -9,6 +9,6 @@
 % {{ document.id }}
 {
 \section*{\textbf { {{ document.title|latex|raw }}  } }
-{{ document.text|latexPrepareImage|latex|latexOutputImage|raw }}
+{{ document.text|latexPrepareImage|latex(listwidth=templateVars.listwidth)|latexOutputImage|raw }}
 {% endfor %}
 {% endblock %}
