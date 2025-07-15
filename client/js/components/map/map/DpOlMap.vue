@@ -383,7 +383,7 @@ export default {
     },
 
     setAutoCompleteOptions (response) {
-      this.autoCompleteOptions = response.data.suggestions
+      this.autoCompleteOptions = response.data.data.suggestions
     },
 
     setProjection () {

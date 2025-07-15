@@ -495,7 +495,7 @@ export default {
       const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
       return dpApi.get(url, { sort: 'lastname' })
         .then(response => {
-          this.assignableUsers = response.data.map(assignableUser => {
+          this.assignableUsers = response.data.data.map(assignableUser => {
             return {
               name: assignableUser.attributes.firstname + ' ' + assignableUser.attributes.lastname,
               id: assignableUser.id

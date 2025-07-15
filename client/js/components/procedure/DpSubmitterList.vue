@@ -165,7 +165,7 @@ export default {
         }
       )
 
-      this.items = [...response.data]
+      this.items = [...response.data.data]
         .map(statement => {
           return this.handleEmptyAttrs(statement)
         })

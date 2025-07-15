@@ -74,7 +74,7 @@ export default {
     // Get count of segments assigned to the current user
     const segmentUrl = Routing.generate('api_resource_list', { resourceType: 'StatementSegment' })
     dpApi.get(segmentUrl, { filter: filterQuery }).then(response => {
-      this.assignedSegmentCount = response.data.length
+      this.assignedSegmentCount = response.data.data.length
     })
 
     /*

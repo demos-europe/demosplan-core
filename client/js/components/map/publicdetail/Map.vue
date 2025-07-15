@@ -831,7 +831,7 @@ export default {
 
           dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData)
             .then(response => {
-              const parsedData = JSON.parse(response)
+              const parsedData = JSON.parse(response.data)
               if (parsedData.code === 100 && parsedData.success) {
                 if (parsedData.body !== null) {
                   let popupContent = ''
