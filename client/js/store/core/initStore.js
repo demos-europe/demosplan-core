@@ -8,7 +8,7 @@
  */
 
 import { api1_0Routes, generateApi2_0Routes } from './VuexApiRoutes'
-import { checkResponse, handleResponseMessages, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { checkResponse, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { initJsonApiPlugin, prepareModuleHashMap, Route, StaticRoute, StaticRouter } from '@efrane/vuex-json-api'
 import { createStore } from 'vuex'
 import notify from './Notify'
@@ -33,24 +33,18 @@ function registerPresetModules (store, presetStoreModules) {
   return store
 }
 
-const handleResponse = async payload => {
+const handleResponse = async response => {
   // If the response body is empty, contentType will be null
-  const contentType = payload.headers.get('Content-Type')
+  const contentType = response.headers.get('Content-Type')
+  let payload = null
 
   if (contentType && contentType.includes('json')) {
-    const response = await payload.json()
-
-    const meta = response.data?.meta
-      ? response.data.meta
-      : response.meta || null
-    if (meta?.messages) {
-      handleResponseMessages(meta)
-    }
-
-    return Promise.resolve(response)
+    payload = await response.json()
+  } else {
+    payload = await response
   }
 
-  return Promise.resolve(payload)
+  return checkResponse({ data: payload, status: '200', ok: 'ok', url: payload.url })
 }
 
 function initStore (storeModules, apiStoreModules, presetStoreModules) {
@@ -89,10 +83,10 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
               'X-CSRF-Token': dplan.csrfToken
             },
             successCallbacks: [
-              checkResponse
+              handleResponse
             ],
             errorCallbacks: [
-              checkResponse
+              handleResponse
             ]
           }),
           store => {
@@ -102,6 +96,7 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             store.api.newRoute = (route) => {
               return new Route(route)
             }
+            store.api.handleResponse = handleResponse
           }
         ]
       })
