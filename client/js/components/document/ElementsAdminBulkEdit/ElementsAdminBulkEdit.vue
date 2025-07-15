@@ -85,8 +85,7 @@ import {
   dpRpc,
   DpSelect,
   dpValidateMixin,
-  formatDate,
-  hasOwnProp
+  formatDate
 } from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
