@@ -69,7 +69,7 @@
               :class="[prefixClass('fa'), prefixClass(stepsData[step].icon), prefixClass('text-lg leading-none mt-[2px]')]"
               aria-hidden="true" />
             <h3 :class="prefixClass('m-0 text-lg leading-none font-medium')">
-              {{  stepsData[step].label }}
+              {{ stepsData[step].label }}
             </h3>
           </div>
 

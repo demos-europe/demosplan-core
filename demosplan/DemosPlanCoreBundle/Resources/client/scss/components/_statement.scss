@@ -175,7 +175,7 @@
             &.mobile {
                 display: block;
 
-                @media screen and (min-width: 710px) {
+                @media screen and (width >= 710px) {
                     display: none;
                 }
             }
@@ -183,7 +183,7 @@
             &.tablet-desktop {
                 display: none;
 
-                @media screen and (min-width: 710px) {
+                @media screen and (width >= 710px) {
                     display: block;
                 }
             }
