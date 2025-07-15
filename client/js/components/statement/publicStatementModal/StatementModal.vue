@@ -582,6 +582,7 @@
           :is="formDefinition.component"
           :key="formDefinition.key"
           :draft-statement-id="draftStatementId"
+          :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
           :required="formDefinition.required" />
         <div :class="prefixClass('flex flex-col sm:flex-row justify-between gap-2 mt-6')">
           <button
@@ -920,6 +921,12 @@ export default {
     },
 
     publicParticipationPublicationEnabled: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+
+    publicParticipationFeedbackEnabled: {
       type: Boolean,
       required: false,
       default: false
