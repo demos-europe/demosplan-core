@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use Carbon\Carbon;
 use DateInterval;
 use DateTime;
+use DateTimeZone;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
@@ -1187,12 +1188,11 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         foreach ($results as &$result) {
             if (isset($result['created'])) {
                 $datetime = $result['created'];
-                $datetime->setTimezone(new \DateTimeZone('Pacific/Chatham'));
+                $datetime->setTimezone(new DateTimeZone('Pacific/Chatham'));
             }
         }
 
         return $results;
-
     }
 
     /**
