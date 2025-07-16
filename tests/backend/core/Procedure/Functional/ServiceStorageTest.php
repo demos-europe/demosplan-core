@@ -59,21 +59,7 @@ class ServiceStorageTest extends FunctionalTestCase
 
     public function testAdministrationNewHandler(): void
     {
-        $procedureData = [
-            'r_copymaster'                => $this->masterBlueprint->getId(),
-            'agencyMainEmailAddress'      => 'aValidMailAddress@daklfkls.de',
-            'action'                      => 'new',
-            'r_startdate'                 => '01.02.2055',
-            'r_enddate'                   => '01.02.2056',
-            'r_externalName'              => 'testAdded',
-            'r_name'                      => 'testAdded',
-            'r_master'                    => false,
-            'orgaId'                      => $this->testUser->getOrganisationId(),
-            'orgaName'                    => $this->testUser->getOrgaName(),
-            'publicParticipationPhase'    => 'configuration',
-            'r_procedure_type'            => $this->procedureType->getId(),
-            'r_desc'                      => 'Test für ReleaseVorstellung',
-        ];
+        $procedureData = $this->prepareNewProcedureDataArray();
 
         $procedure = $this->sut->administrationNewHandler($procedureData, $this->testUser->getId());
 
@@ -230,6 +216,108 @@ class ServiceStorageTest extends FunctionalTestCase
                 'publicParticipationPhase'  => 'configuration',
                 'r_procedure_type'          => $this->procedureType->getId(),
             ]],
+        ];
+    }
+
+    public function testAllowAnonymousStatementsWithPermission(): void
+    {
+        $this->enablePermissions(['field_submit_anonymous_statements']);
+        $allowAnonymousStatements = $this->testProcedure->getSettings()->getAllowAnonymousStatements();
+        static::assertTrue($allowAnonymousStatements);
+
+        // Test with allowAnonymousStatements set to false (checkbox unchecked)
+        $dataWithAnonymousFalse = [
+            'action'                                    => 'edit',
+            'r_ident'                                   => $this->testProcedure->getId(),
+            'r_phase_iteration'                         => '1',
+            'r_name'                                    => 'testAdded',
+            'r_phase'                                   => 'configuration',
+            'mandatoryError'                            => [],
+            // allowAnonymousStatements key is not present (unchecked checkbox)
+        ];
+
+        $result = $this->sut->administrationEditHandler($dataWithAnonymousFalse);
+        static::assertIsArray($result);
+
+        /** @var Procedure $updatedProcedure */
+        $updatedProcedure = $this->find(Procedure::class, $result['id']);
+        static::assertFalse($updatedProcedure->getSettings()->getAllowAnonymousStatements());
+
+        // Test with allowAnonymousStatements set to true
+        $dataWithAnonymousTrue = [
+            'action'                                    => 'edit',
+            'r_ident'                                   => $this->testProcedure->getId(),
+            'allowAnonymousStatements'                  => '1',
+            'r_phase_iteration'                         => '1',
+            'r_name'                                    => 'testAdded',
+            'r_phase'                                   => 'configuration',
+            'mandatoryError'                            => [],
+        ];
+
+        $result = $this->sut->administrationEditHandler($dataWithAnonymousTrue);
+        static::assertIsArray($result);
+
+        /** @var Procedure $updatedProcedure */
+        $updatedProcedure = $this->find(Procedure::class, $result['id']);
+        static::assertTrue($updatedProcedure->getSettings()->getAllowAnonymousStatements());
+    }
+
+    public function testAllowAnonymousStatementsWithoutPermission(): void
+    {
+        $this->disablePermissions(['field_submit_anonymous_statements']);
+
+        // Store original value (which is set to true by default)
+        $originalValue = $this->testProcedure->getSettings()->getAllowAnonymousStatements();
+        static::assertTrue($originalValue);
+
+        // Test that setting is ignored when permission is not present
+        // Test with allowAnonymousStatements set to false (checkbox unchecked)
+        $dataWithAnonymousFalse = [
+            'action'                                    => 'edit',
+            'r_ident'                                   => $this->testProcedure->getId(),
+            'r_phase_iteration'                         => '1',
+            'r_name'                                    => 'testAdded',
+            'r_phase'                                   => 'configuration',
+            'mandatoryError'                            => [],
+            // allowAnonymousStatements key is not present (unchecked checkbox)
+        ];
+
+        $result = $this->sut->administrationEditHandler($dataWithAnonymousFalse);
+        static::assertIsArray($result);
+
+        /** @var Procedure $updatedProcedure */
+        $updatedProcedure = $this->find(Procedure::class, $result['id']);
+        // Should maintain original value since permission is not present
+        static::assertEquals($originalValue, $updatedProcedure->getSettings()->getAllowAnonymousStatements());
+    }
+
+    public function testAllowAnonymousStatementsDefaultValue(): void
+    {
+        // Create new procedure to test default value
+        $procedureData = $this->prepareNewProcedureDataArray();
+
+        $procedure = $this->sut->administrationNewHandler($procedureData, $this->testUser->getId());
+
+        // Default value should be true
+        static::assertTrue($procedure->getSettings()->getAllowAnonymousStatements());
+    }
+
+    private function prepareNewProcedureDataArray(): array
+    {
+        return [
+            'r_copymaster'             => $this->masterBlueprint->getId(),
+            'agencyMainEmailAddress'   => 'test@example.com',
+            'action'                   => 'new',
+            'r_startdate'              => '01.02.2055',
+            'r_enddate'                => '01.02.2056',
+            'r_externalName'           => 'testAnonymousDefault',
+            'r_name'                   => 'testAnonymousDefault',
+            'r_master'                 => false,
+            'orgaId'                   => $this->testUser->getOrganisationId(),
+            'orgaName'                 => $this->testUser->getOrgaName(),
+            'publicParticipationPhase' => 'configuration',
+            'r_procedure_type'         => $this->procedureType->getId(),
+            'r_desc'                   => 'Test default anonymous statements value',
         ];
     }
 }

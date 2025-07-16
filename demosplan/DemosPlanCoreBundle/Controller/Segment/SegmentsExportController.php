@@ -108,6 +108,7 @@ class SegmentsExportController extends BaseController
         methods: 'GET'
     )]
     public function exportByStatementsFilterAction(
+        FileNameGenerator $fileNameGenerator,
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
@@ -151,7 +152,7 @@ class SegmentsExportController extends BaseController
             }
         );
 
-        $this->setResponseHeaders($response, $exporter->getSynopseFileName($procedure, 'docx'));
+        $this->setResponseHeaders($response, $fileNameGenerator->getSynopseFileName($procedure, 'docx'));
 
         return $response;
     }
@@ -171,6 +172,7 @@ class SegmentsExportController extends BaseController
         methods: 'GET'
     )]
     public function exportByStatementsFilterXlsAction(
+        FileNameGenerator $fileNameGenerator,
         JsonApiActionService $jsonApiActionService,
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
@@ -200,7 +202,7 @@ class SegmentsExportController extends BaseController
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename(
-            $exporter->getSynopseFileName($procedure, 'xlsx'))
+            $fileNameGenerator->getSynopseFileName($procedure, 'xlsx'))
         );
 
         return $response;
@@ -218,6 +220,7 @@ class SegmentsExportController extends BaseController
         methods: 'GET'
     )]
     public function exportPackagedStatementsAction(
+        FileNameGenerator $fileNameGenerator,
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
@@ -251,7 +254,7 @@ class SegmentsExportController extends BaseController
         );
 
         return $zipExportService->buildZipStreamResponse(
-            $exporter->getSynopseFileName($procedure, 'zip'),
+            $fileNameGenerator->getSynopseFileName($procedure, 'zip'),
             static function (ZipStream $zipStream) use (
                 $statements,
                 $exporter,
