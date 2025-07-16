@@ -318,7 +318,7 @@ class RemoveUserDataCommand extends CoreCommand
             'Sachsen',
             'Sachsen-Anhalt',
             'Schleswig-Holstein',
-            'Thüringen'
+            'Thüringen',
         ];
 
         /** @var Address[] $allAddresses */
