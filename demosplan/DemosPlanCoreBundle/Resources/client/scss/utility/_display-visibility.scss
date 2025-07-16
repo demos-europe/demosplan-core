@@ -99,10 +99,6 @@
     display: inline;
 }
 
-.hide-desk-up-i .o-toggle__target.bg-color--grey-light-2 p {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-}
 
 
 @include media-query('desk-up') {
