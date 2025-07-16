@@ -35,22 +35,6 @@ use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
  * @method static Role[]|Proxy[]                          findBy(array $attributes)
  * @method static Role[]|Proxy[]                          randomRange(int $min, int $max, array $attributes = [])
  * @method static Role[]|Proxy[]                          randomSet(int $number, array $attributes = [])
- *
- * @phpstan-method        Role&Proxy<Role> create(array|callable $attributes = [])
- * @phpstan-method static Role&Proxy<Role> createOne(array $attributes = [])
- * @phpstan-method static Role&Proxy<Role> find(object|array|mixed $criteria)
- * @phpstan-method static Role&Proxy<Role> findOrCreate(array $attributes)
- * @phpstan-method static Role&Proxy<Role> first(string $sortedField = 'id')
- * @phpstan-method static Role&Proxy<Role> last(string $sortedField = 'id')
- * @phpstan-method static Role&Proxy<Role> random(array $attributes = [])
- * @phpstan-method static Role&Proxy<Role> randomOrCreate(array $attributes = [])
- * @phpstan-method static ProxyRepositoryDecorator<Role, EntityRepository> repository()
- * @phpstan-method static list<Role&Proxy<Role>> all()
- * @phpstan-method static list<Role&Proxy<Role>> createMany(int $number, array|callable $attributes = [])
- * @phpstan-method static list<Role&Proxy<Role>> createSequence(iterable|callable $sequence)
- * @phpstan-method static list<Role&Proxy<Role>> findBy(array $attributes)
- * @phpstan-method static list<Role&Proxy<Role>> randomRange(int $min, int $max, array $attributes = [])
- * @phpstan-method static list<Role&Proxy<Role>> randomSet(int $number, array $attributes = [])
  */
 final class RoleFactory extends PersistentProxyObjectFactory
 {
